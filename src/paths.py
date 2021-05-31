@@ -11,4 +11,8 @@ print(CONF_FILE_PATH)
 DATA_PATH = os.path.join(CURR_PATH, os.path.pardir)
 DATA_PATH = os.path.join(DATA_PATH, "Database")
 DATA_PATH = os.path.abspath(DATA_PATH)
-print(DATA_PATH)
+if not os.path.exists(DATA_PATH):
+    os.mkdir(DATA_PATH)
+    print("Database directory created: ", DATA_PATH)
+else:
+    print("Database directory: ", DATA_PATH)
