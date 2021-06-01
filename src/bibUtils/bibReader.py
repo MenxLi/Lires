@@ -11,10 +11,11 @@ class BibParser:
                 "entry": <str>,
                 "title": <str>,
                 "year": <str>,
-                "journal": <str>,
                 "authors": <list|str>,  # May contain ", [ ]"
             }
-            BibObjs is created from datapoints
+            other possible entries: 
+                "journal": <str>,
+                "doi": <str>
         """
         bib_data = pybtex.database.parse_string(bib_str, bib_format="bibtex")
         if len(bib_data.entries.keys()) >1 and self.mode == "single":
@@ -26,11 +27,13 @@ class BibParser:
             datapoint = {
                 "entry": k,
                 "title": _d.fields["title"],
-                "journal": _d.fields["journal"],
                 "year": _d.fields["year"],
                 "authors": [str(p) for p in _d.persons["author"]]
             }
-            bibs.append(BibObj(**datapoint))
+            for bib_entry in ["journal", "doi"]:
+                if bib_entry in _d.fields:
+                    datapoint[bib_entry] = _d.fields[bib_entry],
+            bibs.append(datapoint)
         return bibs
 
 class BibObj:
