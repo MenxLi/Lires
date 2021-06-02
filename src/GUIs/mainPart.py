@@ -15,9 +15,13 @@ class MainWindow(QMainWindow):
     def initUI(self):
         self.setWindowTitle("Research bib manager")
         temp_file_path = ""
-        self.file_selector = FileSelector(self)
         self.file_tags = FileTag(self)
         self.file_info = FileInfo(self)
+        self.file_selector = FileSelector(self)
+        # connect after initialization because we have inter-refernce between these 3 widgets
+        self.file_info.connectFuncs()
+        self.file_selector.connectFuncs()
+        self.file_tags.connectFuncs()
 
         hbox = QHBoxLayout()
         splitter = QSplitter(Qt.Horizontal)

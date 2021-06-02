@@ -1,11 +1,16 @@
+from os import curdir
 import warnings
 from PyQt5.QtWidgets import QLabel, QPushButton, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout
-from ..fileUtils.fileTools import FileManipulator
-from ..bibUtils.bibReader import BibParser
+from .widgets import WidgetBase
+from .fileSelector import FileSelector
+from ..backend.fileTools import FileManipulator
+from ..backend.bibReader import BibParser
+from ..backend.dataClass import DataPoint
 
-class FileInfoGUI(QWidget):
+class FileInfoGUI(WidgetBase):
     def __init__(self, parent = None):
         super().__init__(parent)
+        self.parent = parent
         self.initUI()
         self.show()
 
@@ -24,7 +29,7 @@ class FileInfoGUI(QWidget):
         self.refresh_btn = QPushButton("Refresh")
         self.open_commets_btn = QPushButton("Open comments")
         self.open_bib_btn = QPushButton("Open bibtex file")
-        self.open_folder_btn = QPushButton("Inspect externally")
+        self.open_folder_btn = QPushButton("Inspect misc directory")
 
         frame_vbox = QVBoxLayout()
 
@@ -60,19 +65,56 @@ class FileInfo(FileInfoGUI):
     """
     Implement the functions for file info
     """
-    def __init__(self, parent = None):
+    def __init__(self, parent = None, **kwargs):
         super().__init__(parent)
-        # test
-        # self.loadDir("/home/monsoon/Documents/Code/ResBibManager/Database/2020-Li^_Mengxun-Automated_integration_of_facial_a")
+        self.curr_data = None
+        for k, v in kwargs:
+            setattr(self, k, v)
+    
+    def connectFuncs(self):
+        self.parent.file_selector.selection_changed.connect(self.loadInfo)
+        self.parent.file_selector.selection_changed.connect(self.loadComments)
+        self.open_folder_btn.clicked.connect(self.openMiscDir)
+        self.open_bib_btn.clicked.connect(self.openBib)
+        self.open_commets_btn.clicked.connect(self.openComments)
+        self.save_comment_btn.clicked.connect(self.saveComments)
 
     def loadDir(self, dir_path: str):
+        """Deprecated, can be called while serve as standalone widget"""
         fm = FileManipulator(dir_path)
         if not fm.screen():
             warnings.warn("Data seems to be broken, please check the data externally")
             return False
-        bib = fm.readBib()
+        data = DataPoint(fm)
+        bib = fm.bib
         bib = BibParser()(bib)[0]
         info_txt = "【Title】\n>> {title}\n【Year】\n>> {year}\n【Authors】\n>> {authors}\n\
             ".format(title = bib["title"], year = bib["year"], authors = " | ".join(bib["authors"]))
         self.info_lbl.setText(info_txt)
-        
+    
+    def loadInfo(self, data: DataPoint):
+        self.curr_data = data
+        bib = data.bib
+        info_txt = "【Title】\n>> {title}\n【Year】\n>> {year}\n【Authors】\n>> {authors}\n\
+            ".format(title = bib["title"], year = bib["year"], authors = " | ".join(bib["authors"]))
+        self.info_lbl.setText(info_txt)
+    
+    def openMiscDir(self):
+        self.curr_data.fm.openMiscDir()
+    
+    def openComments(self):
+        self.curr_data.fm.openComments()
+    
+    def openBib(self):
+        self.curr_data.fm.openBib()
+    
+    def saveComments(self):
+        comment = self.tEdit.toPlainText()
+        self.curr_data.fm.writeComments(comment)
+
+    def loadComments(self, data: DataPoint):
+        comment = data.fm.readComments()
+        self.tEdit.setText(comment)
+    
+    def refresh(self):
+        pass

@@ -5,8 +5,8 @@ import os
 from PyQt5.QtWidgets import QLabel, QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5 import QtCore
-from ..bibUtils.bibReader import BibParser
-from ..fileUtils.fileTools import FileGenerator, FileManipulator
+from ..backend.bibReader import BibParser
+from ..backend.fileTools import FileGenerator, FileManipulator
 from ..confReader import conf
 
 DATA_PATH = conf["database"]
@@ -42,6 +42,7 @@ class BibQueryGUI(QWidget):
 
 
 class BibQuery(BibQueryGUI):
+    file_added = QtCore.pyqtSignal(str)
     def __init__(self, parent, file_path: str):
         super().__init__(parent)
         self.file_path = file_path
@@ -68,8 +69,9 @@ class BibQuery(BibQueryGUI):
         if not fg.generateDefaultFiles(data_dir=DATA_PATH):
             return 
         dst_dir = fg.dst_dir
-        print(dst_dir)
         fm = FileManipulator(dst_dir)
         fm.screen()
         fm.writeBib(bib_txt)
+        self.file_added.emit(dst_dir)
+        self.close()
 

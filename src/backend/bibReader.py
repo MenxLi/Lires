@@ -38,19 +38,9 @@ class BibParser:
 
 class BibObj:
     """
+    deprecated
     Object representation of the bibliography file
     """
     def __init__(self, **kwargs):
         for k in kwargs:
             setattr(self, k, kwargs[k])
-
-
-test_str = "@article{li2020automated, \
-  title={Automated integration of facial and intra-oral images of anterior teeth}, \
-  author={Li, Mengxun and Xu, Xiangyang and Punithakumar, Kumaradevan and Le, Lawrence H and Kaipatur, Neelambar and Shi, Bin}, \
-  journal={Computers in Biology and Medicine}, \
-  volume={122}, \
-  pages={103794}, \
-  year={2020}, \
-  publisher={Elsevier} \
-}"

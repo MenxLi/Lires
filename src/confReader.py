@@ -10,13 +10,15 @@ with open(CONF_FILE_PATH) as conf_file:
     conf = json.load(conf_file)
 
 if not os.path.exists(conf["database"]):
-    warnings.warn("Database not exists, may lead to exceptions.\n\
-        Please change settings in the configuration file")
-# DATA_PATH = os.path.join(CURR_PATH, os.path.pardir)
-# DATA_PATH = os.path.join(DATA_PATH, "Database")
-# DATA_PATH = os.path.abspath(DATA_PATH)
-# if not os.path.exists(DATA_PATH):
-    # os.mkdir(DATA_PATH)
-    # print("Database directory created: ", DATA_PATH)
-# else:
-    # print("Database directory: ", DATA_PATH)
+    warnings.warn("Database not exists, default database path is set. \
+        The path can be changed in conf.json")
+    data_path = os.path.join(CURR_PATH, os.pardir)
+    data_path - os.path.join(data_path, "Database")
+    if not os.path.exists(data_path):
+        os.mkdir(data_path)
+    conf["database"] = data_path
+
+_versions = [
+    ("0.0.1 - Alpha", "Under development")
+]
+VERSION, DESCRIPEITON = _versions[-1]

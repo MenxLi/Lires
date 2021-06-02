@@ -1,11 +1,11 @@
 """
 The tools that deals with file names in the database
 """
-import os, shutil, json, platform, typing
+import os, shutil, json, platform, typing, uuid
 from typing import List, Union
 import warnings
 from .utils import getDateTime, openFile
-from ..confReader import conf
+from ..confReader import conf, VERSION
 
 
 FILE_EXTENSIONS = conf["accepted_extensions"]
@@ -96,10 +96,13 @@ class FileGenerator(FileGeneratorBase):
         fp = os.path.join(self.dst_dir, info_fn)
         default_info = {
             "device_import": platform.node(),
-            "device_modified": platform.node(),
+            "device_modify": platform.node(),
             "time_import": getDateTime(),
-            "time_modified": getDateTime(),
-            "tags": []
+            "time_modify": getDateTime(),
+            "tags": [],
+            "uuid": str(uuid.uuid4()),
+            "version_import": VERSION,
+            "version_modify": VERSION
         }
         with open(fp, "w") as f:
             json.dump(default_info, f)
@@ -159,9 +162,16 @@ class FileManipulator:
         with open(self.comments_p, "w") as f:
             f.write(comments)
         self._log()
+    
+    def getUuid(self) -> str:
+        with open(self.info_p, "r") as f:
+            data = json.load(f)
+        return data["uuid"]
 
     def getTags(self) -> typing.List[str]:
-        pass
+        with open(self.info_p, "r") as f:
+            data = json.load(f)
+        return data["tags"]
 
     def writeTags(self, tags: typing.List[str]):
         pass
@@ -170,11 +180,15 @@ class FileManipulator:
         openFile(self.file_p)
         self._log()
 
-    def openDir(self):
+    def openMiscDir(self):
         openFile(self.folder_p)
         self._log()
 
     def openComments(self):
+        openFile(self.comments_p)
+        self._log()
+
+    def openBib(self):
         openFile(self.bib_p)
         self._log()
 
@@ -182,7 +196,8 @@ class FileManipulator:
         """log the modification info into info file"""
         with open(self.info_p) as f:
             info = json.load(f)
-        info["time_modified"] = getDateTime()
-        info["device_modified"] = platform.node()
+        info["time_modify"] = getDateTime()
+        info["device_modifky"] = platform.node()
+        info["version_modify"] = VERSION
         with open(self.info_p, "w") as f:
             json.dump(info, f)

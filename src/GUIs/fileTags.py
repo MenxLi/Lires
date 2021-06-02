@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QFrame, QHBoxLayout
+from .widgets import WidgetBase
 
-class FileTagGUI(QWidget):
+class FileTagGUI(WidgetBase):
     """
     Implement the GUI for file tree
     """
@@ -21,3 +22,6 @@ class FileTag(FileTagGUI):
     """
     def __init__(self, parent = None):
         super().__init__(parent)
+    
+    def connectFuncs(self):
+        pass
