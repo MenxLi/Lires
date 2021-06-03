@@ -25,7 +25,7 @@ class FileGeneratorBase:
     def generateBaseName(self):
         year = str(self.year)
         author = self.authors[0].replace(" ", "_").replace(",", "^")
-        title = self.title.replace(" ", "_")
+        title = self.title.replace(" ", "_").replace(":", "")
         base_name = "{}-{}-{}".format(year, author, title)
         return base_name
 
@@ -193,7 +193,7 @@ class FileManipulator:
         self._log()
 
     def _log(self):
-        """log the modification info into info file"""
+        """log the modification info info file"""
         with open(self.info_p) as f:
             info = json.load(f)
         info["time_modify"] = getDateTime()

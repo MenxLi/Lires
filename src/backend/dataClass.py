@@ -1,3 +1,5 @@
+import typing
+from typing import List, Union
 from .fileTools import FileManipulator
 from .bibReader import BibParser
 
@@ -24,9 +26,31 @@ class DataPoint:
         self.authors = self.bib["authors"]
         self.year = self.bib["year"]
     
+    def changeTags(self, newTages: Union[list, set]):
+        pass
+    
     def save(self):
+        pass
+
+class DataList(list):
+    SORT_YEAR = "Year"
+    SORT_AUTHOR = "Author"
+    SORT_TIMEADDED = "Time added"
+    def sortBy(self, mode):
         pass
 
 class DataBase(dict):
     def add(self, data: DataPoint):
         self[data.uuid] = data
+    
+    def getDataByTags(self, tags: Union[list, set]) -> DataList:
+        datalist = DataList()
+        for data in self.values():
+            tag_data = set(data.tags)
+            tags = set(tags)
+            if tag_data.issubset(tags):
+                datalist.append(data)
+        return datalist
+
+class DataTags(set):
+    pass

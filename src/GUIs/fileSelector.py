@@ -5,7 +5,7 @@ import typing, os, shutil, copy
 from .bibQuery import BibQuery
 from .widgets import WidgetBase
 from ..backend.fileTools import FileManipulator
-from ..backend.dataClass import DataBase, DataPoint
+from ..backend.dataClass import DataBase, DataPoint, DataList
 from ..confReader import conf
 
 DATA_PATH = conf["database"]
@@ -63,7 +63,7 @@ class FileSelector(FileSelectorGUI):
 
     def getValidData(self, tags = []):
         # will re-implement later
-        valid_data = list(self.db.values())
+        valid_data = DataList(self.db.values())
         return valid_data
 
     def getDataByTag(self, tags: list):
@@ -144,7 +144,7 @@ class FileSelector(FileSelectorGUI):
 
 class FileListModel(QtCore.QAbstractListModel):
     delete_current_selected = QtCore.pyqtSignal(DataPoint)
-    def __init__(self, datalist: typing.List[DataPoint]) -> None:
+    def __init__(self, datalist: DataList) -> None:
         super().__init__()
         self.datalist = copy.deepcopy(datalist)
     
@@ -154,7 +154,7 @@ class FileListModel(QtCore.QAbstractListModel):
             if len(data.authors) == 1:
                 author = data.authors[0]
             else:
-                author = data.authors[0] + "et al."
+                author = data.authors[0] + " et al."
             text_to_display = "{year} - {author} >> {title}".format(
                 year = data.year, author = author, title = data.title
             )

@@ -13,7 +13,7 @@ if not os.path.exists(conf["database"]):
     warnings.warn("Database not exists, default database path is set. \
         The path can be changed in conf.json")
     data_path = os.path.join(CURR_PATH, os.pardir)
-    data_path - os.path.join(data_path, "Database")
+    data_path = os.path.join(data_path, "Database")
     if not os.path.exists(data_path):
         os.mkdir(data_path)
     conf["database"] = data_path
