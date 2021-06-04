@@ -103,6 +103,9 @@ class FileTag(FileTagGUI):
     def onTagSelectionChanged(self):
         self.saveCurrentTagsAsDefault()
         self.parent.file_selector.loadValidData(self.tag_selector.getSelectedTags())
+        curr_data = self.parent.getCurrentSelection()
+        if curr_data is not None:
+            self.parent.file_info.loadInfo(curr_data)
     
     def updateTagLabel(self, data: DataPoint):
         if isinstance(data, DataPoint):

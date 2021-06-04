@@ -110,7 +110,10 @@ class FileSelector(FileSelectorGUI):
         if indexes:
             index = indexes[0]
         else: return None
-        data = self.data_model.datalist[index.row()]
+        try:
+            data = self.data_model.datalist[index.row()]
+        except IndexError:
+            data = None
         return data
 
     def selectChange(self):
