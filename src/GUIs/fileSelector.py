@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QHBoxLayout, QListView, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView
 from PyQt5 import QtGui, QtCore
 import typing, os, shutil, copy
+from typing import Union, List 
 
 from .bibQuery import BibQuery
 from .widgets import WidgetBase
 from ..backend.fileTools import FileManipulator
-from ..backend.dataClass import DataBase, DataPoint, DataList
+from ..backend.dataClass import DataBase, DataPoint, DataList, DataTags
 from ..confReader import conf
 
 DATA_PATH = conf["database"]
@@ -38,10 +39,6 @@ class FileSelector(FileSelectorGUI):
     selection_changed = QtCore.pyqtSignal(DataPoint)
     def __init__(self, parent, **kwargs):
         super().__init__(parent)
-        # self.connectFuncs()
-        self.db = DataBase()
-        self.getAllData()
-        self.data_model.assignData(self.getValidData()) 
         for k,v in kwargs:
             setattr(self, k, v)
     
@@ -51,25 +48,19 @@ class FileSelector(FileSelectorGUI):
         self.shortcut_delete_selection = QShortcut(QtGui.QKeySequence("Del"), self)
         self.shortcut_delete_selection.activated.connect(self.deleteCurrentSelected)
     
-    def getAllData(self):
-        for f in os.listdir(DATA_PATH):
-            f = os.path.join(DATA_PATH, f)
-            if os.path.isdir(f):
-                fm = FileManipulator(f)
-                if fm.screen():
-                    data = DataPoint(fm)
-                    self.db[data.uuid] = data
-        return self.db
-
-    def getValidData(self, tags = []):
-        # will re-implement later
-        valid_data = DataList(self.db.values())
-        return valid_data
+    def loadValidData(self, tags: DataTags):
+        """Load valid data by tags"""
+        valid_data = DataList([])
+        for d in self.parent.db.values():
+            if tags.issubset(d.tags):
+                valid_data.append(d)
+        self.data_model.assignData(valid_data) 
+        return True
 
     def getDataByTag(self, tags: list):
         pass
 
-    def loadData(self):
+    def reloadData(self):
         self._clearList()
         self.getValidData()
     
@@ -83,13 +74,13 @@ class FileSelector(FileSelectorGUI):
         fm = FileManipulator(file_path)
         fm.screen()
         dp = DataPoint(fm)
-        self.db[dp.uuid] = dp
+        self.parent.db[dp.uuid] = dp
         self.data_model.add(dp)
     
     def _deleteFromDatabase(self, data: DataPoint):
-        if data.uuid in self.db.keys():
+        if data.uuid in self.parent.db.keys():
             shutil.rmtree(data.data_path)
-            del self.db[data.uuid]
+            del self.parent.db[data.uuid]
     
     def deleteCurrentSelected(self):
         if not self.queryDialog("Delete this entry?"):
@@ -168,3 +159,4 @@ class FileListModel(QtCore.QAbstractListModel):
     
     def assignData(self, datalist: typing.List[DataPoint]):
         self.datalist = copy.deepcopy(datalist)
+        self.layoutChanged.emit()

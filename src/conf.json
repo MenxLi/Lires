@@ -1,4 +1,1 @@
-{
-    "database":"/home/monsoon/Documents/Code/ResBibManager/Database",
-    "accepted_extensions": [".pdf", ".caj"]
-} 
+{"database": "/home/monsoon/Documents/Code/ResBibManager/Database", "accepted_extensions": [".pdf", ".caj"], "default_tags": []}

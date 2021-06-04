@@ -7,7 +7,6 @@ import warnings
 from .utils import getDateTime, openFile
 from ..confReader import conf, VERSION
 
-
 FILE_EXTENSIONS = conf["accepted_extensions"]
 class FileGeneratorBase:
     def __init__(self, title: str, year: Union[int, str], authors: List[str]):
@@ -178,7 +177,7 @@ class FileManipulator:
             data = json.load(f)
         return data["time_import"]
 
-    def writeTags(self, tags: Union[List[str], set]):
+    def writeTags(self, tags: list):
         if not isinstance(tags, list):
             tags = list(tags)
         with open(self.info_p, "r") as f:

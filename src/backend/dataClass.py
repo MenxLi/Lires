@@ -1,7 +1,22 @@
 import typing
-from typing import List, Union
+from typing import List, Union, Iterable, Set
 from .fileTools import FileManipulator
 from .bibReader import BibParser
+
+class DataTags(set):
+    def toOrderedList(self):
+        ordered_list = list(self)
+        ordered_list.sort()
+        return ordered_list
+    
+    def union(self, *s):
+        return DataTags(super().union(*s))
+    
+    def toStr(self):
+        if len(self) > 0:
+            return "; ".join(self.toOrderedList())
+        else:
+            return "<None>"
 
 class DataPoint:
     def __init__(self, fm: FileManipulator):
@@ -27,12 +42,10 @@ class DataPoint:
         self.year = self.bib["year"]
         self.time_added = self.fm.getTimeAdded()
     
-    def changeTags(self, newTages: Union[list, set]):
-        pass
+    def changeTags(self, new_tags: DataTags):
+        self.fm.writeTags(list(new_tags))
+        self.tags = new_tags
 
-    def getAllTags(self):
-        pass
-    
     def save(self):
         pass
 
@@ -47,6 +60,8 @@ class DataList(list):
             return self.sort(key = lambda x: int(x.year))
         elif mode == self.SORT_TIMEADDED:
             return self.sort(key = lambda x: x)
+    def reloadFromFile(self, idx):
+        self[idx].reload()
 
 class DataBase(dict):
     def add(self, data: DataPoint):
@@ -61,8 +76,3 @@ class DataBase(dict):
                 datalist.append(data)
         return datalist
 
-class DataTags(set):
-    def toOrderedList(self):
-        ordered_list = list(self)
-        ordered_list.sort()
-        return ordered_list

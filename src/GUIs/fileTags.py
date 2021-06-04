@@ -1,104 +1,117 @@
-from PyQt5.QtWidgets import QWidget, QFrame, QHBoxLayout, QListView
+import typing
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QTextBrowser, QVBoxLayout, QWidget, QFrame, QHBoxLayout, QListView
+from PyQt5.QtWidgets import QSizePolicy
 from PyQt5 import QtCore, QtGui
 from .widgets import WidgetBase
-from ..backend.dataClass import DataTags
+from .tagEditor import TagEditorWidget
+from .tagSelector import TagSelector
+from ..backend.dataClass import DataPoint, DataTags
+from ..confReader import conf, saveToConf
 
+DEFAULT_TAGS = conf["default_tags"]
 class FileTagGUI(WidgetBase):
     """
     Implement the GUI for file tree
     """
     def __init__(self, parent = None):
         super().__init__(parent)
+        self.parent = parent
         self.initUI()
 
     def initUI(self):
         self.frame = QFrame()
         self.frame.setFrameStyle(QFrame.StyledPanel)
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.frame)
-        self.setLayout(hbox)
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.frame)
+        self.setLayout(vbox)
+        vbox0 = QVBoxLayout()
+        self.frame.setLayout(vbox0)
+
+        self.tagselector_frame = QFrame()
+        vbox1 = QVBoxLayout()
+        self.tagselector_frame.setLayout(vbox1)
+        self.tag_label = QLabel("Tags: ")
+        self.tag_selector = TagSelector()
+        self.clear_selection_btn = QPushButton("Clear selection")
+        vbox1.addWidget(self.tag_label)
+        vbox1.addWidget(self.tag_selector, 1)
+        vbox1.addWidget(self.clear_selection_btn, 0)
+
+        self.filetagselector_frame = QFrame()
+        vbox2 = QVBoxLayout()
+        self.filetagselector_frame.setLayout(vbox2)
+        self.tag_label2 = QLabel("Tags for this file:")
+        self.file_tag_label = QLabel("<File tags>")
+        self.edit_tag_btn = QPushButton("Edit tags")
+        vbox2.addWidget(self.tag_label2)
+        vbox2.addWidget(self.file_tag_label)
+        vbox2.addWidget(self.edit_tag_btn)
+
+        vbox0.addWidget(self.tagselector_frame, 5)
+        vbox0.addWidget(self.filetagselector_frame, 0)
+
 
 class FileTag(FileTagGUI):
     """
     Implement the functions for file tree
     """
+    tag_changed = QtCore.pyqtSignal()
+
     def __init__(self, parent = None):
         super().__init__(parent)
     
+    def initTags(self, tag_total: DataTags):
+        tag_data = DataTags([])
+        for t in DEFAULT_TAGS:
+            if t in tag_total:
+                tag_data.add(t)
+        self.tag_selector.constructDataModel(tag_data, tag_total)
+        saveToConf(default_tags = tag_data.toOrderedList())
+    
     def connectFuncs(self):
-        pass
-
-class TagSelector(WidgetBase):
-    entry_added = QtCore.pyqtSignal(str)
-
-    def __init__(self, tag_data: DataTags, tag_total: DataTags) -> None:
-        super().__init__()
-        self.tag_data = tag_data
-        self.tag_total = tag_total
-        self.initUI()
-
-    def initUI(self):
-        self.tag_view = QListView()
-        self.tag_model = TagListModel(self.tag_data, self.tag_total)
-        self.tag_view.setModel(self.tag_model)
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.tag_view)
-        self.setLayout(hbox)
-        self.tag_view.clicked.connect(self.checkCurrentTag)
+        self.edit_tag_btn.clicked.connect(self.openTagEditor)
+        self.clear_selection_btn.clicked.connect(self.clearSelection)
+        self.tag_selector.tag_view.clicked.connect(self.onTagSelectionChanged)
+        self.parent.file_selector.selection_changed.connect(self.updateTagLabel)
     
-    def checkCurrentTag(self):
-        indexes = self.tag_view.selectedIndexes()
-        if indexes:
-            index = indexes[0]
-            row = index.row()
-            self.tag_model.datalist[row][0] = not self.tag_model.datalist[row][0]
-            self.tag_model.dataChanged.emit(index, index)
-            # Clear the selection (as it is no longer valid).
-            self.tag_view.clearSelection()
-
-    def getCurrentTags(self) -> DataTags:
-        tag_lis = [x[1] for x in self.tag_model.datalist if x[0] == True]
-        return DataTags(tag_lis)
-
-    def getAllTags(self) -> DataTags:
-        tag_lis = [x[1] for x in self.tag_model.datalist]
-        return DataTags(tag_lis)
-
-    def addNewSelectedEntry(self, tag: str):
-        self.tag_model.datalist.append([True, tag])
-        self.tag_model.sortByAplhabet()
-        self.tag_model.layoutChanged.emit()
-
-class TagListModel(QtCore.QAbstractListModel):
-    def __init__(self, tag_data: DataTags, tag_total: DataTags) -> None:
-        """
-        tag_data - the tags to be marked as 1, subset of tag_total
-        tag_total - total tags
-        """
-        super().__init__()
-        if not tag_data.issubset(tag_total):
-            raise Exception("Contains tag that not in total tag pool, check tags' info")
-        datalist = [[False, d] for d in tag_total.toOrderedList()]
-        for d in datalist:
-            if d[1] in tag_data:
-                d[0] = True
-        self.datalist = datalist 
-
-    def data(self, index, role):
-        if role == QtCore.Qt.DisplayRole:
-            status, tag = self.datalist[index.row()]
-            return tag
-        if role == QtCore.Qt.DecorationRole:
-            status, _ = self.datalist[index.row()]
-            if status:
-                tick = QtGui.QColor("Green")    # or QImage
-            else:
-                tick = QtGui.QColor("Gray")
-            return tick
-
-    def rowCount(self, index):
-        return len(self.datalist)
+    def openTagEditor(self):
+        curr_tags = self._getTagFromCurrSelection()
+        if curr_tags is None: return False
+        total_tags = self.tag_selector.getTotalTags()
+        self.tag_editor = TagEditorWidget(curr_tags, total_tags)
+        self.tag_editor.tag_accepted.connect(self.acceptNewTags)
+        self.tag_editor.show()
     
-    def sortByAplhabet(self):
-        self.datalist.sort(key = lambda x: x[1])
+    def acceptNewTags(self, new_tags: DataTags):
+        uuid = self.parent.getCurrentSelection().uuid
+        self.parent.db[uuid].changeTags(new_tags)
+        for i in self.parent.file_selector.data_model.datalist:
+            if i.uuid == uuid:
+                i.reload()
+        self.initTags(self.parent.getTotalTags())
     
+    def saveCurrentTagsAsDefault(self):
+        curr_tags = self.tag_selector.getSelectedTags()
+        saveToConf(default_tags = curr_tags.toOrderedList())
+        global DEFAULT_TAGS
+        DEFAULT_TAGS = list(curr_tags)
+    
+    def clearSelection(self):
+        self.tag_selector.tag_model.setAllStatusToFalse()
+        self.onTagSelectionChanged()
+    
+    def onTagSelectionChanged(self):
+        self.saveCurrentTagsAsDefault()
+        self.parent.file_selector.loadValidData(self.tag_selector.getSelectedTags())
+    
+    def updateTagLabel(self, data: DataPoint):
+        if isinstance(data, DataPoint):
+            self.file_tag_label.setText(data.tags.toStr())
+    
+    def _getTagFromCurrSelection(self) -> DataTags:
+        data = self.parent.getCurrentSelection()
+        if isinstance(data, DataPoint):
+            return data.tags
+        else: return None
+
+

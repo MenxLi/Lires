@@ -3,22 +3,27 @@ from PyQt5.QtWidgets import QDesktopWidget, QMainWindow, QSplitter, QWidget, QHB
 from PyQt5.QtCore import Qt
 
 from .fileInfo import FileInfo
-from .fileTags import FileTag
+from .fileTags import DEFAULT_TAGS, FileTag
 from .fileSelector import FileSelector
+
+from ..backend.fileTools import FileManipulator
+from ..confReader import conf
+import os, copy, typing
 
 # for testing propose
 from .fileTags import TagSelector
-from ..backend.dataClass import DataTags
+from ..backend.dataClass import DataTags, DataBase, DataPoint
 
+DATA_PATH = conf["database"]
+DEFAULT_TAGS = conf["default_tags"]
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.db = DataBase()
         self.initUI()
-        self.show()
+        self.loadData(DATA_PATH)
 
-        # test
-        self.tg_sel = TagSelector(DataTags(["DL"]), DataTags(["DL", "ML"]))
-        self.tg_sel.show()
+        self.show()
     
     def initUI(self):
         self.setWindowTitle("Research bib manager")
@@ -44,7 +49,28 @@ class MainWindow(QMainWindow):
         wid.setLayout(hbox)
         self.resize(900, 600)
         self._center()
+
     
+    def loadData(self, data_path):
+        for f in os.listdir(data_path):
+            f = os.path.join(data_path, f)
+            if os.path.isdir(f):
+                fm = FileManipulator(f)
+                if fm.screen():
+                    data = DataPoint(fm)
+                    self.db[data.uuid] = copy.deepcopy(data)
+        self.file_selector.loadValidData(set(DEFAULT_TAGS))
+        self.file_tags.initTags(self.getTotalTags())
+
+    def getCurrentSelection(self)->typing.Union[None, DataPoint]:
+        return self.file_selector.getCurrentSelection()
+    
+    def getTotalTags(self) -> DataTags:
+        tags = DataTags([])
+        for d in self.db.values():
+            tags = tags.union(d.tags)
+        return tags
+
     def _center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()

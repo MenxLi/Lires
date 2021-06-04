@@ -1,6 +1,9 @@
 
-from PyQt5.QtWidgets import QStyle, QWidget, QMessageBox
+from PyQt5.QtWidgets import QStyle, QWidget, QMessageBox, QListView, QHBoxLayout, QVBoxLayout
+from PyQt5 import QtCore
+from PyQt5 import QtGui
 
+from ..backend.dataClass import DataTags
 
 class WidgetBase(QWidget):
     def warnDialog(self, messege, info_msg = ""):
@@ -31,3 +34,4 @@ class WidgetBase(QWidget):
         if return_value == QMessageBox.Ok:
             return True
         else: return False
+

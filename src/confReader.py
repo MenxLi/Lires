@@ -18,7 +18,14 @@ if not os.path.exists(conf["database"]):
         os.mkdir(data_path)
     conf["database"] = data_path
 
+def saveToConf(**kwargs):
+    for k,v in kwargs.items():
+        conf[k] = v
+    with open(CONF_FILE_PATH, "w") as conf_file:
+        json.dump(conf, conf_file)
+
 _versions = [
     ("0.0.1 - Alpha", "Under development")
 ]
 VERSION, DESCRIPEITON = _versions[-1]
+
