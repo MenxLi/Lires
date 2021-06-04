@@ -135,7 +135,6 @@ class FileSelector(FileSelectorGUI):
     def dropEvent(self, a0: QtGui.QDropEvent) -> None:
         files = [u.toLocalFile() for u in a0.mimeData().urls()]
         for f in files:
-            print(f)
             self.bib_quary = BibQuery(self, f)
             self.bib_quary.file_added.connect(self.addToDatabase)
             self.bib_quary.show()

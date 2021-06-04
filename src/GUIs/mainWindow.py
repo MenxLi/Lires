@@ -6,11 +6,19 @@ from .fileInfo import FileInfo
 from .fileTags import FileTag
 from .fileSelector import FileSelector
 
+# for testing propose
+from .fileTags import TagSelector
+from ..backend.dataClass import DataTags
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
         self.show()
+
+        # test
+        self.tg_sel = TagSelector(DataTags(["DL"]), DataTags(["DL", "ML"]))
+        self.tg_sel.show()
     
     def initUI(self):
         self.setWindowTitle("Research bib manager")

@@ -21,12 +21,16 @@ class DataPoint:
     def loadInfo(self):
         self.bib = BibParser()(self.fm.readBib())[0]
         self.uuid = self.fm.getUuid()
-        self.tags = self.fm.getTags()
+        self.tags = DataTags(self.fm.getTags())
         self.title = self.bib["title"]
         self.authors = self.bib["authors"]
         self.year = self.bib["year"]
+        self.time_added = self.fm.getTimeAdded()
     
     def changeTags(self, newTages: Union[list, set]):
+        pass
+
+    def getAllTags(self):
         pass
     
     def save(self):
@@ -37,7 +41,12 @@ class DataList(list):
     SORT_AUTHOR = "Author"
     SORT_TIMEADDED = "Time added"
     def sortBy(self, mode):
-        pass
+        if mode == self.SORT_AUTHOR:
+            return self.sort(key = lambda x: x.authors[0])
+        elif mode == self.SORT_YEAR:
+            return self.sort(key = lambda x: int(x.year))
+        elif mode == self.SORT_TIMEADDED:
+            return self.sort(key = lambda x: x)
 
 class DataBase(dict):
     def add(self, data: DataPoint):
@@ -53,4 +62,7 @@ class DataBase(dict):
         return datalist
 
 class DataTags(set):
-    pass
+    def toOrderedList(self):
+        ordered_list = list(self)
+        ordered_list.sort()
+        return ordered_list

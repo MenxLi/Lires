@@ -172,9 +172,21 @@ class FileManipulator:
         with open(self.info_p, "r") as f:
             data = json.load(f)
         return data["tags"]
+    
+    def getTimeAdded(self) -> str:
+        with open(self.info_p, "r") as f:
+            data = json.load(f)
+        return data["time_import"]
 
-    def writeTags(self, tags: typing.List[str]):
-        pass
+    def writeTags(self, tags: Union[List[str], set]):
+        if not isinstance(tags, list):
+            tags = list(tags)
+        with open(self.info_p, "r") as f:
+            data = json.load(f)
+        data["tags"] = tags
+        with open(self.info_p, "w") as f:
+            json.dump(data, f)
+        return
 
     def openFile(self):
         openFile(self.file_p)
