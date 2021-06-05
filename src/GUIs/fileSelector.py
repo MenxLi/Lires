@@ -93,6 +93,7 @@ class FileSelector(FileSelectorGUI):
         self._deleteFromDatabase(data)
         del self.data_model.datalist[index.row()]
         self.data_model.layoutChanged.emit()
+        self.parent.refreshFileTagSelector()
         # self.data_view.clearSelection()
     
     def onRowChanged(self, current, previous):
@@ -128,9 +129,12 @@ class FileSelector(FileSelectorGUI):
     
     def dropEvent(self, a0: QtGui.QDropEvent) -> None:
         files = [u.toLocalFile() for u in a0.mimeData().urls()]
+        curr_selected_tags = self.parent.getCurrentSelectedTags()
+        curr_total_tags = self.parent.getTotalTags()
         for f in files:
-            self.bib_quary = BibQuery(self, f)
+            self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
             self.bib_quary.file_added.connect(self.addToDatabase)
+            self.bib_quary.file_added.connect(self.parent.refreshFileTagSelector)
             self.bib_quary.show()
         return super().dropEvent(a0)
 

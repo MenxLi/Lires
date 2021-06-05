@@ -42,6 +42,7 @@ class FileTagGUI(WidgetBase):
         self.filetagselector_frame.setLayout(vbox2)
         self.tag_label2 = QLabel("Tags for this file:")
         self.file_tag_label = QLabel("<File tags>")
+        self.file_tag_label.setWordWrap(True)
         self.edit_tag_btn = QPushButton("Edit tags")
         vbox2.addWidget(self.tag_label2)
         vbox2.addWidget(self.file_tag_label)

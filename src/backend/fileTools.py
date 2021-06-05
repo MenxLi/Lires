@@ -23,10 +23,22 @@ class FileGeneratorBase:
 
     def generateBaseName(self):
         year = str(self.year)
-        author = self.authors[0].replace(" ", "_").replace(",", "^")
-        title = self.title.replace(" ", "_").replace(":", "")
+        author = self.strSubstitute(self.authors[0])
+        title = self.strSubstitute(self.title)
         base_name = "{}-{}-{}".format(year, author, title)
         return base_name
+    
+    def strSubstitute(self, string: str):
+        substitute_table = {
+            " ": "_",
+            ",":"^",
+            ":":":",
+            "/":"-",
+            "\\":"-"
+        }
+        for k, v in substitute_table.items():
+            string = string.replace(k, v)
+        return string
 
 class FileGenerator(FileGeneratorBase):
     """
@@ -176,6 +188,11 @@ class FileManipulator:
         with open(self.info_p, "r") as f:
             data = json.load(f)
         return data["time_import"]
+    
+    def getTimeModified(self) -> str:
+        with open(self.info_p, "r") as f:
+            data = json.load(f)
+        return data["time_modify"]
 
     def writeTags(self, tags: list):
         if not isinstance(tags, list):

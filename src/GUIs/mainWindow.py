@@ -65,11 +65,18 @@ class MainWindow(QMainWindow):
     def getCurrentSelection(self)->typing.Union[None, DataPoint]:
         return self.file_selector.getCurrentSelection()
     
+    def getCurrentSelectedTags(self)->DataTags:
+        tags = self.file_tags.tag_selector.getSelectedTags()
+        return tags
+    
     def getTotalTags(self) -> DataTags:
         tags = DataTags([])
         for d in self.db.values():
             tags = tags.union(d.tags)
         return tags
+    
+    def refreshFileTagSelector(self, *args):
+        self.file_tags.initTags(self.getTotalTags())
 
     def _center(self):
         qr = self.frameGeometry()

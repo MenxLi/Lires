@@ -1,5 +1,11 @@
 import os, json, warnings
 
+_versions = [
+    ("0.0.1 - Alpha", "Under development"),
+    ("0.0.2 - Alpha", "Under development: Added tag related functions")
+]
+VERSION, DESCRIPEITON = _versions[-1]
+
 _file_path = os.path.abspath(__file__)
 
 CURR_PATH = os.path.join(_file_path, os.path.pardir)
@@ -24,8 +30,4 @@ def saveToConf(**kwargs):
     with open(CONF_FILE_PATH, "w") as conf_file:
         json.dump(conf, conf_file)
 
-_versions = [
-    ("0.0.1 - Alpha", "Under development")
-]
-VERSION, DESCRIPEITON = _versions[-1]
 

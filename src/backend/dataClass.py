@@ -41,6 +41,7 @@ class DataPoint:
         self.authors = self.bib["authors"]
         self.year = self.bib["year"]
         self.time_added = self.fm.getTimeAdded()
+        self.time_modified = self.fm.getTimeModified()
     
     def changeTags(self, new_tags: DataTags):
         self.fm.writeTags(list(new_tags))
@@ -53,13 +54,16 @@ class DataList(list):
     SORT_YEAR = "Year"
     SORT_AUTHOR = "Author"
     SORT_TIMEADDED = "Time added"
+    SORT_TIMEOPENED = "Time opened"
     def sortBy(self, mode):
         if mode == self.SORT_AUTHOR:
             return self.sort(key = lambda x: x.authors[0])
         elif mode == self.SORT_YEAR:
             return self.sort(key = lambda x: int(x.year))
         elif mode == self.SORT_TIMEADDED:
-            return self.sort(key = lambda x: x)
+            return self.sort(key = lambda x: x.time_added)
+        elif mode == self.SORT_TIMEOPENED:
+            return self.sort(key = lambda x: x.time_modified)
     def reloadFromFile(self, idx):
         self[idx].reload()
 
