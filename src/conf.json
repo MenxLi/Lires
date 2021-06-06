@@ -1,1 +1,1 @@
-{"database": "/home/monsoon/Documents/Code/ResBibManager/Database", "accepted_extensions": [".pdf", ".caj"], "default_tags": []}
+{"database": "192.168.1.117/home/pi/sharedStorage/PaperDataBase", "database_remote": "192.168.1.117/home/pi/sharedStorage/PaperDataBase", "accepted_extensions": [".pdf", ".caj"], "default_tags": []}
