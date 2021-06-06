@@ -32,7 +32,7 @@ class FileGeneratorBase:
         substitute_table = {
             " ": "_",
             ",":"^",
-            ":":":",
+            ":":"",
             "/":"-",
             "\\":"-"
         }
