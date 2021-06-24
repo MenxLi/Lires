@@ -129,8 +129,6 @@ class FileManipulator:
     def screen(self):
         """To decided if the path contain only the 4 files and a dir"""
         all_files = os.listdir(self.path)
-        if not len(all_files)==5:
-            return False
         comments_f = FileGenerator.COMMENTPREFIX + self.base_name + ".md"
         info_f = FileGenerator.INFOPREFIX + self.base_name + ".json"
         bib_f = FileGenerator.BIBPREFIX + self.base_name + ".bib"
@@ -139,6 +137,9 @@ class FileManipulator:
             file_f = FileGenerator.FILEPREFIX + self.base_name + ext
             if file_f in all_files:
                 break
+        if not set([comments_f, info_f, bib_f, folder_f, file_f]).issubset(set(all_files)):
+            warnings.warn(str(self.path)+" doesn't have enough files in the directory and is neglected")
+            return False
         
         self.folder_p = os.path.join(self.path, folder_f)
         self.file_p = os.path.join(self.path, file_f)
