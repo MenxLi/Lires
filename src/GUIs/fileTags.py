@@ -2,14 +2,14 @@ import typing
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QTextBrowser, QVBoxLayout, QWidget, QFrame, QHBoxLayout, QListView
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5 import QtCore, QtGui
-from .widgets import WidgetBase
+from .widgets import WidgetBase, MainWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
 from ..backend.dataClass import DataPoint, DataTags
 from ..confReader import conf, saveToConf
 
 DEFAULT_TAGS = conf["default_tags"]
-class FileTagGUI(WidgetBase):
+class FileTagGUI(MainWidgetBase):
     """
     Implement the GUI for file tree
     """
@@ -73,7 +73,7 @@ class FileTag(FileTagGUI):
         self.edit_tag_btn.clicked.connect(self.openTagEditor)
         self.clear_selection_btn.clicked.connect(self.clearSelection)
         self.tag_selector.tag_view.clicked.connect(self.onTagSelectionChanged)
-        self.parent.file_selector.selection_changed.connect(self.updateTagLabel)
+        self.getSelectPanel().selection_changed.connect(self.updateTagLabel)
     
     def openTagEditor(self):
         curr_tags = self._getTagFromCurrSelection()
@@ -84,12 +84,12 @@ class FileTag(FileTagGUI):
         self.tag_editor.show()
     
     def acceptNewTags(self, new_tags: DataTags):
-        uuid = self.parent.getCurrentSelection().uuid
-        self.parent.db[uuid].changeTags(new_tags)
-        for i in self.parent.file_selector.data_model.datalist:
+        uuid = self.getSelectPanel().getCurrentSelection().uuid
+        self.getMainPanel().db[uuid].changeTags(new_tags)
+        for i in self.getSelectPanel().data_model.datalist:
             if i.uuid == uuid:
                 i.reload()
-        self.initTags(self.parent.getTotalTags())
+        self.initTags(self.getMainPanel().getTotalTags())
     
     def saveCurrentTagsAsDefault(self):
         curr_tags = self.tag_selector.getSelectedTags()
@@ -103,17 +103,17 @@ class FileTag(FileTagGUI):
     
     def onTagSelectionChanged(self):
         self.saveCurrentTagsAsDefault()
-        self.parent.file_selector.loadValidData(self.tag_selector.getSelectedTags())
-        curr_data = self.parent.getCurrentSelection()
+        self.getMainPanel().loadValidData(self.tag_selector.getSelectedTags())
+        curr_data = self.getSelectPanel().getCurrentSelection()
         if curr_data is not None:
-            self.parent.file_info.loadInfo(curr_data)
+            self.getInfoPanel().loadInfo(curr_data)
     
     def updateTagLabel(self, data: DataPoint):
         if isinstance(data, DataPoint):
             self.file_tag_label.setText(data.tags.toStr())
     
     def _getTagFromCurrSelection(self) -> DataTags:
-        data = self.parent.getCurrentSelection()
+        data = self.getSelectPanel().getCurrentSelection()
         if isinstance(data, DataPoint):
             return data.tags
         else: return None

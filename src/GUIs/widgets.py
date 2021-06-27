@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QStyle, QWidget, QMessageBox, QListView, QHBoxLayout
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
+import typing
 from ..backend.dataClass import DataTags
 
 class WidgetBase(QWidget):
@@ -34,4 +35,41 @@ class WidgetBase(QWidget):
         if return_value == QMessageBox.Ok:
             return True
         else: return False
+
+class MainWidgetBase(WidgetBase):
+    def __init__(self, parent: typing.Optional['QWidget']=None) -> None:
+        super().__init__(parent=parent)
+        self._main_panel = None
+        self._select_panel = None
+        self._info_panel = None
+        self._tag_panel = None
+    
+    def setMainPanel(self, panel: QWidget):
+        self._main_panel = panel
+    
+    def getMainPanel(self) -> WidgetBase:
+        assert self._main_panel is not None, "Main panel not set, use setMainPanel to set the panel"
+        return self._main_panel
+        
+    def setSelectPanel(self, panel: QWidget):
+        self._select_panel = panel
+    
+    def getSelectPanel(self) -> WidgetBase:
+        assert self._select_panel is not None, "Select panel not set, use setSelectPanel to set the panel"
+        return self._select_panel
+
+    def setInfoPanel(self, panel: QWidget):
+        self._info_panel = panel
+    
+    def getInfoPanel(self) -> WidgetBase:
+        assert self._info_panel is not None, "Info panel not set, use setInfoPanel to set the panel"
+        return self._info_panel
+
+    def setTagPanel(self, panel: QWidget):
+        self._tag_panel = panel
+    
+    def getTagPanel(self) -> WidgetBase:
+        assert self._tag_panel is not None, "Tag panel not set, use setTagPanel to set the panel"
+        return self._tag_panel
+
 

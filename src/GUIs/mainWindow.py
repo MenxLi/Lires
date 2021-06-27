@@ -27,14 +27,8 @@ class MainWindow(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle("Research bib manager")
+        self._initPanels()
         temp_file_path = ""
-        self.file_tags = FileTag(self)
-        self.file_info = FileInfo(self)
-        self.file_selector = FileSelector(self)
-        # connect after initialization because we have inter-refernce between these 3 widgets
-        self.file_info.connectFuncs()
-        self.file_selector.connectFuncs()
-        self.file_tags.connectFuncs()
 
         hbox = QHBoxLayout()
         splitter = QSplitter(Qt.Horizontal)
@@ -49,7 +43,28 @@ class MainWindow(QMainWindow):
         wid.setLayout(hbox)
         self.resize(900, 600)
         self._center()
+    
+    def _initPanels(self):
+        self.file_tags = FileTag(self)
+        self.file_info = FileInfo(self)
+        self.file_selector = FileSelector(self)
 
+        self.file_tags.setMainPanel(self)
+        self.file_tags.setInfoPanel(self.file_info)
+        self.file_tags.setSelectPanel(self.file_selector)
+
+        self.file_info.setMainPanel(self)
+        self.file_info.setTagPanel(self.file_tags)
+        self.file_info.setSelectPanel(self.file_selector)
+
+        self.file_selector.setMainPanel(self)
+        self.file_selector.setInfoPanel(self.file_info)
+        self.file_selector.setTagPanel(self.file_tags)
+
+        # connect after initialization because we have inter-refernce between these 3 widgets
+        self.file_info.connectFuncs()
+        self.file_selector.connectFuncs()
+        self.file_tags.connectFuncs()
     
     def loadData(self, data_path):
         for f in os.listdir(data_path):

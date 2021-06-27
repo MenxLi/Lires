@@ -1,13 +1,13 @@
 from os import curdir
 import warnings
 from PyQt5.QtWidgets import QLabel, QPushButton, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout
-from .widgets import WidgetBase
+from .widgets import WidgetBase, MainWidgetBase
 from .fileSelector import FileSelector
 from ..backend.fileTools import FileManipulator
 from ..backend.bibReader import BibParser
 from ..backend.dataClass import DataPoint
 
-class FileInfoGUI(WidgetBase):
+class FileInfoGUI(MainWidgetBase):
     def __init__(self, parent = None):
         super().__init__(parent)
         self.parent = parent
@@ -72,8 +72,8 @@ class FileInfo(FileInfoGUI):
             setattr(self, k, v)
     
     def connectFuncs(self):
-        self.parent.file_selector.selection_changed.connect(self.loadInfo)
-        self.parent.file_selector.selection_changed.connect(self.loadComments)
+        self.getSelectPanel().selection_changed.connect(self.loadInfo)
+        self.getSelectPanel().selection_changed.connect(self.loadComments)
         self.open_folder_btn.clicked.connect(self.openMiscDir)
         self.open_bib_btn.clicked.connect(self.openBib)
         self.open_commets_btn.clicked.connect(self.openComments)

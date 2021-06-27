@@ -2,10 +2,10 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton
 
 from .tagSelector import TagSelector
-from .widgets import WidgetBase
+from .widgets import MainWidgetBase
 from ..backend.dataClass import DataTags
 
-class TagEditor(WidgetBase):
+class TagEditor(MainWidgetBase):
     def __init__(self, tag_data: DataTags, tag_total: DataTags, parent = None) -> None:
         super().__init__(parent=parent)
         self.initUI()

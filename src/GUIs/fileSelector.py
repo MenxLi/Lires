@@ -4,14 +4,14 @@ import typing, os, shutil, copy
 from typing import Union, List 
 
 from .bibQuery import BibQuery
-from .widgets import WidgetBase
+from .widgets import WidgetBase, MainWidgetBase
 from ..backend.fileTools import FileManipulator
 from ..backend.dataClass import DataBase, DataPoint, DataList, DataTags
 from ..confReader import conf
 
 DATA_PATH = conf["database"]
 
-class FileSelectorGUI(WidgetBase):
+class FileSelectorGUI(MainWidgetBase):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
@@ -51,7 +51,7 @@ class FileSelector(FileSelectorGUI):
     def loadValidData(self, tags: DataTags):
         """Load valid data by tags"""
         valid_data = DataList([])
-        for d in self.parent.db.values():
+        for d in self.getMainPanel().db.values():
             if tags.issubset(d.tags):
                 valid_data.append(d)
         self.data_model.assignData(valid_data) 
@@ -74,13 +74,13 @@ class FileSelector(FileSelectorGUI):
         fm = FileManipulator(file_path)
         fm.screen()
         dp = DataPoint(fm)
-        self.parent.db[dp.uuid] = dp
+        self.getMainPanel().db[dp.uuid] = dp
         self.data_model.add(dp)
     
     def _deleteFromDatabase(self, data: DataPoint):
-        if data.uuid in self.parent.db.keys():
+        if data.uuid in self.getMainPanel().db.keys():
             shutil.rmtree(data.data_path)
-            del self.parent.db[data.uuid]
+            del self.getMainPanel().db[data.uuid]
     
     def deleteCurrentSelected(self):
         if not self.queryDialog("Delete this entry?"):
@@ -93,7 +93,7 @@ class FileSelector(FileSelectorGUI):
         self._deleteFromDatabase(data)
         del self.data_model.datalist[index.row()]
         self.data_model.layoutChanged.emit()
-        self.parent.refreshFileTagSelector()
+        self.getMainPanel.refreshFileTagSelector()
         # self.data_view.clearSelection()
     
     def onRowChanged(self, current, previous):
@@ -129,12 +129,12 @@ class FileSelector(FileSelectorGUI):
     
     def dropEvent(self, a0: QtGui.QDropEvent) -> None:
         files = [u.toLocalFile() for u in a0.mimeData().urls()]
-        curr_selected_tags = self.parent.getCurrentSelectedTags()
-        curr_total_tags = self.parent.getTotalTags()
+        curr_selected_tags = self.getMainPanel().getCurrentSelectedTags()
+        curr_total_tags = self.getMainPanel().getTotalTags()
         for f in files:
             self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
             self.bib_quary.file_added.connect(self.addToDatabase)
-            self.bib_quary.file_added.connect(self.parent.refreshFileTagSelector)
+            self.bib_quary.file_added.connect(self.getMainPanel().refreshFileTagSelector)
             self.bib_quary.show()
         return super().dropEvent(a0)
 
