@@ -22,8 +22,8 @@ def getStyleSheets() -> dict:
     global STYLESHEET_PATH
     ss = {
         # "Aqua": join(STYLESHEET_PATH, "Aqua.qss"),
-        "Breeze-light": join(STYLESHEET_PATH, "BreezeStyleSheets", "light.qss"),
-        "Breeze-dark": join(STYLESHEET_PATH, "BreezeStyleSheets", "dark.qss"),
+        "Breeze-light": join(STYLESHEET_PATH, "Breeze", "light.qss"),
+        "Breeze-dark": join(STYLESHEET_PATH, "Breeze", "dark.qss"),
         "Chenwen1126-qss": join(STYLESHEET_PATH, "chenwen1126-Qss", "css", "qss.css")
     }
     for f_ in os.listdir(STYLESHEET_PATH):
