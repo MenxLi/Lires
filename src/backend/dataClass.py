@@ -1,4 +1,4 @@
-import typing
+import typing, re
 from typing import List, Union, Iterable, Set
 from .fileTools import FileManipulator
 from .bibReader import BibParser
@@ -46,6 +46,15 @@ class DataPoint:
     def changeTags(self, new_tags: DataTags):
         self.fm.writeTags(list(new_tags))
         self.tags = new_tags
+    
+    def screenByPattern(self, pattern):
+        string = self.title+";"+";".join(self.authors)+";"+self.year
+        string = string.lower()
+        pattern = pattern.lower()
+        result = re.search(pattern, string)
+        if result is None:
+            return False
+        else: return True
 
     def save(self):
         pass

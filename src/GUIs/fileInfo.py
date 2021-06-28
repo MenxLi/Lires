@@ -96,8 +96,8 @@ class FileInfo(FileInfoGUI):
     def loadInfo(self, data: DataPoint):
         self.curr_data = data
         bib = data.bib
-        info_txt = "\u27A4 {title}\n\u27A4 {year}\n\u27A4 {authors}\n\
-            ".format(title = bib["title"], year = bib["year"], authors = " | ".join(bib["authors"]))
+        info_txt = "\u27AA {title}\n\u27AA {year}\n\u27AA {authors}\n\
+            ".format(title = bib["title"], year = bib["year"], authors = " \u2726 ".join(bib["authors"]))
         self.info_lbl.setText(info_txt)
     
     def openMiscDir(self):

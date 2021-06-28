@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QHBoxLayout, QItemDelegate, QListView, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView
+from PyQt5.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QListView, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView
 from PyQt5 import QtGui, QtCore
 import typing, os, shutil, copy
 from typing import Union, List 
@@ -23,12 +23,14 @@ class FileSelectorGUI(MainWidgetBase):
         hbox.addWidget(self.frame)
         self.setLayout(hbox)
 
-        vbox = QVBoxLayout()
         self.data_view = QListView()
         self.data_model = FileListModel([])
         self.data_view.setModel(self.data_model)
         # self.data_view.setSelectionModel(QAbstractItemView.SingleSelection)
+        self.search_edit = QLineEdit()
 
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.search_edit)
         vbox.addWidget(self.data_view)
         self.frame.setLayout(vbox)
     
@@ -45,6 +47,7 @@ class FileSelector(FileSelectorGUI):
         self.data_view.doubleClicked.connect(self.doubleClickOnEntry)
         self.shortcut_delete_selection = QShortcut(QtGui.QKeySequence("Del"), self)
         self.shortcut_delete_selection.activated.connect(self.deleteCurrentSelected)
+        self.search_edit.textChanged.connect(self.onSearchTextChange)
     
     def loadValidData(self, tags: DataTags):
         """Load valid data by tags"""
@@ -52,9 +55,16 @@ class FileSelector(FileSelectorGUI):
         for d in self.getMainPanel().db.values():
             if tags.issubset(d.tags):
                 valid_data.append(d)
+        screen_pattern = self.search_edit.text()
+        if screen_pattern != "":
+            valid_data = DataList([i for i in valid_data if i.screenByPattern(screen_pattern)])
         valid_data.sortBy(getConf()["sort_method"])
         self.data_model.assignData(valid_data) 
         return True
+
+    def onSearchTextChange(self):
+        text = self.search_edit.text()
+        self.loadValidData(tags = set(getConf()["default_tags"]))
 
     def getDataByTag(self, tags: list):
         pass
