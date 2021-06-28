@@ -126,7 +126,7 @@ class FileManipulator:
         self.base_name = os.path.split(data_path)[-1]
     
     def screen(self):
-        """To decided if the path contain only the 4 files and a dir"""
+        """To decided if the path contains all necessary files"""
         all_files = os.listdir(self.path)
         comments_f = FileGenerator.COMMENTPREFIX + self.base_name + ".md"
         info_f = FileGenerator.INFOPREFIX + self.base_name + ".json"

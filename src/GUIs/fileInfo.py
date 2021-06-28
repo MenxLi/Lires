@@ -80,7 +80,8 @@ class FileInfo(FileInfoGUI):
         self.save_comment_btn.clicked.connect(self.saveComments)
 
     def loadDir(self, dir_path: str):
-        """Deprecated, can be called while serve as standalone widget"""
+        """
+        *****Deprecated, can be called while serve as standalone widget"""
         fm = FileManipulator(dir_path)
         if not fm.screen():
             warnings.warn("Data seems to be broken, please check the data externally")
@@ -95,7 +96,7 @@ class FileInfo(FileInfoGUI):
     def loadInfo(self, data: DataPoint):
         self.curr_data = data
         bib = data.bib
-        info_txt = "【Title】\n>> {title}\n【Year】\n>> {year}\n【Authors】\n>> {authors}\n\
+        info_txt = "\u27A4 {title}\n\u27A4 {year}\n\u27A4 {authors}\n\
             ".format(title = bib["title"], year = bib["year"], authors = " | ".join(bib["authors"]))
         self.info_lbl.setText(info_txt)
     

@@ -1,4 +1,3 @@
-
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar
 from PyQt5.QtCore import Qt
@@ -9,12 +8,13 @@ from .fileSelector import FileSelector
 from .settings import SettingsWidget
 
 from ..backend.fileTools import FileManipulator
-from ..confReader import getConf, ICON_PATH
-import os, copy, typing
+from ..backend.utils import openFile
+from ..backend.dataClass import DataTags, DataBase, DataPoint
+from ..confReader import DOC_PATH, getConf, ICON_PATH
+import os, copy, typing, webbrowser
 
 # for testing propose
 from .fileTags import TagSelector
-from ..backend.dataClass import DataTags, DataBase, DataPoint
 
 class MainWindowGUI(QMainWindow):
     def __init__(self):
@@ -104,8 +104,11 @@ class MainWindow(MainWindowGUI):
 
     def initActions(self):
         self.act_settings.triggered.connect(self.openSettingsDialog)
+        self.act_opendb.triggered.connect(self.openDataBaseDir)
+        self.act_help.triggered.connect(self.openHelpFile)
 
     def loadData(self, data_path):
+        self.db = DataBase()
         for f in os.listdir(data_path):
             f = os.path.join(data_path, f)
             if os.path.isdir(f):
@@ -153,4 +156,12 @@ class MainWindow(MainWindowGUI):
         box.addWidget(self.set_wid)
         self.set_win.setLayout(box)
         self.set_win.show()
+    
+    def openDataBaseDir(self):
+        database = getConf()["database"]
+        openFile(database)
+    
+    def openHelpFile(self):
+        help_file_path = os.path.join(DOC_PATH, "info.html")
+        webbrowser.open("file://"+help_file_path)
         

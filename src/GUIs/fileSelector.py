@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QHBoxLayout, QListView, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView
+from PyQt5.QtWidgets import QHBoxLayout, QItemDelegate, QListView, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView
 from PyQt5 import QtGui, QtCore
 import typing, os, shutil, copy
 from typing import Union, List 
@@ -148,11 +148,12 @@ class FileListModel(QtCore.QAbstractListModel):
         if role == QtCore.Qt.DisplayRole:
             data = self.datalist[index.row()]
             if len(data.authors) == 1:
-                author = data.authors[0]
+                author = self._getFirstName(data.authors[0])
             else:
-                author = data.authors[0] + " et al."
-            text_to_display = "{year} - {author} >> {title}".format(
-                year = data.year, author = author, title = data.title
+                author = self._getFirstName(data.authors[0]) + " et al."
+            connection = "\u279C"
+            text_to_display = "{year} - {author} {connect} {title}".format(
+                year = data.year, connect = connection, author = author, title = data.title
             )
             return text_to_display
     
@@ -172,3 +173,10 @@ class FileListModel(QtCore.QAbstractListModel):
         - sort_method: refer to static items in backend.dataClass.DataList
         """
         self.datalist.sortBy(sort_method)
+    
+    def _getFirstName(self, name: str):
+        x = name.split(", ")
+        return x[0]
+
+class CItemDelegate(QItemDelegate):
+    pass

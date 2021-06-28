@@ -1,4 +1,5 @@
 import os, json, warnings
+from subprocess import check_output
 import typing
 
 join = os.path.join
@@ -17,6 +18,7 @@ CURR_PATH = os.path.abspath(CURR_PATH)
 CONF_FILE_PATH = join(CURR_PATH, "conf.json")
 ICON_PATH = join(CURR_PATH, "icons")
 STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
+DOC_PATH = join(CURR_PATH, "docs")
 
 def getStyleSheets() -> dict:
     global STYLESHEET_PATH
