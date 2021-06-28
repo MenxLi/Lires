@@ -165,12 +165,12 @@ class FileManipulator:
         self._log()
 
     def readComments(self) -> str:
-        with open(self.comments_p, "r") as f:
+        with open(self.comments_p, "r", encoding="utf-8") as f:
             data = f.read()
         return data
 
     def writeComments(self, comments: str):
-        with open(self.comments_p, "w") as f:
+        with open(self.comments_p, "w", encoding="utf-8") as f:
             f.write(comments)
         self._log()
     
