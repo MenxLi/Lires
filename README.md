@@ -12,7 +12,8 @@ Add search bar
 * Main window
 
 * settings
-sortby
 
+* Tags  
+Right click: rename; delete
 
 ## Known issues

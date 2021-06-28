@@ -7,9 +7,7 @@ from .bibQuery import BibQuery
 from .widgets import WidgetBase, MainWidgetBase
 from ..backend.fileTools import FileManipulator
 from ..backend.dataClass import DataBase, DataPoint, DataList, DataTags
-from ..confReader import conf
-
-DATA_PATH = conf["database"]
+from ..confReader import getConf
 
 class FileSelectorGUI(MainWidgetBase):
     def __init__(self, parent):
@@ -54,6 +52,7 @@ class FileSelector(FileSelectorGUI):
         for d in self.getMainPanel().db.values():
             if tags.issubset(d.tags):
                 valid_data.append(d)
+        valid_data.sortBy(getConf()["sort_method"])
         self.data_model.assignData(valid_data) 
         return True
 
@@ -62,7 +61,7 @@ class FileSelector(FileSelectorGUI):
 
     def reloadData(self):
         self._clearList()
-        self.getValidData()
+        self.loadValidData(tags = self.getMainPanel().getCurrentSelectedTags(), )
     
     def _clearList(self):
         pass
@@ -167,3 +166,9 @@ class FileListModel(QtCore.QAbstractListModel):
     def assignData(self, datalist: typing.List[DataPoint]):
         self.datalist = copy.deepcopy(datalist)
         self.layoutChanged.emit()
+    
+    def sortBy(self, sort_method: str):
+        """
+        - sort_method: refer to static items in backend.dataClass.DataList
+        """
+        self.datalist.sortBy(sort_method)

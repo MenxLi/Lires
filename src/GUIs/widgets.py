@@ -36,7 +36,7 @@ class WidgetBase(QWidget):
             return True
         else: return False
 
-class MainWidgetBase(WidgetBase):
+class RefWidgetBase(WidgetBase):
     def __init__(self, parent: typing.Optional['QWidget']=None) -> None:
         super().__init__(parent=parent)
         self._main_panel = None
@@ -71,5 +71,7 @@ class MainWidgetBase(WidgetBase):
     def getTagPanel(self) -> WidgetBase:
         assert self._tag_panel is not None, "Tag panel not set, use setTagPanel to set the panel"
         return self._tag_panel
+
+MainWidgetBase = RefWidgetBase
 
 

@@ -10,9 +10,8 @@ from ..backend.dataClass import DataTags
 from .tagEditor import TagEditor
 from ..backend.bibReader import BibParser
 from ..backend.fileTools import FileGenerator, FileManipulator
-from ..confReader import conf
+from ..confReader import getConf
 
-DATA_PATH = conf["database"]
 class BibQueryGUI(QWidget):
     def __init__(self, parent, tag_data: DataTags, tag_total: DataTags):
         """
@@ -83,7 +82,7 @@ class BibQuery(BibQueryGUI):
             year = bib["year"],
             authors = bib["authors"]
         )
-        if not fg.generateDefaultFiles(data_dir=DATA_PATH):
+        if not fg.generateDefaultFiles(data_dir=getConf["database"]):
             return 
         dst_dir = fg.dst_dir
         fm = FileManipulator(dst_dir)

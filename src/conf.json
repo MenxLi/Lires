@@ -1,1 +1,1 @@
-{"database": "192.168.1.117/home/pi/sharedStorage/PaperDataBase", "database_remote": "192.168.1.117/home/pi/sharedStorage/PaperDataBase", "accepted_extensions": [".pdf", ".caj"], "default_tags": []}
+{"database": "/home/monsoon/Documents/Code/ResBibManager/Database/local", "accepted_extensions": [".pdf", ".caj"], "default_tags": [], "sort_method": "Time added"}

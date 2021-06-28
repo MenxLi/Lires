@@ -5,9 +5,8 @@ import os, shutil, json, platform, typing, uuid
 from typing import List, Union
 import warnings
 from .utils import getDateTime, openFile
-from ..confReader import conf, VERSION
+from ..confReader import getConf, VERSION
 
-FILE_EXTENSIONS = conf["accepted_extensions"]
 class FileGeneratorBase:
     def __init__(self, title: str, year: Union[int, str], authors: List[str]):
         """
@@ -61,7 +60,7 @@ class FileGenerator(FileGeneratorBase):
         self.data_dir = data_dir
         _file_name = os.path.split(self.file_path)[-1]
         file_name, self.file_extension = os.path.splitext(_file_name)
-        if not self.file_extension in FILE_EXTENSIONS:
+        if not self.file_extension in getConf()["accepted_extensions"]:
             warnings.warn("Incorrect file type, check extensions.")
             return False
         self.dst_dir = os.path.join(self.data_dir, self.base_name)
@@ -133,7 +132,7 @@ class FileManipulator:
         info_f = FileGenerator.INFOPREFIX + self.base_name + ".json"
         bib_f = FileGenerator.BIBPREFIX + self.base_name + ".bib"
         folder_f = FileGenerator.FOLDERNAME
-        for ext in FILE_EXTENSIONS:
+        for ext in getConf()["accepted_extensions"]:
             file_f = FileGenerator.FILEPREFIX + self.base_name + ext
             if file_f in all_files:
                 break

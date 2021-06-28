@@ -6,9 +6,8 @@ from .widgets import WidgetBase, MainWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
 from ..backend.dataClass import DataPoint, DataTags
-from ..confReader import conf, saveToConf
+from ..confReader import getConf, saveToConf
 
-DEFAULT_TAGS = conf["default_tags"]
 class FileTagGUI(MainWidgetBase):
     """
     Implement the GUI for file tree
@@ -63,7 +62,7 @@ class FileTag(FileTagGUI):
     
     def initTags(self, tag_total: DataTags):
         tag_data = DataTags([])
-        for t in DEFAULT_TAGS:
+        for t in getConf()["default_tags"]:
             if t in tag_total:
                 tag_data.add(t)
         self.tag_selector.constructDataModel(tag_data, tag_total)
@@ -94,8 +93,6 @@ class FileTag(FileTagGUI):
     def saveCurrentTagsAsDefault(self):
         curr_tags = self.tag_selector.getSelectedTags()
         saveToConf(default_tags = curr_tags.toOrderedList())
-        global DEFAULT_TAGS
-        DEFAULT_TAGS = list(curr_tags)
     
     def clearSelection(self):
         self.tag_selector.tag_model.setAllStatusToFalse()
@@ -103,7 +100,7 @@ class FileTag(FileTagGUI):
     
     def onTagSelectionChanged(self):
         self.saveCurrentTagsAsDefault()
-        self.getMainPanel().loadValidData(self.tag_selector.getSelectedTags())
+        self.getSelectPanel().loadValidData(self.tag_selector.getSelectedTags())
         curr_data = self.getSelectPanel().getCurrentSelection()
         if curr_data is not None:
             self.getInfoPanel().loadInfo(curr_data)
