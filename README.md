@@ -17,3 +17,7 @@ Add search bar
 Right click: rename; delete
 
 ## Known issues
+
+## Credits:
+https://github.com/GTRONICK/QSS  
+https://github.com/google/material-design-icons  

@@ -1,5 +1,5 @@
 __pycache__
 *.swp
-.vscode
+*.vscode
 Database/*
 src/conf_dev.json

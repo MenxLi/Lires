@@ -1,22 +1,25 @@
 import typing
 import warnings
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QComboBox, QDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QWidget, QFileDialog
 from PyQt5 import QtCore
 
 from ..backend.dataClass import DataList
 
 from .widgets import RefWidgetBase
-from ..confReader import getConf, saveToConf
+from ..confReader import getConf, getStyleSheets, saveToConf
 
 class SubSettingsBase(RefWidgetBase):
+	def __init__(self) -> None:
+		super().__init__()
+		self.initUI()
+
+	def initUI(self):
+		raise NotImplementedError("The initUI method for {} is not implemented yet".format(self.__class__.__name__))
 	def confirm(self):
 		warnings.warn("The confim method for {} is not implemented yet".format(self.__class__.__name__))
 
 class SetDatabase(SubSettingsBase):
-	def __init__(self) -> None:
-		super().__init__()
-		self.initUI()
-	
 	def initUI(self):
 		self.label = QLabel("Database path:")
 		self.line_edit = QLineEdit(self)
@@ -45,10 +48,6 @@ class SetDatabase(SubSettingsBase):
 			print("Database path saved.")
 
 class SetSortingMethod(SubSettingsBase):
-	def __init__(self) -> None:
-		super().__init__()
-		self.initUI()
-	
 	def initUI(self):
 		self.cb = QComboBox(self)
 		self.cb.addItems([DataList.SORT_AUTHOR, DataList.SORT_TIMEADDED, DataList.SORT_YEAR])
@@ -66,13 +65,38 @@ class SetSortingMethod(SubSettingsBase):
 			self.getSelectPanel().data_model.sortBy(selection)
 			print("Sorting method changed")
 
+class SetStyle(SubSettingsBase):
+	def initUI(self):
+		ss_dict = getStyleSheets()
+		self.cb = QComboBox(self)
+		self.cb.addItems(list(ss_dict.keys()))
+		self.cb.setCurrentText(getConf()["stylesheet"])
+		self.lbl = QLabel("Application style: ")
+		hbox = QHBoxLayout()
+		hbox.addWidget(self.lbl)
+		hbox.addWidget(self.cb)
+		self.setLayout(hbox)
+	
+	def confirm(self):
+		selection = self.cb.currentText()
+		if selection != getConf()["stylesheet"]:
+			saveToConf(stylesheet = selection)
+			app = QtWidgets.QApplication.instance()
+			ss = getStyleSheets()[getConf()["stylesheet"]]
+			if ss == "":
+				app.setStyleSheet("")
+			else:
+				with open(ss, "r") as f:
+					app.setStyleSheet(f.read())
+			print("Loaded new style")
+
 class SettingsWidget(RefWidgetBase):
 	def __init__(self, dialog_win) -> None:
 		super().__init__(parent = dialog_win)
 		self.parent = dialog_win 
 
 	def init(self):
-		self.sub_settings = [SetDatabase(), SetSortingMethod()]
+		self.sub_settings = [SetDatabase(), SetSortingMethod(), SetStyle()]
 		for subsetting in self.sub_settings:
 			subsetting.setMainPanel(self.getMainPanel())
 			subsetting.setInfoPanel(self.getInfoPanel())
