@@ -25,7 +25,7 @@ class MainWindowGUI(QMainWindow):
         self.show()
     
     def initUI(self):
-        self.setWindowTitle("Research bib manager - {version}".format(version = VERSION))
+        self.setWindowTitle("Research bib manager - v{version}".format(version = VERSION))
         self._initPanels()
         self._createActions()
         # self._createMenuBar()

@@ -24,7 +24,7 @@ class BibParser:
         bibs = []
         for k in bib_data.entries.keys():
             _d = bib_data.entries[k]
-            datapoint = {
+            data = {
                 "entry": k,
                 "title": _d.fields["title"],
                 "year": _d.fields["year"],
@@ -32,13 +32,13 @@ class BibParser:
             }
             for bib_entry in ["journal", "doi"]:
                 if bib_entry in _d.fields:
-                    datapoint[bib_entry] = _d.fields[bib_entry],
-            bibs.append(datapoint)
+                    data[bib_entry] = _d.fields[bib_entry],
+            bibs.append(data)
         return bibs
 
 class BibObj:
     """
-    deprecated
+    **deprecated**
     Object representation of the bibliography file
     """
     def __init__(self, **kwargs):
