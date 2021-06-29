@@ -18,8 +18,11 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        "Development Status :: 3"
+        "Development Status :: 3",
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent"
     ],
+    python_requires=">=3.5",
 
     # include_package_data = True,
 

@@ -14,7 +14,7 @@ class BibParser:
                 "authors": <list|str>,  # May contain ", [ ]"
             }
             other possible entries: 
-                "journal": <str>,
+                "journal": tuple(<str>),
                 "doi": <str>
         """
         bib_data = pybtex.database.parse_string(bib_str, bib_format="bibtex")

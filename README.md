@@ -7,25 +7,31 @@
 pip install -r requirements.txt
 python setup.py install
 ```
+or use 
+```
+pip install ResBibMan-XXXXX.whl
+```
 
 # Future works
 ## Todo list
 * In query widget while importing articles:  
-Add copy from template button  
-Format check
+ - [ ] Add copy from template button   
+ - [ ] Format check
 
 * In file selector
-Add search bar
+ - [x] Add search bar
 
 * Main window
+ - [ ] Refresh button
 
 * settings
 
 * Tags  
-Right click: rename; delete
+ - [ ] Right click: rename; delete
 
 ## Known issues
 
 ## Credits:
 https://github.com/GTRONICK/QSS  
-https://github.com/google/material-design-icons  
+https://github.com/google/material-design-icons   
+https://github.com/GTRONICK/QSS
