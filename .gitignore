@@ -2,4 +2,6 @@
 *.swp
 *.vscode
 Database/*
-src/conf_dev.json
+*/conf_dev.json
+*.egg-info
+dist
