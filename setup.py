@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from src.confReader import VERSION
+from resbibman.confReader import VERSION
 
 setup(
     name="ResBibMan",
