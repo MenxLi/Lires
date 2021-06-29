@@ -138,14 +138,18 @@ class FileSelector(FileSelectorGUI):
     
     def dropEvent(self, a0: QtGui.QDropEvent) -> None:
         files = [u.toLocalFile() for u in a0.mimeData().urls()]
+        self.getMainPanel().addFilesToDatabseByURL(files)
+        return super().dropEvent(a0)
+    
+    def addFilesToDatabseByURL(self, urls: List[str]):
+        """deprecated"""
         curr_selected_tags = self.getMainPanel().getCurrentSelectedTags()
         curr_total_tags = self.getMainPanel().getTotalTags()
-        for f in files:
+        for f in urls:
             self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
             self.bib_quary.file_added.connect(self.addToDatabase)
             self.bib_quary.file_added.connect(self.getMainPanel().refreshFileTagSelector)
             self.bib_quary.show()
-        return super().dropEvent(a0)
 
 
 class FileListModel(QtCore.QAbstractListModel):

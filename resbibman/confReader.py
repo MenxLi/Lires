@@ -8,7 +8,8 @@ _versions = [
     ("0.0.1 - Alpha", "Under development"),
     ("0.0.2 - Alpha", "Under development: Added tag related functions"),
     ("0.0.3 - Alpha", "Under development: Internal code structure change"),
-    ("0.0.4", "Added search tools, toolbar, and application style")
+    ("0.0.4", "Added search tools, toolbar, and application style"),
+    ("0.0.5", "Finished toolbar, bug fix, use setup.py for distribution")
 ]
 VERSION, DESCRIPEITON = _versions[-1]
 

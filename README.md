@@ -1,4 +1,12 @@
 
+# Installation 
+## distribution
+`python setup.py bdist_wheel --universal`
+## installation
+```
+pip install -r requirements.txt
+python setup.py install
+```
 
 # Future works
 ## Todo list

@@ -1,16 +1,17 @@
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar
+from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar
 from PyQt5.QtCore import Qt
 
 from .fileInfo import FileInfo
 from .fileTags import FileTag
 from .fileSelector import FileSelector
+from .bibQuery import BibQuery
 from .settings import SettingsWidget
 
 from ..backend.fileTools import FileManipulator
 from ..backend.utils import openFile
 from ..backend.dataClass import DataTags, DataBase, DataPoint
-from ..confReader import DOC_PATH, getConf, ICON_PATH
+from ..confReader import DOC_PATH, getConf, ICON_PATH, VERSION
 import os, copy, typing, webbrowser
 
 # for testing propose
@@ -24,7 +25,7 @@ class MainWindowGUI(QMainWindow):
         self.show()
     
     def initUI(self):
-        self.setWindowTitle("Research bib manager")
+        self.setWindowTitle("Research bib manager - {version}".format(version = VERSION))
         self._initPanels()
         self._createActions()
         # self._createMenuBar()
@@ -106,6 +107,7 @@ class MainWindow(MainWindowGUI):
         self.act_settings.triggered.connect(self.openSettingsDialog)
         self.act_opendb.triggered.connect(self.openDataBaseDir)
         self.act_help.triggered.connect(self.openHelpFile)
+        self.act_file_additem.triggered.connect(self.openAddfileSelectionDialog)
 
     def loadData(self, data_path):
         self.db = DataBase()
@@ -164,4 +166,19 @@ class MainWindow(MainWindowGUI):
     def openHelpFile(self):
         help_file_path = os.path.join(DOC_PATH, "info.html")
         webbrowser.open("file://"+help_file_path)
+    
+    def openAddfileSelectionDialog(self):
+        extensions = getConf()["accepted_extensions"]
+        extension_filter = "({})".format(" ".join(["*"+i for i in extensions]))
+        fname = QFileDialog.getOpenFileName(self, caption="Select papers", filter=extension_filter)[0]
+        self.addFilesToDatabseByURL([fname])
+    
+    def addFilesToDatabseByURL(self, urls: typing.List[str]):
+        curr_selected_tags = self.getCurrentSelectedTags()
+        curr_total_tags = self.getTotalTags()
+        for f in urls:
+            self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
+            self.bib_quary.file_added.connect(self.file_selector.addToDatabase)
+            self.bib_quary.file_added.connect(self.refreshFileTagSelector)
+            self.bib_quary.show()
         

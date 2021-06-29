@@ -37,7 +37,8 @@ class BibQueryGUI(QWidget):
         self.tag_edit = TagEditor(tag_data= self.init_tag_data, tag_total=self.init_tag_total)
         self.tag_edit.setMinimumSize(300, 200)
 
-        main_hox = QHBoxLayout()
+
+        main_box = QHBoxLayout()
         vlayout = QVBoxLayout()
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.ok_button)
@@ -50,10 +51,16 @@ class BibQueryGUI(QWidget):
         vlayout_R.addWidget(self.tag_prompt_lbl)
         vlayout_R.addWidget(self.tag_edit)
 
-        main_hox.addLayout(vlayout)
-        main_hox.addLayout(vlayout_R)
+        rframe = QFrame()
+        rframe.setFrameStyle(QFrame.StyledPanel)
+        rlayout = QVBoxLayout()
+        rlayout.addWidget(rframe)
+        rframe.setLayout(vlayout_R)
 
-        self.setLayout(main_hox)
+        main_box.addLayout(vlayout, 1)
+        main_box.addWidget(rframe, 0)
+
+        self.setLayout(main_box)
 
 
 class BibQuery(BibQueryGUI):
@@ -82,7 +89,7 @@ class BibQuery(BibQueryGUI):
             year = bib["year"],
             authors = bib["authors"]
         )
-        if not fg.generateDefaultFiles(data_dir=getConf["database"]):
+        if not fg.generateDefaultFiles(data_dir=getConf()["database"]):
             return 
         dst_dir = fg.dst_dir
         fm = FileManipulator(dst_dir)

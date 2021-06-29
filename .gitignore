@@ -1,8 +1,12 @@
 *__pycache__
 *.swp
 *.vscode
+*.spec
 Database/*
 */conf_dev.json
 *.egg-info
 dist
 build
+.venv
+.env
+venv

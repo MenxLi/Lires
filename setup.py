@@ -11,7 +11,6 @@ setup(
     # 项目主页
     url="https://github.com/MenxLi/ResBibManager", 
 
-    # 你要安装的包，通过 setuptools.find_packages 找到当前目录下有哪些包
     packages=find_packages(),
 
     classifiers = [
@@ -22,13 +21,13 @@ setup(
         "Development Status :: 3"
     ],
 
-    include_package_data = True,
+    # include_package_data = True,
 
     install_requires = ["PyQt5", "pybtex"],
 
     entry_points = {
         "console_scripts":[
-            "resbibman=src.exec:main"
+            "resbibman=resbibman.exec:main"
         ]
     }
 )
