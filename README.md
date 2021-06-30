@@ -45,6 +45,7 @@ you can either click on the add button on the tool bar or ... (Unfinished)
  - [ ] Right click: rename; delete
 
 ## Known issues
+Crash on windows if some theme is selected
 
 ## Credits:
 https://github.com/google/material-design-icons   

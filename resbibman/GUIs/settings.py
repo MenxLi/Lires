@@ -86,7 +86,7 @@ class SetStyle(SubSettingsBase):
 			if ss == "":
 				app.setStyleSheet("")
 			else:
-				with open(ss, "r") as f:
+				with open(ss, "r", encoding="utf-8") as f:
 					app.setStyleSheet(f.read())
 			print("Loaded new style")
 
