@@ -7,7 +7,6 @@ it relies on tags to differentiate papers, and use markdown for note
 `python setup.py bdist_wheel --universal`
 ## installation
 ```
-pip install -r requirements.txt
 python setup.py install
 ```
 or use 
@@ -29,6 +28,10 @@ you can either click on the add button on the tool bar or ... (Unfinished)
 
 # Future works
 ## Todo list
+ - [ ] To use TableView of the selection panel
+ - [ ] Export database
+ - [ ] User info
+
 * In query widget while importing articles:  
  - [ ] Add copy from template button   
  - [ ] Format check
@@ -43,6 +46,9 @@ you can either click on the add button on the tool bar or ... (Unfinished)
 
 * Tags  
  - [ ] Right click: rename; delete
+
+ ### Long time goals
+ - [ ] Language support
 
 ## Known issues
 Crash on windows if some theme is selected
