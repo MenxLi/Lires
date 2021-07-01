@@ -10,7 +10,7 @@ from ..backend.dataClass import DataTags
 from .tagEditor import TagEditor
 from ..backend.bibReader import BibParser
 from ..backend.fileTools import FileGenerator, FileManipulator
-from ..confReader import getConf
+from ..confReader import getConf, DOC_PATH
 
 class BibQueryGUI(QWidget):
     def __init__(self, parent, tag_data: DataTags, tag_total: DataTags):
@@ -30,6 +30,7 @@ class BibQueryGUI(QWidget):
         self.filename_lbl = QLabel()
         self.bib_edit = QTextEdit()
         self.bib_edit.setMinimumSize(300,200)
+        self.insert_template_button = QPushButton("Use bibtex template")
         self.ok_button = QPushButton("OK")
         self.cancel_button = QPushButton("Canel")
 
@@ -45,7 +46,8 @@ class BibQueryGUI(QWidget):
         hlayout.addWidget(self.cancel_button)
         vlayout.addWidget(self.filename_lbl, 0)
         vlayout.addWidget(self.bib_edit, 1)
-        vlayout.addLayout(hlayout)
+        vlayout.addWidget(self.insert_template_button, 0)
+        vlayout.addLayout(hlayout, 0)
 
         vlayout_R = QVBoxLayout()
         vlayout_R.addWidget(self.tag_prompt_lbl)
@@ -77,6 +79,12 @@ class BibQuery(BibQueryGUI):
     def connectMethods(self):
         self.ok_button.clicked.connect(self.confirm)
         self.cancel_button.clicked.connect(self.close)
+        self.insert_template_button.clicked.connect(self.insertBibTemplate)
+    
+    def insertBibTemplate(self):
+        with open(os.path.join(DOC_PATH, "bibTemplate.bib"), "r") as f:
+            bib_template = f.read()
+        self.bib_edit.setText(bib_template)
 
     def confirm(self):
         parser = BibParser(mode = "single")

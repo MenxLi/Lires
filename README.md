@@ -33,7 +33,7 @@ you can either click on the add button on the tool bar or ... (Unfinished)
  - [ ] User info
 
 * In query widget while importing articles:  
- - [ ] Add copy from template button   
+ - [x] Add copy from template button   
  - [ ] Format check
 
 * In file selector
