@@ -4,15 +4,16 @@ import typing
 
 join = os.path.join
 
-_versions = [
+_VERSION_HISTORIES = [
     ("0.0.1 - Alpha", "Under development"),
     ("0.0.2 - Alpha", "Under development: Added tag related functions"),
     ("0.0.3 - Alpha", "Under development: Internal code structure change"),
     ("0.0.4", "Added search tools, toolbar, and application style"),
     ("0.0.5", "Finished toolbar, bug fix, use setup.py for distribution"),
-    ("0.0.6", "Add bibtex template, Bug fix")
+    ("0.0.6", "Add bibtex template, Bug fix"),
+    ("0.0.7", "Using argparse and child process when starting, add window icon")
 ]
-VERSION, DESCRIPEITON = _versions[-1]
+VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
 _file_path = os.path.abspath(__file__)
 

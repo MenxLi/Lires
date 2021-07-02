@@ -1,6 +1,5 @@
-from resbibman.exec import main
+import resbibman
 from resbibman.confReader import CURR_PATH
 
 if __name__=="__main__":
-    print(CURR_PATH)
-    main()
+    resbibman.run()

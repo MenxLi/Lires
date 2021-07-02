@@ -26,6 +26,7 @@ class MainWindowGUI(QMainWindow):
     
     def initUI(self):
         self.setWindowTitle("Research bib manager - v{version}".format(version = VERSION))
+        self.setWindowIcon(QIcon(os.path.join(ICON_PATH, "resbibman-icon.png")))
         self._initPanels()
         self._createActions()
         # self._createMenuBar()

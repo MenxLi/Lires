@@ -1,12 +1,13 @@
 import argparse
 from json import decoder
 from multiprocessing import Process
+import subprocess
 from PyQt5.QtWidgets import QApplication
 import os, sys, platform
 from .GUIs.mainWindow import MainWindow
-from .confReader import getConf, getStyleSheets, VERSION
+from .confReader import getConf, getStyleSheets, VERSION, _VERSION_HISTORIES
 
-def execProg():
+def execProg_():
 	app = QApplication(sys.argv)
 	ss = getStyleSheets()[getConf()["stylesheet"]]
 	if ss != "":
@@ -15,25 +16,31 @@ def execProg():
 	gui = MainWindow()
 	sys.exit(app.exec_())
 
-def execProg_():
-	# Run with standalone process
-	if platform.system() == 'Windows':    # Windows
-		execProg()
+def execProg():
+	# Run as standalone process
+	if platform.system() == 'Windows':    	# Windows
+		process = Process(target=execProg_)
+		process.start()
 	else:                                   # Mac and Linux variants
 		pid = os.fork()
-		if pid == 0:
-			# Child process
-			execProg()
+		if not pid: 						# pid==0, Child process
+			execProg_()
 
-def main():
+def run():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-v", "--version", action="store_true", help = "Show version")
+	parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version")
+	parser.add_argument("-w", "--window", action = "store_true", help = "Open the program with shell window")
 	args = parser.parse_args()
 
 	if args.version:
-		print(VERSION)
-	else:
+		for v,d in _VERSION_HISTORIES:
+			print("v{version}: {history}".format(version = v, history = d))
+		print("=====================================")
+		print("Current version: ", VERSION)
+	elif args.window:
 		execProg_()
+	else:
+		execProg()
 
 if __name__=="__main__":
-	main()
+	run()
