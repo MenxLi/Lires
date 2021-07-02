@@ -47,8 +47,17 @@ class DataPoint:
         self.fm.writeTags(list(new_tags))
         self.tags = new_tags
     
+    def stringInfo(self):
+        bib = self.bib
+        info_txt = \
+        "\u27AA {title}\n\u27AA {year}\n\u27AA {authors}\n".format(title = bib["title"], year = bib["year"], authors = " \u2726 ".join(bib["authors"]))
+        if "journal"  in bib:
+            info_txt = info_txt + "\u27AA {journal}".format(journal = bib["journal"][0])
+        return info_txt
+    
     def screenByPattern(self, pattern):
-        string = self.title+";"+";".join(self.authors)+";"+self.year
+        # string = self.title+";"+";".join(self.authors)+";"+self.year
+        string = self.stringInfo()
         string = string.lower()
         pattern = pattern.lower()
         result = re.search(pattern, string)

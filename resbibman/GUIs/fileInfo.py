@@ -72,12 +72,17 @@ class FileInfo(FileInfoGUI):
             setattr(self, k, v)
     
     def connectFuncs(self):
-        self.getSelectPanel().selection_changed.connect(self.loadInfo)
-        self.getSelectPanel().selection_changed.connect(self.loadComments)
+        self.getSelectPanel().selection_changed.connect(self.load)
         self.open_folder_btn.clicked.connect(self.openMiscDir)
         self.open_bib_btn.clicked.connect(self.openBib)
         self.open_commets_btn.clicked.connect(self.openComments)
         self.save_comment_btn.clicked.connect(self.saveComments)
+        self.refresh_btn.clicked.connect(self.refresh)
+    
+    def clearPanel(self):
+        self.curr_data = None
+        self.info_lbl.setText("File info")
+        self.tEdit.setText("")
 
     def loadDir(self, dir_path: str):
         """
@@ -93,31 +98,30 @@ class FileInfo(FileInfoGUI):
             ".format(title = bib["title"], year = bib["year"], authors = " | ".join(bib["authors"]))
         self.info_lbl.setText(info_txt)
     
-    def loadInfo(self, data: DataPoint):
+    def load(self, data: DataPoint):
         self.curr_data = data
-        bib = data.bib
-        info_txt = \
-        "\u27AA {title}\n\u27AA {year}\n\u27AA {authors}\n".format(title = bib["title"], year = bib["year"], authors = " \u2726 ".join(bib["authors"]))
-        if "journal"  in bib:
-            info_txt = info_txt + "\u27AA {journal}".format(journal = bib["journal"][0])
-        self.info_lbl.setText(info_txt)
-    
+        self.info_lbl.setText(data.stringInfo())
+        comment = self.curr_data.fm.readComments()
+        self.tEdit.setText(comment)
+
     def openMiscDir(self):
-        self.curr_data.fm.openMiscDir()
+        if not self.curr_data is None:
+            self.curr_data.fm.openMiscDir()
     
     def openComments(self):
-        self.curr_data.fm.openComments()
+        if not self.curr_data is None:
+            self.curr_data.fm.openComments()
     
     def openBib(self):
-        self.curr_data.fm.openBib()
+        if not self.curr_data is None:
+            self.curr_data.fm.openBib()
     
     def saveComments(self):
-        comment = self.tEdit.toPlainText()
-        self.curr_data.fm.writeComments(comment)
-
-    def loadComments(self, data: DataPoint):
-        comment = data.fm.readComments()
-        self.tEdit.setText(comment)
+        if not self.curr_data is None:
+            comment = self.tEdit.toPlainText()
+            self.curr_data.fm.writeComments(comment)
     
     def refresh(self):
-        pass
+        if not self.curr_data is None:
+            self.curr_data.reload()
+            self.load(self.curr_data)
