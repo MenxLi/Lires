@@ -31,7 +31,7 @@ Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
  - [x] Add search bar
 
 * Main window
- - [ ] Refresh button
+ - [x] Refresh button
 
 * settings
 
