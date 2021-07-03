@@ -100,7 +100,7 @@ class FileTag(FileTagGUI):
     
     def onTagSelectionChanged(self):
         self.saveCurrentTagsAsDefault()
-        self.getSelectPanel().loadValidData(self.tag_selector.getSelectedTags())
+        self.getSelectPanel().loadValidData(self.tag_selector.getSelectedTags(), hint = True)
         curr_data = self.getSelectPanel().getCurrentSelection()
         self.getInfoPanel().clearPanel()
         # if curr_data is not None:

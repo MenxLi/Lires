@@ -160,7 +160,7 @@ class FileManipulator:
         return data
 
     def writeBib(self, bib: str):
-        with open(self.bib_p, "w") as f:
+        with open(self.bib_p, "w", encoding="utf-8") as f:
             f.write(bib)
         self._log()
 
