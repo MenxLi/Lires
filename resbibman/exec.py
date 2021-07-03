@@ -1,6 +1,7 @@
 import argparse
 from json import decoder
 from multiprocessing import Process
+import multiprocessing
 import subprocess
 from PyQt5.QtWidgets import QApplication
 import os, sys, platform
@@ -29,7 +30,14 @@ def execProg():
 		log_file.write("\n\n============={}=============\n".format(getDateTime()))
 		process = Process(target=execProg_)
 		process.start()
-	else:                                   # Mac and Linux variants
+	elif platform.system() == "Darwin":		# Mac
+		multiprocessing.set_start_method("spawn")
+		pid = os.fork()
+		if not pid: 						# pid==0, Child process
+			log_file.write("\n\n============={}=============\n".format(getDateTime()))
+		# process = Process(target=execProg_)
+		# process.start()
+	else:                                   # Linux variants
 		pid = os.fork()
 		if not pid: 						# pid==0, Child process
 			log_file.write("\n\n============={}=============\n".format(getDateTime()))
