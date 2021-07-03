@@ -155,7 +155,7 @@ class FileManipulator:
         return True
     
     def readBib(self) -> str:
-        with open(self.bib_p, "r") as f:
+        with open(self.bib_p, "r", encoding="utf-8") as f:
             data = f.read()
         return data
 

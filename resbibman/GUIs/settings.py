@@ -45,7 +45,7 @@ class SetDatabase(SubSettingsBase):
 		if not database_path == getConf()["database"]:
 			saveToConf(database = database_path)
 			self.getMainPanel().loadData(database_path)
-			print("Database path saved, Database path set to: .".format(database_path))
+			print("Database path saved, Database path set to: {}".format(getConf()["database"]))
 
 class SetSortingMethod(SubSettingsBase):
 	def initUI(self):
