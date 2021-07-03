@@ -23,6 +23,7 @@ CONF_FILE_PATH = join(CURR_PATH, "conf.json")
 ICON_PATH = join(CURR_PATH, "icons")
 STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
 DOC_PATH = join(CURR_PATH, "docs")
+LOG_FILE = join(CURR_PATH, "log.txt")
 
 def getStyleSheets() -> dict:
     global STYLESHEET_PATH

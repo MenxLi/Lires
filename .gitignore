@@ -10,3 +10,4 @@ build
 .venv
 .env
 venv
+*/log.txt

@@ -1,3 +1,4 @@
+from pprint import pprint
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar
 from PyQt5.QtCore import Qt
@@ -77,6 +78,8 @@ class MainWindowGUI(QMainWindow):
         self.act_settings.setIcon(QIcon(os.path.join(ICON_PATH, "settings-24px.svg")))
         self.act_help = QAction("&Info", self)
         self.act_help.setIcon(QIcon(os.path.join(ICON_PATH, "info-24px.svg")))
+        self.act_reload = QAction("&Reload", self)
+        self.act_reload.setIcon(QIcon(os.path.join(ICON_PATH, "refresh-24px.svg")))
 
     def _createMenuBar(self):
         menu_bar = QMenuBar(self)
@@ -97,10 +100,13 @@ class MainWindowGUI(QMainWindow):
         tool_bar.addAction(self.act_opendb)
         tool_bar.addAction(self.act_settings)
         tool_bar.addAction(self.act_help)
+        tool_bar.addAction(self.act_reload)
     
 class MainWindow(MainWindowGUI):
     def __init__(self):
         super().__init__()
+        print("Configuration: ")
+        pprint(getConf())
         self.initActions()
         self.loadData(getConf()["database"])
 
@@ -109,6 +115,7 @@ class MainWindow(MainWindowGUI):
         self.act_opendb.triggered.connect(self.openDataBaseDir)
         self.act_help.triggered.connect(self.openHelpFile)
         self.act_file_additem.triggered.connect(self.openAddfileSelectionDialog)
+        self.act_reload.triggered.connect(self.reloadData)
 
     def loadData(self, data_path):
         self.db = DataBase()
@@ -182,4 +189,8 @@ class MainWindow(MainWindowGUI):
             self.bib_quary.file_added.connect(self.file_selector.addToDatabase)
             self.bib_quary.file_added.connect(self.refreshFileTagSelector)
             self.bib_quary.show()
+    
+    def reloadData(self):
+        self.loadData(getConf()["database"])
+        self.file_info.clearPanel()
         

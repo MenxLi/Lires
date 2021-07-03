@@ -58,8 +58,10 @@ class FileSelector(FileSelectorGUI):
         screen_pattern = self.search_edit.text()
         if screen_pattern != "":
             valid_data = DataList([i for i in valid_data if i.screenByPattern(screen_pattern)])
-        valid_data.sortBy(getConf()["sort_method"])
+        sort_method = getConf()["sort_method"]
+        valid_data.sortBy(sort_method)
         self.data_model.assignData(valid_data) 
+        print("Data loaded, tags: {tags}, sorting method: {sort_method}".format(tags = " | ".join(tags), sort_method = sort_method))
         return True
 
     def onSearchTextChange(self):

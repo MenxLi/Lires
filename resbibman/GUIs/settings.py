@@ -45,7 +45,7 @@ class SetDatabase(SubSettingsBase):
 		if not database_path == getConf()["database"]:
 			saveToConf(database = database_path)
 			self.getMainPanel().loadData(database_path)
-			print("Database path saved.")
+			print("Database path saved, Database path set to: .".format(database_path))
 
 class SetSortingMethod(SubSettingsBase):
 	def initUI(self):
@@ -63,7 +63,7 @@ class SetSortingMethod(SubSettingsBase):
 		if selection != getConf()["sort_method"]:
 			saveToConf(sort_method = selection)
 			self.getSelectPanel().data_model.sortBy(selection)
-			print("Sorting method changed")
+			print("Sorting method changed to {}". format(selection))
 
 class SetStyle(SubSettingsBase):
 	def initUI(self):
@@ -88,7 +88,7 @@ class SetStyle(SubSettingsBase):
 			else:
 				with open(ss, "r", encoding="utf-8") as f:
 					app.setStyleSheet(f.read())
-			print("Loaded new style")
+			print("Loaded new style: ".format(ss))
 
 class SettingsWidget(RefWidgetBase):
 	def __init__(self, dialog_win) -> None:
