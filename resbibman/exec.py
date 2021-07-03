@@ -1,12 +1,8 @@
 import argparse
-from json import decoder
-from multiprocessing import Process
-import multiprocessing
-import subprocess
 from PyQt5.QtWidgets import QApplication
 import os, sys, platform
 from .GUIs.mainWindow import MainWindow
-from .backend.utils import getDateTime
+from .backend.utils import getDateTime, Logger
 from .confReader import getConf, getStyleSheets, VERSION, _VERSION_HISTORIES, LOG_FILE
 
 def execProg_():
@@ -20,35 +16,20 @@ def execProg_():
 
 def execProg():
 	"""
-	Run as standalone process
 	Log will be recorded in LOG_FILE
 	"""
 	log_file = open(LOG_FILE, "a")
-	sys.stdout = log_file
-	sys.stderr = log_file
-	if platform.system() == 'Windows':    	# Windows
-		log_file.write("\n\n============={}=============\n".format(getDateTime()))
-		process = Process(target=execProg_)
-		process.start()
-	elif platform.system() == "Darwin":		# Mac
-		multiprocessing.set_start_method("spawn")
-		pid = os.fork()
-		if not pid: 						# pid==0, Child process
-			log_file.write("\n\n============={}=============\n".format(getDateTime()))
-		# process = Process(target=execProg_)
-		# process.start()
-	else:                                   # Linux variants
-		pid = os.fork()
-		if not pid: 						# pid==0, Child process
-			log_file.write("\n\n============={}=============\n".format(getDateTime()))
-			execProg_()
+	sys.stdout = Logger(log_file)
+	sys.stderr = Logger(log_file)
+	log_file.write("\n\n============={}=============\n".format(getDateTime()))
+	execProg_()
 	log_file.close()
 
 def run():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-n", "--not_run", action= "store_true", help = "Not to run main program")
-	parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version")
-	parser.add_argument("-w", "--window", action = "store_true", help = "Open the program with shell window (log will not be recorded)")
+	parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
+	parser.add_argument("--no_log", action = "store_true", help = "Open the program without recording log, stdout/stderr will be shown in terminal")
 	parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
 	parser.add_argument("--print_log", action = "store_true", help = "Print log")
 	args = parser.parse_args()
@@ -58,6 +39,7 @@ def run():
 			print("v{version}: {history}".format(version = v, history = d))
 		print("=====================================")
 		print("Current version: ", VERSION)
+		args.not_run = True
 
 	if args.clear_log:
 		if os.path.exists(LOG_FILE):
@@ -69,7 +51,7 @@ def run():
 			print(log_file.read())
 
 	if not args.not_run:
-		if args.window:
+		if args.no_log:
 			execProg_()
 		else:
 			execProg()

@@ -63,7 +63,7 @@ class SetSortingMethod(SubSettingsBase):
 		if selection != getConf()["sort_method"]:
 			saveToConf(sort_method = selection)
 			self.getSelectPanel().data_model.sortBy(selection)
-			print("Sorting method changed to {}". format(selection))
+			print("Sorting method changed to {}". format(getConf()["sort_method"]))
 
 class SetStyle(SubSettingsBase):
 	def initUI(self):
@@ -88,7 +88,7 @@ class SetStyle(SubSettingsBase):
 			else:
 				with open(ss, "r", encoding="utf-8") as f:
 					app.setStyleSheet(f.read())
-			print("Loaded new style: ".format(ss))
+			print("Loaded new style: {}".format(getConf()["stylesheet"]))
 
 class SettingsWidget(RefWidgetBase):
 	def __init__(self, dialog_win) -> None:

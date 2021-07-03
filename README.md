@@ -15,16 +15,7 @@ pip install ResBibMan-XXXXX.whl
 ```
 
 # Usage
-## Interface
-![MainWindow](./resbibman/docs/imgs/mainWindow.png)
-
-## Settings
-Set up the database to whatever directory you like,
-
-## Add paper to database
-There are two ways to add paper to database, 
-you can either click on the add button on the tool bar or ... (Unfinished)
-
+Refer to the [docs-usage](./resbibman/docs/Usage.md) for the usage of this software
 
 # Future works
 ## Todo list
