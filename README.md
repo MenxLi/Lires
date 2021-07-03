@@ -15,7 +15,7 @@ pip install ResBibMan-XXXXX.whl
 ```
 
 # Usage
-Refer to the [docs-usage](./resbibman/docs/Usage.md) for the usage of this software
+Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
 
 # Future works
 ## Todo list
