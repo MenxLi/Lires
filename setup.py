@@ -30,7 +30,7 @@ setup(
 
     entry_points = {
         "console_scripts":[
-            "resbibman=resbibman.exec:main"
+            "resbibman=resbibman.exec:run"
         ]
     }
 )
