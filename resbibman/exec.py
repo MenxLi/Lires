@@ -31,7 +31,7 @@ def run():
 	parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
 	parser.add_argument("--no_log", action = "store_true", help = "Open the program without recording log, stdout/stderr will be shown in terminal")
 	parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
-	parser.add_argument("--print_log", action = "store_true", help = "Print log")
+	parser.add_argument("--print_log", action = "store_true", help = "Print log and exit")
 	args = parser.parse_args()
 
 	if args.version:
@@ -45,10 +45,14 @@ def run():
 		if os.path.exists(LOG_FILE):
 			os.remove(LOG_FILE)
 			print("log cleared")
+		else: print("Log file not exits, run the program to create the log file")
 	
 	if args.print_log:
-		with open(LOG_FILE, "r") as log_file:
-			print(log_file.read())
+		if os.path.exists(LOG_FILE):
+			with open(LOG_FILE, "r") as log_file:
+				print(log_file.read())
+		else: print("Log file not exits, run the program to create the log file")
+		args.not_run = True
 
 	if not args.not_run:
 		if args.no_log:

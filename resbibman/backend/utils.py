@@ -19,16 +19,19 @@ def openFile(filepath):
 
 class Logger():
     # https://cloud.tencent.com/developer/article/1643418
-    def __init__(self, file_obj: TextIOWrapper):
+    def __init__(self, file_obj: TextIOWrapper, write_to_terminal = True):
         self.terminal = sys.stdout
         self.log = file_obj
+        self.write_terminal = write_to_terminal
  
     def write(self, message):
-        self.terminal.write(message)
+        if self.write_terminal:
+            self.terminal.write(message)
         self.log.write(message)
  
     def flush(self):
-        self.terminal.flush()
+        if self.write_terminal:
+            self.terminal.flush()
 
 def logFunc(log_path = LOG_FILE):
     def wapper(func):
