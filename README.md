@@ -20,8 +20,9 @@ Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
 # Future works
 ## Todo list
  - [ ] To use TableView of the selection panel
- - [ ] Export database
+ - [ ] Pdf compression - [reference](https://blog.csdn.net/xinRCNN/article/details/113273463)
  - [ ] User info
+ - [ ] Export database
 
 * In query widget while importing articles:  
  - [x] Add copy from template button   
@@ -29,6 +30,8 @@ Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
 
 * In file selector
  - [x] Add search bar
+ - [ ] Multiple selection 
+ - [ ] Right click: export, export bib, delete
 
 * Main window
  - [x] Refresh button
@@ -36,13 +39,13 @@ Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
 * settings
 
 * Tags  
- - [ ] Right click: rename; delete
+ - [ ] Right click: rename; delete; 
+ - [ ] Drag in to add tag?
 
- ### Long time goals
+### Long time goals
  - [ ] Language support
 
 ## Known issues
-Crash on windows if some theme is selected
 
 ## Credits:
 https://github.com/google/material-design-icons   
