@@ -100,10 +100,11 @@ class FileTag(FileTagGUI):
     
     def onTagSelectionChanged(self):
         self.saveCurrentTagsAsDefault()
-        self.getSelectPanel().loadValidData(self.tag_selector.getSelectedTags())
+        self.getSelectPanel().loadValidData(self.tag_selector.getSelectedTags(), hint = True)
         curr_data = self.getSelectPanel().getCurrentSelection()
-        if curr_data is not None:
-            self.getInfoPanel().loadInfo(curr_data)
+        self.getInfoPanel().clearPanel()
+        # if curr_data is not None:
+            # self.getInfoPanel().loadInfo(curr_data)
     
     def updateTagLabel(self, data: DataPoint):
         if isinstance(data, DataPoint):

@@ -155,12 +155,12 @@ class FileManipulator:
         return True
     
     def readBib(self) -> str:
-        with open(self.bib_p, "r") as f:
+        with open(self.bib_p, "r", encoding="utf-8") as f:
             data = f.read()
         return data
 
     def writeBib(self, bib: str):
-        with open(self.bib_p, "w") as f:
+        with open(self.bib_p, "w", encoding="utf-8") as f:
             f.write(bib)
         self._log()
 

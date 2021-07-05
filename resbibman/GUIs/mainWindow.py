@@ -126,7 +126,7 @@ class MainWindow(MainWindowGUI):
                 if fm.screen():
                     data = DataPoint(fm)
                     self.db[data.uuid] = copy.deepcopy(data)
-        self.file_selector.loadValidData(set(getConf()["default_tags"]))
+        self.file_selector.loadValidData(set(getConf()["default_tags"]), hint = True)
         self.file_tags.initTags(self.getTotalTags())
 
     def getCurrentSelection(self)->typing.Union[None, DataPoint]:

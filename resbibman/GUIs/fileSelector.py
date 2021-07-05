@@ -52,7 +52,7 @@ class FileSelector(FileSelectorGUI):
         self.shortcut_delete_selection.activated.connect(self.deleteCurrentSelected)
         self.search_edit.textChanged.connect(self.onSearchTextChange)
     
-    def loadValidData(self, tags: DataTags):
+    def loadValidData(self, tags: DataTags, hint = False):
         """Load valid data by tags"""
         valid_data = DataList([])
         for d in self.getMainPanel().db.values():
@@ -64,7 +64,9 @@ class FileSelector(FileSelectorGUI):
         sort_method = getConf()["sort_method"]
         valid_data.sortBy(sort_method)
         self.data_model.assignData(valid_data) 
-        print("Data loaded, tags: {tags}, sorting method: {sort_method}".format(tags = " | ".join(tags), sort_method = sort_method))
+        if hint:
+            print("Data loaded, tags: {tags}, sorting method: {sort_method}, screen_pattern: {screen_pattern}".\
+                format(tags = " | ".join(tags), sort_method = sort_method, screen_pattern = screen_pattern))
         return True
 
     def onSearchTextChange(self):
