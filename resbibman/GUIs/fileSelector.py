@@ -128,8 +128,6 @@ class FileSelector(FileSelectorGUI):
             index = indexes[0]
         else: return None
         try:
-            print("Hello~", index)
-            print(self.data_model.datalist[2])
             data = self.data_model.datalist[index.row()]
         except:
             data = None
