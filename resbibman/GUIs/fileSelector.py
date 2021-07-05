@@ -200,6 +200,7 @@ class FileListModel(QtCore.QAbstractListModel):
         return x[0]
 
 class FileTableModel(QtCore.QAbstractTableModel):
+    # https://gist.github.com/katmai1/75aa8b03846a94fa11b38daf656c6e93
     delete_current_selected = QtCore.pyqtSignal(DataPoint)
     def __init__(self, datalist: DataList) -> None:
         super().__init__()
@@ -235,10 +236,13 @@ class FileTableView(QTableView):
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setAutoScroll(False)
     def initSettings(self):
+        # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
         header = self.horizontalHeader()       
+        header.setVisible(False)
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+        header.setStretchLastSection(True)
 
 
 

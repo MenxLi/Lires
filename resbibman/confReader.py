@@ -12,7 +12,8 @@ _VERSION_HISTORIES = [
     ("0.0.5", "Finished toolbar, bug fix, use setup.py for distribution"),
     ("0.0.6", "Add bibtex template, Bug fix"),
     ("0.0.7", "Using argparse when starting, add window icon"),
-    ("0.0.8", "Added log file")
+    ("0.0.8", "Added log file"),
+    ("0.1.0", "Use table view")
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

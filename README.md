@@ -19,7 +19,7 @@ Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
 
 # Future works
 ## Todo list
- - [ ] To use TableView of the selection panel
+ - [x] To use TableView of the selection panel
  - [ ] Pdf compression - [reference](https://blog.csdn.net/xinRCNN/article/details/113273463)
  - [ ] User info
  - [ ] Export database
