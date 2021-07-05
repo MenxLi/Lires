@@ -68,11 +68,35 @@ class DataPoint:
     def save(self):
         pass
 
+    def getAuthorsAbbr(self):
+        if len(self.authors) == 1:
+            author = self._getFirstName(self.authors[0])
+        else:
+            author = self._getFirstName(self.authors[0]) + " et al."
+        return author
+
+    def _getFirstName(self, name: str):
+        x = name.split(", ")
+        return x[0]
+
 class DataList(list):
     SORT_YEAR = "Year"
     SORT_AUTHOR = "Author"
     SORT_TIMEADDED = "Time added"
     SORT_TIMEOPENED = "Time opened"
+    TB_HEADER = {
+        0: "Year",
+        1: "Author",
+        2: "Title"
+    }
+    TB_FUNCS = {
+        0: lambda x: x.year,
+        1: lambda x: x.getAuthorsAbbr(),
+        2: lambda x: x.title
+    }
+    def __init__(self, *args, **kwargs):
+        return super().__init__(*args, **kwargs)
+
     def sortBy(self, mode):
         if mode == self.SORT_AUTHOR:
             return self.sort(key = lambda x: x.authors[0])
@@ -82,8 +106,20 @@ class DataList(list):
             return self.sort(key = lambda x: x.time_added)
         elif mode == self.SORT_TIMEOPENED:
             return self.sort(key = lambda x: x.time_modified)
+
     def reloadFromFile(self, idx):
         self[idx].reload()
+    
+    def getTable(self):
+        pass
+
+    def getTableItem(self, row: int, col: int) -> str:
+        data = self[row]
+        return DataList.TB_FUNCS[col](data)
+
+    def getTableHeaderItem(self, col: int) -> str:
+        return self.TB_HEADER[col]
+
 
 class DataBase(dict):
     def add(self, data: DataPoint):

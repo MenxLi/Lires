@@ -1,3 +1,4 @@
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QListView, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView
 from PyQt5 import QtGui, QtCore
 import typing, os, shutil, copy
@@ -23,10 +24,12 @@ class FileSelectorGUI(MainWidgetBase):
         hbox.addWidget(self.frame)
         self.setLayout(hbox)
 
-        self.data_view = QListView()
-        self.data_model = FileListModel([])
+        # self.data_view = QListView()
+        # self.data_model = FileListModel(DataList([]))
+        self.data_view = FileTableView()
+        self.data_model = FileTableModel(DataList([]))
         self.data_view.setModel(self.data_model)
-        # self.data_view.setSelectionModel(QAbstractItemView.SingleSelection)
+        self.data_view.initSettings()
         self.search_edit = QLineEdit()
 
         vbox = QVBoxLayout()
@@ -123,8 +126,10 @@ class FileSelector(FileSelectorGUI):
             index = indexes[0]
         else: return None
         try:
+            print("Hello~", index)
+            print(self.data_model.datalist[2])
             data = self.data_model.datalist[index.row()]
-        except IndexError:
+        except:
             data = None
         return data
 
@@ -193,6 +198,49 @@ class FileListModel(QtCore.QAbstractListModel):
     def _getFirstName(self, name: str):
         x = name.split(", ")
         return x[0]
+
+class FileTableModel(QtCore.QAbstractTableModel):
+    delete_current_selected = QtCore.pyqtSignal(DataPoint)
+    def __init__(self, datalist: DataList) -> None:
+        super().__init__()
+        self.datalist = copy.deepcopy(datalist)
+
+    def assignData(self, datalist: typing.List[DataPoint]):
+        self.datalist = copy.deepcopy(datalist)
+        self.layoutChanged.emit()
+
+    def sortBy(self, sort_method: str):
+        """
+        - sort_method: refer to static items in backend.dataClass.DataList
+        """
+        self.datalist.sortBy(sort_method)
+
+    def add(self, dp: DataPoint):
+        self.datalist.append(dp)
+        self.layoutChanged.emit()
+    
+    def data(self, index: QtCore.QModelIndex, role):
+        if role == QtCore.Qt.DisplayRole:
+            return self.datalist.getTableItem(row = index.row(), col = index.column())
+
+    def rowCount(self, parent: QtCore.QModelIndex) -> int:
+        return len(self.datalist)
+    
+    def columnCount(self, parent: QtCore.QModelIndex) -> int:
+        return len(self.datalist.TB_HEADER.keys())
+
+class FileTableView(QTableView):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setAutoScroll(False)
+    def initSettings(self):
+        header = self.horizontalHeader()       
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+
+
 
 class CItemDelegate(QItemDelegate):
     pass
