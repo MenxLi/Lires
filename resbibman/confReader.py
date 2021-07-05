@@ -45,24 +45,17 @@ def getStyleSheets() -> dict:
 
 def getConf():
     global CONF_FILE_PATH, CURR_PATH
-    with open(CONF_FILE_PATH) as conf_file:
+    with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
         conf = json.load(conf_file)
-    # Dev
-    dev_conf_path = join(CURR_PATH, "conf_dev.json")
-    if os.path.exists(dev_conf_path):
-        with open(dev_conf_path, "r") as f:
-            conf_ = json.load(f)
-            for k in conf_.keys():
-                conf[k] = conf_[k]
     conf["database"] = os.path.normpath(conf["database"])
     return conf
 
 def saveToConf(**kwargs):
-    with open(CONF_FILE_PATH, "r") as conf_file:
+    with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
         conf_ori = json.load(conf_file)
     for k,v in kwargs.items():
         conf_ori[k] = v
-    with open(CONF_FILE_PATH, "w") as conf_file:
+    with open(CONF_FILE_PATH, "w", encoding="utf-8") as conf_file:
         json.dump(conf_ori, conf_file)
 
 if not os.path.exists(getConf()["database"]):

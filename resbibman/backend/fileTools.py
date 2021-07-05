@@ -175,32 +175,32 @@ class FileManipulator:
         self._log()
     
     def getUuid(self) -> str:
-        with open(self.info_p, "r") as f:
+        with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)
         return data["uuid"]
 
     def getTags(self) -> typing.List[str]:
-        with open(self.info_p, "r") as f:
+        with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)
         return data["tags"]
     
     def getTimeAdded(self) -> str:
-        with open(self.info_p, "r") as f:
+        with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)
         return data["time_import"]
     
     def getTimeModified(self) -> str:
-        with open(self.info_p, "r") as f:
+        with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)
         return data["time_modify"]
 
     def writeTags(self, tags: list):
         if not isinstance(tags, list):
             tags = list(tags)
-        with open(self.info_p, "r") as f:
+        with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)
         data["tags"] = tags
-        with open(self.info_p, "w") as f:
+        with open(self.info_p, "w", encoding = "utf-8") as f:
             json.dump(data, f)
         return
 
@@ -222,10 +222,10 @@ class FileManipulator:
 
     def _log(self):
         """log the modification info info file"""
-        with open(self.info_p) as f:
+        with open(self.info_p, "r", encoding="utf-8") as f:
             info = json.load(f)
         info["time_modify"] = getDateTime()
         info["device_modifky"] = platform.node()
         info["version_modify"] = VERSION
-        with open(self.info_p, "w") as f:
+        with open(self.info_p, "w", encoding="utf-8") as f:
             json.dump(info, f)
