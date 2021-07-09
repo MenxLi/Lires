@@ -1,1 +1,1 @@
-{"database": "F:/Nutstore/AcademicPapers/Database", "stylesheet": "Aqua", "accepted_extensions": [".pdf", ".caj"], "default_tags": [], "sort_method": "Time added"}
+{"database": "/home/monsoon/Documents/Code/ResBibManager/resbibman/../Database", "stylesheet": "<None>", "accepted_extensions": [".pdf", ".caj"], "default_tags": [], "sort_method": "Time added", "table_headers": ["Year", "Title"]}

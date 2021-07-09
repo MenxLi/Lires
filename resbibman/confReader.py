@@ -26,6 +26,7 @@ ICON_PATH = join(CURR_PATH, "icons")
 STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
 DOC_PATH = join(CURR_PATH, "docs")
 LOG_FILE = join(CURR_PATH, "log.txt")
+DEFAULT_DATA_PATH = join(CURR_PATH, os.pardir, "Database")
 
 def getStyleSheets() -> dict:
     global STYLESHEET_PATH
@@ -50,6 +51,9 @@ def getConf():
     conf["database"] = os.path.normpath(conf["database"])
     return conf
 
+def getConfV(key : str):
+    return getConf()[key]
+
 def saveToConf(**kwargs):
     with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
         conf_ori = json.load(conf_file)
@@ -61,8 +65,6 @@ def saveToConf(**kwargs):
 if not os.path.exists(getConf()["database"]):
     warnings.warn("Database not exists, default database path is set. \
         The path can be changed in settings or conf.json")
-    data_path = join(CURR_PATH, os.pardir)
-    data_path = join(data_path, "Database")
-    if not os.path.exists(data_path):
-        os.mkdir(data_path)
-    saveToConf(database=data_path)
+    if not os.path.exists(DEFAULT_DATA_PATH):
+        os.mkdir(DEFAULT_DATA_PATH)
+    saveToConf(database=DEFAULT_DATA_PATH)

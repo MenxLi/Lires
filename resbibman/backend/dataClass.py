@@ -1,3 +1,4 @@
+from resbibman.confReader import getConfV
 import typing, re
 from typing import List, Union, Iterable, Set
 from .fileTools import FileManipulator
@@ -113,13 +114,34 @@ class DataList(list):
     def getTable(self):
         pass
 
+    # def getTableItem(self, row: int, col: int) -> str:
+        # data = self[row]
+        # return DataList.TB_FUNCS[col](data)
+
+    # def getTableHeaderItem(self, col: int) -> str:
+        # return self.TB_HEADER[col]
+
+class DataTableList(DataList):
+    HEADER_YEAR = "Year"
+    HEADER_AUTHOR = "Author"
+    HEADER_TITLE = "Title"
+    HEADER_TIMEMODIFY = "Time modified"
+    _HEADER_FUNCS = {
+        HEADER_YEAR: lambda x: x.year,
+        HEADER_AUTHOR: lambda x: x.getAuthorsAbbr(),
+        HEADER_TITLE: lambda x: x.title,
+        HEADER_TIMEMODIFY: lambda x: x.time_modified
+    }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.header_order = getConfV("table_headers")
+
     def getTableItem(self, row: int, col: int) -> str:
         data = self[row]
-        return DataList.TB_FUNCS[col](data)
+        return DataTableList._HEADER_FUNCS[self.header_order[col]](data)
 
     def getTableHeaderItem(self, col: int) -> str:
-        return self.TB_HEADER[col]
-
+        return self.header_order[col]
 
 class DataBase(dict):
     def add(self, data: DataPoint):

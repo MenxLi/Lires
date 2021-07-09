@@ -1,17 +1,21 @@
 import typing
 import warnings
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QComboBox, QDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QWidget, QFileDialog
+from PyQt5.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QTextEdit, QVBoxLayout, QWidget, QFileDialog
 from PyQt5 import QtCore
 
-from ..backend.dataClass import DataList
+from ..backend.dataClass import DataList, DataTableList
 
 from .widgets import RefWidgetBase
-from ..confReader import getConf, getStyleSheets, saveToConf
+from ..confReader import getConf, getConfV, getStyleSheets, saveToConf
 
 class SubSettingsBase(RefWidgetBase):
 	def __init__(self) -> None:
 		super().__init__()
+		self._frame = QFrame()
+		self._layout = QVBoxLayout()
+		self._layout.addWidget(self._frame)
+		self.setLayout(self._layout)
 		self.initUI()
 
 	def initUI(self):
@@ -31,7 +35,7 @@ class SetDatabase(SubSettingsBase):
 		hbox.addWidget(self.btn, 0)
 		vbox.addWidget(self.label)
 		vbox.addLayout(hbox)
-		self.setLayout(vbox)
+		self._frame.setLayout(vbox)
 
 		self.btn.clicked.connect(self.chooseDir)
 
@@ -56,7 +60,7 @@ class SetSortingMethod(SubSettingsBase):
 		hbox = QHBoxLayout()
 		hbox.addWidget(self.lbl)
 		hbox.addWidget(self.cb)
-		self.setLayout(hbox)
+		self._frame.setLayout(hbox)
 	
 	def confirm(self):
 		selection = self.cb.currentText()
@@ -64,6 +68,35 @@ class SetSortingMethod(SubSettingsBase):
 			saveToConf(sort_method = selection)
 			self.getSelectPanel().data_model.sortBy(selection)
 			print("Sorting method changed to {}". format(getConf()["sort_method"]))
+
+class setTableHeader(SubSettingsBase):
+	def initUI(self):
+		vbox = QVBoxLayout()
+		self.label = QLabel("Table header:")
+		self.list_wid = QListWidget()
+		for k in [DataTableList.HEADER_YEAR, DataTableList.HEADER_AUTHOR, DataTableList.HEADER_TITLE, DataTableList.HEADER_TIMEMODIFY]:
+			box = QCheckBox(k)
+			if k in getConfV("table_headers"):
+				box.setChecked(True)
+			item = QListWidgetItem(self.list_wid)
+			self.list_wid.addItem(item)
+			self.list_wid.setItemWidget(item, box)
+		self.list_wid.setDragDropMode(QAbstractItemView.InternalMove)
+		vbox.addWidget(self.label)
+		vbox.addWidget(self.list_wid, 0)
+		self._frame.setLayout(vbox)
+	def confirm(self):
+		# https://blog.csdn.net/sinat_34149445/article/details/94548871
+		count = self.list_wid.count()  # 得到QListWidget的总个数
+		cb_list = [self.list_wid.itemWidget(self.list_wid.item(i))
+                  for i in range(count)]  # 得到QListWidget里面所有QListWidgetItem中的QCheckBox
+		chooses = []  # 存放被选择的数据
+		for cb in cb_list:  # type:QCheckBox
+			if cb.isChecked():
+				chooses.append(cb.text())
+		saveToConf(table_headers = chooses)
+		print("Headers changed -> {}".format(chooses))
+		self.getMainPanel().reloadData()
 
 class SetStyle(SubSettingsBase):
 	def initUI(self):
@@ -75,7 +108,7 @@ class SetStyle(SubSettingsBase):
 		hbox = QHBoxLayout()
 		hbox.addWidget(self.lbl)
 		hbox.addWidget(self.cb)
-		self.setLayout(hbox)
+		self._frame.setLayout(hbox)
 	
 	def confirm(self):
 		selection = self.cb.currentText()
@@ -96,7 +129,7 @@ class SettingsWidget(RefWidgetBase):
 		self.parent = dialog_win 
 
 	def init(self):
-		self.sub_settings = [SetDatabase(), SetSortingMethod(), SetStyle()]
+		self.sub_settings = [SetDatabase(), SetSortingMethod(), setTableHeader(), SetStyle()]
 		for subsetting in self.sub_settings:
 			subsetting.setMainPanel(self.getMainPanel())
 			subsetting.setInfoPanel(self.getInfoPanel())

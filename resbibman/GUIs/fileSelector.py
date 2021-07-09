@@ -7,8 +7,8 @@ from typing import Union, List
 from .bibQuery import BibQuery
 from .widgets import WidgetBase, MainWidgetBase
 from ..backend.fileTools import FileManipulator
-from ..backend.dataClass import DataBase, DataPoint, DataList, DataTags
-from ..confReader import getConf
+from ..backend.dataClass import DataBase, DataPoint, DataList, DataTags, DataTableList
+from ..confReader import getConf, getConfV
 
 class FileSelectorGUI(MainWidgetBase):
     def __init__(self, parent):
@@ -204,10 +204,10 @@ class FileTableModel(QtCore.QAbstractTableModel):
     delete_current_selected = QtCore.pyqtSignal(DataPoint)
     def __init__(self, datalist: DataList) -> None:
         super().__init__()
-        self.datalist = copy.deepcopy(datalist)
+        self.datalist = DataTableList(datalist)
 
     def assignData(self, datalist: typing.List[DataPoint]):
-        self.datalist = copy.deepcopy(datalist)
+        self.datalist = DataTableList(datalist)
         self.layoutChanged.emit()
 
     def sortBy(self, sort_method: str):
@@ -228,7 +228,7 @@ class FileTableModel(QtCore.QAbstractTableModel):
         return len(self.datalist)
     
     def columnCount(self, parent: QtCore.QModelIndex) -> int:
-        return len(self.datalist.TB_HEADER.keys())
+        return len(getConfV("table_headers"))
 
 class FileTableView(QTableView):
     def __init__(self, *args, **kwargs) -> None:
@@ -239,12 +239,11 @@ class FileTableView(QTableView):
         # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
         header = self.horizontalHeader()       
         header.setVisible(False)
-        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
-        header.setStretchLastSection(True)
-
-
+        for i in range(len(getConfV("table_headers"))):
+            if getConfV("table_headers")[i] == DataTableList.HEADER_TITLE:
+                header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+            else:
+                header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
 
 class CItemDelegate(QItemDelegate):
     pass
