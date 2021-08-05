@@ -7,6 +7,7 @@ from .fileInfo import FileInfo
 from .fileTags import FileTag
 from .fileSelector import FileSelector
 from .bibQuery import BibQuery
+from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
 
 from ..backend.fileTools import FileManipulator
@@ -45,6 +46,7 @@ class MainWindowGUI(QMainWindow):
         self.setCentralWidget(wid)
         wid.setLayout(hbox)
         self.resize(900, 600)
+        self.showMaximized()
         self._center()
     
     def _initPanels(self):
@@ -80,6 +82,8 @@ class MainWindowGUI(QMainWindow):
         self.act_help.setIcon(QIcon(os.path.join(ICON_PATH, "info-24px.svg")))
         self.act_reload = QAction("&Reload", self)
         self.act_reload.setIcon(QIcon(os.path.join(ICON_PATH, "refresh-24px.svg")))
+        self.act_open_pdb = QAction("&Pending data", self)
+        # self.act_open_pdb.setIcon(QIcon(os.path.join(ICON_PATH, "folder_special-24px.svg.svg")))
 
     def _createMenuBar(self):
         menu_bar = QMenuBar(self)
@@ -101,6 +105,10 @@ class MainWindowGUI(QMainWindow):
         tool_bar.addAction(self.act_settings)
         tool_bar.addAction(self.act_help)
         tool_bar.addAction(self.act_reload)
+        
+        tool_bar = QToolBar("Filebar")
+        self.addToolBar(Qt.TopToolBarArea, tool_bar)
+        tool_bar.addAction(self.act_open_pdb)
     
 class MainWindow(MainWindowGUI):
     def __init__(self):
@@ -116,6 +124,7 @@ class MainWindow(MainWindowGUI):
         self.act_help.triggered.connect(self.openHelpFile)
         self.act_file_additem.triggered.connect(self.openAddfileSelectionDialog)
         self.act_reload.triggered.connect(self.reloadData)
+        self.act_open_pdb.triggered.connect(self.openPendingWindow)
 
     def loadData(self, data_path):
         self.db = DataBase()
@@ -179,9 +188,9 @@ class MainWindow(MainWindowGUI):
         extensions = getConf()["accepted_extensions"]
         extension_filter = "({})".format(" ".join(["*"+i for i in extensions]))
         fname = QFileDialog.getOpenFileName(self, caption="Select papers", filter=extension_filter)[0]
-        self.addFilesToDatabseByURL([fname])
+        self.addFilesToDatabaseByURL([fname])
     
-    def addFilesToDatabseByURL(self, urls: typing.List[str]):
+    def addFilesToDatabaseByURL(self, urls: typing.List[str]):
         curr_selected_tags = self.getCurrentSelectedTags()
         curr_total_tags = self.getTotalTags()
         for f in urls:
@@ -189,6 +198,11 @@ class MainWindow(MainWindowGUI):
             self.bib_quary.file_added.connect(self.file_selector.addToDatabase)
             self.bib_quary.file_added.connect(self.refreshFileTagSelector)
             self.bib_quary.show()
+    
+    def openPendingWindow(self):
+        self.pending_win = PendingWindow()
+        self.pending_win.setMainPanel(self)
+        self.pending_win.show()
     
     def reloadData(self):
         self.loadData(getConf()["database"])

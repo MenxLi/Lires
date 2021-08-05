@@ -14,7 +14,8 @@ _VERSION_HISTORIES = [
     ("0.1.2", "Using argparse when starting, add window icon"),
     ("0.1.3", "Added log file"),
     ("0.2.0", "Use table view"),
-    ("0.2.1", "Add context menu")
+    ("0.2.1", "Add context menu"),
+    ("0.2.2", "Add pending window, support entry without file")
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

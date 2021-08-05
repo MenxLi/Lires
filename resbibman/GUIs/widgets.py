@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import QStyle, QWidget, QMessageBox, QListView, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QStyle, QWidget, QMessageBox, QListView, QHBoxLayout, QVBoxLayout, QDesktopWidget
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
@@ -35,6 +35,12 @@ class WidgetBase(QWidget):
         if return_value == QMessageBox.Ok:
             return True
         else: return False
+
+    def _center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
 class RefWidgetBase(WidgetBase):
     def __init__(self, parent: typing.Optional['QWidget']=None) -> None:

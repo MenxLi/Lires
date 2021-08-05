@@ -35,6 +35,7 @@ class DataPoint:
         self.loadInfo()
 
     def loadInfo(self):
+        self.has_file = self.fm.hasFile()
         self.bib = BibParser()(self.fm.readBib())[0]
         self.uuid = self.fm.getUuid()
         self.tags = DataTags(self.fm.getTags())
@@ -43,6 +44,9 @@ class DataPoint:
         self.year = self.bib["year"]
         self.time_added = self.fm.getTimeAdded()
         self.time_modified = self.fm.getTimeModified()
+    
+    def addFile(self, extern_file_p: str) -> bool:
+        return self.fm.addFile(extern_file_p)
     
     def changeTags(self, new_tags: DataTags):
         self.fm.writeTags(list(new_tags))

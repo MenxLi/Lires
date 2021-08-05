@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QListView, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView
+from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QListView, QMessageBox, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView, QFileDialog
 from PyQt5 import QtGui, QtCore
 import typing, os, shutil, copy
 from typing import Union, List 
@@ -45,8 +45,10 @@ class FileSelectorGUI(MainWidgetBase):
         self.act_delete_file = QAction("Delete", self)
         self.act_export_bib = QAction("Export as .bib", self)
         self.act_copy_bib = QAction("Copy bib", self)
+        self.act_add_file = QAction("Add file", self)
 
         self.data_view.addAction(self.act_copy_bib)
+        self.data_view.addAction(self.act_add_file)
     
 
 class FileSelector(FileSelectorGUI):
@@ -64,6 +66,7 @@ class FileSelector(FileSelectorGUI):
         self.search_edit.textChanged.connect(self.onSearchTextChange)
 
         self.act_copy_bib.triggered.connect(self.copyCurrentSelectionBib)
+        self.act_add_file.triggered.connect(self.addFileToCurrentSelection)
 
     def loadValidData(self, tags: DataTags, hint = False):
         """Load valid data by tags"""
@@ -100,6 +103,19 @@ class FileSelector(FileSelectorGUI):
             bibs = bibs[0]
         copy2clip("\""+bibs+"\"")
         print(bibs)
+
+    def addFileToCurrentSelection(self):
+        """Add file to a no-file entry point"""
+        extensions = getConf()["accepted_extensions"]
+        extension_filter = "({})".format(" ".join(["*"+i for i in extensions]))
+        dp = self.getCurrentSelection(return_multiple=False)
+        if dp.has_file:
+            self.warnDialog("Adding failed, the file exists.")
+            return False
+        fname = QFileDialog.getOpenFileName(self, caption="Select file for {}".format(dp.title[:25]), filter=extension_filter)[0]
+        if dp.fm.addFile(fname):
+            dp.reload()
+            QMessageBox.information(self, "Success", "File added")
 
     def addToDatabase(self, file_path:str):
         """ will be called by signal from bibQuery
