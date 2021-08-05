@@ -147,12 +147,27 @@ class DataBase(dict):
     def add(self, data: DataPoint):
         self[data.uuid] = data
     
-    def getDataByTags(self, tags: Union[list, set]) -> DataList:
+    def getDataByTags(self, tags: Union[list, set, DataTags]) -> DataList:
         datalist = DataList()
         for data in self.values():
             tag_data = set(data.tags)
             tags = set(tags)
-            if tag_data.issubset(tags):
+            if tags.issubset(tag_data):
                 datalist.append(data)
         return datalist
+    
+    def renameTag(self, tag_old: str, tag_new: str):
+        data = self.getDataByTags(DataTags([tag_old]))
+        for d in data:
+            taglist = d.tags.toOrderedList()
+            taglist = [tag_new if i == tag_old else i for i in taglist]
+            d.changeTags(DataTags(taglist))
+    
+    def deleteTag(self, tag: str):
+        data = self.getDataByTags(DataTags([tag]))
+        for d in data:
+            taglist = d.tags.toOrderedList()
+            taglist.remove(tag)
+            d.changeTags(DataTags(taglist))
+
 

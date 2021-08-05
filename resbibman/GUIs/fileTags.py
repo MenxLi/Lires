@@ -73,12 +73,15 @@ class FileTag(FileTagGUI):
         self.clear_selection_btn.clicked.connect(self.clearSelection)
         self.tag_selector.tag_view.clicked.connect(self.onTagSelectionChanged)
         self.getSelectPanel().selection_changed.connect(self.updateTagLabel)
+
+        self.tag_selector.setMainPanel(self.getMainPanel())
     
     def openTagEditor(self):
         curr_tags = self._getTagFromCurrSelection()
         if curr_tags is None: return False
         total_tags = self.tag_selector.getTotalTags()
         self.tag_editor = TagEditorWidget(curr_tags, total_tags)
+        self.tag_editor.setMainPanel(self.getMainPanel())
         self.tag_editor.tag_accepted.connect(self.acceptNewTags)
         self.tag_editor.show()
     

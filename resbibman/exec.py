@@ -6,6 +6,7 @@ from .backend.utils import getDateTime, Logger
 from .confReader import getConf, getStyleSheets, VERSION, _VERSION_HISTORIES, LOG_FILE
 
 def execProg_():
+	print("************Welcome to ResBibMan-v{}**************".format(VERSION))
 	app = QApplication(sys.argv)
 	ss = getStyleSheets()[getConf()["stylesheet"]]
 	if ss != "":

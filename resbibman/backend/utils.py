@@ -17,6 +17,17 @@ def openFile(filepath):
     else:                                   # linux variants
         subprocess.call(('xdg-open', filepath))
 
+def copy2clip(text: str):
+    assert isinstance(text, str), "copy2clip only takes string as input"
+    if platform.system() == 'Darwin':       # macOS
+        cmd = 'echo '+text.strip()+'|pbcopy'
+    elif platform.system() == 'Windows':    # Windows
+        cmd = 'echo '+text.strip()+'|clip'
+    else:                                   # linux variants
+        cmd = 'echo '+text.strip()+"| xclip -sel clip"
+    subprocess.check_call(cmd, shell=True)
+    return True
+
 class Logger():
     # https://cloud.tencent.com/developer/article/1643418
     def __init__(self, file_obj: TextIOWrapper, write_to_terminal = True):

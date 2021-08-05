@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QListView, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView
+from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QListView, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView
 from PyQt5 import QtGui, QtCore
 import typing, os, shutil, copy
 from typing import Union, List 
@@ -8,6 +8,7 @@ from .bibQuery import BibQuery
 from .widgets import WidgetBase, MainWidgetBase
 from ..backend.fileTools import FileManipulator
 from ..backend.dataClass import DataBase, DataPoint, DataList, DataTags, DataTableList
+from ..backend.utils import copy2clip
 from ..confReader import getConf, getConfV
 
 class FileSelectorGUI(MainWidgetBase):
@@ -36,6 +37,16 @@ class FileSelectorGUI(MainWidgetBase):
         vbox.addWidget(self.search_edit)
         vbox.addWidget(self.data_view)
         self.frame.setLayout(vbox)
+
+        self._initActions()
+    
+    def _initActions(self):
+        self.act_open_location = QAction("Open file location", self)
+        self.act_delete_file = QAction("Delete", self)
+        self.act_export_bib = QAction("Export as .bib", self)
+        self.act_copy_bib = QAction("Copy bib", self)
+
+        self.data_view.addAction(self.act_copy_bib)
     
 
 class FileSelector(FileSelectorGUI):
@@ -51,13 +62,16 @@ class FileSelector(FileSelectorGUI):
         self.shortcut_delete_selection = QShortcut(QtGui.QKeySequence("Del"), self)
         self.shortcut_delete_selection.activated.connect(self.deleteCurrentSelected)
         self.search_edit.textChanged.connect(self.onSearchTextChange)
-    
+
+        self.act_copy_bib.triggered.connect(self.copyCurrentSelectionBib)
+
     def loadValidData(self, tags: DataTags, hint = False):
         """Load valid data by tags"""
-        valid_data = DataList([])
-        for d in self.getMainPanel().db.values():
-            if tags.issubset(d.tags):
-                valid_data.append(d)
+        # valid_data = DataList([])
+        # for d in self.getMainPanel().db.values():
+            # if tags.issubset(d.tags):
+                # valid_data.append(d)
+        valid_data = self.getMainPanel().db.getDataByTags(tags)
         screen_pattern = self.search_edit.text()
         if screen_pattern != "":
             valid_data = DataList([i for i in valid_data if i.screenByPattern(screen_pattern)])
@@ -73,15 +87,19 @@ class FileSelector(FileSelectorGUI):
         text = self.search_edit.text()
         self.loadValidData(tags = set(getConf()["default_tags"]))
 
-    def getDataByTag(self, tags: list):
-        pass
-
     def reloadData(self):
         self._clearList()
         self.loadValidData(tags = self.getMainPanel().getCurrentSelectedTags(), )
     
-    def _clearList(self):
-        pass
+    def copyCurrentSelectionBib(self):
+        selected = self.getCurrentSelection(return_multiple=True)
+        bibs =[s.fm.readBib() for s in selected]  
+        if len(bibs) > 1:
+            bibs = ",\n".join(bibs)
+        else:
+            bibs = bibs[0]
+        copy2clip("\""+bibs+"\"")
+        print(bibs)
 
     def addToDatabase(self, file_path:str):
         """ will be called by signal from bibQuery
@@ -122,16 +140,20 @@ class FileSelector(FileSelectorGUI):
         if data is not None:
             data.fm.openFile()
     
-    def getCurrentSelection(self) -> typing.Union[None, DataPoint]:
+    def getCurrentSelection(self, return_multiple = False) -> typing.Union[None, DataPoint, DataList]:
         indexes = self.data_view.selectedIndexes()
-        if indexes:
-            index = indexes[0]
-        else: return None
+        if not indexes:
+            return None
         try:
-            data = self.data_model.datalist[index.row()]
+            all_data = [self.data_model.datalist[index.row()] for index in indexes]
         except:
-            data = None
-        return data
+            # When index is larger than the length of the data
+            return None
+
+        if return_multiple:
+            return DataList(set(all_data))
+        else:
+            return all_data[0]
 
     def selectChange(self):
         pass
@@ -154,6 +176,7 @@ class FileSelector(FileSelectorGUI):
         curr_total_tags = self.getMainPanel().getTotalTags()
         for f in urls:
             self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
+            self.bib_quary.tag_edit.setMainPanel(self.getMainPanel())
             self.bib_quary.file_added.connect(self.addToDatabase)
             self.bib_quary.file_added.connect(self.getMainPanel().refreshFileTagSelector)
             self.bib_quary.show()
@@ -234,16 +257,17 @@ class FileTableView(QTableView):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         self.setAutoScroll(False)
     def initSettings(self):
         # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
-        header = self.horizontalHeader()       
-        header.setVisible(False)
+        self.header = self.horizontalHeader()       
+        self.header.setVisible(False)
         for i in range(len(getConfV("table_headers"))):
             if getConfV("table_headers")[i] == DataTableList.HEADER_TITLE:
-                header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+                self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
             else:
-                header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+                self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
 
 class CItemDelegate(QItemDelegate):
     pass

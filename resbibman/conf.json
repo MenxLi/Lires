@@ -1,1 +1,1 @@
-{"database": "/home/monsoon/Documents/Code/ResBibManager/resbibman/../Database", "stylesheet": "<None>", "accepted_extensions": [".pdf", ".caj"], "default_tags": [], "sort_method": "Time added", "table_headers": ["Year", "Title"]}
+{"database": "/home/monsoon/Desktop/Temp/Database_backup (copy)", "stylesheet": "Aqua", "accepted_extensions": [".pdf", ".caj"], "default_tags": [], "sort_method": "Time added", "table_headers": ["Year", "Author", "Title"]}

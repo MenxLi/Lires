@@ -46,6 +46,7 @@ Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
  - [ ] Language support
 
 ## Known issues
+crash when using deletetag or rename tag with tag edit
 
 ## Credits:
 https://github.com/google/material-design-icons   

@@ -18,7 +18,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        "Development Status :: 3",
+        "Development Status :: 4",
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent"
     ],

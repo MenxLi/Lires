@@ -9,11 +9,12 @@ _VERSION_HISTORIES = [
     ("0.0.2 - Alpha", "Under development: Added tag related functions"),
     ("0.0.3 - Alpha", "Under development: Internal code structure change"),
     ("0.0.4", "Added search tools, toolbar, and application style"),
-    ("0.0.5", "Finished toolbar, bug fix, use setup.py for distribution"),
-    ("0.0.6", "Add bibtex template, Bug fix"),
-    ("0.0.7", "Using argparse when starting, add window icon"),
-    ("0.0.8", "Added log file"),
-    ("0.1.0", "Use table view")
+    ("0.1.0", "Finished toolbar, bug fix, use setup.py for distribution"),
+    ("0.1.1", "Add bibtex template, Bug fix"),
+    ("0.1.2", "Using argparse when starting, add window icon"),
+    ("0.1.3", "Added log file"),
+    ("0.2.0", "Use table view"),
+    ("0.2.1", "Add context menu")
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

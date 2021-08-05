@@ -97,6 +97,7 @@ class setTableHeader(SubSettingsBase):
 		saveToConf(table_headers = chooses)
 		print("Headers changed -> {}".format(chooses))
 		self.getMainPanel().reloadData()
+		self.getSelectPanel().data_view.initSettings()	# Resize header width
 
 class SetStyle(SubSettingsBase):
 	def initUI(self):
