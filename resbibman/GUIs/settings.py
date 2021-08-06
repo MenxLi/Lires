@@ -74,7 +74,13 @@ class setTableHeader(SubSettingsBase):
 		vbox = QVBoxLayout()
 		self.label = QLabel("Table header:")
 		self.list_wid = QListWidget()
-		for k in [DataTableList.HEADER_YEAR, DataTableList.HEADER_AUTHOR, DataTableList.HEADER_TITLE, DataTableList.HEADER_TIMEMODIFY]:
+		header_candidate = [
+				DataTableList.HEADER_FILESTATUS,
+				DataTableList.HEADER_YEAR, 
+				DataTableList.HEADER_AUTHOR, 
+				DataTableList.HEADER_TITLE, 
+				DataTableList.HEADER_TIMEMODIFY]
+		for k in header_candidate:
 			box = QCheckBox(k)
 			if k in getConfV("table_headers"):
 				box.setChecked(True)

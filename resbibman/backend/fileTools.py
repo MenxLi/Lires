@@ -155,6 +155,7 @@ class FileManipulator:
             self.file_p = os.path.join(self.path, file_f)
             if not os.path.exists(self.file_p): warnings.warn("The file does not exists")
         except NameError:
+            # No file served
             self.file_p = None
         if not os.path.exists(self.folder_p): warnings.warn("Miscellaneous folder does not exists")
         if not os.path.exists(self.bib_p): warnings.warn("Bibliography file does not exists")

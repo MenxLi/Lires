@@ -1,5 +1,5 @@
 from pprint import pprint
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar
 from PyQt5.QtCore import Qt
 
@@ -85,6 +85,9 @@ class MainWindowGUI(QMainWindow):
         self.act_open_pdb = QAction("&Pending data", self)
         # self.act_open_pdb.setIcon(QIcon(os.path.join(ICON_PATH, "folder_special-24px.svg.svg")))
 
+        self.act_importbib_from_clip = QAction("Import bib from clipboard", self)
+        self.act_importbib_from_clip.setShortcut(QKeySequence("Ctrl+Alt+i"))
+
     def _createMenuBar(self):
         menu_bar = QMenuBar(self)
         self.setMenuBar(menu_bar)
@@ -125,6 +128,8 @@ class MainWindow(MainWindowGUI):
         self.act_file_additem.triggered.connect(self.openAddfileSelectionDialog)
         self.act_reload.triggered.connect(self.reloadData)
         self.act_open_pdb.triggered.connect(self.openPendingWindow)
+
+        self.act_importbib_from_clip.triggered.connect()
 
     def loadData(self, data_path):
         self.db = DataBase()
@@ -188,7 +193,12 @@ class MainWindow(MainWindowGUI):
         extensions = getConf()["accepted_extensions"]
         extension_filter = "({})".format(" ".join(["*"+i for i in extensions]))
         fname = QFileDialog.getOpenFileName(self, caption="Select papers", filter=extension_filter)[0]
+        if fname == "":
+            fname = None
         self.addFilesToDatabaseByURL([fname])
+    
+    def importEntryFromClipboardBib(self):
+        pass
     
     def addFilesToDatabaseByURL(self, urls: typing.List[str]):
         curr_selected_tags = self.getCurrentSelectedTags()
@@ -198,6 +208,9 @@ class MainWindow(MainWindowGUI):
             self.bib_quary.file_added.connect(self.file_selector.addToDatabase)
             self.bib_quary.file_added.connect(self.refreshFileTagSelector)
             self.bib_quary.show()
+    
+    def addFilesToDataBaseByBib(self, bib_str: str):
+        pass
     
     def openPendingWindow(self):
         self.pending_win = PendingWindow()

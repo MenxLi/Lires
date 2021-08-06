@@ -1,7 +1,7 @@
 """
 The quary dialog for bibtex input
 """
-import os
+import os, typing
 from PyQt5.QtWidgets import QLabel, QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5 import QtCore
@@ -67,11 +67,17 @@ class BibQueryGUI(QWidget):
 
 class BibQuery(BibQueryGUI):
     file_added = QtCore.pyqtSignal(str)
-    def __init__(self, parent, file_path: str, tag_data: DataTags, tag_total:DataTags):
+    def __init__(self, parent, file_path: typing.Union[str, None], tag_data: DataTags, tag_total:DataTags):
+        """
+        - file_path: Set to None for not providing file
+        """
         super().__init__(parent, tag_data=tag_data, tag_total=tag_total)
         self.file_path = file_path
 
-        file_name = os.path.split(self.file_path)[-1]
+        if not self.file_path is None:
+            file_name = os.path.split(self.file_path)[-1]
+        else:
+            file_name = "Anonymous"
         self.filename_lbl.setText(file_name)
 
         self.connectMethods()

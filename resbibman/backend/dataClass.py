@@ -73,6 +73,13 @@ class DataPoint:
     def save(self):
         pass
 
+    def getFileStatusStr(self):
+        """If the datapoint contains file"""
+        if self.has_file:
+            return "\u2726"
+        else:
+            return "\u2727"
+
     def getAuthorsAbbr(self):
         if len(self.authors) == 1:
             author = self._getFirstName(self.authors[0])
@@ -126,11 +133,13 @@ class DataList(list):
         # return self.TB_HEADER[col]
 
 class DataTableList(DataList):
+    HEADER_FILESTATUS = "File status"
     HEADER_YEAR = "Year"
     HEADER_AUTHOR = "Author"
     HEADER_TITLE = "Title"
     HEADER_TIMEMODIFY = "Time modified"
     _HEADER_FUNCS = {
+        HEADER_FILESTATUS: lambda x: x.getFileStatusStr(),
         HEADER_YEAR: lambda x: x.year,
         HEADER_AUTHOR: lambda x: x.getAuthorsAbbr(),
         HEADER_TITLE: lambda x: x.title,

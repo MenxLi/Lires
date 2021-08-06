@@ -91,7 +91,7 @@ class FileSelector(FileSelectorGUI):
         self.loadValidData(tags = set(getConf()["default_tags"]))
 
     def reloadData(self):
-        self._clearList()
+        # self._clearList()
         self.loadValidData(tags = self.getMainPanel().getCurrentSelectedTags(), )
     
     def copyCurrentSelectionBib(self):
@@ -143,8 +143,8 @@ class FileSelector(FileSelectorGUI):
         self._deleteFromDatabase(data)
         del self.data_model.datalist[index.row()]
         self.data_model.layoutChanged.emit()
-        self.getMainPanel.refreshFileTagSelector()
-        # self.data_view.clearSelection()
+        #self.getMainPanel.refreshFileTagSelector()
+        self.reloadData()
     
     def onRowChanged(self, current, previous):
         row = current.row()
@@ -279,6 +279,7 @@ class FileTableView(QTableView):
         # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
         self.header = self.horizontalHeader()       
         self.header.setVisible(False)
+        self.header.setMinimumSectionSize(1)
         for i in range(len(getConfV("table_headers"))):
             if getConfV("table_headers")[i] == DataTableList.HEADER_TITLE:
                 self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
