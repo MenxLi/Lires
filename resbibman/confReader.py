@@ -1,5 +1,6 @@
 import os, json, warnings
 from subprocess import check_output
+# from .cmdTools import generateDefaultConf
 import typing
 
 join = os.path.join
@@ -23,7 +24,8 @@ VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
 _file_path = os.path.abspath(__file__)
 
-CURR_PATH = join(_file_path, os.path.pardir)
+# CURR_PATH = join(_file_path, os.path.pardir)
+CURR_PATH = os.path.dirname(_file_path)
 CURR_PATH = os.path.abspath(CURR_PATH)
 CONF_FILE_PATH = join(CURR_PATH, "conf.json")
 ICON_PATH = join(CURR_PATH, "icons")
@@ -59,16 +61,12 @@ def getConfV(key : str):
     return getConf()[key]
 
 def saveToConf(**kwargs):
-    with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
-        conf_ori = json.load(conf_file)
+    try:
+        with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
+            conf_ori = json.load(conf_file)
+    except FileNotFoundError:
+        conf_ori = dict()
     for k,v in kwargs.items():
         conf_ori[k] = v
     with open(CONF_FILE_PATH, "w", encoding="utf-8") as conf_file:
         json.dump(conf_ori, conf_file)
-
-if not os.path.exists(getConf()["database"]):
-    warnings.warn("Database not exists, default database path is set. \
-        The path can be changed in settings or conf.json")
-    if not os.path.exists(DEFAULT_DATA_PATH):
-        os.mkdir(DEFAULT_DATA_PATH)
-    saveToConf(database=DEFAULT_DATA_PATH)

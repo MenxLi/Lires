@@ -1,9 +1,9 @@
-import argparse
+import argparse, subprocess, warnings
 from PyQt5.QtWidgets import QApplication
 import os, sys, platform
 from .GUIs.mainWindow import MainWindow
 from .backend.utils import getDateTime, Logger
-from .confReader import getConf, getStyleSheets, VERSION, _VERSION_HISTORIES, LOG_FILE
+from .confReader import getConf, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH
 
 def execProg_():
 	print("************Welcome to ResBibMan-v{}**************".format(VERSION))
@@ -34,6 +34,16 @@ def run():
 	parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
 	parser.add_argument("--print_log", action = "store_true", help = "Print log and exit")
 	args = parser.parse_args()
+
+	if not os.path.exists(CONF_FILE_PATH):
+		subprocess.check_call("rbm-resetConf")  # Installed with setup.py
+
+	if not os.path.exists(getConf()["database"]):
+		warnings.warn("Database not exists, default database path is set. \
+			The path can be changed in settings or conf.json")
+		if not os.path.exists(DEFAULT_DATA_PATH):
+			os.mkdir(DEFAULT_DATA_PATH)
+		saveToConf(database=DEFAULT_DATA_PATH)
 
 	if args.version:
 		for v,d in _VERSION_HISTORIES:
