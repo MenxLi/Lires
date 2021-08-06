@@ -183,7 +183,7 @@ class FileSelector(FileSelectorGUI):
     
     def dropEvent(self, a0: QtGui.QDropEvent) -> None:
         files = [u.toLocalFile() for u in a0.mimeData().urls()]
-        self.getMainPanel().addFilesToDatabseByURL(files)
+        self.getMainPanel().addFilesToDatabaseByURL(files)
         return super().dropEvent(a0)
     
     def addFilesToDatabseByURL(self, urls: List[str]):
