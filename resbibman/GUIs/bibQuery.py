@@ -66,7 +66,8 @@ class BibQueryGUI(QWidget):
 
 
 class BibQuery(BibQueryGUI):
-    file_added = QtCore.pyqtSignal(str)
+    file_added = QtCore.pyqtSignal(str)     # send generated folder path
+    fail_add_bib = QtCore.pyqtSignal(str)   # send file_path
     def __init__(self, parent, file_path: typing.Union[str, None], tag_data: DataTags, tag_total:DataTags):
         """
         - file_path: Set to None for not providing file
@@ -84,7 +85,7 @@ class BibQuery(BibQueryGUI):
     
     def connectMethods(self):
         self.ok_button.clicked.connect(self.confirm)
-        self.cancel_button.clicked.connect(self.close)
+        self.cancel_button.clicked.connect(self.cancel)
         self.insert_template_button.clicked.connect(self.insertBibTemplate)
     
     def insertBibTemplate(self):
@@ -111,5 +112,9 @@ class BibQuery(BibQueryGUI):
         fm.writeBib(bib_txt)
         fm.writeTags(tag_list)
         self.file_added.emit(dst_dir)
+        self.close()
+    
+    def cancel(self):
+        self.fail_add_bib.emit(self.file_path)
         self.close()
 

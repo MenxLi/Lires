@@ -16,7 +16,8 @@ _VERSION_HISTORIES = [
     ("0.2.0", "Use table view"),
     ("0.2.1", "Add context menu"),
     ("0.2.2", "Add pending window, support entry without file"),
-    ("0.2.3", "Better support for entry without file")
+    ("0.2.3", "Better support for entry without file"),
+    ("0.2.4", "Better support for pending window, add pdf preview to pending window")
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

@@ -1,10 +1,11 @@
 import typing, os, shutil, warnings
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QAction, QListView, QVBoxLayout, QWidget, QShortcut, QInputDialog
+from PyQt5.QtWidgets import QAction, QHBoxLayout, QLabel, QListView, QVBoxLayout, QWidget, QShortcut, QInputDialog
 
 from .widgets import RefWidgetBase
 from ..backend.utils import openFile
-from ..confReader import getConfV
+from ..backend.pdfTools import getPDFCoverAsQPixelmap
+from ..confReader import ICON_PATH, getConfV
 
 
 class PendingWindowGUI(RefWidgetBase):
@@ -17,14 +18,23 @@ class PendingWindowGUI(RefWidgetBase):
 	
 	def initUI(self):
 		self.setWindowTitle("Pending files")
-		self.resize(420, 600)
 		self.file_model = PFileListModel([])
 		self.file_view = QListView()
 		self.file_view.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 		self.file_view.setModel(self.file_model)
 
+		self.cover_label = QLabel()
+		self.cover_label.setScaledContents(True)
+		self.cover_label.setMinimumSize(50, 100)
+		self.resize(800, 600)
+
 		vbox = QVBoxLayout()
-		vbox.addWidget(self.file_view)
+		hbox = QHBoxLayout()
+		hbox.addWidget(self.file_view, 1)
+		hbox.addWidget(self.cover_label, 1)
+
+		vbox.addWidget(QLabel(self, text="Blow are files without bib info."))
+		vbox.addLayout(hbox)
 		self.setLayout(vbox)
 		self._center()
 	
@@ -55,7 +65,22 @@ class PendingWindow(PendingWindowGUI):
 		self.act_rename_file.triggered.connect(self.renameCurrentSelection)
 		self.act_delete_file.triggered.connect(self.deleteCurrentSelections)
 		self.file_view.doubleClicked.connect(self.doubleClickOnEntry)
+		self.file_view.selectionModel().currentChanged.connect(self.onRowChanged)
 	
+	def _updateCover(self, fpath):
+		if fpath is None or not fpath.endswith(".pdf"):
+			self.cover_label.setScaledContents(False)
+			cover = QtGui.QPixmap(os.path.join(ICON_PATH, "cloud-24px.svg"))
+		else:
+			self.cover_label.setScaledContents(True)
+			cover = getPDFCoverAsQPixelmap(fpath)
+		self.cover_label.setPixmap(cover)
+	
+	def onRowChanged(self, current, previous):
+		row = current.row()
+		fpath = self.file_model.datalist[row]
+		self._updateCover(fpath)
+
 	def loadData(self):
 		pend_files = [os.path.join(self.ppath, f) for f in os.listdir(self.ppath)]	
 		self.pend_files = [i for i in pend_files if self.checkExtension(i)]
@@ -77,7 +102,7 @@ class PendingWindow(PendingWindowGUI):
 			if not os.path.exists(new_fpath):
 				shutil.copy2(fpath, self.ppath)
 			else:
-				self.warnDialog("The file exists!", new_fpath)
+				self.warnDialog("The file exists in the pending folder!", new_fpath)
 			self.loadData()
 			return new_fpath
 		return None
@@ -86,7 +111,6 @@ class PendingWindow(PendingWindowGUI):
 		urls = self.getCurrentSelection(return_multiple=True)
 		self.getMainPanel().addFilesToDatabaseByURL(urls)
 		return urls
-		# self.getMainPanel()
 	
 	def renameCurrentSelection(self):
 		fpath = self.getCurrentSelection(return_multiple=False)

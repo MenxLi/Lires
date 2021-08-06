@@ -27,29 +27,34 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         super().__init__()
         self.db = DataBase()
         self.initUI()
-        self.show()
+        self.show() 
+
+        #===============test
+        ppath = "/home/monsoon/Downloads/20200410112310_5931.pdf"
     
     def initUI(self):
         self.setWindowTitle("Research bib manager")
+        self.resize(900, 600)
+        self.showMaximized()
         self.setWindowIcon(QIcon(os.path.join(ICON_PATH, "resbibman-icon.png")))
         self._initPanels()
         self._createActions()
         # self._createMenuBar()
         self._createToolBars()
 
+        self.status_bar = self.statusBar()
+
         hbox = QHBoxLayout()
         splitter = QSplitter(Qt.Horizontal)
         splitter.addWidget(self.file_tags)
         splitter.addWidget(self.file_selector)
         splitter.addWidget(self.file_info)
-        splitter.setSizes([100, 300, 120])
+        splitter.setSizes([50, 800, 1])
         hbox.addWidget(splitter)
 
         wid = QWidget(self)
         self.setCentralWidget(wid)
         wid.setLayout(hbox)
-        self.resize(900, 600)
-        self.showMaximized()
         self._center()
     
     def _initPanels(self):
@@ -214,6 +219,9 @@ class MainWindow(MainWindowGUI):
             self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
             self.bib_quary.file_added.connect(self.file_selector.addToDatabase)
             self.bib_quary.file_added.connect(self.refreshFileTagSelector)
+            self.bib_quary.fail_add_bib.connect(self.openPendingWindowAndAddPendingFile)
+            if hasattr(self, "pending_win"):
+                self.bib_quary.file_added.connect(self.pending_win.loadData)
             self.bib_quary.show()
     
     def addFileToDataBaseByBib(self, bib_str: str):
@@ -244,6 +252,13 @@ class MainWindow(MainWindowGUI):
         del fm
         self.reloadData()
     
+    def openPendingWindowAndAddPendingFile(self, url: str):
+        if hasattr(self, "pending_win"):
+            self.pending_win.show()
+        else:
+            self.openPendingWindow()
+        self.pending_win.addFilesToPendingDataBaseByURL([url])
+
     def openPendingWindow(self):
         self.pending_win = PendingWindow()
         self.pending_win.setMainPanel(self)
@@ -253,3 +268,5 @@ class MainWindow(MainWindowGUI):
         self.loadData(getConf()["database"])
         self.file_info.clearPanel()
         
+    def statusBarMsg(self, msg: str):
+        self.status_bar.showMessage(msg)
