@@ -26,7 +26,7 @@ setup(
 
     include_package_data = True,
 
-    install_requires = ["PyQt5", "pybtex"],
+    install_requires = ["PyQt5", "pybtex", "pyperclip"],
 
     entry_points = {
         "console_scripts":[

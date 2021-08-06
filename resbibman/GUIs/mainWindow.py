@@ -1,3 +1,5 @@
+from resbibman.GUIs.widgets import WidgetBase
+import pyperclip
 from pprint import pprint
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar
@@ -10,7 +12,8 @@ from .bibQuery import BibQuery
 from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
 
-from ..backend.fileTools import FileManipulator
+from ..backend.fileTools import FileManipulator, FileGenerator
+from ..backend.bibReader import BibParser
 from ..backend.utils import openFile
 from ..backend.dataClass import DataTags, DataBase, DataPoint
 from ..confReader import DOC_PATH, getConf, ICON_PATH, VERSION
@@ -19,7 +22,7 @@ import os, copy, typing, webbrowser
 # for testing propose
 from .fileTags import TagSelector
 
-class MainWindowGUI(QMainWindow):
+class MainWindowGUI(QMainWindow, WidgetBase):
     def __init__(self):
         super().__init__()
         self.db = DataBase()
@@ -86,7 +89,8 @@ class MainWindowGUI(QMainWindow):
         # self.act_open_pdb.setIcon(QIcon(os.path.join(ICON_PATH, "folder_special-24px.svg.svg")))
 
         self.act_importbib_from_clip = QAction("Import bib from clipboard", self)
-        self.act_importbib_from_clip.setShortcut(QKeySequence("Ctrl+Alt+i"))
+        self.act_importbib_from_clip.setIcon(QIcon(os.path.join(ICON_PATH, "paste-24px.svg")))
+        self.act_importbib_from_clip.setShortcut(QKeySequence("ctrl+shift+alt+i"))
 
     def _createMenuBar(self):
         menu_bar = QMenuBar(self)
@@ -104,6 +108,7 @@ class MainWindowGUI(QMainWindow):
         tool_bar = QToolBar("Toolbar")
         self.addToolBar(Qt.TopToolBarArea, tool_bar)
         tool_bar.addAction(self.act_file_additem)
+        tool_bar.addAction(self.act_importbib_from_clip)
         tool_bar.addAction(self.act_opendb)
         tool_bar.addAction(self.act_settings)
         tool_bar.addAction(self.act_help)
@@ -129,7 +134,7 @@ class MainWindow(MainWindowGUI):
         self.act_reload.triggered.connect(self.reloadData)
         self.act_open_pdb.triggered.connect(self.openPendingWindow)
 
-        self.act_importbib_from_clip.triggered.connect()
+        self.act_importbib_from_clip.triggered.connect(self.importEntryFromClipboardBib)
 
     def loadData(self, data_path):
         self.db = DataBase()
@@ -198,7 +203,9 @@ class MainWindow(MainWindowGUI):
         self.addFilesToDatabaseByURL([fname])
     
     def importEntryFromClipboardBib(self):
-        pass
+        """Only support one bib now"""
+        raw_text = pyperclip.paste()
+        self.addFileToDataBaseByBib(raw_text)
     
     def addFilesToDatabaseByURL(self, urls: typing.List[str]):
         curr_selected_tags = self.getCurrentSelectedTags()
@@ -209,8 +216,33 @@ class MainWindow(MainWindowGUI):
             self.bib_quary.file_added.connect(self.refreshFileTagSelector)
             self.bib_quary.show()
     
-    def addFilesToDataBaseByBib(self, bib_str: str):
-        pass
+    def addFileToDataBaseByBib(self, bib_str: str):
+        tag_list = self.file_tags.tag_selector.getSelectedTags().toOrderedList()
+        parser = BibParser(mode = "single")
+        try:
+            bibs = parser(bib_str)
+            bib = bibs[0]
+        except:
+            self.warnDialog("Invalid clipboard content: ", bib_str)
+            return
+        if len(bibs) > 1:
+            self.warnDialog("Failed - Currently, only one file import is supported")
+            return
+        fg = FileGenerator(
+            file_path = None,
+            title = bib["title"],
+            year = bib["year"],
+            authors = bib["authors"]
+        )
+        if not fg.generateDefaultFiles(data_dir=getConf()["database"]):
+            return 
+        dst_dir = fg.dst_dir
+        fm = FileManipulator(dst_dir)
+        fm.screen()
+        fm.writeBib(bib_str)
+        fm.writeTags(tag_list)
+        del fm
+        self.reloadData()
     
     def openPendingWindow(self):
         self.pending_win = PendingWindow()

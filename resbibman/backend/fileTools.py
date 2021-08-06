@@ -178,8 +178,8 @@ class FileManipulator:
         fn = FileGenerator.FILEPREFIX + self.base_name + file_extension
         dst_file = os.path.join(self.path, fn)
         shutil.copy2(extern_file_p, dst_file)
-        os.remove(self.file_path)
-        del self.file_path
+        os.remove(extern_file_p)
+        del extern_file_p
         return True
     
     def readBib(self) -> str:

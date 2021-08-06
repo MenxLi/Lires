@@ -49,6 +49,7 @@ Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
 
 ## Known issues
 crash when using deletetag or rename tag with tag edit (should supply panel info into the tag_select item)
+Crash when adding file to no-file entry
 
 ## Credits:
 https://github.com/google/material-design-icons   
