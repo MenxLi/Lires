@@ -104,15 +104,18 @@ class FileSelector(FileSelectorGUI):
         copy2clip("\""+bibs+"\"")
         print(bibs)
 
-    def addFileToCurrentSelection(self):
+    def addFileToCurrentSelection(self, fname = None):
         """Add file to a no-file entry point"""
         extensions = getConf()["accepted_extensions"]
         extension_filter = "({})".format(" ".join(["*"+i for i in extensions]))
         dp = self.getCurrentSelection(return_multiple=False)
+        if dp is None:
+            return False
         if dp.has_file:
             self.warnDialog("Adding failed, the file exists.")
             return False
-        fname = QFileDialog.getOpenFileName(self, caption="Select file for {}".format(dp.title[:25]), filter=extension_filter)[0]
+        if fname is None:
+            fname = QFileDialog.getOpenFileName(self, caption="Select file for {}".format(dp.title[:25]), filter=extension_filter)[0]
         if dp.fm.addFile(fname):
             dp.reload()
             QMessageBox.information(self, "Success", "File added")
@@ -154,11 +157,12 @@ class FileSelector(FileSelectorGUI):
     def doubleClickOnEntry(self):
         data = self.getCurrentSelection()
         if data is not None:
-            data.fm.openFile()
+            if not data.fm.openFile():
+                self.warnDialog("The file is missing", "To add the paper, right click on the entry -> add file")
     
     def getCurrentSelection(self, return_multiple = False) -> typing.Union[None, DataPoint, DataList]:
         indexes = self.data_view.selectedIndexes()
-        if not indexes:
+        if indexes == [] or not indexes:
             return None
         try:
             all_data = [self.data_model.datalist[index.row()] for index in indexes]

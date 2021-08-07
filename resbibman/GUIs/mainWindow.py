@@ -203,9 +203,8 @@ class MainWindow(MainWindowGUI):
         extensions = getConf()["accepted_extensions"]
         extension_filter = "({})".format(" ".join(["*"+i for i in extensions]))
         fname = QFileDialog.getOpenFileName(self, caption="Select papers", filter=extension_filter)[0]
-        if fname == "":
-            fname = None
-        self.addFilesToDatabaseByURL([fname])
+        if fname != "":
+            self.addFilesToDatabaseByURL([fname])
     
     def importEntryFromClipboardBib(self):
         """Only support one bib now"""

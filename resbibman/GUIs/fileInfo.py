@@ -1,5 +1,6 @@
 from os import curdir
 import warnings
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import QLabel, QPushButton, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout
 from .widgets import WidgetBase, MainWidgetBase
 from .fileSelector import FileSelector
@@ -12,6 +13,7 @@ class FileInfoGUI(MainWidgetBase):
         super().__init__(parent)
         self.parent = parent
         self.initUI()
+        self.setAcceptDrops(True)
         self.show()
 
     def initUI(self):
@@ -125,3 +127,22 @@ class FileInfo(FileInfoGUI):
         if not self.curr_data is None:
             self.curr_data.reload()
             self.load(self.curr_data)
+    
+    def dragEnterEvent(self, a0: QtGui.QDragEnterEvent) -> None:
+        if a0.mimeData().hasUrls():
+            a0.accept()
+        else:
+            a0.ignore()
+        return super().dragEnterEvent(a0)
+    
+    def dropEvent(self, a0: QtGui.QDropEvent) -> None:
+        print("H1")
+        files = [u.toLocalFile() for u in a0.mimeData().urls()]
+        print("H2")
+        if len(files) > 1:
+            warnings.warn("Supposed to add ONE file only.")
+        else:
+            fpath = files[0]
+            print(self.getSelectPanel().addFileToCurrentSelection)
+            self.getSelectPanel().addFileToCurrentSelection(fpath)
+        return super().dropEvent(a0)

@@ -236,8 +236,10 @@ class FileManipulator:
         if self.file_p is not None:
             openFile(self.file_p)
             self._log()
+            return True
         else:
             warnings.warn("The file is not existing, add the file into the database with right click menu")
+            return False
 
     def openMiscDir(self):
         openFile(self.folder_p)

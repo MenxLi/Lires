@@ -13,6 +13,7 @@ def generateDefaultConf():
 		default_tags = [],
 		sort_method = DataTableList.SORT_TIMEADDED,
 		table_headers = [ 
+				DataTableList.HEADER_FILESTATUS,
 				DataTableList.HEADER_TITLE,
 				DataTableList.HEADER_YEAR, 
 				DataTableList.HEADER_AUTHOR
