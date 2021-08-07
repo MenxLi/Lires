@@ -136,13 +136,10 @@ class FileInfo(FileInfoGUI):
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0: QtGui.QDropEvent) -> None:
-        print("H1")
         files = [u.toLocalFile() for u in a0.mimeData().urls()]
-        print("H2")
         if len(files) > 1:
             warnings.warn("Supposed to add ONE file only.")
         else:
             fpath = files[0]
-            print(self.getSelectPanel().addFileToCurrentSelection)
             self.getSelectPanel().addFileToCurrentSelection(fpath)
         return super().dropEvent(a0)
