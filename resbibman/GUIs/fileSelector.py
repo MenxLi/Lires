@@ -66,7 +66,7 @@ class FileSelector(FileSelectorGUI):
         self.search_edit.textChanged.connect(self.onSearchTextChange)
 
         self.act_copy_bib.triggered.connect(self.copyCurrentSelectionBib)
-        self.act_add_file.triggered.connect(self.addFileToCurrentSelection)
+        self.act_add_file.triggered.connect(lambda : self.addFileToCurrentSelection(fname = None))
 
     def loadValidData(self, tags: DataTags, hint = False):
         """Load valid data by tags"""
