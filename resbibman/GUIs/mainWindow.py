@@ -130,6 +130,7 @@ class MainWindow(MainWindowGUI):
         pprint(getConf())
         self.initActions()
         self.loadData(getConf()["database"])
+        self.statusBarMsg("Welcome!")
 
     def initActions(self):
         self.act_settings.triggered.connect(self.openSettingsDialog)
@@ -268,4 +269,5 @@ class MainWindow(MainWindowGUI):
         self.file_info.clearPanel()
         
     def statusBarMsg(self, msg: str):
-        self.status_bar.showMessage(msg)
+        prefix = "ResBibMan-v{}: ".format(VERSION)
+        self.status_bar.showMessage(prefix + msg)
