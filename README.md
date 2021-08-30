@@ -15,7 +15,7 @@ pip install ResBibMan-XXXXX.whl
 ```
 
 # Usage
-Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
+Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this software.
 
 # Future works
 ## Todo list
@@ -49,7 +49,8 @@ Refer to the [docs](./resbibman/docs/info.html) for the usage of this software
 
 ## Known issues
 crash when using deletetag or rename tag with tag edit (should supply panel info into the tag_select item)
-Crash when adding file to no-file entry
+Crash when adding file to no-file entry  
+Can't copy multiply citations (on windows?)
 
 ## Credits:
 https://github.com/google/material-design-icons   

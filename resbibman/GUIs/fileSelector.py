@@ -45,8 +45,11 @@ class FileSelectorGUI(MainWidgetBase):
         self.act_delete_file = QAction("Delete", self)
         self.act_export_bib = QAction("Export as .bib", self)
         self.act_copy_bib = QAction("Copy bib", self)
+        self.act_copy_citation = QAction("Copy citation", self)
         self.act_add_file = QAction("Add file", self)
 
+        self.data_view.addAction(self.act_open_location)
+        self.data_view.addAction(self.act_copy_citation)
         self.data_view.addAction(self.act_copy_bib)
         self.data_view.addAction(self.act_add_file)
     
@@ -66,6 +69,7 @@ class FileSelector(FileSelectorGUI):
         self.search_edit.textChanged.connect(self.onSearchTextChange)
 
         self.act_copy_bib.triggered.connect(self.copyCurrentSelectionBib)
+        self.act_copy_citation.triggered.connect(self.copyCurrentSelectionCitation)
         self.act_add_file.triggered.connect(lambda : self.addFileToCurrentSelection(fname = None))
 
     def loadValidData(self, tags: DataTags, hint = False):
@@ -102,7 +106,14 @@ class FileSelector(FileSelectorGUI):
         else:
             bibs = bibs[0]
         copy2clip("\""+bibs+"\"")
-        print(bibs)
+        # print(bibs)
+
+    def copyCurrentSelectionCitation(self):
+        selected = self.getCurrentSelection(return_multiple=True)
+        print(selected)
+        citations = [x.stringCitation() for x in selected]
+        copy2clip("\""+"\n".join(citations)+"\"")
+        # print("\n".join(citations))
 
     def addFileToCurrentSelection(self, fname = None):
         """Add file to a no-file entry point"""

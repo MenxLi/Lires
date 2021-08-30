@@ -28,14 +28,11 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         self.db = DataBase()
         self.initUI()
         self.show() 
-
-        #===============test
-        ppath = "/home/monsoon/Downloads/20200410112310_5931.pdf"
+        self.showMaximized()
     
     def initUI(self):
         self.setWindowTitle("Research bib manager")
-        self.resize(900, 600)
-        self.showMaximized()
+        # self.resize(900, 600)
         self.setWindowIcon(QIcon(os.path.join(ICON_PATH, "resbibman-icon.png")))
         self._initPanels()
         self._createActions()
@@ -196,8 +193,10 @@ class MainWindow(MainWindowGUI):
         openFile(database)
     
     def openHelpFile(self):
-        help_file_path = os.path.join(DOC_PATH, "info.html")
-        webbrowser.open("file://"+help_file_path)
+        # help_file_path = os.path.join(DOC_PATH, "info.html")
+        # webbrowser.open("file://"+help_file_path)
+        help_file_path = os.path.join(DOC_PATH, "使用说明.md")
+        openFile(help_file_path)
     
     def openAddfileSelectionDialog(self):
         extensions = getConf()["accepted_extensions"]

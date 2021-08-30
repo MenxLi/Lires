@@ -80,9 +80,18 @@ class DataPoint:
         else:
             return "\u2727"
 
+    def stringCitation(self):
+        bib = self.bib
+        title = bib["title"]
+        year = bib["year"]
+        string = f"{self.getAuthorsAbbr()} {title}. {year}"
+        if "journal" in bib:
+            string += ". {}".format(bib["journal"][0])
+        return string
+
     def getAuthorsAbbr(self):
         if len(self.authors) == 1:
-            author = self._getFirstName(self.authors[0])
+            author = self._getFirstName(self.authors[0]) + "."
         else:
             author = self._getFirstName(self.authors[0]) + " et al."
         return author
