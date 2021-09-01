@@ -12,6 +12,7 @@ build
 venv
 */log.txt
 resbibman/conf.json
+*_tmp*
 
 
 *.pptx
