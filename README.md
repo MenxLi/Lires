@@ -5,25 +5,11 @@
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for noting.
 
-# Installation
+[comment]: <> (## distribution)
 
-## distribution
+[comment]: <> (`python setup.py bdist_wheel --universal`)
 
-`python setup.py bdist_wheel --universal`
-
-## installation
-
-```bash
-python setup.py install
-```
-
-or use
-
-```bash
-pip install ResBibMan-XXXXX.whl
-```
-
-# Usage
+# Installation & Usage
 
 Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this software.
 
