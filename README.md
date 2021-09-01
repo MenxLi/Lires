@@ -1,7 +1,7 @@
 
 # Features
 
-![MainWindow](./resbibman/docs/imgs/mainWindow.png)
+![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for noting.
 
