@@ -1,12 +1,15 @@
 from os import curdir
 import warnings
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QLabel, QPushButton, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout
+from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout
 from .widgets import WidgetBase, MainWidgetBase
 from .fileSelector import FileSelector
 from ..backend.fileTools import FileManipulator
 from ..backend.bibReader import BibParser
 from ..backend.dataClass import DataPoint
+
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+import markdown
 
 class FileInfoGUI(MainWidgetBase):
     def __init__(self, parent = None):
@@ -26,12 +29,17 @@ class FileInfoGUI(MainWidgetBase):
         self.info_lbl = QLabel("File info")
         self.info_lbl.setWordWrap(True)
         self.comment_lbl = QLabel("Comments: ")
-        self.tEdit = QTextEdit()
         self.save_comment_btn = QPushButton("Save comments")
         self.refresh_btn = QPushButton("Refresh")
         self.open_commets_btn = QPushButton("Open comments")
         self.open_bib_btn = QPushButton("Open bibtex file")
         self.open_folder_btn = QPushButton("Inspect misc directory")
+
+        self.mdTab = QTabWidget()
+        self.tEdit = QTextEdit()
+        self.mdBrowser = QWebEngineView()
+        self.mdTab.addTab(self.tEdit, "Note.txt")
+        self.mdTab.addTab(self.mdBrowser, "Note.md")
 
         frame_vbox = QVBoxLayout()
 
@@ -44,7 +52,8 @@ class FileInfoGUI(MainWidgetBase):
         self.comment_frame = QFrame()
         comment_frame_vbox = QVBoxLayout()
         comment_frame_vbox.addWidget(self.comment_lbl, 0)
-        comment_frame_vbox.addWidget(self.tEdit,1)
+        # comment_frame_vbox.addWidget(self.tEdit,1)
+        comment_frame_vbox.addWidget(self.mdTab,1)
         self.comment_frame.setLayout(comment_frame_vbox)
 
         self.btn_frame = QFrame()
@@ -80,6 +89,7 @@ class FileInfo(FileInfoGUI):
         self.open_commets_btn.clicked.connect(self.openComments)
         self.save_comment_btn.clicked.connect(self.saveComments)
         self.refresh_btn.clicked.connect(self.refresh)
+        self.mdTab.currentChanged.connect(self.changeTab)
     
     def clearPanel(self):
         self.curr_data = None
@@ -105,6 +115,15 @@ class FileInfo(FileInfoGUI):
         self.info_lbl.setText(data.stringInfo())
         comment = self.curr_data.fm.readComments()
         self.tEdit.setText(comment)
+        comment_html = markdown.markdown(comment)
+        self.mdBrowser.setHtml(comment_html)
+    
+    def changeTab(self, index):
+        if index == 1:
+            self.saveComments()
+            comment = self.tEdit.toPlainText()
+            comment_html = markdown.markdown(comment)
+            self.mdBrowser.setHtml(comment_html)
 
     def openMiscDir(self):
         if not self.curr_data is None:

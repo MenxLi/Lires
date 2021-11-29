@@ -2,3 +2,5 @@ pybtex
 PyQt5
 pyperclip
 PyMuPDF
+PyQtWebEngine
+markdown

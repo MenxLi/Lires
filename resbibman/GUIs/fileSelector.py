@@ -161,6 +161,7 @@ class FileSelector(FileSelectorGUI):
         self.reloadData()
     
     def onRowChanged(self, current, previous):
+        self._info_panel.saveComments()
         row = current.row()
         data = self.data_model.datalist[row]
         self.selection_changed.emit(data)
