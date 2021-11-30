@@ -1,4 +1,5 @@
 from os import curdir
+import os
 import warnings
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout
@@ -10,6 +11,7 @@ from ..backend.dataClass import DataPoint
 
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import markdown
+from .mdHighlighter import MarkdownSyntaxHighlighter
 
 class FileInfoGUI(MainWidgetBase):
     def __init__(self, parent = None):
@@ -37,9 +39,10 @@ class FileInfoGUI(MainWidgetBase):
 
         self.mdTab = QTabWidget()
         self.tEdit = QTextEdit()
+        self.highlighter = MarkdownSyntaxHighlighter(self.tEdit)
         self.mdBrowser = QWebEngineView()
-        self.mdTab.addTab(self.tEdit, "Note.txt")
-        self.mdTab.addTab(self.mdBrowser, "Note.md")
+        self.mdTab.addTab(self.tEdit, "Note.md")
+        self.mdTab.addTab(self.mdBrowser, "Note.html")
 
         frame_vbox = QVBoxLayout()
 
@@ -115,15 +118,12 @@ class FileInfo(FileInfoGUI):
         self.info_lbl.setText(data.stringInfo())
         comment = self.curr_data.fm.readComments()
         self.tEdit.setText(comment)
-        comment_html = markdown.markdown(comment)
-        self.mdBrowser.setHtml(comment_html)
+        self.__renderMarkdown()
     
     def changeTab(self, index):
         if index == 1:
             self.saveComments()
-            comment = self.tEdit.toPlainText()
-            comment_html = markdown.markdown(comment)
-            self.mdBrowser.setHtml(comment_html)
+            self.__renderMarkdown()
 
     def openMiscDir(self):
         if not self.curr_data is None:
@@ -162,3 +162,14 @@ class FileInfo(FileInfoGUI):
             fpath = files[0]
             self.getSelectPanel().addFileToCurrentSelection(fpath)
         return super().dropEvent(a0)
+    
+    def __renderMarkdown(self):
+        comment = self.tEdit.toPlainText()
+
+        ## Not working??
+        misc_f = self.curr_data.fm.folder_p
+        misc_f = misc_f.replace(os.sep, "/")
+        comment = comment.replace("./misc", misc_f)
+
+        comment_html = markdown.markdown(comment)
+        self.mdBrowser.setHtml(comment_html)

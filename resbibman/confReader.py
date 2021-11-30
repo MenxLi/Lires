@@ -19,6 +19,7 @@ _VERSION_HISTORIES = [
     ("0.2.5", "Enable drag-drop in info panel to add file"),
     ("0.2.6", "Context menu, better documentation"),
     ("0.2.7", "Add markdown render window"),
+    ("0.2.8", "Add markdown editor syntax highlight (basic)"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

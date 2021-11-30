@@ -27,8 +27,8 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         super().__init__()
         self.db = DataBase()
         self.initUI()
-        self.show() 
         self.showMaximized()
+        self.show() 
     
     def initUI(self):
         self.setWindowTitle("Research bib manager")
@@ -42,17 +42,20 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         self.status_bar = self.statusBar()
 
         hbox = QHBoxLayout()
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.addWidget(self.file_tags)
-        splitter.addWidget(self.file_selector)
-        splitter.addWidget(self.file_info)
-        splitter.setSizes([50, 800, 1])
-        hbox.addWidget(splitter)
+        self.splitter = QSplitter(Qt.Horizontal)
+        self.splitter.addWidget(self.file_tags)
+        self.splitter.addWidget(self.file_selector)
+        self.splitter.addWidget(self.file_info)
+        self.splitter.setStretchFactor(0,1)
+        self.splitter.setStretchFactor(1,4)
+        self.splitter.setStretchFactor(2,2)
+        # splitter.setSizes([50, 800, 1])
+        hbox.addWidget(self.splitter)
 
         wid = QWidget(self)
         self.setCentralWidget(wid)
         wid.setLayout(hbox)
-        self._center()
+        # self._center()
     
     def _initPanels(self):
         self.file_tags = FileTag(self)

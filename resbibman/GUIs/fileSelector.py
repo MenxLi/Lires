@@ -291,6 +291,7 @@ class FileTableView(QTableView):
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         self.setAutoScroll(False)
+        self.setFont(QtGui.QFont("Times", 8))
     def initSettings(self):
         # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
         self.header = self.horizontalHeader()       
