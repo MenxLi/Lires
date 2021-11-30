@@ -20,6 +20,7 @@ _VERSION_HISTORIES = [
     ("0.2.6", "Context menu, better documentation"),
     ("0.2.7", "Add markdown render window"),
     ("0.2.8", "Add markdown editor syntax highlight (basic)"),
+    ("0.2.9", "UI update"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

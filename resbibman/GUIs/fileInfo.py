@@ -165,6 +165,8 @@ class FileInfo(FileInfoGUI):
     
     def __renderMarkdown(self):
         comment = self.tEdit.toPlainText()
+        if comment == "":
+            return
 
         ## Not working??
         misc_f = self.curr_data.fm.folder_p

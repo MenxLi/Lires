@@ -1,0 +1,8 @@
+QTableView::item {
+	outline: none;
+}        
+QTableView::item:hover:!selected {
+    background-color: #D3F1FC;
+	border-style: solid;
+	border: 1px solid #D3F1FC;
+}        
