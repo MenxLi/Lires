@@ -235,7 +235,7 @@ class FileManipulator:
     def openFile(self):
         if self.file_p is not None:
             openFile(self.file_p)
-            self._log()
+            # self._log()
             return True
         else:
             warnings.warn("The file is not existing, add the file into the database with right click menu")
@@ -243,22 +243,22 @@ class FileManipulator:
 
     def openMiscDir(self):
         openFile(self.folder_p)
-        self._log()
+        # self._log()
 
     def openComments(self):
         openFile(self.comments_p)
-        self._log()
+        # self._log()
 
     def openBib(self):
         openFile(self.bib_p)
-        self._log()
+        # self._log()
 
     def _log(self):
         """log the modification info info file"""
         with open(self.info_p, "r", encoding="utf-8") as f:
             info = json.load(f)
         info["time_modify"] = getDateTime()
-        info["device_modifky"] = platform.node()
+        info["device_modify"] = platform.node()
         info["version_modify"] = VERSION
         with open(self.info_p, "w", encoding="utf-8") as f:
             json.dump(info, f)

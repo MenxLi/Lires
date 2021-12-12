@@ -54,10 +54,14 @@ class DataPoint:
     
     def stringInfo(self):
         bib = self.bib
+
         info_txt = \
         "\u27AA {title}\n\u27AA {year}\n\u27AA {authors}\n".format(title = bib["title"], year = bib["year"], authors = " \u2726 ".join(bib["authors"]))
         if "journal"  in bib:
-            info_txt = info_txt + "\u27AA {journal}".format(journal = bib["journal"][0])
+            info_txt = info_txt + "{icon} {journal}".format(icon = u"\U0001F56e", journal = bib["journal"][0])
+        elif "booktitle" in bib:
+            info_txt = info_txt + "{icon} {booktitle}".format(icon = u"\U0001F56e", booktitle = bib["booktitle"][0])
+        info_txt = "--{}--\n".format(bib["type"]) + info_txt
         return info_txt
     
     def screenByPattern(self, pattern):
@@ -84,9 +88,13 @@ class DataPoint:
         bib = self.bib
         title = bib["title"]
         year = bib["year"]
-        string = f"{self.getAuthorsAbbr()} {title}. {year}"
+        string = f"{self.getAuthorsAbbr()} {title}. ({year})"
         if "journal" in bib:
             string += ". {}".format(bib["journal"][0])
+        elif "booktitle" in bib:
+            string += ". {}".format(bib["booktitle"][0])
+        string += "."
+        print(string)
         return string
 
     def getAuthorsAbbr(self):

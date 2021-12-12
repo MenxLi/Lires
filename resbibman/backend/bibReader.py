@@ -25,12 +25,13 @@ class BibParser:
         for k in bib_data.entries.keys():
             _d = bib_data.entries[k]
             data = {
+                "type": _d.type,
                 "entry": k,
                 "title": _d.fields["title"],
                 "year": _d.fields["year"],
                 "authors": [str(p) for p in _d.persons["author"]]
             }
-            for bib_entry in ["journal", "doi"]:
+            for bib_entry in ["journal", "doi", "booktitle", "pages"]:
                 if bib_entry in _d.fields:
                     data[bib_entry] = _d.fields[bib_entry],
             bibs.append(data)

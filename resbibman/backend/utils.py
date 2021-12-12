@@ -2,6 +2,7 @@ from io import TextIOWrapper
 import time, datetime
 import subprocess, os, platform, sys
 from ..confReader import LOG_FILE
+import pyperclip as pc
 from functools import wraps
 
 def getDateTime():
@@ -18,14 +19,15 @@ def openFile(filepath):
         subprocess.call(('xdg-open', filepath))
 
 def copy2clip(text: str):
-    assert isinstance(text, str), "copy2clip only takes string as input"
-    if platform.system() == 'Darwin':       # macOS
-        cmd = 'echo '+text.strip()+'|pbcopy'
-    elif platform.system() == 'Windows':    # Windows
-        cmd = 'echo '+text.strip()+'|clip'
-    else:                                   # linux variants
-        cmd = 'echo '+text.strip()+"| xclip -sel clip"
-    subprocess.check_call(cmd, shell=True)
+    # assert isinstance(text, str), "copy2clip only takes string as input"
+    # if platform.system() == 'Darwin':       # macOS
+        # cmd = 'echo '+text.strip()+'|pbcopy'
+    # elif platform.system() == 'Windows':    # Windows
+        # cmd = 'echo '+text.strip()+'|clip'
+    # else:                                   # linux variants
+        # cmd = 'echo '+"\""+ text.strip()+ "\"" + "| xclip -sel clip"
+    # subprocess.check_call(cmd, shell=True)
+    pc.copy(text.strip("\""))
     return True
 
 class Logger():
