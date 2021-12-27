@@ -196,7 +196,7 @@ class FileInfo(FileInfoGUI):
             self.cover_label.setScaledContents(False)
             cover = QtGui.QPixmap(os.path.join(ICON_PATH, "cloud-24px.svg"))
         else:
-            self.cover_label.setScaledContents(True)
+            self.cover_label.setScaledContents(False)
             cover = getPDFCoverAsQPixelmap(fpath)
         # https://blog.csdn.net/L114678/article/details/121457242
         width = cover.width()
