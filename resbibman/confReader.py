@@ -21,7 +21,8 @@ _VERSION_HISTORIES = [
     ("0.2.7", "Add markdown render window"),
     ("0.2.8", "Add markdown editor syntax highlight (basic)"),
     ("0.2.9", "UI update"),
-    ("0.2.10", "Better support for proceedings and better copy citation")
+    ("0.2.10", "Better support for proceedings and better copy citation"),
+    ("0.2.11", "Bug fix: not updating file tag; implement open file location in context menu"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

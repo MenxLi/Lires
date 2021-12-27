@@ -8,7 +8,7 @@ from .bibQuery import BibQuery
 from .widgets import WidgetBase, MainWidgetBase
 from ..backend.fileTools import FileManipulator
 from ..backend.dataClass import DataBase, DataPoint, DataList, DataTags, DataTableList
-from ..backend.utils import copy2clip
+from ..backend.utils import copy2clip, openFile
 from ..confReader import getConf, getConfV
 
 class FileSelectorGUI(MainWidgetBase):
@@ -68,6 +68,7 @@ class FileSelector(FileSelectorGUI):
         self.shortcut_delete_selection.activated.connect(self.deleteCurrentSelected)
         self.search_edit.textChanged.connect(self.onSearchTextChange)
 
+        self.act_open_location.triggered.connect(self.openCurrFileLocation)
         self.act_copy_bib.triggered.connect(self.copyCurrentSelectionBib)
         self.act_copy_citation.triggered.connect(self.copyCurrentSelectionCitation)
         self.act_add_file.triggered.connect(lambda : self.addFileToCurrentSelection(fname = None))
@@ -93,10 +94,18 @@ class FileSelector(FileSelectorGUI):
     def onSearchTextChange(self):
         text = self.search_edit.text()
         self.loadValidData(tags = set(getConf()["default_tags"]))
+        curr_data = self.getCurrentSelection()
+        if not curr_data is None:
+            self.selection_changed.emit(curr_data)
 
     def reloadData(self):
         # self._clearList()
         self.loadValidData(tags = self.getMainPanel().getCurrentSelectedTags(), )
+    
+    def openCurrFileLocation(self):
+        curr_data = self.getCurrentSelection()
+        if not curr_data is None:
+            openFile(curr_data.fm.path)
     
     def copyCurrentSelectionBib(self):
         selected = self.getCurrentSelection(return_multiple=True)
@@ -187,9 +196,6 @@ class FileSelector(FileSelectorGUI):
         else:
             return all_data[0]
 
-    def selectChange(self):
-        pass
-    
     def dragEnterEvent(self, a0: QtGui.QDragEnterEvent) -> None:
         if a0.mimeData().hasUrls():
             a0.accept()

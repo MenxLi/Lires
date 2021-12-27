@@ -48,9 +48,9 @@ class FileInfoGUI(MainWidgetBase):
 
         self.info_frame = QFrame()
         self.info_frame.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
-        info_frame_vbox = QVBoxLayout()
-        info_frame_vbox.addWidget(self.info_lbl)
-        self.info_frame.setLayout(info_frame_vbox)
+        info_frame_hbox = QVBoxLayout()
+        info_frame_hbox.addWidget(self.info_lbl)
+        self.info_frame.setLayout(info_frame_hbox)
 
         self.comment_frame = QFrame()
         comment_frame_vbox = QVBoxLayout()

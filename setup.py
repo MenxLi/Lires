@@ -26,7 +26,7 @@ setup(
 
     include_package_data = True,
 
-    install_requires = ["PyQt5", "pybtex", "pyperclip", "PyMuPDF", "PyQtWebEngine", "markdown"],
+    install_requires = ["PyQt5", "pybtex", "pyperclip", "PyMuPDF", "PyQtWebEngine", "markdown", "fitz"],
 
     entry_points = {
         "console_scripts":[
