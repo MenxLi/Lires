@@ -36,7 +36,7 @@ class FileInfoGUI(MainWidgetBase):
         self.cover_label = QLabel()
         self.cover_label.setScaledContents(True)
         # self.cover_label.setMaximumHeight(300)
-        # self.cover_label.setMaximumWidth(150)
+        self.cover_label.setMaximumWidth(150)
         self.cover_label.setMinimumSize(100, 150)
         self.comment_lbl = QLabel("Comments: ")
         self.save_comment_btn = QPushButton("Save comments")
@@ -206,6 +206,6 @@ class FileInfo(FileInfoGUI):
         else:
             ratio = height / self.cover_label.height()
         new_width = width / ratio  ##定义新图片的宽和高
-        new_height = height / ratio
-        new_cover = cover.scaled(new_width, new_height, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)##调整图片尺寸
+        new_height = height / ratio 
+        new_cover = cover.scaled(int(new_width), int(new_height), aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)##调整图片尺寸
         self.cover_label.setPixmap(new_cover)

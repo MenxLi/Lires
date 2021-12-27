@@ -11,7 +11,7 @@ def render_pdf_page(page_data, for_cover=False):
     
     # 获取封面对应的 Pixmap 对象
     # alpha 设置背景为白色
-    pagePixmap = page_data.getPixmap(
+    pagePixmap = page_data.get_pixmap(
         matrix = zoom_matrix, 
         alpha=False) 
     # 获取 image 格式
@@ -30,8 +30,7 @@ def render_pdf_page(page_data, for_cover=False):
     return pixmap
 
 def getPDFCoverAsQPixelmap(f_path: str):
-	doc = fitz.open(f_path)
-	page = doc.loadPage(0)
-	cover = render_pdf_page(page, True)
-
-	return cover
+    doc = fitz.open(f_path)
+    page = doc.load_page(0)
+    cover = render_pdf_page(page, True)
+    return cover
