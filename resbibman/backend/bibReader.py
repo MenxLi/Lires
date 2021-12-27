@@ -11,11 +11,13 @@ class BibParser:
                 "entry": <str>,
                 "title": <str>,
                 "year": <str>,
-                "authors": <list|str>,  # May contain ", [ ]"
+                "authors": <list[str]>,  # May contain ", [ ]"
             }
             other possible entries: 
                 "journal": tuple(<str>),
-                "doi": <str>
+                "doi": <str>,
+                "booktitle": <str>,
+                "pages": <>,
         """
         bib_data = pybtex.database.parse_string(bib_str, bib_format="bibtex")
         if len(bib_data.entries.keys()) >1 and self.mode == "single":

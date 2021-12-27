@@ -1,13 +1,16 @@
 from os import curdir
 import os
+from typing import Union
 import warnings
-from PyQt5 import QtGui
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout
 from .widgets import WidgetBase, MainWidgetBase
 from .fileSelector import FileSelector
+from ..confReader import ICON_PATH
 from ..backend.fileTools import FileManipulator
 from ..backend.bibReader import BibParser
 from ..backend.dataClass import DataPoint
+from ..backend.pdfTools import getPDFCoverAsQPixelmap
 
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import markdown
@@ -30,6 +33,11 @@ class FileInfoGUI(MainWidgetBase):
 
         self.info_lbl = QLabel("File info")
         self.info_lbl.setWordWrap(True)
+        self.cover_label = QLabel()
+        self.cover_label.setScaledContents(True)
+        # self.cover_label.setMaximumHeight(300)
+        # self.cover_label.setMaximumWidth(150)
+        self.cover_label.setMinimumSize(100, 150)
         self.comment_lbl = QLabel("Comments: ")
         self.save_comment_btn = QPushButton("Save comments")
         self.refresh_btn = QPushButton("Refresh")
@@ -48,8 +56,14 @@ class FileInfoGUI(MainWidgetBase):
 
         self.info_frame = QFrame()
         self.info_frame.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
-        info_frame_hbox = QVBoxLayout()
+        # cover_frame = QFrame()
+        # cover_frame.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
+        # cover_layout = QHBoxLayout()
+        # cover_layout.addWidget(self.cover_label)
+        # cover_frame.setLayout(cover_layout)
+        info_frame_hbox = QHBoxLayout()
         info_frame_hbox.addWidget(self.info_lbl)
+        info_frame_hbox.addWidget(self.cover_label)
         self.info_frame.setLayout(info_frame_hbox)
 
         self.comment_frame = QFrame()
@@ -118,6 +132,7 @@ class FileInfo(FileInfoGUI):
         self.info_lbl.setText(data.stringInfo())
         comment = self.curr_data.fm.readComments()
         self.tEdit.setText(comment)
+        self.__updateCover(data.fm.file_p)
         self.__renderMarkdown()
     
     def changeTab(self, index):
@@ -175,3 +190,22 @@ class FileInfo(FileInfoGUI):
 
         comment_html = markdown.markdown(comment)
         self.mdBrowser.setHtml(comment_html)
+    
+    def __updateCover(self, fpath: Union[str,None]):
+        if fpath is None or not fpath.endswith(".pdf"):
+            self.cover_label.setScaledContents(False)
+            cover = QtGui.QPixmap(os.path.join(ICON_PATH, "cloud-24px.svg"))
+        else:
+            self.cover_label.setScaledContents(True)
+            cover = getPDFCoverAsQPixelmap(fpath)
+        # https://blog.csdn.net/L114678/article/details/121457242
+        width = cover.width()
+        height = cover.height()
+        if width / self.cover_label.width() >= height / self.cover_label.height(): ##比较图片宽度与label宽度之比和图片高度与label高度之比
+            ratio = width / self.cover_label.width()
+        else:
+            ratio = height / self.cover_label.height()
+        new_width = width / ratio  ##定义新图片的宽和高
+        new_height = height / ratio
+        new_cover = cover.scaled(new_width, new_height, aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)##调整图片尺寸
+        self.cover_label.setPixmap(new_cover)
