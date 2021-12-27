@@ -1,12 +1,12 @@
 from os import curdir
-import os
+import os, shutil, uuid
 from typing import Union
 import warnings
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout
 from .widgets import WidgetBase, MainWidgetBase
 from .fileSelector import FileSelector
-from ..confReader import ICON_PATH
+from ..confReader import ICON_PATH, getConfV
 from ..backend.fileTools import FileManipulator
 from ..backend.bibReader import BibParser
 from ..backend.dataClass import DataPoint
@@ -15,6 +15,8 @@ from ..backend.pdfTools import getPDFCoverAsQPixelmap
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import markdown
 from .mdHighlighter import MarkdownSyntaxHighlighter
+
+from ..backend.utils import copy2clip
 
 class FileInfoGUI(MainWidgetBase):
     def __init__(self, parent = None):
@@ -46,7 +48,7 @@ class FileInfoGUI(MainWidgetBase):
         self.open_folder_btn = QPushButton("Inspect misc directory")
 
         self.mdTab = QTabWidget()
-        self.tEdit = QTextEdit()
+        self.tEdit = MarkdownEdit()
         self.highlighter = MarkdownSyntaxHighlighter(self.tEdit)
         self.mdBrowser = QWebEngineView()
         self.mdTab.addTab(self.tEdit, "Note.md")
@@ -96,6 +98,7 @@ class FileInfo(FileInfoGUI):
     def __init__(self, parent = None, **kwargs):
         super().__init__(parent)
         self.curr_data = None
+        self.tEdit.setParent(self)
         for k, v in kwargs:
             setattr(self, k, v)
     
@@ -175,8 +178,12 @@ class FileInfo(FileInfoGUI):
             warnings.warn("Supposed to add ONE file only.")
         else:
             fpath = files[0]
-            self.getSelectPanel().addFileToCurrentSelection(fpath)
-        return super().dropEvent(a0)
+            # Add new entry
+            for extension in getConfV("accepted_extensions"):
+                if fpath.endswith(extension):
+                    self.getSelectPanel().addFileToCurrentSelection(fpath)
+                    return super().dropEvent(a0)
+
     
     def __renderMarkdown(self):
         comment = self.tEdit.toPlainText()
@@ -189,7 +196,7 @@ class FileInfo(FileInfoGUI):
         comment = comment.replace("./misc", misc_f)
 
         comment_html = markdown.markdown(comment)
-        self.mdBrowser.setHtml(comment_html)
+        self.mdBrowser.setHtml(comment_html, baseUrl=QtCore.QUrl.fromLocalFile("/"))
     
     def __updateCover(self, fpath: Union[str,None]):
         if fpath is None or not fpath.endswith(".pdf"):
@@ -209,3 +216,64 @@ class FileInfo(FileInfoGUI):
         new_height = height / ratio 
         new_cover = cover.scaled(int(new_width), int(new_height), aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)##调整图片尺寸
         self.cover_label.setPixmap(new_cover)
+
+
+class MarkdownEdit(QTextEdit):
+    def setParent(self, parent: FileInfo):
+        self._parent = parent
+
+    def dragEnterEvent(self, a0: QtGui.QDragEnterEvent) -> None:
+        if a0.mimeData().hasUrls():
+            a0.accept()
+        else:
+            a0.ignore()
+        return super().dragEnterEvent(a0)
+
+    def dropEvent(self, a0: QtGui.QDropEvent) -> None:
+        return super().dropEvent(a0)
+    
+    def canInsertFromMimeData(self, source: QtCore.QMimeData) -> bool:
+        if source.hasImage():
+            return True
+        else:
+            return super().canInsertFromMimeData(source)
+    
+    def insertHtml(self, text: str) -> None:
+        """Not insert HTML!!!"""
+        return super().insertPlainText(text)
+    
+    def insertFromMimeData(self, source: QtCore.QMimeData) -> None:
+        # https://pyside.github.io/docs/pyside/PySide/QtGui/QTextEdit.html#PySide.QtGui.PySide.QtGui.QTextEdit.insertFromMimeData
+        if source.hasImage():
+            # Add img
+            fname = f"{uuid.uuid4()}.png"
+            fpath = os.path.join(self._parent.curr_data.fm.folder_p, fname)
+            source.imageData().save(fpath)
+            line = f"![](./misc/{fname})"
+            # line = f"<img src=\"./misc/{fname}\" alt=\"drawing\" width=\"100%\"/>"
+            self.insertPlainText(line)
+            self._parent.saveComments()
+        elif source.hasUrls():
+            # file
+            files = [u.toLocalFile() for u in source.urls()]
+
+            if len(files) > 1 or len(files) == 0:
+                warnings.warn("Supposed to add ONE file only.")
+                return super().insertFromMimeData(source)
+
+            fpath = files[0]
+            if self._parent.curr_data is None:
+                return
+
+            # Add img to comment
+            for extension in [".jpg", ".png"]:
+                if fpath.endswith(extension):
+                    fname = os.path.basename(fpath)
+                    shutil.copy2(fpath, self._parent.curr_data.fm.folder_p)
+                    # line = f"<img src=\"./misc/{fname}\" alt=\"drawing\" width=\"100%\"/>"
+                    line = f"![](./misc/{fname})"
+                    self.insertPlainText(line)
+                    self._parent.saveComments()
+                    return
+        else:
+            super().insertFromMimeData(source)

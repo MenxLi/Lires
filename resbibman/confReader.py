@@ -25,6 +25,7 @@ _VERSION_HISTORIES = [
     ("0.2.11", "Bug fix: not updating file tag; implement open file location in context menu"),
     ("0.2.12", "Add Cover to info panel"),
     ("0.2.13", "Bug fix: update fitz method naming, use integer value resize"),
+    ("0.2.14", "Better image insertion, allow copy paste and drag"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
