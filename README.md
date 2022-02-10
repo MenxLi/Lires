@@ -3,7 +3,7 @@
 
 ![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)
 A research literature manager that utilize Bibtex file to record paper information, 
-it relies on tags to differentiate papers, and use markdown for noting.
+it relies on tags to differentiate papers, and use markdown for notes.
 
 [comment]: <> (## distribution)
 
@@ -34,7 +34,7 @@ In file selector:
 
 - [x] Add search bar
 - [x] Multiple selection
-- [ ] Right click: export, export bib, delete
+- [x] Right click: export, export bib, delete
 
 Main window:
 - [x] Refresh button
@@ -52,8 +52,6 @@ Tags:
 ## Known issues
 
 crash when using deletetag or rename tag with tag edit (should supply panel info into the tag_select item)
-Crash when adding file to no-file entry  
-Can't copy multiply citations (on windows?)
 
 ## Credits:
 
