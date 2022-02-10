@@ -118,7 +118,8 @@ class FileGenerator(FileGeneratorBase):
             "tags": [],
             "uuid": str(uuid.uuid4()),
             "version_import": VERSION,
-            "version_modify": VERSION
+            "version_modify": VERSION,
+            "url": ""
         }
         with open(fp, "w") as f:
             json.dump(default_info, f)
@@ -221,6 +222,22 @@ class FileManipulator:
         with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)
         return data["time_modify"]
+    
+    def getWebUrl(self) -> str:
+        with open(self.info_p, "r", encoding = "utf-8") as f:
+            data = json.load(f)
+        if not "url" in data:
+            # Older version compatable
+            data["url"] = ""
+        return data["url"]
+    
+    def setWebUrl(self, url: str):
+        with open(self.info_p, "r", encoding = "utf-8") as f:
+            data = json.load(f)
+        data["url"] = url
+        with open(self.info_p, "w", encoding = "utf-8") as f:
+            json.dump(data, f)
+        return
 
     def writeTags(self, tags: list):
         if not isinstance(tags, list):

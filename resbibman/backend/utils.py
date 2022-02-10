@@ -1,5 +1,5 @@
 from io import TextIOWrapper
-import time, datetime
+import time, datetime, re
 import subprocess, os, platform, sys
 from ..confReader import LOG_FILE
 import pyperclip as pc
@@ -29,6 +29,16 @@ def copy2clip(text: str):
     # subprocess.check_call(cmd, shell=True)
     pc.copy(text.strip("\""))
     return True
+
+def isWebURL(text: str):
+    regex = re.compile(
+        r'^(?:http|ftp)s?://' # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+        r'localhost|' #localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?' # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    return re.match(regex, text) is None
 
 class Logger():
     # https://cloud.tencent.com/developer/article/1643418

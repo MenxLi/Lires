@@ -3,7 +3,7 @@ import os, shutil, uuid
 from typing import Union
 import warnings
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout
+from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout, QLineEdit
 from .widgets import WidgetBase, MainWidgetBase
 from .fileSelector import FileSelector
 from ..confReader import ICON_PATH, getConfV
@@ -49,6 +49,7 @@ class FileInfoGUI(MainWidgetBase):
 
         self.mdTab = QTabWidget()
         self.tEdit = MarkdownEdit()
+        self.weburl_edit = QLineEdit()
         self.highlighter = MarkdownSyntaxHighlighter(self.tEdit)
         self.mdBrowser = QWebEngineView()
         self.mdTab.addTab(self.tEdit, "Note.md")
@@ -58,11 +59,6 @@ class FileInfoGUI(MainWidgetBase):
 
         self.info_frame = QFrame()
         self.info_frame.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
-        # cover_frame = QFrame()
-        # cover_frame.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
-        # cover_layout = QHBoxLayout()
-        # cover_layout.addWidget(self.cover_label)
-        # cover_frame.setLayout(cover_layout)
         info_frame_hbox = QHBoxLayout()
         info_frame_hbox.addWidget(self.info_lbl)
         info_frame_hbox.addWidget(self.cover_label)
@@ -75,20 +71,27 @@ class FileInfoGUI(MainWidgetBase):
         comment_frame_vbox.addWidget(self.mdTab,1)
         self.comment_frame.setLayout(comment_frame_vbox)
 
+        self.weburl_frame = QFrame()
+        weburl_hbox = QHBoxLayout()
+        weburl_hbox.addWidget(QLabel("URL/DOI: "))
+        weburl_hbox.addWidget(self.weburl_edit)
+        self.weburl_frame.setLayout(weburl_hbox)
+
         self.btn_frame = QFrame()
         btn_frame_vbox = QVBoxLayout()
-        btn_frame_hbox = QHBoxLayout()
-        btn_frame_hbox.addWidget(self.save_comment_btn)
-        btn_frame_hbox.addWidget(self.refresh_btn)
-        btn_frame_vbox.addLayout(btn_frame_hbox)
+        # btn_frame_hbox = QHBoxLayout()
+        # btn_frame_hbox.addWidget(self.save_comment_btn)
+        # btn_frame_hbox.addWidget(self.refresh_btn)
+        # btn_frame_vbox.addLayout(btn_frame_hbox)
         btn_frame_vbox.addWidget(self.open_commets_btn)
         btn_frame_vbox.addWidget(self.open_bib_btn)
         btn_frame_vbox.addWidget(self.open_folder_btn)
         self.btn_frame.setLayout(btn_frame_vbox)
 
-        frame_vbox.addWidget(self.info_frame, 1)
-        frame_vbox.addWidget(self.comment_frame, 3)
-        frame_vbox.addWidget(self.btn_frame, 1)
+        frame_vbox.addWidget(self.info_frame, 3)
+        frame_vbox.addWidget(self.comment_frame, 7)
+        frame_vbox.addWidget(self.weburl_frame, 1)
+        frame_vbox.addWidget(self.btn_frame, 2)
         self.frame.setLayout(frame_vbox)
 
 class FileInfo(FileInfoGUI):
@@ -110,6 +113,8 @@ class FileInfo(FileInfoGUI):
         self.save_comment_btn.clicked.connect(self.saveComments)
         self.refresh_btn.clicked.connect(self.refresh)
         self.mdTab.currentChanged.connect(self.changeTab)
+        self.tEdit.textChanged.connect(self.saveComments)
+        self.weburl_edit.textChanged.connect(self.saveWebURL)
     
     def clearPanel(self):
         self.curr_data = None
@@ -136,6 +141,7 @@ class FileInfo(FileInfoGUI):
         self.info_lbl.setText(data.stringInfo())
         comment = self.curr_data.fm.readComments()
         self.tEdit.setText(comment)
+        self.weburl_edit.setText(data.fm.getWebUrl())
         self.__updateCover(data.fm.file_p)
         self.__renderMarkdown()
     
@@ -160,6 +166,12 @@ class FileInfo(FileInfoGUI):
         if not self.curr_data is None:
             comment = self.tEdit.toPlainText()
             self.curr_data.fm.writeComments(comment)
+    
+    def saveWebURL(self):
+        prev_url = self.curr_data.fm.getWebUrl()
+        weburl = self.weburl_edit.text()
+        if weburl != prev_url:
+            self.curr_data.fm.setWebUrl(weburl)
     
     def refresh(self):
         if not self.curr_data is None:

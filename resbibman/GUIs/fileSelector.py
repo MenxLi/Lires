@@ -1,3 +1,4 @@
+import webbrowser
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QListView, QMessageBox, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView, QFileDialog
 from PyQt5 import QtGui, QtCore
@@ -193,9 +194,16 @@ class FileSelector(FileSelectorGUI):
 
     def doubleClickOnEntry(self):
         data = self.getCurrentSelection()
+        data: DataPoint
+        web_url = data.fm.getWebUrl()
         if data is not None:
             if not data.fm.openFile():
-                self.warnDialog("The file is missing", "To add the paper, right click on the entry -> add file")
+                if web_url == "":
+                    self.warnDialog("The file is missing", "To add the paper, right click on the entry -> add file")
+                elif os.path.exists(web_url):
+                    openFile(web_url)
+                else:
+                    webbrowser.open(web_url)
     
     def getCurrentSelection(self, return_multiple = False) -> typing.Union[None, DataPoint, DataList]:
         indexes = self.data_view.selectedIndexes()

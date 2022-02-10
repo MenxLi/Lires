@@ -27,6 +27,7 @@ _VERSION_HISTORIES = [
     ("0.2.13", "Bug fix: update fitz method naming, use integer value resize"),
     ("0.2.14", "Better image insertion, allow copy paste and drag"),
     ("0.2.15", "Add free document option into file selector"),
+    ("0.2.16", "Add url/doi into file info panel"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
