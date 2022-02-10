@@ -252,6 +252,14 @@ class FileManipulator:
     def openBib(self):
         openFile(self.bib_p)
         # self._log()
+    
+    def deleteDocument(self) -> bool:
+        if self.file_p is not None:
+            os.remove(self.file_p)
+            self.file_p = None
+            return True
+        else:
+            return False
 
     def _log(self):
         """log the modification info info file"""

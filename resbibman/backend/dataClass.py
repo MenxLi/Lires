@@ -107,6 +107,11 @@ class DataPoint:
     def _getFirstName(self, name: str):
         x = name.split(", ")
         return x[0]
+    
+    def __str__(self) -> str:
+        return f"{self.year}-{self.title}"
+    
+    __repr__ = __str__
 
 class DataList(list):
     SORT_YEAR = "Year"

@@ -47,11 +47,13 @@ class FileSelectorGUI(MainWidgetBase):
         self.act_copy_bib = QAction("Copy bib", self)
         self.act_copy_citation = QAction("Copy citation", self)
         self.act_add_file = QAction("Add file", self)
+        self.act_free_doc = QAction("Free document")
 
         self.data_view.addAction(self.act_open_location)
         self.data_view.addAction(self.act_copy_citation)
         self.data_view.addAction(self.act_copy_bib)
         self.data_view.addAction(self.act_add_file)
+        self.data_view.addAction(self.act_free_doc)
     
 
 class FileSelector(FileSelectorGUI):
@@ -72,6 +74,7 @@ class FileSelector(FileSelectorGUI):
         self.act_copy_bib.triggered.connect(self.copyCurrentSelectionBib)
         self.act_copy_citation.triggered.connect(self.copyCurrentSelectionCitation)
         self.act_add_file.triggered.connect(lambda : self.addFileToCurrentSelection(fname = None))
+        self.act_free_doc.triggered.connect(self.freeDocumentOfCurrentSelection)
 
     def loadValidData(self, tags: DataTags, hint = False):
         """Load valid data by tags"""
@@ -119,10 +122,23 @@ class FileSelector(FileSelectorGUI):
 
     def copyCurrentSelectionCitation(self):
         selected = self.getCurrentSelection(return_multiple=True)
-        print(selected)
         citations = [x.stringCitation() for x in selected]
         copy2clip("\""+"\n".join(citations)+"\"")
         # print("\n".join(citations))
+    
+    def freeDocumentOfCurrentSelection(self):
+        selected = self.getCurrentSelection(return_multiple=True)
+        if not selected:
+            return None
+        to_be_free = "\n".join(["* " + str(d) for d in selected])
+        warnmsg = "This action will delete document file(s) in following item(s):\n{}\nContinue?".format(to_be_free)
+        if self.queryDialog(warnmsg):
+            for d in selected:
+                d: DataPoint
+                d.fm.deleteDocument()
+                d.reload()
+            self.getInfoPanel().refresh()
+            self.reloadData()
 
     def addFileToCurrentSelection(self, fname = None):
         """Add file to a no-file entry point"""

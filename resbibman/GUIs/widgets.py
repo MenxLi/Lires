@@ -25,7 +25,7 @@ class WidgetBase(QWidget):
         msg_box.setStandardButtons(QMessageBox.Ok)
         return msg_box.exec()
     
-    def queryDialog(self, msg, title = "Query", func = lambda x: None):
+    def queryDialog(self, msg, title = "Query", func = lambda x: None) -> bool:
         msg_box = QMessageBox()
         msg_box.setText(msg)
         msg_box.setWindowTitle(title)

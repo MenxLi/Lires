@@ -115,6 +115,7 @@ class FileInfo(FileInfoGUI):
         self.curr_data = None
         self.info_lbl.setText("File info")
         self.tEdit.setText("")
+        self.__updateCover(None)
 
     def loadDir(self, dir_path: str):
         """
@@ -187,10 +188,9 @@ class FileInfo(FileInfoGUI):
     
     def __renderMarkdown(self):
         comment = self.tEdit.toPlainText()
-        if comment == "":
-            return
+        # if comment == "":
+            # return
 
-        ## Not working??
         misc_f = self.curr_data.fm.folder_p
         misc_f = misc_f.replace(os.sep, "/")
         comment = comment.replace("./misc", misc_f)
@@ -201,7 +201,7 @@ class FileInfo(FileInfoGUI):
     def __updateCover(self, fpath: Union[str,None]):
         if fpath is None or not fpath.endswith(".pdf"):
             self.cover_label.setScaledContents(False)
-            cover = QtGui.QPixmap(os.path.join(ICON_PATH, "cloud-24px.svg"))
+            cover = QtGui.QPixmap(os.path.join(ICON_PATH, "error-48px.png"))
         else:
             self.cover_label.setScaledContents(False)
             cover = getPDFCoverAsQPixelmap(fpath)
