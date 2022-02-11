@@ -28,6 +28,7 @@ _VERSION_HISTORIES = [
     ("0.2.14", "Better image insertion, allow copy paste and drag"),
     ("0.2.15", "Add free document option into file selector"),
     ("0.2.16", "Add url/doi into file info panel"),
+    ("0.3.0", "Web viewer!"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

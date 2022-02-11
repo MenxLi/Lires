@@ -1,0 +1,67 @@
+/*
+File name: style.css
+Author: Li, Mengxun
+Email: mengxunli@whu.edu.cn
+Date created: Feb 11, 2022
+ */
+body{
+    font-family: Verdana, sans-serif;
+}
+p{
+    text-align: justify;
+}
+h1{
+    text-align: center;
+}
+h1, h2{
+    font-weight: 400;
+}
+
+ul li{
+    list-style-type: square;
+    margin-bottom: 10px;
+    margin-left: 50px;
+}
+
+table#main_table{
+    height: 1px;
+    border: 1px solid gray;
+}
+
+div.panel{
+    height: 100%;
+    width: 100%;
+    /*overflow: hidden;*/
+    margin: 0em;
+    overflow-y:auto;
+}
+
+#tags_panel_td{
+    height: 100%;
+    width: 20%;
+    border: 1px solid gray;
+}
+#selector_panel_td{
+    height: 100%;
+    width: 80%;
+    border: 1px solid gray;
+}
+
+td.data_td{
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+    margin: 0;
+    padding: 0;
+}
+table#selector_table{
+    border-collapse:collapse;
+    width: 100%;
+}
+
+a.data_a{
+    text-decoration: none;
+    color: #163a52;
+}
+a.data_a:visited{
+    color: #163a52;
+}
