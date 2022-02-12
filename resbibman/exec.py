@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication
 import os, sys, platform
 from .GUIs.mainWindow import MainWindow
 from .backend.utils import getDateTime, Logger
-from .confReader import getConf, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH
+from .confReader import getConf, getConfV, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH
 
 def execProg_():
 	print("************Welcome to ResBibMan-v{}**************".format(VERSION))
@@ -27,10 +27,16 @@ def execProg():
 	log_file.close()
 
 def run():
-	parser = argparse.ArgumentParser()
+	_description = f"\
+Reseach bibiography manager (Resbibman) and Reseach bibiography manager Web (RBMWeb) \
+are literature managers developed by Li, Mengxun (mengxunli@whu.edu.cn).\
+The configration file for the software is at {CONF_FILE_PATH},\n\
+For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
+	"
+	parser = argparse.ArgumentParser(description=_description)
 	parser.add_argument("-n", "--not_run", action= "store_true", help = "Not to run main program")
 	parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
-	parser.add_argument("-s", "--server", action = "store_true", help = "Start server")
+	parser.add_argument("-s", "--server", action = "store_true", help = "Start server (RBMWeb)")
 	parser.add_argument("--no_log", action = "store_true", help = "Open the program without recording log, stdout/stderr will be shown in terminal")
 	parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
 	parser.add_argument("--print_log", action = "store_true", help = "Print log and exit")
