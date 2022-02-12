@@ -4,3 +4,5 @@ recursive-include resbibman/backend *.bib
 recursive-include resbibman/docs *
 recursive-include resbibman/icons *
 recursive-include resbibman/stylesheets *
+recursive-include RBMWeb/backend config.json
+recursive-include RBMWeb/frontend *

@@ -6,7 +6,7 @@ setup(
     version=VERSION,
     author="Mengxun Li",
     author_email="mengxunli@whu.edu.cn",
-    description="A research paper manager",
+    description="A research paper manager.",
 
     # 项目主页
     url="https://github.com/MenxLi/ResBibManager", 

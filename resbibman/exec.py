@@ -30,6 +30,7 @@ def run():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-n", "--not_run", action= "store_true", help = "Not to run main program")
 	parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
+	parser.add_argument("-s", "--server", action = "store_true", help = "Start server")
 	parser.add_argument("--no_log", action = "store_true", help = "Open the program without recording log, stdout/stderr will be shown in terminal")
 	parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
 	parser.add_argument("--print_log", action = "store_true", help = "Print log and exit")
@@ -64,12 +65,19 @@ def run():
 				print(log_file.read())
 		else: print("Log file not exits, run the program to create the log file")
 		args.not_run = True
+	
+	if args.server:
+		from RBMWeb.backend import startServerProcess
+		proc = startServerProcess()
 
 	if not args.not_run:
 		if args.no_log:
 			execProg_()
 		else:
 			execProg()
+
+	if args.server:
+		proc.join()
 
 if __name__=="__main__":
 	run()

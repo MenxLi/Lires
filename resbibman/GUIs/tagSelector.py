@@ -1,3 +1,4 @@
+import os
 import typing
 from typing import Union, List
 
@@ -5,7 +6,7 @@ from PyQt5.QtWidgets import QAction, QLineEdit, QStyle, QWidget, QMessageBox, QL
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
-from ..confReader import saveToConf
+from ..confReader import ICON_PATH, saveToConf
 from .widgets import WidgetBase, RefWidgetBase
 from ..backend.dataClass import DataTags
 
@@ -128,9 +129,11 @@ class TagListModel(QtCore.QAbstractListModel):
         if role == QtCore.Qt.DecorationRole:
             status, _ = self.datalist[index.row()]
             if status:
-                tick = QtGui.QColor("Green")    # or QImage
+                # tick = QtGui.QColor("Green")    # or QImage
+                tick = QtGui.QImage(os.path.join(ICON_PATH, "check_circle-24px.svg"))    # or QImage
             else:
-                tick = QtGui.QColor("Gray")
+                # tick = QtGui.QColor("Gray")
+                tick = QtGui.QImage(os.path.join(ICON_PATH, "check_circle_blank-24px.svg"))    # or QImage
             return tick
 
     def rowCount(self, index):

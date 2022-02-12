@@ -49,3 +49,6 @@ class DatabaseReader:
     
     def getPDFPathByUUID(self, uuid: str):
         return self.db[uuid].fm.file_p
+
+    def getCommentPathByUUID(self, uuid: str):
+        return self.db[uuid].fm.comment_p

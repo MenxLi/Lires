@@ -75,10 +75,10 @@ function getDataRowElem(data){
     tr.id = uuid;
     tr.className = "selector_tr";
     const showIndex = [
-        ["file_status", 1],
-        ["year", 2],
-        ["author", 3],
-        ["title", 8]
+        ["file_status", ],
+        ["year", ],
+        ["author", ],
+        ["title", ]
     ];
     for (const item of showIndex){
         const query = item[0];

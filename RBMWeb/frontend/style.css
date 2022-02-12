@@ -34,6 +34,7 @@ div.panel{
     /*overflow: hidden;*/
     margin: 0em;
     overflow-y:auto;
+    overflow-x:auto;
 }
 
 #tags_panel_td{
@@ -54,7 +55,8 @@ td.data_td{
     padding: 0;
 }
 table#selector_table{
-    border-collapse:collapse;
+    border-collapse: collapse;
+    /*border-spacing: 10px 0px;*/
     width: 100%;
 }
 

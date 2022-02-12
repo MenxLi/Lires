@@ -1,6 +1,8 @@
-from cgitb import handler
-import json
-from rbmlibs import DatabaseReader
+import json, os, multiprocessing
+from typing import Union
+
+from RBMWeb.backend.rbmlibs import DatabaseReader
+from RBMWeb.backend.confReader import getRBMWebConf
 
 import tornado.ioloop
 import tornado.web
@@ -12,8 +14,9 @@ pdf_file_path = "/home/monsoon/Downloads/Coursera_5QWUXAASSWXN.pdf"
 class Application(tornado.web.Application):
     def __init__(self) -> None:
         handlers = [
-            (r"/file/(.*)", UUIDHandler),
+            (r"/file/(.*)", FileHandler),
             (r"/main/(.*)", FileListHandler),
+            (r"/comment/(.*)", CommentHandler),
         ]
         super().__init__(handlers)
 
@@ -39,7 +42,7 @@ class FileListHandler(tornado.web.RequestHandler):
         else:
             self.write("Something wrong with the server.")
 
-class UUIDHandler(tornado.web.RequestHandler):
+class FileHandler(tornado.web.RequestHandler):
     def get(self, uuid):
         global db_reader
         file_p = db_reader.getPDFPathByUUID(uuid)
@@ -53,10 +56,34 @@ class UUIDHandler(tornado.web.RequestHandler):
                     return
         self.write("The file not exist or is not PDF file.")
 
-if __name__ == "__main__":
-    with open("config.json", "r", encoding= "utf-8") as fp:
-        conf = json.load(fp)
+class CommentHandler(tornado.web.RequestHandler):
+    def get(self, uuid):
+        # Unfinished.
+        global db_reader
+        file_p = db_reader.getCommentPathByUUID(uuid)
+        if isinstance(file_p, str):
+            if file_p.endswith(".md"):
+                with open(file_p, "r", encoding="utf-8") as f:
+                    self.write("Not implemented.")
+                    return
+        self.write("The file not exist or is not MD file.")
+
+def startServer(port: Union[int, str, None] = None):
+    global db_reader
+
     db_reader = DatabaseReader(getConfV("database"))
     app = Application()
-    app.listen(conf["port"])
+    conf = getRBMWebConf()
+    if port is None:
+        port = conf["port"]
+    print("Starting server at port: ", port)
+    app.listen(str(port))
     tornado.ioloop.IOLoop.current().start()
+
+def startServerProcess(*args) -> multiprocessing.Process:
+    p = multiprocessing.Process(target=startServer, args=args)
+    p.start()
+    return p
+
+if __name__ == "__main__":
+    startServer()
