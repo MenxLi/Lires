@@ -14,20 +14,17 @@
     </head>
     <body>
         <h1>Resbibman Web Viewer</h1>
-        <div id="main">
-            <table id="main_table">
-                <tr>
-                    <td id="tags_panel_td">
-                        <div id="tags_frame" class="panel"> </div>
-                    </td>
-                    <td id="selector_panel_td">
-                        <div id="selector_frame" class="panel"></div>
-                    </td>
-                </tr>
-            </table>
+        <div id="main" style="text-align: center;">
+            Sever address:
+            <input type="text" id="server_addr">
+            <br>
+            Port (default: 8081):
+            <input type="text" id="server_port">
+            <br>
+            <input type="button" id="btn_server_config" value="Enter">
 
         </div>
 
-        <script src="./assets/app.js" type="module"></script>
+        <script src="./assets/serverAddrQuery.js" type="module"></script>
     </body>
 </html>

@@ -52,3 +52,6 @@ class DatabaseReader:
 
     def getCommentPathByUUID(self, uuid: str):
         return self.db[uuid].fm.comment_p
+    
+    def getURLByUUID(self, uuid: str):
+        return self.db[uuid].fm.getWebURL()

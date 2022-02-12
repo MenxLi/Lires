@@ -1,6 +1,7 @@
-import { DataBase } from "./databse.js"
-import {SERVER_ADDR, SERVER_PORT} from "./config.js"
+//import {SERVER_ADDR, SERVER_PORT} from "./config.js"
 
+const SERVER_ADDR = localStorage.getItem("RBMServerAddr")
+const SERVER_PORT = localStorage.getItem("RBMServerPort")
 
 function initTags (){
     const db = window.database

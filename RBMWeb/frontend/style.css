@@ -54,6 +54,11 @@ td.data_td{
     margin: 0;
     padding: 0;
 }
+
+tr.selector_tr:hover{
+   background-color: rgb(174, 229, 255); 
+}
+
 table#selector_table{
     border-collapse: collapse;
     /*border-spacing: 10px 0px;*/

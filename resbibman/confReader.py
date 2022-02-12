@@ -30,6 +30,7 @@ _VERSION_HISTORIES = [
     ("0.2.16", "Add url/doi into file info panel"),
     ("0.3.0", "Web viewer!"),
     ("0.3.1", "Icon change & update setup.py distribution & argparse update."),
+    ("0.3.2", "Frontend add server query."),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
