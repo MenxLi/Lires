@@ -3,6 +3,16 @@ class DataBase{
         this.db = allData;
     }
 
+    *[Symbol.iterator](){
+        for (let d of this.db){
+            yield d;
+        }
+    }
+
+    getDataKeys = function(){
+        return Array.from(Object.keys(this.db[0]))
+    }
+
     getAllTags = function(){
         let _tags;
         let all_tags = new Set();
@@ -24,6 +34,15 @@ class DataBase{
             }
         }
         return valid_data;
+    }
+
+    getDataByUUID = function(uuid){
+        for (const data of this.db){
+            if (data["uuid"] === uuid){
+                return data
+            }
+        }
+        return null;
     }
 }
 

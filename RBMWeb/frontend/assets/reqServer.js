@@ -1,5 +1,6 @@
 //import {SERVER_ADDR, SERVER_PORT} from "./config.js"
 import {DataBase} from "./databse.js"
+import {initTags, updateSelector} from "./renderer.js"
 
 //https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
 
@@ -34,7 +35,19 @@ function reqFileList(tags, callbacks){
     return
 }
 
-function reqPDFFile(uuid){
+function reqReloadDB(){
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", `http://${SERVER_ADDR}:${SERVER_PORT}/reloadDB`);
+    xhr.responseType = "text";
+    xhr.onreadystatechange = function(){
+        if (this.readyState == 4 && this.status == 200){
+            if (xhr.responseText == "success"){
+                reqFileList([], [initTags, updateSelector]);
+            }
+        }
+    }
+    xhr.send();
+    return 
 }
 
-export {reqFileList, reqPDFFile}
+export {reqFileList, reqReloadDB}

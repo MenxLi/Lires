@@ -1,4 +1,3 @@
-//import {SERVER_ADDR, SERVER_PORT} from "./config.js"
 
 const SERVER_ADDR = localStorage.getItem("RBMServerAddr")
 const SERVER_PORT = localStorage.getItem("RBMServerPort")
@@ -6,6 +5,8 @@ const SERVER_PORT = localStorage.getItem("RBMServerPort")
 function initTags (){
     const db = window.database
     const tags_frame = document.querySelector("#tags_frame");
+    removeChilds(tags_frame);
+
     const tags_table = document.createElement("table");
     tags_table.id = "tags_table";
     tags_frame.appendChild(tags_table);
@@ -32,16 +33,68 @@ function initTags (){
         tr.appendChild(td);
         tags_table.appendChild(tr);
     }
-    console.log(all_tags);
-    console.log(db.getDataByTags([]));
+}
+
+function initSearch(){
+    const kwSelect = document.querySelector("select#search_kw");
+    removeChilds(kwSelect);
+    const ignoredKeys = [
+        "has_file", "file_status", "tags"
+    ];
+    const db = window.database;
+    if (db){
+        for (const k of db.getDataKeys()){
+            if (!(ignoredKeys.includes(k))){
+                console.log(k);
+                const option = document.createElement("option");
+                option.value = k;
+                option.innerHTML = k;
+                kwSelect.appendChild(option);
+            }
+            if (db.getDataKeys().includes("title")){
+                kwSelect.value = "title";
+            }
+        }
+    }
 }
 
 function updateSelector(){
     const db = window.database;
+    const kwSelect = document.querySelector("select#search_kw");
+    const searchBar = document.querySelector("input.search_bar")
     const selectedTags = getAllSelectedTags();
-    console.log(selectedTags)
-    const dataList = db.getDataByTags(selectedTags);
-    showData(dataList)
+    let dataList = db.getDataByTags(selectedTags);
+
+    dataList = filterDataListBySearch(dataList, kwSelect.value, searchBar.value)
+    showData(dataList);
+    window.prevSelectedUUID = null;
+    window.currSelectedUUID = null;
+}
+
+function filterDataListBySearch(datalist, keyword, pattern){
+    if (!pattern){
+        return datalist;
+    }
+    const dl_new = new Array();
+    for (const d of datalist){
+        const value = d[keyword];
+        if (value.search(pattern) !== -1){
+            dl_new.push(d);
+        }
+    }
+    return dl_new;
+}
+
+function onSelectionSwitch(){
+    if (window.currSelectedUUID){
+        const tr = document.querySelector(`#${window.currSelectedUUID}`);
+        tr.style.backgroundColor = "#99aaff";
+    }
+    if (window.prevSelectedUUID){
+        const prev_tr = document.querySelector(`tr#${window.prevSelectedUUID}`);
+        prev_tr.style.backgroundColor = "#ffffff";
+    }
+
 }
 
 function getAllSelectedTags(){
@@ -52,8 +105,7 @@ function getAllSelectedTags(){
             selectedTags.push(cb.value);
         }
     }
-    return selectedTags
-
+    return selectedTags;
 }
 
 function showData(dataList){
@@ -65,12 +117,12 @@ function showData(dataList){
     selector_table.id = "selector_table";
     selector_frame.appendChild(selector_table);
     for (const data of dataList){
-        const tr = getDataRowElem(data);
+        const tr = generateDataRowElem(data);
         selector_table.appendChild(tr);
     }
 }
 
-function getDataRowElem(data){
+function generateDataRowElem(data){
     const uuid = data["uuid"];
     const tr = document.createElement("tr");
     tr.id = uuid;
@@ -87,7 +139,13 @@ function getDataRowElem(data){
         td.className = "data_td" + " " + query;
         if (query == "title"){
             const a = document.createElement("a");
-            a.href = `http://${SERVER_ADDR}:${SERVER_PORT}/file/${uuid}`;
+            if (data["has_file"]){
+                a.href = `http://${SERVER_ADDR}:${SERVER_PORT}/file/${uuid}`;
+            }
+            else if (data["url"] != ""){
+                a.href = data["url"];
+            }
+            // a.href = `http://${SERVER_ADDR}:${SERVER_PORT}/file/${uuid}`;
             a.innerHTML = data[query];
             a.className = "data_a";
             td.appendChild(a);
@@ -97,14 +155,23 @@ function getDataRowElem(data){
         }
         tr.appendChild(td);
     }
+    tr.onclick = dataRowOnClick;
     return tr
+}
+
+function dataRowOnClick(){
+    const tr = this;
+    const uuid = this.id;
+    window.prevSelectedUUID = window.currSelectedUUID;
+    window.currSelectedUUID = uuid;
+    //bug
+    //onSelectionSwitch();
 }
 
 function removeChilds(parent){
     while (parent.lastChild){
         parent.removeChild(parent.lastChild);
     }
-
 }
 
-export {initTags, updateSelector};
+export {initTags, initSearch, updateSelector};

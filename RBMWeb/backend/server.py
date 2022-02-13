@@ -17,17 +17,26 @@ class Application(tornado.web.Application):
             (r"/file/(.*)", FileHandler),
             (r"/main/(.*)", FileListHandler),
             (r"/comment/(.*)", CommentHandler),
+            (r"/reloadDB", ReloadDBHandler),
         ]
         super().__init__(handlers)
 
-class FileListHandler(tornado.web.RequestHandler):
+class RequestHandlerBase(tornado.web.RequestHandler):
+    def setDefaultHeader(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Credentials", "true")
+        self.set_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
+        self.set_header("Access-Control-Allow-Headers", "*")
+        self.set_header("Access-Control-Expose-Headers", "*")
+
+class FileListHandler(RequestHandlerBase):
     def get(self, tags:str):
         """
         Args:
             tags (str): tags should be "%" or split by "&&"
         """
         global db_reader
-        self.set_header("Access-Control-Allow-Origin", "*")
+        self.setDefaultHeader()
         if tags == "%":
             tags = []
         else:
@@ -42,9 +51,10 @@ class FileListHandler(tornado.web.RequestHandler):
         else:
             self.write("Something wrong with the server.")
 
-class FileHandler(tornado.web.RequestHandler):
+class FileHandler(RequestHandlerBase):
     def get(self, uuid):
         global db_reader
+        self.setDefaultHeader()
         file_p = db_reader.getPDFPathByUUID(uuid)
         if isinstance(file_p, str):
             if file_p.endswith(".pdf"):
@@ -67,6 +77,13 @@ class CommentHandler(tornado.web.RequestHandler):
                     self.write("Not implemented.")
                     return
         self.write("The file not exist or is not MD file.")
+
+class ReloadDBHandler(RequestHandlerBase):
+    def get(self):
+        global db_reader
+        self.setDefaultHeader()
+        db_reader.loadDB(db_reader.db_path)
+        self.write("success")
 
 def startServer(port: Union[int, str, None] = None):
     global db_reader

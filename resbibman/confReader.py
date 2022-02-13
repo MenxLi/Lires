@@ -31,6 +31,8 @@ _VERSION_HISTORIES = [
     ("0.3.0", "Web viewer!"),
     ("0.3.1", "Icon change & update setup.py distribution & argparse update."),
     ("0.3.2", "Frontend add server query."),
+    ("0.3.3", "Frontend add banner (reload database, search), UI update, change frontend server to tornado server, \
+        start front end and backend with single python cmd argument."),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

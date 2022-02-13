@@ -23,9 +23,42 @@ ul li{
     margin-left: 50px;
 }
 
+div#banner{
+    background-color: #167a9b;
+    position: absolute;
+    display: flex;
+    /* justify-content: center; [> align horizontal <] */
+    align-items: center; /* align vertical */
+    height: 40px;
+    left: 0px;
+    right: 0px;
+    top: 0px
+}
+
+input#refresh_btn{
+    position: absolute;
+    left:15px;
+}
+
+div.search_bar{
+    position: absolute;
+    right: 15px;
+}
+
+input.search_bar{
+    border-radius:7px;
+}
+
+.icon_filter{
+    filter: invert(100%);
+}
+
 table#main_table{
     height: 1px;
-    border: 1px solid gray;
+    /* border: 1px solid gray; */
+    border-collapse: collapse;
+    position: absolute;
+    top: 40px;
 }
 
 div.panel{
