@@ -39,13 +39,17 @@ class DatabaseReader:
             "year":dp.year,
             "title":dp.title,
             "author":dp.getAuthorsAbbr(),
+            "authors":"|".join(dp.authors),
             "tags":list(dp.tags),
             "uuid":dp.uuid,
-            "url":dp.fm.getWebUrl()
+            "url":dp.fm.getWebUrl(),
+            "time_added": dp.fm.getTimeAdded(),
+            "time_modified": dp.fm.getTimeModified(),
         }
 
-    def getDictDataListByTags(self, tags: Union[list, DataTags]) -> List[dict]:
+    def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by = DataList.SORT_TIMEADDED) -> List[dict]:
         dl = self.db.getDataByTags(tags)
+        dl.sortBy(sort_by)
         return list(map(self.getDictDataFromDataPoint, dl))
 
     def getPDFPathByUUID(self, uuid: str):

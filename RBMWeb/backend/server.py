@@ -66,10 +66,11 @@ class FileHandler(RequestHandlerBase):
                     return
         self.write("The file not exist or is not PDF file.")
 
-class CommentHandler(tornado.web.RequestHandler):
+class CommentHandler(RequestHandlerBase):
     def get(self, uuid):
         # Unfinished.
         global db_reader
+        self.setDefaultHeader()
         file_p = db_reader.getCommentPathByUUID(uuid)
         if isinstance(file_p, str):
             if file_p.endswith(".md"):

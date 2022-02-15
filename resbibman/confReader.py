@@ -33,6 +33,7 @@ _VERSION_HISTORIES = [
     ("0.3.2", "Frontend add server query."),
     ("0.3.3", "Frontend add banner (reload database, search), UI update, change frontend server to tornado server, \
         start front end and backend with single python cmd argument."),
+    ("0.3.4", "Frontend small update. change backend port to 8079"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

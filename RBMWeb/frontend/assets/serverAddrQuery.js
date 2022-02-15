@@ -6,7 +6,7 @@ function onBtnClicked(){
     const addr = addrInput.value;
     let port = portInput.value;
     if (port === ""){
-        port = "8081";
+        port = "8079";
     }
     localStorage.setItem("RBMServerAddr", addr)
     localStorage.setItem("RBMServerPort", port)

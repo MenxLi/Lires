@@ -38,13 +38,13 @@ function initTags (){
 function initSearch(){
     const kwSelect = document.querySelector("select#search_kw");
     removeChilds(kwSelect);
-    const ignoredKeys = [
-        "has_file", "file_status", "tags"
+    const showKeys = [
+        "year", "title", "authors", "uuid"
     ];
     const db = window.database;
     if (db){
         for (const k of db.getDataKeys()){
-            if (!(ignoredKeys.includes(k))){
+            if (showKeys.includes(k)){
                 console.log(k);
                 const option = document.createElement("option");
                 option.value = k;
@@ -67,8 +67,7 @@ function updateSelector(){
 
     dataList = filterDataListBySearch(dataList, kwSelect.value, searchBar.value)
     showData(dataList);
-    window.prevSelectedUUID = null;
-    window.currSelectedUUID = null;
+    //renderDataRowsHL();
 }
 
 function filterDataListBySearch(datalist, keyword, pattern){
@@ -85,17 +84,6 @@ function filterDataListBySearch(datalist, keyword, pattern){
     return dl_new;
 }
 
-function onSelectionSwitch(){
-    if (window.currSelectedUUID){
-        const tr = document.querySelector(`#${window.currSelectedUUID}`);
-        tr.style.backgroundColor = "#99aaff";
-    }
-    if (window.prevSelectedUUID){
-        const prev_tr = document.querySelector(`tr#${window.prevSelectedUUID}`);
-        prev_tr.style.backgroundColor = "#ffffff";
-    }
-
-}
 
 function getAllSelectedTags(){
     const selectedTags = new Array();
@@ -106,6 +94,21 @@ function getAllSelectedTags(){
         }
     }
     return selectedTags;
+}
+
+function renderDataRowsHL(highligtUUIDs){
+    const dataRows = document.querySelectorAll("tr.selector_tr");
+    let hlRow;
+    for (const dr of dataRows){
+        dr.style.backgroundColor = "white";
+    }
+    if (highligtUUIDs){
+        for (const uid of highligtUUIDs){
+            console.log(uid)
+            hlRow = document.querySelector(`tr#${uid}`);
+            hlRow.style.backgroundColor = "#ff0000"
+        }
+    }
 }
 
 function showData(dataList){
@@ -162,10 +165,8 @@ function generateDataRowElem(data){
 function dataRowOnClick(){
     const tr = this;
     const uuid = this.id;
-    window.prevSelectedUUID = window.currSelectedUUID;
-    window.currSelectedUUID = uuid;
-    //bug
-    //onSelectionSwitch();
+    console.log(uuid)
+    //renderDataRowsHL([uuid]);
 }
 
 function removeChilds(parent){
