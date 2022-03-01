@@ -1,5 +1,4 @@
 include README.md
-recursive-include resbibman conf.json
 recursive-include resbibman/backend *.bib
 recursive-include resbibman/docs *
 recursive-include resbibman/icons *

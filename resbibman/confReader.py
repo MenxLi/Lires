@@ -34,6 +34,7 @@ _VERSION_HISTORIES = [
     ("0.3.3", "Frontend add banner (reload database, search), UI update, change frontend server to tornado server, \
         start front end and backend with single python cmd argument."),
     ("0.3.4", "Frontend small update. change backend port to 8079"),
+    ("0.3.5", "Now can insert no-file entry by cancel in file selection prompt; Add file size to file info"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

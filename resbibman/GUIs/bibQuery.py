@@ -11,6 +11,7 @@ from .tagEditor import TagEditor
 from ..backend.bibReader import BibParser
 from ..backend.fileTools import FileGenerator, FileManipulator
 from ..confReader import getConf, DOC_PATH
+from ..backend.utils import sssUUID
 
 class BibQueryGUI(QWidget):
     def __init__(self, parent, tag_data: DataTags, tag_total: DataTags):
@@ -91,6 +92,7 @@ class BibQuery(BibQueryGUI):
     def insertBibTemplate(self):
         with open(os.path.join(DOC_PATH, "bibTemplate.bib"), "r") as f:
             bib_template = f.read()
+        bib_template = bib_template.replace("<Identifier>", sssUUID())
         self.bib_edit.setText(bib_template)
 
     def confirm(self):

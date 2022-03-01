@@ -61,6 +61,8 @@ class DataPoint:
             info_txt = info_txt + "{icon} {journal}".format(icon = u"\U0001F56e", journal = bib["journal"][0])
         elif "booktitle" in bib:
             info_txt = info_txt + "{icon} {booktitle}".format(icon = u"\U0001F56e", booktitle = bib["booktitle"][0])
+        if self.has_file:
+            info_txt = info_txt + "\nFile size: {}M".format(self.fm.getFileSize())
         info_txt = "--{}--\n".format(bib["type"]) + info_txt
         return info_txt
     

@@ -206,8 +206,7 @@ class MainWindow(MainWindowGUI):
         extensions = getConf()["accepted_extensions"]
         extension_filter = "({})".format(" ".join(["*"+i for i in extensions]))
         fname = QFileDialog.getOpenFileName(self, caption="Select papers", filter=extension_filter)[0]
-        if fname != "":
-            self.addFilesToDatabaseByURL([fname])
+        self.addFilesToDatabaseByURL([fname])
     
     def importEntryFromClipboardBib(self):
         """Only support one bib now"""
@@ -218,7 +217,10 @@ class MainWindow(MainWindowGUI):
         curr_selected_tags = self.getCurrentSelectedTags()
         curr_total_tags = self.getTotalTags()
         for f in urls:
-            self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
+            if f == "":
+                self.bib_quary = BibQuery(self, None, tag_data=curr_selected_tags, tag_total=curr_total_tags)
+            else:
+                self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
             self.bib_quary.file_added.connect(self.file_selector.addToDatabase)
             self.bib_quary.file_added.connect(self.refreshFileTagSelector)
             self.bib_quary.fail_add_bib.connect(self.openPendingWindowAndAddPendingFile)

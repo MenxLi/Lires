@@ -183,6 +183,13 @@ class FileManipulator:
         del extern_file_p
         return True
     
+    def getFileSize(self) -> Union[None, float]:
+        if not self.hasFile():
+            return None
+        size = os.path.getsize(self.file_p)
+        size = size/(1048576)   # byte to M
+        return round(size, 2)
+    
     def readBib(self) -> str:
         with open(self.bib_p, "r", encoding="utf-8") as f:
             data = f.read()
