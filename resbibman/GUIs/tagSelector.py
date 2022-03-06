@@ -8,7 +8,7 @@ from PyQt5 import QtGui
 
 from ..confReader import ICON_PATH, saveToConf
 from .widgets import WidgetBase, RefWidgetBase
-from ..backend.dataClass import DataTags
+from ..core.dataClass import DataTags
 
 class TagSelector(RefWidgetBase):
     entry_added = QtCore.pyqtSignal(str)

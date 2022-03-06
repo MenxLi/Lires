@@ -6,12 +6,12 @@ from PyQt5.QtWidgets import QLabel, QWidget, QTextEdit, QPushButton, QVBoxLayout
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5 import QtCore
 
-from ..backend.dataClass import DataTags
+from ..core.dataClass import DataTags
 from .tagEditor import TagEditor
-from ..backend.bibReader import BibParser
-from ..backend.fileTools import FileGenerator, FileManipulator
+from ..core.bibReader import BibParser
+from ..core.fileTools import FileGenerator, FileManipulator
 from ..confReader import getConf, DOC_PATH
-from ..backend.utils import sssUUID
+from ..core.utils import sssUUID
 
 class BibQueryGUI(QWidget):
     def __init__(self, parent, tag_data: DataTags, tag_total: DataTags):

@@ -4,7 +4,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 
 import typing
-from ..backend.dataClass import DataTags
+from ..core.dataClass import DataTags
 
 class WidgetBase(QWidget):
     def warnDialog(self, messege, info_msg = ""):

@@ -35,6 +35,7 @@ _VERSION_HISTORIES = [
         start front end and backend with single python cmd argument."),
     ("0.3.4", "Frontend small update. change backend port to 8079"),
     ("0.3.5", "Now can insert no-file entry by cancel in file selection prompt; Add file size to file info"),
+    ("0.3.6", "Change resbibman.backend to resbibman.core"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

@@ -12,10 +12,10 @@ from .bibQuery import BibQuery
 from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
 
-from ..backend.fileTools import FileManipulator, FileGenerator
-from ..backend.bibReader import BibParser
-from ..backend.utils import openFile
-from ..backend.dataClass import DataTags, DataBase, DataPoint
+from ..core.fileTools import FileManipulator, FileGenerator
+from ..core.bibReader import BibParser
+from ..core.utils import openFile
+from ..core.dataClass import DataTags, DataBase, DataPoint
 from ..confReader import DOC_PATH, getConf, ICON_PATH, VERSION
 import os, copy, typing, webbrowser
 

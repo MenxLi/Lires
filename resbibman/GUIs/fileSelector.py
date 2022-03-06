@@ -7,9 +7,9 @@ from typing import Union, List
 
 from .bibQuery import BibQuery
 from .widgets import WidgetBase, MainWidgetBase
-from ..backend.fileTools import FileManipulator
-from ..backend.dataClass import DataBase, DataPoint, DataList, DataTags, DataTableList
-from ..backend.utils import copy2clip, openFile
+from ..core.fileTools import FileManipulator
+from ..core.dataClass import DataBase, DataPoint, DataList, DataTags, DataTableList
+from ..core.utils import copy2clip, openFile
 from ..confReader import getConf, getConfV
 
 class FileSelectorGUI(MainWidgetBase):

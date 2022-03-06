@@ -5,7 +5,7 @@ from PyQt5 import QtCore, QtGui
 from .widgets import WidgetBase, MainWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
-from ..backend.dataClass import DataPoint, DataTags
+from ..core.dataClass import DataPoint, DataTags
 from ..confReader import getConf, saveToConf
 
 class FileTagGUI(MainWidgetBase):

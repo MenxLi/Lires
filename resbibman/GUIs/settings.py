@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QTextEdit, QVBoxLayout, QWidget, QFileDialog
 from PyQt5 import QtCore
 
-from ..backend.dataClass import DataList, DataTableList
+from ..core.dataClass import DataList, DataTableList
 
 from .widgets import RefWidgetBase
 from ..confReader import getConf, getConfV, getStyleSheets, saveToConf

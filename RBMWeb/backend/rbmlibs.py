@@ -1,8 +1,8 @@
 import os, copy
 from typing import List, Union
 from resbibman.confReader import getConfV
-from resbibman.backend.dataClass import DataBase, DataList, DataPoint, DataTableList, DataTags
-from resbibman.backend.fileTools import FileManipulator
+from resbibman.core.dataClass import DataBase, DataList, DataPoint, DataTableList, DataTags
+from resbibman.core.fileTools import FileManipulator
 
 def getDataBaseInfo() -> Union[List[dict], None]:
     db_path = getConfV("database")

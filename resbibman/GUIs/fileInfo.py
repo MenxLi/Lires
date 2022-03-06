@@ -7,16 +7,16 @@ from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextBrowser, QText
 from .widgets import WidgetBase, MainWidgetBase
 from .fileSelector import FileSelector
 from ..confReader import ICON_PATH, getConfV
-from ..backend.fileTools import FileManipulator
-from ..backend.bibReader import BibParser
-from ..backend.dataClass import DataPoint
-from ..backend.pdfTools import getPDFCoverAsQPixelmap
+from ..core.fileTools import FileManipulator
+from ..core.bibReader import BibParser
+from ..core.dataClass import DataPoint
+from ..core.pdfTools import getPDFCoverAsQPixelmap
 
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import markdown
 from .mdHighlighter import MarkdownSyntaxHighlighter
 
-from ..backend.utils import copy2clip
+from ..core.utils import copy2clip
 
 class FileInfoGUI(MainWidgetBase):
     def __init__(self, parent = None):

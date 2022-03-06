@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton
 
 from .tagSelector import TagSelector
 from .widgets import MainWidgetBase
-from ..backend.dataClass import DataTags
+from ..core.dataClass import DataTags
 
 class TagEditor(MainWidgetBase):
     def __init__(self, tag_data: DataTags, tag_total: DataTags, parent = None) -> None:

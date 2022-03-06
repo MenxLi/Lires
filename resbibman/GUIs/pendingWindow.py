@@ -3,8 +3,8 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QAction, QHBoxLayout, QLabel, QListView, QVBoxLayout, QWidget, QShortcut, QInputDialog
 
 from .widgets import RefWidgetBase
-from ..backend.utils import openFile
-from ..backend.pdfTools import getPDFCoverAsQPixelmap
+from ..core.utils import openFile
+from ..core.pdfTools import getPDFCoverAsQPixelmap
 from ..confReader import ICON_PATH, getConfV
 
 

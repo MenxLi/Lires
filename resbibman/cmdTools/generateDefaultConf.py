@@ -1,6 +1,6 @@
 import json
 
-from ..backend.dataClass import DataList, DataTableList
+from ..core.dataClass import DataList, DataTableList
 from ..confReader import CONF_FILE_PATH, saveToConf, DEFAULT_DATA_PATH
 
 def run():

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication
 import sys
-from ..backend.pdfTools import *
+from ..core.pdfTools import *
 from ..exec import execProg_
 from PyQt5.QtWidgets import QApplication
 

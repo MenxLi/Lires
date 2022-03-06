@@ -2,7 +2,7 @@ import argparse, subprocess, warnings
 from PyQt5.QtWidgets import QApplication
 import os, sys, platform
 from .GUIs.mainWindow import MainWindow
-from .backend.utils import getDateTime, Logger
+from .core.utils import getDateTime, Logger
 from .confReader import getConf, getConfV, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH
 
 def execProg_():
