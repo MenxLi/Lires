@@ -168,6 +168,9 @@ class FileInfo(FileInfoGUI):
             self.curr_data.fm.writeComments(comment)
     
     def saveWebURL(self):
+        if self.curr_data is None:
+            self.warnDialog("No file selected.")
+            return
         prev_url = self.curr_data.fm.getWebUrl()
         weburl = self.weburl_edit.text()
         if weburl != prev_url:
@@ -200,8 +203,8 @@ class FileInfo(FileInfoGUI):
     
     def __renderMarkdown(self):
         comment = self.tEdit.toPlainText()
-        # if comment == "":
-            # return
+        if comment == "":
+            return
 
         misc_f = self.curr_data.fm.folder_p
         misc_f = misc_f.replace(os.sep, "/")

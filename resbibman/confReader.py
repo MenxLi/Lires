@@ -35,7 +35,8 @@ _VERSION_HISTORIES = [
         start front end and backend with single python cmd argument."),
     ("0.3.4", "Frontend small update. change backend port to 8079"),
     ("0.3.5", "Now can insert no-file entry by cancel in file selection prompt; Add file size to file info"),
-    ("0.3.6", "Change resbibman.backend to resbibman.core"),
+    ("0.3.6", "API update: Change resbibman.backend to resbibman.core"),
+    ("0.3.7", "Bug fix: edit weburl or switch mdTab would lead to crash when no file is selected"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
