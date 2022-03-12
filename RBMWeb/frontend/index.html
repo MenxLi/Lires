@@ -13,6 +13,13 @@
         <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
     <body>
+        <script>
+            const host = window.location.hostname;
+            const port = window.location.port;
+            localStorage.setItem("RBMServerAddr", host);
+            localStorage.setItem("RBMServerPort", port);
+        </script>
+
         <div id="main">
             <div id="banner">
                 <!-- <img id="refresh" class="icon_filter" src="/icon/refresh-24px.svg" alt=""> -->

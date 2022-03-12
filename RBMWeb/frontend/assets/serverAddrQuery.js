@@ -1,5 +1,6 @@
 
 function onBtnClicked(){
+    // Deprecated...
     // const btn = document.querySelector("#btn_server_config");
     const addrInput = document.querySelector("#server_addr");
     const portInput = document.querySelector("#server_port");
