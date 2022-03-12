@@ -6,6 +6,11 @@
 import {reqFileList, reqReloadDB} from "./reqServer.js"
 import {initTags, initSearch, updateSelector} from "./renderer.js"
 
+const host = window.location.hostname;
+const port = window.location.port;
+localStorage.setItem("RBMServerAddr", host);
+localStorage.setItem("RBMServerPort", port);
+
 // change css according to scree size
 function setElemSize2Screen(){
     const winHeight = window.innerHeight;

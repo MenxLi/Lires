@@ -75,10 +75,8 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
         args.not_run = True
 
     if args.server:
-        from RBMWeb.backend import startServerProcess
-        from RBMWeb.frontend import startWebpageServerProcess
+        from RBMWeb.server import startServerProcess
         procs.append(startServerProcess())
-        procs.append(startWebpageServerProcess())
 
     if not args.not_run:
         if args.no_log:

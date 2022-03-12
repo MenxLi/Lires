@@ -7,19 +7,7 @@ from RBMWeb.backend.confReader import getRBMWebConf
 import tornado.ioloop
 import tornado.web
 
-from resbibman.confReader import getConf, getConfV
-
-pdf_file_path = "/home/monsoon/Downloads/Coursera_5QWUXAASSWXN.pdf"
-
-class Application(tornado.web.Application):
-    def __init__(self) -> None:
-        handlers = [
-            (r"/file/(.*)", FileHandler),
-            (r"/main/(.*)", FileListHandler),
-            (r"/comment/(.*)", CommentHandler),
-            (r"/reloadDB", ReloadDBHandler),
-        ]
-        super().__init__(handlers)
+from resbibman.confReader import getConfV
 
 class RequestHandlerBase(tornado.web.RequestHandler):
     def setDefaultHeader(self):
@@ -79,12 +67,30 @@ class CommentHandler(RequestHandlerBase):
                     return
         self.write("The file not exist or is not MD file.")
 
-class ReloadDBHandler(RequestHandlerBase):
-    def get(self):
+class CMDHandler(RequestHandlerBase):
+    def _reloadDB(self):
         global db_reader
         self.setDefaultHeader()
         db_reader.loadDB(db_reader.db_path)
         self.write("success")
+
+    def get(self, cmd):
+        if cmd == "reloadDB":
+            self._reloadDB()
+
+class Application(tornado.web.Application):
+    def __init__(self) -> None:
+        root = os.path.dirname(__file__)
+        frontend_root = os.path.join(root, "frontend")
+        handlers = [
+            (r"/favicon.ico()", tornado.web.StaticFileHandler, {"path": frontend_root}),
+            (r"/main/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
+            (r"/file/(.*)", FileHandler),
+            (r"/filelist/(.*)", FileListHandler),
+            (r"/comment/(.*)", CommentHandler),
+            (r"/cmd/(.*)", CMDHandler),
+        ]
+        super().__init__(handlers)
 
 def startServer(port: Union[int, str, None] = None):
     global db_reader
@@ -103,5 +109,6 @@ def startServerProcess(*args) -> multiprocessing.Process:
     p.start()
     return p
 
+
 if __name__ == "__main__":
-    startServer()
+    startServer(8080)

@@ -37,6 +37,7 @@ _VERSION_HISTORIES = [
     ("0.3.5", "Now can insert no-file entry by cancel in file selection prompt; Add file size to file info"),
     ("0.3.6", "API update: Change resbibman.backend to resbibman.core"),
     ("0.3.7", "Bug fix: edit weburl or switch mdTab would lead to crash when no file is selected"),
+    ("0.3.8", "Use one server to start front and backend"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

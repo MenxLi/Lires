@@ -13,10 +13,7 @@ function onBtnClicked(){
     }
     localStorage.setItem("RBMServerAddr", addr)
     localStorage.setItem("RBMServerPort", port)
-    // const SERVER_ADDR = localStorage.getItem("RBMServerAddr")
     // const SERVER_PORT = localStorage.getItem("RBMServerPort")
-    //console.log(SERVER_ADDR);
-    //console.log(SERVER_PORT);
     window.location.href = "main.html"
 }
 

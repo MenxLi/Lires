@@ -16,7 +16,7 @@ function reqFileList(tags, callbacks){
         queryKey = tags.join("&&");
     }
     const xhr = new XMLHttpRequest();
-    const reqStr =  `http://${SERVER_ADDR}:${SERVER_PORT}/main/${queryKey}`;
+    const reqStr =  `http://${SERVER_ADDR}:${SERVER_PORT}/filelist/${queryKey}`;
     console.log(reqStr)
     xhr.open("GET", reqStr, true);
     xhr.responseType = "json"
@@ -37,7 +37,7 @@ function reqFileList(tags, callbacks){
 
 function reqReloadDB(){
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", `http://${SERVER_ADDR}:${SERVER_PORT}/reloadDB`);
+    xhr.open("GET", `http://${SERVER_ADDR}:${SERVER_PORT}/cmd/reloadDB`);
     xhr.responseType = "text";
     xhr.onreadystatechange = function(){
         if (this.readyState == 4 && this.status == 200){
