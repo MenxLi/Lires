@@ -29,6 +29,10 @@ class DataPoint:
         self.data_path = fm.path
         self.loadInfo()
 
+    @property
+    def file_path(self) -> Union[None, str]:
+        return self.fm.file_p
+
     def reload(self):
         self.fm = FileManipulator(self.data_path)
         self.fm.screen()

@@ -142,7 +142,7 @@ class FileInfo(FileInfoGUI):
         comment = self.curr_data.fm.readComments()
         self.tEdit.setText(comment)
         self.weburl_edit.setText(data.fm.getWebUrl())
-        self.__updateCover(data.fm.file_p)
+        self.__updateCover(data)
         self.__renderMarkdown()
     
     def changeTab(self, index):
@@ -212,14 +212,20 @@ class FileInfo(FileInfoGUI):
 
         comment_html = markdown.markdown(comment)
         self.mdBrowser.setHtml(comment_html, baseUrl=QtCore.QUrl.fromLocalFile("/"))
-    
-    def __updateCover(self, fpath: Union[str,None]):
-        if fpath is None or not fpath.endswith(".pdf"):
-            self.cover_label.setScaledContents(False)
+
+    def __updateCover(self, data: Union[DataPoint,None]):
+        self.cover_label.setScaledContents(False)
+        if data is None:
             cover = QtGui.QPixmap(os.path.join(ICON_PATH, "error-48px.png"))
+        elif data.file_path is None or not data.file_path.endswith(".pdf"):
+            # No file or not PDF file
+            if data.fm.getWebUrl() == "":
+                cover = QtGui.QPixmap(os.path.join(ICON_PATH, "error-48px.png"))
+            else:
+                # if has url thus clickable
+                cover = QtGui.QPixmap(os.path.join(ICON_PATH, "cloud-24px.svg"))
         else:
-            self.cover_label.setScaledContents(False)
-            cover = getPDFCoverAsQPixelmap(fpath)
+            cover = getPDFCoverAsQPixelmap(data.fm.file_p)
         # https://blog.csdn.net/L114678/article/details/121457242
         width = cover.width()
         height = cover.height()
@@ -231,7 +237,6 @@ class FileInfo(FileInfoGUI):
         new_height = height / ratio 
         new_cover = cover.scaled(int(new_width), int(new_height), aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)##调整图片尺寸
         self.cover_label.setPixmap(new_cover)
-
 
 class MarkdownEdit(QTextEdit):
     def setParent(self, parent: FileInfo):
