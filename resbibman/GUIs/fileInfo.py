@@ -223,7 +223,7 @@ class FileInfo(FileInfoGUI):
                 cover = QtGui.QPixmap(os.path.join(ICON_PATH, "error-48px.png"))
             else:
                 # if has url thus clickable
-                cover = QtGui.QPixmap(os.path.join(ICON_PATH, "cloud-24px.svg"))
+                cover = QtGui.QPixmap(os.path.join(ICON_PATH, "outline_cloud_black_48dp.png"))
         else:
             cover = getPDFCoverAsQPixelmap(data.fm.file_p)
         # https://blog.csdn.net/L114678/article/details/121457242

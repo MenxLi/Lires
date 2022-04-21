@@ -221,9 +221,10 @@ class MainWindow(MainWindowGUI):
                 self.bib_quary = BibQuery(self, None, tag_data=curr_selected_tags, tag_total=curr_total_tags)
             else:
                 self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
+            self.bib_quary.setDatabase(self.db)     # Set database for inspect if file already exists
             self.bib_quary.file_added.connect(self.file_selector.addToDatabase)
             self.bib_quary.file_added.connect(self.refreshFileTagSelector)
-            self.bib_quary.fail_add_bib.connect(self.openPendingWindowAndAddPendingFile)
+            self.bib_quary.add_to_pending.connect(self.openPendingWindowAndAddPendingFile)
             if hasattr(self, "pending_win"):
                 self.bib_quary.file_added.connect(self.pending_win.loadData)
             self.bib_quary.show()

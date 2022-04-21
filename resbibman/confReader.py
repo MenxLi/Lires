@@ -38,6 +38,7 @@ _VERSION_HISTORIES = [
     ("0.3.6", "API update: Change resbibman.backend to resbibman.core"),
     ("0.3.7", "Bug fix: edit weburl or switch mdTab would lead to crash when no file is selected"),
     ("0.3.8", "Use one server to start front and backend"),
+    ("0.3.9", "Check if file exists, while adding; change cloud icon"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

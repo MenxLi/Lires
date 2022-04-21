@@ -1,19 +1,20 @@
 """
 The quary dialog for bibtex input
 """
-import os, typing
+import os, typing, difflib
 from PyQt5.QtWidgets import QLabel, QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5 import QtCore
 
-from ..core.dataClass import DataTags
+from ..core.dataClass import DataPoint, DataTags, DataBase
 from .tagEditor import TagEditor
 from ..core.bibReader import BibParser
 from ..core.fileTools import FileGenerator, FileManipulator
 from ..confReader import getConf, DOC_PATH
 from ..core.utils import sssUUID
+from .widgets import WidgetBase
 
-class BibQueryGUI(QWidget):
+class BibQueryGUI(WidgetBase):
     def __init__(self, parent, tag_data: DataTags, tag_total: DataTags):
         """
         file_path: path to the original paper
@@ -68,13 +69,14 @@ class BibQueryGUI(QWidget):
 
 class BibQuery(BibQueryGUI):
     file_added = QtCore.pyqtSignal(str)     # send generated folder path
-    fail_add_bib = QtCore.pyqtSignal(str)   # send file_path
+    add_to_pending = QtCore.pyqtSignal(str)   # send file_path
     def __init__(self, parent, file_path: typing.Union[str, None], tag_data: DataTags, tag_total:DataTags):
         """
         - file_path: Set to None for not providing file
         """
         super().__init__(parent, tag_data=tag_data, tag_total=tag_total)
         self.file_path = file_path
+        self.db: DataBase
 
         if not self.file_path is None:
             file_name = os.path.split(self.file_path)[-1]
@@ -83,6 +85,10 @@ class BibQuery(BibQueryGUI):
         self.filename_lbl.setText(file_name)
 
         self.connectMethods()
+
+    def setDatabase(self, db: DataBase):
+        # Set database to inspect if file already exists
+        self.db = db
     
     def connectMethods(self):
         self.ok_button.clicked.connect(self.confirm)
@@ -106,8 +112,27 @@ class BibQuery(BibQueryGUI):
             year = bib["year"],
             authors = bib["authors"]
         )
+        # Check if the file already exists
+        for k, v in self.db.items():
+            v: DataPoint
+            t1 = v.bib["title"].lower()
+            t2 = bib["title"].lower()
+            similarity = difflib.SequenceMatcher(a = t1, b = t2).ratio()
+            if similarity > 0.8:
+                query_strs= [
+                    "File may exists already",
+                    "{year} - {title}".format(year = v.bib["year"], title = v.bib["title"]),
+                    "FROM: {authors}".format(authors = "|".join(v.bib["authors"]))
+                ]
+                if not self.queryDialog(title = "File may exist", msg = "\n".join(query_strs)):
+                    self.close()
+                    return
+
         if not fg.generateDefaultFiles(data_dir=getConf()["database"]):
+            self.add_to_pending.emit(self.file_path)
+            self.close()
             return 
+
         dst_dir = fg.dst_dir
         fm = FileManipulator(dst_dir)
         fm.screen()

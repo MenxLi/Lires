@@ -1,10 +1,18 @@
+from __future__ import annotations
 
 from PyQt5.QtWidgets import QStyle, QWidget, QMessageBox, QListView, QHBoxLayout, QVBoxLayout, QDesktopWidget
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
 import typing
+from typing import TYPE_CHECKING
 from ..core.dataClass import DataTags
+
+if TYPE_CHECKING:
+    from .mainWindow import MainWindow
+    from .fileInfo import FileInfo
+    from .fileSelector import FileSelector
+    from .tagSelector import TagSelector
 
 class WidgetBase(QWidget):
     def warnDialog(self, messege, info_msg = ""):
@@ -49,32 +57,32 @@ class RefWidgetBase(WidgetBase):
         self._select_panel = None
         self._info_panel = None
         self._tag_panel = None
-    
-    def setMainPanel(self, panel: QWidget):
+
+    def setMainPanel(self, panel: MainWindow):
         self._main_panel = panel
     
-    def getMainPanel(self) -> WidgetBase:
+    def getMainPanel(self) -> MainWindow:
         assert self._main_panel is not None, "Main panel not set, use setMainPanel to set the panel"
         return self._main_panel
         
-    def setSelectPanel(self, panel: QWidget):
+    def setSelectPanel(self, panel: FileSelector):
         self._select_panel = panel
     
-    def getSelectPanel(self) -> WidgetBase:
+    def getSelectPanel(self) -> FileSelector:
         assert self._select_panel is not None, "Select panel not set, use setSelectPanel to set the panel"
         return self._select_panel
 
-    def setInfoPanel(self, panel: QWidget):
+    def setInfoPanel(self, panel: FileInfo):
         self._info_panel = panel
     
-    def getInfoPanel(self) -> WidgetBase:
+    def getInfoPanel(self) -> FileInfo:
         assert self._info_panel is not None, "Info panel not set, use setInfoPanel to set the panel"
         return self._info_panel
 
-    def setTagPanel(self, panel: QWidget):
+    def setTagPanel(self, panel: TagSelector):
         self._tag_panel = panel
     
-    def getTagPanel(self) -> WidgetBase:
+    def getTagPanel(self) -> TagSelector:
         assert self._tag_panel is not None, "Tag panel not set, use setTagPanel to set the panel"
         return self._tag_panel
 
