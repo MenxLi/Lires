@@ -2,12 +2,12 @@ import os
 import typing
 from typing import Union, List
 
-from PyQt5.QtWidgets import QAction, QLineEdit, QStyle, QWidget, QMessageBox, QListView, QHBoxLayout, QVBoxLayout, QInputDialog
+from PyQt5.QtWidgets import QAction, QListView, QHBoxLayout, QInputDialog
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
 from ..confReader import ICON_PATH, saveToConf
-from .widgets import WidgetBase, RefWidgetBase
+from .widgets import RefWidgetBase
 from ..core.dataClass import DataTags
 
 class TagSelector(RefWidgetBase):

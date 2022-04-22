@@ -1,7 +1,7 @@
 from typing import List, Tuple
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat
-from PyQt5.QtGui import QBrush, QColor, QFont
-from PyQt5.QtCore import QRegExp, Qt
+from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtCore import QRegExp
 
 class MarkdownSyntaxHighlighter(QSyntaxHighlighter):
     """A minimum markdown syntax highlighter """

@@ -2,9 +2,8 @@ import os, shutil, uuid, time, threading
 from typing import Union
 import warnings
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextBrowser, QTextEdit, QVBoxLayout, QWidget, QFrame, QHBoxLayout, QLineEdit
-from .widgets import WidgetBase, MainWidgetBase
-from .fileSelector import FileSelector
+from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit
+from .widgets import MainWidgetBase
 from ..confReader import ICON_PATH, getConfV
 from ..core.fileTools import FileManipulator
 from ..core.bibReader import BibParser
@@ -14,8 +13,6 @@ from ..core.pdfTools import getPDFCoverAsQPixelmap
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import markdown
 from .mdHighlighter import MarkdownSyntaxHighlighter
-
-from ..core.utils import copy2clip
 
 class FileInfoGUI(MainWidgetBase):
     def __init__(self, parent = None):
@@ -78,10 +75,6 @@ class FileInfoGUI(MainWidgetBase):
 
         self.btn_frame = QFrame()
         btn_frame_vbox = QVBoxLayout()
-        # btn_frame_hbox = QHBoxLayout()
-        # btn_frame_hbox.addWidget(self.save_comment_btn)
-        # btn_frame_hbox.addWidget(self.refresh_btn)
-        # btn_frame_vbox.addLayout(btn_frame_hbox)
         btn_frame_vbox.addWidget(self.open_commets_btn)
         btn_frame_vbox.addWidget(self.open_bib_btn)
         btn_frame_vbox.addWidget(self.open_folder_btn)
@@ -97,7 +90,7 @@ class FileInfo(FileInfoGUI):
     """
     Implement the functions for file info
     """
-    COMMENT_SAVE_TOLERANCE_INTERVAL = 1
+    COMMENT_SAVE_TOLERANCE_INTERVAL = 2
     def __init__(self, parent = None, **kwargs):
         super().__init__(parent)
         self.curr_data = None

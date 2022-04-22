@@ -2,7 +2,7 @@
 The quary dialog for bibtex input
 """
 import os, typing, difflib
-from PyQt5.QtWidgets import QLabel, QWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
+from PyQt5.QtWidgets import QLabel, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5 import QtCore
 
@@ -144,4 +144,3 @@ class BibQuery(BibQueryGUI):
     def cancel(self):
         self.fail_add_bib.emit(self.file_path)
         self.close()
-

@@ -1,8 +1,7 @@
 import typing
 import warnings
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QTextEdit, QVBoxLayout, QWidget, QFileDialog
-from PyQt5 import QtCore
+from PyQt5.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog
 
 from ..core.dataClass import DataList, DataTableList
 

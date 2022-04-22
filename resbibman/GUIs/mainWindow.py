@@ -16,7 +16,7 @@ from ..core.bibReader import BibParser
 from ..core.utils import openFile
 from ..core.dataClass import DataTags, DataBase, DataPoint
 from ..confReader import DOC_PATH, getConf, ICON_PATH, VERSION
-import os, copy, typing, webbrowser
+import os, copy, typing
 
 # for testing propose
 from .fileTags import TagSelector

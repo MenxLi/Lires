@@ -1,8 +1,6 @@
-import typing
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QTextBrowser, QVBoxLayout, QWidget, QFrame, QHBoxLayout, QListView
-from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QTextBrowser, QVBoxLayout, QWidget, QFrame
 from PyQt5 import QtCore, QtGui
-from .widgets import WidgetBase, MainWidgetBase
+from .widgets import  MainWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
 from ..core.dataClass import DataPoint, DataTags

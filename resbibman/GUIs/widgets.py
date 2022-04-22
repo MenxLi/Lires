@@ -2,11 +2,7 @@ from __future__ import annotations
 import typing, logging
 from typing import TYPE_CHECKING
 
-from PyQt5.QtWidgets import QStyle, QWidget, QMessageBox, QListView, QHBoxLayout, QVBoxLayout, QDesktopWidget
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-
-from ..core.dataClass import DataTags
+from PyQt5.QtWidgets import QWidget, QMessageBox, QDesktopWidget
 
 if TYPE_CHECKING:
     from .mainWindow import MainWindow

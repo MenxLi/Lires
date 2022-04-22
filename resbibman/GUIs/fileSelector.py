@@ -1,14 +1,14 @@
 import webbrowser
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QListView, QMessageBox, QShortcut, QTableWidgetItem, QVBoxLayout, QWidget, QFrame, QTableWidget, QAbstractItemView, QHeaderView, QTableView, QFileDialog
+from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QShortcut, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
 from PyQt5 import QtGui, QtCore
 import typing, os, shutil, copy
-from typing import Union, List 
+from typing import List 
 
 from .bibQuery import BibQuery
-from .widgets import WidgetBase, MainWidgetBase
+from .widgets import  MainWidgetBase
 from ..core.fileTools import FileManipulator
-from ..core.dataClass import DataBase, DataPoint, DataList, DataTags, DataTableList
+from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from ..core.utils import copy2clip, openFile
 from ..confReader import getConf, getConfV
 
