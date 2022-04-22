@@ -1,11 +1,11 @@
 from __future__ import annotations
+import typing, logging
+from typing import TYPE_CHECKING
 
 from PyQt5.QtWidgets import QStyle, QWidget, QMessageBox, QListView, QHBoxLayout, QVBoxLayout, QDesktopWidget
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
-import typing
-from typing import TYPE_CHECKING
 from ..core.dataClass import DataTags
 
 if TYPE_CHECKING:
@@ -15,6 +15,10 @@ if TYPE_CHECKING:
     from .tagSelector import TagSelector
 
 class WidgetBase(QWidget):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.logger = logging.getLogger("rbm")
+
     def warnDialog(self, messege, info_msg = ""):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Warning)

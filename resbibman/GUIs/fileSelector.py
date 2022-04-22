@@ -91,7 +91,7 @@ class FileSelector(FileSelectorGUI):
         valid_data.sortBy(sort_method)
         self.data_model.assignData(valid_data) 
         if hint:
-            print("Data loaded, tags: {tags}, sorting method: {sort_method}, screen_pattern: {screen_pattern}".\
+            self.logger.debug("Data loaded, tags: {tags}, sorting method: {sort_method}, screen_pattern: {screen_pattern}".\
                 format(tags = " | ".join(tags), sort_method = sort_method, screen_pattern = screen_pattern))
         return True
 
@@ -119,13 +119,11 @@ class FileSelector(FileSelectorGUI):
         else:
             bibs = bibs[0]
         copy2clip("\""+bibs+"\"")
-        # print(bibs)
 
     def copyCurrentSelectionCitation(self):
         selected = self.getCurrentSelection(return_multiple=True)
         citations = [x.stringCitation() for x in selected]
         copy2clip("\""+"\n".join(citations)+"\"")
-        # print("\n".join(citations))
     
     def freeDocumentOfCurrentSelection(self):
         selected = self.getCurrentSelection(return_multiple=True)

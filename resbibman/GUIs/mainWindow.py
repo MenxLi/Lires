@@ -1,6 +1,5 @@
 from resbibman.GUIs.widgets import WidgetBase
 import pyperclip
-from pprint import pprint
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar
 from PyQt5.QtCore import Qt
@@ -126,8 +125,8 @@ class MainWindowGUI(QMainWindow, WidgetBase):
 class MainWindow(MainWindowGUI):
     def __init__(self):
         super().__init__()
-        print("Configuration: ")
-        pprint(getConf())
+        self.logger.debug("Configuration: ")
+        self.logger.debug(getConf())
         self.initActions()
         self.loadData(getConf()["database"])
         self.statusBarMsg("Welcome!")

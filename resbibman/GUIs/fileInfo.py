@@ -1,5 +1,4 @@
-from os import curdir
-import os, shutil, uuid
+import os, shutil, uuid, time, threading
 from typing import Union
 import warnings
 from PyQt5 import QtCore, QtGui
@@ -98,12 +97,18 @@ class FileInfo(FileInfoGUI):
     """
     Implement the functions for file info
     """
+    COMMENT_SAVE_TOLERANCE_INTERVAL = 1
     def __init__(self, parent = None, **kwargs):
         super().__init__(parent)
         self.curr_data = None
         self.tEdit.setParent(self)
         for k, v in kwargs:
             setattr(self, k, v)
+        
+        self.__cache = {
+            "save_comment_time_prev" : 0,
+            "save_comment_in_pending": False,
+        }
     
     def connectFuncs(self):
         self.getSelectPanel().selection_changed.connect(self.load)
@@ -163,9 +168,9 @@ class FileInfo(FileInfoGUI):
             self.curr_data.fm.openBib()
     
     def saveComments(self):
-        if not self.curr_data is None:
-            comment = self.tEdit.toPlainText()
-            self.curr_data.fm.writeComments(comment)
+        # Asynchronous saving
+        t = threading.Thread(target=self.__thread_saveComments, args=())
+        t.start()
     
     def saveWebURL(self):
         if self.curr_data is None:
@@ -200,6 +205,28 @@ class FileInfo(FileInfoGUI):
                     self.getSelectPanel().addFileToCurrentSelection(fpath)
                     return super().dropEvent(a0)
 
+    def __thread_saveComments(self):
+        def _save_comments():
+            if not self.curr_data is None:
+                comment = self.tEdit.toPlainText()
+                self.curr_data.fm.writeComments(comment)
+                self.__cache["save_comment_in_pending"] = False
+                self.__cache["save_comment_time_prev"] = time.time()
+                self.logger.debug("Comment saved")
+            else:
+                self.logger.debug("Comment save failed")
+        time_after_prev_save = time.time() - self.__cache["save_comment_time_prev"] 
+        if time_after_prev_save > self.COMMENT_SAVE_TOLERANCE_INTERVAL:
+            # Save instantly after saving interval.
+            _save_comments()
+        elif self.__cache["save_comment_in_pending"]:
+            # During time.sleep
+            self.logger.debug("Comment will be save later, saving pending")
+        else:
+            self.__cache["save_comment_in_pending"] = True
+            self.logger.debug("Comment will be save later, saving triggered")
+            time.sleep(self.COMMENT_SAVE_TOLERANCE_INTERVAL - time_after_prev_save)
+            _save_comments()
     
     def __renderMarkdown(self):
         comment = self.tEdit.toPlainText()

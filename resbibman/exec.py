@@ -1,4 +1,4 @@
-import argparse, subprocess, warnings
+import argparse, subprocess, warnings, logging
 from PyQt5.QtWidgets import QApplication
 import os, sys, platform
 from .GUIs.mainWindow import MainWindow
@@ -37,12 +37,21 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     parser.add_argument("-n", "--not_run", action= "store_true", help = "Not to run main program")
     parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
     parser.add_argument("-s", "--server", action = "store_true", help = "Start server (RBMWeb)")
+    parser.add_argument("-l", "--log_level", action= "store", type = str, default="INFO", help = "log level")
     parser.add_argument("--no_log", action = "store_true", help = "Open the program without recording log, stdout/stderr will be shown in terminal")
     parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
     parser.add_argument("--print_log", action = "store_true", help = "Print log and exit")
     args = parser.parse_args()
 
     procs = []
+
+    logger = logging.getLogger("rbm")
+    handler = logging.StreamHandler(sys.stdout)
+    logger.setLevel(getattr(logging, args.log_level))
+    handler.setLevel(getattr(logging, args.log_level))
+    fomatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    handler.setFormatter(fomatter)
+    logger.addHandler(handler)
 
     if not os.path.exists(CONF_FILE_PATH):
         subprocess.check_call("rbm-resetConf")  # Installed with setup.py
@@ -89,4 +98,7 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
             proc.join()
 
 if __name__=="__main__":
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    logging.StreamHandler(sys.stdout)
     run()

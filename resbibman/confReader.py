@@ -39,6 +39,7 @@ _VERSION_HISTORIES = [
     ("0.3.7", "Bug fix: edit weburl or switch mdTab would lead to crash when no file is selected"),
     ("0.3.8", "Use one server to start front and backend"),
     ("0.3.9", "Check if file exists, while adding; change cloud icon"),
+    ("0.3.10", "Asynchronous comment saving; switching to logger instead of print"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
