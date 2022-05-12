@@ -217,8 +217,9 @@ class FileInfo(FileInfoGUI):
             self.logger.debug("Comment will be save later, saving pending")
         else:
             self.__cache["save_comment_in_pending"] = True
-            self.logger.debug("Comment will be save later, saving triggered")
-            time.sleep(self.COMMENT_SAVE_TOLERANCE_INTERVAL - time_after_prev_save)
+            sleeptime = self.COMMENT_SAVE_TOLERANCE_INTERVAL - time_after_prev_save
+            self.logger.debug("Comment will be save later (after {}s), saving triggered".format(sleeptime))
+            time.sleep(sleeptime)
             _save_comments()
     
     def __renderMarkdown(self):

@@ -7,6 +7,7 @@ from typing import List
 
 from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase
+from .bibtexEditor import BibEditorWithOK
 from ..core.fileTools import FileManipulator
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from ..core.utils import copy2clip, openFile
@@ -42,14 +43,16 @@ class FileSelectorGUI(MainWidgetBase):
         self._initActions()
     
     def _initActions(self):
+        self.act_edit_bib = QAction("Edit bibtex info", self)
         self.act_open_location = QAction("Open file location", self)
         self.act_delete_file = QAction("Delete", self)
         self.act_export_bib = QAction("Export as .bib", self)
         self.act_copy_bib = QAction("Copy bib", self)
         self.act_copy_citation = QAction("Copy citation", self)
         self.act_add_file = QAction("Add file", self)
-        self.act_free_doc = QAction("Free document")
+        self.act_free_doc = QAction("Free document", self)
 
+        self.data_view.addAction(self.act_edit_bib)
         self.data_view.addAction(self.act_open_location)
         self.data_view.addAction(self.act_copy_citation)
         self.data_view.addAction(self.act_copy_bib)
@@ -76,6 +79,7 @@ class FileSelector(FileSelectorGUI):
         self.act_copy_citation.triggered.connect(self.copyCurrentSelectionCitation)
         self.act_add_file.triggered.connect(lambda : self.addFileToCurrentSelection(fname = None))
         self.act_free_doc.triggered.connect(self.freeDocumentOfCurrentSelection)
+        self.act_edit_bib.triggered.connect(self.editBibtex)
 
     def loadValidData(self, tags: DataTags, hint = False):
         """Load valid data by tags"""
@@ -124,6 +128,25 @@ class FileSelector(FileSelectorGUI):
         selected = self.getCurrentSelection(return_multiple=True)
         citations = [x.stringCitation() for x in selected]
         copy2clip("\""+"\n".join(citations)+"\"")
+
+    def editBibtex(self):
+        selected = self.getCurrentSelection(return_multiple=False)
+
+        if selected is None:
+            return
+        selected: DataPoint
+        self.logger.debug("Editing bibtex for {}".format(selected.uuid))
+        def onConfirm(txt: str):
+            new_base = selected.changeBib(txt)
+            self.selection_changed.emit(selected)
+            # debug
+            if new_base:
+                self.logger.debug("generate new base name")
+
+        self.bib_edit = BibEditorWithOK()
+        self.bib_edit.text = selected.fm.readBib()
+        self.bib_edit.on_confirmed.connect(onConfirm)
+        self.bib_edit.show()
     
     def freeDocumentOfCurrentSelection(self):
         selected = self.getCurrentSelection(return_multiple=True)

@@ -1,9 +1,12 @@
-
 # Features
+
+**My research literature manager**  
 
 ![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for notes.
+
+It also has a web viewer (RBM-web) so that it can be deployed into a server to share literatures.
 
 [comment]: <> (## distribution)
 
@@ -15,20 +18,27 @@ Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this s
 
 # Future works
 
+<details>
+<summary> Future works</summary>
+
 ## Todo list
 
 - [x] To use TableView of the selection panel
-- [ ] Pdf compression - [reference](https://blog.csdn.net/xinRCNN/article/details/113273463)
-- [ ] AutoUpdate
+- [x] PDF cover preview
+- [x] Change bib
+- [ ] Use cache to accelerate
+- [ ] Other citation format convert to bibtex
+- [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
 - [ ] User info
 - [ ] Export database
 - [ ] Better way to define time-modified
-- [ ] PDF preview
 
 In query widget while importing articles:  
 
 - [x] Add copy from template button
 - [ ] Format check
+- [ ] Other bibtex template
+- [ ] Other format convert to bibtex
 
 In file selector:
 
@@ -49,11 +59,11 @@ Tags:
 
 - [ ] Language support
 
-## Known issues
+</details>
 
-crash when using deletetag or rename tag with tag edit (should supply panel info into the tag_select item)
+## Known issues
+* May crash when changing selection (caused by async saving?)
 
 ## Credits:
-
 https://github.com/google/material-design-icons   
 https://github.com/GTRONICK/QSS

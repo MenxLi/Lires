@@ -1,7 +1,7 @@
 from resbibman.confReader import getConfV
 import typing, re
 from typing import List, Union, Iterable, Set
-from .fileTools import FileManipulator
+from .fileTools import FileManipulator, FileGenerator
 from .bibReader import BibParser
 
 class DataTags(set):
@@ -48,6 +48,25 @@ class DataPoint:
         self.year = self.bib["year"]
         self.time_added = self.fm.getTimeAdded()
         self.time_modified = self.fm.getTimeModified()
+
+    def changeBib(self, bib_str: str) -> bool:
+        """
+        Change bibtex info
+        - bib_str: bibtex string
+        return if base_name changed
+        """
+        self.fm.writeBib(bib_str)
+        bib = BibParser()(bib_str)[0]
+        fg = FileGenerator(None, 
+                           title = bib["title"], 
+                           authors = bib["authors"], 
+                           year = bib["year"])
+        # maybe change base_name
+        out = self.fm.changeBasename(fg.base_name)
+        # update datapoint
+        self.data_path = self.fm.path
+        self.reload()
+        return out
     
     def addFile(self, extern_file_p: str) -> bool:
         return self.fm.addFile(extern_file_p)

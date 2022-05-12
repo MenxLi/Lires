@@ -1,12 +1,20 @@
 """
-The tools that deals with file names in the database
+The tools that deals with files in the database
 """
 from distutils import extension
+from pathlib import Path
 import os, shutil, json, platform, typing, uuid
-from typing import List, Union
+from typing import List, Union, TypedDict
 import warnings
 from .utils import getDateTime, openFile
 from ..confReader import getConf, VERSION
+
+class FileNameType(TypedDict):
+    bibtex: str
+    document: str
+    comment: str
+    info: str
+    misc: str
 
 class FileGeneratorBase:
     def __init__(self, title: str, year: Union[int, str], authors: List[str]):
@@ -49,6 +57,7 @@ class FileGenerator(FileGeneratorBase):
     FILEPREFIX = "file@"
     INFOPREFIX = "info@"
     BIBPREFIX = "bib@"
+
     def __init__(self, file_path: Union[str, None], title: str, year: Union[int, str], authors: List[str]):
         """
         file_path: path to the original paper, set to None for no file serving
@@ -56,6 +65,19 @@ class FileGenerator(FileGeneratorBase):
         """
         super().__init__(title, year, authors)
         self.file_path = file_path
+
+    @property
+    def file_names(self) -> FileNameType:
+        """
+        To get file names without actually generate files
+        """
+        return {
+            "bibtex": self.BIBPREFIX+self.base_name+".bib",
+            "document": self.FILEPREFIX + self.base_name,           # name without extension
+            "comment": self.COMMENTPREFIX+self.base_name+".md",
+            "info": self.INFOPREFIX+self.base_name+".json",
+            "misc": self.FOLDERNAME
+        }
 
     def generateDefaultFiles(self, data_dir):
         self.data_dir = data_dir
@@ -130,17 +152,36 @@ class FileManipulator:
     """
     def __init__(self, data_path):
         self.path = data_path
-        self.base_name = os.path.split(data_path)[-1]
+        self.base_name: str = os.path.split(data_path)[-1]
+
+        self.folder_p: str
+        self.bib_p: str
+        self.comments_p: str
+        self.info_p: str
+        self.file_p: Union[str, None]
+
+    @property
+    def file_names(self) -> FileNameType:
+        """
+        To get file names without actually generate files
+        """
+        return {
+            "bibtex": FileGenerator.BIBPREFIX+self.base_name+".bib",
+            "document": FileGenerator.FILEPREFIX + self.base_name,           # name without extension
+            "comment": FileGenerator.COMMENTPREFIX+self.base_name+".md",
+            "info": FileGenerator.INFOPREFIX+self.base_name+".json",
+            "misc": FileGenerator.FOLDERNAME
+        }
     
     def screen(self):
         """To decided if the path contains all necessary files"""
         all_files = os.listdir(self.path)
-        comments_f = FileGenerator.COMMENTPREFIX + self.base_name + ".md"
-        info_f = FileGenerator.INFOPREFIX + self.base_name + ".json"
-        bib_f = FileGenerator.BIBPREFIX + self.base_name + ".bib"
-        folder_f = FileGenerator.FOLDERNAME
+        comments_f = self.file_names["comment"]
+        info_f = self.file_names["info"]
+        bib_f = self.file_names["bibtex"]
+        folder_f = self.file_names["misc"]
         for ext in getConf()["accepted_extensions"]:
-            file_f_candidate = FileGenerator.FILEPREFIX + self.base_name + ext
+            file_f_candidate = self.file_names["document"] + ext
             if file_f_candidate in all_files:
                 file_f = file_f_candidate
                 break
@@ -164,6 +205,30 @@ class FileManipulator:
         if not os.path.exists(self.info_p): warnings.warn("Info file does not exists")
 
         return True
+
+    def changeBasename(self, new_basename: str) -> bool:
+        """
+        Change file base name, should be called when changing bibtex
+        i.e. together with wirteBib, **It is unsafe to call this method alone**.
+        """
+        if self.base_name == new_basename:
+            return False
+        self.base_name = new_basename
+        # change file names
+        shutil.move(self.folder_p, os.path.join(self.path, self.file_names["misc"]))
+        shutil.move(self.bib_p, os.path.join(self.path, self.file_names["bibtex"]))
+        shutil.move(self.comments_p, os.path.join(self.path, self.file_names["comment"]))
+        shutil.move(self.info_p, os.path.join(self.path, self.file_names["info"]))
+        if self.file_p is not None:
+            ext = self.file_p.split(".")[-1]
+            shutil.move(self.file_p, os.path.join(self.path, self.file_names["document"] + "." + ext))
+        # change dir name
+        root_path = str(Path(self.path).parent)
+        new_path = os.path.join(root_path, new_basename)
+        shutil.move(self.path, os.path.join(root_path, new_basename))
+        self.path = new_path
+        # reload
+        return self.screen()
     
     def hasFile(self):
         return not self.file_p is None
@@ -196,6 +261,10 @@ class FileManipulator:
         return data
 
     def writeBib(self, bib: str):
+        """
+        Change bibtex file,
+        should call changeBasename if base_name has to be changed.
+        """
         with open(self.bib_p, "w", encoding="utf-8") as f:
             f.write(bib)
         self._log()
