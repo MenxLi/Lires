@@ -18,6 +18,7 @@ def generateDefaultConf():
 				DataTableList.HEADER_YEAR, 
 				DataTableList.HEADER_AUTHOR
 			 ],
+		auto_save_comments = False,
         stylesheet = "Simple"
     )
     print("Generated default configuration file at: ", CONF_FILE_PATH)

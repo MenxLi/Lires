@@ -66,7 +66,10 @@ class FileInfoGUI(MainWidgetBase):
         comment_frame_vbox.addWidget(self.comment_lbl, 0)
         # comment_frame_vbox.addWidget(self.tEdit,1)
         comment_frame_vbox.addWidget(self.mdTab,1)
-        comment_frame_vbox.addWidget(self.comment_save_indicate_lbl,0)
+        comment_frame_hbox = QHBoxLayout()
+        comment_frame_hbox.addWidget(self.save_comment_btn,1)
+        comment_frame_hbox.addWidget(self.comment_save_indicate_lbl,0)
+        comment_frame_vbox.addLayout(comment_frame_hbox, 0)
         self.comment_frame.setLayout(comment_frame_vbox)
 
         self.weburl_frame = QFrame()
@@ -149,6 +152,8 @@ class FileInfo(FileInfoGUI):
         self.info_lbl.setText(data.stringInfo())
         comment = self.curr_data.fm.readComments()
         self.tEdit.setText(comment)
+        # To avoid status change when clicking on a new data point
+        self.comment_save_indicate_lbl.setText(self.SAVE_STATUS["saved"])
         self.weburl_edit.setText(data.fm.getWebUrl())
         self.__updateCover(data)
         self.__renderMarkdown()
@@ -174,8 +179,9 @@ class FileInfo(FileInfoGUI):
     def onCommentChange(self):
         self.comment_save_indicate_lbl.setText(self.SAVE_STATUS["changed"])
         # Asynchronous saving
-        t = threading.Thread(target=self.__thread_saveComments, args=())
-        t.start()
+        if getConfV("auto_save_comments"):
+            t = threading.Thread(target=self.__thread_saveComments, args=())
+            t.start()
     
     def saveWebURL(self):
         if self.curr_data is None:
