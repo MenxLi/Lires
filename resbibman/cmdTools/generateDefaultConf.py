@@ -1,5 +1,3 @@
-import json
-
 from ..core.dataClass import DataList, DataTableList
 from ..confReader import CONF_FILE_PATH, saveToConf, DEFAULT_DATA_PATH
 
@@ -8,7 +6,7 @@ def run():
 
 def generateDefaultConf():
     saveToConf(
-		accepted_extensions = [".pdf", ".caj"],
+		accepted_extensions = [".pdf", ".caj", ".html", ".md"],
 		database = DEFAULT_DATA_PATH,
 		default_tags = [],
 		sort_method = DataTableList.SORT_TIMEADDED,

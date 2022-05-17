@@ -66,10 +66,11 @@ class SetSortingMethod(SubSettingsBase):
 		if selection != getConf()["sort_method"]:
 			saveToConf(sort_method = selection)
 			self.getSelectPanel().data_model.sortBy(selection)
-			print("Sorting method changed to {}". format(getConf()["sort_method"]))
+			self.logger.info("Sorting method changed to {}". format(getConf()["sort_method"]))
 
-class setTableHeader(SubSettingsBase):
+class SetTableHeader(SubSettingsBase):
 	def initUI(self):
+		self.old_headers = getConfV("table_headers")
 		vbox = QVBoxLayout()
 		self.label = QLabel("Table header:")
 		self.list_wid = QListWidget()
@@ -81,7 +82,7 @@ class setTableHeader(SubSettingsBase):
 				DataTableList.HEADER_TIMEMODIFY]
 		for k in header_candidate:
 			box = QCheckBox(k)
-			if k in getConfV("table_headers"):
+			if k in self.old_headers:
 				box.setChecked(True)
 			item = QListWidgetItem(self.list_wid)
 			self.list_wid.addItem(item)
@@ -90,6 +91,7 @@ class setTableHeader(SubSettingsBase):
 		vbox.addWidget(self.label)
 		vbox.addWidget(self.list_wid, 0)
 		self._frame.setLayout(vbox)
+
 	def confirm(self):
 		# https://blog.csdn.net/sinat_34149445/article/details/94548871
 		count = self.list_wid.count()  # 得到QListWidget的总个数
@@ -99,10 +101,11 @@ class setTableHeader(SubSettingsBase):
 		for cb in cb_list:  # type:QCheckBox
 			if cb.isChecked():
 				chooses.append(cb.text())
-		saveToConf(table_headers = chooses)
-		print("Headers changed -> {}".format(chooses))
-		self.getMainPanel().reloadData()
-		self.getSelectPanel().data_view.initSettings()	# Resize header width
+		if chooses != self.old_headers:
+			saveToConf(table_headers = chooses)
+			self.logger.info("Headers changed -> {}".format(chooses))
+			self.getMainPanel().reloadData()
+			self.getSelectPanel().data_view.initSettings()	# Resize header width
 
 class SetStyle(SubSettingsBase):
 	def initUI(self):
@@ -115,19 +118,36 @@ class SetStyle(SubSettingsBase):
 		hbox.addWidget(self.lbl)
 		hbox.addWidget(self.cb)
 		self._frame.setLayout(hbox)
-	
 	def confirm(self):
 		selection = self.cb.currentText()
 		if selection != getConf()["stylesheet"]:
 			saveToConf(stylesheet = selection)
-			app = QtWidgets.QApplication.instance()
+			app:QtWidgets.QApplication = QtWidgets.QApplication.instance()
 			ss = getStyleSheets()[getConf()["stylesheet"]]
 			if ss == "":
 				app.setStyleSheet("")
 			else:
 				with open(ss, "r", encoding="utf-8") as f:
 					app.setStyleSheet(f.read())
-			print("Loaded new style: {}".format(getConf()["stylesheet"]))
+			self.logger.info("Loaded new style: {}".format(getConf()["stylesheet"]))
+
+class SetAutoSaveComments(SubSettingsBase):
+	def initUI(self):
+		self.cb = QCheckBox("Auto save comments")
+		hbox = QHBoxLayout()
+		hbox.addWidget(self.cb)
+		self._frame.setLayout(hbox)
+		if getConfV("auto_save_comments"):
+			self.cb.setChecked(True)
+	
+	def confirm(self):
+		status = self.cb.isChecked()
+		if status != getConfV("auto_save_comments"):
+			saveToConf(auto_save_comments = status)
+			if status:
+				self.logger.info("Autosave comments enabled.")
+			else:
+				self.logger.info("Autosave comments disabled.")
 
 class SettingsWidget(RefWidgetBase):
 	def __init__(self, dialog_win) -> None:
@@ -135,7 +155,13 @@ class SettingsWidget(RefWidgetBase):
 		self.parent = dialog_win 
 
 	def init(self):
-		self.sub_settings = [SetDatabase(), SetSortingMethod(), setTableHeader(), SetStyle()]
+		self.sub_settings = [
+			SetDatabase(), 
+			SetSortingMethod(), 
+			SetStyle(),
+			SetAutoSaveComments(),
+			SetTableHeader(), 
+		]
 		for subsetting in self.sub_settings:
 			subsetting.setMainPanel(self.getMainPanel())
 			subsetting.setInfoPanel(self.getInfoPanel())

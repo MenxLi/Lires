@@ -1,5 +1,5 @@
-import os, shutil, uuid, time, threading
-from typing import Union
+import os, shutil, uuid, time, threading, string
+from typing import Union, Literal
 import warnings
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit
@@ -9,10 +9,12 @@ from ..core.fileTools import FileManipulator
 from ..core.bibReader import BibParser
 from ..core.dataClass import DataPoint
 from ..core.pdfTools import getPDFCoverAsQPixelmap
+from ..core.utils import HTML_TEMPLATE_RAW
 
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import markdown
 from .mdHighlighter import MarkdownSyntaxHighlighter
+
 
 class FileInfoGUI(MainWidgetBase):
     def __init__(self, parent = None):
@@ -64,10 +66,10 @@ class FileInfoGUI(MainWidgetBase):
         self.comment_frame = QFrame()
         comment_frame_vbox = QVBoxLayout()
         comment_frame_vbox.addWidget(self.comment_lbl, 0)
-        # comment_frame_vbox.addWidget(self.tEdit,1)
         comment_frame_vbox.addWidget(self.mdTab,1)
         comment_frame_hbox = QHBoxLayout()
-        comment_frame_hbox.addWidget(self.save_comment_btn,1)
+        if not getConfV("auto_save_comments"):
+            comment_frame_hbox.addWidget(self.save_comment_btn,1)
         comment_frame_hbox.addWidget(self.comment_save_indicate_lbl,0)
         comment_frame_vbox.addLayout(comment_frame_hbox, 0)
         self.comment_frame.setLayout(comment_frame_vbox)
@@ -96,12 +98,7 @@ class FileInfo(FileInfoGUI):
     Implement the functions for file info
     """
     COMMENT_SAVE_TOLERANCE_INTERVAL = 2
-    SAVE_STATUS = {
-        #  "saved": '<font color="green">saved</font>'
-        "saved": "(comment saved.)",
-        "changed": "(comment changed.)",
-    }
-
+    COMMENT_HTML_TEMPLATE = string.Template(HTML_TEMPLATE_RAW)
 
     def __init__(self, parent = None, **kwargs):
         super().__init__(parent)
@@ -130,6 +127,7 @@ class FileInfo(FileInfoGUI):
         self.curr_data = None
         self.info_lbl.setText("File info")
         self.tEdit.setText("")
+        self.setCommentSaveStatusLbl("none")
         self.__updateCover(None)
 
     def loadDir(self, dir_path: str):
@@ -153,7 +151,7 @@ class FileInfo(FileInfoGUI):
         comment = self.curr_data.fm.readComments()
         self.tEdit.setText(comment)
         # To avoid status change when clicking on a new data point
-        self.comment_save_indicate_lbl.setText(self.SAVE_STATUS["saved"])
+        self.setCommentSaveStatusLbl("saved")
         self.weburl_edit.setText(data.fm.getWebUrl())
         self.__updateCover(data)
         self.__renderMarkdown()
@@ -177,7 +175,7 @@ class FileInfo(FileInfoGUI):
             self.curr_data.fm.openBib()
     
     def onCommentChange(self):
-        self.comment_save_indicate_lbl.setText(self.SAVE_STATUS["changed"])
+        self.setCommentSaveStatusLbl("changed")
         # Asynchronous saving
         if getConfV("auto_save_comments"):
             t = threading.Thread(target=self.__thread_saveComments, args=())
@@ -216,6 +214,30 @@ class FileInfo(FileInfoGUI):
                     self.getSelectPanel().addFileToCurrentSelection(fpath)
                     return super().dropEvent(a0)
 
+    def queryCommentSaveStatus(self) -> Literal["saved", "changed", "none"]:
+        data = self.curr_data
+        if data is None:
+            return "none"
+        saved_comments = data.fm.readComments()
+        curr_comments = self.tEdit.toPlainText()
+        if saved_comments == curr_comments:
+            return "saved"
+        else:
+            return "changed"
+
+    def setCommentSaveStatusLbl(self, status: Literal["saved", "changed", "none"]):
+        """Set status indicator QLabel"""
+        comment_save_indicate_lbl = self.comment_save_indicate_lbl
+        if status == "none":
+            comment_save_indicate_lbl.setText("")
+        elif status == "saved":
+            comment_save_indicate_lbl.setText("saved.")
+            #  comment_save_indicate_lbl.setStyleSheet("QLabel { background-color : green; color : blue; }")
+            comment_save_indicate_lbl.setStyleSheet("QLabel { color : #00aa33; }")
+        elif status == "changed":
+            comment_save_indicate_lbl.setText("changed.")
+            comment_save_indicate_lbl.setStyleSheet("QLabel { background-color : #cc0000; color: white;}")
+
     def __thread_saveComments(self):
         def _save_comments_thread():
             if self._saveComments():
@@ -242,7 +264,7 @@ class FileInfo(FileInfoGUI):
         if not self.curr_data is None:
             comment = self.tEdit.toPlainText()
             self.curr_data.fm.writeComments(comment)
-            self.comment_save_indicate_lbl.setText(self.SAVE_STATUS["saved"])
+            self.setCommentSaveStatusLbl("saved")
             return True
         else:
             self.comment_save_indicate_lbl.setText("")
@@ -252,12 +274,16 @@ class FileInfo(FileInfoGUI):
         comment = self.tEdit.toPlainText()
         if comment == "":
             return
-
+        if self.curr_data is None:
+            # shouldn't happen
+            return
         misc_f = self.curr_data.fm.folder_p
         misc_f = misc_f.replace(os.sep, "/")
         comment = comment.replace("./misc", misc_f)
 
         comment_html = markdown.markdown(comment)
+        comment_html = self.COMMENT_HTML_TEMPLATE.substitute(content = comment_html)
+
         self.mdBrowser.setHtml(comment_html, baseUrl=QtCore.QUrl.fromLocalFile("/"))
 
     def __updateCover(self, data: Union[DataPoint,None]):

@@ -39,9 +39,10 @@ _VERSION_HISTORIES = [
     ("0.3.7", "Bug fix: edit weburl or switch mdTab would lead to crash when no file is selected"),
     ("0.3.8", "Use one server to start front and backend"),
     ("0.3.9", "Check if file exists, while adding; change cloud icon"),
-    ("0.3.10", "Asynchronous comment saving; switching to logger instead of print"),
+    ("0.3.10", "Asynchronous comment saving; use logger instead of print"),
     ("0.3.11", "Allow bibtex editing"),
     ("0.3.12", "More bibtex template"),
+    ("0.3.13", "Not automatically save comment, show comment save indicator on info panel; reset_conf option in CLI"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

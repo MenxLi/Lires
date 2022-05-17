@@ -13,18 +13,18 @@ def execProg_():
         with open(ss, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())
     gui = MainWindow()
-    sys.exit(app.exec_())
+    return app.exec_()
 
 def execProg():
     """
     Log will be recorded in LOG_FILE
     """
-    log_file = open(LOG_FILE, "a")
-    sys.stdout = Logger(log_file)
-    sys.stderr = Logger(log_file)
-    log_file.write("\n\n============={}=============\n".format(getDateTime()))
-    execProg_()
-    log_file.close()
+    with open(LOG_FILE, "a") as log_file:
+        sys.stdout = Logger(log_file)
+        sys.stderr = Logger(log_file)
+        log_file.write("\n\n============={}=============\n".format(getDateTime()))
+        EXIT_CODE = execProg_()
+    return EXIT_CODE
 
 def run():
     _description = f"\
@@ -41,6 +41,7 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     parser.add_argument("--no_log", action = "store_true", help = "Open the program without recording log, stdout/stderr will be shown in terminal")
     parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
     parser.add_argument("--print_log", action = "store_true", help = "Print log and exit")
+    parser.add_argument("--reset_conf", action = "store_true", help = "Reset configuration and exit")
     args = parser.parse_args()
 
     procs = []
@@ -86,6 +87,11 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     if args.server:
         from RBMWeb.server import startServerProcess
         procs.append(startServerProcess())
+
+    if args.reset_conf:
+        from resbibman.cmdTools.generateDefaultConf import generateDefaultConf
+        generateDefaultConf()
+        args.not_run = True
 
     if not args.not_run:
         if args.no_log:

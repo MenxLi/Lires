@@ -36,8 +36,8 @@ Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this s
 In query widget while importing articles:  
 
 - [x] Add copy from template button
+- [x] Other bibtex template
 - [ ] Format check
-- [ ] Other bibtex template
 - [ ] Other format convert to bibtex
 
 In file selector:
@@ -63,6 +63,7 @@ Tags:
 
 ## Known issues
 * May crash when changing selection (caused by async saving?)
+* QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)
 
 ## Credits:
 https://github.com/google/material-design-icons   
