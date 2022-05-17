@@ -70,8 +70,12 @@ class FileSelector(FileSelectorGUI):
     def connectFuncs(self):
         self.data_view.selectionModel().currentChanged.connect(self.onRowChanged)
         self.data_view.doubleClicked.connect(self.doubleClickOnEntry)
+
         self.shortcut_delete_selection = QShortcut(QtGui.QKeySequence("Del"), self)
         self.shortcut_delete_selection.activated.connect(self.deleteCurrentSelected)
+        self.shortcut_open_tagedit = QShortcut(QtGui.QKeySequence("Space"), self)
+        self.shortcut_open_tagedit.activated.connect(lambda: self.getTagPanel().openTagEditor())
+
         self.search_edit.textChanged.connect(self.onSearchTextChange)
 
         self.act_open_location.triggered.connect(self.openCurrFileLocation)
@@ -208,7 +212,7 @@ class FileSelector(FileSelectorGUI):
         self.reloadData()
     
     def onRowChanged(self, current, previous):
-        self._info_panel.saveComments()
+        self._info_panel._saveComments()
         row = current.row()
         data = self.data_model.datalist[row]
         self.selection_changed.emit(data)

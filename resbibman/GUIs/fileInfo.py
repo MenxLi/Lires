@@ -37,6 +37,7 @@ class FileInfoGUI(MainWidgetBase):
         self.cover_label.setMaximumWidth(150)
         self.cover_label.setMinimumSize(100, 150)
         self.comment_lbl = QLabel("Comments: ")
+        self.comment_save_indicate_lbl = QLabel("")
         self.save_comment_btn = QPushButton("Save comments")
         self.refresh_btn = QPushButton("Refresh")
         self.open_commets_btn = QPushButton("Open comments")
@@ -65,6 +66,7 @@ class FileInfoGUI(MainWidgetBase):
         comment_frame_vbox.addWidget(self.comment_lbl, 0)
         # comment_frame_vbox.addWidget(self.tEdit,1)
         comment_frame_vbox.addWidget(self.mdTab,1)
+        comment_frame_vbox.addWidget(self.comment_save_indicate_lbl,0)
         self.comment_frame.setLayout(comment_frame_vbox)
 
         self.weburl_frame = QFrame()
@@ -91,6 +93,13 @@ class FileInfo(FileInfoGUI):
     Implement the functions for file info
     """
     COMMENT_SAVE_TOLERANCE_INTERVAL = 2
+    SAVE_STATUS = {
+        #  "saved": '<font color="green">saved</font>'
+        "saved": "(comment saved.)",
+        "changed": "(comment changed.)",
+    }
+
+
     def __init__(self, parent = None, **kwargs):
         super().__init__(parent)
         self.curr_data = None
@@ -108,10 +117,10 @@ class FileInfo(FileInfoGUI):
         self.open_folder_btn.clicked.connect(self.openMiscDir)
         self.open_bib_btn.clicked.connect(self.openBib)
         self.open_commets_btn.clicked.connect(self.openComments)
-        self.save_comment_btn.clicked.connect(self.saveComments)
+        self.save_comment_btn.clicked.connect(self._saveComments)
         self.refresh_btn.clicked.connect(self.refresh)
         self.mdTab.currentChanged.connect(self.changeTab)
-        self.tEdit.textChanged.connect(self.saveComments)
+        self.tEdit.textChanged.connect(self.onCommentChange)
         self.weburl_edit.textChanged.connect(self.saveWebURL)
     
     def clearPanel(self):
@@ -135,6 +144,7 @@ class FileInfo(FileInfoGUI):
         self.info_lbl.setText(info_txt)
     
     def load(self, data: DataPoint):
+        self.logger.debug("Load data point")
         self.curr_data = data
         self.info_lbl.setText(data.stringInfo())
         comment = self.curr_data.fm.readComments()
@@ -144,8 +154,9 @@ class FileInfo(FileInfoGUI):
         self.__renderMarkdown()
     
     def changeTab(self, index):
+        self.logger.debug("On tab change")
         if index == 1:
-            self.saveComments()
+            self._saveComments()
             self.__renderMarkdown()
 
     def openMiscDir(self):
@@ -160,7 +171,8 @@ class FileInfo(FileInfoGUI):
         if not self.curr_data is None:
             self.curr_data.fm.openBib()
     
-    def saveComments(self):
+    def onCommentChange(self):
+        self.comment_save_indicate_lbl.setText(self.SAVE_STATUS["changed"])
         # Asynchronous saving
         t = threading.Thread(target=self.__thread_saveComments, args=())
         t.start()
@@ -199,10 +211,8 @@ class FileInfo(FileInfoGUI):
                     return super().dropEvent(a0)
 
     def __thread_saveComments(self):
-        def _save_comments():
-            if not self.curr_data is None:
-                comment = self.tEdit.toPlainText()
-                self.curr_data.fm.writeComments(comment)
+        def _save_comments_thread():
+            if self._saveComments():
                 self.__cache["save_comment_in_pending"] = False
                 self.__cache["save_comment_time_prev"] = time.time()
                 self.logger.debug("Comment saved")
@@ -211,7 +221,7 @@ class FileInfo(FileInfoGUI):
         time_after_prev_save = time.time() - self.__cache["save_comment_time_prev"] 
         if time_after_prev_save > self.COMMENT_SAVE_TOLERANCE_INTERVAL:
             # Save instantly after saving interval.
-            _save_comments()
+            _save_comments_thread()
         elif self.__cache["save_comment_in_pending"]:
             # During time.sleep
             self.logger.debug("Comment will be save later, saving pending")
@@ -220,7 +230,17 @@ class FileInfo(FileInfoGUI):
             sleeptime = self.COMMENT_SAVE_TOLERANCE_INTERVAL - time_after_prev_save
             self.logger.debug("Comment will be save later (after {}s), saving triggered".format(sleeptime))
             time.sleep(sleeptime)
-            _save_comments()
+            _save_comments_thread()
+
+    def _saveComments(self) -> bool:
+        if not self.curr_data is None:
+            comment = self.tEdit.toPlainText()
+            self.curr_data.fm.writeComments(comment)
+            self.comment_save_indicate_lbl.setText(self.SAVE_STATUS["saved"])
+            return True
+        else:
+            self.comment_save_indicate_lbl.setText("")
+            return False
     
     def __renderMarkdown(self):
         comment = self.tEdit.toPlainText()
@@ -293,7 +313,7 @@ class MarkdownEdit(QTextEdit):
             line = f"![](./misc/{fname})"
             # line = f"<img src=\"./misc/{fname}\" alt=\"drawing\" width=\"100%\"/>"
             self.insertPlainText(line)
-            self._parent.saveComments()
+            self._parent._saveComments()
         elif source.hasUrls():
             # file
             files = [u.toLocalFile() for u in source.urls()]
@@ -314,7 +334,7 @@ class MarkdownEdit(QTextEdit):
                     # line = f"<img src=\"./misc/{fname}\" alt=\"drawing\" width=\"100%\"/>"
                     line = f"![](./misc/{fname})"
                     self.insertPlainText(line)
-                    self._parent.saveComments()
+                    self._parent._saveComments()
                     return
         else:
             super().insertFromMimeData(source)
