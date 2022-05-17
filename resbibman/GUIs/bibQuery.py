@@ -13,6 +13,7 @@ from ..core.fileTools import FileGenerator, FileManipulator
 from ..confReader import getConf, DOC_PATH
 from ..core.utils import sssUUID
 from .widgets import WidgetBase
+from .bibtexEditor import BibEditor
 
 class BibQueryGUI(WidgetBase):
     def __init__(self, parent, tag_data: DataTags, tag_total: DataTags):
@@ -30,9 +31,8 @@ class BibQueryGUI(WidgetBase):
         self.setWindowTitle("Input bibtex and tag info")
         self.resize(420, 600)
         self.filename_lbl = QLabel()
-        self.bib_edit = QTextEdit()
-        self.bib_edit.setMinimumSize(300,200)
-        self.insert_template_button = QPushButton("Use bibtex template")
+        #  self.bib_edit = QTextEdit()
+        self.bib_edit = BibEditor()
         self.ok_button = QPushButton("OK")
         self.cancel_button = QPushButton("Canel")
 
@@ -48,7 +48,6 @@ class BibQueryGUI(WidgetBase):
         hlayout.addWidget(self.cancel_button)
         vlayout.addWidget(self.filename_lbl, 0)
         vlayout.addWidget(self.bib_edit, 1)
-        vlayout.addWidget(self.insert_template_button, 0)
         vlayout.addLayout(hlayout, 0)
 
         vlayout_R = QVBoxLayout()
@@ -93,17 +92,10 @@ class BibQuery(BibQueryGUI):
     def connectMethods(self):
         self.ok_button.clicked.connect(self.confirm)
         self.cancel_button.clicked.connect(self.cancel)
-        self.insert_template_button.clicked.connect(self.insertBibTemplate)
-    
-    def insertBibTemplate(self):
-        with open(os.path.join(DOC_PATH, "bibTemplate.bib"), "r") as f:
-            bib_template = f.read()
-        bib_template = bib_template.replace("<Identifier>", sssUUID())
-        self.bib_edit.setText(bib_template)
 
     def confirm(self):
         parser = BibParser(mode = "single")
-        bib_txt = self.bib_edit.toPlainText()
+        bib_txt = self.bib_edit.text
         bib = parser(bib_txt)[0]
         tag_list = self.tag_edit.getSelectedTags().toOrderedList()
         fg = FileGenerator(
@@ -142,5 +134,7 @@ class BibQuery(BibQueryGUI):
         self.close()
     
     def cancel(self):
-        self.fail_add_bib.emit(self.file_path)
+        if not self.file_path is None and self.queryDialog("Add to pending?"):
+            self.add_to_pending.emit(self.file_path)
+        #  self.fail_add_bib.emit(self.file_path)
         self.close()

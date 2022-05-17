@@ -41,6 +41,7 @@ _VERSION_HISTORIES = [
     ("0.3.9", "Check if file exists, while adding; change cloud icon"),
     ("0.3.10", "Asynchronous comment saving; switching to logger instead of print"),
     ("0.3.11", "Allow bibtex editing"),
+    ("0.3.12", "More bibtex template"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
@@ -53,6 +54,7 @@ CONF_FILE_PATH = join(CURR_PATH, "conf.json")
 ICON_PATH = join(CURR_PATH, "icons")
 STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
 DOC_PATH = join(CURR_PATH, "docs")
+BIB_TEMPLATE_PATH = join(DOC_PATH, "bibtexTemplates")
 LOG_FILE = join(CURR_PATH, "log.txt")
 DEFAULT_DATA_PATH = join(CURR_PATH, os.pardir, "Database")
 

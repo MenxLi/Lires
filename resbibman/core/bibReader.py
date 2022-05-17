@@ -1,4 +1,5 @@
 import pybtex.database
+from datetime import date
 import warnings
 
 class BibParser:
@@ -26,6 +27,9 @@ class BibParser:
         bibs = []
         for k in bib_data.entries.keys():
             _d = bib_data.entries[k]
+            if not "year" in _d.fields:
+                _d.fields["year"] = date.today().year
+
             data = {
                 "type": _d.type,
                 "entry": k,
