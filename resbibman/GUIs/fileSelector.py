@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QShortcut, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
 from PyQt5 import QtGui, QtCore
 import typing, os, shutil, copy
-from typing import List 
+from typing import List, overload, Union, Literal
 
 from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase
@@ -219,9 +219,8 @@ class FileSelector(FileSelectorGUI):
 
     def doubleClickOnEntry(self):
         data = self.getCurrentSelection()
-        data: DataPoint
-        web_url = data.fm.getWebUrl()
         if data is not None:
+            web_url = data.fm.getWebUrl()
             if not data.fm.openFile():
                 if web_url == "":
                     self.warnDialog("The file is missing", "To add the paper, right click on the entry -> add file")
@@ -229,8 +228,14 @@ class FileSelector(FileSelectorGUI):
                     openFile(web_url)
                 else:
                     webbrowser.open(web_url)
+
+    @overload
+    def getCurrentSelection(self, return_multiple: Literal[True]) -> Union[None, DataList]: ...
+
+    @overload
+    def getCurrentSelection(self, return_multiple: Literal[False] = False) -> Union[None, DataPoint]: ...
     
-    def getCurrentSelection(self, return_multiple = False) -> typing.Union[None, DataPoint, DataList]:
+    def getCurrentSelection(self, return_multiple = False) -> Union[None, DataPoint, DataList]:
         indexes = self.data_view.selectedIndexes()
         if indexes == [] or not indexes:
             return None
@@ -349,7 +354,7 @@ class FileTableView(QTableView):
         # self.setFont(QtGui.QFont("Times New Roman", 12))
         self.setFont(QtGui.QFont("Times New Roman", 10))
         # self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
-        self.verticalHeader().setDefaultSectionSize(22)
+        self.verticalHeader().setDefaultSectionSize(16)
     def initSettings(self):
         # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
         self.header = self.horizontalHeader()       

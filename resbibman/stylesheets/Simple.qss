@@ -1,3 +1,6 @@
+QTableView {
+	gridline-color: #eeeeee;
+}        
 QTableView::item {
 	outline: none;
 }        
