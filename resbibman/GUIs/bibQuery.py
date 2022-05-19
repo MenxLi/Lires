@@ -105,20 +105,17 @@ class BibQuery(BibQueryGUI):
             authors = bib["authors"]
         )
         # Check if the file already exists
-        for k, v in self.db.items():
-            v: DataPoint
-            t1 = v.bib["title"].lower()
-            t2 = bib["title"].lower()
-            similarity = difflib.SequenceMatcher(a = t1, b = t2).ratio()
-            if similarity > 0.8:
-                query_strs= [
-                    "File may exists already",
-                    "{year} - {title}".format(year = v.bib["year"], title = v.bib["title"]),
-                    "FROM: {authors}".format(authors = "|".join(v.bib["authors"]))
-                ]
-                if not self.queryDialog(title = "File may exist", msg = "\n".join(query_strs)):
-                    self.close()
-                    return
+        sim_bib = self.db.findSimilarByBib(bib_txt)
+        if isinstance(sim_bib, DataPoint):
+            query_strs= [
+                "File may exists already",
+                "{year} - {title}".format(year = sim_bib.bib["year"], title = sim_bib.bib["title"]),
+                "FROM: {authors}".format(authors = "|".join(sim_bib.bib["authors"])),
+                "Add anyway?"
+            ]
+            if not self.queryDialog(title = "File may exist", msg = "\n".join(query_strs)):
+                self.close()
+                return
 
         if not fg.generateDefaultFiles(data_dir=getConf()["database"]):
             self.add_to_pending.emit(self.file_path)

@@ -55,6 +55,9 @@ Tags:
 - [x] Right click: rename; delete;
 - [ ] Drag in to add tag?
 
+Code structure change:
+- [ ] Move more methods into core classes
+
 ### Long time goals
 
 - [ ] Language support

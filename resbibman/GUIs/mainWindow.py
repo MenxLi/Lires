@@ -240,6 +240,19 @@ class MainWindow(MainWindowGUI):
         if len(bibs) > 1:
             self.warnDialog("Failed - Currently, only one file import is supported")
             return
+
+        sim_bib = self.db.findSimilarByBib(bib_str)
+        if isinstance(sim_bib, DataPoint):
+            query_strs= [
+                "File may exists already",
+                "{year} - {title}".format(year = sim_bib.bib["year"], title = sim_bib.bib["title"]),
+                "FROM: {authors}".format(authors = "|".join(sim_bib.bib["authors"])),
+                "Add anyway?"
+            ]
+            if not self.queryDialog(title = "File may exist", msg = "\n".join(query_strs)):
+                return
+
+
         fg = FileGenerator(
             file_path = None,
             title = bib["title"],

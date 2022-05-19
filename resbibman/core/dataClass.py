@@ -1,6 +1,7 @@
 from resbibman.confReader import getConfV
 import typing, re
 from typing import List, Union, Iterable, Set
+import difflib
 from .fileTools import FileManipulator, FileGenerator
 from .bibReader import BibParser
 
@@ -230,4 +231,17 @@ class DataBase(dict):
             taglist.remove(tag)
             d.changeTags(DataTags(taglist))
 
-
+    def findSimilarByBib(self, bib_str: str) -> Union[None, DataPoint]:
+        """
+        Check if similar file already exists.
+        """
+        parser = BibParser(mode = "single")
+        bib = parser(bib_str)[0]
+        # Check if the file already exists
+        for k, v in self.items():
+            t1 = v.bib["title"].lower()
+            t2 = bib["title"].lower()
+            similarity = difflib.SequenceMatcher(a = t1, b = t2).ratio()
+            if similarity > 0.8:
+                return v
+        return None
