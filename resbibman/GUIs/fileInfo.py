@@ -82,15 +82,17 @@ class FileInfoGUI(MainWidgetBase):
 
         self.btn_frame = QFrame()
         btn_frame_vbox = QVBoxLayout()
-        btn_frame_vbox.addWidget(self.open_commets_btn)
-        btn_frame_vbox.addWidget(self.open_bib_btn)
+        btn_frame_hbox = QHBoxLayout()
+        btn_frame_hbox.addWidget(self.open_commets_btn)
+        btn_frame_hbox.addWidget(self.open_bib_btn)
+        btn_frame_vbox.addLayout(btn_frame_hbox)
         btn_frame_vbox.addWidget(self.open_folder_btn)
         self.btn_frame.setLayout(btn_frame_vbox)
 
         frame_vbox.addWidget(self.info_frame, 3)
         frame_vbox.addWidget(self.comment_frame, 7)
-        frame_vbox.addWidget(self.weburl_frame, 1)
-        frame_vbox.addWidget(self.btn_frame, 2)
+        frame_vbox.addWidget(self.weburl_frame, 0)
+        frame_vbox.addWidget(self.btn_frame, 0)
         self.frame.setLayout(frame_vbox)
 
 class FileInfo(FileInfoGUI):

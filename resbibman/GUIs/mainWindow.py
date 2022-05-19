@@ -1,9 +1,10 @@
-from resbibman.GUIs.widgets import WidgetBase
 import pyperclip
+from typing import Tuple
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar
 from PyQt5.QtCore import Qt
 
+from .widgets import WidgetBase
 from .fileInfo import FileInfo
 from .fileTags import FileTag
 from .fileSelector import FileSelector
@@ -45,16 +46,25 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         self.splitter.addWidget(self.file_tags)
         self.splitter.addWidget(self.file_selector)
         self.splitter.addWidget(self.file_info)
-        self.splitter.setStretchFactor(0,1)
-        self.splitter.setStretchFactor(1,4)
-        self.splitter.setStretchFactor(2,2)
-        # splitter.setSizes([50, 800, 1])
+        #  self.splitter.setStretchFactor(0,1)
+        #  self.splitter.setStretchFactor(1,4)
+        #  self.splitter.setStretchFactor(2,2)
+        self.toggleLayout((True, True ,True))
         hbox.addWidget(self.splitter)
 
         wid = QWidget(self)
         self.setCentralWidget(wid)
         wid.setLayout(hbox)
         # self._center()
+
+    def toggleLayout(self, toggle_mask: Tuple[bool, bool, bool]):
+        stretch_factor = [1, 4, 2]      # default stretch factor
+        stretch_factor = [ toggle_mask[i]*stretch_factor[i] for i in range(3) ]
+        stretch_factor = [ float(f)/sum(stretch_factor) for f in stretch_factor ]
+        curr_width = self.frameGeometry().width()
+        w_sizes = [ int(curr_width*f) for f in stretch_factor]
+        self.splitter.setSizes(w_sizes)
+        return 
     
     def _initPanels(self):
         self.file_tags = FileTag(self)
