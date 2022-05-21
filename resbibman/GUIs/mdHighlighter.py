@@ -35,6 +35,16 @@ class MarkdownSyntaxHighlighter(QSyntaxHighlighter):
         link_format.setForeground(QColor(150, 150, 150, 255))
         self.highlighting_rules.append((QRegExp("!?\[[^\n]*\]\([^\n]*\)"), link_format))
 
+        # quote
+        quote_format = QTextCharFormat()
+        quote_format.setForeground(QColor(0, 200, 100, 255))
+        self.highlighting_rules.append((QRegExp("^> "), quote_format))
+
+        # horizontal line
+        hline_format = QTextCharFormat()
+        hline_format.setForeground(QColor(200, 0, 100, 255))
+        self.highlighting_rules.append((QRegExp("\n---+"), hline_format))
+
         # bold
         # bold_format = QTextCharFormat()
         # bold_format.setForeground(QColor(255, 150, 150, 255))
