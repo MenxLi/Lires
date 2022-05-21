@@ -8,6 +8,7 @@ from typing import List, Union, TypedDict
 import warnings
 from .utils import getDateTime, openFile
 from ..confReader import getConf, VERSION
+from .htmlTools import packHtml, openTmp_hpack
 
 class FileNameType(TypedDict):
     bibtex: str
@@ -107,11 +108,30 @@ class FileGenerator(FileGeneratorBase):
         print("File generated")
         return True
 
+    @classmethod
+    def moveDocument(cls, src_file: str, dst_file_base: str):
+        """
+        Move file to the database based on different data type
+        - dst_file_base: file path without extension
+        """
+        _file_name = os.path.split(src_file)[-1]
+        file_name, file_extension = os.path.splitext(_file_name)
+        if file_extension == ".html":
+            # pack html to single .hpack file
+            dst_file = dst_file_base + ".hpack"
+            packHtml(src_file, dst = dst_file)
+        else:
+            # single file, just change name
+            shutil.copy2(src_file, dst_file_base + file_extension)
+            os.remove(src_file)
+
     def _moveFile(self):
-        file_fn = self.FILEPREFIX+self.base_name+self.file_extension
-        dst_file = os.path.join(self.dst_dir, file_fn)
-        shutil.copy2(self.file_path, dst_file)
-        os.remove(self.file_path)
+        if self.file_path is None:
+            raise ValueError("file_path is None in file generator")
+
+        file_fn = self.FILEPREFIX+self.base_name        # file base name
+        dst_file_base = os.path.join(self.dst_dir, file_fn)
+        self.moveDocument(self.file_path, dst_file_base)
         del self.file_path
 
     def _generateAdditionalFolder(self):
@@ -153,6 +173,7 @@ class FileManipulator:
     def __init__(self, data_path):
         self.path = data_path
         self.base_name: str = os.path.split(data_path)[-1]
+        self.__file_extension: str = ""     # extension of the main document, "" for undefined / No file
 
         self.folder_p: str
         self.bib_p: str
@@ -172,6 +193,10 @@ class FileManipulator:
             "info": FileGenerator.INFOPREFIX+self.base_name+".json",
             "misc": FileGenerator.FOLDERNAME
         }
+
+    @property
+    def file_extension(self) -> str:
+        return self.__file_extension
     
     def screen(self):
         """To decided if the path contains all necessary files"""
@@ -181,9 +206,11 @@ class FileManipulator:
         bib_f = self.file_names["bibtex"]
         folder_f = self.file_names["misc"]
         for ext in getConf()["accepted_extensions"]:
+            # search if legitimate document exists in the self.path
             file_f_candidate = self.file_names["document"] + ext
             if file_f_candidate in all_files:
                 file_f = file_f_candidate
+                self.__file_extension = ext
                 break
         if not set([comments_f, info_f, bib_f, folder_f]).issubset(set(all_files)):
             warnings.warn(str(self.path)+" doesn't have enough files in the directory and is neglected")
@@ -241,10 +268,10 @@ class FileManipulator:
         if not file_extension in getConf()["accepted_extensions"]:
             warnings.warn("Incorrect file type, check extensions.")
             return False
-        fn = FileGenerator.FILEPREFIX + self.base_name + file_extension
-        dst_file = os.path.join(self.path, fn)
-        shutil.copy2(extern_file_p, dst_file)
-        os.remove(extern_file_p)
+        self.__file_extension = file_extension
+        fn_base = FileGenerator.FILEPREFIX + self.base_name
+        dst_base = os.path.join(self.path, fn_base)
+        FileGenerator.moveDocument(extern_file_p, dst_base)
         del extern_file_p
         return True
     
@@ -326,13 +353,14 @@ class FileManipulator:
         return
 
     def openFile(self):
-        if self.file_p is not None:
-            openFile(self.file_p)
-            # self._log()
-            return True
-        else:
+        if self.file_p is None:
             warnings.warn("The file is not existing, add the file into the database with right click menu")
             return False
+        if self.file_extension == ".hpack":
+            openTmp_hpack(self.file_p)
+        else:
+            openFile(self.file_p)
+        return True
 
     def openMiscDir(self):
         openFile(self.folder_p)

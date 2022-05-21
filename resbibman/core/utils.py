@@ -1,5 +1,5 @@
 from io import TextIOWrapper
-import time, datetime, re
+import time, datetime, re, random, string
 import subprocess, os, platform, sys
 from ..confReader import LOG_FILE
 import pyperclip as pc
@@ -128,6 +128,12 @@ def sssUUID() -> str:
         str: uuid
     """
     return ssUUID()[::2]
+
+
+def randomAlphaNumeric(length: int):
+    """Generate a random string"""
+    str = string.ascii_lowercase
+    return ''.join(random.choice(str) for i in range(length))
 
 HTML_TEMPLATE_RAW = """\
 <!DOCTYPE html>

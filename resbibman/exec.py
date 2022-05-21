@@ -1,6 +1,7 @@
 import argparse, subprocess, warnings, logging
 from PyQt5.QtWidgets import QApplication
 import os, sys, platform
+from .core import globalVar as G
 from .GUIs.mainWindow import MainWindow
 from .core.utils import getDateTime, Logger
 from .confReader import getConf, getConfV, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH
@@ -13,7 +14,11 @@ def execProg_():
         with open(ss, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())
     gui = MainWindow()
-    return app.exec_()
+    EXIT_CODE =  app.exec_()
+    
+    G.clearTempDirs()
+
+    return EXIT_CODE
 
 def execProg():
     """

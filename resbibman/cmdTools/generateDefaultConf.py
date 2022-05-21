@@ -6,7 +6,7 @@ def run():
 
 def generateDefaultConf():
     saveToConf(
-		accepted_extensions = [".pdf", ".caj", ".html", ".md"],
+		accepted_extensions = [".pdf", ".caj", ".html", ".hpack", ".md"],
 		database = DEFAULT_DATA_PATH,
 		default_tags = [],
 		sort_method = DataTableList.SORT_TIMEADDED,

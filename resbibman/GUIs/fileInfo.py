@@ -292,15 +292,18 @@ class FileInfo(FileInfoGUI):
         self.cover_label.setScaledContents(False)
         if data is None:
             cover = QtGui.QPixmap(os.path.join(ICON_PATH, "error-48px.png"))
-        elif data.file_path is None or not data.file_path.endswith(".pdf"):
+        elif data.file_path is None:
             # No file or not PDF file
             if data.fm.getWebUrl() == "":
                 cover = QtGui.QPixmap(os.path.join(ICON_PATH, "error-48px.png"))
             else:
                 # if has url thus clickable
                 cover = QtGui.QPixmap(os.path.join(ICON_PATH, "outline_cloud_black_48dp.png"))
-        else:
+        elif data.file_path.endswith(".pdf"):
             cover = getPDFCoverAsQPixelmap(data.fm.file_p)
+        else:
+            cover = QtGui.QPixmap(os.path.join(ICON_PATH, "description_black_48dp.svg"))
+
         # https://blog.csdn.net/L114678/article/details/121457242
         width = cover.width()
         height = cover.height()

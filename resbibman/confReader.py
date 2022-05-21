@@ -43,6 +43,7 @@ _VERSION_HISTORIES = [
     ("0.3.11", "Allow bibtex editing"),
     ("0.3.12", "More bibtex template"),
     ("0.3.13", "Not automatically save comment, show comment save indicator on info panel; reset_conf option in CLI"),
+    ("0.4.0", "Offline html support"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
