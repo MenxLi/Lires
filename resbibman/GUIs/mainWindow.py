@@ -1,7 +1,7 @@
 import pyperclip
 from typing import Tuple
 from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar
+from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
 from PyQt5.QtCore import Qt
 
 from .widgets import WidgetBase
@@ -26,6 +26,8 @@ class MainWindowGUI(QMainWindow, WidgetBase):
     def __init__(self):
         super().__init__()
         self.db = DataBase()
+        self._panel_status = (True, True, True)
+
         self.initUI()
         self.showMaximized()
         self.show() 
@@ -49,7 +51,7 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         #  self.splitter.setStretchFactor(0,1)
         #  self.splitter.setStretchFactor(1,4)
         #  self.splitter.setStretchFactor(2,2)
-        self.toggleLayout((True, True ,True))
+        self.toggleLayout(self._panel_status)
         hbox.addWidget(self.splitter)
 
         wid = QWidget(self)
@@ -64,6 +66,7 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         curr_width = self.frameGeometry().width()
         w_sizes = [ int(curr_width*f) for f in stretch_factor]
         self.splitter.setSizes(w_sizes)
+        self.logger.debug("Set sizes to {}".format(w_sizes))
         return 
     
     def _initPanels(self):
@@ -100,11 +103,18 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         self.act_reload = QAction("&Reload", self)
         self.act_reload.setIcon(QIcon(os.path.join(ICON_PATH, "refresh-24px.svg")))
         self.act_open_pdb = QAction("&Pending data", self)
-        # self.act_open_pdb.setIcon(QIcon(os.path.join(ICON_PATH, "folder_special-24px.svg.svg")))
+        self.act_open_pdb.setIcon(QIcon(os.path.join(ICON_PATH, "hourglass_bottom_black_24dp.svg")))
 
         self.act_importbib_from_clip = QAction("Import bib from clipboard", self)
         self.act_importbib_from_clip.setIcon(QIcon(os.path.join(ICON_PATH, "paste-24px.svg")))
         self.act_importbib_from_clip.setShortcut(QKeySequence("ctrl+shift+alt+i"))
+
+        self.act_show_panel1 = QAction("&Show panel 1", self)
+        self.act_show_panel1.setIcon(QIcon(os.path.join(ICON_PATH, "looks_one_black_48dp.svg")))
+        self.act_show_panel2 = QAction("&Show panel 2", self)
+        self.act_show_panel2.setIcon(QIcon(os.path.join(ICON_PATH, "looks_two_black_48dp.svg")))
+        self.act_show_panel3 = QAction("&Show panel 3", self)
+        self.act_show_panel3.setIcon(QIcon(os.path.join(ICON_PATH, "looks_3_black_48dp.svg")))
 
     def _createMenuBar(self):
         menu_bar = QMenuBar(self)
@@ -131,6 +141,17 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         tool_bar = QToolBar("Filebar")
         self.addToolBar(Qt.TopToolBarArea, tool_bar)
         tool_bar.addAction(self.act_open_pdb)
+
+        # Align right
+        #  tool_bar = QToolBar("Spacer")
+        #  tool_bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        #  self.addToolBar(Qt.TopToolBarArea, tool_bar)
+
+        toob_bar = QToolBar("Panels")
+        self.addToolBar(Qt.TopToolBarArea, toob_bar)
+        toob_bar.addAction(self.act_show_panel1)
+        toob_bar.addAction(self.act_show_panel2)
+        toob_bar.addAction(self.act_show_panel3)
     
 class MainWindow(MainWindowGUI):
     def __init__(self):
@@ -150,6 +171,19 @@ class MainWindow(MainWindowGUI):
         self.act_open_pdb.triggered.connect(self.openPendingWindow)
 
         self.act_importbib_from_clip.triggered.connect(self.importEntryFromClipboardBib)
+
+        self.act_show_panel1.triggered.connect(lambda: self.togglePanel(0))
+        self.act_show_panel2.triggered.connect(lambda: self.togglePanel(1))
+        self.act_show_panel3.triggered.connect(lambda: self.togglePanel(2))
+
+    def togglePanel(self, idx:int):
+        assert 0<=idx<3
+        status = list(self._panel_status)
+        s = status[idx]
+        if s: status[idx] = False
+        else: status[idx] = True
+        self._panel_status = tuple(status)
+        return self.toggleLayout(self._panel_status)
 
     def loadData(self, data_path):
         self.db = DataBase()
