@@ -2,27 +2,29 @@ import zipfile, os, tempfile, shutil, logging
 from .utils import openFile, randomAlphaNumeric
 from . import globalVar as G
 
-def openTmp_hpack(hpack_path: str) -> bool:
+def openTmp_hpack(hpack_path: str, tmp_dir_name: str = "") -> bool:
     """
     Unpack a html file to a temporary directory
     """
-    tmp_dir = tempfile.gettempdir()
-    tmp_dir = unpackHtml(hpack_path, os.path.join(tmp_dir, randomAlphaNumeric(10)))
-    G.tmpdirs.append(tmp_dir)
-    G.logger_rbm.debug("Created temporary directory for HTML files: {}".format(tmp_dir))
-
-    h_file = None
-    if "index.html" in os.listdir(tmp_dir):
-        h_file = "index.html"
-    else:
-        for f_ in os.listdir(tmp_dir):
-            if f_.endswith(".html"):
-                h_file = f_
-
-    if h_file is None:
+    #  tmp_dir = tempfile.gettempdir()
+    #  tmp_dir = unpackHtml(hpack_path, os.path.join(tmp_dir, randomAlphaNumeric(10)))
+    #  G.tmpdirs.append(tmp_dir)
+    #  G.logger_rbm.debug("Created temporary directory for HTML files: {}".format(tmp_dir))
+    #
+    #  h_file = None
+    #  if "index.html" in os.listdir(tmp_dir):
+    #      h_file = "index.html"
+    #  else:
+    #      for f_ in os.listdir(tmp_dir):
+    #          if f_.endswith(".html"):
+    #              h_file = f_
+    #
+    #  if h_file is None:
+    #      return False
+    tmp_hpath = unpackHtmlTmp(hpack_path, tmp_dir_name)
+    if not tmp_hpath:
         return False
-
-    openFile(os.path.join(tmp_dir, h_file))
+    openFile(tmp_hpath)
     return True
 
 def packHtml(html_file: str, dst: str, del_src: bool = False) -> str:
@@ -58,8 +60,8 @@ def packHtml(html_file: str, dst: str, del_src: bool = False) -> str:
 def unpackHtml(hpack_path: str, dst: str) -> str:
     if not os.path.exists(dst):
         os.mkdir(dst)
-    elif os.path.exists(dst) and len(os.listdir(dst))==0:
-        pass
+    elif os.path.exists(dst):
+        G.logger_rbm.warning("unpacking html files into an existing directory: {}".format(dst))
     else:
         raise ValueError("Invalid destination, already exists (none empty).")
 
@@ -68,6 +70,29 @@ def unpackHtml(hpack_path: str, dst: str) -> str:
 
     return dst
 
+def unpackHtmlTmp(hpack_path: str, tmp_dir_name: str = "") -> str:
+    """
+    Unpack a html file to a temporary directory
+    """
+    tmp_dir = tempfile.gettempdir()
+    if not tmp_dir_name:
+        tmp_dir_name = randomAlphaNumeric(10)
+    tmp_dir = unpackHtml(hpack_path, os.path.join(tmp_dir, tmp_dir_name))
+    G.tmpdirs.append(tmp_dir)
+    G.logger_rbm.debug("Temporary directory for html file: {}".format(tmp_dir))
+
+    h_file = None
+    if "index.html" in os.listdir(tmp_dir):
+        h_file = "index.html"
+    else:
+        for f_ in os.listdir(tmp_dir):
+            if f_.endswith(".html"):
+                h_file = f_
+
+    if h_file is None:
+        return ""
+    else:
+        return os.path.join(tmp_dir, h_file)
 
 def findHtmlAssetDir(html_file: str) -> str:
     """

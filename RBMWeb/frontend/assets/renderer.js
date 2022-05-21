@@ -142,8 +142,11 @@ function generateDataRowElem(data){
         td.className = "data_td" + " " + query;
         if (query == "title"){
             const a = document.createElement("a");
-            if (data["has_file"]){
+            if (data["has_file"] && data["file_type"]===".pdf"){
                 a.href = `http://${SERVER_ADDR}:${SERVER_PORT}/file/${uuid}`;
+            }
+            else if (data["has_file"] && data["file_type"]===".hpack"){
+                a.href = `http://${SERVER_ADDR}:${SERVER_PORT}/hfile/${uuid}/`;
             }
             else if (data["url"] != ""){
                 a.href = data["url"];

@@ -1,4 +1,4 @@
-import sys, shutil, logging
+import sys, shutil, logging, os
 from typing import List
 
 __initialized: bool
@@ -23,7 +23,8 @@ def init():
 def clearTempDirs():
     global tmpdirs
     for d in tmpdirs:
-        shutil.rmtree(d)
-        logger_rbm.debug("Removed temporary directory - {}".format(d))
+        if os.path.exists(d):
+            shutil.rmtree(d)
+            logger_rbm.debug("Removed temporary directory - {}".format(d))
     tmpdirs = []
 

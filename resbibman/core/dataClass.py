@@ -1,9 +1,11 @@
 from resbibman.confReader import getConfV
-import typing, re
+import typing, re, string, os
 from typing import List, Union, Iterable, Set
 import difflib
+import markdown
 from .fileTools import FileManipulator, FileGenerator
 from .bibReader import BibParser
+from .utils import HTML_TEMPLATE_RAW
 
 class DataTags(set):
     def toOrderedList(self):
@@ -21,6 +23,7 @@ class DataTags(set):
             return "<None>"
 
 class DataPoint:
+    COMMENT_HTML_TEMPLATE = string.Template(HTML_TEMPLATE_RAW)
     def __init__(self, fm: FileManipulator):
         """
         The basic data structure that hold single data
@@ -99,6 +102,18 @@ class DataPoint:
         if result is None:
             return False
         else: return True
+
+    def htmlComment(self) -> str:
+        comment = self.fm.readComments()
+        if comment == "":
+            return ""
+        misc_f = self.fm.folder_p
+        misc_f = misc_f.replace(os.sep, "/")
+        comment = comment.replace("./misc", misc_f)
+
+        comment_html = markdown.markdown(comment)
+        comment_html = self.COMMENT_HTML_TEMPLATE.substitute(content = comment_html)
+        return comment_html
 
     def save(self):
         pass

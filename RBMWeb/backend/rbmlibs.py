@@ -3,6 +3,7 @@ from typing import List, Union
 from resbibman.confReader import getConfV
 from resbibman.core.dataClass import DataBase, DataList, DataPoint, DataTableList, DataTags
 from resbibman.core.fileTools import FileManipulator
+from resbibman.core.htmlTools import unpackHtmlTmp
 
 def getDataBaseInfo() -> Union[List[dict], None]:
     db_path = getConfV("database")
@@ -36,6 +37,7 @@ class DatabaseReader:
         return {
             "has_file":dp.fm.hasFile(),
             "file_status":dp.getFileStatusStr(),
+            "file_type": dp.fm.file_extension,
             "year":dp.year,
             "title":dp.title,
             "author":dp.getAuthorsAbbr(),
@@ -55,8 +57,19 @@ class DatabaseReader:
     def getPDFPathByUUID(self, uuid: str):
         return self.db[uuid].fm.file_p
 
+    def getTmpHtmlPathByUUID(self, uuid: str):
+        dp = self.db[uuid]
+        if not dp.fm.file_extension == ".hpack":
+            return ""
+        file_p = dp.fm.file_p
+        html_p = unpackHtmlTmp(file_p, tmp_dir_name = uuid)
+        return html_p
+
     def getCommentPathByUUID(self, uuid: str):
         return self.db[uuid].fm.comment_p
 
     def getURLByUUID(self, uuid: str):
         return self.db[uuid].fm.getWebURL()
+
+    def getCommentHTMLByUUID(self, uuid: str):
+        return self.db[uuid].htmlComment()

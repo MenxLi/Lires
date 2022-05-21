@@ -1,4 +1,4 @@
-import json, os, multiprocessing
+import json, os, multiprocessing, shutil, tempfile
 from typing import Union
 
 from RBMWeb.backend.rbmlibs import DatabaseReader
@@ -78,6 +78,38 @@ class CMDHandler(RequestHandlerBase):
         if cmd == "reloadDB":
             self._reloadDB()
 
+class HFileHandler(tornado.web.StaticFileHandler):
+    def __init__(self,*args, **kwargs):
+        super().__init__(*args, **kwargs)
+    def setDefaultHeader(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Credentials", "true")
+        self.set_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
+        self.set_header("Access-Control-Allow-Headers", "*")
+        self.set_header("Access-Control-Expose-Headers", "*")
+
+    # handler for local web pages
+    def get(self, path, include_body = True):
+        global db_reader
+        self.setDefaultHeader()
+        psplit = path.split("/")
+        uuid = psplit[0]
+
+        if len(path) == 37:
+            # uuid + "/"
+            html_p = db_reader.getTmpHtmlPathByUUID(uuid)
+            # make sure we can find correct directory in subsequent requests
+            assert os.path.dirname(html_p) == os.path.join(tempfile.gettempdir(), uuid)
+            return super().get(path = html_p, include_body=True)
+
+        else:
+            tmp_dir = os.path.join(tempfile.gettempdir(), uuid)
+            psplit = tmp_dir.split(os.sep) + psplit[1:]
+            if psplit[0] == "":
+                psplit = psplit[1:]
+            path = "/".join(psplit)
+            return super().get(path, include_body=True)
+
 class Application(tornado.web.Application):
     def __init__(self) -> None:
         root = os.path.dirname(__file__)
@@ -86,6 +118,7 @@ class Application(tornado.web.Application):
             (r"/favicon.ico()", tornado.web.StaticFileHandler, {"path": frontend_root}),
             (r"/main/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
             (r"/file/(.*)", FileHandler),
+            (r"/hfile/(.*)", HFileHandler, {"path": "/"}),
             (r"/filelist/(.*)", FileListHandler),
             (r"/comment/(.*)", CommentHandler),
             (r"/cmd/(.*)", CMDHandler),

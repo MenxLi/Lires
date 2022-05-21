@@ -101,7 +101,7 @@ class FileInfo(FileInfoGUI):
     Implement the functions for file info
     """
     COMMENT_SAVE_TOLERANCE_INTERVAL = 2
-    COMMENT_HTML_TEMPLATE = string.Template(HTML_TEMPLATE_RAW)
+    #  COMMENT_HTML_TEMPLATE = string.Template(HTML_TEMPLATE_RAW)
 
     def __init__(self, parent = None, **kwargs):
         super().__init__(parent)
@@ -283,13 +283,7 @@ class FileInfo(FileInfoGUI):
         if self.curr_data is None:
             # shouldn't happen
             return
-        misc_f = self.curr_data.fm.folder_p
-        misc_f = misc_f.replace(os.sep, "/")
-        comment = comment.replace("./misc", misc_f)
-
-        comment_html = markdown.markdown(comment)
-        comment_html = self.COMMENT_HTML_TEMPLATE.substitute(content = comment_html)
-
+        comment_html = self.curr_data.htmlComment()
         self.mdBrowser.setHtml(comment_html, baseUrl=QtCore.QUrl.fromLocalFile("/"))
 
     def __updateCover(self, data: Union[DataPoint,None]):
