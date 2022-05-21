@@ -32,6 +32,7 @@ Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this s
 - [ ] User info
 - [ ] Export database
 - [ ] Better way to define time-modified
+- [ ] View comments online
 
 In query widget while importing articles:  
 
@@ -45,6 +46,7 @@ In file selector:
 - [x] Add search bar
 - [x] Multiple selection
 - [x] Right click: export, export bib, delete
+- [ ] Right click: open url
 
 Main window:
 - [x] Refresh button
@@ -53,7 +55,6 @@ settings:
 
 Tags:
 - [x] Right click: rename; delete;
-- [ ] Drag in to add tag?
 
 Code structure change:
 - [ ] Move more methods into core classes
@@ -65,8 +66,9 @@ Code structure change:
 </details>
 
 ## Known issues
-* May crash when changing selection (caused by async saving?)
+* May crash when changing selection (caused by auto saving)
 * QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)
+* Markdown horizontal line highlighter not working somehow
 
 ## Credits:
 https://github.com/google/material-design-icons   
