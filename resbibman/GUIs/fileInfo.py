@@ -127,9 +127,11 @@ class FileInfo(FileInfoGUI):
         self.weburl_edit.textChanged.connect(self.saveWebURL)
     
     def clearPanel(self):
+        self.logger.debug("Clear info panel")
         self.curr_data = None
         self.info_lbl.setText("File info")
         self.tEdit.setText("")
+        self.weburl_edit.setText("")
         self.setCommentSaveStatusLbl("none")
         self.__updateCover(None)
 
@@ -186,7 +188,8 @@ class FileInfo(FileInfoGUI):
     
     def saveWebURL(self):
         if self.curr_data is None:
-            self.warnDialog("No file selected.")
+            #  self.warnDialog("No file selected.")
+            self.logger.info("No file selected")
             return
         prev_url = self.curr_data.fm.getWebUrl()
         weburl = self.weburl_edit.text()
