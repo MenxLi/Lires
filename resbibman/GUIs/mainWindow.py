@@ -182,6 +182,16 @@ class MainWindow(MainWindowGUI):
         s = status[idx]
         if s: status[idx] = False
         else: status[idx] = True
+
+        # If close all panels, enable all
+        ALL_CLOSE = True
+        for s_ in status:
+            if s_ is True:
+                ALL_CLOSE = False
+                break
+        if ALL_CLOSE:
+            status = [True, True, True]
+
         self._panel_status = tuple(status)
         return self.toggleLayout(self._panel_status)
 
