@@ -11,9 +11,11 @@ build
 .env
 venv
 */log.txt
-resbibman/conf.json
 *_tmp*
 
 
 *.pptx
 *.psd
+
+resbibman/conf.json
+RBMWeb/backend/key.txt

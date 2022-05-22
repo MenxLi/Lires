@@ -5,9 +5,14 @@ def run():
 	generateDefaultConf()
 
 def generateDefaultConf():
-    saveToConf(
+	"""
+	"database" points to local database, used by RBMWeb,
+	"""
+	saveToConf(
 		accepted_extensions = [".pdf", ".caj", ".html", ".hpack", ".md"],
 		database = DEFAULT_DATA_PATH,
+		host = "localhost",
+		port = "8080",
 		default_tags = [],
 		sort_method = DataTableList.SORT_TIMEADDED,
 		table_headers = [ 
@@ -19,7 +24,7 @@ def generateDefaultConf():
 		auto_save_comments = False,
         stylesheet = "Simple"
     )
-    print("Generated default configuration file at: ", CONF_FILE_PATH)
+	print("Generated default configuration file at: ", CONF_FILE_PATH)
 
 if __name__ == "__main__":
 	run()

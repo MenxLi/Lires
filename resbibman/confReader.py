@@ -1,4 +1,4 @@
-import os, json
+import os, json, tempfile
 
 join = os.path.join
 
@@ -60,6 +60,15 @@ DOC_PATH = join(CURR_PATH, "docs")
 BIB_TEMPLATE_PATH = join(DOC_PATH, "bibtexTemplates")
 LOG_FILE = join(CURR_PATH, "log.txt")
 DEFAULT_DATA_PATH = join(CURR_PATH, os.pardir, "Database")
+
+TMP_DIR = tempfile.gettempdir()
+TMP_DIR = os.path.join(TMP_DIR, "ResBibMan")
+TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
+
+for _p in [TMP_DIR, TMP_DB]:
+    if not os.path.exists(_p):
+        os.mkdir(_p)
+
 
 def getStyleSheets() -> dict:
     global STYLESHEET_PATH

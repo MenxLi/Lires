@@ -7,9 +7,9 @@ from RBMWeb.backend.confReader import getRBMWebConf
 import tornado.ioloop
 import tornado.web
 
-from resbibman.confReader import getConfV
+from resbibman.confReader import getConfV, TMP_DIR
 
-class RequestHandlerBase(tornado.web.RequestHandler):
+class RequestHandlerBase():
     def setDefaultHeader(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Credentials", "true")
@@ -17,7 +17,7 @@ class RequestHandlerBase(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Headers", "*")
         self.set_header("Access-Control-Expose-Headers", "*")
 
-class FileListHandler(RequestHandlerBase):
+class FileListHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def get(self, tags:str):
         """
         Args:
@@ -39,7 +39,7 @@ class FileListHandler(RequestHandlerBase):
         else:
             self.write("Something wrong with the server.")
 
-class FileHandler(RequestHandlerBase):
+class DocHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def get(self, uuid):
         global db_reader
         self.setDefaultHeader()
@@ -54,7 +54,7 @@ class FileHandler(RequestHandlerBase):
                     return
         self.write("The file not exist or is not PDF file.")
 
-class CommentHandler(RequestHandlerBase):
+class CommentHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def get(self, uuid):
         # Unfinished.
         global db_reader
@@ -67,7 +67,7 @@ class CommentHandler(RequestHandlerBase):
                     return
         self.write("The file not exist or is not MD file.")
 
-class CMDHandler(RequestHandlerBase):
+class CMDHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def _reloadDB(self):
         global db_reader
         self.setDefaultHeader()
@@ -78,16 +78,7 @@ class CMDHandler(RequestHandlerBase):
         if cmd == "reloadDB":
             self._reloadDB()
 
-class HFileHandler(tornado.web.StaticFileHandler):
-    def __init__(self,*args, **kwargs):
-        super().__init__(*args, **kwargs)
-    def setDefaultHeader(self):
-        self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Credentials", "true")
-        self.set_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
-        self.set_header("Access-Control-Allow-Headers", "*")
-        self.set_header("Access-Control-Expose-Headers", "*")
-
+class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
     # handler for local web pages
     def get(self, path, include_body = True):
         global db_reader
@@ -99,7 +90,7 @@ class HFileHandler(tornado.web.StaticFileHandler):
             # uuid + "/"
             html_p = db_reader.getTmpHtmlPathByUUID(uuid)
             # make sure we can find correct directory in subsequent requests
-            assert os.path.dirname(html_p) == os.path.join(tempfile.gettempdir(), uuid)
+            assert os.path.dirname(html_p) == os.path.join(TMP_DIR, uuid)
             return super().get(path = html_p, include_body=True)
 
         else:
@@ -117,8 +108,8 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/favicon.ico()", tornado.web.StaticFileHandler, {"path": frontend_root}),
             (r"/main/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
-            (r"/file/(.*)", FileHandler),
-            (r"/hfile/(.*)", HFileHandler, {"path": "/"}),
+            (r"/doc/(.*)", DocHandler),
+            (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
             (r"/filelist/(.*)", FileListHandler),
             (r"/comment/(.*)", CommentHandler),
             (r"/cmd/(.*)", CMDHandler),

@@ -1,11 +1,16 @@
+from __future__ import annotations
 from resbibman.confReader import getConfV
 import typing, re, string, os
-from typing import List, Union, Iterable, Set
+from typing import List, Union, Iterable, Set, TYPE_CHECKING
 import difflib
 import markdown
 from .fileTools import FileManipulator, FileGenerator
+from .fileToolsV import FileManipulatorVirtual
 from .bibReader import BibParser
 from .utils import HTML_TEMPLATE_RAW
+
+if TYPE_CHECKING:
+    from RBMWeb.backend.rbmlibs import DataPointInfo
 
 class DataTags(set):
     def toOrderedList(self):
@@ -89,7 +94,7 @@ class DataPoint:
         elif "booktitle" in bib:
             info_txt = info_txt + "{icon} {booktitle}".format(icon = u"\U0001F56e", booktitle = bib["booktitle"][0])
         if self.has_file:
-            info_txt = info_txt + "\nFile size: {}M".format(self.fm.getFileSize())
+            info_txt = info_txt + "\nFile size: {}M".format(self.fm.getDocSize())
         info_txt = "--{}--\n".format(bib["type"]) + info_txt
         return info_txt
     
@@ -220,6 +225,14 @@ class DataTableList(DataList):
         return self.header_order[col]
 
 class DataBase(dict):
+
+    def constuct(self, vs: Union[List[str], List[DataPointInfo]]):
+        for v in vs:
+            fm = FileManipulatorVirtual(v)
+            if fm.screen():
+                data = DataPoint(fm)
+                self.add(data)
+
     def add(self, data: DataPoint):
         self[data.uuid] = data
     

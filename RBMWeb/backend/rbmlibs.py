@@ -1,5 +1,6 @@
 import os, copy
-from typing import List, Union
+import typing
+from typing import Dict, List, Union, TypedDict
 from resbibman.confReader import getConfV
 from resbibman.core.dataClass import DataBase, DataList, DataPoint, DataTableList, DataTags
 from resbibman.core.fileTools import FileManipulator
@@ -15,6 +16,25 @@ def getDataBaseInfo() -> Union[List[dict], None]:
         "uuid":None
     }
     return [ a ]
+
+class DataPointInfo(TypedDict):
+    has_file: bool
+    file_status: str
+    file_type: str
+    year: typing.Any
+    title: str
+    author: str
+    authors: List[str]
+    tags: List[str]
+    uuid: str
+    url: str
+    time_added: str
+    time_modified: str
+
+    # bib: dict       # refer to BibParser.__call__ | DataPoint.bib
+    bibtex: str
+    doc_size: float # in M.
+    base_name: str  # for directory name
 
 class DatabaseReader:
     def __init__(self, db_path: str) -> None:
@@ -33,7 +53,7 @@ class DatabaseReader:
                     self.db[data.uuid] = copy.deepcopy(data)
         print("Finish.")
 
-    def getDictDataFromDataPoint(self, dp: DataPoint) -> dict:
+    def getDictDataFromDataPoint(self, dp: DataPoint) -> DataPointInfo:
         return {
             "has_file":dp.fm.hasFile(),
             "file_status":dp.getFileStatusStr(),
@@ -41,12 +61,18 @@ class DatabaseReader:
             "year":dp.year,
             "title":dp.title,
             "author":dp.getAuthorsAbbr(),
-            "authors":"|".join(dp.authors),
+            # "authors":"|".join(dp.authors),
+            "authors": dp.authors,
             "tags":list(dp.tags),
             "uuid":dp.uuid,
             "url":dp.fm.getWebUrl(),
             "time_added": dp.fm.getTimeAdded(),
             "time_modified": dp.fm.getTimeModified(),
+
+            "bibtex": dp.fm.readBib(),
+            # "bib": dp.bib,
+            "doc_size": dp.fm.getDocSize(),
+            "base_name": dp.fm.base_name,
         }
 
     def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by = DataList.SORT_TIMEADDED) -> List[dict]:

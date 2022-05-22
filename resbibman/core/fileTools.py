@@ -173,7 +173,7 @@ class FileManipulator:
     def __init__(self, data_path):
         self.path = data_path
         self.base_name: str = os.path.split(data_path)[-1]
-        self.__file_extension: str = ""     # extension of the main document, "" for undefined / No file
+        self._file_extension: str = ""     # extension of the main document, "" for undefined / No file
 
         self.folder_p: str
         self.bib_p: str
@@ -196,10 +196,19 @@ class FileManipulator:
 
     @property
     def file_extension(self) -> str:
-        return self.__file_extension
+        return self._file_extension
     
-    def screen(self):
-        """To decided if the path contains all necessary files"""
+    def screen(self) -> bool:
+        """
+        To decided if the path contains all necessary files
+        Initialize the following attributes:
+            self.folder_p
+            self.bib_p
+            self.comments_p
+            self.info_p
+        Maybe initialize:
+            self.file_p
+        """
         all_files = os.listdir(self.path)
         comments_f = self.file_names["comment"]
         info_f = self.file_names["info"]
@@ -210,7 +219,7 @@ class FileManipulator:
             file_f_candidate = self.file_names["document"] + ext
             if file_f_candidate in all_files:
                 file_f = file_f_candidate
-                self.__file_extension = ext
+                self._file_extension = ext
                 break
         if not set([comments_f, info_f, bib_f, folder_f]).issubset(set(all_files)):
             warnings.warn(str(self.path)+" doesn't have enough files in the directory and is neglected")
@@ -268,16 +277,18 @@ class FileManipulator:
         if not file_extension in getConf()["accepted_extensions"]:
             warnings.warn("Incorrect file type, check extensions.")
             return False
-        self.__file_extension = file_extension
+        self._file_extension = file_extension
         fn_base = FileGenerator.FILEPREFIX + self.base_name
         dst_base = os.path.join(self.path, fn_base)
         FileGenerator.moveDocument(extern_file_p, dst_base)
         del extern_file_p
+        self._log()
         return True
     
-    def getFileSize(self) -> Union[None, float]:
+    def getDocSize(self) -> float:
         if not self.hasFile():
-            return None
+            return 0.0
+            # return None
         size = os.path.getsize(self.file_p)
         size = size/(1048576)   # byte to M
         return round(size, 2)
@@ -364,15 +375,12 @@ class FileManipulator:
 
     def openMiscDir(self):
         openFile(self.folder_p)
-        # self._log()
 
     def openComments(self):
         openFile(self.comments_p)
-        # self._log()
 
     def openBib(self):
         openFile(self.bib_p)
-        # self._log()
     
     def deleteDocument(self) -> bool:
         if self.file_p is not None:
