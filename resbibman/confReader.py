@@ -105,4 +105,4 @@ def saveToConf(**kwargs):
     for k,v in kwargs.items():
         conf_ori[k] = v
     with open(CONF_FILE_PATH, "w", encoding="utf-8") as conf_file:
-        json.dump(conf_ori, conf_file)
+        json.dump(conf_ori, conf_file, indent=1)

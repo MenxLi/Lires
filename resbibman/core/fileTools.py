@@ -6,6 +6,7 @@ from pathlib import Path
 import os, shutil, json, platform, typing, uuid
 from typing import List, Union, TypedDict
 import warnings
+from . import globalVar as G
 from .utils import getDateTime, openFile
 from ..confReader import getConf, VERSION
 from .htmlTools import packHtml, openTmp_hpack
@@ -170,6 +171,7 @@ class FileManipulator:
     """
     Tools to manipulate single data directory
     """
+    logger = G.logger_rbm
     def __init__(self, data_path):
         self.path = data_path
         self.base_name: str = os.path.split(data_path)[-1]
@@ -198,6 +200,10 @@ class FileManipulator:
     def file_extension(self) -> str:
         return self._file_extension
     
+    @property
+    def uuid(self) -> str:
+        return self.getUuid()
+    
     def screen(self) -> bool:
         """
         To decided if the path contains all necessary files
@@ -221,10 +227,6 @@ class FileManipulator:
                 file_f = file_f_candidate
                 self._file_extension = ext
                 break
-        if not set([comments_f, info_f, bib_f, folder_f]).issubset(set(all_files)):
-            warnings.warn(str(self.path)+" doesn't have enough files in the directory and is neglected")
-            return False
-        
         self.folder_p = os.path.join(self.path, folder_f)
         self.bib_p = os.path.join(self.path, bib_f)
         self.comments_p = os.path.join(self.path, comments_f)
@@ -235,10 +237,17 @@ class FileManipulator:
         except NameError:
             # No file served
             self.file_p = None
-        if not os.path.exists(self.folder_p): warnings.warn("Miscellaneous folder does not exists")
+        if not os.path.exists(self.folder_p):
+            self.logger.debug("Miscellaneous folder for does not exists, and is now created: {}"\
+                .format(self.folder_p))
+            os.mkdir(self.folder_p)
         if not os.path.exists(self.bib_p): warnings.warn("Bibliography file does not exists")
         if not os.path.exists(self.comments_p): warnings.warn("Comments file does not exists")
         if not os.path.exists(self.info_p): warnings.warn("Info file does not exists")
+
+        if not set([comments_f, info_f, bib_f]).issubset(set(all_files)):
+            warnings.warn(str(self.path)+" doesn't have enough files in the directory and is neglected")
+            return False
 
         return True
 

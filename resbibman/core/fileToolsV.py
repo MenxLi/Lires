@@ -2,10 +2,13 @@
 Virtual (Remote) file tools
 """
 from __future__ import annotations
-import os, typing
+import os, typing, requests, zipfile, shutil
 from typing import TYPE_CHECKING, Union, overload
+
 from .fileTools import FileGenerator, FileManipulator
-from ..confReader import getConfV, TMP_DB
+from .encryptClient import generateHexHash
+from .compressTools import decompressDir, compressDir
+from ..confReader import getConfV, TMP_DB, getConf, TMP_DIR
 
 if TYPE_CHECKING:
     from RBMWeb.backend.rbmlibs import DataPointInfo
@@ -16,6 +19,11 @@ class FileManipulatorVirtual(FileManipulator):
     Provide some API at start
     To download from server and pass control to local FileManipulator
     """
+    HOST_URL = "http://{}:{}".format(getConfV("host"), getConfV("port"))
+    POST_URL = f"{HOST_URL}/file"
+    INTERM_ZIP_DIR = os.path.join(TMP_DIR, "fm_zips")
+    if not os.path.exists(INTERM_ZIP_DIR):
+        os.mkdir(INTERM_ZIP_DIR)
     def __init__(self, v: Union[DataPointInfo, str]):
         """
          - v [DataPointInfo]: dictionary datapoint info,
@@ -70,15 +78,74 @@ class FileManipulatorVirtual(FileManipulator):
         """
         Download if not local
         Upload if has local file
+        Delete if has local file and not in remote
         """
         # Check is_uptodate when uploading
         pass
     
-    def _upload(self) -> bool:
-        pass
+    def _uploadRemote(self) -> bool:
+        uuid = self.uuid
+        interm_file_p = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
+        compressDir(self.path, interm_file_p)
+        post_args = {
+            "key": generateHexHash(getConfV("access_key")),
+            "cmd": "upload",
+            "uuid": uuid
+        }
+        with open(interm_file_p, "rb") as fp:
+            file_args = {
+                "filename": self.base_name.encode("utf-8"),
+                "file": fp
+            }
+            res = requests.post(self.POST_URL, params = post_args, files=file_args)
 
-    def _download(self) -> bool:
-        pass
+        if not self._checkRes(res):
+            return False
+        else:
+            return True
+
+    def _downloadRemote(self) -> bool:
+        uuid = self.uuid
+        post_args = {
+            "key": generateHexHash(getConfV("access_key")),
+            "cmd": "download",
+            "uuid": uuid
+        }
+        res = requests.post(self.POST_URL, params = post_args)
+        if not self._checkRes(res):
+            return False
+        out_file = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
+        # intermediate zip file
+        with open(out_file, "wb") as fp:
+            fp.write(res.content)
+        # delete old data
+        if os.path.exists(self.path):
+            shutil.rmtree(self.path)
+        # unzip
+        decompressDir(out_file, self.path)
+        self.logger.info("Downloaded {}".format(uuid))
+        return self.screen()
+    
+    def _deleteRemote(self) -> bool:
+        uuid = self.uuid
+        post_args = {
+            "key": generateHexHash(getConfV("access_key")),
+            "cmd": "delete",
+            "uuid": uuid
+        }
+        res = requests.post(self.POST_URL, params = post_args)
+        if not self._checkRes(res):
+            return False
+        return True
+    
+    def _checkRes(self, res: requests.Response) -> bool:
+        """
+        Check if response is valid
+        """
+        status_code = res.status_code
+        if status_code == 401:
+            self.logger.info("Unauthorized access")
+        return res.ok
 
     #=========================== Below emulate local manipulator class
 

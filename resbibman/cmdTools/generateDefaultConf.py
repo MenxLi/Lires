@@ -13,6 +13,7 @@ def generateDefaultConf():
 		database = DEFAULT_DATA_PATH,
 		host = "localhost",
 		port = "8080",
+		access_key = "",
 		default_tags = [],
 		sort_method = DataTableList.SORT_TIMEADDED,
 		table_headers = [ 

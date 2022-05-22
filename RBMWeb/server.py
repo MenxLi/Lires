@@ -1,15 +1,27 @@
-import json, os, multiprocessing, shutil, tempfile
-from typing import Union
+import json, os, multiprocessing, shutil, tempfile, zipfile, tempfile
+from typing import List, Union, Callable
 
 from RBMWeb.backend.rbmlibs import DatabaseReader
 from RBMWeb.backend.confReader import getRBMWebConf
+from RBMWeb.backend.encryptServer import queryHashKey
 
 import tornado.ioloop
 import tornado.web
 
 from resbibman.confReader import getConfV, TMP_DIR
+from resbibman.core.dataClass import DataPoint
+from resbibman.core.compressTools import compressDir, decompressDir
 
 class RequestHandlerBase():
+    get_argument: Callable
+
+    def checkKey(self):
+        enc_key = self.get_argument("key")
+        if not queryHashKey(enc_key):
+            # unauthorized
+            raise tornado.web.HTTPError(401) 
+        return
+
     def setDefaultHeader(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Credentials", "true")
@@ -24,6 +36,9 @@ class FileListHandler(tornado.web.RequestHandler, RequestHandlerBase):
             tags (str): tags should be "%" or split by "&&"
         """
         global db_reader
+
+        # self.checkKey()
+
         self.setDefaultHeader()
         if tags == "%":
             tags = []
@@ -38,6 +53,7 @@ class FileListHandler(tornado.web.RequestHandler, RequestHandlerBase):
             self.write(json.dumps(json_data))
         else:
             self.write("Something wrong with the server.")
+        return
 
 class DocHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def get(self, uuid):
@@ -101,6 +117,60 @@ class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
             path = "/".join(psplit)
             return super().get(path, include_body=True)
 
+class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
+    ZIP_TMP_DIR = os.path.join(TMP_DIR, "zips")
+    
+    def initialize(self):
+        super().initialize()
+        self.zip_tmp_dir = self.ZIP_TMP_DIR
+        if not os.path.exists(self.zip_tmp_dir):
+            os.mkdir(self.zip_tmp_dir)
+
+    def post(self):
+        """
+         - cmd: <command>-<uuid>
+        """
+        global db_reader
+        db = db_reader.db
+
+        self.checkKey()
+
+        self.setDefaultHeader()
+        cmd = self.get_argument("cmd")
+        uuid = self.get_argument("uuid")
+        print(cmd, uuid)
+
+        if cmd == "download":
+            dp: DataPoint = db[uuid]
+            tmp_zip = os.path.join(self.zip_tmp_dir, uuid+".zip")
+            compressed = compressDir(dp.data_path, tmp_zip)
+            with open(compressed, "rb") as f:
+                while True:
+                    data = f.read(4096)
+                    if not data:
+                        break
+                    self.write(data)
+        
+        elif cmd == "upload":
+            tmp_zip = os.path.join(self.zip_tmp_dir, uuid+".zip")
+            req_file = self.request.files
+            f_body = req_file["file"][0]["body"]
+            f_name = req_file["filename"][0]["body"].decode("utf-8")
+
+            with open(tmp_zip, "wb") as fp:
+                fp.write(f_body)
+
+            dest = os.path.join(getConfV("database"), f_name)
+            if os.path.exists(dest):
+                shutil.rmtree(dest)
+            dest = decompressDir(tmp_zip, dest)
+            db.add(dest)
+        
+        elif cmd == "delete":
+            if uuid in db:
+                db.delete(uuid)
+
+
 class Application(tornado.web.Application):
     def __init__(self) -> None:
         root = os.path.dirname(__file__)
@@ -111,6 +181,7 @@ class Application(tornado.web.Application):
             (r"/doc/(.*)", DocHandler),
             (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
             (r"/filelist/(.*)", FileListHandler),
+            (r"/file", FileHandler),
             (r"/comment/(.*)", CommentHandler),
             (r"/cmd/(.*)", CMDHandler),
         ]

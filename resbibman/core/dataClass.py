@@ -1,4 +1,5 @@
 from __future__ import annotations
+import shutil
 from resbibman.confReader import getConfV
 import typing, re, string, os
 from typing import List, Union, Iterable, Set, TYPE_CHECKING
@@ -233,8 +234,21 @@ class DataBase(dict):
                 data = DataPoint(fm)
                 self.add(data)
 
-    def add(self, data: DataPoint):
+    def add(self, data: Union[DataPoint, str]):
+        if isinstance(data, str):
+            # path to the data folder
+            assert os.path.exists(data)
+            fm = FileManipulatorVirtual(data)
+            fm.screen()
+            data = DataPoint(fm)
         self[data.uuid] = data
+    
+    def delete(self, uuid: str):
+        if uuid in self.keys():
+            dp: DataPoint = self[uuid]
+            if dp.fm.has_local:
+                shutil.rmtree(dp.data_path)
+            del self[uuid]
     
     def getDataByTags(self, tags: Union[list, set, DataTags]) -> DataList:
         datalist = DataList()
