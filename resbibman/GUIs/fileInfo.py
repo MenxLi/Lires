@@ -150,7 +150,7 @@ class FileInfo(FileInfoGUI):
         self.info_lbl.setText(info_txt)
     
     def load(self, data: DataPoint):
-        self.logger.debug("Load data point")
+        self.logger.debug("Load data point to info panel: {}".format(data.uuid))
         self.curr_data = data
         self.info_lbl.setText(data.stringInfo())
         comment = self.curr_data.fm.readComments()

@@ -186,10 +186,8 @@ class FileSelector(FileSelectorGUI):
         """ will be called by signal from bibQuery
         actual file manipulation is implemented in bibQuery
         """
-        fm = FileManipulator(file_path)
-        fm.screen()
-        dp = DataPoint(fm)
-        self.getMainPanel().db[dp.uuid] = dp
+        self.getMainPanel().db.add(file_path)
+        dp = self.getMainPanel().db[dp.uuid]
         self.data_model.add(dp)
     
     def _deleteFromDatabase(self, data: DataPoint):

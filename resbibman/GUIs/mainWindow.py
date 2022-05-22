@@ -12,7 +12,8 @@ from .bibQuery import BibQuery
 from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
 
-from ..core.fileTools import FileManipulator, FileGenerator
+from ..core.fileTools import FileGenerator
+from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser
 from ..core.utils import openFile
 from ..core.dataClass import DataTags, DataBase, DataPoint
@@ -197,13 +198,12 @@ class MainWindow(MainWindowGUI):
 
     def loadData(self, data_path):
         self.db = DataBase()
+        to_load = []
         for f in os.listdir(data_path):
             f = os.path.join(data_path, f)
             if os.path.isdir(f):
-                fm = FileManipulator(f)
-                if fm.screen():
-                    data = DataPoint(fm)
-                    self.db[data.uuid] = copy.deepcopy(data)
+                to_load.append(f)
+        self.db.constuct(to_load)
         self.file_selector.loadValidData(set(getConf()["default_tags"]), hint = True)
         self.file_tags.initTags(self.getTotalTags())
 
@@ -316,7 +316,7 @@ class MainWindow(MainWindowGUI):
         if not fg.generateDefaultFiles(data_dir=getConf()["database"]):
             return 
         dst_dir = fg.dst_dir
-        fm = FileManipulator(dst_dir)
+        fm = FileManipulatorVirtual(dst_dir)
         fm.screen()
         fm.writeBib(bib_str)
         fm.writeTags(tag_list)

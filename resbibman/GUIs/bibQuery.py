@@ -9,7 +9,8 @@ from PyQt5 import QtCore
 from ..core.dataClass import DataPoint, DataTags, DataBase
 from .tagEditor import TagEditor
 from ..core.bibReader import BibParser
-from ..core.fileTools import FileGenerator, FileManipulator
+from ..core.fileTools import FileGenerator
+from ..core.fileToolsV import FileManipulatorVirtual
 from ..confReader import getConf, DOC_PATH
 from ..core.utils import sssUUID
 from .widgets import WidgetBase
@@ -123,7 +124,7 @@ class BibQuery(BibQueryGUI):
             return 
 
         dst_dir = fg.dst_dir
-        fm = FileManipulator(dst_dir)
+        fm = FileManipulatorVirtual(dst_dir)
         fm.screen()
         fm.writeBib(bib_txt)
         fm.writeTags(tag_list)

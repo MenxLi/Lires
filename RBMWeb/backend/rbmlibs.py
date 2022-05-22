@@ -3,7 +3,7 @@ import typing
 from typing import Dict, List, Union, TypedDict
 from resbibman.confReader import getConfV
 from resbibman.core.dataClass import DataBase, DataList, DataPoint, DataTableList, DataTags
-from resbibman.core.fileTools import FileManipulator
+from resbibman.core.fileToolsV import FileManipulatorVirtual
 from resbibman.core.htmlTools import unpackHtmlTmp
 
 def getDataBaseInfo() -> Union[List[dict], None]:
@@ -47,7 +47,7 @@ class DatabaseReader:
         for f in os.listdir(db_path):
             f = os.path.join(db_path, f)
             if os.path.isdir(f):
-                fm = FileManipulator(f)
+                fm = FileManipulatorVirtual(f)
                 if fm.screen():
                     data = DataPoint(fm)
                     self.db[data.uuid] = copy.deepcopy(data)

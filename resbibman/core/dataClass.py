@@ -30,7 +30,7 @@ class DataTags(set):
 
 class DataPoint:
     COMMENT_HTML_TEMPLATE = string.Template(HTML_TEMPLATE_RAW)
-    def __init__(self, fm: FileManipulator):
+    def __init__(self, fm: FileManipulatorVirtual):
         """
         The basic data structure that hold single data
         fmp - FileManipulator, data completeness should be confirmed ahead (use fmp.screen())
@@ -44,7 +44,11 @@ class DataPoint:
         return self.fm.file_p
 
     def reload(self):
-        self.fm = FileManipulator(self.data_path)
+        if self.fm.has_local:
+            self.fm = FileManipulatorVirtual(self.data_path)
+        else:
+            # to decide later
+            pass
         self.fm.screen()
         self.loadInfo()
 
