@@ -1,3 +1,4 @@
+from faulthandler import disable
 import webbrowser
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QShortcut, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
@@ -43,6 +44,7 @@ class FileSelectorGUI(MainWidgetBase):
         self._initActions()
     
     def _initActions(self):
+        self.act_sync_datapoint = QAction("Sync", self)
         self.act_edit_bib = QAction("Edit bibtex info", self)
         self.act_open_location = QAction("Open file location", self)
         self.act_delete_file = QAction("Delete", self)
@@ -52,6 +54,7 @@ class FileSelectorGUI(MainWidgetBase):
         self.act_add_file = QAction("Add file", self)
         self.act_free_doc = QAction("Free document", self)
 
+        self.data_view.addAction(self.act_sync_datapoint)
         self.data_view.addAction(self.act_edit_bib)
         self.data_view.addAction(self.act_open_location)
         self.data_view.addAction(self.act_copy_citation)
@@ -78,6 +81,7 @@ class FileSelector(FileSelectorGUI):
 
         self.search_edit.textChanged.connect(self.onSearchTextChange)
 
+        self.act_sync_datapoint.triggered.connect(self.syncCurrentSelections)
         self.act_open_location.triggered.connect(self.openCurrFileLocation)
         self.act_copy_bib.triggered.connect(self.copyCurrentSelectionBib)
         self.act_copy_citation.triggered.connect(self.copyCurrentSelectionCitation)
@@ -85,12 +89,33 @@ class FileSelector(FileSelectorGUI):
         self.act_free_doc.triggered.connect(self.freeDocumentOfCurrentSelection)
         self.act_edit_bib.triggered.connect(self.editBibtex)
 
+    def offlineStatus(self, status: bool):
+        super().offlineStatus(status)
+        disable_wids = [
+            self.act_edit_bib,
+            self.act_open_location,
+            self.act_delete_file,
+            self.act_add_file,
+            self.act_free_doc,
+            self.shortcut_delete_selection,
+            self.shortcut_open_tagedit,
+        ]
+        for wid in disable_wids:
+            wid.setEnabled(status)
+    
+    def syncCurrentSelections(self):
+        selections = self.getCurrentSelection(return_multiple=True)
+        for d in selections:
+            d: DataPoint
+            d.sync()
+        if len(selections) == 1:
+            # only one selection
+            self.offlineStatus(True)
+            self.getInfoPanel().offlineStatus(True)
+            self.getTagPanel().offlineStatus(True)
+
     def loadValidData(self, tags: DataTags, hint = False):
         """Load valid data by tags"""
-        # valid_data = DataList([])
-        # for d in self.getMainPanel().db.values():
-            # if tags.issubset(d.tags):
-                # valid_data.append(d)
         valid_data = self.getMainPanel().db.getDataByTags(tags)
         screen_pattern = self.search_edit.text()
         if screen_pattern != "":
@@ -186,14 +211,12 @@ class FileSelector(FileSelectorGUI):
         """ will be called by signal from bibQuery
         actual file manipulation is implemented in bibQuery
         """
-        self.getMainPanel().db.add(file_path)
-        dp = self.getMainPanel().db[dp.uuid]
+        dp = self.getMainPanel().db.add(file_path)
         self.data_model.add(dp)
     
     def _deleteFromDatabase(self, data: DataPoint):
         if data.uuid in self.getMainPanel().db.keys():
-            shutil.rmtree(data.data_path)
-            del self.getMainPanel().db[data.uuid]
+            self.getMainPanel().db.delete(data.uuid)
     
     def deleteCurrentSelected(self):
         if not self.queryDialog("Delete this entry?"):
@@ -212,12 +235,17 @@ class FileSelector(FileSelectorGUI):
     def onRowChanged(self, current, previous):
         self._info_panel._saveComments()
         row = current.row()
-        data = self.data_model.datalist[row]
+        data: DataPoint = self.data_model.datalist[row]
         self.selection_changed.emit(data)
+        self.offlineStatus(data.is_local)
 
     def doubleClickOnEntry(self):
         data = self.getCurrentSelection()
-        if data is not None:
+        if isinstance(data, DataPoint):
+            if not data.is_local:
+                self.statusBarInfo("Downloading...", bg_color = "blue")
+                self.syncCurrentSelections()
+                self.statusBarInfo("Done", 5, bg_color = "green")
             web_url = data.fm.getWebUrl()
             if not data.fm.openFile():
                 if web_url == "":

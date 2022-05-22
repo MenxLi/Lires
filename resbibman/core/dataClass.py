@@ -1,8 +1,9 @@
 from __future__ import annotations
-import shutil
+import logging
+import shutil, requests, json
 from resbibman.confReader import getConfV
 import typing, re, string, os
-from typing import List, Union, Iterable, Set, TYPE_CHECKING
+from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict
 import difflib
 import markdown
 from .fileTools import FileManipulator, FileGenerator
@@ -37,7 +38,39 @@ class DataPoint:
         """
         self.fm = fm
         self.data_path = fm.path
+        self.__parent_db: DataBase
+        self.__force_offline = False
         self.loadInfo()
+    
+    def _forceOffline(self):
+        """Called when run server"""
+        self.__force_offline = True
+        self.fm._forceOffline()
+    
+    def sync(self) -> bool:
+        if self.uuid in self.par_db.remote_info:
+            remote_info = self.par_db.remote_info[self.uuid]
+            return self.fm._sync(remote_info)
+        else:
+            # New data that remote don't have
+            return self.fm._uploadRemote()
+
+    @property
+    def par_db(self) -> DataBase:
+        return self.__parent_db
+    
+    @par_db.setter
+    def par_db(self, db: DataBase):
+        if not hasattr(self, "__parent_db"):
+            self.__parent_db = db
+        else:
+            self.parent_database.logger.warn("Can't re-assign database for datapoint: {}".format(self))
+    
+    @property
+    def is_local(self):
+        if self.__force_offline:
+            return True
+        return self.fm.has_local
 
     @property
     def file_path(self) -> Union[None, str]:
@@ -49,6 +82,8 @@ class DataPoint:
         else:
             # to decide later
             pass
+        if self.__force_offline:
+            self.fm.forceOffline()
         self.fm.screen()
         self.loadInfo()
 
@@ -131,9 +166,17 @@ class DataPoint:
     def getFileStatusStr(self):
         """If the datapoint contains file"""
         if self.has_file:
-            return "\u2726"
+            if self.is_local:
+                return "\u2726"
+            else:
+                return "\u2726"
+                # return "\u29bf"
         else:
-            return "\u2727"
+            if self.is_local:
+                return "\u2727"
+            else:
+                return "\u2727"
+                # return "\u29be"
 
     def stringCitation(self):
         bib = self.bib
@@ -230,28 +273,117 @@ class DataTableList(DataList):
         return self.header_order[col]
 
 class DataBase(dict):
+    logger = logging.getLogger("rbm")
 
-    def constuct(self, vs: Union[List[str], List[DataPointInfo]]):
+    @property
+    def offline(self) -> bool:
+        if hasattr(self, "_force_offline") and self._force_offline:
+            return True
+        return getConfV("host") == ""
+
+    @property
+    def n_local(self):
+        """Number of local files"""
+        count = 0
+        for uuid, dp in self.items():
+            if dp.is_local:
+                count += 1
+        return count
+    
+    def init(self, db_local = "", force_offline = False):
+        """
+        load both db_local and remote server
+        reset offline status
+        """
+        self._force_offline = force_offline
+        if not self.offline:
+            flist = self.pull()
+            if not flist:
+                # empty may indicate an server error
+                self.constuct([], force_offline=True)
+            else:
+                # server may be back when reload 
+                self.constuct(flist, force_offline=self._force_offline)
+        if db_local:
+            # when load database is provided
+            to_load = []
+            for f in os.listdir(db_local):
+                f_path = os.path.join(db_local, f)
+                if os.path.isdir(f_path):
+                    to_load.append(f_path)
+            self.constuct(to_load)
+
+    def constuct(self, vs: Union[List[str], List[DataPointInfo]], force_offline = False):
+        """
+         - force_offline: use when called by server side
+                         or when server is down
+        """
         for v in vs:
             fm = FileManipulatorVirtual(v)
             if fm.screen():
                 data = DataPoint(fm)
+                if force_offline:
+                    data._forceOffline()
                 self.add(data)
+        if force_offline:
+            self._force_offline = True
 
-    def add(self, data: Union[DataPoint, str]):
+    def pull(self) -> List[DataPointInfo]:
+        """
+        update self.remote_info
+        will not change data
+        """
+        if self.offline:
+            self.logger.info("Offline mode, can't pull database")
+            return []
+
+        addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
+        flist_addr = "{}/filelist/%".format(addr) 
+
+        try:
+            res = requests.get(flist_addr)
+            if res.status_code != 200:
+                self.logger.info("Faild to pull remote data ({})".format(res.status_code))
+                return []
+        except requests.exceptions.ConnectionError:
+            self.logger.warning("Server is down, abort pulling remote data.")
+            return []
+        
+        flist = res.text
+        flist = json.loads(flist)["data"]
+        self.__file_list_remote = flist
+        return flist
+    
+    @property
+    def remote_info(self)-> Dict[str, DataPointInfo]:
+        d = dict()
+        for f_info in self.__file_list_remote:
+            d[f_info["uuid"]] = f_info
+        return d
+
+    def add(self, data: Union[DataPoint, str]) -> DataPoint:
         if isinstance(data, str):
             # path to the data folder
             assert os.path.exists(data)
             fm = FileManipulatorVirtual(data)
             fm.screen()
             data = DataPoint(fm)
+        data.par_db = self
         self[data.uuid] = data
+        return data
     
     def delete(self, uuid: str):
         if uuid in self.keys():
             dp: DataPoint = self[uuid]
             if dp.fm.has_local:
                 shutil.rmtree(dp.data_path)
+            if not self.offline:
+                # If remote has this data, delete remote as well, 
+                # otherwise it will be downloaded again when sync
+                if dp.uuid in self.remote_info:     # Check if is it in remote
+                    if not dp.fm._deleteRemote():
+                        self.logger.info("Oops, the data on the server side hasn't been deleted")
+                        self.logger.warn("You may need to sync->delete again for {}".format(dp))
             del self[uuid]
     
     def getDataByTags(self, tags: Union[list, set, DataTags]) -> DataList:

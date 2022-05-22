@@ -1,6 +1,7 @@
 from io import TextIOWrapper
 import time, datetime, re, random, string
-import subprocess, os, platform, sys
+import subprocess, os, platform, sys, threading
+from typing import Callable
 from ..confReader import LOG_FILE
 import pyperclip as pc
 from functools import wraps
@@ -40,6 +41,13 @@ def isWebURL(text: str):
         r'(?::\d+)?' # optional port
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return re.match(regex, text) is None
+
+def delay_exec(func: Callable, delay_time: float, *args, **kwargs):
+    def _func():
+        time.sleep(delay_time)
+        func(*args, **kwargs)
+    thread = threading.Thread(target=_func, args=())
+    thread.start()
 
 class Logger():
     # https://cloud.tencent.com/developer/article/1643418

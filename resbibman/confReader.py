@@ -45,6 +45,7 @@ _VERSION_HISTORIES = [
     ("0.3.13", "Not automatically save comment, show comment save indicator on info panel; reset_conf option in CLI"),
     ("0.4.0", "Offline html support"),
     ("0.4.1", "Panel collapse buttons; Markdown highlight improvements; UI changes; Minor bug fixes"),
+    ("0.5.0", "Online mode!!"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

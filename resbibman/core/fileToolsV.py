@@ -31,6 +31,7 @@ class FileManipulatorVirtual(FileManipulator):
          - v [str]: local data path, 
                 to construct local file manipulator
         """
+        self.__force_offline = False
         if isinstance(v, str):
             super().__init__(v)
         else:
@@ -40,6 +41,9 @@ class FileManipulatorVirtual(FileManipulator):
             self.path = os.path.join(TMP_DB, self.base_name)
 
             self._v_info = v    # a backup of the Datapoint Info
+    
+    def _forceOffline(self):
+        self.__force_offline = True
     
     @property
     def v_info(self) -> Union[DataPointInfo, dict]:
@@ -51,18 +55,18 @@ class FileManipulatorVirtual(FileManipulator):
 
     @property
     def offline(self) -> bool:
-        """ check if remote server has been set """
+        if self.__force_offline:
+            return True
         return getConfV("host") == ""
 
     @property
     def has_local(self) -> bool:
         """
-        check if has synchronized local file
+        check if has (synchronized) local file
         """
         if self.offline:
             return True
-        else:
-            return os.path.exists(self.path)
+        return os.path.exists(self.path)
 
     @property
     def is_uptodate(self) -> bool:
@@ -72,18 +76,29 @@ class FileManipulatorVirtual(FileManipulator):
         if not self.has_local:
             return False
 
-        pass
+        # To change later
+        # ...
 
-    def sync(self) -> bool:
+        return True
+
+    def _sync(self, v_info_update: DataPointInfo) -> bool:
         """
         Download if not local
-        Upload if has local file
-        Delete if has local file and not in remote
+        Upload if has local file and uptodate
         """
+        if self.offline:
+            return
+        print(v_info_update)
         # Check is_uptodate when uploading
-        pass
+        if self.offline:
+            self.logger.info("Set host to enable online mode")
+            return False
+        if not self.has_local:
+            return self._downloadRemote()
     
     def _uploadRemote(self) -> bool:
+        if self.offline:
+            return
         uuid = self.uuid
         interm_file_p = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
         compressDir(self.path, interm_file_p)
@@ -105,6 +120,8 @@ class FileManipulatorVirtual(FileManipulator):
             return True
 
     def _downloadRemote(self) -> bool:
+        if self.offline:
+            return
         uuid = self.uuid
         post_args = {
             "key": generateHexHash(getConfV("access_key")),
@@ -127,6 +144,8 @@ class FileManipulatorVirtual(FileManipulator):
         return self.screen()
     
     def _deleteRemote(self) -> bool:
+        if self.offline:
+            return False
         uuid = self.uuid
         post_args = {
             "key": generateHexHash(getConfV("access_key")),
@@ -159,6 +178,7 @@ class FileManipulatorVirtual(FileManipulator):
         if self.has_local:
             return super().changeBasename(new_basename)    
         else:
+            # delete remote old
             ...
     
     def hasFile(self):

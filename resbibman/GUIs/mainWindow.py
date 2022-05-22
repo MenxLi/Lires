@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
 from PyQt5.QtCore import Qt
 
-from .widgets import WidgetBase
+from .widgets import RefWidgetBase, WidgetBase
 from .fileInfo import FileInfo
 from .fileTags import FileTag
 from .fileSelector import FileSelector
@@ -17,13 +17,13 @@ from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser
 from ..core.utils import openFile
 from ..core.dataClass import DataTags, DataBase, DataPoint
-from ..confReader import DOC_PATH, getConf, ICON_PATH, VERSION
-import os, copy, typing
+from ..confReader import DOC_PATH, TMP_DB, getConf, ICON_PATH, VERSION, getConfV
+import os, copy, typing, requests
 
 # for testing propose
 from .fileTags import TagSelector
 
-class MainWindowGUI(QMainWindow, WidgetBase):
+class MainWindowGUI(QMainWindow, RefWidgetBase):
     def __init__(self):
         super().__init__()
         self.db = DataBase()
@@ -74,6 +74,11 @@ class MainWindowGUI(QMainWindow, WidgetBase):
         self.file_tags = FileTag(self)
         self.file_info = FileInfo(self)
         self.file_selector = FileSelector(self)
+
+        self.setMainPanel(self)
+        self.setInfoPanel(self.file_info)
+        self.setSelectPanel(self.file_selector)
+        self.setTagPanel(self.file_tags)
 
         self.file_tags.setMainPanel(self)
         self.file_tags.setInfoPanel(self.file_info)
@@ -160,8 +165,7 @@ class MainWindow(MainWindowGUI):
         self.logger.debug("Configuration: ")
         self.logger.debug(getConf())
         self.initActions()
-        self.loadData(getConf()["database"])
-        self.statusBarMsg("Welcome!")
+        self.reloadData()
 
     def initActions(self):
         self.act_settings.triggered.connect(self.openSettingsDialog)
@@ -195,17 +199,16 @@ class MainWindow(MainWindowGUI):
 
         self._panel_status = tuple(status)
         return self.toggleLayout(self._panel_status)
-
+    
     def loadData(self, data_path):
         self.db = DataBase()
-        to_load = []
-        for f in os.listdir(data_path):
-            f = os.path.join(data_path, f)
-            if os.path.isdir(f):
-                to_load.append(f)
-        self.db.constuct(to_load)
+        if getConf()["host"] != "":
+            # Online mode
+            self.statusBarInfo("Requesting remote server", bg_color = "blue")
+        self.db.init(data_path)
         self.file_selector.loadValidData(set(getConf()["default_tags"]), hint = True)
         self.file_tags.initTags(self.getTotalTags())
+        self.statusBarInfo("Success", 2, bg_color = "green")
 
     def getCurrentSelection(self)->typing.Union[None, DataPoint]:
         return self.file_selector.getCurrentSelection()
@@ -246,7 +249,10 @@ class MainWindow(MainWindowGUI):
         self.set_win.show()
     
     def openDataBaseDir(self):
-        database = getConf()["database"]
+        if getConf()["host"]:
+            database = TMP_DB
+        else:
+            database = getConf()["database"]
         openFile(database)
     
     def openHelpFile(self):
@@ -336,9 +342,45 @@ class MainWindow(MainWindowGUI):
         self.pending_win.show()
     
     def reloadData(self):
-        self.loadData(getConf()["database"])
+        if getConf()["host"]:
+            try:
+                # reload server
+                addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
+                req_reloadDB = addr + "/cmd/reloadDB"
+                requests.get(req_reloadDB)
+                # loadData
+                self.loadData(TMP_DB)
+                # sync local with remote
+                n_local = self.db.n_local
+                _count = 0
+                for uuid, dp in self.db.items():
+                    dp: DataPoint
+                    if dp.is_local:
+                        _count += 1
+                        self.statusBarInfo(f"Sync with remote: {_count}/{n_local}", bg_color = "blue")
+                        dp.sync()
+                self.statusBarInfo("Successfully synchronized", 5, bg_color = "green")
+            except requests.exceptions.ConnectionError:
+                self.statusBarInfo("Connection error", 5, bg_color = "red")
+                self.logger.warning("Server is down, not reload server.")
+                self.logger.debug("May fall into offline mode.")
+                self.loadData(getConf()["database"])
+        else:
+            # local dir
+            self.loadData(getConf()["database"])
         self.file_info.clearPanel()
         
-    def statusBarMsg(self, msg: str):
-        prefix = "ResBibMan-v{}: ".format(VERSION)
-        self.status_bar.showMessage(prefix + msg)
+    def statusBarMsg(self, msg: str, bg_color = "none"):
+        if self.db.offline:
+            prefix = "ResBibMan-v{} (offline): ".format(VERSION)
+        else:
+            prefix = "ResBibMan-v{} (online): ".format(VERSION)
+        color = {
+           "none" : "QStatusBar{background:rgba(0,0,0,0)}",
+           "red" : "QStatusBar{background:rgba(255,0,0,150)}",
+           "green" : "QStatusBar{background:rgba(0,255,0,150)}",
+           "blue" : "QStatusBar{background:rgba(0,0,255,150)}",
+        }
+        self.statusBar().setStyleSheet(color[bg_color])
+        # self.statusBar().setStyleSheet(f"color : {txt_color}")
+        self.statusBar().showMessage(prefix + msg)

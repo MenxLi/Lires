@@ -17,6 +17,7 @@ from .mdHighlighter import MarkdownSyntaxHighlighter
 
 
 class FileInfoGUI(MainWidgetBase):
+    TEDIT_SYNC_PROPMT = "Sync to edit"
     def __init__(self, parent = None):
         super().__init__(parent)
         self.parent = parent
@@ -126,6 +127,30 @@ class FileInfo(FileInfoGUI):
         self.tEdit.textChanged.connect(self.onCommentChange)
         self.weburl_edit.textChanged.connect(self.saveWebURL)
     
+    def offlineStatus(self, status: bool = True):
+        super().offlineStatus(status)
+        if not status:
+            self.tEdit.setText(self.TEDIT_SYNC_PROPMT)
+        else:
+            # Load comments when sync download
+            comment = self.curr_data.fm.readComments()
+            self.tEdit.setText(comment)
+            # To avoid status change when clicking on a new data point
+            self.setCommentSaveStatusLbl("saved")
+            self.__updateCover(self.curr_data)
+            self.__renderMarkdown()
+
+        self.tEdit.setEnabled(status)
+        self.weburl_edit.setEnabled(status)
+        self.mdBrowser.setEnabled(status)
+        self.open_folder_btn.setEnabled(status)
+        self.open_bib_btn.setEnabled(status)
+        self.open_commets_btn.setEnabled(status)
+        self.open_folder_btn.setEnabled(status)
+        self.save_comment_btn.setEnabled(status)
+        self.refresh_btn.setEnabled(status)
+        self.mdTab.setEnabled(status)
+    
     def clearPanel(self):
         self.logger.debug("Clear info panel")
         self.curr_data = None
@@ -153,13 +178,18 @@ class FileInfo(FileInfoGUI):
         self.logger.debug("Load data point to info panel: {}".format(data.uuid))
         self.curr_data = data
         self.info_lbl.setText(data.stringInfo())
-        comment = self.curr_data.fm.readComments()
-        self.tEdit.setText(comment)
-        # To avoid status change when clicking on a new data point
-        self.setCommentSaveStatusLbl("saved")
         self.weburl_edit.setText(data.fm.getWebUrl())
         self.__updateCover(data)
-        self.__renderMarkdown()
+        if data.is_local:
+            comment = self.curr_data.fm.readComments()
+            self.offlineStatus(True)
+            self.tEdit.setText(comment)
+            # To avoid status change when clicking on a new data point
+            self.setCommentSaveStatusLbl("saved")
+            self.__renderMarkdown()
+        else:
+            self.offlineStatus(False)
+            self.setCommentSaveStatusLbl("none")
     
     def changeTab(self, index):
         self.logger.debug("On tab change")
@@ -269,6 +299,9 @@ class FileInfo(FileInfoGUI):
     def _saveComments(self) -> bool:
         if not self.curr_data is None:
             comment = self.tEdit.toPlainText()
+            if comment == self.TEDIT_SYNC_PROPMT:
+                # Don't save this...
+                return False
             self.curr_data.fm.writeComments(comment)
             self.setCommentSaveStatusLbl("saved")
             return True
@@ -290,13 +323,16 @@ class FileInfo(FileInfoGUI):
         self.cover_label.setScaledContents(False)
         if data is None:
             cover = QtGui.QPixmap(os.path.join(ICON_PATH, "error-48px.png"))
+        elif not data.is_local:
+            # Unsynchronized
+            cover = QtGui.QPixmap(os.path.join(ICON_PATH, "outline_cloud_black_48dp.png"))
         elif data.file_path is None:
-            # No file or not PDF file
+            # No file
             if data.fm.getWebUrl() == "":
                 cover = QtGui.QPixmap(os.path.join(ICON_PATH, "error-48px.png"))
             else:
                 # if has url thus clickable
-                cover = QtGui.QPixmap(os.path.join(ICON_PATH, "outline_cloud_black_48dp.png"))
+                cover = QtGui.QPixmap(os.path.join(ICON_PATH, "cloud_black_48dp.svg"))
         elif data.file_path.endswith(".pdf"):
             cover = getPDFCoverAsQPixelmap(data.fm.file_p)
         else:

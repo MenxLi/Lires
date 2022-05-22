@@ -16,7 +16,6 @@ def compressDir(dir_path: str, dst_path: str) -> str:
     with zipfile.ZipFile(dst_path, "w", zipfile.ZIP_DEFLATED) as zp:
         for f_ in files:
             zp.write(f_, arcname=f_.replace(dir_path, ""), compress_type=zipfile.ZIP_DEFLATED)
-    print("created zip file: ", dst_path)
     return dst_path
 
 def decompressDir(zip_path: str, dst_path: str) -> str:

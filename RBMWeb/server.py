@@ -19,6 +19,7 @@ class RequestHandlerBase():
         enc_key = self.get_argument("key")
         if not queryHashKey(enc_key):
             # unauthorized
+            print("Reject key, abort")
             raise tornado.web.HTTPError(401) 
         return
 
@@ -37,6 +38,7 @@ class FileListHandler(tornado.web.RequestHandler, RequestHandlerBase):
         """
         global db_reader
 
+        print("receiving file list request")
         # self.checkKey()
 
         self.setDefaultHeader()
@@ -92,6 +94,7 @@ class CMDHandler(tornado.web.RequestHandler, RequestHandlerBase):
 
     def get(self, cmd):
         if cmd == "reloadDB":
+            print("receiving reload Database command")
             self._reloadDB()
 
 class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
@@ -127,18 +130,15 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
             os.mkdir(self.zip_tmp_dir)
 
     def post(self):
-        """
-         - cmd: <command>-<uuid>
-        """
         global db_reader
         db = db_reader.db
-
-        self.checkKey()
 
         self.setDefaultHeader()
         cmd = self.get_argument("cmd")
         uuid = self.get_argument("uuid")
-        print(cmd, uuid)
+        print("Receiving file request: ", cmd, uuid)
+
+        self.checkKey()
 
         if cmd == "download":
             dp: DataPoint = db[uuid]

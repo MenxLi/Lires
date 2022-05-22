@@ -47,6 +47,14 @@ class FileTagGUI(MainWidgetBase):
 
         vbox0.addWidget(self.tagselector_frame, 5)
         vbox0.addWidget(self.filetagselector_frame, 0)
+    
+    def offlineStatus(self, status: bool):
+        super().offlineStatus(status)
+        disable_wids = [
+            self.edit_tag_btn
+        ]
+        for wid in disable_wids:
+            wid.setEnabled(status)
 
 
 class FileTag(FileTagGUI):
@@ -110,6 +118,7 @@ class FileTag(FileTagGUI):
     def updateTagLabel(self, data: DataPoint):
         if isinstance(data, DataPoint):
             self.file_tag_label.setText(data.tags.toStr())
+            self.offlineStatus(data.is_local)
     
     def _getTagFromCurrSelection(self) -> DataTags:
         data = self.getSelectPanel().getCurrentSelection()

@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 from PyQt5.QtWidgets import QWidget, QMessageBox, QDesktopWidget
 
+from ..core.utils import delay_exec
+
 if TYPE_CHECKING:
     from .mainWindow import MainWindow
     from .fileInfo import FileInfo
@@ -57,6 +59,24 @@ class RefWidgetBase(WidgetBase):
         self._select_panel = None
         self._info_panel = None
         self._tag_panel = None
+        self._offline_status = True
+    
+    def statusBarInfo(self, info: str, time: float = -1, **kwargs):
+        self.getMainPanel().statusBarMsg(info, **kwargs)
+        if time>0:
+            delay_exec(self.getMainPanel().statusBarMsg, time, \
+                msg = "Welcome!", bg_color = "none")
+    
+    def offlineStatus(self, status: bool):
+        """
+        To be called when change datapoint
+        e.g. Set widgets enable status
+        """
+        if self._offline_status == status:
+            # No need to run if status unchanged
+            # prevent some circular call
+            return
+        self._offline_status = status
 
     def setMainPanel(self, panel: MainWindow):
         self._main_panel = panel

@@ -44,13 +44,12 @@ class DatabaseReader:
         print("Loading database...")
         self.db_path = db_path
         self.db = DataBase()
+        valid_f = []
         for f in os.listdir(db_path):
             f = os.path.join(db_path, f)
             if os.path.isdir(f):
-                fm = FileManipulatorVirtual(f)
-                if fm.screen():
-                    data = DataPoint(fm)
-                    self.db[data.uuid] = copy.deepcopy(data)
+                valid_f.append(f)
+        self.db.constuct(valid_f, force_offline=True)
         print("Finish.")
 
     def getDictDataFromDataPoint(self, dp: DataPoint) -> DataPointInfo:

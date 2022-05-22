@@ -14,11 +14,11 @@ flist = json.loads(flist)["data"]
 
 db = DataBase()
 db.constuct(flist)
-vfm = FileManipulatorVirtual("/tmp/ResBibMan/Database/2022-sss-ttt")
-vfm.screen()
-db.add(DataPoint(vfm))
+# vfm = FileManipulatorVirtual("/tmp/ResBibMan/Database/2022-sss-ttt")
+# vfm.screen()
+# db.add(DataPoint(vfm))
 
-uuid = "ffe75f2f-5ecc-48f4-86ab-d98797c3d7c9"
+uuid = "daf5a770-be8e-4563-8dfd-a75c3c8e9896"
 # db[uuid].fm._download()
 
 print(db)
