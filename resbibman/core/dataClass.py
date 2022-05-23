@@ -15,6 +15,7 @@ except (FileNotFoundError, KeyError):
     pass
 from .bibReader import BibParser
 from .utils import HTML_TEMPLATE_RAW
+from . import globalVar as G
 
 if TYPE_CHECKING:
     from RBMWeb.backend.rbmlibs import DataPointInfo
@@ -36,6 +37,7 @@ class DataTags(set):
 
 class DataPoint:
     COMMENT_HTML_TEMPLATE = string.Template(HTML_TEMPLATE_RAW)
+    logger = G.logger_rbm
     def __init__(self, fm: FileManipulatorVirtual):
         """
         The basic data structure that hold single data
@@ -55,9 +57,11 @@ class DataPoint:
     def sync(self) -> bool:
         if self.uuid in self.par_db.remote_info:
             remote_info = self.par_db.remote_info[self.uuid]
-            return self.fm._sync(remote_info)
+            self.fm.v_info = remote_info
+            return self.fm._sync()
         else:
             # New data that remote don't have
+            self.logger.info("Creating new data remote {}".format(self.uuid))
             return self.fm._uploadRemote()
 
     @property
@@ -69,7 +73,7 @@ class DataPoint:
         if not hasattr(self, "__parent_db"):
             self.__parent_db = db
         else:
-            self.parent_database.logger.warn("Can't re-assign database for datapoint: {}".format(self))
+            self.par_db.logger.warn("Can't re-assign database for datapoint: {}".format(self))
     
     @property
     def is_local(self):
@@ -145,7 +149,7 @@ class DataPoint:
     
     def screenByPattern(self, pattern):
         # string = self.title+";"+";".join(self.authors)+";"+self.year
-        string = self.stringInfo()
+        string = self.stringInfo() + "\n" + self.uuid
         string = string.lower()
         pattern = pattern.lower()
         result = re.search(pattern, string)
@@ -193,7 +197,6 @@ class DataPoint:
         elif "booktitle" in bib:
             string += ". {}".format(bib["booktitle"][0])
         string += "."
-        print(string)
         return string
 
     def getAuthorsAbbr(self):
@@ -278,7 +281,7 @@ class DataTableList(DataList):
         return self.header_order[col]
 
 class DataBase(dict):
-    logger = logging.getLogger("rbm")
+    logger = G.logger_rbm
 
     @property
     def offline(self) -> bool:

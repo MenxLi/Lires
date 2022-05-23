@@ -3,7 +3,7 @@ The tools that deals with files in the database
 """
 from distutils import extension
 from pathlib import Path
-import os, shutil, json, platform, typing, uuid
+import os, shutil, json, platform, typing, uuid, logging
 from typing import List, Union, TypedDict
 import warnings
 from . import globalVar as G
@@ -370,6 +370,7 @@ class FileManipulator:
         data["tags"] = tags
         with open(self.info_p, "w", encoding = "utf-8") as f:
             json.dump(data, f)
+        self._log()
         return
 
     def openFile(self):
@@ -380,6 +381,7 @@ class FileManipulator:
             openTmp_hpack(self.file_p)
         else:
             openFile(self.file_p)
+            self._log()     # change time modified.
         return True
 
     def openMiscDir(self):

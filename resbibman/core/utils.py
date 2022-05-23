@@ -10,6 +10,9 @@ from uuid import uuid4
 def getDateTime():
     return str(datetime.datetime.now())[:-7]
 
+def strtimeToDatetime(t: str) -> datetime.datetime:
+    return datetime.datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
+
 def openFile(filepath):
     # https://stackoverflow.com/questions/434597/open-document-with-default-os-application-in-python-both-in-windows-and-mac-os
 

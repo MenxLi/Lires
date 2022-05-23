@@ -3,8 +3,9 @@ Virtual (Remote) file tools
 """
 from __future__ import annotations
 import os, typing, requests, zipfile, shutil
-from typing import TYPE_CHECKING, Union, overload
+from typing import TYPE_CHECKING, Union, overload, Literal
 
+from .utils import strtimeToDatetime
 from .fileTools import FileGenerator, FileManipulator
 from .encryptClient import generateHexHash
 from .compressTools import decompressDir, compressDir
@@ -53,6 +54,11 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             return dict()
 
+    @v_info.setter
+    def v_info(self, v_info_update: DataPointInfo):
+        # Maybe update v_info when synchronized
+        self._v_info = v_info_update
+
     @property
     def offline(self) -> bool:
         if self.__force_offline:
@@ -69,36 +75,53 @@ class FileManipulatorVirtual(FileManipulator):
         return os.path.exists(self.path)
 
     @property
-    def is_uptodate(self) -> bool:
+    def is_uptodate(self) -> Literal["behind", "same", "advance"]:
         """
         Check if a local file is up to date with remote,
         """
         if not self.has_local:
-            return False
+            return "same"
 
-        # To change later
-        # ...
+        local_time_modified = strtimeToDatetime(self.getTimeModified())
+        remote_time_modified = strtimeToDatetime(self.v_info["time_modified"])
 
-        return True
+        if local_time_modified == remote_time_modified:
+            return "same"
+        elif local_time_modified > remote_time_modified:
+            return "advance"
+        else:
+            return "behind"
 
-    def _sync(self, v_info_update: DataPointInfo) -> bool:
+    def _sync(self) -> bool:
         """
-        Download if not local
-        Upload if has local file and uptodate
+        Sync with remote, data is assumed to be both local (may in virtual form) and remote
+        use self._uploadRemote to upload a new file
+        Please use DataPoint.sync()
         """
         if self.offline:
-            return
-        print(v_info_update)
-        # Check is_uptodate when uploading
+            return False
         if self.offline:
             self.logger.info("Set host to enable online mode")
             return False
         if not self.has_local:
+            # download if not loacl
             return self._downloadRemote()
+        # Check is_uptodate when uploading
+        update_status = self.is_uptodate
+        if update_status == "advance":
+            self.logger.debug("sync (fm): uploading {}".format(self.uuid))
+            return self._uploadRemote()
+        elif update_status == "behind":
+            self.logger.warning("sync (fm): Remote file may have been changed, abort uploading {}".format(self.uuid))
+            return False
+        else:
+            # same
+            self.logger.debug("sync (fm): remote unchanged {}".format(self.uuid))
+            return True
     
     def _uploadRemote(self) -> bool:
         if self.offline:
-            return
+            return False
         uuid = self.uuid
         interm_file_p = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
         compressDir(self.path, interm_file_p)
@@ -121,7 +144,7 @@ class FileManipulatorVirtual(FileManipulator):
 
     def _downloadRemote(self) -> bool:
         if self.offline:
-            return
+            return False
         uuid = self.uuid
         post_args = {
             "key": generateHexHash(getConfV("access_key")),
@@ -152,8 +175,10 @@ class FileManipulatorVirtual(FileManipulator):
             "cmd": "delete",
             "uuid": uuid
         }
+        self.logger.debug("Request remote delete {}".format(uuid))
         res = requests.post(self.POST_URL, params = post_args)
         if not self._checkRes(res):
+            self.logger.warning("Remote delete failed for {}".format(uuid))
             return False
         return True
     
@@ -162,8 +187,10 @@ class FileManipulatorVirtual(FileManipulator):
         Check if response is valid
         """
         status_code = res.status_code
+        if status_code != 200:
+            self.logger.debug("Get response {}".format(res.status_code))
         if status_code == 401:
-            self.logger.info("Unauthorized access")
+            self.logger.warning("Unauthorized access")
         return res.ok
 
     #=========================== Below emulate local manipulator class
@@ -176,10 +203,13 @@ class FileManipulatorVirtual(FileManipulator):
 
     def changeBasename(self, new_basename: str) -> bool:
         if self.has_local:
-            return super().changeBasename(new_basename)    
-        else:
+            name_changed = super().changeBasename(new_basename)    
             # delete remote old
-            ...
+            if name_changed and not self.offline:
+                self._deleteRemote()
+            return name_changed
+        else:
+            raise NotImplementedError
     
     def hasFile(self):
         if self.has_local:
@@ -215,7 +245,7 @@ class FileManipulatorVirtual(FileManipulator):
         if self.has_local:
             return super().readComments()
         else:
-            ...
+            return ""
     
     def writeComments(self, comments: str):
         if self.has_local:
@@ -293,7 +323,7 @@ class FileManipulatorVirtual(FileManipulator):
         if self.has_local:
             return super().deleteDocument()
         else:
-            ...
+            raise NotImplementedError
     
     def _log(self):
         if self.has_local:

@@ -233,10 +233,15 @@ class FileSelector(FileSelectorGUI):
         self.reloadData()
     
     def onRowChanged(self, current, previous):
-        self._info_panel._saveComments()
+        # self._info_panel._saveComments()
         row = current.row()
         data: DataPoint = self.data_model.datalist[row]
-        self.selection_changed.emit(data)
+
+        # decide if un-saved comments
+        if self.getInfoPanel().queryCommentSaveStatus() == "changed":
+            self.statusBarInfo("You may have un-saved changes lost...", 3.5, bg_color = "red")
+
+        self.selection_changed.emit(data)       # info panel will change here
         self.offlineStatus(data.is_local)
 
     def doubleClickOnEntry(self):

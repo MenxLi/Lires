@@ -254,9 +254,15 @@ class FileInfo(FileInfoGUI):
         data = self.curr_data
         if data is None:
             return "none"
-        saved_comments = data.fm.readComments()
-        curr_comments = self.tEdit.toPlainText()
-        if saved_comments == curr_comments:
+        # saved_comments = data.fm.readComments()
+        # curr_comments = self.tEdit.toPlainText()
+        # if saved_comments == curr_comments:
+            # return "saved"
+        # else:
+            # return "changed"
+        if self.comment_save_indicate_lbl.text() == "":
+            return "none"
+        elif self.comment_save_indicate_lbl.text() == "saved.":
             return "saved"
         else:
             return "changed"
