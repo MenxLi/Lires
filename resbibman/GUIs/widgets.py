@@ -1,5 +1,5 @@
 from __future__ import annotations
-import typing, logging
+import typing, logging, threading
 from typing import TYPE_CHECKING
 
 from PyQt5.QtWidgets import QWidget, QMessageBox, QDesktopWidget
@@ -63,6 +63,9 @@ class RefWidgetBase(QWidget, WidgetBase):
         self._offline_status = True
     
     def statusBarInfo(self, info: str, time: float = -1, **kwargs):
+        #  f_ = lambda : self.getMainPanel().statusBarMsg(info, **kwargs)
+        #  t_ = threading.Thread(target = f_, args = ())
+        #  t_.start()
         self.getMainPanel().statusBarMsg(info, **kwargs)
         if time>0:
             delay_exec(self.getMainPanel().statusBarMsg, time, \

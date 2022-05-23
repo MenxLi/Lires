@@ -98,9 +98,9 @@ def getConf():
 
 def getDatabase(offline: bool):
     if offline:
-        return TMP_DB
-    else:
         return getConf()["database"]
+    else:
+        return TMP_DB
 
 def getConfV(key : str):
     return getConf()[key]

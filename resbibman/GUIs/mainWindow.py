@@ -17,7 +17,7 @@ from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser
 from ..core.utils import openFile
 from ..core.dataClass import DataTags, DataBase, DataPoint
-from ..confReader import DOC_PATH, TMP_DB, getConf, ICON_PATH, VERSION, getConfV
+from ..confReader import DOC_PATH, TMP_DB, getConf, ICON_PATH, VERSION, getConfV, getDatabase
 import os, copy, typing, requests
 
 # for testing propose
@@ -323,7 +323,7 @@ class MainWindow(MainWindowGUI):
             year = bib["year"],
             authors = bib["authors"]
         )
-        if not fg.generateDefaultFiles(data_dir=getConf()["database"]):
+        if not fg.generateDefaultFiles(getDatabase(self.db.offline)):
             return 
         dst_dir = fg.dst_dir
         fm = FileManipulatorVirtual(dst_dir)

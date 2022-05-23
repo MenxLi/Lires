@@ -106,7 +106,7 @@ class FileGenerator(FileGeneratorBase):
         self._generateBibFile() # Blank file
         self._generateCommentFile()
         self._generateInfoFile()
-        print("File generated")
+        G.logger_rbm.info("File generated at: {}".format(self.dst_dir))
         return True
 
     @classmethod
