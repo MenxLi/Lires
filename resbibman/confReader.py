@@ -46,6 +46,7 @@ _VERSION_HISTORIES = [
     ("0.4.0", "Offline html support"),
     ("0.4.1", "Panel collapse buttons; Markdown highlight improvements; UI changes; Minor bug fixes"),
     ("0.5.0", "Online mode!!"),
+    ("0.5.1", "Synchronize strategy update; GUI host settings; PDF cover cache; Move some window to dialog class; Clear cache CLI"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
