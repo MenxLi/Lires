@@ -22,11 +22,11 @@ setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent"
     ],
-    python_requires=">=3.5.2",
+    python_requires=">=3.8.0",      # TypedDict was introduced after 3.8
 
     include_package_data = True,
 
-    install_requires = ["PyQt5", "pybtex", "pyperclip", "PyMuPDF>=1.19.3", "PyQtWebEngine", "markdown", "tornado"],
+    install_requires = ["PyQt5", "pybtex", "pyperclip", "PyMuPDF>=1.19.3", "PyQtWebEngine", "markdown", "tornado", "requests"],
 
     entry_points = {
         "console_scripts":[

@@ -6,8 +6,13 @@ import typing, re, string, os
 from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict
 import difflib
 import markdown
-from .fileTools import FileManipulator, FileGenerator
-from .fileToolsV import FileManipulatorVirtual
+from .fileTools import FileGenerator
+try:
+    # may crash when generating config file withouot config file...
+    # because getConf was used in constructing static variable
+    from .fileToolsV import FileManipulatorVirtual
+except (FileNotFoundError, KeyError):
+    pass
 from .bibReader import BibParser
 from .utils import HTML_TEMPLATE_RAW
 

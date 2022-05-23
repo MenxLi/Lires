@@ -5,3 +5,4 @@ PyMuPDF
 PyQtWebEngine
 markdown
 pyperclip
+requests
