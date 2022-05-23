@@ -362,6 +362,7 @@ class MainWindow(MainWindowGUI):
                     if dp.is_local:
                         _count += 1
                         self.statusBarInfo(f"Sync with remote: {_count}/{n_local}", bg_color = "blue")
+                        self.logger.info(f"Sync with remote: {_count}/{n_local}")
                         dp.sync()
                 self.statusBarInfo("Successfully synchronized", 5, bg_color = "green")
             except requests.exceptions.ConnectionError:

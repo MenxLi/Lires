@@ -44,7 +44,8 @@ class FileGeneratorBase:
             ",":"^",
             ":":"",
             "/":"-",
-            "\\":"-"
+            "\\":"-",
+            "?":"",
         }
         for k, v in substitute_table.items():
             string = string.replace(k, v)
