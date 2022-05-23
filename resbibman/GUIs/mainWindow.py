@@ -166,6 +166,10 @@ class MainWindow(MainWindowGUI):
         self.logger.debug(getConf())
         self.initActions()
         self.reloadData()
+    
+    @property
+    def database(self):
+        return self.db
 
     def initActions(self):
         self.act_settings.triggered.connect(self.openSettingsDialog)

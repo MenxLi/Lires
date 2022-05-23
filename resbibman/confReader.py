@@ -94,6 +94,12 @@ def getConf():
     conf["database"] = os.path.normpath(conf["database"])
     return conf
 
+def getDatabase(offline: bool):
+    if offline:
+        return TMP_DB
+    else:
+        return getConf()["database"]
+
 def getConfV(key : str):
     return getConf()[key]
 

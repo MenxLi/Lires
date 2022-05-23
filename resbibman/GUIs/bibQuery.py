@@ -11,7 +11,7 @@ from .tagEditor import TagEditor
 from ..core.bibReader import BibParser
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
-from ..confReader import getConf, DOC_PATH
+from ..confReader import getConf, DOC_PATH, getDatabase
 from ..core.utils import sssUUID
 from .widgets import WidgetBase
 from .bibtexEditor import BibEditor
@@ -118,7 +118,7 @@ class BibQuery(BibQueryGUI):
                 self.close()
                 return
 
-        if not fg.generateDefaultFiles(data_dir=getConf()["database"]):
+        if not fg.generateDefaultFiles(getDatabase(self.db.offline)):
             self.add_to_pending.emit(self.file_path)
             self.close()
             return 
