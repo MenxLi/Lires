@@ -4,7 +4,7 @@ import warnings
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit
 from .widgets import MainWidgetBase
-from ..confReader import ICON_PATH, getConfV
+from ..confReader import ICON_PATH, getConfV, TMP_COVER
 from ..core.fileTools import FileManipulator
 from ..core.bibReader import BibParser
 from ..core.dataClass import DataPoint
@@ -340,7 +340,13 @@ class FileInfo(FileInfoGUI):
                 # if has url thus clickable
                 cover = QtGui.QPixmap(os.path.join(ICON_PATH, "cloud_black_48dp.svg"))
         elif data.file_path.endswith(".pdf"):
-            cover = getPDFCoverAsQPixelmap(data.fm.file_p)
+            _tmp_cover = os.path.join(TMP_COVER, data.uuid + ".png")
+            if os.path.exists(_tmp_cover):
+                cover = QtGui.QPixmap(_tmp_cover)
+            else:
+                cover = getPDFCoverAsQPixelmap(data.fm.file_p)
+                cover.save(_tmp_cover)
+                self.logger.debug("Created temp cover file at: {}".format(_tmp_cover))
         else:
             cover = QtGui.QPixmap(os.path.join(ICON_PATH, "description_black_48dp.svg"))
 

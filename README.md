@@ -26,8 +26,8 @@ Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this s
 - [x] To use TableView of the selection panel
 - [x] PDF cover preview
 - [x] Change bib
+- [x] Use cache to accelerate pdf preview
 - [ ] Redirect some logging to status bar
-- [ ] Use cache to accelerate
 - [ ] Other citation format convert to bibtex
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
 - [ ] User info
