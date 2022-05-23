@@ -1,4 +1,3 @@
-from faulthandler import disable
 import webbrowser
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QShortcut, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
@@ -9,6 +8,7 @@ from typing import List, overload, Union, Literal
 from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase
 from .bibtexEditor import BibEditorWithOK
+from ..core import globalVar as G
 from ..core.fileTools import FileManipulator
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from ..core.utils import copy2clip, openFile
@@ -103,16 +103,21 @@ class FileSelector(FileSelectorGUI):
         for wid in disable_wids:
             wid.setEnabled(status)
     
-    def syncCurrentSelections(self):
+    def syncCurrentSelections(self) -> bool:
         selections = self.getCurrentSelection(return_multiple=True)
+        SUCCESS = True
+        if selections is None:
+            return False
         for d in selections:
             d: DataPoint
-            d.sync()
-        if len(selections) == 1:
-            # only one selection
+            if not d.sync():
+                SUCCESS = False
+        if len(selections) == 1 and selections[0].is_local:
+            # only one selection and sync successed
             self.offlineStatus(True)
             self.getInfoPanel().offlineStatus(True)
             self.getTagPanel().offlineStatus(True)
+        return SUCCESS
 
     def loadValidData(self, tags: DataTags, hint = False):
         """Load valid data by tags"""
@@ -219,7 +224,10 @@ class FileSelector(FileSelectorGUI):
             self.getMainPanel().db.delete(data.uuid)
     
     def deleteCurrentSelected(self):
-        if not self.queryDialog("Delete this entry?"):
+        query_line = "Delete this entry?"
+        if not self.getMainPanel().database.offline:
+            query_line += "\n(Will delete remote file as well)"
+        if not self.queryDialog(query_line):
             return 
         indexes = self.data_view.selectedIndexes()
         if indexes:
@@ -249,10 +257,13 @@ class FileSelector(FileSelectorGUI):
         if isinstance(data, DataPoint):
             if not data.is_local:
                 self.statusBarInfo("Downloading...", bg_color = "blue")
-                self.syncCurrentSelections()
-                self.statusBarInfo("Done", 5, bg_color = "green")
+                if self.syncCurrentSelections():
+                    self.statusBarInfo("Done", 5, bg_color = "green")
+                elif G.last_status_code == 401:
+                    self.statusBarInfo("Unauthorized access", 5, bg_color = "red")
+
             web_url = data.fm.getWebUrl()
-            if not data.fm.openFile():
+            if not data.fm.openFile() and data.is_local:
                 if web_url == "":
                     self.warnDialog("The file is missing", "To add the paper, right click on the entry -> add file")
                 elif os.path.exists(web_url):

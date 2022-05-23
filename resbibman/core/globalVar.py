@@ -3,12 +3,14 @@ from typing import List
 
 __initialized: bool
 logger_rbm: logging.Logger
+last_status_code: int   # a register for last connection status code
 tmpdirs: List[str]      # temporary directories
 
 def init():
     global tmpdirs
     global logger_rbm
     global __initialized
+    global last_status_code
 
     thismodule = sys.modules[__name__]
     if hasattr(thismodule, "__initialized") and __initialized:
@@ -18,6 +20,7 @@ def init():
 
     tmpdirs = []
     logger_rbm = logging.getLogger("rbm")
+    last_status_code = 200
 
 
 def clearTempDirs():

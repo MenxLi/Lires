@@ -41,7 +41,7 @@ class DatabaseReader:
         self.loadDB(db_path)
 
     def loadDB(self, db_path: str):
-        print("Loading database...")
+        print("Loading database: ".format(db_path))
         self.db_path = db_path
         self.db = DataBase()
         valid_f = []

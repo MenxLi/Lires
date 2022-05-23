@@ -5,6 +5,7 @@ from __future__ import annotations
 import os, typing, requests, zipfile, shutil
 from typing import TYPE_CHECKING, Union, overload, Literal
 
+from . import globalVar as G
 from .utils import strtimeToDatetime
 from .fileTools import FileGenerator, FileManipulator
 from .encryptClient import generateHexHash
@@ -191,6 +192,7 @@ class FileManipulatorVirtual(FileManipulator):
             self.logger.debug("Get response {}".format(res.status_code))
         if status_code == 401:
             self.logger.warning("Unauthorized access")
+        G.last_status_code = res.status_code
         return res.ok
 
     #=========================== Below emulate local manipulator class
