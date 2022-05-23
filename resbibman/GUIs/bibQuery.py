@@ -2,7 +2,7 @@
 The quary dialog for bibtex input
 """
 import os, typing, difflib
-from PyQt5.QtWidgets import QLabel, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
+from PyQt5.QtWidgets import QLabel, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QDialog
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5 import QtCore
 
@@ -16,7 +16,7 @@ from ..core.utils import sssUUID
 from .widgets import WidgetBase
 from .bibtexEditor import BibEditor
 
-class BibQueryGUI(WidgetBase):
+class BibQueryGUI(QDialog, WidgetBase):
     def __init__(self, parent, tag_data: DataTags, tag_total: DataTags):
         """
         file_path: path to the original paper

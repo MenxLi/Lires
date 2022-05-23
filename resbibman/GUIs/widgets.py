@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from .fileSelector import FileSelector
     from .tagSelector import TagSelector
 
-class WidgetBase(QWidget):
+class WidgetBase:
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.logger = logging.getLogger("rbm")
@@ -47,12 +47,13 @@ class WidgetBase(QWidget):
         else: return False
 
     def _center(self):
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
+        if isinstance(self, QWidget):
+            qr = self.frameGeometry()
+            cp = QDesktopWidget().availableGeometry().center()
+            qr.moveCenter(cp)
+            self.move(qr.topLeft())
 
-class RefWidgetBase(WidgetBase):
+class RefWidgetBase(QWidget, WidgetBase):
     def __init__(self, parent: typing.Optional['QWidget']=None) -> None:
         super().__init__(parent=parent)
         self._main_panel = None

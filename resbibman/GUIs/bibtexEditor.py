@@ -1,14 +1,14 @@
 import os
 from typing import Dict
 from datetime import date
-from PyQt5.QtWidgets import QButtonGroup, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton
+from PyQt5.QtWidgets import QButtonGroup, QDialog, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton
 from PyQt5 import QtCore
 from .widgets import WidgetBase
 
 from ..confReader import DOC_PATH, BIB_TEMPLATE_PATH
 from ..core.utils import sssUUID
 
-class TemplateChoice(WidgetBase):
+class TemplateChoice(WidgetBase, QDialog):
     template_selected = QtCore.pyqtSignal(str)
     def __init__(self, parent = None):
         super().__init__(parent)
@@ -49,7 +49,7 @@ class TemplateChoice(WidgetBase):
         self.close()
         return
 
-class BibEditor(WidgetBase):
+class BibEditor(QDialog, WidgetBase):
     def __init__(self):
         super().__init__()
         self.initUI()
