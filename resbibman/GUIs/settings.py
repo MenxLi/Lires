@@ -23,32 +23,88 @@ class SubSettingsBase(RefWidgetBase):
 		warnings.warn("The confim method for {} is not implemented yet".format(self.__class__.__name__))
 
 class SetDatabase(SubSettingsBase):
+	"""
+	Set both database and remote server
+	"""
 	def initUI(self):
-		self.label = QLabel("Database path:")
-		self.line_edit = QLineEdit(self)
-		self.line_edit.setText(getConf()["database"])
+		self.label_db = QLabel("Database path (offline/server):")
+		self.line_edit_db = QLineEdit(self)
 		self.btn = QPushButton("Choose")
 		vbox = QVBoxLayout()
 		hbox = QHBoxLayout()
-		hbox.addWidget(self.line_edit, 1)
+		hbox.addWidget(self.line_edit_db, 1)
 		hbox.addWidget(self.btn, 0)
-		vbox.addWidget(self.label)
+		vbox.addWidget(self.label_db)
 		vbox.addLayout(hbox)
+
+		self.label_host = QLabel("RBM server settings:")
+		self.lbl_host = QLabel("host: ")
+		self.line_edit_host = QLineEdit(self)
+		self.lbl_port = QLabel("port: ")
+		self.line_edit_port = QLineEdit(self)
+		self.lbl_key = QLabel("access key: ")
+		self.line_edit_key = QLineEdit(self)
+		hbox1 = QHBoxLayout()
+		hbox2 = QHBoxLayout()
+		vbox.addWidget(self.label_host)
+		hbox1.addWidget(self.lbl_host, 0)
+		hbox1.addWidget(self.line_edit_host, 2)
+		hbox2.addWidget(self.lbl_port, 0)
+		hbox2.addWidget(self.line_edit_port, 1)
+		hbox2.addWidget(self.lbl_key, 0)
+		hbox2.addWidget(self.line_edit_key, 1)
+		vbox.addLayout(hbox1)
+		vbox.addLayout(hbox2)
+
 		self._frame.setLayout(vbox)
 
+		self.line_edit_host.textChanged.connect(self.activateWidgets)
 		self.btn.clicked.connect(self.chooseDir)
+
+		self.line_edit_db.setText(getConf()["database"])
+		self.line_edit_host.setText(getConfV("host"))
+		self.line_edit_port.setText(getConfV("port"))
+		self.line_edit_key.setText(getConfV("access_key"))
+	
+	def activateWidgets(self, host_line: str):
+		"""
+		check if host has been set.
+		if host is set, inactivate database path
+		otherwise, inactivate port
+		"""
+		self.line_edit_db.setEnabled(not bool(host_line))
+		self.line_edit_port.setEnabled(bool(host_line))
+		self.line_edit_key.setEnabled(bool(host_line))
 
 	def chooseDir(self):
 		file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
 		if file != "":
-			self.line_edit.setText(file)
+			self.line_edit_db.setText(file)
 	
 	def confirm(self):
-		database_path = self.line_edit.text()
+		database_path = self.line_edit_db.text()
+		host = self.line_edit_host.text()
+		port = self.line_edit_port.text()
+		access_key = self.line_edit_key.text()
+		RELOAD = False
 		if not database_path == getConf()["database"]:
 			saveToConf(database = database_path)
-			self.getMainPanel().loadData(database_path)
-			print("Database path saved, Database path set to: {}".format(getConf()["database"]))
+			self.logger.debug("Database path saved, Database path set to: {}".format(getConf()["database"]))
+			RELOAD = True
+		
+		if not host == getConf()["host"] or not port == getConf()["port"]:
+			saveToConf(host = host, port = port)
+			self.logger.debug("RBMWeb host set to: {}:{}".format(host, port))
+			RELOAD = True
+		
+		if not access_key == getConf()["access_key"]:
+			saveToConf(access_key = access_key)
+			self.logger.debug("RBMWeb access key changed.")
+			RELOAD = True
+
+		if RELOAD:
+			self.logger.info("Database settings changed.")
+			self.getMainPanel().reloadData()
 
 class SetSortingMethod(SubSettingsBase):
 	def initUI(self):
