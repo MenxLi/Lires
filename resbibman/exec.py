@@ -1,10 +1,11 @@
 import argparse, subprocess, warnings, logging
+import shutil
 from PyQt5.QtWidgets import QApplication
 import os, sys, platform
 from .core import globalVar as G
 from .GUIs.mainWindow import MainWindow
 from .core.utils import getDateTime, Logger
-from .confReader import getConf, getConfV, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH
+from .confReader import getConf, getConfV, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR
 
 def execProg_():
     print("************Welcome to ResBibMan-v{}**************".format(VERSION))
@@ -42,10 +43,11 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     parser.add_argument("-n", "--not_run", action= "store_true", help = "Not to run main program")
     parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
     parser.add_argument("-s", "--server", action = "store_true", help = "Start server (RBMWeb)")
-    parser.add_argument("-l", "--log_level", action= "store", type = str, default="INFO", help = "log level")
+    parser.add_argument("-l", "--print_log", action = "store_true", help = "Print log and exit")
+    parser.add_argument("-L", "--log_level", action= "store", type = str, default="INFO", help = "log level")
+    parser.add_argument("-c", "--clear_cache", action = "store_true", help = "clear cache and exit")
     parser.add_argument("--no_log", action = "store_true", help = "Open the program without recording log, stdout/stderr will be shown in terminal")
     parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
-    parser.add_argument("--print_log", action = "store_true", help = "Print log and exit")
     parser.add_argument("--reset_conf", action = "store_true", help = "Reset configuration and exit")
     args = parser.parse_args()
 
@@ -87,6 +89,20 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
             with open(LOG_FILE, "r") as log_file:
                 print(log_file.read())
         else: print("Log file not exits, run the program to create the log file")
+        args.not_run = True
+    
+    if args.clear_cache:
+        prompt_msgs = [
+            "This action is going to delete: {}".format(TMP_DIR),
+            "Please make sure that resbibman is not running in online mode",
+            "Proceed? (y/[else]): "
+        ]
+        if input("\n".join(prompt_msgs)) == "y":
+            if os.path.exists(TMP_DIR):
+                shutil.rmtree(TMP_DIR)
+            print("success.")
+        else:
+            print("abort.")
         args.not_run = True
 
     if args.server:

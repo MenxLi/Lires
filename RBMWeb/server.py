@@ -121,7 +121,7 @@ class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
             return super().get(path, include_body=True)
 
 class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
-    ZIP_TMP_DIR = os.path.join(TMP_DIR, "zips")
+    ZIP_TMP_DIR = os.path.join(TMP_DIR, "server_zips")
     
     def initialize(self):
         super().initialize()
