@@ -1,7 +1,13 @@
+from __future__ import annotations
+
 import time
-from typing import Callable
+from ..core import globalVar as G
+from typing import Callable, TYPE_CHECKING, List
 from PyQt5.QtCore import QThread, QThreadPool, QObject, QRunnable, Qt, pyqtSignal
 from PyQt5.QtWidgets import QWidget
+
+if TYPE_CHECKING:
+    from ..core.dataClass import DataPoint
 
 
 class ThreadSignalsQ(QObject):
@@ -11,24 +17,37 @@ class ThreadSignalsQ(QObject):
     finished_str = pyqtSignal(str)
     finished_int = pyqtSignal(int)
     finished = pyqtSignal()
+    at_checkpoint_str = pyqtSignal(str)
+    at_checkpoint_int = pyqtSignal(int)
+    at_chekpoint = pyqtSignal()
+    breaked = pyqtSignal()
 
-
-class DoLaterQ(QRunnable):
-    def __init__(self, wait_time: float, target: Callable, args: tuple, kwargs: dict):
+class SleepWorker(QRunnable):
+    def __init__(self, wait_time: float):
         super().__init__()
         self._wait_time = wait_time
-        self._target = target
-        self._args = args
-        self._kwargs = kwargs
+        self.signal = ThreadSignalsQ()
+    def run(self):
+        self.signal.started.emit()
+        time.sleep(self._wait_time)
+        self.signal.finished.emit()
+
+
+class SyncWorker(QRunnable):
+    def __init__(self, sync_lis: List[DataPoint]):
+        super().__init__()
+        self.to_sync = sync_lis
         self.signal = ThreadSignalsQ()
 
     def run(self):
         self.signal.started.emit()
-        time.sleep(self._wait_time)
-        self._target(*self._args, **self._kwargs)
-        self.signal.finished.emit()
+        SUCCESS = True
+        for dp in self.to_sync:
+            success = dp.sync()
+            if not success:
+                self.signal.at_checkpoint_int.emit(G.last_status_code)
+                SUCCESS = False
+            else:
+                self.signal.at_checkpoint_int.emit(0)
+        self.signal.finished_int.emit(SUCCESS)
 
-def qDoLater(wait_time: float, target: Callable, args: tuple = (), kwargs: dict = {}):
-    worker = DoLaterQ(wait_time, target, args, kwargs)
-    pool = QThreadPool.globalInstance()
-    pool.start(worker)

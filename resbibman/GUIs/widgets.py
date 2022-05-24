@@ -3,9 +3,10 @@ import typing, logging, threading
 from typing import TYPE_CHECKING
 
 from PyQt5.QtWidgets import QWidget, QMessageBox, QDesktopWidget
+from PyQt5.QtCore import QThreadPool
 
 from ..core.utils import delay_exec
-from ..perf.qtThreading import qDoLater
+from ..perf.qtThreading import SleepWorker
 
 if TYPE_CHECKING:
     from .mainWindow import MainWindow
@@ -68,7 +69,10 @@ class RefWidgetBase(QWidget, WidgetBase):
         def _laterDo():
             self.getMainPanel().statusBarMsg(msg = "Welcome!", bg_color = "none")
         if time>0:
-            qDoLater(time, _laterDo)
+            worker = SleepWorker(time)
+            worker.signal.finished.connect(_laterDo)
+            pool = QThreadPool.globalInstance()
+            pool.start(worker)
     
     def offlineStatus(self, status: bool):
         """

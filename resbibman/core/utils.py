@@ -7,6 +7,27 @@ import pyperclip as pc
 from functools import wraps
 from uuid import uuid4
 
+
+class ProgressBarCustom(object):
+    def __init__(self, n_total, call: Callable[[str], None]):
+        """
+        - callback: Callable[[progress_str], None]
+        """
+        self._call = call
+        self.n_toal = n_total
+        self.current = 0
+
+    @staticmethod
+    def progressBarString(current: int, total: int):
+        # To update later
+        return f"{current}/{total}"
+
+    def next(self):
+        self.current += 1
+        to_show = self.progressBarString(self.current, self.n_toal)
+        self._call(to_show)
+
+
 def getDateTime():
     return str(datetime.datetime.now())[:-7]
 

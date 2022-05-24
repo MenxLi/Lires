@@ -1,8 +1,8 @@
 import pyperclip
-from typing import Tuple
+from typing import Tuple, List
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThreadPool
 
 from .widgets import RefWidgetBase, WidgetBase
 from .fileInfo import FileInfo
@@ -15,9 +15,10 @@ from .settings import SettingsWidget
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser
-from ..core.utils import openFile
+from ..core.utils import openFile, ProgressBarCustom
 from ..core.dataClass import DataTags, DataBase, DataPoint
 from ..confReader import DOC_PATH, TMP_DB, getConf, ICON_PATH, VERSION, getConfV, getDatabase
+from ..perf.qtThreading import SyncWorker
 import os, copy, typing, requests
 
 # for testing propose
@@ -162,6 +163,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
 class MainWindow(MainWindowGUI):
     def __init__(self):
         super().__init__()
+        self.pool = QThreadPool.globalInstance()
         self.logger.debug("Configuration: ")
         self.logger.debug(getConf())
         self.initActions()
@@ -344,6 +346,29 @@ class MainWindow(MainWindowGUI):
         self.pending_win = PendingWindow()
         self.pending_win.setMainPanel(self)
         self.pending_win.show()
+
+    def syncData_async(self, to_sync: List[DataPoint]):
+        n_total = len(to_sync)
+        def showProgress(to_show):
+            self.statusBarInfo(f"Sync with remote: {to_show}", bg_color = "blue")
+        progress_bar = ProgressBarCustom(n_total, showProgress)
+        on_start = lambda: self.statusBarInfo(f"Sync with remote ()".format(n_total), bg_color = "blue")
+        on_middle = lambda status_code: progress_bar.next()
+        def on_finish(success):
+            if success:
+                self.statusBarInfo("Successfully synchronized", 5, bg_color = "green")
+            else:
+                self.statusBarInfo("Failed synchronize, check log", 5, bg_color = "red")
+        sync_worker = SyncWorker(to_sync)
+        sync_worker.signal.started.connect(on_start)
+        sync_worker.signal.at_checkpoint_int.connect(on_middle)
+        sync_worker.signal.finished_int.connect(on_finish)
+        threadCount = QThreadPool.globalInstance().maxThreadCount()
+        self.logger.debug(f"Running {threadCount} Threads")
+        self.pool.start(sync_worker)
+
+    def pullData_async(self):
+        pass
     
     def reloadData(self):
         if getConf()["host"]:
@@ -355,16 +380,8 @@ class MainWindow(MainWindowGUI):
                 # loadData
                 self.loadData(TMP_DB)
                 # sync local with remote
-                n_local = self.db.n_local
-                _count = 0
-                for uuid, dp in self.db.items():
-                    dp: DataPoint
-                    if dp.is_local:
-                        _count += 1
-                        self.statusBarInfo(f"Sync with remote: {_count}/{n_local}", bg_color = "blue")
-                        self.logger.info(f"Sync with remote: {_count}/{n_local}")
-                        dp.sync()
-                self.statusBarInfo("Successfully synchronized", 5, bg_color = "green")
+                to_sync = [dp for uuid, dp in self.db.items() if dp.is_local]
+                self.syncData_async(to_sync)
             except requests.exceptions.ConnectionError:
                 self.statusBarInfo("Connection error", 5, bg_color = "red")
                 self.logger.warning("Server is down, not reload server.")
