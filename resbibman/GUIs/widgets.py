@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from PyQt5.QtWidgets import QWidget, QMessageBox, QDesktopWidget
 
 from ..core.utils import delay_exec
+from ..perf.qtThreading import qDoLater
 
 if TYPE_CHECKING:
     from .mainWindow import MainWindow
@@ -63,13 +64,11 @@ class RefWidgetBase(QWidget, WidgetBase):
         self._offline_status = True
     
     def statusBarInfo(self, info: str, time: float = -1, **kwargs):
-        #  f_ = lambda : self.getMainPanel().statusBarMsg(info, **kwargs)
-        #  t_ = threading.Thread(target = f_, args = ())
-        #  t_.start()
         self.getMainPanel().statusBarMsg(info, **kwargs)
+        def _laterDo():
+            self.getMainPanel().statusBarMsg(msg = "Welcome!", bg_color = "none")
         if time>0:
-            delay_exec(self.getMainPanel().statusBarMsg, time, \
-                msg = "Welcome!", bg_color = "none")
+            qDoLater(time, _laterDo)
     
     def offlineStatus(self, status: bool):
         """

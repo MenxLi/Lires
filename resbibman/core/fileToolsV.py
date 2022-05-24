@@ -110,10 +110,10 @@ class FileManipulatorVirtual(FileManipulator):
         # Check is_uptodate when uploading
         update_status = self.is_uptodate
         if update_status == "advance":
-            self.logger.debug("sync (fm): uploading {}".format(self.uuid))
+            self.logger.info("sync (fm): uploading {}".format(self.uuid))
             return self._uploadRemote()
         elif update_status == "behind":
-            self.logger.warning("sync (fm): Remote file may have been changed, abort uploading {}".format(self.uuid))
+            self.logger.warning("sync (fm): Remote file may have been changed, failed uploading {}".format(self.uuid))
             return False
         else:
             # same

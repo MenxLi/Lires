@@ -47,7 +47,7 @@ In file selector:
 - [x] Add search bar
 - [x] Multiple selection
 - [x] Right click: export, export bib, delete
-- [ ] Right click: open url
+- [ ] Right click: open url, free local
 
 Main window:
 - [x] Refresh button
@@ -56,13 +56,18 @@ settings:
 
 Tags:
 - [x] Right click: rename; delete;
+- [ ] Sub-tags
 
-Code structure change:
+Refractor:
 - [ ] Move more methods into core classes
 
 ### Long time goals
 
-- [ ] Language support
+- ~~[ ] Language support~~
+- [ ] Relation graph
+
+## Ideas:
+QRunnable for multithreading
 
 </details>
 
