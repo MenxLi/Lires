@@ -20,7 +20,14 @@ class ProgressBarCustom(object):
     @staticmethod
     def progressBarString(current: int, total: int):
         # To update later
-        return f"{current}/{total}"
+        decimals = 1
+        fill = '█'
+        length = 20
+        percent = ("{0:." + str(decimals) + "f}").format(100 * (current / float(total)))
+        filledLength = int(length * current // total)
+        bar = fill * filledLength + '-' * (length - filledLength)
+        #  return f"{current}/{total}"
+        return f"{percent} | {bar}"
 
     def next(self):
         self.current += 1

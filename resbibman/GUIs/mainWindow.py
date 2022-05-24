@@ -18,8 +18,8 @@ from ..core.bibReader import BibParser
 from ..core.utils import openFile, ProgressBarCustom
 from ..core.dataClass import DataTags, DataBase, DataPoint
 from ..confReader import DOC_PATH, TMP_DB, getConf, ICON_PATH, VERSION, getConfV, getDatabase
-from ..perf.qtThreading import SyncWorker
-import os, copy, typing, requests
+from ..perf.qtThreading import SyncWorker, InitDBWorker
+import os, copy, typing, requests, functools, time
 
 # for testing propose
 from .fileTags import TagSelector
@@ -206,15 +206,62 @@ class MainWindow(MainWindowGUI):
         self._panel_status = tuple(status)
         return self.toggleLayout(self._panel_status)
     
-    def loadData(self, data_path):
+    def _loadData(self, data_path):
         self.db = DataBase()
         if getConf()["host"] != "":
             # Online mode
             self.statusBarInfo("Requesting remote server", bg_color = "blue")
         self.db.init(data_path)
-        self.file_selector.loadValidData(set(getConf()["default_tags"]), hint = True)
+        self.file_selector.loadValidData(DataTags(getConf()["default_tags"]), hint = True)
         self.file_tags.initTags(self.getTotalTags())
         self.statusBarInfo("Success", 2, bg_color = "green")
+
+    def loadData_async(self, data_path, sync_after = False):
+        """
+         - data_path: local database path (Pull into this)
+         - sync_after: call self.syncData_async after loading data
+        """
+
+        def _on_done(success, set_offline_mode: bool):
+            """
+            Load data into GUI, update status bar
+            """
+            self.setEnabled(True)
+            self.file_selector.loadValidData(DataTags(getConf()["default_tags"]), hint = True)
+            self.file_tags.initTags(self.getTotalTags())
+            if success or set_offline_mode:
+                if sync_after:
+                    self.statusBarInfo("Data loaded", 2, bg_color = "green")
+                else:
+                    self.statusBarInfo("Data loaded", 2, bg_color = "blue")
+            else:
+                self.statusBarInfo("Error connection", 2, bg_color = "red")
+            return 
+        def syncAfter(success):
+            """
+            sync datapoint (local) if any
+            """
+            if success and sync_after:
+                to_sync = [dp for uuid, dp in self.db.items() if dp.is_local]
+                self.syncData_async(to_sync)
+
+        # -----Start from here-----
+        self.setEnabled(False)
+        self.statusBar().setEnabled(True)
+
+        self.db = DataBase()
+        if getConf()["host"] != "":
+            # Online mode
+            self.statusBarInfo("Requesting remote server...", bg_color = "blue")
+            on_done = functools.partial(_on_done, set_offline_mode = False)
+        else:
+            self.statusBarInfo("Loading...", bg_color = "blue")
+            on_done = functools.partial(_on_done, set_offline_mode = True)
+
+        worker = InitDBWorker(self.db, data_path)
+        worker.signals.finished.connect(on_done)
+        worker.signals.finished.connect(syncAfter)
+        self.pool.start(worker)
 
     def getCurrentSelection(self)->typing.Union[None, DataPoint]:
         return self.file_selector.getCurrentSelection()
@@ -360,16 +407,13 @@ class MainWindow(MainWindowGUI):
             else:
                 self.statusBarInfo("Failed synchronize, check log", 5, bg_color = "red")
         sync_worker = SyncWorker(to_sync)
-        sync_worker.signal.started.connect(on_start)
-        sync_worker.signal.at_checkpoint_int.connect(on_middle)
-        sync_worker.signal.finished_int.connect(on_finish)
+        sync_worker.signals.started.connect(on_start)
+        sync_worker.signals.on_chekpoint.connect(on_middle)
+        sync_worker.signals.finished.connect(on_finish)
         threadCount = QThreadPool.globalInstance().maxThreadCount()
         self.logger.debug(f"Running {threadCount} Threads")
         self.pool.start(sync_worker)
 
-    def pullData_async(self):
-        pass
-    
     def reloadData(self):
         if getConf()["host"]:
             try:
@@ -378,18 +422,20 @@ class MainWindow(MainWindowGUI):
                 req_reloadDB = addr + "/cmd/reloadDB"
                 requests.get(req_reloadDB)
                 # loadData
-                self.loadData(TMP_DB)
+                self.loadData_async(TMP_DB, sync_after=True)    # (This will not raise an ConnectionError)
+                # self._loadData(TMP_DB)
                 # sync local with remote
-                to_sync = [dp for uuid, dp in self.db.items() if dp.is_local]
-                self.syncData_async(to_sync)
+                #  to_sync = [dp for uuid, dp in self.db.items() if dp.is_local]
+                #  self.syncData_async(to_sync)
             except requests.exceptions.ConnectionError:
                 self.statusBarInfo("Connection error", 5, bg_color = "red")
                 self.logger.warning("Server is down, not reload server.")
                 self.logger.debug("May fall into offline mode.")
-                self.loadData(getConf()["database"])
+                self.loadData_async(getConf()["database"], sync_after=False)
         else:
             # local dir
-            self.loadData(getConf()["database"])
+            self.loadData_async(getConf()["database"], sync_after=False)
+            #  self._loadData(getConf()["database"])
         self.file_info.clearPanel()
         
     def statusBarMsg(self, msg: str, bg_color = "none"):

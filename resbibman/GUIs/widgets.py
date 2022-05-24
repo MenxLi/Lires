@@ -70,7 +70,7 @@ class RefWidgetBase(QWidget, WidgetBase):
             self.getMainPanel().statusBarMsg(msg = "Welcome!", bg_color = "none")
         if time>0:
             worker = SleepWorker(time)
-            worker.signal.finished.connect(_laterDo)
+            worker.signals.finished.connect(_laterDo)
             pool = QThreadPool.globalInstance()
             pool.start(worker)
     
