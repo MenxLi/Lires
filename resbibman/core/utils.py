@@ -27,7 +27,7 @@ class ProgressBarCustom(object):
         filledLength = int(length * current // total)
         bar = fill * filledLength + '-' * (length - filledLength)
         #  return f"{current}/{total}"
-        return f"{percent} | {bar}"
+        return f"{percent}% | {bar}"
 
     def next(self):
         self.current += 1

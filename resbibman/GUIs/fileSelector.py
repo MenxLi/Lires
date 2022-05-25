@@ -2,8 +2,8 @@ import webbrowser
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QShortcut, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
 from PyQt5 import QtGui, QtCore
-import typing, os, shutil, copy
-from typing import List, overload, Union, Literal
+import typing, os, shutil, copy, functools
+from typing import List, overload, Union, Literal, Callable
 
 from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase
@@ -81,7 +81,7 @@ class FileSelector(FileSelectorGUI):
 
         self.search_edit.textChanged.connect(self.onSearchTextChange)
 
-        self.act_sync_datapoint.triggered.connect(self.syncCurrentSelections)
+        self.act_sync_datapoint.triggered.connect(lambda: self.syncCurrentSelections_async())
         self.act_open_location.triggered.connect(self.openCurrFileLocation)
         self.act_copy_bib.triggered.connect(self.copyCurrentSelectionBib)
         self.act_copy_citation.triggered.connect(self.copyCurrentSelectionCitation)
@@ -104,6 +104,7 @@ class FileSelector(FileSelectorGUI):
             wid.setEnabled(status)
     
     def syncCurrentSelections(self) -> bool:
+        """Deprecated"""
         selections = self.getCurrentSelection(return_multiple=True)
         SUCCESS = True
         if selections is None:
@@ -118,6 +119,27 @@ class FileSelector(FileSelectorGUI):
             self.getInfoPanel().offlineStatus(True)
             self.getTagPanel().offlineStatus(True)
         return SUCCESS
+
+    def syncCurrentSelections_async(self, callback_on_finish: Callable[[bool], None] = lambda _ : None) -> None:
+        """
+         - callback_on_finish: additional callback to be called when sync is finished
+        """
+        selections = self.getCurrentSelection(return_multiple=True)
+        if selections is None:
+            return
+        # only one selection and sync successed, do
+        _only_one = len(selections) == 1
+        def on_finish(success):
+            self.setEnabled(True)
+            if success and _only_one:
+                self.offlineStatus(True)
+                self.getInfoPanel().offlineStatus(True)
+                self.getTagPanel().offlineStatus(True)
+            callback_on_finish(success)
+
+        self.setEnabled(False)   # Don't change data selection
+        self.getMainPanel().syncData_async(selections, on_finish)
+        return 
 
     def loadValidData(self, tags: DataTags, hint = False):
         """Load valid data by tags"""
@@ -254,22 +276,29 @@ class FileSelector(FileSelectorGUI):
 
     def doubleClickOnEntry(self):
         data = self.getCurrentSelection()
-        if isinstance(data, DataPoint):
-            if not data.is_local:
-                self.statusBarInfo("Downloading...", bg_color = "blue")
-                if self.syncCurrentSelections():
-                    self.statusBarInfo("Done", 5, bg_color = "green")
-                elif G.last_status_code == 401:
-                    self.statusBarInfo("Unauthorized access", 5, bg_color = "red")
-
-            web_url = data.fm.getWebUrl()
-            if not data.fm.openFile() and data.is_local:
+        def _open(dp: DataPoint):
+            """
+            Open a data point locally
+            """
+            web_url = dp.fm.getWebUrl()
+            if not dp.fm.openFile() and dp.is_local:
                 if web_url == "":
                     self.warnDialog("The file is missing", "To add the paper, right click on the entry -> add file")
                 elif os.path.exists(web_url):
                     openFile(web_url)
                 else:
                     webbrowser.open(web_url)
+        def _onSyncDone(success, to_open):
+            if not success and G.last_status_code == 401:
+                self.statusBarInfo("Unauthorized access", 5, bg_color = "red")
+            if success:
+                _open(to_open)
+
+        if isinstance(data, DataPoint):
+            if not data.is_local:
+                self.syncCurrentSelections_async(functools.partial(_onSyncDone, to_open = data))
+            else:
+                _open(data)
 
     @overload
     def getCurrentSelection(self, return_multiple: Literal[True]) -> Union[None, DataList]: ...

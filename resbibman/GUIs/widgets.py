@@ -3,7 +3,7 @@ import typing, logging, threading
 from typing import TYPE_CHECKING
 
 from PyQt5.QtWidgets import QWidget, QMessageBox, QDesktopWidget
-from PyQt5.QtCore import QThreadPool
+from PyQt5.QtCore import QThreadPool, pyqtSignal
 
 from ..core.utils import delay_exec
 from ..perf.qtThreading import SleepWorker
@@ -56,6 +56,8 @@ class WidgetBase:
             self.move(qr.topLeft())
 
 class RefWidgetBase(QWidget, WidgetBase):
+    # Somehow not working properly... see __init_subclass__
+    update_statusmsg = pyqtSignal(str)      # to stop previously scheduled timing status bar info
     def __init__(self, parent: typing.Optional['QWidget']=None) -> None:
         super().__init__(parent=parent)
         self._main_panel = None
@@ -63,14 +65,25 @@ class RefWidgetBase(QWidget, WidgetBase):
         self._info_panel = None
         self._tag_panel = None
         self._offline_status = True
+
+    def __init_subclass__(cls) -> None:
+        # Have to do this, otherwise may somehow lead to \
+        # AttributeError: 'MainWindow' does not have a signal with the signature update_statusmsg(QString)
+        cls.update_statusmsg = pyqtSignal(str)
+        return super().__init_subclass__()
     
     def statusBarInfo(self, info: str, time: float = -1, **kwargs):
+        # Send a signal to abort previous worker
+        self.update_statusmsg.emit(info)
         self.getMainPanel().statusBarMsg(info, **kwargs)
-        def _laterDo():
-            self.getMainPanel().statusBarMsg(msg = "Welcome!", bg_color = "none")
+        def _laterDo(confirm):
+            if confirm:
+                self.getMainPanel().statusBarMsg(msg = "Welcome!", bg_color = "none")
         if time>0:
             worker = SleepWorker(time)
             worker.signals.finished.connect(_laterDo)
+            # Abort previous worker
+            self.update_statusmsg.connect(lambda str_: worker.setBreak())
             pool = QThreadPool.globalInstance()
             pool.start(worker)
     

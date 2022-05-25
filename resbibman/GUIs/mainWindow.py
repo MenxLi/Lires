@@ -1,8 +1,8 @@
 import pyperclip
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
-from PyQt5.QtCore import Qt, QThreadPool
+from PyQt5.QtCore import Qt, QThreadPool, pyqtSignal
 
 from .widgets import RefWidgetBase, WidgetBase
 from .fileInfo import FileInfo
@@ -207,6 +207,7 @@ class MainWindow(MainWindowGUI):
         return self.toggleLayout(self._panel_status)
     
     def _loadData(self, data_path):
+        """Deprecated"""
         self.db = DataBase()
         if getConf()["host"] != "":
             # Online mode
@@ -394,12 +395,16 @@ class MainWindow(MainWindowGUI):
         self.pending_win.setMainPanel(self)
         self.pending_win.show()
 
-    def syncData_async(self, to_sync: List[DataPoint]):
+    def syncData_async(self, to_sync: List[DataPoint], callback_on_finish: Callable[[bool], None] = lambda _: None):
+        """
+        To synchronize with remote server, i.e. DataPoint.sync()
+         -  callback_on_finish: additional callback to be called when sync is finished
+        """
         n_total = len(to_sync)
         def showProgress(to_show):
             self.statusBarInfo(f"Sync with remote: {to_show}", bg_color = "blue")
         progress_bar = ProgressBarCustom(n_total, showProgress)
-        on_start = lambda: self.statusBarInfo(f"Sync with remote ()".format(n_total), bg_color = "blue")
+        on_start = lambda: self.statusBarInfo(f"Sync with remote", bg_color = "blue")
         on_middle = lambda status_code: progress_bar.next()
         def on_finish(success):
             if success:
@@ -410,6 +415,7 @@ class MainWindow(MainWindowGUI):
         sync_worker.signals.started.connect(on_start)
         sync_worker.signals.on_chekpoint.connect(on_middle)
         sync_worker.signals.finished.connect(on_finish)
+        sync_worker.signals.finished.connect(callback_on_finish)
         threadCount = QThreadPool.globalInstance().maxThreadCount()
         self.logger.debug(f"Running {threadCount} Threads")
         self.pool.start(sync_worker)
@@ -444,10 +450,10 @@ class MainWindow(MainWindowGUI):
         else:
             prefix = "ResBibMan-v{} (online): ".format(VERSION)
         color = {
-           "none" : "QStatusBar{background:rgba(0,0,0,0)}",
-           "red" : "QStatusBar{background:rgba(255,0,0,150)}",
-           "green" : "QStatusBar{background:rgba(0,255,0,150)}",
-           "blue" : "QStatusBar{background:rgba(0,0,255,150)}",
+            "none" : "QStatusBar{background:rgba(0,0,0,0); color: rgba(0,0,0,255)}",
+            "red" : "QStatusBar{background:rgba(255,0,0,150); color: rgba(255,255,255,255)}",
+            "green" : "QStatusBar{background:rgba(0,200,0,150); color: rgba(0,0,0,255)}",
+            "blue" : "QStatusBar{background:rgba(0,0,255,150); color: rgba(255,255,255,255)}",
         }
         self.statusBar().setStyleSheet(color[bg_color])
         # self.statusBar().setStyleSheet(f"color : {txt_color}")

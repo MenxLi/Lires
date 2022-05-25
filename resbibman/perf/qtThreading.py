@@ -15,15 +15,22 @@ class ThreadSignalsQ(QObject):
     started = pyqtSignal()
     finished = pyqtSignal()
 
+
+class ThreadSignalsForSleepWorker(ThreadSignalsQ):
+    finished = pyqtSignal(bool)
+
 class SleepWorker(QRunnable):
     def __init__(self, wait_time: float):
         super().__init__()
         self._wait_time = wait_time
-        self.signals = ThreadSignalsQ()
+        self.signals = ThreadSignalsForSleepWorker()
+        self._break = False
     def run(self):
         self.signals.started.emit()
         time.sleep(self._wait_time)
-        self.signals.finished.emit()
+        self.signals.finished.emit(not self._break)
+    def setBreak(self):
+        self._break = True
 
 class ThreadSignalsForSyncWorker(ThreadSignalsQ):
     # on finish sync one datapoint -> status code (0 for success)
