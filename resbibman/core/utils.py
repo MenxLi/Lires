@@ -35,7 +35,7 @@ class ProgressBarCustom(object):
         self._call(to_show)
 
 
-def getDateTime():
+def getDateTimeStr():
     return str(datetime.datetime.now())[:-7]
 
 def strtimeToDatetime(t: str) -> datetime.datetime:
@@ -105,7 +105,7 @@ def logFunc(log_path = LOG_FILE):
             with open(log_path, "a") as log_file:
                 sys.stdout = Logger(log_file)
                 sys.stderr = Logger(log_file)
-                print("{time}: {name}".format(time = getDateTime(), name = func.__name__))
+                print("{time}: {name}".format(time = getDateTimeStr(), name = func.__name__))
                 func(*args, **kwargs)
             sys.stdout = std_out
             sys.stderr = std_err

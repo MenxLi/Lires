@@ -3,11 +3,11 @@ The tools that deals with files in the database
 """
 from distutils import extension
 from pathlib import Path
-import os, shutil, json, platform, typing, uuid, logging
+import os, shutil, json, platform, typing, uuid, logging, time, datetime
 from typing import List, Union, TypedDict
 import warnings
 from . import globalVar as G
-from .utils import getDateTime, openFile
+from .utils import getDateTimeStr, openFile, strtimeToDatetime
 from ..confReader import getConf, VERSION
 from .htmlTools import packHtml, openTmp_hpack
 
@@ -157,8 +157,8 @@ class FileGenerator(FileGeneratorBase):
         default_info = {
             "device_import": platform.node(),
             "device_modify": platform.node(),
-            "time_import": getDateTime(),
-            "time_modify": getDateTime(),
+            "time_import": getDateTimeStr(),
+            "time_modify": getDateTimeStr(),
             "tags": [],
             "uuid": str(uuid.uuid4()),
             "version_import": VERSION,
@@ -345,7 +345,21 @@ class FileManipulator:
     def getTimeModified(self) -> str:
         with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)
-        return data["time_modify"]
+        record_modified = data["time_modify"]
+        return record_modified
+        # get document modification time
+        #  __modified_time = os.path.getmtime(self.file_p)
+        #  __modified_time = time.localtime(__modified_time)
+        #  modified_time = time.strftime("%Y-%m-%d %H:%M:%S", __modified_time)
+        #
+        #  _modified_time = datetime.datetime.strptime(modified_time, "%Y-%m-%d %H:%M:%S")
+        #  _record_modified = strtimeToDatetime(record_modified)
+        #  if _record_modified > _modified_time:
+        #      return record_modified
+        #  else:
+        #      self.logger.debug("Using modified_time - {} ()".format(modified_time, self.uuid))
+        #      return modified_time
+        
     
     def getWebUrl(self) -> str:
         with open(self.info_p, "r", encoding = "utf-8") as f:
@@ -406,7 +420,7 @@ class FileManipulator:
         """log the modification info info file"""
         with open(self.info_p, "r", encoding="utf-8") as f:
             info = json.load(f)
-        info["time_modify"] = getDateTime()
+        info["time_modify"] = getDateTimeStr()
         info["device_modify"] = platform.node()
         info["version_modify"] = VERSION
         with open(self.info_p, "w", encoding="utf-8") as f:

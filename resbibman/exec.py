@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication
 import os, sys, platform
 from .core import globalVar as G
 from .GUIs.mainWindow import MainWindow
-from .core.utils import getDateTime, Logger
+from .core.utils import getDateTimeStr, Logger
 from .confReader import getConf, getConfV, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR
 
 def execProg_():
@@ -28,7 +28,7 @@ def execProg():
     with open(LOG_FILE, "a") as log_file:
         sys.stdout = Logger(log_file)
         sys.stderr = Logger(log_file)
-        log_file.write("\n\n============={}=============\n".format(getDateTime()))
+        log_file.write("\n\n============={}=============\n".format(getDateTimeStr()))
         EXIT_CODE = execProg_()
     return EXIT_CODE
 
