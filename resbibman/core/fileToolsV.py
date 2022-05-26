@@ -197,6 +197,12 @@ class FileManipulatorVirtual(FileManipulator):
 
     #=========================== Below emulate local manipulator class
 
+    def _createFileOB(self):
+        if self.has_local:
+            return super()._createFileOB()
+        else:
+            raise ValueError("File not local")
+
     def screen(self) -> bool:
         if self.has_local:
             return super().screen()
@@ -326,6 +332,12 @@ class FileManipulatorVirtual(FileManipulator):
             return super().deleteDocument()
         else:
             raise NotImplementedError
+
+    def setWatch(self, status: bool):
+        if self.has_local:
+            return super().setWatch(status)
+        else:
+            ...
     
     def _log(self):
         if self.has_local:

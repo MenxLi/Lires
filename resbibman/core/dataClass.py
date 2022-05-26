@@ -298,6 +298,13 @@ class DataBase(dict):
                 count += 1
         return count
     
+    @property
+    def remote_info(self)-> Dict[str, DataPointInfo]:
+        d = dict()
+        for f_info in self.__file_list_remote:
+            d[f_info["uuid"]] = f_info
+        return d
+
     def init(self, db_local = "", force_offline = False):
         """
         load both db_local and remote server
@@ -361,13 +368,6 @@ class DataBase(dict):
         flist = json.loads(flist)["data"]
         self.__file_list_remote = flist
         return flist
-    
-    @property
-    def remote_info(self)-> Dict[str, DataPointInfo]:
-        d = dict()
-        for f_info in self.__file_list_remote:
-            d[f_info["uuid"]] = f_info
-        return d
 
     def add(self, data: Union[DataPoint, str]) -> DataPoint:
         if isinstance(data, str):
@@ -384,6 +384,7 @@ class DataBase(dict):
         if uuid in self.keys():
             dp: DataPoint = self[uuid]
             if dp.fm.has_local:
+                dp.fm.setWatch(False)
                 shutil.rmtree(dp.data_path)
             if not self.offline:
                 # If remote has this data, delete remote as well, 
@@ -393,6 +394,16 @@ class DataBase(dict):
                         self.logger.info("Oops, the data on the server side hasn't been deleted")
                         self.logger.warn("You may need to sync->delete again for {}".format(dp))
             del self[uuid]
+
+    def watchFileChange(self, v: List[Union[DataPoint, str]]):
+        for uuid, dp in self.items():
+            dp.fm.setWatch(False)
+        for v_ in v:
+            if isinstance(v_, DataPoint):
+                v_.fm.setWatch(True)
+            else:
+                self[v_].setWatch(True)
+        return
     
     def getDataByTags(self, tags: Union[list, set, DataTags]) -> DataList:
         datalist = DataList()

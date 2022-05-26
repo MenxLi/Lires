@@ -6,3 +6,4 @@ PyQtWebEngine
 markdown
 pyperclip
 requests
+watchdog

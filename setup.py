@@ -26,7 +26,7 @@ setup(
 
     include_package_data = True,
 
-    install_requires = ["PyQt5", "pybtex", "pyperclip", "PyMuPDF>=1.19.3", "PyQtWebEngine", "markdown", "tornado", "requests"],
+    install_requires = ["PyQt5", "pybtex", "pyperclip", "PyMuPDF>=1.19.3", "PyQtWebEngine", "markdown", "tornado", "requests", "watchdog"],
 
     entry_points = {
         "console_scripts":[

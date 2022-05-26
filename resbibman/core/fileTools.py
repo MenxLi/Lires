@@ -11,6 +11,9 @@ from .utils import getDateTimeStr, openFile, strtimeToDatetime
 from ..confReader import getConf, VERSION
 from .htmlTools import packHtml, openTmp_hpack
 
+from watchdog.observers import Observer
+from watchdog.events import PatternMatchingEventHandler
+
 class FileNameType(TypedDict):
     bibtex: str
     document: str
@@ -204,6 +207,37 @@ class FileManipulator:
     @property
     def uuid(self) -> str:
         return self.getUuid()
+
+    def _createFileOB(self):
+        """
+        file observer thread
+        """
+        def _onCreated(event):
+            self.logger.debug(f"(fm-file_ob) - {event.src_path} created.")
+            self._log()
+        def _onDeleted(event):
+            self.logger.debug(f"(fm-file_ob) - {event.src_path} deleted.")
+            self._log()
+        def _onModified(event):
+            self.logger.debug(f"(fm-file_ob) - {event.src_path} modified.")
+            self._log()
+        def _onMoved(event):
+            self.logger.debug(f"(fm-file_ob) - {event.src_path} moved to {event.dest_path}.")
+            self._log()
+
+        # Exclude info path and main directory to prevent circular call
+        event_handler = PatternMatchingEventHandler(patterns = ["{}/*".format(self.path)], \
+                                                    ignore_patterns = [
+                                                        "*{}".format(self.file_names["info"]),
+                                                    ], case_sensitive=True)
+        event_handler.on_created = _onCreated
+        event_handler.on_deleted = _onDeleted
+        event_handler.on_modified = _onModified
+        event_handler.on_moved = _onMoved
+        observer = Observer()
+        observer.schedule(event_handler, self.path, recursive=True)
+        self.logger.debug(f"Created file observer for: {self.uuid}")
+        return observer
     
     def screen(self) -> bool:
         """
@@ -292,7 +326,7 @@ class FileManipulator:
         dst_base = os.path.join(self.path, fn_base)
         FileGenerator.moveDocument(extern_file_p, dst_base)
         del extern_file_p
-        self._log()
+        #  self._log()
         return True
     
     def getDocSize(self) -> float:
@@ -315,7 +349,6 @@ class FileManipulator:
         """
         with open(self.bib_p, "w", encoding="utf-8") as f:
             f.write(bib)
-        self._log()
 
     def readComments(self) -> str:
         with open(self.comments_p, "r", encoding="utf-8") as f:
@@ -325,7 +358,6 @@ class FileManipulator:
     def writeComments(self, comments: str):
         with open(self.comments_p, "w", encoding="utf-8") as f:
             f.write(comments)
-        self._log()
     
     def getUuid(self) -> str:
         with open(self.info_p, "r", encoding = "utf-8") as f:
@@ -359,7 +391,6 @@ class FileManipulator:
         #  else:
         #      self.logger.debug("Using modified_time - {} ()".format(modified_time, self.uuid))
         #      return modified_time
-        
     
     def getWebUrl(self) -> str:
         with open(self.info_p, "r", encoding = "utf-8") as f:
@@ -375,6 +406,7 @@ class FileManipulator:
         data["url"] = url
         with open(self.info_p, "w", encoding = "utf-8") as f:
             json.dump(data, f)
+        self._log()     # keep this as it info_p will not be monitored by watchdog
         return
 
     def writeTags(self, tags: list):
@@ -385,7 +417,7 @@ class FileManipulator:
         data["tags"] = tags
         with open(self.info_p, "w", encoding = "utf-8") as f:
             json.dump(data, f)
-        self._log()
+        self._log()     # keep this as it info_p will not be monitored by watchdog
         return
 
     def openFile(self):
@@ -396,7 +428,7 @@ class FileManipulator:
             openTmp_hpack(self.file_p)
         else:
             openFile(self.file_p)
-            self._log()     # change time modified.
+            #  self._log()     # change time modified.
         return True
 
     def openMiscDir(self):
@@ -409,12 +441,22 @@ class FileManipulator:
         openFile(self.bib_p)
     
     def deleteDocument(self) -> bool:
+        self.setWatch(True)     # initial observer
         if self.file_p is not None:
             os.remove(self.file_p)
             self.file_p = None
             return True
         else:
             return False
+
+    def setWatch(self, status: bool = False):
+        if hasattr(self, "file_ob"):
+            self.file_ob.stop()
+            self.file_ob.join()
+            del self.file_ob
+        if status:
+            self.file_ob = self._createFileOB()
+            self.file_ob.start()
 
     def _log(self):
         """log the modification info info file"""
@@ -423,5 +465,6 @@ class FileManipulator:
         info["time_modify"] = getDateTimeStr()
         info["device_modify"] = platform.node()
         info["version_modify"] = VERSION
+        self.logger.debug("_log (fm)")
         with open(self.info_p, "w", encoding="utf-8") as f:
             json.dump(info, f)

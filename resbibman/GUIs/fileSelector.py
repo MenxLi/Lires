@@ -69,6 +69,10 @@ class FileSelector(FileSelectorGUI):
         super().__init__(parent)
         for k,v in kwargs:
             setattr(self, k, v)
+
+    @property
+    def database(self):
+        return self.getMainPanel().database
     
     def connectFuncs(self):
         self.data_view.selectionModel().currentChanged.connect(self.onRowChanged)
@@ -270,6 +274,9 @@ class FileSelector(FileSelectorGUI):
         # decide if un-saved comments
         if self.getInfoPanel().queryCommentSaveStatus() == "changed":
             self.statusBarInfo("You may have un-saved changes lost...", 3.5, bg_color = "red")
+        # may fail because file may not be in local
+        # sync with fm.setWatch(True) when finished is used to make sure files are watched
+        self.database.watchFileChange([data])   
 
         self.selection_changed.emit(data)       # info panel will change here
         self.offlineStatus(data.is_local)
