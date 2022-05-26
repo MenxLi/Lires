@@ -47,6 +47,7 @@ _VERSION_HISTORIES = [
     ("0.4.1", "Panel collapse buttons; Markdown highlight improvements; UI changes; Minor bug fixes"),
     ("0.5.0", "Online mode!!"),
     ("0.5.1", "Synchronize strategy update; GUI host settings; PDF cover cache; Move some window to dialog class; Clear cache CLI"),
+    ("0.5.2", "Asynchronous UI update when connection; Improved watch file changes; Bug fix: basename not allowed to have question mark"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
