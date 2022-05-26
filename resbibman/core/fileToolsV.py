@@ -43,6 +43,7 @@ class FileManipulatorVirtual(FileManipulator):
             self.path = os.path.join(TMP_DB, self.base_name)
 
             self._v_info = v    # a backup of the Datapoint Info
+        self.init()
     
     def _forceOffline(self):
         self.__force_offline = True

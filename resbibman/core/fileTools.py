@@ -176,11 +176,16 @@ class FileManipulator:
     Tools to manipulate single data directory
     """
     logger = G.logger_rbm
+    LOG_TOLERANCE_INTERVAL = 0.5
     def __init__(self, data_path):
         self.path = data_path
         self.base_name: str = os.path.split(data_path)[-1]
         self._file_extension: str = ""     # extension of the main document, "" for undefined / No file
+        self.init()
 
+    def init(self):
+        # Common init for subclasses
+        self._time_last_log = 0
         self.folder_p: str
         self.bib_p: str
         self.comments_p: str
@@ -213,16 +218,16 @@ class FileManipulator:
         file observer thread
         """
         def _onCreated(event):
-            self.logger.debug(f"(fm-file_ob) - {event.src_path} created.")
+            self.logger.debug(f"file_ob (fm) - {event.src_path} created.")
             self._log()
         def _onDeleted(event):
-            self.logger.debug(f"(fm-file_ob) - {event.src_path} deleted.")
+            self.logger.debug(f"file_ob (fm) - {event.src_path} deleted.")
             self._log()
         def _onModified(event):
-            self.logger.debug(f"(fm-file_ob) - {event.src_path} modified.")
+            self.logger.debug(f"file_ob (fm) - {event.src_path} modified.")
             self._log()
         def _onMoved(event):
-            self.logger.debug(f"(fm-file_ob) - {event.src_path} moved to {event.dest_path}.")
+            self.logger.debug(f"file_ob (fm) - {event.src_path} moved to {event.dest_path}.")
             self._log()
 
         # Exclude info path and main directory to prevent circular call
@@ -460,11 +465,17 @@ class FileManipulator:
 
     def _log(self):
         """log the modification info info file"""
+        time_now = time.time()
+        if time_now - self._time_last_log < self.LOG_TOLERANCE_INTERVAL:
+            # Prevent multiple log at same time
+            return
         with open(self.info_p, "r", encoding="utf-8") as f:
             info = json.load(f)
         info["time_modify"] = getDateTimeStr()
         info["device_modify"] = platform.node()
         info["version_modify"] = VERSION
-        self.logger.debug("_log (fm)")
         with open(self.info_p, "w", encoding="utf-8") as f:
             json.dump(info, f)
+
+        self._time_last_log = time_now
+        self.logger.debug("_log (fm)")
