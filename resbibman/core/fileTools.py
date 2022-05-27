@@ -241,7 +241,7 @@ class FileManipulator:
         event_handler.on_moved = _onMoved
         observer = Observer()
         observer.schedule(event_handler, self.path, recursive=True)
-        self.logger.debug(f"Created file observer for: {self.uuid}")
+        self.logger.debug(f"_createFileOB (fm): Created file observer for: {self.uuid}")
         return observer
     
     def screen(self) -> bool:
@@ -459,9 +459,12 @@ class FileManipulator:
             self.file_ob.stop()
             self.file_ob.join()
             del self.file_ob
+            if not status:
+                self.logger.debug(f"setWatch (fm): Stopped file observer for {self.uuid}")
         if status:
             self.file_ob = self._createFileOB()
             self.file_ob.start()
+            self.logger.debug(f"setWatch (fm): Started file observer for {self.uuid}")
 
     def _log(self):
         """log the modification info info file"""
