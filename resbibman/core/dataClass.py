@@ -15,6 +15,7 @@ except (FileNotFoundError, KeyError):
     pass
 from .bibReader import BibParser
 from .utils import HTML_TEMPLATE_RAW
+from .encryptClient import generateHexHash
 from . import globalVar as G
 
 if TYPE_CHECKING:
@@ -414,19 +415,66 @@ class DataBase(dict):
                 datalist.append(data)
         return datalist
     
-    def renameTag(self, tag_old: str, tag_new: str):
+    def renameTag(self, tag_old: str, tag_new: str) -> bool:
+        """
+        Rename a tag for the entire database
+        return if success
+        """
         data = self.getDataByTags(DataTags([tag_old]))
+        if not self.offline:
+            if not self.allUptodate():
+                self.logger.warning("Rename failed, remote file is advance than local, solve conflict before renaming")
+                return False
+            # request remote tag change
+            post_args = {
+                "key": generateHexHash(getConfV("access_key")),
+                "cmd": "renameTagAll",
+                "uuid": "_",
+                "args": json.dumps([tag_old, tag_new])
+            }
+            if not self.remoteCMD(post_args):
+                self.logger.info("Abort renaming")
+                return False
+
+        # change local tag
+        # (After remote change so local is always updated than remote)
+        self.logger.info(f"Renaming local tag: {tag_old} -> {tag_new}")
         for d in data:
+            d: DataPoint
             taglist = d.tags.toOrderedList()
             taglist = [tag_new if i == tag_old else i for i in taglist]
             d.changeTags(DataTags(taglist))
+        return True
     
-    def deleteTag(self, tag: str):
+    def deleteTag(self, tag: str) -> bool:
+        """
+        Delete a tag for the entire database
+        return if success
+        """
         data = self.getDataByTags(DataTags([tag]))
+        if not self.offline:
+            if not self.allUptodate():
+                self.logger.warning("Delete tag failed, remote file is advance than local, solve conflict before deleting tag")
+                return False
+            # request remote tag delete
+            post_args = {
+                "key": generateHexHash(getConfV("access_key")),
+                "cmd": "deleteTagAll",
+                "uuid": "_",
+                "args": json.dumps([tag])
+            }
+            if not self.remoteCMD(post_args):
+                self.logger.info("Abort deleting tag")
+                return False
+
+        # delete local tag
+        # (After remote delete so local is always updated than remote)
+        self.logger.info(f"Deleting local tag: {tag}")
         for d in data:
             taglist = d.tags.toOrderedList()
             taglist.remove(tag)
             d.changeTags(DataTags(taglist))
+        return True
 
     def findSimilarByBib(self, bib_str: str) -> Union[None, DataPoint]:
         """
@@ -442,3 +490,34 @@ class DataBase(dict):
             if similarity > 0.8:
                 return v
         return None
+
+    def remoteCMD(self, post_args) -> bool:
+        """
+        post command to remote/cmdA
+        """
+        if self.offline:
+            return False
+        addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
+        post_addr = "{}/cmdA".format(addr) 
+        res = requests.post(post_addr, params = post_args)
+        if not res.ok:
+            self.logger.info(f"failed requesting {post_addr} ({res.status_code}).")
+            return False
+        return True
+
+    def allUptodate(self) -> bool:
+        """
+        Return if all data points in local are up-to-date with remote
+        """
+        if self.offline:
+            return True
+        # udpate remote file info
+        self.pull()
+        for d in self.values():
+            if d.is_local:
+                # update data point v_info to the same with remote
+                d.v_info = self.remote_info[d.uuid]
+                if d.fm.is_uptodate == "behind":
+                    self.logger.info(f"data({d.uuid}) is behind remote")
+                    return False
+        return True

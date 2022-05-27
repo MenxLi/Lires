@@ -50,7 +50,7 @@ class FileManipulatorVirtual(FileManipulator):
     
     @property
     def v_info(self) -> Union[DataPointInfo, dict]:
-        """ Virtual file info """
+        """ Virtual file info (from remote) """
         if hasattr(self, "_v_info"):
             return self._v_info
         else:

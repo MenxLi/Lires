@@ -481,4 +481,4 @@ class FileManipulator:
             json.dump(info, f)
 
         self._time_last_log = time_now
-        self.logger.debug("_log (fm)")
+        self.logger.debug("_log (fm): {}".format(self.uuid))

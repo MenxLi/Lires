@@ -97,6 +97,26 @@ class CMDHandler(tornado.web.RequestHandler, RequestHandlerBase):
             print("receiving reload Database command")
             self._reloadDB()
 
+class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerBase):
+    """Command with arguments"""
+    def post(self):
+        global db_reader
+        db = db_reader.db
+
+        self.setDefaultHeader()
+        cmd = self.get_argument("cmd")
+        uuid = self.get_argument("uuid")
+        args = json.loads(self.get_argument("args"))
+        print("Receiving argument command: ", cmd, uuid, args)
+
+        self.checkKey()
+
+        if cmd == "renameTagAll":
+            db.renameTag(args[0], args[1])
+        if cmd == "deleteTagAll":
+            db.deleteTag(args[0])
+
+
 class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
     # handler for local web pages
     def get(self, path, include_body = True):
@@ -184,6 +204,7 @@ class Application(tornado.web.Application):
             (r"/file", FileHandler),
             (r"/comment/(.*)", CommentHandler),
             (r"/cmd/(.*)", CMDHandler),
+            (r"/cmdA", CMDArgHandler),
         ]
         super().__init__(handlers)
 

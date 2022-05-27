@@ -11,7 +11,7 @@ def generateDefaultConf():
 	saveToConf(
 		accepted_extensions = [".pdf", ".caj", ".html", ".hpack", ".md", ".pptx", ".ppt"],
 		database = DEFAULT_DATA_PATH,
-		host = "localhost",
+		host = "",
 		port = "8080",
 		access_key = "",
 		default_tags = [],

@@ -21,6 +21,10 @@ class TagSelector(RefWidgetBase):
         if isinstance(tag_data, DataTags) and isinstance(tag_total, DataTags):
             self.constructDataModel(tag_data, tag_total)    
 
+    @property
+    def database(self):
+        return self.getMainPanel().database
+
     def initUI(self):
         self.tag_view = QListView()
         self.tag_view.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
@@ -70,14 +74,21 @@ class TagSelector(RefWidgetBase):
         else:
             return
         data = self.getMainPanel().db.getDataByTags(DataTags([tag]))
-        text, ok = QInputDialog.getText(self, "Edit tag for {} files".format(len(data)), "Enter new tag", text = tag)
+        n_online = len(["" for d in data if not d.is_local])
+        # confirm
+        text, ok = QInputDialog.getText(self, "Edit tag".format(len(data)), \
+                                        "Enter new tag for {} files ({} remote)".format(len(data), n_online), text = tag)
         if ok:
-            self.getMainPanel().db.renameTag(tag, text)
-            curr_tags = self.getSelectedTags()
-            taglist = curr_tags.toOrderedList()
-            taglist = [text if i == tag else i for i in taglist]
-            saveToConf(default_tags = DataTags(taglist).toOrderedList())
-            self.getMainPanel().reloadData()
+            self.getMainPanel().setEnabled(False)
+            if self.getMainPanel().db.renameTag(tag, text):
+                curr_tags = self.getSelectedTags()
+                taglist = curr_tags.toOrderedList()
+                taglist = [text if i == tag else i for i in taglist]
+                saveToConf(default_tags = DataTags(taglist).toOrderedList())
+                self.getMainPanel().reloadData()
+            else:
+                self.statusBarInfo("Failed, check log for more info.", 5, bg_color = "red")
+            self.getMainPanel().setEnabled(True)
 
     def deleteSelectedTag(self):
         selection = self.getCurrentSelection()
@@ -86,10 +97,17 @@ class TagSelector(RefWidgetBase):
         else:
             return
         data = self.getMainPanel().db.getDataByTags(DataTags([tag]))
-        if self.warnDialog("Delete tag: {}".format(tag), info_msg="For {} files".format(len(data))):
-            if self.warnDialog("Warning again, deleting tag: ***{}***".format(tag), info_msg="For {} files, Sure??".format(len(data))):
-                self.getMainPanel().db.deleteTag(tag)
+        n_online = len(["" for d in data if not d.is_local])
+        # confirm
+        if not self.warnDialog("Delete tag: {}".format(tag), info_msg="For {} files ({})".format(len(data), n_online)):
+            return
+        if self.warnDialog("Warning again, deleting tag: ***{}***".format(tag), info_msg="For {} files, Sure??".format(len(data))):
+            self.getMainPanel().setEnabled(False)
+            if self.getMainPanel().db.deleteTag(tag):
                 self.getMainPanel().reloadData()
+            else:
+                self.statusBarInfo("Failed, check log for more info.", 5, bg_color = "red")
+            self.getMainPanel().setEnabled(True)
 
     def addNewSelectedEntry(self, tag: str):
         self.tag_model.datalist.append([True, tag])
