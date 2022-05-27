@@ -126,6 +126,14 @@ class RefWidgetBase(QWidget, WidgetBase):
         assert self._tag_panel is not None, "Tag panel not set, use setTagPanel to set the panel"
         return self._tag_panel
 
+    def freeze(self):
+        class Freezer:
+            def __enter__(_self):
+                self.setEnabled(False)
+            def __exit__(_self, exception_type, exception_value, traceback):
+                self.setEnabled(True)
+        return Freezer()
+
 MainWidgetBase = RefWidgetBase
 
 

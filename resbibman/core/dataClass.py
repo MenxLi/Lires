@@ -313,7 +313,7 @@ class DataBase(dict):
         """
         self._force_offline = force_offline
         if not self.offline:
-            flist = self.pull()
+            flist = self.fetch()
             if not flist:
                 # empty may indicate an server error
                 self.constuct([], force_offline=True)
@@ -344,13 +344,13 @@ class DataBase(dict):
         if force_offline:
             self._force_offline = True
 
-    def pull(self) -> List[DataPointInfo]:
+    def fetch(self) -> List[DataPointInfo]:
         """
         update self.remote_info
         will not change data
         """
         if self.offline:
-            self.logger.info("Offline mode, can't pull database")
+            self.logger.info("Offline mode, can't fetch database")
             return []
 
         addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
@@ -359,10 +359,10 @@ class DataBase(dict):
         try:
             res = requests.get(flist_addr)
             if res.status_code != 200:
-                self.logger.info("Faild to pull remote data ({})".format(res.status_code))
+                self.logger.info("Faild to fetch remote data ({})".format(res.status_code))
                 return []
         except requests.exceptions.ConnectionError:
-            self.logger.warning("Server is down, abort pulling remote data.")
+            self.logger.warning("Server is down, abort fetching remote data.")
             return []
         
         flist = res.text
@@ -390,7 +390,7 @@ class DataBase(dict):
             if not self.offline:
                 # If remote has this data, delete remote as well, 
                 # otherwise it will be downloaded again when sync
-                if dp.uuid in self.remote_info:     # Check if is it in remote
+                if dp.uuid in self.remote_info:     # Check if it is in remote
                     if not dp.fm._deleteRemote():
                         self.logger.info("Oops, the data on the server side hasn't been deleted")
                         self.logger.warn("You may need to sync->delete again for {}".format(dp))
@@ -512,7 +512,7 @@ class DataBase(dict):
         if self.offline:
             return True
         # udpate remote file info
-        self.pull()
+        self.fetch()
         for d in self.values():
             if d.is_local:
                 # update data point v_info to the same with remote

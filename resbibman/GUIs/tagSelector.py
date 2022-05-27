@@ -78,8 +78,10 @@ class TagSelector(RefWidgetBase):
         # confirm
         text, ok = QInputDialog.getText(self, "Edit tag".format(len(data)), \
                                         "Enter new tag for {} files ({} remote)".format(len(data), n_online), text = tag)
-        if ok:
-            self.getMainPanel().setEnabled(False)
+        if not ok:
+            return 
+        # do
+        with self.getMainPanel().freeze():
             if self.getMainPanel().db.renameTag(tag, text):
                 curr_tags = self.getSelectedTags()
                 taglist = curr_tags.toOrderedList()
@@ -88,7 +90,6 @@ class TagSelector(RefWidgetBase):
                 self.getMainPanel().reloadData()
             else:
                 self.statusBarInfo("Failed, check log for more info.", 5, bg_color = "red")
-            self.getMainPanel().setEnabled(True)
 
     def deleteSelectedTag(self):
         selection = self.getCurrentSelection()
@@ -101,13 +102,14 @@ class TagSelector(RefWidgetBase):
         # confirm
         if not self.warnDialog("Delete tag: {}".format(tag), info_msg="For {} files ({})".format(len(data), n_online)):
             return
-        if self.warnDialog("Warning again, deleting tag: ***{}***".format(tag), info_msg="For {} files, Sure??".format(len(data))):
-            self.getMainPanel().setEnabled(False)
+        if not self.warnDialog("Warning again, deleting tag: ***{}***".format(tag), info_msg="For {} files, Sure??".format(len(data))):
+            return
+        # do
+        with self.getMainPanel().freeze():
             if self.getMainPanel().db.deleteTag(tag):
                 self.getMainPanel().reloadData()
             else:
                 self.statusBarInfo("Failed, check log for more info.", 5, bg_color = "red")
-            self.getMainPanel().setEnabled(True)
 
     def addNewSelectedEntry(self, tag: str):
         self.tag_model.datalist.append([True, tag])
