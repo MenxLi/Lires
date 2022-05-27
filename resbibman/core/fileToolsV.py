@@ -137,7 +137,12 @@ class FileManipulatorVirtual(FileManipulator):
                 "filename": self.base_name.encode("utf-8"),
                 "file": fp
             }
-            res = requests.post(self.POST_URL, params = post_args, files=file_args)
+            try:
+                res = requests.post(self.POST_URL, params = post_args, files=file_args)
+            except requests.exceptions.ConnectionError:
+                self.logger.info("uploadRemote (fm): Connection error")
+                G.last_status_code = 0
+                return False
 
         if not self._checkRes(res):
             return False
@@ -153,7 +158,12 @@ class FileManipulatorVirtual(FileManipulator):
             "cmd": "download",
             "uuid": uuid
         }
-        res = requests.post(self.POST_URL, params = post_args)
+        try:
+            res = requests.post(self.POST_URL, params = post_args)
+        except requests.exceptions.ConnectionError:
+            self.logger.info("downloadRemote (fm): Connection error")
+            G.last_status_code = 0
+            return False
         if not self._checkRes(res):
             return False
         out_file = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
@@ -178,7 +188,12 @@ class FileManipulatorVirtual(FileManipulator):
             "uuid": uuid
         }
         self.logger.debug("Request remote delete {}".format(uuid))
-        res = requests.post(self.POST_URL, params = post_args)
+        try:
+            res = requests.post(self.POST_URL, params = post_args)
+        except requests.exceptions.ConnectionError:
+            self.logger.info("deleteRemote (fm): Connection error")
+            G.last_status_code = 0
+            return False
         if not self._checkRes(res):
             self.logger.warning("Remote delete failed for {}".format(uuid))
             return False

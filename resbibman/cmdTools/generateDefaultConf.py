@@ -9,7 +9,7 @@ def generateDefaultConf():
 	"database" points to local database, used by RBMWeb,
 	"""
 	saveToConf(
-		accepted_extensions = [".pdf", ".caj", ".html", ".hpack", ".md"],
+		accepted_extensions = [".pdf", ".caj", ".html", ".hpack", ".md", ".pptx", ".ppt"],
 		database = DEFAULT_DATA_PATH,
 		host = "localhost",
 		port = "8080",
