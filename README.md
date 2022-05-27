@@ -14,7 +14,19 @@ It also has a web viewer (RBM-web) so that it can be deployed into a server to s
 
 # Installation & Usage
 
-Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this software.
+~~Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this software.~~
+
+## Installation
+```Python
+pip install .
+resbibman --reset_conf  # To create default configuration
+```
+
+## Usage:
+See `resbibman -h`  
+Refer to the [docs-CN](./resbibman/docs/使用说明.md)  
+
+**This reference is outdated, new versions will be added in the future**
 
 # Future works
 
@@ -27,12 +39,12 @@ Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this s
 - [x] PDF cover preview
 - [x] Change bib
 - [x] Use cache to accelerate pdf preview
+- [x] Better way to define time-modified
 - [ ] Redirect some logging to status bar
 - [ ] Other citation format convert to bibtex
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
 - [ ] User info
 - [ ] Export database
-- [ ] Better way to define time-modified
 - [ ] View comments online
 
 In query widget while importing articles:  
