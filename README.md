@@ -19,11 +19,15 @@ It also has a web viewer (RBM-web) so that it can be deployed into a server to s
 ## Installation
 ```Python
 pip install .
-resbibman --reset_conf  # To create default configuration
+rbm-resetConf  # To create default configuration
 ```
 
 ## Usage:
-See `resbibman -h`  
+To start the main program:
+```
+resbibman
+```
+For CLI help, see `resbibman -h`  
 
 **The [docs-CN](./resbibman/docs/使用说明.md) is outdated, new versions will be added in the future**
 
