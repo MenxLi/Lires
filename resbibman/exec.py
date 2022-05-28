@@ -35,7 +35,7 @@ def execProg():
 def run():
     _description = f"\
 Reseach bibiography manager (Resbibman) and Reseach bibiography manager Web (RBMWeb) \
-are literature managers developed by Li, Mengxun (mengxunli@whu.edu.cn).\
+are literature managers\
 The configration file for the software is at {CONF_FILE_PATH},\n\
 For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     "
