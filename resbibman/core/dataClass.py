@@ -314,8 +314,8 @@ class DataBase(dict):
         self._force_offline = force_offline
         if not self.offline:
             flist = self.fetch()
-            if not flist:
-                # empty may indicate an server error
+            if flist is None:
+                # None indicate an server error
                 self.constuct([], force_offline=True)
             else:
                 # server may be back when reload 
@@ -344,14 +344,14 @@ class DataBase(dict):
         if force_offline:
             self._force_offline = True
 
-    def fetch(self) -> List[DataPointInfo]:
+    def fetch(self) -> Union[List[DataPointInfo], None]:
         """
         update self.remote_info
         will not change data
         """
         if self.offline:
             self.logger.info("Offline mode, can't fetch database")
-            return []
+            return None
 
         addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
         flist_addr = "{}/filelist/%".format(addr) 
@@ -360,10 +360,10 @@ class DataBase(dict):
             res = requests.get(flist_addr)
             if res.status_code != 200:
                 self.logger.info("Faild to fetch remote data ({})".format(res.status_code))
-                return []
+                return None
         except requests.exceptions.ConnectionError:
             self.logger.warning("Server is down, abort fetching remote data.")
-            return []
+            return None
         
         flist = res.text
         flist = json.loads(flist)["data"]
