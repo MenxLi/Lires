@@ -61,6 +61,7 @@ class FileSelectorGUI(MainWidgetBase):
         self.data_view.addAction(self.act_copy_bib)
         self.data_view.addAction(self.act_add_file)
         self.data_view.addAction(self.act_free_doc)
+        self.data_view.addAction(self.act_delete_file)
     
 
 class FileSelector(FileSelectorGUI):
@@ -92,6 +93,7 @@ class FileSelector(FileSelectorGUI):
         self.act_add_file.triggered.connect(lambda : self.addFileToCurrentSelection(fname = None))
         self.act_free_doc.triggered.connect(self.freeDocumentOfCurrentSelection)
         self.act_edit_bib.triggered.connect(self.editBibtex)
+        self.act_delete_file.triggered.connect(self.deleteCurrentSelected)
 
     def offlineStatus(self, status: bool):
         super().offlineStatus(status)
