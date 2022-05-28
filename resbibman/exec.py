@@ -40,9 +40,9 @@ The configration file for the software is at {CONF_FILE_PATH},\n\
 For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     "
     parser = argparse.ArgumentParser(description=_description)
-    parser.add_argument("-n", "--not_run", action= "store_true", help = "Not to run main program")
     parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
-    parser.add_argument("-s", "--server", action = "store_true", help = "Start server (RBMWeb)")
+    parser.add_argument("-s", "--server", action = "store_true", help = "Start server (RBMWeb) and resbibman GUI")
+    parser.add_argument("-S", "--server_headless", action = "store_true", help = "Start server (RBMWeb) without resbibman GUI")
     parser.add_argument("-l", "--print_log", action = "store_true", help = "Print log and exit")
     parser.add_argument("-L", "--log_level", action= "store", type = str, default="INFO", help = "log level")
     parser.add_argument("-c", "--clear_cache", action = "store_true", help = "clear cache and exit")
@@ -61,6 +61,8 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     handler.setFormatter(fomatter)
     logger.addHandler(handler)
 
+    NOT_RUN = False     # Indicates whether to run main GUI
+
     if not os.path.exists(CONF_FILE_PATH):
         subprocess.check_call("rbm-resetConf")  # Installed with setup.py
 
@@ -76,7 +78,7 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
             print("v{version}: {history}".format(version = v, history = d))
         print("=====================================")
         print("Current version: ", VERSION)
-        args.not_run = True
+        NOT_RUN = True
 
     if args.clear_log:
         if os.path.exists(LOG_FILE):
@@ -89,7 +91,7 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
             with open(LOG_FILE, "r") as log_file:
                 print(log_file.read())
         else: print("Log file not exits, run the program to create the log file")
-        args.not_run = True
+        NOT_RUN = True
     
     if args.clear_cache:
         prompt_msgs = [
@@ -103,7 +105,11 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
             print("success.")
         else:
             print("abort.")
-        args.not_run = True
+        NOT_RUN = True
+    
+    if args.server_headless:
+        NOT_RUN = True
+        args.server = True
 
     if args.server:
         from RBMWeb.server import startServerProcess
@@ -112,9 +118,9 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     if args.reset_conf:
         from resbibman.cmdTools.generateDefaultConf import generateDefaultConf
         generateDefaultConf()
-        args.not_run = True
+        NOT_RUN = True
 
-    if not args.not_run:
+    if not NOT_RUN:
         if args.no_log:
             execProg_()
         else:
