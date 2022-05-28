@@ -6,7 +6,7 @@
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for notes.
 
-It also has a web viewer (RBM-web) so that it can be deployed into a server to share literatures.
+It also has a web viewer (RBM-web) so that it can be deployed into a server to share literatures or work in online mode.
 
 [comment]: <> (## distribution)
 
@@ -24,9 +24,14 @@ resbibman --reset_conf  # To create default configuration
 
 ## Usage:
 See `resbibman -h`  
-Refer to the [docs-CN](./resbibman/docs/使用说明.md)  
 
-**This reference is outdated, new versions will be added in the future**
+**The [docs-CN](./resbibman/docs/使用说明.md) is outdated, new versions will be added in the future**
+
+## Server usage
+Start server with `resbibman -S`  
+Access key management with` rbm-keyman `  
+The server serve data at `database` entry of the `resbibman` configration file (`resbibman/conf.json`)
+The server port can be assigned at `RBMWeb/backend/conf.json`
 
 # Future works
 
@@ -40,6 +45,7 @@ Refer to the [docs-CN](./resbibman/docs/使用说明.md)
 - [x] Change bib
 - [x] Use cache to accelerate pdf preview
 - [x] Better way to define time-modified
+- [ ] Better font size
 - [ ] Redirect some logging to status bar
 - [ ] Other citation format convert to bibtex
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
@@ -68,7 +74,7 @@ settings:
 
 Tags:
 - [x] Right click: rename; delete;
-- [ ] Sub-tags
+- [ ] Sub-tags (Cascading tags / Nested tags)
 
 Refractor:
 - [ ] Move more methods into core classes
