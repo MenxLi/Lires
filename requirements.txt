@@ -8,3 +8,4 @@ pyperclip
 requests
 watchdog
 nest_asyncio
+arxiv

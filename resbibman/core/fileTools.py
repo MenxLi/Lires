@@ -67,7 +67,6 @@ class FileGenerator(FileGeneratorBase):
     def __init__(self, file_path: Union[str, None], title: str, year: Union[int, str], authors: List[str]):
         """
         file_path: path to the original paper, set to None for no file serving
-        data_dir: database directory
         """
         super().__init__(title, year, authors)
         self.file_path = file_path
@@ -84,8 +83,22 @@ class FileGenerator(FileGeneratorBase):
             "info": self.INFOPREFIX+self.base_name+".json",
             "misc": self.FOLDERNAME
         }
+    
+    @property
+    def dst_path(self) -> str:
+        """
+        Return generated directory path
+        """
+        if hasattr(self, "dst_dir"):
+            return self.dst_dir
+        else:
+            warnings.warn("Call generateDefaultFiles for FileGenerator to generate files")
+            return ""
 
     def generateDefaultFiles(self, data_dir):
+        """
+         - data_dir: database directory
+        """
         self.data_dir = data_dir
         if self.file_path is not None:
             _file_name = os.path.split(self.file_path)[-1]

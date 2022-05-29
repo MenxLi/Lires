@@ -9,7 +9,7 @@ import tornado.ioloop
 import tornado.web
 
 from resbibman.confReader import getConfV, TMP_DIR, TMP_WEB
-from resbibman.core.dataClass import DataPoint
+from resbibman.core.dataClass import DataPoint, FileManipulatorVirtual
 from resbibman.core.compressTools import compressDir, decompressDir
 
 class RequestHandlerBase():
@@ -107,7 +107,8 @@ class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerBase):
         cmd = self.get_argument("cmd")
         uuid = self.get_argument("uuid")
         args = json.loads(self.get_argument("args"))
-        print("Receiving argument command: ", cmd, uuid, args)
+        kwargs = json.loads(self.get_argument("kwargs"))
+        print("Receiving argument command: ", cmd, uuid, args, kwargs)
 
         self.checkKey()
 
@@ -115,7 +116,13 @@ class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerBase):
             db.renameTag(args[0], args[1])
         if cmd == "deleteTagAll":
             db.deleteTag(args[0])
-
+        if cmd == "rbm-collect":
+            from resbibman.cmdTools.rbmCollect import exec as exec_rbmCollect
+            d_path = exec_rbmCollect(args[0], **kwargs)
+            if d_path:
+                db.add(d_path)
+            else:
+                raise tornado.web.HTTPError(418) 
 
 class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
     # handler for local web pages

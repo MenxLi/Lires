@@ -26,12 +26,15 @@ setup(
 
     include_package_data = True,
 
-    install_requires = ["PyQt5", "pybtex", "pyperclip", "PyMuPDF>=1.19.3", "PyQtWebEngine", "markdown", "tornado", "requests", "watchdog", "nest_asyncio"],
+    install_requires = \
+    ["PyQt5", "pybtex", "pyperclip", "PyMuPDF>=1.19.3", "PyQtWebEngine", "markdown", "tornado", "requests", "watchdog", "nest_asyncio", "arxiv"],
 
     entry_points = {
         "console_scripts":[
             "resbibman=resbibman.exec:run",
             "rbm-resetConf=resbibman.cmdTools.generateDefaultConf:run",
+            "rbm-resetconf=resbibman.cmdTools.generateDefaultConf:run",
+            "rbm-collect=resbibman.cmdTools.rbmCollect:main",
             "rbm-keyman=RBMWeb.cmd.manageKey:run"
         ]
     }

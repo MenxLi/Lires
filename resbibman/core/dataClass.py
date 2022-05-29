@@ -486,7 +486,8 @@ class DataBase(dict):
                 "key": generateHexHash(getConfV("access_key")),
                 "cmd": "renameTagAll",
                 "uuid": "_",
-                "args": json.dumps([tag_old, tag_new])
+                "args": json.dumps([tag_old, tag_new]),
+                "kwargs": json.dumps({})
             }
             if not self.remoteCMD(post_args):
                 self.logger.info("Abort renaming")
@@ -517,7 +518,8 @@ class DataBase(dict):
                 "key": generateHexHash(getConfV("access_key")),
                 "cmd": "deleteTagAll",
                 "uuid": "_",
-                "args": json.dumps([tag])
+                "args": json.dumps([tag]),
+                "kwargs": json.dumps({})
             }
             if not self.remoteCMD(post_args):
                 self.logger.info("Abort deleting tag")
