@@ -444,7 +444,11 @@ class MainWindow(MainWindowGUI):
             # local dir
             self.loadData_async(getConf()["database"], sync_after=False)
             #  self._loadData(getConf()["database"])
-        self.file_info.clearPanel()
+        curr_dp = self.getCurrentSelection()
+        if curr_dp is not None:
+            self.file_info.load(curr_dp)
+        else:
+            self.file_info.clearPanel()
         
     def statusBarMsg(self, msg: str, bg_color = "none"):
         if self.db.offline:

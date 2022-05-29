@@ -109,7 +109,7 @@ class FileSelector(FileSelectorGUI):
         for wid in disable_wids:
             wid.setEnabled(status)
     
-    def syncCurrentSelections(self) -> bool:
+    def __syncCurrentSelections(self) -> bool:
         """Deprecated"""
         selections = self.getCurrentSelection(return_multiple=True)
         SUCCESS = True
