@@ -51,11 +51,20 @@ class DataPoint:
         self.loadInfo()
     
     def _forceOffline(self):
-        """Called when run server"""
+        """
+        Will be called when run on server side or failed to connect to the server
+        """
         self.__force_offline = True
         self.fm._forceOffline()
     
     def sync(self) -> bool:
+        """
+        Synchronize,
+        if the data is in remote, call self.fm._sync to check if is up-to-date and upload/dowload or do nothing
+        else if the data is new, upload to the remote
+        (if in offline mode, self.fm._sync will fail thus return False)
+        return if success
+        """
         if self.uuid in self.par_db.remote_info:
             remote_info = self.par_db.remote_info[self.uuid]
             self.fm.v_info = remote_info
@@ -93,7 +102,7 @@ class DataPoint:
             # to decide later
             pass
         if self.__force_offline:
-            self.fm.forceOffline()
+            self.fm._forceOffline()
         self.fm.screen()
         self.loadInfo()
 
@@ -128,6 +137,11 @@ class DataPoint:
         return out
     
     def addFile(self, extern_file_p: str) -> bool:
+        """
+        Add document to this data, 
+        Will only work if the file is in local and not have document file
+        return if success
+        """
         return self.fm.addFile(extern_file_p)
     
     def changeTags(self, new_tags: DataTags):
@@ -148,7 +162,10 @@ class DataPoint:
         info_txt = "--{}--\n".format(bib["type"]) + info_txt
         return info_txt
     
-    def screenByPattern(self, pattern):
+    def screenByPattern(self, pattern) -> bool:
+        """
+        Return if the self.stringInfo meets the regex pattern
+        """
         # string = self.title+";"+";".join(self.authors)+";"+self.year
         string = self.stringInfo() + "\n" + self.uuid
         string = string.lower()
@@ -170,11 +187,10 @@ class DataPoint:
         comment_html = self.COMMENT_HTML_TEMPLATE.substitute(content = comment_html)
         return comment_html
 
-    def save(self):
-        pass
-
     def getFileStatusStr(self):
-        """If the datapoint contains file"""
+        """
+        Unicode icon indicate if the datapoint contains file
+        """
         if self.has_file:
             if self.is_local:
                 return "\u2726"
@@ -189,6 +205,9 @@ class DataPoint:
                 # return "\u29be"
 
     def stringCitation(self):
+        """
+        Generate citation string, should be adapted to more formats in the future
+        """
         bib = self.bib
         title = bib["title"]
         year = bib["year"]
@@ -201,6 +220,11 @@ class DataPoint:
         return string
 
     def getAuthorsAbbr(self):
+        """
+        Get authors abbreviation, i.e.:
+            when only have one author: return the only author's first name
+            otherwise return the first author's first name + et al.
+        """
         if len(self.authors) == 1:
             author = self._getFirstName(self.authors[0]) + "."
         else:
@@ -308,7 +332,7 @@ class DataBase(dict):
 
     def init(self, db_local = "", force_offline = False):
         """
-        load both db_local and remote server
+        An abstraction of self.construct, load both db_local and remote server
         reset offline status
         """
         self._force_offline = force_offline
@@ -318,7 +342,7 @@ class DataBase(dict):
                 # None indicate an server error
                 self.constuct([], force_offline=True)
             else:
-                # server may be back when reload 
+                # server may be back when reload (re-call self.init)
                 self.constuct(flist, force_offline=self._force_offline)
         if db_local:
             # when load database is provided
@@ -331,6 +355,8 @@ class DataBase(dict):
 
     def constuct(self, vs: Union[List[str], List[DataPointInfo]], force_offline = False):
         """
+        Construct the DataBase (Add new entries to database)
+         - vs: list of DataPointInfo or local data directories
          - force_offline: use when called by server side
                          or when server is down
         """
@@ -348,6 +374,8 @@ class DataBase(dict):
         """
         update self.remote_info
         will not change data
+        return None for failed fetching
+        return Union[List[DataPointInfo], None]
         """
         if self.offline:
             self.logger.info("Offline mode, can't fetch database")
@@ -371,6 +399,11 @@ class DataBase(dict):
         return flist
 
     def add(self, data: Union[DataPoint, str]) -> DataPoint:
+        """
+        Add a data to the DataBase
+         - data: DataPoint or path to the local data directory
+        return DataPoint
+        """
         if isinstance(data, str):
             # path to the data folder
             assert os.path.exists(data)
@@ -382,6 +415,10 @@ class DataBase(dict):
         return data
     
     def delete(self, uuid: str):
+        """
+        Delete a DataPoint by uuid,
+        will delete remote data if in online mode and remote data exists
+        """
         if uuid in self.keys():
             dp: DataPoint = self[uuid]
             if dp.fm.has_local:
@@ -397,6 +434,11 @@ class DataBase(dict):
             del self[uuid]
 
     def watchFileChange(self, v: List[Union[DataPoint, str]]):
+        """
+        Watch file status change
+        Will restrict watch only to the input, unwatch all others
+         - v: list of uuid or DataPoint
+        """
         for uuid, dp in self.items():
             dp.fm.setWatch(False)
         for v_ in v:

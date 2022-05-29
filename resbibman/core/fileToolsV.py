@@ -244,11 +244,11 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             return self.v_info["has_file"]
     
-    def addFile(self, extern_file_p):
+    def addFile(self, extern_file_p) -> bool:
         if self.has_local:
             return super().addFile(extern_file_p)
         else:
-            ...
+            return False
     
     def getDocSize(self) -> float:
         if self.has_local:
