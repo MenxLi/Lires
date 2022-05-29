@@ -1,6 +1,6 @@
 
 from typing import TypeVar, Awaitable
-import asyncio
+import asyncio, nest_asyncio
 
 
 T = TypeVar("T")
@@ -9,6 +9,10 @@ def asyncioLoopRun(call: Awaitable[T]) -> T:
     Should be used instead of asyncio.run when already running a main loop
     (e.g. inside tornado server loop)
     """
+    try:
+        nest_asyncio.apply()
+    except RuntimeError:
+        pass
     CLOSE_LOOP = True
     try:
         loop = asyncio.get_event_loop()
