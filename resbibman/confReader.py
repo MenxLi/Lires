@@ -48,7 +48,9 @@ _VERSION_HISTORIES = [
     ("0.5.0", "Online mode!!"),
     ("0.5.1", "Synchronize strategy update; GUI host settings; PDF cover cache; Move some window to dialog class; Clear cache CLI"),
     ("0.5.2", "Asynchronous UI update when connection; Improved watch file changes; Bug fix: basename now not allowed to have question mark"),
-    ("0.5.3", "Better file modification monitering; bug fix: rename/delete tag now will affact unasynchronized data; CLI change"),
+    ("0.5.3", "Better file modification monitering; Bug fix: rename/delete tag now will affact unasynchronized data; CLI change"),
+    ("0.5.4", "Document update; Use asyncio to accelerate dataloading; Add delete to context menu of file selector; \
+        CLI update; Bug fixs: rbmweb can serve packed webpages with style, server can serve empty database"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
