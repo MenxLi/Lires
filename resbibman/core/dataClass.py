@@ -7,6 +7,7 @@ from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict
 import difflib
 import markdown
 from .fileTools import FileGenerator
+from ..perf.asynciolib import asyncioLoopRun
 try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable
@@ -340,10 +341,10 @@ class DataBase(dict):
             flist = self.fetch()
             if flist is None:
                 # None indicate an server error
-                asyncio.run(self.constuct([], force_offline=True))
+                asyncioLoopRun(self.constuct([], force_offline=True))
             else:
                 # server may be back when reload (re-call self.init)
-                asyncio.run(self.constuct(flist, force_offline=self._force_offline))
+                asyncioLoopRun(self.constuct(flist, force_offline=self._force_offline))
         if db_local:
             # when load database is provided
             to_load = []
@@ -351,7 +352,7 @@ class DataBase(dict):
                 f_path = os.path.join(db_local, f)
                 if os.path.isdir(f_path):
                     to_load.append(f_path)
-            asyncio.run(self.constuct(to_load))
+            asyncioLoopRun(self.constuct(to_load))
 
     async def constuct(self, vs: Union[List[str], List[DataPointInfo]], force_offline = False):
         """
