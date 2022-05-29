@@ -69,8 +69,9 @@ TMP_DIR = tempfile.gettempdir()
 TMP_DIR = os.path.join(TMP_DIR, "ResBibMan")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
+TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
 
-for _p in [TMP_DIR, TMP_DB, TMP_COVER]:
+for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 

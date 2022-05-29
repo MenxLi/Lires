@@ -1,9 +1,7 @@
-import os, copy, asyncio
 import typing
-from typing import Dict, List, Union, TypedDict
+from typing import List, Union, TypedDict
 from resbibman.confReader import getConfV
-from resbibman.core.dataClass import DataBase, DataList, DataPoint, DataTableList, DataTags
-from resbibman.core.fileToolsV import FileManipulatorVirtual
+from resbibman.core.dataClass import DataBase, DataList, DataPoint, DataTags
 from resbibman.core.htmlTools import unpackHtmlTmp
 
 def getDataBaseInfo() -> Union[List[dict], None]:

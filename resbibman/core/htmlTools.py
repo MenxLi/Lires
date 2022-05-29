@@ -1,8 +1,8 @@
-import zipfile, os, tempfile, shutil, logging
+import zipfile, os, shutil
 from .utils import openFile, randomAlphaNumeric
 from . import globalVar as G
 
-from ..confReader import TMP_DIR
+from ..confReader import TMP_WEB
 
 def openTmp_hpack(hpack_path: str, tmp_dir_name: str = "") -> bool:
     """
@@ -77,7 +77,7 @@ def unpackHtmlTmp(hpack_path: str, tmp_dir_name: str = "") -> str:
     Unpack a html file to a temporary directory
     """
     # tmp_dir = tempfile.gettempdir()
-    tmp_dir = TMP_DIR
+    tmp_dir = TMP_WEB
     if not tmp_dir_name:
         tmp_dir_name = randomAlphaNumeric(10)
     tmp_dir = unpackHtml(hpack_path, os.path.join(tmp_dir, tmp_dir_name))

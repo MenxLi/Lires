@@ -8,7 +8,7 @@ from RBMWeb.backend.encryptServer import queryHashKey
 import tornado.ioloop
 import tornado.web
 
-from resbibman.confReader import getConfV, TMP_DIR
+from resbibman.confReader import getConfV, TMP_DIR, TMP_WEB
 from resbibman.core.dataClass import DataPoint
 from resbibman.core.compressTools import compressDir, decompressDir
 
@@ -129,11 +129,11 @@ class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
             # uuid + "/"
             html_p = db_reader.getTmpHtmlPathByUUID(uuid)
             # make sure we can find correct directory in subsequent requests
-            assert os.path.dirname(html_p) == os.path.join(TMP_DIR, uuid)
+            assert os.path.dirname(html_p) == os.path.join(TMP_WEB, uuid)
             return super().get(path = html_p, include_body=True)
 
         else:
-            tmp_dir = os.path.join(tempfile.gettempdir(), uuid)
+            tmp_dir = os.path.join(TMP_WEB, uuid)
             psplit = tmp_dir.split(os.sep) + psplit[1:]
             if psplit[0] == "":
                 psplit = psplit[1:]
