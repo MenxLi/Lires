@@ -1,4 +1,4 @@
-import os, copy
+import os, copy, asyncio
 import typing
 from typing import Dict, List, Union, TypedDict
 from resbibman.confReader import getConfV
@@ -49,7 +49,7 @@ class DatabaseReader:
             f = os.path.join(db_path, f)
             if os.path.isdir(f):
                 valid_f.append(f)
-        self.db.constuct(valid_f, force_offline=True)
+        asyncio.run(self.db.constuct(valid_f, force_offline=True))
         print("Finish.")
 
     def getDictDataFromDataPoint(self, dp: DataPoint) -> DataPointInfo:

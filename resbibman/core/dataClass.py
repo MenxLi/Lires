@@ -2,7 +2,7 @@ from __future__ import annotations
 import logging
 import shutil, requests, json
 from resbibman.confReader import getConfV
-import typing, re, string, os
+import typing, re, string, os, asyncio
 from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict
 import difflib
 import markdown
@@ -340,10 +340,10 @@ class DataBase(dict):
             flist = self.fetch()
             if flist is None:
                 # None indicate an server error
-                self.constuct([], force_offline=True)
+                asyncio.run(self.constuct([], force_offline=True))
             else:
                 # server may be back when reload (re-call self.init)
-                self.constuct(flist, force_offline=self._force_offline)
+                asyncio.run(self.constuct(flist, force_offline=self._force_offline))
         if db_local:
             # when load database is provided
             to_load = []
@@ -351,22 +351,35 @@ class DataBase(dict):
                 f_path = os.path.join(db_local, f)
                 if os.path.isdir(f_path):
                     to_load.append(f_path)
-            self.constuct(to_load)
+            asyncio.run(self.constuct(to_load))
 
-    def constuct(self, vs: Union[List[str], List[DataPointInfo]], force_offline = False):
+    async def constuct(self, vs: Union[List[str], List[DataPointInfo]], force_offline = False):
         """
         Construct the DataBase (Add new entries to database)
          - vs: list of DataPointInfo or local data directories
          - force_offline: use when called by server side
                          or when server is down
         """
-        for v in vs:
-            fm = FileManipulatorVirtual(v)
+        async def _getDataPoint(v_, force_offline_: bool) -> Union[DataPoint, None]:
+            fm = FileManipulatorVirtual(v_)
             if fm.screen():
+                # this process, if in local mode, is IO-bounded (DataPoint.loadInfo)
                 data = DataPoint(fm)
-                if force_offline:
+                if force_offline_:
                     data._forceOffline()
-                self.add(data)
+            else:
+                data = None
+            return data
+
+        # load all datapoint
+        async_tasks = []
+        for v in vs:
+            async_tasks.append(_getDataPoint(v, force_offline))
+        all_data = await asyncio.gather(*async_tasks)
+        # add to database
+        for d_ in all_data:
+            if d_ is not None:
+                self.add(d_)
         if force_offline:
             self._force_offline = True
 
