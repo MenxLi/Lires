@@ -2,11 +2,12 @@
 
 **My research literature manager**  
 
-![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)
+<!--![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)-->
+![ResBibMan](./resbibman/docs/imgs/mainWindow.png)
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for notes.
 
-It also has a web viewer (RBM-web) so that it can be deployed into a server to share literatures or work in online mode.
+It also has server-side module (RBM-web) with a web viewer so that it can be deployed onto a server to share literatures or work in online mode.
 
 [comment]: <> (## distribution)
 
@@ -19,17 +20,23 @@ It also has a web viewer (RBM-web) so that it can be deployed into a server to s
 ## Installation
 ```Python
 pip install .
-rbm-resetConf  # To create default configuration
+rbm-resetconf  # To create default configuration
 ```
 
 ## Usage:
 To start the main program:
-```
+```bash
 resbibman
 ```
 For CLI help, see `resbibman -h`  
+Other CLI command includes:
+```bash
+rbm-keyman      # Manage server key
+rbm-collect     # Automatic add entry to database with retrive string
+```
 
-**The [docs-CN](./resbibman/docs/使用说明.md) is outdated, new versions will be added in the future**
+
+**The [docs-CN](./resbibman/docs/使用说明.md) is helpful but needs more detail. Will add in the fufute**
 
 ## Server usage
 Start server with `resbibman -S`  
@@ -49,13 +56,13 @@ The server port can be assigned at `RBMWeb/backend/conf.json`
 - [x] Change bib
 - [x] Use cache to accelerate pdf preview
 - [x] Better way to define time-modified
+- [ ] User info, associate each user with a key in rbm-keyman
+- [ ] Online discussion / View comments online
 - [ ] Better font size
 - [ ] Redirect some logging to status bar
 - [ ] Other citation format convert to bibtex
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
-- [ ] User info
 - [ ] Export database
-- [ ] View comments online
 
 In query widget while importing articles:  
 
