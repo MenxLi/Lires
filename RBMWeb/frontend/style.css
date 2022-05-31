@@ -55,6 +55,7 @@ input.search_bar{
 
 table#main_table{
     height: 1px;
+    width: 100%;
     /* border: 1px solid gray; */
     border-collapse: collapse;
     position: absolute;

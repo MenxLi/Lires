@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<!-- 
+    File name: discuss.html
+    Author: Li, Mengxun
+    Email: mengxunli@whu.edu.cn
+    Date created: May 30, 2022
+-->
+<html>
+    <head>
+        <title>Discussion</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <link rel="stylesheet" type="text/css" href="assets_discuss/style.css" />
+    </head>
+    <body>
+        <h1>Discussion Room</h1>
+        <div class="grid_2c hfill_rest">
+            <div class="flex_container">
+                <iframe id="discuss_frame" src="" frameborder="3"></iframe>
+                <div id="user_info">
+                    <p>Name: </p>
+                    <input type="text" value="" name="user_name" id="user_name" class="line_input"/>
+                    <p>Access key: </p>
+                    <input type="text" value="" name="user_key" id="user_key"class="line_input"/>
+                </div>
+                <p>Comment: </p>
+                <div id="comment_input_div">
+                    <textarea name="" id="comment_input">
+                        Let's discuss!
+                    </textarea>
+                    <input type="button" value="Submit" name="" id="submit_btn"/>
+                </div>
+
+            </div>
+            <div class="flex_container">
+                <iframe id="note_frame" src="" frameborder="3"></iframe>
+                <div>
+                    <p id="doc_info"></p>
+                </div>
+                <input type="button" value="Check document" name="" id="open_doc" onclick="openDoc()"/>
+
+            </div>
+        </div>
+
+        <script src="./assets_discuss/app.js" type="module"></script>
+    </body>
+</html>

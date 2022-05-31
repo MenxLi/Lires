@@ -12,8 +12,8 @@ function onBtnClicked(){
     if (addr === ""){
         addr = window.location.hostname;
     }
-    localStorage.setItem("RBMServerAddr", addr)
-    localStorage.setItem("RBMServerPort", port)
+    sessionStorage.setItem("RBMServerAddr", addr)
+    sessionStorage.setItem("RBMServerPort", port)
     // const SERVER_PORT = localStorage.getItem("RBMServerPort")
     window.location.href = "main.html"
 }

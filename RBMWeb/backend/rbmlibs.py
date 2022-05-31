@@ -1,6 +1,7 @@
 import typing
+import os, sys, shutil
 from typing import List, Union, TypedDict
-from resbibman.confReader import getConfV
+from resbibman.confReader import getConfV, TMP_WEB_NOTES
 from resbibman.core.dataClass import DataBase, DataList, DataPoint, DataTags
 from resbibman.core.htmlTools import unpackHtmlTmp
 
@@ -45,6 +46,9 @@ class DatabaseReader:
         self.db.init(db_path, force_offline=True)
         print("Finish.")
 
+    def getDataInfo(self, uid: str):
+        return self.getDictDataFromDataPoint(self.db[uid])
+
     def getDictDataFromDataPoint(self, dp: DataPoint) -> DataPointInfo:
         return {
             "has_file":dp.fm.hasFile(),
@@ -83,6 +87,20 @@ class DatabaseReader:
         html_p = unpackHtmlTmp(file_p, tmp_dir_name = uuid)
         return html_p
 
+    def getTmpNotesPathByUUID(self, uuid: str):
+        dp = self.db[uuid]
+        htm_str = self.getCommentHTMLByUUID(uuid)
+        tmp_notes_pth = os.path.join(TMP_WEB_NOTES, uuid)
+        if os.path.exists(tmp_notes_pth):
+            shutil.rmtree(tmp_notes_pth)
+        os.mkdir(tmp_notes_pth)
+        tmp_notes_html = os.path.join(tmp_notes_pth, "index.html")
+        tmp_notes_misc = os.path.join(tmp_notes_pth, "misc")
+        with open(tmp_notes_html, "w") as fp:
+            fp.write(htm_str)
+        os.symlink(dp.fm.folder_p, tmp_notes_misc)
+        return tmp_notes_html
+
     def getCommentPathByUUID(self, uuid: str):
         return self.db[uuid].fm.comment_p
 
@@ -90,4 +108,7 @@ class DatabaseReader:
         return self.db[uuid].fm.getWebURL()
 
     def getCommentHTMLByUUID(self, uuid: str):
-        return self.db[uuid].htmlComment()
+        dp: DataPoint = self.db[uuid]
+        htm = dp.htmlComment()
+        misc_p = dp.fm.folder_p
+        return htm.replace(misc_p, "misc")
