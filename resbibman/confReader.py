@@ -72,8 +72,9 @@ TMP_DIR = os.path.join(TMP_DIR, "ResBibMan")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
+TMP_WEB_NOTES = os.path.join(TMP_DIR, "notes_webpage")  # For notes as webpages
 
-for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB]:
+for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 

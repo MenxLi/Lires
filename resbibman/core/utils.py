@@ -181,7 +181,15 @@ HTML_TEMPLATE_RAW = """\
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 <title>Comments</title>
+
+<style>
+    img {
+        max-width: 100%;
+    }
+</style>
+
 </head>
+
 
 <body>
 ${content}

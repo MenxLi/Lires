@@ -8,7 +8,7 @@ from RBMWeb.backend.encryptServer import queryHashKey
 import tornado.ioloop
 import tornado.web
 
-from resbibman.confReader import getConfV, TMP_DIR, TMP_WEB
+from resbibman.confReader import getConfV, TMP_DIR, TMP_WEB, TMP_WEB_NOTES
 from resbibman.core.dataClass import DataPoint, FileManipulatorVirtual
 from resbibman.core.compressTools import compressDir, decompressDir
 
@@ -57,6 +57,34 @@ class FileListHandler(tornado.web.RequestHandler, RequestHandlerBase):
             self.write("Something wrong with the server.")
         return
 
+class FileInfoHandler(tornado.web.RequestHandler, RequestHandlerBase):
+    """
+    Query information about single file
+    """
+    def get(self, uid:str):
+        """
+         - uuid_cmd (str): <uuid>?<cmd> | <uuid>
+        """
+        global db_reader
+        self.setDefaultHeader()
+        
+        try:
+            cmd = self.get_argument("cmd")
+        except:
+            cmd = None
+        dp: DataPoint = db_reader.db[uid]
+        if cmd is None:
+            d_info = db_reader.getDataInfo(uid)
+            self.write(json.dumps(d_info))
+            return
+        elif cmd == "stringInfo":
+            detail = dp.stringInfo()
+            self.write(detail)
+            return 
+        else:
+            # not implemented
+            raise tornado.web.HTTPError(404)
+
 class DocHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def get(self, uuid):
         global db_reader
@@ -72,18 +100,27 @@ class DocHandler(tornado.web.RequestHandler, RequestHandlerBase):
                     return
         self.write("The file not exist or is not PDF file.")
 
-class CommentHandler(tornado.web.RequestHandler, RequestHandlerBase):
-    def get(self, uuid):
-        # Unfinished.
+class CommentHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
+    # Serve comment (Notes) as webpage
+    def get(self, path):
         global db_reader
         self.setDefaultHeader()
-        file_p = db_reader.getCommentPathByUUID(uuid)
-        if isinstance(file_p, str):
-            if file_p.endswith(".md"):
-                with open(file_p, "r", encoding="utf-8") as f:
-                    self.write("Not implemented.")
-                    return
-        self.write("The file not exist or is not MD file.")
+        psplit = path.split("/")
+        uuid = psplit[0]
+        tmp_dir = os.path.join(TMP_WEB_NOTES, uuid)
+        if len(path) == 37:
+            # uuid + "/"
+            html_path = db_reader.getTmpNotesPathByUUID(uuid)
+            assert tmp_dir == os.path.abspath(os.path.dirname(html_path))
+            return super().get(html_path, include_body = True)
+        else:
+            # is this unsafe??
+            psplit = tmp_dir.split(os.sep) + psplit[1:]
+            if psplit[0] == "":
+                psplit = psplit[1:]
+            path = "/".join(psplit)
+            return super().get(path, include_body = True)
+        # raise tornado.web.HTTPError(418) 
 
 class CMDHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def _reloadDB(self):
@@ -140,6 +177,7 @@ class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
             return super().get(path = html_p, include_body=True)
 
         else:
+            # is this unsafe??
             tmp_dir = os.path.join(TMP_WEB, uuid)
             psplit = tmp_dir.split(os.sep) + psplit[1:]
             if psplit[0] == "":
@@ -208,8 +246,9 @@ class Application(tornado.web.Application):
             (r"/doc/(.*)", DocHandler),
             (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
             (r"/filelist/(.*)", FileListHandler),
+            (r"/fileinfo/(.*)", FileInfoHandler),
             (r"/file", FileHandler),
-            (r"/comment/(.*)", CommentHandler),
+            (r"/comment/(.*)", CommentHandler, {"path": "/"}),
             (r"/cmd/(.*)", CMDHandler),
             (r"/cmdA", CMDArgHandler),
         ]
