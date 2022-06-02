@@ -1,7 +1,14 @@
 import os, json
 
 CURR_DIR = os.path.abspath(os.path.realpath(os.path.dirname(__file__)))
-ENC_KEY_PATH = os.path.join(CURR_DIR, "key.txt")
+
+DATA_DIR = os.path.join(CURR_DIR, "data")
+ENC_KEY_PATH = os.path.join(DATA_DIR, "key.txt")
+
+_to_create = [DATA_DIR]
+for fpath in _to_create:
+    if not os.path.exists(fpath):
+        os.mkdir(fpath)
 
 def getRBMWebConf():
     # Change working dir
