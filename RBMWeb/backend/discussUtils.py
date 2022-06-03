@@ -140,6 +140,7 @@ class DiscussDatabase:
             "access_key_hex": access_key_hex
         }
         self._addDiscuss(line)
+        self.logger.info("Add new discussion comment: {}".format(line["discuss_uid"]))
 
     def _addDiscuss(self, line: DiscussLine):
         """

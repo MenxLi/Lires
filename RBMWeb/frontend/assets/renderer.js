@@ -1,6 +1,6 @@
 
-const SERVER_ADDR = localStorage.getItem("RBMServerAddr")
-const SERVER_PORT = localStorage.getItem("RBMServerPort")
+const SERVER_ADDR = sessionStorage.getItem("RBMServerAddr")
+const SERVER_PORT = sessionStorage.getItem("RBMServerPort")
 
 function initTags (){
     const db = window.database

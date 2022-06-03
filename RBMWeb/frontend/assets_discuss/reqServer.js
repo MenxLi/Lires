@@ -1,8 +1,8 @@
 /*
 elem: html element that innerHTML to be changed  
 */
-const SERVER_ADDR = localStorage.getItem("RBMServerAddr")
-const SERVER_PORT = localStorage.getItem("RBMServerPort")
+const SERVER_ADDR = sessionStorage.getItem("RBMServerAddr")
+const SERVER_PORT = sessionStorage.getItem("RBMServerPort")
 
 function setFileInfoStr(uid, elem){
     const queryKey = `${uid}?cmd=stringInfo`
@@ -25,7 +25,7 @@ function setFileInfoStr(uid, elem){
 /*
 elem: html element whose src to be changed  
 */
-function setFileUrl(uid, elem){
+function setFileUrl(uid, btn_elem){
     const queryKey = `${uid}`
     const reqStr =  `http://${SERVER_ADDR}:${SERVER_PORT}/fileinfo/${queryKey}`;
     const xhr = new XMLHttpRequest();
@@ -50,7 +50,7 @@ function setFileUrl(uid, elem){
                 else {
                     href = "none";
                 }
-                elem.onclick = () => {
+                btn_elem.onclick = () => {
                     window.open(href);
                 }
                 console.log(res);
@@ -59,7 +59,5 @@ function setFileUrl(uid, elem){
         }
     xhr.send();
 }
-
-
 
 export {setFileInfoStr, setFileUrl}

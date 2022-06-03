@@ -1,9 +1,12 @@
-import json, os, multiprocessing, shutil, tempfile, zipfile, tempfile
+from __future__ import annotations
+import json, os, multiprocessing, shutil, tempfile, zipfile, tempfile, string
 from typing import List, Union, Callable
+import markdown
 
 from RBMWeb.backend.rbmlibs import DatabaseReader
 from RBMWeb.backend.confReader import getRBMWebConf
 from RBMWeb.backend.encryptServer import queryHashKey
+from RBMWeb.backend.discussUtils import DiscussDatabase, DiscussLine
 
 import tornado.ioloop
 import tornado.web
@@ -19,9 +22,10 @@ class RequestHandlerBase():
         enc_key = self.get_argument("key")
         if not queryHashKey(enc_key):
             # unauthorized
-            print("Reject key, abort")
+            print("Reject key ({}), abort".format(enc_key))
             raise tornado.web.HTTPError(401) 
-        return
+        self.enc_key = enc_key
+        return True
 
     def setDefaultHeader(self):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -147,7 +151,8 @@ class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerBase):
         kwargs = json.loads(self.get_argument("kwargs"))
         print("Receiving argument command: ", cmd, uuid, args, kwargs)
 
-        self.checkKey()
+        if not self.checkKey():
+            return 
 
         if cmd == "renameTagAll":
             db.renameTag(args[0], args[1])
@@ -203,7 +208,8 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
         uuid = self.get_argument("uuid")
         print("Receiving file request: ", cmd, uuid)
 
-        self.checkKey()
+        if not self.checkKey():
+            return 
 
         if cmd == "download":
             dp: DataPoint = db[uuid]
@@ -235,6 +241,88 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
             if uuid in db:
                 db.delete(uuid)
 
+class DiscussionHandler(tornado.web.RequestHandler, RequestHandlerBase):
+    def get(self, file_uid: str):
+        global discussion_db
+        self.setDefaultHeader()
+        discussions = discussion_db.discussions(file_uid)
+        base_html = string.Template(
+        """
+        <html>
+        <head>
+        <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+        <title>Comments</title>
+        <style>
+            img {
+                max-width: 100%;
+            }
+            hr {
+                color: #dddddd
+            }
+            .usr_name {
+                color: #888888
+            }
+            .hint {
+                color: #888888;
+                text-align: center
+            }
+            .discuss_uid {
+                color: #bbbbbb;
+                position: relative;
+                font-size: 10px;
+                float: right
+            }
+        </style>
+        </head>
+        <body>
+        ${content}
+        </body>
+        </html>
+        """)
+
+        contents = []
+        if not discussions:
+            contents.append(
+                "<p class=\"hint\">{}</p>".format("let us discuss this paper!"))
+        for line in discussions:
+            comment = markdown.markdown(line["content"])
+            comment = "<div class=\"comment\">{}<div>".format(comment)
+
+            content_ = "<p class=\"discuss_uid\">{}</p>".format(line["discuss_uid"])
+            content_ += "<p class=\"usr_name\">{}: </p>".format(line["usr_name"])
+            content_ += comment
+
+            contents.append("<div class=\"discuss_line\">{}</div>".format(content_))
+        rendered = base_html.substitute(content = "<hr>".join(contents))
+        self.write(rendered)
+
+class DiscussionModHandler (tornado.web.RequestHandler, RequestHandlerBase):
+    """
+    Modify discussions
+    """
+    def post(self):
+        global discussion_db
+        self.setDefaultHeader()
+        print("Receiving discussion modify request")
+
+        if not self.checkKey():
+            return
+
+        cmd = self.get_argument("cmd")
+        file_uid = self.get_argument("file_uid")
+        content = self.get_argument("content")
+        usr_name = self.get_argument("usr_name")
+
+        if cmd == "add":
+            print("Adding discussion...")
+            discussion_db.addDiscuss(
+                file_uid = file_uid, 
+                usr_name = usr_name, 
+                content = content, 
+                access_key_hex = self.enc_key,
+            )
+
 
 class Application(tornado.web.Application):
     def __init__(self) -> None:
@@ -251,19 +339,24 @@ class Application(tornado.web.Application):
             (r"/comment/(.*)", CommentHandler, {"path": "/"}),
             (r"/cmd/(.*)", CMDHandler),
             (r"/cmdA", CMDArgHandler),
+            (r"/discussions/(.*)", DiscussionHandler),
+            (r"/discussion_mod", DiscussionModHandler),
         ]
         super().__init__(handlers)
 
 def startServer(port: Union[int, str, None] = None):
     global db_reader
+    global discussion_db 
 
+    discussion_db = DiscussDatabase()
     db_reader = DatabaseReader(getConfV("database"))
     app = Application()
     conf = getRBMWebConf()
     if port is None:
         port = conf["port"]
+        port: str
     print("Starting server at port: ", port)
-    app.listen(str(port))
+    app.listen(int(port))
     tornado.ioloop.IOLoop.current().start()
 
 def startServerProcess(*args) -> multiprocessing.Process:
