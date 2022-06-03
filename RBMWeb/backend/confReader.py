@@ -1,9 +1,11 @@
-import os, json
+import os, json, logging
 
 CURR_DIR = os.path.abspath(os.path.realpath(os.path.dirname(__file__)))
 
 DATA_DIR = os.path.join(CURR_DIR, "data")
 ENC_KEY_PATH = os.path.join(DATA_DIR, "key.txt")
+DISCUSSION_DB_PATH = os.path.join(DATA_DIR, "discuss.db")
+logger_rbm = logging.getLogger("rbm")
 
 _to_create = [DATA_DIR]
 for fpath in _to_create:

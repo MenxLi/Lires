@@ -57,7 +57,7 @@ The server port can be assigned at `RBMWeb/backend/conf.json`
 - [x] Use cache to accelerate pdf preview
 - [x] Better way to define time-modified
 - [ ] User info, associate each user with a key in rbm-keyman
-- [ ] Online discussion / View comments online
+- [ ] Online discussion / View comments online (Use sqlite to save discussion on server side)
 - [ ] Better font size
 - [ ] Redirect some logging to status bar
 - [ ] Other citation format convert to bibtex
