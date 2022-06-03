@@ -2,6 +2,7 @@ from __future__ import annotations
 import os, time, sqlite3
 from typing import TypedDict, Dict, List, Optional
 from uuid import uuid4
+from resbibman.core.utils import TimeUtils
 from .confReader import DISCUSSION_DB_PATH, logger_rbm
 
 class DiscussLine(TypedDict):
@@ -22,20 +23,28 @@ class DiscussSet:
     def __init__(self, database: DiscussDatabase, file_uid: str):
         self.db = database
         self.file_uid = file_uid
+        self.discuss_lines: List[DiscussLine] = self.db.discussions(file_uid)
 
     def addDiscuss(self, usr_name: str, access_key_hex: str, content: str):
         line: DiscussLine = {
             "discuss_uid": str(uuid4()),
             "file_uid": self.file_uid,
             "content": content,
-            "time": time.time(),
+            "time": TimeUtils.nowStamp(),
             "usr_name": usr_name,
             "access_key_hex": access_key_hex
         }
         self.db._addDiscuss(line)
+        self.discuss_lines.append(line)
 
     def delDiscuss(self, discuss_uid: str):
-        ...
+        for i in range(len(self.discuss_lines)):
+            line = self.discuss_lines[i]
+            if line["discuss_uid"] == discuss_uid:
+                self.db.delDiscuss(discuss_uid)
+                self.discuss_lines.pop(i)
+                break
+        return
 
 class DiscussDatabase:
     logger = logger_rbm
@@ -61,18 +70,80 @@ class DiscussDatabase:
                              );
                              """)
 
-    def allDiscussion(self, file_uid: str) -> Optional[DiscussSet]:
+    def discussions(self, file_uid: str) -> List[DiscussLine]:
         """
         Get all discussions related to one file
         """
-        ...
+        lines = self.db_con.execute(
+            """
+            SELECT 
+                discuss_uid, 
+                file_uid, 
+                content, 
+                time, 
+                usr_name, 
+                access_key_hex
+            FROM discussion WHERE file_uid=?
+            """, (file_uid, )
+        ).fetchall()
+
+        out = []
+        for l_ in lines:
+            line: DiscussLine = {
+                "discuss_uid": l_[0],
+                "file_uid": l_[1],
+                "content": l_[2],
+                "time": l_[3],
+                "usr_name": l_[4],
+                "access_key_hex": l_[5],
+            }
+            out.append(line)
+        return out
 
     def __getitem__(self, discuss_uid: str) -> Optional[DiscussLine]:
-        ...
+        selection = self.db_con.execute(
+            """
+            SELECT 
+                discuss_uid, 
+                file_uid, 
+                content, 
+                time, 
+                usr_name, 
+                access_key_hex
+            FROM discussion WHERE discuss_uid=?
+            """, (discuss_uid, )
+        ).fetchall()
+        if not selection:    # []
+            return None
+        line_raw = selection[0]
+        line: DiscussLine = {
+            "discuss_uid": line_raw[0],
+            "file_uid": line_raw[1],
+            "content": line_raw[2],
+            "time": line_raw[3],
+            "usr_name": line_raw[4],
+            "access_key_hex": line_raw[5],
+        }
+        return line
+
+    def addDiscuss(self, 
+                   file_uid: str, 
+                   usr_name: str, 
+                   access_key_hex: str, 
+                   content: str):
+        line: DiscussLine = {
+            "discuss_uid": str(uuid4()),
+            "file_uid": file_uid,
+            "content": content,
+            "time": TimeUtils.nowStamp(),
+            "usr_name": usr_name,
+            "access_key_hex": access_key_hex
+        }
+        self._addDiscuss(line)
 
     def _addDiscuss(self, line: DiscussLine):
         """
-        Will be called by DiscussSet.addDiscuss
+        Will be called by self.addDiscuss
         """
         self.db_con.execute(
             """
@@ -95,8 +166,24 @@ class DiscussDatabase:
             ))
         self.db_con.commit()
 
-    def _delDiscuss(self, discuss_uid: str):
+    def delDiscuss(self, discuss_uid: str):
         """
         Will be called by DiscussSet.delDiscuss
         """
-        ...
+        self.db_con.execute(
+            """
+            DELETE FROM discussion WHERE discuss_uid=?
+            """, (discuss_uid, ))
+        self.db_con.commit()
+
+    def delDiscussAll(self, file_uid: str):
+        """
+        Delete all discussions for a file
+        Should be called by the server when delete DataPoint
+        """
+        self.db_con.execute(
+            """
+            DELETE FROM discussion WHERE file_uid=?
+            """, (file_uid, ))
+        self.db_con.commit()
+
