@@ -98,7 +98,7 @@ class DocHandler(tornado.web.RequestHandler, RequestHandlerBase):
             if file_p.endswith(".pdf"):
                 with open(file_p, "rb") as f:
                     self.set_header("Content-Type", 'application/pdf; charset="utf-8"')
-                    self.set_header("Content-Disposition", "attachment; filename={}.pdf".format(uuid))
+                    self.set_header("Content-Disposition", "inline; filename={}.pdf".format(uuid))
                     # self.set_header("Access-Control-Allow-Origin", "*")
                     self.write(f.read())
                     return
