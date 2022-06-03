@@ -188,3 +188,12 @@ class DiscussDatabase:
             """, (file_uid, ))
         self.db_con.commit()
 
+def showDiscuss(line: DiscussLine):
+    """
+    String representation of a line
+    """
+    time_ = TimeUtils.stamp2Local(line["time"])
+    s = "{} ({}): {} \n [d:{}|f:{}]".format(
+            line["usr_name"], time_, line["content"], line["discuss_uid"], line["file_uid"]
+    )
+    return s
