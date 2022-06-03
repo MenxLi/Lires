@@ -13,14 +13,16 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
         <link rel="stylesheet" type="text/css" href="style.css" />
-    </head>
-    <body>
         <script>
             const host = window.location.hostname;
             const port = window.location.port;
             sessionStorage.setItem("RBMServerAddr", host);
             sessionStorage.setItem("RBMServerPort", port);
         </script>
+    </head>
+    <body>
+
+        <script src="./libs/auth.js" type="module"></script>
 
         <div id="main">
             <div id="banner">

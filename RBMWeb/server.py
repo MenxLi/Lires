@@ -253,6 +253,7 @@ class DiscussionHandler(tornado.web.RequestHandler, RequestHandlerBase):
         <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
         <title>Comments</title>
+        <script src="./libs/auth.js" type="module"></script>
         <style>
             img {
                 max-width: 100%;
@@ -323,6 +324,12 @@ class DiscussionModHandler (tornado.web.RequestHandler, RequestHandlerBase):
                 access_key_hex = self.enc_key,
             )
 
+class AuthHandler (tornado.web.RequestHandler, RequestHandlerBase):
+    def post(self):
+        self.setDefaultHeader()
+        if self.checkKey():
+            self.write("Success")
+        
 
 class Application(tornado.web.Application):
     def __init__(self) -> None:
@@ -341,6 +348,7 @@ class Application(tornado.web.Application):
             (r"/cmdA", CMDArgHandler),
             (r"/discussions/(.*)", DiscussionHandler),
             (r"/discussion_mod", DiscussionModHandler),
+            (r"/auth", AuthHandler),
         ]
         super().__init__(handlers)
 

@@ -1,5 +1,4 @@
 import {setFileInfoStr, setFileUrl} from "./reqServer.js"
-import {sha256} from "../libs/sha256.js"
 
 const SERVER_ADDR = sessionStorage.getItem("RBMServerAddr")
 const SERVER_PORT = sessionStorage.getItem("RBMServerPort")
@@ -12,7 +11,6 @@ function initPage() {
     noteFrame.src = `http://${SERVER_ADDR}:${SERVER_PORT}/comment/${uid}/`;
     const discuss_frame = document.querySelector("#discuss_frame");
     discuss_frame.src = `http://${SERVER_ADDR}:${SERVER_PORT}/discussions/${uid}`;
-    discuss_frame.addEventListener("load", () => discuss_frame.contentWindow.scrollTo( 0, 999999 ));
 
     document.querySelector("#submit_btn").addEventListener("click", submitComment);
 
@@ -44,7 +42,7 @@ function submitComment() {
       "cmd": "add",
       "file_uid": uid,
       "usr_name": document.querySelector("#usr_name").value,
-      "key": sha256(document.querySelector("#usr_key").value),
+      "key": sessionStorage.getItem("RBM_ENC_KEY"),     // set with libs/auth.js
       "content": document.querySelector("#comment_input").value,
     };
     xhr.onload = () => {
@@ -53,7 +51,7 @@ function submitComment() {
         }
         else if (xhr.status === 200){
             document.querySelector("#discuss_frame").contentWindow.location.reload();
-            // document.querySelector("#discuss_frame").contentWindow.scrollTo( 0, 999999 );
+            document.querySelector("#discuss_frame").contentWindow.scrollTo( 0, 999999 );
         }
     }
     const params = new URLSearchParams();
