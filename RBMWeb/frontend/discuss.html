@@ -17,22 +17,24 @@
         <script src="./libs/auth.js" type="module"></script>
         <h1>Discussion Room</h1>
         <div class="grid_2c hfill_rest">
-            <div class="flex_container">
+            <div class="flex_container main_col">
                 <iframe id="discuss_frame" src="" frameborder="3"></iframe>
                 <div id="user_info">
-                    <p>Name: </p>
-                    <input type="text" value="" name="usr_name" id="usr_name" class="line_input"/>
                     <!-- <p>Access key: </p> -->
                     <!-- <input type="text" value="" name="usr_key" id="usr_key"class="line_input"/> -->
                 </div>
-                <p>Comment: </p>
-                <div id="comment_input_div">
+                <div id="comment_input_div" class="flex_container">
+                    <p>Comment: </p>
                     <textarea name="" id="comment_input"></textarea>
-                    <input type="button" value="Submit" name="" id="submit_btn"/>
+                    <div class="flex_hcontainer">
+                        <p>Name: </p>
+                        <input type="text" value="" name="usr_name" id="usr_name" class="line_input"/>
+                        <input type="button" value="Submit" name="" id="submit_btn"/>
+                    </div>
                 </div>
 
             </div>
-            <div class="flex_container">
+            <div class="flex_container main_col">
                 <iframe id="note_frame" src="" frameborder="3"></iframe>
                 <div>
                     <p id="doc_info"></p>

@@ -52,6 +52,7 @@ function submitComment() {
         else if (xhr.status === 200){
             document.querySelector("#discuss_frame").contentWindow.location.reload();
             document.querySelector("#discuss_frame").contentWindow.scrollTo( 0, 999999 );
+            document.querySelector("#comment_input").value="";
         }
     }
     const params = new URLSearchParams();
