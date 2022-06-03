@@ -8,16 +8,34 @@ function initPage() {
     const uid = queryString.slice(1, );
     // console.log(uuid);
     const noteFrame = document.querySelector("#note_frame");
-    noteFrame.src = `http://${SERVER_ADDR}:${SERVER_PORT}/comment/${uid}/`;
+    noteFrame.click();
     const discuss_frame = document.querySelector("#discuss_frame");
     discuss_frame.src = `http://${SERVER_ADDR}:${SERVER_PORT}/discussions/${uid}`;
-
-    document.querySelector("#submit_btn").addEventListener("click", submitComment);
 
     setFileInfoStr(uid, document.querySelector("#doc_info"));
     setFileUrl(uid, document.querySelector("#open_doc"));
 
     document.querySelector("#usr_name").value = sessionStorage.getItem("RBM_USR_NAME")
+
+    document.querySelector("#submit_btn").addEventListener("click", submitComment);
+    document.querySelector("#tab_note").addEventListener("click", () => {
+        clickOnTab("note");
+    });
+    document.querySelector("#tab_doc").addEventListener("click", () => {
+        clickOnTab("doc");
+    });
+}
+
+function clickOnTab(tab_name) {
+    const queryString = window.location.search;
+    const uid = queryString.slice(1, );
+    const noteFrame = document.querySelector("#note_frame");
+    if (tab_name == "note"){
+        noteFrame.src = `http://${SERVER_ADDR}:${SERVER_PORT}/comment/${uid}/`;
+    }
+    else if (tab_name == "doc"){
+        noteFrame.src = document.querySelector("#tab_doc").doc_url; // set by setFileUrl
+    }
 }
 
 function submitComment() {

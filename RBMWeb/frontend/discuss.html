@@ -15,9 +15,9 @@
     </head>
     <body>
         <script src="./libs/auth.js" type="module"></script>
-        <h1>Discussion Room</h1>
         <div class="grid_2c hfill_rest">
             <div class="flex_container main_col">
+                <h1>Discussion Room</h1>
                 <iframe id="discuss_frame" src="" frameborder="3"></iframe>
                 <div id="user_info">
                     <!-- <p>Access key: </p> -->
@@ -26,7 +26,7 @@
                 <div id="comment_input_div" class="flex_container">
                     <p>Comment: </p>
                     <textarea name="" id="comment_input"></textarea>
-                    <div class="flex_hcontainer">
+                    <div class="flex_hcontainer right_align">
                         <p>Name: </p>
                         <input type="text" value="" name="usr_name" id="usr_name" class="line_input"/>
                         <input type="button" value="Submit" name="" id="submit_btn"/>
@@ -35,6 +35,10 @@
 
             </div>
             <div class="flex_container main_col">
+                <div class="tab">
+                    <button class="tablinks" id="tab_note">Note</button>
+                    <button class="tablinks" id="tab_doc">Doc</button>
+                </div>
                 <iframe id="note_frame" src="" frameborder="3"></iframe>
                 <div>
                     <p id="doc_info"></p>

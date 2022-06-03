@@ -53,6 +53,7 @@ function setFileUrl(uid, btn_elem){
                 btn_elem.onclick = () => {
                     window.open(href);
                 }
+                document.querySelector("#tab_doc").doc_url = href; // define a entry to tab-doc
                 console.log(res);
                 }
             }
