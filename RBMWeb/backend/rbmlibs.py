@@ -27,8 +27,8 @@ class DataPointInfo(TypedDict):
     tags: List[str]
     uuid: str
     url: str
-    time_added: str
-    time_modified: str
+    time_added: float
+    time_modified: float
 
     # bib: dict       # refer to BibParser.__call__ | DataPoint.bib
     bibtex: str

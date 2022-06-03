@@ -7,7 +7,7 @@ import os, shutil, json, platform, typing, uuid, logging, time, datetime
 from typing import List, Union, TypedDict
 import warnings
 from . import globalVar as G
-from .utils import getDateTimeStr, openFile, strtimeToDatetime
+from .utils import openFile, TimeUtils
 from ..confReader import getConf, VERSION
 from .htmlTools import packHtml, openTmp_hpack
 
@@ -173,8 +173,8 @@ class FileGenerator(FileGeneratorBase):
         default_info = {
             "device_import": platform.node(),
             "device_modify": platform.node(),
-            "time_import": getDateTimeStr(),
-            "time_modify": getDateTimeStr(),
+            "time_import": TimeUtils.nowStamp(),
+            "time_modify": TimeUtils.nowStamp(),
             "tags": [],
             "uuid": str(uuid.uuid4()),
             "version_import": VERSION,
@@ -387,16 +387,25 @@ class FileManipulator:
             data = json.load(f)
         return data["tags"]
     
-    def getTimeAdded(self) -> str:
+    def getTimeAdded(self) -> float:
         with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)
-        return data["time_import"]
+        record_added = data["time_import"]
+        if isinstance(record_added, str):
+            # old version compatable
+            return TimeUtils.strLocalTimeToDatetime(record_added).timestamp()
+        else:
+            return float(record_added)
     
-    def getTimeModified(self) -> str:
+    def getTimeModified(self) -> float:
         with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)
         record_modified = data["time_modify"]
-        return record_modified
+        if isinstance(record_modified, str):
+            # old version compatable
+            return TimeUtils.strLocalTimeToDatetime(record_modified).timestamp()
+        else:
+            return float(record_modified)
         # get document modification time
         #  __modified_time = os.path.getmtime(self.file_p)
         #  __modified_time = time.localtime(__modified_time)
@@ -487,7 +496,7 @@ class FileManipulator:
             return
         with open(self.info_p, "r", encoding="utf-8") as f:
             info = json.load(f)
-        info["time_modify"] = getDateTimeStr()
+        info["time_modify"] = TimeUtils.nowStamp()
         info["device_modify"] = platform.node()
         info["version_modify"] = VERSION
         with open(self.info_p, "w", encoding="utf-8") as f:

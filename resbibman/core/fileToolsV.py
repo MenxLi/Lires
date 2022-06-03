@@ -6,7 +6,7 @@ import os, typing, requests, zipfile, shutil
 from typing import TYPE_CHECKING, Union, overload, Literal
 
 from . import globalVar as G
-from .utils import strtimeToDatetime
+from .utils import strtimeToDatetime, TimeUtils
 from .fileTools import FileGenerator, FileManipulator
 from .encryptClient import generateHexHash
 from .compressTools import decompressDir, compressDir
@@ -84,8 +84,8 @@ class FileManipulatorVirtual(FileManipulator):
         if not self.has_local:
             return "same"
 
-        local_time_modified = strtimeToDatetime(self.getTimeModified())
-        remote_time_modified = strtimeToDatetime(self.v_info["time_modified"])
+        local_time_modified = TimeUtils.stamp2Local(self.getTimeModified())
+        remote_time_modified = TimeUtils.stamp2Local(self.v_info["time_modified"])
 
         if local_time_modified == remote_time_modified:
             return "same"
@@ -292,13 +292,13 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             return self.v_info["tags"]
     
-    def getTimeAdded(self) -> str:
+    def getTimeAdded(self) -> float:
         if self.has_local:
             return super().getTimeAdded()
         else:
             return self.v_info["time_added"]
     
-    def getTimeModified(self) -> str:
+    def getTimeModified(self) -> float:
         if self.has_local:
             return super().getTimeModified()
         else:
