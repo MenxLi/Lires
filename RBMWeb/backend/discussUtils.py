@@ -1,15 +1,16 @@
 from __future__ import annotations
-import sqlite3
-import os
+import os, time, sqlite3
 from typing import TypedDict, Dict, List, Optional
+from uuid import uuid4
 from .confReader import DISCUSSION_DB_PATH, logger_rbm
 
 class DiscussLine(TypedDict):
-    file_uid: str
-    discuss_uid: str
-    content: str
-    time: str
-    access_key_hex: str
+    discuss_uid: str            # Uid for this single discussion
+    file_uid: str               # File uid
+    content: str                # Comment content
+    time: float                 # Time added
+    usr_name: str               # User name
+    access_key_hex: str         # User access key (encrypted)
 
 DiscussSetInit_T = Dict[str, DiscussLine]   # indexed by file_uuid
 
@@ -19,10 +20,19 @@ class DiscussSet:
     """
     logger = logger_rbm
     def __init__(self, database: DiscussDatabase, file_uid: str):
-        ...
+        self.db = database
+        self.file_uid = file_uid
 
-    def addDiscuss(self, content: str, access_key_hex: str):
-        ...
+    def addDiscuss(self, usr_name: str, access_key_hex: str, content: str):
+        line: DiscussLine = {
+            "discuss_uid": str(uuid4()),
+            "file_uid": self.file_uid,
+            "content": content,
+            "time": time.time(),
+            "usr_name": usr_name,
+            "access_key_hex": access_key_hex
+        }
+        self.db._addDiscuss(line)
 
     def delDiscuss(self, discuss_uid: str):
         ...
@@ -40,13 +50,14 @@ class DiscussDatabase:
         return self._db_con
 
     def __createDiscussTable(self):
-        self._db_con.execute("""
+        self.db_con.execute("""
                              CREATE TABLE IF NOT EXISTS discussion (
-                                 file_uid text, 
-                                 discuss_uid text PRIMARY KEY, 
-                                 content text, 
-                                 time float NOT NULL, 
-                                 access_key_hex text NOT NULL
+                                 discuss_uid TEXT PRIMARY KEY, 
+                                 file_uid TEXT NOT NULL, 
+                                 content TEXT NOT NULL, 
+                                 time FLOAT NOT NULL, 
+                                 usr_name TEXT NOT NULL,
+                                 access_key_hex TEXT NOT NULL
                              );
                              """)
 
@@ -63,7 +74,26 @@ class DiscussDatabase:
         """
         Will be called by DiscussSet.addDiscuss
         """
-        ...
+        self.db_con.execute(
+            """
+            INSERT INTO discussion (
+                discuss_uid, 
+                file_uid,
+                content,
+                time,
+                usr_name,
+                access_key_hex
+                )
+            VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                line["discuss_uid"],
+                line["file_uid"],
+                line["content"],
+                line["time"],
+                line["usr_name"],
+                line["access_key_hex"],
+            ))
+        self.db_con.commit()
 
     def _delDiscuss(self, discuss_uid: str):
         """
