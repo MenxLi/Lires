@@ -31,8 +31,9 @@ resbibman
 For CLI help, see `resbibman -h`  
 Other CLI command includes:
 ```bash
-rbm-keyman      # Manage server key
-rbm-collect     # Automatic add entry to database with retrive string
+rbm-keyman      # Manage access key
+rbm-discuss     # Manage online discussions
+rbm-collect     # Automatic add entry to database with retriving string
 ```
 
 

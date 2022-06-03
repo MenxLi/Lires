@@ -51,6 +51,8 @@ _VERSION_HISTORIES = [
     ("0.5.3", "Better file modification monitering; Bug fix: rename/delete tag now will affact unasynchronized data; CLI change"),
     ("0.5.4", "Document update; Use asyncio to accelerate dataloading; Add delete to context menu of file selector; \
         CLI update; Bug fixs: rbmweb can serve packed webpages with style, server can serve empty database"),
+    ("0.6.0", "Online discussion avaliable; Info file record time as floating time stamp; Key login required for accessing webpage; \
+        rbm-collect/rbm-discuss; Server can serve notes in html format"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
