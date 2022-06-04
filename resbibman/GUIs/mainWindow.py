@@ -30,6 +30,11 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.db = DataBase()
         self._panel_status = (True, True, True)
 
+        self._cache: dict = {
+            "current_layout": (True, True, True),
+            "prev_layout": (True, True, True)
+        }
+
         self.initUI()
         self.showMaximized()
         self.show() 
@@ -62,7 +67,12 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         # self._center()
 
     def toggleLayout(self, toggle_mask: Tuple[bool, bool, bool]):
-        stretch_factor = [1, 4, 2]      # default stretch factor
+        # Record this to be used by toggleFullScreen
+        self._cache["prev_layout"] = self._cache["current_layout"]
+        self._cache["current_layout"] = toggle_mask
+
+        # Calculate width
+        stretch_factor = [1, 4, 2]                  # default stretch factor
         stretch_factor = [ toggle_mask[i]*stretch_factor[i] for i in range(3) ]
         stretch_factor = [ float(f)/sum(stretch_factor) for f in stretch_factor ]
         curr_width = self.frameGeometry().width()
@@ -70,6 +80,15 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.splitter.setSizes(w_sizes)
         self.logger.debug("Set sizes to {}".format(w_sizes))
         return 
+
+    def toggleFullScreen(self):
+        self.logger.debug("Toggle full screen")
+        if self.isFullScreen():
+            self.showNormal()
+            self.toggleLayout(self._cache["prev_layout"])
+        else:
+            self.showFullScreen()
+            self.toggleLayout((True, True, True))
     
     def _initPanels(self):
         self.file_tags = FileTag(self)
@@ -122,6 +141,10 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.act_show_panel2.setIcon(QIcon(os.path.join(ICON_PATH, "looks_two_black_48dp.svg")))
         self.act_show_panel3 = QAction("&Show panel 3", self)
         self.act_show_panel3.setIcon(QIcon(os.path.join(ICON_PATH, "looks_3_black_48dp.svg")))
+        self.act_toggle_fullscreen = QAction("&full screen", self)
+        self.act_toggle_fullscreen.setIcon(QIcon(os.path.join(ICON_PATH, "fullscreen_black_48dp.svg")))
+        #  self.act_toggle_fullscreen.setShortcut(Qt.Key_F11)
+        self.act_toggle_fullscreen.setShortcut(QKeySequence("ctrl+f"))
 
     def _createMenuBar(self):
         menu_bar = QMenuBar(self)
@@ -145,20 +168,21 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         tool_bar.addAction(self.act_help)
         tool_bar.addAction(self.act_reload)
         
-        tool_bar = QToolBar("Filebar")
-        self.addToolBar(Qt.TopToolBarArea, tool_bar)
-        tool_bar.addAction(self.act_open_pdb)
+        file_bar = QToolBar("Filebar")
+        self.addToolBar(Qt.TopToolBarArea, file_bar)
+        file_bar.addAction(self.act_open_pdb)
 
         # Align right
         #  tool_bar = QToolBar("Spacer")
         #  tool_bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         #  self.addToolBar(Qt.TopToolBarArea, tool_bar)
 
-        toob_bar = QToolBar("Panels")
-        self.addToolBar(Qt.TopToolBarArea, toob_bar)
-        toob_bar.addAction(self.act_show_panel1)
-        toob_bar.addAction(self.act_show_panel2)
-        toob_bar.addAction(self.act_show_panel3)
+        panel_bar = QToolBar("Panels")
+        self.addToolBar(Qt.TopToolBarArea, panel_bar)
+        panel_bar.addAction(self.act_toggle_fullscreen)
+        panel_bar.addAction(self.act_show_panel1)
+        panel_bar.addAction(self.act_show_panel2)
+        panel_bar.addAction(self.act_show_panel3)
     
 class MainWindow(MainWindowGUI):
     def __init__(self):
@@ -186,6 +210,7 @@ class MainWindow(MainWindowGUI):
         self.act_show_panel1.triggered.connect(lambda: self.togglePanel(0))
         self.act_show_panel2.triggered.connect(lambda: self.togglePanel(1))
         self.act_show_panel3.triggered.connect(lambda: self.togglePanel(2))
+        self.act_toggle_fullscreen.triggered.connect(self.toggleFullScreen)
 
     def togglePanel(self, idx:int):
         assert 0<=idx<3
