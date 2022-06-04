@@ -41,7 +41,8 @@ rbm-collect     # Automatic add entry to database with retriving string
 
 ## Server usage
 Start server with `resbibman -S`  
-Access key management with` rbm-keyman `  
+Access key management with `rbm-keyman`   
+Discussion management with `rbm-discuss`
 The server serve data at `database` entry of the `resbibman` configration file (`resbibman/conf.json`)
 The server port can be assigned at `RBMWeb/backend/conf.json`
 
@@ -64,7 +65,7 @@ The server port can be assigned at `RBMWeb/backend/conf.json`
 - [ ] Other citation format convert to bibtex
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
 - [ ] Export database
-- [ ] ~~User info, associate each user with a key in rbm-keyman~~
+- [ ] User info, associate each user with a key in rbm-keyman
 
 In query widget while importing articles:  
 

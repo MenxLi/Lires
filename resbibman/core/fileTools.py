@@ -392,7 +392,7 @@ class FileManipulator:
             data = json.load(f)
         record_added = data["time_import"]
         if isinstance(record_added, str):
-            # old version compatable
+            # old version compatable (< 0.6.0)
             return TimeUtils.strLocalTimeToDatetime(record_added).timestamp()
         else:
             return float(record_added)
@@ -402,7 +402,7 @@ class FileManipulator:
             data = json.load(f)
         record_modified = data["time_modify"]
         if isinstance(record_modified, str):
-            # old version compatable
+            # old version compatable (< 0.6.0)
             return TimeUtils.strLocalTimeToDatetime(record_modified).timestamp()
         else:
             return float(record_modified)
