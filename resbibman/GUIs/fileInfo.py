@@ -1,8 +1,9 @@
 import os, shutil, uuid, time, threading, string
 from typing import Union, Literal
 import warnings
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit
+from PyQt6 import QtCore, QtGui
+from PyQt6.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 from .widgets import MainWidgetBase
 from ..confReader import ICON_PATH, getConfV, TMP_COVER, getServerURL
 from ..core.fileTools import FileManipulator
@@ -11,7 +12,6 @@ from ..core.dataClass import DataPoint
 from ..core.pdfTools import getPDFCoverAsQPixelmap
 from ..core.utils import HTML_TEMPLATE_RAW
 
-from PyQt5.QtWebEngineWidgets import QWebEngineView
 import markdown
 from .mdHighlighter import MarkdownSyntaxHighlighter
 
@@ -27,7 +27,7 @@ class FileInfoGUI(MainWidgetBase):
 
     def initUI(self):
         self.frame = QFrame()
-        self.frame.setFrameStyle(QFrame.StyledPanel)
+        self.frame.setFrameStyle(QFrame.Shape.StyledPanel)
         hbox = QHBoxLayout()
         hbox.addWidget(self.frame)
         self.setLayout(hbox)
@@ -58,7 +58,8 @@ class FileInfoGUI(MainWidgetBase):
         frame_vbox = QVBoxLayout()
 
         self.info_frame = QFrame()
-        self.info_frame.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
+        # self.info_frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shape.Sunken)
+        self.info_frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Sunken)
         info_frame_hbox = QHBoxLayout()
         info_frame_hbox.addWidget(self.info_lbl)
         info_frame_hbox.addWidget(self.cover_label)
@@ -370,7 +371,9 @@ class FileInfo(FileInfoGUI):
             ratio = height / self.cover_label.height()
         new_width = width / ratio  ##定义新图片的宽和高
         new_height = height / ratio 
-        new_cover = cover.scaled(int(new_width), int(new_height), aspectRatioMode=QtCore.Qt.KeepAspectRatio, transformMode=QtCore.Qt.SmoothTransformation)##调整图片尺寸
+        new_cover = cover.scaled(int(new_width), int(new_height), \
+                                 aspectRatioMode= QtCore.Qt.AspectRatioMode.KeepAspectRatio, \
+                                 transformMode=QtCore.Qt.TransformationMode.SmoothTransformation)##调整图片尺寸
         self.cover_label.setPixmap(new_cover)
 
 class MarkdownEdit(QTextEdit):

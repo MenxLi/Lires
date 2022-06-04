@@ -1,8 +1,8 @@
 import os
 from typing import Dict
 from datetime import date
-from PyQt5.QtWidgets import QButtonGroup, QDialog, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton
-from PyQt5 import QtCore
+from PyQt6.QtWidgets import QButtonGroup, QDialog, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton
+from PyQt6 import QtCore
 from .widgets import WidgetBase
 
 from ..confReader import DOC_PATH, BIB_TEMPLATE_PATH

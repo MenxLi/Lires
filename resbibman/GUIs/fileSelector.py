@@ -1,7 +1,8 @@
 import webbrowser
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QAction, QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QShortcut, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
-from PyQt5 import QtGui, QtCore
+from PyQt6 import QtWidgets
+from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
+from PyQt6.QtGui import QAction, QShortcut
+from PyQt6 import QtGui, QtCore
 import typing, os, shutil, copy, functools
 from typing import List, overload, Union, Literal, Callable
 
@@ -23,7 +24,7 @@ class FileSelectorGUI(MainWidgetBase):
     
     def initUI(self):
         self.frame = QFrame()
-        self.frame.setFrameStyle(QFrame.StyledPanel)
+        self.frame.setFrameStyle(QFrame.Shape.StyledPanel)
         hbox = QHBoxLayout()
         hbox.addWidget(self.frame)
         self.setLayout(hbox)
@@ -361,7 +362,7 @@ class FileListModel(QtCore.QAbstractListModel):
         self.datalist = copy.deepcopy(datalist)
     
     def data(self, index, role):
-        if role == QtCore.Qt.DisplayRole:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
             data = self.datalist[index.row()]
             if len(data.authors) == 1:
                 author = self._getFirstName(data.authors[0])
@@ -416,7 +417,7 @@ class FileTableModel(QtCore.QAbstractTableModel):
         self.layoutChanged.emit()
     
     def data(self, index: QtCore.QModelIndex, role):
-        if role == QtCore.Qt.DisplayRole:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
             return self.datalist.getTableItem(row = index.row(), col = index.column())
 
     def rowCount(self, parent: QtCore.QModelIndex) -> int:
@@ -428,8 +429,8 @@ class FileTableModel(QtCore.QAbstractTableModel):
 class FileTableView(QTableView):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
         self.setAutoScroll(False)
         # self.setFont(QtGui.QFont("Times New Roman", 12))
         self.setFont(QtGui.QFont("Times New Roman", 10))
@@ -442,9 +443,9 @@ class FileTableView(QTableView):
         self.header.setMinimumSectionSize(1)
         for i in range(len(getConfV("table_headers"))):
             if getConfV("table_headers")[i] == DataTableList.HEADER_TITLE:
-                self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
+                self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.Stretch)
             else:
-                self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+                self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
 class CItemDelegate(QItemDelegate):
     pass

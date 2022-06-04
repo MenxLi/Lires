@@ -1,7 +1,7 @@
 import typing
 import warnings
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog
+from PyQt6 import QtWidgets
+from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog
 
 from ..core.dataClass import DataList, DataTableList
 
@@ -143,7 +143,7 @@ class SetTableHeader(SubSettingsBase):
 			item = QListWidgetItem(self.list_wid)
 			self.list_wid.addItem(item)
 			self.list_wid.setItemWidget(item, box)
-		self.list_wid.setDragDropMode(QAbstractItemView.InternalMove)
+		self.list_wid.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
 		vbox.addWidget(self.label)
 		vbox.addWidget(self.list_wid, 0)
 		self._frame.setLayout(vbox)

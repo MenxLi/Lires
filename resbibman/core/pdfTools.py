@@ -1,5 +1,5 @@
 import fitz
-from PyQt5 import QtGui
+from PyQt6 import QtGui
 
 # 显示 PDF 封面
 # page_data 为 page 对象
@@ -15,7 +15,7 @@ def render_pdf_page(page_data, for_cover=False):
         matrix = zoom_matrix, 
         alpha=False) 
     # 获取 image 格式
-    imageFormat = QtGui.QImage.Format_RGB888 
+    imageFormat = QtGui.QImage.Format.Format_RGB888 
     # 生成 QImage 对象
     pageQImage = QtGui.QImage(
         pagePixmap.samples,

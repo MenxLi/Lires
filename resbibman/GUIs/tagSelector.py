@@ -2,9 +2,10 @@ import os
 import typing
 from typing import Union, List
 
-from PyQt5.QtWidgets import QAction, QListView, QHBoxLayout, QInputDialog
-from PyQt5 import QtCore
-from PyQt5 import QtGui
+from PyQt6.QtWidgets import QListView, QHBoxLayout, QInputDialog
+from PyQt6.QtGui import QAction
+from PyQt6 import QtCore
+from PyQt6 import QtGui
 
 from ..confReader import ICON_PATH, saveToConf
 from .widgets import RefWidgetBase
@@ -27,7 +28,7 @@ class TagSelector(RefWidgetBase):
 
     def initUI(self):
         self.tag_view = QListView()
-        self.tag_view.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.tag_view.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
         hbox = QHBoxLayout()
         hbox.addWidget(self.tag_view)
         self.setLayout(hbox)
@@ -143,10 +144,10 @@ class TagListModel(QtCore.QAbstractListModel):
         self.datalist = datalist 
 
     def data(self, index, role):
-        if role == QtCore.Qt.DisplayRole:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
             status, tag = self.datalist[index.row()]
             return tag
-        if role == QtCore.Qt.DecorationRole:
+        if role == QtCore.Qt.ItemDataRole.DecorationRole:
             status, _ = self.datalist[index.row()]
             if status:
                 # tick = QtGui.QColor("Green")    # or QImage

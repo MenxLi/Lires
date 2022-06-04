@@ -1,6 +1,7 @@
 import typing, os, shutil, warnings
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QAction, QHBoxLayout, QLabel, QListView, QVBoxLayout, QInputDialog
+from PyQt6 import QtCore, QtGui
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QListView, QVBoxLayout, QInputDialog
+from PyQt6.QtGui import QAction
 
 from .widgets import RefWidgetBase
 from ..core.utils import openFile
@@ -20,7 +21,7 @@ class PendingWindowGUI(RefWidgetBase):
 		self.setWindowTitle("Pending files")
 		self.file_model = PFileListModel([])
 		self.file_view = QListView()
-		self.file_view.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+		self.file_view.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
 		self.file_view.setModel(self.file_model)
 
 		self.cover_label = QLabel()
@@ -183,7 +184,7 @@ class PFileListModel(QtCore.QAbstractListModel):
 		self.datalist = file_list
 	
 	def data(self, index, role):
-		if role == QtCore.Qt.DisplayRole:
+		if role == QtCore.Qt.ItemDataRole.DisplayRole:
 			fpath = self.datalist[index.row()]
 			try:
 				_file_name = os.path.split(fpath)[-1]

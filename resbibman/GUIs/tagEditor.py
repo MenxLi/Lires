@@ -1,5 +1,5 @@
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton
+from PyQt6 import QtCore
+from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton
 
 from .tagSelector import TagSelector
 from .widgets import MainWidgetBase

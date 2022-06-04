@@ -1,5 +1,9 @@
+import os
 from setuptools import setup, find_packages
 from resbibman.confReader import VERSION
+
+with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as fp:
+    install_requires = [pkg for pkg in fp.read().split("\n") if pkg]
 
 setup(
     name="ResBibMan",
@@ -26,8 +30,9 @@ setup(
 
     include_package_data = True,
 
-    install_requires = \
-    ["PyQt5", "pybtex", "pyperclip", "PyMuPDF>=1.19.3", "PyQtWebEngine", "markdown", "tornado", "requests", "watchdog", "nest_asyncio", "arxiv"],
+    #  install_requires = \
+    #  ["PyQt5", "pybtex", "pyperclip", "PyMuPDF>=1.19.3", "PyQtWebEngine", "markdown", "tornado", "requests", "watchdog", "nest_asyncio", "arxiv"],
+    install_requires = install_requires,
 
     entry_points = {
         "console_scripts":[

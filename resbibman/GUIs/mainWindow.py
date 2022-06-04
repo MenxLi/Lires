@@ -1,8 +1,10 @@
 import pyperclip
 from typing import Tuple, List, Callable
-from PyQt5.QtGui import QIcon, QKeySequence
-from PyQt5.QtWidgets import QAction, QDesktopWidget, QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
-from PyQt5.QtCore import Qt, QThreadPool, pyqtSignal
+from PyQt6 import QtGui
+from PyQt6.QtGui import QIcon, QKeySequence
+from PyQt6.QtWidgets import QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
+from PyQt6.QtGui import QAction
+from PyQt6.QtCore import Qt, QThreadPool, pyqtSignal
 
 from .widgets import RefWidgetBase, WidgetBase
 from .fileInfo import FileInfo
@@ -51,7 +53,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.status_bar = self.statusBar()
 
         hbox = QHBoxLayout()
-        self.splitter = QSplitter(Qt.Horizontal)
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.splitter.addWidget(self.file_tags)
         self.splitter.addWidget(self.file_selector)
         self.splitter.addWidget(self.file_info)
@@ -160,7 +162,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
     
     def _createToolBars(self):
         tool_bar = QToolBar("Toolbar")
-        self.addToolBar(Qt.TopToolBarArea, tool_bar)
+        self.addToolBar(Qt.ToolBarArea.TopToolBarArea, tool_bar)
         tool_bar.addAction(self.act_file_additem)
         tool_bar.addAction(self.act_importbib_from_clip)
         tool_bar.addAction(self.act_opendb)
@@ -169,16 +171,11 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         tool_bar.addAction(self.act_reload)
         
         file_bar = QToolBar("Filebar")
-        self.addToolBar(Qt.TopToolBarArea, file_bar)
+        self.addToolBar(Qt.ToolBarArea.TopToolBarArea, file_bar)
         file_bar.addAction(self.act_open_pdb)
 
-        # Align right
-        #  tool_bar = QToolBar("Spacer")
-        #  tool_bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
-        #  self.addToolBar(Qt.TopToolBarArea, tool_bar)
-
         panel_bar = QToolBar("Panels")
-        self.addToolBar(Qt.TopToolBarArea, panel_bar)
+        self.addToolBar(Qt.ToolBarArea.TopToolBarArea, panel_bar)
         panel_bar.addAction(self.act_toggle_fullscreen)
         panel_bar.addAction(self.act_show_panel1)
         panel_bar.addAction(self.act_show_panel2)
@@ -307,7 +304,7 @@ class MainWindow(MainWindowGUI):
 
     def _center(self):
         qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
+        cp = QtGui.QGuiApplication.primaryScreen().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
     

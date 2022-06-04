@@ -2,9 +2,9 @@
 The quary dialog for bibtex input
 """
 import os, typing, difflib
-from PyQt5.QtWidgets import QLabel, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QDialog
-from PyQt5.QtWidgets import QSizePolicy
-from PyQt5 import QtCore
+from PyQt6.QtWidgets import QLabel, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QDialog
+from PyQt6.QtWidgets import QSizePolicy
+from PyQt6 import QtCore
 
 from ..core.dataClass import DataPoint, DataTags, DataBase
 from .tagEditor import TagEditor
@@ -56,7 +56,7 @@ class BibQueryGUI(QDialog, WidgetBase):
         vlayout_R.addWidget(self.tag_edit)
 
         rframe = QFrame()
-        rframe.setFrameStyle(QFrame.StyledPanel)
+        rframe.setFrameStyle(QFrame.Shape.StyledPanel)
         rlayout = QVBoxLayout()
         rlayout.addWidget(rframe)
         rframe.setLayout(vlayout_R)

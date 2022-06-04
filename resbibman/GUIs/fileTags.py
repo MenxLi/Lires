@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QTextBrowser, QVBoxLayout, QWidget, QFrame
-from PyQt5 import QtCore, QtGui
+from PyQt6.QtWidgets import QLabel, QLineEdit, QPushButton, QTextBrowser, QVBoxLayout, QWidget, QFrame
+from PyQt6 import QtCore, QtGui
 from .widgets import  MainWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
@@ -17,7 +17,7 @@ class FileTagGUI(MainWidgetBase):
 
     def initUI(self):
         self.frame = QFrame()
-        self.frame.setFrameStyle(QFrame.StyledPanel)
+        self.frame.setFrameStyle(QFrame.Shape.StyledPanel)
         vbox = QVBoxLayout()
         vbox.addWidget(self.frame)
         self.setLayout(vbox)

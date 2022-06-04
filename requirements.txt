@@ -1,8 +1,8 @@
 pybtex
-PyQt5
+PyQt6
+PyQt6-WebEngine
 pyperclip
 PyMuPDF
-PyQtWebEngine
 markdown
 pyperclip
 requests

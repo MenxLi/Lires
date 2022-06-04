@@ -2,8 +2,9 @@ from __future__ import annotations
 import typing, logging, threading
 from typing import TYPE_CHECKING
 
-from PyQt5.QtWidgets import QWidget, QMessageBox, QDesktopWidget
-from PyQt5.QtCore import QThreadPool, pyqtSignal
+from PyQt6 import QtGui
+from PyQt6.QtWidgets import QWidget, QMessageBox
+from PyQt6.QtCore import QThreadPool, pyqtSignal
 
 from ..core.utils import delay_exec
 from ..perf.qtThreading import SleepWorker
@@ -51,7 +52,7 @@ class WidgetBase:
     def _center(self):
         if isinstance(self, QWidget):
             qr = self.frameGeometry()
-            cp = QDesktopWidget().availableGeometry().center()
+            cp = QtGui.QGuiApplication.primaryScreen().availableGeometry().center()
             qr.moveCenter(cp)
             self.move(qr.topLeft())
 

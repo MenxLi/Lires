@@ -3,8 +3,8 @@ from __future__ import annotations
 import time
 import requests
 from typing import Callable, TYPE_CHECKING, List
-from PyQt5.QtCore import QThread, QThreadPool, QObject, QRunnable, Qt, pyqtSignal
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtCore import QThread, QThreadPool, QObject, QRunnable, Qt, pyqtSignal
+from PyQt6.QtWidgets import QWidget
 
 from ..core import globalVar as G
 if TYPE_CHECKING:

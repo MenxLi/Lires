@@ -1,49 +1,50 @@
 from typing import List, Tuple
-from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat
-from PyQt5.QtGui import QColor, QFont
-from PyQt5.QtCore import QRegExp
+from PyQt6.QtGui import QSyntaxHighlighter, QTextCharFormat
+from PyQt6.QtGui import QColor, QFont
+from PyQt6.QtCore import QRegularExpression, Qt
 
 class MarkdownSyntaxHighlighter(QSyntaxHighlighter):
     """A minimum markdown syntax highlighter """
+    BOLD = QFont.Weight.Bold
     def __init__(self, document):
         super().__init__(document)
-        self.highlighting_rules: List[Tuple[QRegExp, QTextCharFormat]] = list()
-        self.multi_highlight_rules: List[Tuple[QRegExp, QRegExp, QTextCharFormat]] = list()
+        self.highlighting_rules: List[Tuple[QRegularExpression, QTextCharFormat]] = list()
+        self.multi_highlight_rules: List[Tuple[QRegularExpression, QRegularExpression, QTextCharFormat]] = list()
 
         # Key words
         self.keywords = []
         keyword_format = QTextCharFormat()
         keyword_format.setForeground(QColor(0, 255, 100, 255))
-        keyword_format.setFontWeight(QFont.Bold)
+        keyword_format.setFontWeight(self.BOLD)
         self.highlighting_rules += [([pattern, keyword_format]) for pattern in self.keywords]
 
         # Headings
         for _heading_frac in range(1,5):
             heading_format = QTextCharFormat()
             heading_format.setForeground(QColor(0, 100+20*_heading_frac, 200+10*_heading_frac, 255))
-            heading_format.setFontWeight(QFont.Bold)
-            self.highlighting_rules.append((QRegExp("#"*_heading_frac+"[^\n]*"), heading_format))
+            heading_format.setFontWeight(self.BOLD)
+            self.highlighting_rules.append((QRegularExpression("#"*_heading_frac+"[^\n]*"), heading_format))
         
         # List
         list_format = QTextCharFormat()
         list_format.setForeground(QColor(100, 0, 0, 255))
-        list_format.setFontWeight(QFont.Bold)
-        self.highlighting_rules.append((QRegExp("^(\*|-) "), list_format))
+        list_format.setFontWeight(self.BOLD)
+        self.highlighting_rules.append((QRegularExpression("^(\*|-) "), list_format))
 
         # url
         link_format = QTextCharFormat()
         link_format.setForeground(QColor(150, 150, 150, 255))
-        self.highlighting_rules.append((QRegExp("!?\[[^\n]*\]\([^\n]*\)"), link_format))
+        self.highlighting_rules.append((QRegularExpression("!?\[[^\n]*\]\([^\n]*\)"), link_format))
 
         # quote
         quote_format = QTextCharFormat()
         quote_format.setForeground(QColor(0, 200, 100, 255))
-        self.highlighting_rules.append((QRegExp("^> "), quote_format))
+        self.highlighting_rules.append((QRegularExpression("^> "), quote_format))
 
         # horizontal line
         hline_format = QTextCharFormat()
         hline_format.setForeground(QColor(200, 0, 100, 255))
-        self.highlighting_rules.append((QRegExp("\n---+"), hline_format))
+        self.highlighting_rules.append((QRegularExpression("\n---+"), hline_format))
 
         # bold
         # bold_format = QTextCharFormat()
@@ -67,7 +68,7 @@ class MarkdownSyntaxHighlighter(QSyntaxHighlighter):
         # html
         html_format = QTextCharFormat()
         html_format.setForeground(QColor(100, 150, 150, 255))
-        self.highlighting_rules.append((QRegExp("<[^<]*>"), html_format))
+        self.highlighting_rules.append((QRegularExpression("<[^<]*>"), html_format))
         
 
     
@@ -78,15 +79,19 @@ class MarkdownSyntaxHighlighter(QSyntaxHighlighter):
     
     def _highlight_singleline(self, text: str):
         for pattern, format in self.highlighting_rules:
-            expression = QRegExp(pattern)
-            index = expression.indexIn(text)
+            expression = QRegularExpression(pattern)
+            match = expression.match(text)
+            index = match.capturedStart()
             while index >= 0:
-                length = expression.matchedLength()
+                length = match.capturedLength()
                 self.setFormat(index, length, format)
-                index = expression.indexIn(text, index + length+1)
+                match = expression.match(text[index+length+1: ])
+                index = match.capturedStart()
             self.setCurrentBlockState(0)
     
     def _highlight_multiline(self, text: str):
+        # To be implemented...
+        return None
         _state_counter = 0
         for start_pattern, end_pattern, format in self.multi_highlight_rules:
             if start_pattern == end_pattern:

@@ -31,8 +31,8 @@ _VERSION_HISTORIES = [
     ("0.3.0", "Web viewer!"),
     ("0.3.1", "Icon change & update setup.py distribution & argparse update."),
     ("0.3.2", "Frontend add server query."),
-    ("0.3.3", "Frontend add banner (reload database, search), UI update, change frontend server to tornado server, \
-        start front end and backend with single python cmd argument."),
+    ("0.3.3", "Frontend add banner (reload database, search), UI update, change frontend server to tornado server, "\
+        "start front end and backend with single python cmd argument."),
     ("0.3.4", "Frontend small update. change backend port to 8079"),
     ("0.3.5", "Now can insert no-file entry by cancel in file selection prompt; Add file size to file info"),
     ("0.3.6", "API update: Change resbibman.backend to resbibman.core"),
@@ -49,10 +49,11 @@ _VERSION_HISTORIES = [
     ("0.5.1", "Synchronize strategy update; GUI host settings; PDF cover cache; Move some window to dialog class; Clear cache CLI"),
     ("0.5.2", "Asynchronous UI update when connection; Improved watch file changes; Bug fix: basename now not allowed to have question mark"),
     ("0.5.3", "Better file modification monitering; Bug fix: rename/delete tag now will affact unasynchronized data; CLI change"),
-    ("0.5.4", "Document update; Use asyncio to accelerate dataloading; Add delete to context menu of file selector; \
-        CLI update; Bug fixs: rbmweb can serve packed webpages with style, server can serve empty database"),
-    ("0.6.0", "Online discussion avaliable; Info file record time as floating time stamp; Key login required for accessing webpage; \
-        rbm-collect/rbm-discuss; Server can serve notes in html format"),
+    ("0.5.4", "Document update; Use asyncio to accelerate dataloading; Add delete to context menu of file selector; "\
+        "CLI update; Bug fixs: rbmweb can serve packed webpages with style, server can serve empty database"),
+    ("0.6.0", "Online discussion avaliable; Info file record time as floating time stamp; Key login required for accessing webpage; "\
+        "rbm-collect/rbm-discuss; Server can serve notes in html format"),
+    ("0.6.0a", "Using PyQt6! View comment preview in online mode"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 

@@ -1,6 +1,6 @@
 import argparse, subprocess, warnings, logging
 import shutil
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 import os, sys, platform
 from .core import globalVar as G
 from .GUIs.mainWindow import MainWindow
@@ -15,7 +15,7 @@ def execProg_():
         with open(ss, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())
     gui = MainWindow()
-    EXIT_CODE =  app.exec_()
+    EXIT_CODE =  app.exec()
     
     G.clearTempDirs()
 
