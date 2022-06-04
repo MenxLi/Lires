@@ -15,7 +15,7 @@ function initPage() {
     setFileInfoStr(uid, document.querySelector("#doc_info"));
     setFileUrl(uid, document.querySelector("#open_doc"));
 
-    document.querySelector("#usr_name").value = sessionStorage.getItem("RBM_USR_NAME")
+    document.querySelector("#usr_name").value = localStorage.getItem("RBM_USR_NAME")
 
     document.querySelector("#submit_btn").addEventListener("click", submitComment);
     document.querySelector("#tab_note").addEventListener("click", () => {
@@ -42,10 +42,14 @@ function clickOnTab(tab_name) {
 function submitComment() {
 
     const usr_name = document.querySelector("#usr_name").value;
-    sessionStorage.setItem("RBM_USR_NAME", usr_name)
+    localStorage.setItem("RBM_USR_NAME", usr_name)
 
     if (!usr_name){
         alert("Please enter a name");
+        return;
+    }
+    if (!document.querySelector("#comment_input").value){
+        alert("Please enter your comment");
         return;
     }
 
