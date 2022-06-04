@@ -2,6 +2,7 @@ include README.md
 recursive-include resbibman/core *.bib
 recursive-include resbibman/docs *
 recursive-include resbibman/icons *
+recursive-include resbibman/assests *
 recursive-include resbibman/stylesheets *
 recursive-include RBMWeb/backend config.json
 recursive-include RBMWeb/frontend *

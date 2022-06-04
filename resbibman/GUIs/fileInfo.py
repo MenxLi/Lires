@@ -10,9 +10,7 @@ from ..core.fileTools import FileManipulator
 from ..core.bibReader import BibParser
 from ..core.dataClass import DataPoint
 from ..core.pdfTools import getPDFCoverAsQPixelmap
-from ..core.utils import HTML_TEMPLATE_RAW
 
-import markdown
 from .mdHighlighter import MarkdownSyntaxHighlighter
 
 

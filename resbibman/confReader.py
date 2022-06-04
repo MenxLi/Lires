@@ -68,6 +68,7 @@ STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
 DOC_PATH = join(CURR_PATH, "docs")
 BIB_TEMPLATE_PATH = join(DOC_PATH, "bibtexTemplates")
 LOG_FILE = join(CURR_PATH, "log.txt")
+ASSESTS_PATH = join(CURR_PATH, "assests")
 DEFAULT_DATA_PATH = join(CURR_PATH, os.pardir, "Database")
 
 TMP_DIR = tempfile.gettempdir()

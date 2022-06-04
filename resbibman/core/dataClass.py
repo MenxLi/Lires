@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging
 import shutil, requests, json
-from resbibman.confReader import getConfV
+from ..confReader import getConfV, ASSESTS_PATH
 import typing, re, string, os, asyncio
 from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict
 import difflib
@@ -15,7 +15,7 @@ try:
 except (FileNotFoundError, KeyError):
     pass
 from .bibReader import BibParser
-from .utils import HTML_TEMPLATE_RAW
+#  from .utils import HTML_TEMPLATE_RAW
 from .encryptClient import generateHexHash
 from . import globalVar as G
 
@@ -38,7 +38,12 @@ class DataTags(set):
             return "<None>"
 
 class DataPoint:
-    COMMENT_HTML_TEMPLATE = string.Template(HTML_TEMPLATE_RAW)
+    with open(os.path.join(ASSESTS_PATH, "markdown.css"), "r") as fp:
+        COMMENT_CSS = fp.read()
+
+    with open(os.path.join(ASSESTS_PATH, "markdown.template.html"), "r") as fp:
+        COMMENT_HTML_TEMPLATE = string.Template(fp.read())
+
     logger = G.logger_rbm
     def __init__(self, fm: FileManipulatorVirtual):
         """
@@ -185,7 +190,8 @@ class DataPoint:
         comment = comment.replace("./misc", misc_f)
 
         comment_html = markdown.markdown(comment)
-        comment_html = self.COMMENT_HTML_TEMPLATE.substitute(content = comment_html)
+        comment_html = self.COMMENT_HTML_TEMPLATE.substitute(\
+                        content = comment_html, style = self.COMMENT_CSS)
         return comment_html
 
     def getFileStatusStr(self):

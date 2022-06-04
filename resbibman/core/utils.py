@@ -2,7 +2,7 @@ from io import TextIOWrapper
 import time, datetime, re, random, string
 import subprocess, os, platform, sys, threading
 from typing import Callable
-from ..confReader import LOG_FILE
+from ..confReader import LOG_FILE, ASSESTS_PATH
 import pyperclip as pc
 from functools import wraps
 from uuid import uuid4
@@ -218,32 +218,37 @@ def sssUUID() -> str:
     """
     return ssUUID()[::2]
 
-
 def randomAlphaNumeric(length: int):
     """Generate a random string"""
     str = string.ascii_lowercase
     return ''.join(random.choice(str) for i in range(length))
 
-HTML_TEMPLATE_RAW = """\
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-<title>Comments</title>
+#  with open(os.path.join(ASSESTS_PATH, "markdown.css"), "r") as fp:
+#      pass
+#
+#  with open(os.path.join(ASSESTS_PATH, "markdown.template.html"), "r") as fp:
+#      HTML_TEMPLATE_RAW = fp.read()
 
-<style>
-    img {
-        max-width: 100%;
-    }
-</style>
-
-</head>
-
-
-<body>
-${content}
-</body>
-</html>
-
-"""
+#  HTML_TEMPLATE_RAW = """\
+#  <!DOCTYPE html>
+#  <html>
+#  <head>
+#  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+#  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+#  <title>Comments</title>
+#
+#  <style>
+#      img {
+#          max-width: 100%;
+#      }
+#  </style>
+#
+#  </head>
+#
+#
+#  <body>
+#  ${content}
+#  </body>
+#  </html>
+#
+#  """
