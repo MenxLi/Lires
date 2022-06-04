@@ -60,9 +60,10 @@ The server port can be assigned at `RBMWeb/backend/conf.json`
 - [x] Better way to define time-modified
 - [x] Online discussion / View comments online (Use sqlite to save discussion on server side)
 - [ ] Dashboard page
-- [ ] Better font size
-- [ ] Redirect some logging to status bar
 - [ ] Other citation format convert to bibtex
+- [ ] Better font size
+- [ ] Related works
+- [ ] Redirect some logging to status bar
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
 - [ ] Export database
 - [ ] User info, associate each user with a key in rbm-keyman
@@ -93,6 +94,9 @@ Tags:
 Refractor:
 - [ ] Move more methods into core classes
 
+rbm-collect:
+- [ ] PMID
+
 ### Long time goals
 
 - ~~[ ] Language support~~
@@ -105,8 +109,8 @@ QRunnable for multithreading
 
 ## Known issues
 * May crash when changing selection (caused by auto saving)
-* QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)
 * Markdown horizontal line highlighter not working somehow
+* ~~QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)~~(Solved with PyQt6)
 
 ## Credits:
 https://github.com/google/material-design-icons   

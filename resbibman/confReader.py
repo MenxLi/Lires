@@ -54,6 +54,7 @@ _VERSION_HISTORIES = [
     ("0.6.0", "Online discussion avaliable; Info file record time as floating time stamp; Key login required for accessing webpage; "\
         "rbm-collect/rbm-discuss; Server can serve notes in html format"),
     ("0.6.0a", "Using PyQt6! View comment preview in online mode"),
+    ("0.6.1", "Comment CSS update; Full screen; Bug fixes"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
