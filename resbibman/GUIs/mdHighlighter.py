@@ -12,18 +12,18 @@ class MarkdownSyntaxHighlighter(QSyntaxHighlighter):
         self.multi_highlight_rules: List[Tuple[QRegularExpression, QRegularExpression, QTextCharFormat]] = list()
 
         # Key words
-        self.keywords = []
-        keyword_format = QTextCharFormat()
-        keyword_format.setForeground(QColor(0, 255, 100, 255))
-        keyword_format.setFontWeight(self.BOLD)
-        self.highlighting_rules += [([pattern, keyword_format]) for pattern in self.keywords]
+        #  self.keywords = []
+        #  keyword_format = QTextCharFormat()
+        #  keyword_format.setForeground(QColor(0, 255, 100, 255))
+        #  keyword_format.setFontWeight(self.BOLD)
+        #  self.highlighting_rules += [([pattern, keyword_format]) for pattern in self.keywords]
 
         # Headings
         for _heading_frac in range(1,5):
             heading_format = QTextCharFormat()
             heading_format.setForeground(QColor(0, 100+20*_heading_frac, 200+10*_heading_frac, 255))
             heading_format.setFontWeight(self.BOLD)
-            self.highlighting_rules.append((QRegularExpression("#"*_heading_frac+"[^\n]*"), heading_format))
+            self.highlighting_rules.append((QRegularExpression("#"*_heading_frac+"[^\n]*$"), heading_format))
         
         # List
         list_format = QTextCharFormat()
@@ -44,7 +44,12 @@ class MarkdownSyntaxHighlighter(QSyntaxHighlighter):
         # horizontal line
         hline_format = QTextCharFormat()
         hline_format.setForeground(QColor(200, 0, 100, 255))
-        self.highlighting_rules.append((QRegularExpression("\n---+"), hline_format))
+        self.highlighting_rules.append((QRegularExpression("\n---+$"), hline_format))
+
+        # html
+        html_format = QTextCharFormat()
+        html_format.setForeground(QColor(100, 150, 150, 255))
+        self.highlighting_rules.append((QRegularExpression("<[^<]*>"), html_format))
 
         # bold
         # bold_format = QTextCharFormat()
@@ -65,28 +70,22 @@ class MarkdownSyntaxHighlighter(QSyntaxHighlighter):
         # html_format_in.setForeground(QColor(50, 240, 250, 255))
         # self.multi_highlight_rules.append((QRegExp("<{^<}*>"), QRegExp("</[^<]*>"), html_format_in))
 
-        # html
-        html_format = QTextCharFormat()
-        html_format.setForeground(QColor(100, 150, 150, 255))
-        self.highlighting_rules.append((QRegularExpression("<[^<]*>"), html_format))
-        
-
-    
     def highlightBlock(self, text: str) -> None:
         self._highlight_singleline(text)
-        self._highlight_multiline(text)
+        #  self._highlight_multiline(text)
         # self._highlight_multiline_samePattern(text)
     
     def _highlight_singleline(self, text: str):
         for pattern, format in self.highlighting_rules:
+            current_ = 0
             expression = QRegularExpression(pattern)
             match = expression.match(text)
-            index = match.capturedStart()
-            while index >= 0:
+            while match.hasMatch():
+                index = match.capturedStart() + current_
                 length = match.capturedLength()
                 self.setFormat(index, length, format)
-                match = expression.match(text[index+length+1: ])
-                index = match.capturedStart()
+                current_ += match.capturedEnd()
+                match = expression.match(text[current_: len(text)])
             self.setCurrentBlockState(0)
     
     def _highlight_multiline(self, text: str):
