@@ -1,12 +1,11 @@
-/*
-elem: html element that innerHTML to be changed  
-*/
-const SERVER_ADDR = sessionStorage.getItem("RBMServerAddr")
-const SERVER_PORT = sessionStorage.getItem("RBMServerPort")
+import {SERVER_URL} from "../libs/serverAddr.js"
+
+// const SERVER_ADDR = sessionStorage.getItem("RBMServerAddr")
+// const SERVER_PORT = sessionStorage.getItem("RBMServerPort")
 
 function setFileInfoStr(uid, elem){
     const queryKey = `${uid}?cmd=stringInfo`
-    const reqStr =  `http://${SERVER_ADDR}:${SERVER_PORT}/fileinfo/${queryKey}`;
+    const reqStr =  `${SERVER_URL}/fileinfo/${queryKey}`;
     const xhr = new XMLHttpRequest();
     console.log("sending...", reqStr)
     xhr.open("GET", reqStr, true);
@@ -27,7 +26,7 @@ elem: html element whose src to be changed
 */
 function setFileUrl(uid, btn_elem){
     const queryKey = `${uid}`
-    const reqStr =  `http://${SERVER_ADDR}:${SERVER_PORT}/fileinfo/${queryKey}`;
+    const reqStr =  `${SERVER_URL}/fileinfo/${queryKey}`;
     const xhr = new XMLHttpRequest();
     console.log("sending...", reqStr)
     xhr.open("GET", reqStr, true);
@@ -39,10 +38,10 @@ function setFileUrl(uid, btn_elem){
                 const data = res;
                 let href;
                 if (data["has_file"] && data["file_type"]===".pdf"){
-                    href = `http://${SERVER_ADDR}:${SERVER_PORT}/doc/${uid}`;
+                    href = `${SERVER_URL}/doc/${uid}`;
                 }
                 else if (data["has_file"] && data["file_type"]===".hpack"){
-                    href = `http://${SERVER_ADDR}:${SERVER_PORT}/hdoc/${uid}/`;
+                    href = `${SERVER_URL}/hdoc/${uid}/`;
                 }
                 else if (data["url"] != ""){
                     href = data["url"];

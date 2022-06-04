@@ -1,16 +1,16 @@
 import {setFileInfoStr, setFileUrl} from "./reqServer.js"
+import {SERVER_URL} from "../libs/serverAddr.js"
 
-const SERVER_ADDR = sessionStorage.getItem("RBMServerAddr")
-const SERVER_PORT = sessionStorage.getItem("RBMServerPort")
+// const SERVER_ADDR = sessionStorage.getItem("RBMServerAddr")
+// const SERVER_PORT = sessionStorage.getItem("RBMServerPort")
 
 function initPage() {
     const queryString = window.location.search;
     const uid = queryString.slice(1, );
     // console.log(uuid);
     const noteFrame = document.querySelector("#note_frame");
-    noteFrame.click();
     const discuss_frame = document.querySelector("#discuss_frame");
-    discuss_frame.src = `http://${SERVER_ADDR}:${SERVER_PORT}/discussions/${uid}`;
+    discuss_frame.src = `${SERVER_URL}/discussions/${uid}`;
 
     setFileInfoStr(uid, document.querySelector("#doc_info"));
     setFileUrl(uid, document.querySelector("#open_doc"));
@@ -24,6 +24,7 @@ function initPage() {
     document.querySelector("#tab_doc").addEventListener("click", () => {
         clickOnTab("doc");
     });
+    noteFrame.src = `${SERVER_URL}/comment/${uid}/`;
 }
 
 function clickOnTab(tab_name) {
@@ -31,7 +32,7 @@ function clickOnTab(tab_name) {
     const uid = queryString.slice(1, );
     const noteFrame = document.querySelector("#note_frame");
     if (tab_name == "note"){
-        noteFrame.src = `http://${SERVER_ADDR}:${SERVER_PORT}/comment/${uid}/`;
+        noteFrame.src = `${SERVER_URL}/comment/${uid}/`;
     }
     else if (tab_name == "doc"){
         noteFrame.src = document.querySelector("#tab_doc").doc_url; // set by setFileUrl
@@ -51,7 +52,7 @@ function submitComment() {
     const queryString = window.location.search;
     const uid = queryString.slice(1, );
     let xhr = new XMLHttpRequest();
-    xhr.open("POST", `http://${SERVER_ADDR}:${SERVER_PORT}/discussion_mod`);
+    xhr.open("POST", `${SERVER_URL}/discussion_mod`);
 
     // Requested by tornado
     // https://stackoverflow.com/a/45429322
