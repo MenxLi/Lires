@@ -113,6 +113,14 @@ def getDatabase(offline: bool):
 def getConfV(key : str):
     return getConf()[key]
 
+def getServerURL() -> str:
+    host = getConf()["host"]
+    port = getConf()["port"]
+    if not host:
+        return ""
+    else:
+        return f"http://{host}:{port}"
+
 def saveToConf(**kwargs):
     try:
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:

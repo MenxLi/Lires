@@ -4,7 +4,7 @@ import warnings
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit
 from .widgets import MainWidgetBase
-from ..confReader import ICON_PATH, getConfV, TMP_COVER
+from ..confReader import ICON_PATH, getConfV, TMP_COVER, getServerURL
 from ..core.fileTools import FileManipulator
 from ..core.bibReader import BibParser
 from ..core.dataClass import DataPoint
@@ -133,8 +133,9 @@ class FileInfo(FileInfoGUI):
             self.tEdit.setText(self.TEDIT_SYNC_PROPMT)
         else:
             # Load comments when sync download
-            comment = self.curr_data.fm.readComments()
-            self.tEdit.setText(comment)
+            if self.curr_data is not None:
+                comment = self.curr_data.fm.readComments()
+                self.tEdit.setText(comment)
             # To avoid status change when clicking on a new data point
             self.setCommentSaveStatusLbl("saved")
             self.__updateCover(self.curr_data)
@@ -149,7 +150,7 @@ class FileInfo(FileInfoGUI):
         self.open_folder_btn.setEnabled(status)
         self.save_comment_btn.setEnabled(status)
         self.refresh_btn.setEnabled(status)
-        self.mdTab.setEnabled(status)
+        #  self.mdTab.setEnabled(status)
     
     def clearPanel(self):
         self.logger.debug("Clear info panel")
@@ -180,13 +181,13 @@ class FileInfo(FileInfoGUI):
         self.info_lbl.setText(data.stringInfo())
         self.weburl_edit.setText(data.fm.getWebUrl())
         self.__updateCover(data)
+        self.__renderMarkdown()
         if data.is_local:
             comment = self.curr_data.fm.readComments()
             self.offlineStatus(True)
             self.tEdit.setText(comment)
             # To avoid status change when clicking on a new data point
             self.setCommentSaveStatusLbl("saved")
-            self.__renderMarkdown()
         else:
             self.offlineStatus(False)
             self.setCommentSaveStatusLbl("none")
@@ -303,27 +304,37 @@ class FileInfo(FileInfoGUI):
             _save_comments_thread()
 
     def _saveComments(self) -> bool:
-        if not self.curr_data is None:
-            comment = self.tEdit.toPlainText()
-            if comment == self.TEDIT_SYNC_PROPMT:
-                # Don't save this...
-                return False
-            self.curr_data.fm.writeComments(comment)
-            self.setCommentSaveStatusLbl("saved")
-            return True
-        else:
-            self.comment_save_indicate_lbl.setText("")
+        if self.curr_data is None:
+            self.setCommentSaveStatusLbl("none")
             return False
+        if not self.curr_data.is_local:
+            self.setCommentSaveStatusLbl("none")
+            return False
+        comment = self.tEdit.toPlainText()
+        if comment == self.TEDIT_SYNC_PROPMT:
+            # Don't save this...
+            return False
+        self.curr_data.fm.writeComments(comment)
+        self.setCommentSaveStatusLbl("saved")
+        return True
     
     def __renderMarkdown(self):
-        comment = self.tEdit.toPlainText()
-        if comment == "":
-            return
         if self.curr_data is None:
-            # shouldn't happen
+            # shouldn't happen, for type checking purposes
             return
-        comment_html = self.curr_data.htmlComment()
-        self.mdBrowser.setHtml(comment_html, baseUrl=QtCore.QUrl.fromLocalFile("/"))
+
+        if self.curr_data.is_local:
+            comment = self.tEdit.toPlainText()
+            if comment == "":
+                return
+            comment_html = self.curr_data.htmlComment()
+            self.mdBrowser.setHtml(comment_html, baseUrl=QtCore.QUrl.fromLocalFile("/"))
+        else:
+            # set online url
+            uid = self.curr_data.uuid
+            md_url = getServerURL() + "/comment/{}/".format(uid)
+            self.logger.debug("requesting remote comment html: {}".format(md_url))
+            self.mdBrowser.setUrl(QtCore.QUrl.fromUserInput(md_url))
 
     def __updateCover(self, data: Union[DataPoint,None]):
         self.cover_label.setScaledContents(False)
