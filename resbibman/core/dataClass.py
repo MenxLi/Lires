@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging
 import shutil, requests, json
-from ..confReader import getConfV, ASSESTS_PATH
+from ..confReader import getConfV, ASSETS_PATH
 import typing, re, string, os, asyncio
 from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict
 import difflib
@@ -38,10 +38,10 @@ class DataTags(set):
             return "<None>"
 
 class DataPoint:
-    with open(os.path.join(ASSESTS_PATH, "markdown.css"), "r") as fp:
+    with open(os.path.join(ASSETS_PATH, "markdown.css"), "r") as fp:
         COMMENT_CSS = fp.read()
 
-    with open(os.path.join(ASSESTS_PATH, "markdown.template.html"), "r") as fp:
+    with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r") as fp:
         COMMENT_HTML_TEMPLATE = string.Template(fp.read())
 
     logger = G.logger_rbm

@@ -2,7 +2,7 @@ from io import TextIOWrapper
 import time, datetime, re, random, string
 import subprocess, os, platform, sys, threading
 from typing import Callable
-from ..confReader import LOG_FILE, ASSESTS_PATH
+from ..confReader import LOG_FILE, ASSETS_PATH
 import pyperclip as pc
 from functools import wraps
 from uuid import uuid4
@@ -223,10 +223,10 @@ def randomAlphaNumeric(length: int):
     str = string.ascii_lowercase
     return ''.join(random.choice(str) for i in range(length))
 
-#  with open(os.path.join(ASSESTS_PATH, "markdown.css"), "r") as fp:
+#  with open(os.path.join(ASSETS_PATH, "markdown.css"), "r") as fp:
 #      pass
 #
-#  with open(os.path.join(ASSESTS_PATH, "markdown.template.html"), "r") as fp:
+#  with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r") as fp:
 #      HTML_TEMPLATE_RAW = fp.read()
 
 #  HTML_TEMPLATE_RAW = """\
