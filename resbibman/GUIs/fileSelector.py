@@ -134,17 +134,17 @@ class FileSelector(FileSelectorGUI):
         selections = self.getCurrentSelection(return_multiple=True)
         if selections is None:
             return
-        # only one selection and sync successed, do
         _only_one = len(selections) == 1
         def on_finish(success):
-            self.setEnabled(True)
+            self.setEnabled(True)   # Enable changing data selection when done
             if success and _only_one:
+                # only one selection and sync successed, do
                 self.offlineStatus(True)
                 self.getInfoPanel().offlineStatus(True)
                 self.getTagPanel().offlineStatus(True)
             callback_on_finish(success)
 
-        self.setEnabled(False)   # Don't change data selection
+        self.setEnabled(False)      # Disable changing data selection when sync current selection
         self.getMainPanel().syncData_async(selections, on_finish)
         return 
 

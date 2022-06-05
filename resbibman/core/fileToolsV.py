@@ -356,6 +356,7 @@ class FileManipulatorVirtual(FileManipulator):
         if self.has_local:
             return super().setWatch(status)
         else:
+            self.logger.debug("setWatch (fm): Failed to watch non-local file: {}".format(self.uuid))
             ...
     
     def _log(self):

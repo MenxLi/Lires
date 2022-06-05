@@ -431,10 +431,10 @@ class MainWindow(MainWindowGUI):
         def on_finish(success):
             if success:
                 self.statusBarInfo("Successfully synchronized", 5, bg_color = "green")
-                for dp in to_sync:
-                    dp.fm.setWatch(True)
             else:
                 self.statusBarInfo("Failed synchronize, check log", 5, bg_color = "red")
+            for dp in to_sync:
+                dp.fm.setWatch(True)
         sync_worker = SyncWorker(to_sync)
         sync_worker.signals.started.connect(on_start)
         sync_worker.signals.on_chekpoint.connect(on_middle)
