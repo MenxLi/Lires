@@ -223,32 +223,9 @@ def randomAlphaNumeric(length: int):
     str = string.ascii_lowercase
     return ''.join(random.choice(str) for i in range(length))
 
-#  with open(os.path.join(ASSETS_PATH, "markdown.css"), "r") as fp:
-#      pass
-#
-#  with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r") as fp:
-#      HTML_TEMPLATE_RAW = fp.read()
-
-#  HTML_TEMPLATE_RAW = """\
-#  <!DOCTYPE html>
-#  <html>
-#  <head>
-#  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-#  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-#  <title>Comments</title>
-#
-#  <style>
-#      img {
-#          max-width: 100%;
-#      }
-#  </style>
-#
-#  </head>
-#
-#
-#  <body>
-#  ${content}
-#  </body>
-#  </html>
-#
-#  """
+def formatMarkdownHTML(md_html: str):
+    with open(os.path.join(ASSETS_PATH, "github-markdown-light.css"), "r", encoding="utf-8") as fp:
+        css = fp.read()
+    with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r", encoding="utf-8") as fp:
+        html_template = string.Template(fp.read())
+    return html_template.substitute(style=css, content=md_html)

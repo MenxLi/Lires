@@ -7,6 +7,7 @@ from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict
 import difflib
 import markdown
 from .fileTools import FileGenerator
+from .utils import formatMarkdownHTML
 from ..perf.asynciolib import asyncioLoopRun
 try:
     # may crash when generating config file withouot config file...
@@ -38,11 +39,11 @@ class DataTags(set):
             return "<None>"
 
 class DataPoint:
-    with open(os.path.join(ASSETS_PATH, "markdown.css"), "r") as fp:
-        COMMENT_CSS = fp.read()
-
-    with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r") as fp:
-        COMMENT_HTML_TEMPLATE = string.Template(fp.read())
+    #  with open(os.path.join(ASSETS_PATH, "markdown.css"), "r") as fp:
+    #      COMMENT_CSS = fp.read()
+    #
+    #  with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r") as fp:
+    #      COMMENT_HTML_TEMPLATE = string.Template(fp.read())
 
     logger = G.logger_rbm
     def __init__(self, fm: FileManipulatorVirtual):
@@ -190,9 +191,9 @@ class DataPoint:
         comment = comment.replace("./misc", misc_f)
 
         comment_html = markdown.markdown(comment)
-        comment_html = self.COMMENT_HTML_TEMPLATE.substitute(\
-                        content = comment_html, style = self.COMMENT_CSS)
-        return comment_html
+        #  comment_html = self.COMMENT_HTML_TEMPLATE.substitute(\
+        #                  content = comment_html, style = self.COMMENT_CSS)
+        return formatMarkdownHTML(comment_html)
 
     def getFileStatusStr(self):
         """
