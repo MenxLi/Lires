@@ -1,12 +1,12 @@
 import typing
-import warnings
+import warnings, os, shutil, time
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog
 
 from ..core.dataClass import DataList, DataTableList
 
 from .widgets import RefWidgetBase
-from ..confReader import getConf, getConfV, getStyleSheets, saveToConf
+from ..confReader import getConf, getConfV, getStyleSheets, saveToConf, TMP_DB
 
 class SubSettingsBase(RefWidgetBase):
 	def __init__(self) -> None:
@@ -95,6 +95,11 @@ class SetDatabase(SubSettingsBase):
 		if not host == getConf()["host"] or not port == getConf()["port"]:
 			saveToConf(host = host, port = port)
 			self.logger.debug("RBMWeb host set to: {}:{}".format(host, port))
+			self.logger.info("Server settings changed, deleting previous local temporary files")
+			for f in os.listdir(TMP_DB):
+				f_path = os.path.join(TMP_DB, f)
+				if os.path.isdir(f_path):
+					shutil.rmtree(f_path)
 			RELOAD = True
 		
 		if not access_key == getConf()["access_key"]:
@@ -104,6 +109,9 @@ class SetDatabase(SubSettingsBase):
 
 		if RELOAD:
 			self.logger.info("Database settings changed.")
+			# Dont know if necessary to sleep
+			# add to test if loading empty config will still happen, if settings changed
+			time.sleep(0.5) 
 			self.getMainPanel().reloadData()
 
 class SetSortingMethod(SubSettingsBase):

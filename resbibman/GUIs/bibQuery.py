@@ -2,6 +2,7 @@
 The quary dialog for bibtex input
 """
 import os, typing, difflib
+import pybtex.scanner
 from PyQt6.QtWidgets import QLabel, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QDialog
 from PyQt6.QtWidgets import QSizePolicy
 from PyQt6 import QtCore
@@ -97,7 +98,18 @@ class BibQuery(BibQueryGUI):
     def confirm(self):
         parser = BibParser(mode = "single")
         bib_txt = self.bib_edit.text
-        bib = parser(bib_txt)[0]
+        try:
+            bib = parser(bib_txt)[0]
+        except IndexError as e:
+            self.logger.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
+            return 
+        except pybtex.scanner.PrematureEOF:
+            self.logger.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
+            return 
+        except KeyError:
+            self.logger.warning(f"KeyError. (Author year and title must be provided)")
+            return 
+
         tag_list = self.tag_edit.getSelectedTags().toOrderedList()
         fg = FileGenerator(
             file_path = self.file_path,
