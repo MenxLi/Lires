@@ -39,6 +39,12 @@ rbm-collect     # Automatic add entry to database with retriving string
 
 **The [docs-CN](./resbibman/docs/使用说明.md) is helpful but needs more detail. Will add in the fufute**
 
+## Server deployment
+May need to install some libraries (in ubuntu2204 docker with apt):
+```
+apt install -y python3-pyqt5 libgl1-mesa-glx libnss3 libasound2 libxkbfile1
+```
+
 ## Server usage
 Start server with `resbibman -S`  
 Access key management with `rbm-keyman`   
@@ -60,6 +66,8 @@ The server port can be assigned at `RBMWeb/backend/conf.json`
 - [x] Better way to define time-modified
 - [x] Online discussion / View comments online (Use sqlite to save discussion on server side)
 - [ ] Dashboard page
+- [ ] Markdown LaTeX equation support
+- [ ] Within software cross-reference
 - [ ] Other citation format convert to bibtex
 - [ ] Better font size
 - [ ] Related works

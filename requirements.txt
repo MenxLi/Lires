@@ -1,6 +1,7 @@
 pybtex
 PyQt6
 PyQt6-WebEngine
+tornado
 pyperclip
 PyMuPDF
 markdown
