@@ -3,11 +3,12 @@ import logging
 import shutil, requests, json
 from ..confReader import getConfV, ASSETS_PATH
 import typing, re, string, os, asyncio
-from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict
+from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict, Type, Optional
 import difflib
 import markdown
 from .fileTools import FileGenerator
 from .utils import formatMarkdownHTML
+from .clInteractions import ChoicePromptAbstract
 from ..perf.asynciolib import asyncioLoopRun
 try:
     # may crash when generating config file withouot config file...
@@ -63,6 +64,12 @@ class DataPoint:
         """
         self.__force_offline = True
         self.fm._forceOffline()
+
+    def setPromptCls(self, prompt_cls: Type[ChoicePromptAbstract]):
+        """
+        User prompt method set with GUI modules
+        """
+        self.fm.prompt_cls = prompt_cls
     
     def sync(self) -> bool:
         """
@@ -104,7 +111,7 @@ class DataPoint:
 
     def reload(self):
         if self.fm.has_local:
-            self.fm = FileManipulatorVirtual(self.data_path)
+            self.fm = FileManipulatorVirtual(self.data_path, prompt_cls = self.fm.prompt_cls)
         else:
             # to decide later
             pass

@@ -13,6 +13,7 @@ from .fileSelector import FileSelector
 from .bibQuery import BibQuery
 from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
+from .guiInteractions import ChoicePromptGUI
 
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
@@ -259,14 +260,12 @@ class MainWindow(MainWindowGUI):
                     self.statusBarInfo("Data loaded", 2, bg_color = "blue")
             else:
                 self.statusBarInfo("Error connection", 2, bg_color = "red")
-            return 
-        def syncAfter(success):
-            """
-            sync datapoint (local) if any
-            """
+            
             if success and sync_after:
+                # sync datapoint (local) if any
                 to_sync = [dp for uuid, dp in self.db.items() if dp.is_local]
                 self.syncData_async(to_sync)
+            return 
 
         # -----Start from here-----
         self.setEnabled(False)
@@ -283,7 +282,6 @@ class MainWindow(MainWindowGUI):
 
         worker = InitDBWorker(self.db, data_path)
         worker.signals.finished.connect(on_done)
-        worker.signals.finished.connect(syncAfter)
         self.pool.start(worker)
 
     def getCurrentSelection(self)->typing.Union[None, DataPoint]:
@@ -435,6 +433,9 @@ class MainWindow(MainWindowGUI):
                 self.statusBarInfo("Failed synchronize, check log", 5, bg_color = "red")
             for dp in to_sync:
                 dp.fm.setWatch(True)
+        # before start sync, make sure that all datapoint are using GUI for user prompt
+        #  for dp in to_sync:
+        #      dp.setPromptCls(ChoicePromptGUI)
         sync_worker = SyncWorker(to_sync)
         sync_worker.signals.started.connect(on_start)
         sync_worker.signals.on_chekpoint.connect(on_middle)

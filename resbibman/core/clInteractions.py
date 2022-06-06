@@ -1,7 +1,7 @@
 """
 Some command line interactions classes
 """
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from typing import List
 
 class ChoicePromptAbstract(ABC):
@@ -13,13 +13,22 @@ class ChoicePromptAbstract(ABC):
         self.prompt = prompt
         self.choices = choices
         self.title = title
+        self._choice = "unknown"
 
-    @abstractmethod
-    def show(self) -> str:
+    @abstractproperty
+    def choice(self):
         """
-        Return a choice from self.choices
+        Get the choice after self.show
         """
         ...
+
+    @abstractmethod
+    def show(self):
+        """
+        show the prompt
+        """
+        ...
+
 
 class ChoicePromptCLI(ChoicePromptAbstract):
     def __init__(self, prompt: str, choices: List[str] = ["Yes", "No"], title: str = "Prompt"):
@@ -28,5 +37,8 @@ class ChoicePromptCLI(ChoicePromptAbstract):
         while True:
             input_ = input(self.prompt + "({})".format("/".join(self.choices)))
             if input_ in self.choices:
+                self._choice = input_
                 break
-        return input_
+    @property
+    def choice(self):
+        return self._choice

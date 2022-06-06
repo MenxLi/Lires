@@ -34,7 +34,8 @@ class FileManipulatorVirtual(FileManipulator):
                 to construct vitrual file manipulator
          - v [str]: local data path, 
                 to construct local file manipulator
-         - prompt_cls: class that inherited from core.clInteractions.ChoicePromptAbstract
+         - prompt_cls: class that inherited from core.clInteractions.ChoicePromptAbstract,
+                For prompt user interaction
         """
         self.__force_offline = False
         if isinstance(v, str):
@@ -112,14 +113,33 @@ class FileManipulatorVirtual(FileManipulator):
         if not self.has_local:
             # download if not loacl
             return self._downloadRemote()
+
         # Check is_uptodate when uploading
         update_status = self.is_uptodate
         if update_status == "advance":
             self.logger.info("sync (fm): uploading {}".format(self.uuid))
             return self._uploadRemote()
+
         elif update_status == "behind":
-            self.logger.warning("sync (fm): Remote file may have been changed, failed uploading {}".format(self.uuid))
-            return False
+            # needs user interaction here
+            prompt_choice = self.prompt_cls(\
+                            "The following local file is behind remote, choose what to do\n{}".format(self.uuid), \
+                            choices = ["upload local", "download remote", "skip"])
+            prompt_choice.show()
+            usr_choice = prompt_choice.choice
+            if usr_choice == "skip":
+                self.logger.warning("sync (fm): Remote file may have been changed, failed uploading {}".format(self.uuid))
+                return False
+            elif usr_choice == "upload":
+                self.logger.info("sync (fm): uploading {}".format(self.uuid))
+                return self._uploadRemote()
+            elif usr_choice == "download":
+                self.logger.debug("sync (fm): downloading {}".format(self.uuid))
+                return self._downloadRemote()
+            else:
+                # shoule never happen though... for type checking propose
+                raise NotImplementedError(f"Unknown choice: {usr_choice}")
+
         else:
             # same
             self.logger.debug("sync (fm): remote unchanged {}".format(self.uuid))
