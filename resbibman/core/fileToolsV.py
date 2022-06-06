@@ -3,10 +3,11 @@ Virtual (Remote) file tools
 """
 from __future__ import annotations
 import os, typing, requests, zipfile, shutil
-from typing import TYPE_CHECKING, Union, overload, Literal
+from typing import TYPE_CHECKING, Union, overload, Literal, Type
 
 from . import globalVar as G
 from .utils import strtimeToDatetime, TimeUtils
+from .clInteractions import ChoicePromptCLI, ChoicePromptAbstract
 from .fileTools import FileGenerator, FileManipulator
 from .encryptClient import generateHexHash
 from .compressTools import decompressDir, compressDir
@@ -26,12 +27,14 @@ class FileManipulatorVirtual(FileManipulator):
     INTERM_ZIP_DIR = os.path.join(TMP_DIR, "fm_zips")
     if not os.path.exists(INTERM_ZIP_DIR):
         os.mkdir(INTERM_ZIP_DIR)
-    def __init__(self, v: Union[DataPointInfo, str]):
+    def __init__(self, v: Union[DataPointInfo, str], \
+                 prompt_cls: Type[ChoicePromptAbstract] = ChoicePromptCLI):
         """
          - v [DataPointInfo]: dictionary datapoint info,
                 to construct vitrual file manipulator
          - v [str]: local data path, 
                 to construct local file manipulator
+         - prompt_cls: class that inherited from core.clInteractions.ChoicePromptAbstract
         """
         self.__force_offline = False
         if isinstance(v, str):
@@ -43,6 +46,7 @@ class FileManipulatorVirtual(FileManipulator):
             self.path = os.path.join(TMP_DB, self.base_name)
 
             self._v_info = v    # a backup of the Datapoint Info
+        self.prompt_cls = prompt_cls
         self.init()
     
     def _forceOffline(self):
