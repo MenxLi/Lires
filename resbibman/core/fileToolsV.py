@@ -28,7 +28,7 @@ class FileManipulatorVirtual(FileManipulator):
     if not os.path.exists(INTERM_ZIP_DIR):
         os.mkdir(INTERM_ZIP_DIR)
     def __init__(self, v: Union[DataPointInfo, str], \
-                 prompt_cls: Type[ChoicePromptAbstract] = ChoicePromptCLI):
+                 prompt_obj: ChoicePromptAbstract = ChoicePromptCLI()):
         """
          - v [DataPointInfo]: dictionary datapoint info,
                 to construct vitrual file manipulator
@@ -47,7 +47,7 @@ class FileManipulatorVirtual(FileManipulator):
             self.path = os.path.join(TMP_DB, self.base_name)
 
             self._v_info = v    # a backup of the Datapoint Info
-        self.prompt_cls = prompt_cls
+        self.prompt_obj = prompt_obj
         self.init()
     
     def _forceOffline(self):
@@ -122,11 +122,10 @@ class FileManipulatorVirtual(FileManipulator):
 
         elif update_status == "behind":
             # needs user interaction here
-            prompt_choice = self.prompt_cls(\
-                            "The following local file is behind remote, choose what to do\n{}".format(self.uuid), \
-                            choices = ["upload local", "download remote", "skip"])
-            prompt_choice.show()
-            usr_choice = prompt_choice.choice
+            self.prompt_obj.show(\
+                    "The following local file is behind remote, choose what to do\n{}".format(self.uuid), \
+                    choices = ["upload local", "download remote", "skip"])
+            usr_choice = self.prompt_obj.choice
             if usr_choice == "skip":
                 self.logger.warning("sync (fm): Remote file may have been changed, failed uploading {}".format(self.uuid))
                 return False

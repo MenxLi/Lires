@@ -13,7 +13,7 @@ from .fileSelector import FileSelector
 from .bibQuery import BibQuery
 from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
-from .guiInteractions import ChoicePromptGUI
+from .guiInteractions import ChoicePromptGUI, ChoicePromptDialog
 
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
@@ -434,8 +434,9 @@ class MainWindow(MainWindowGUI):
             for dp in to_sync:
                 dp.fm.setWatch(True)
         # before start sync, make sure that all datapoint are using GUI for user prompt
-        #  for dp in to_sync:
-        #      dp.setPromptCls(ChoicePromptGUI)
+        prompt_obj = ChoicePromptGUI()
+        for dp in to_sync:
+            dp.setPromptObj(prompt_obj)
         sync_worker = SyncWorker(to_sync)
         sync_worker.signals.started.connect(on_start)
         sync_worker.signals.on_chekpoint.connect(on_middle)

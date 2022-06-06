@@ -65,11 +65,11 @@ class DataPoint:
         self.__force_offline = True
         self.fm._forceOffline()
 
-    def setPromptCls(self, prompt_cls: Type[ChoicePromptAbstract]):
+    def setPromptObj(self, prompt_obj: ChoicePromptAbstract):
         """
         User prompt method set with GUI modules
         """
-        self.fm.prompt_cls = prompt_cls
+        self.fm.prompt_obj = prompt_obj
     
     def sync(self) -> bool:
         """
