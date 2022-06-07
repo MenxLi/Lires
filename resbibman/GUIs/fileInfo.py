@@ -4,6 +4,7 @@ import warnings
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit
 from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtGui import QAction, QKeySequence, QShortcut
 from .widgets import MainWidgetBase
 from ..confReader import ICON_PATH, getConfV, TMP_COVER, getServerURL
 from ..core.fileTools import FileManipulator
@@ -114,6 +115,7 @@ class FileInfo(FileInfoGUI):
             "save_comment_time_prev" : 0,
             "save_comment_in_pending": False,
         }
+        self.shortcut_save_comment = QShortcut(QKeySequence("ctrl+s"), self)
     
     def connectFuncs(self):
         self.getSelectPanel().selection_changed.connect(self.load)
@@ -125,6 +127,8 @@ class FileInfo(FileInfoGUI):
         self.mdTab.currentChanged.connect(self.changeTab)
         self.tEdit.textChanged.connect(self.onCommentChange)
         self.weburl_edit.textChanged.connect(self.saveWebURL)
+
+        self.shortcut_save_comment.activated.connect(self._saveComments)
     
     def offlineStatus(self, status: bool = True):
         super().offlineStatus(status)
