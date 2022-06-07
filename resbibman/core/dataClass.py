@@ -111,7 +111,7 @@ class DataPoint:
 
     def reload(self):
         if self.fm.has_local:
-            self.fm = FileManipulatorVirtual(self.data_path, prompt_cls = self.fm.prompt_cls)
+            self.fm = FileManipulatorVirtual(self.data_path, prompt_obj = self.fm.prompt_obj)
         else:
             # to decide later
             pass
