@@ -23,6 +23,10 @@ pip install .
 rbm-resetconf  # To create default configuration
 ```
 
+## Update
+If you dowload the source code from web url, you can update it with `update.py`  
+If you clone it from remote git repository, then please stick with `git pull`
+
 ## Usage:
 To start the main program:
 ```bash
@@ -103,6 +107,9 @@ Refractor:
 - [ ] Move more methods into core classes
 
 rbm-collect:
+- [ ] web
+- [ ] medRxiv
+- [ ] bioRxiv
 - [ ] PMID
 
 ### Long time goals
