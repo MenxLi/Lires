@@ -55,6 +55,7 @@ _VERSION_HISTORIES = [
         "rbm-collect/rbm-discuss; Server can serve notes in html format"),
     ("0.6.0a", "Using PyQt6! View comment preview in online mode"),
     ("0.6.1", "Comment CSS update; Full screen; Bug fixes"),
+    ("0.6.2", "Propmt conflict resolving when synchroning; Bug fixes: Now, delete old temp_db when server change, invalid bibtex input won't crash the program, etc."),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
