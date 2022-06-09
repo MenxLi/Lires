@@ -53,10 +53,13 @@ class DataPoint:
         fmp - FileManipulator, data completeness should be confirmed ahead (use fmp.screen())
         """
         self.fm = fm
-        self.data_path = fm.path
         self.__parent_db: DataBase
         self.__force_offline = False
         self.loadInfo()
+
+    @property
+    def data_path(self):
+        return self.fm.path
     
     def _forceOffline(self):
         """
@@ -121,6 +124,7 @@ class DataPoint:
         self.loadInfo()
 
     def loadInfo(self):
+        #  self.logger.debug("Loading info for: {}".format(self.data_path))
         self.has_file = self.fm.hasFile()
         self.bib = BibParser()(self.fm.readBib())[0]
         self.uuid = self.fm.getUuid()
@@ -146,7 +150,6 @@ class DataPoint:
         # maybe change base_name
         out = self.fm.changeBasename(fg.base_name)
         # update datapoint
-        self.data_path = self.fm.path
         self.reload()
         return out
     
