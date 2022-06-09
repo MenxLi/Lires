@@ -1,5 +1,5 @@
 from io import TextIOWrapper
-import time, datetime, re, random, string
+import time, datetime, re, random, string, logging
 import subprocess, os, platform, sys, threading
 from typing import Callable
 from ..confReader import LOG_FILE, ASSETS_PATH
@@ -141,6 +141,26 @@ class Logger():
         if self.write_terminal:
             self.terminal.write(message)
         self.log.write(message)
+ 
+    def flush(self):
+        if self.write_terminal:
+            self.terminal.flush()
+
+class LoggingLogger():
+    """
+    Redirect stream to logging.Logger
+    """
+    def __init__(self, logger: logging.Logger, level = logging.INFO, write_to_terminal = True):
+        self.terminal = sys.stdout
+        self.logger = logger
+        self.level = level
+        self.write_terminal = write_to_terminal
+ 
+    def write(self, message):
+        if self.write_terminal:
+            self.terminal.write(message)
+        if message != "\n":
+            self.logger.log(self.level, message)
  
     def flush(self):
         if self.write_terminal:

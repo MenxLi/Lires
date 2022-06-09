@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QApplication
 import os, sys, platform
 from .core import globalVar as G
 from .GUIs.mainWindow import MainWindow
-from .core.utils import getDateTimeStr, Logger
+from .core.utils import getDateTimeStr, Logger, LoggingLogger
 from .confReader import getConf, getConfV, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR
 
 def execProg_():
@@ -21,16 +21,33 @@ def execProg_():
 
     return EXIT_CODE
 
-def execProg():
+def execProg(log_level = "INFO"):
     """
     Log will be recorded in LOG_FILE
     """
-    with open(LOG_FILE, "a") as log_file:
-        sys.stdout = Logger(log_file)
-        sys.stderr = Logger(log_file)
-        log_file.write("\n\n============={}=============\n".format(getDateTimeStr()))
-        EXIT_CODE = execProg_()
-    return EXIT_CODE
+    logger = logging.getLogger("rbm")
+    #  logger.setLevel(getattr(logging, log_level))
+    logger.setLevel(logging.DEBUG)
+
+    # StreamHandler show user defined log level
+    s_handler = logging.StreamHandler(sys.stdout)
+    s_handler.setLevel(getattr(logging, log_level))
+    fomatter = logging.Formatter('%(asctime)s (%(levelname)s) - %(message)s')
+    s_handler.setFormatter(fomatter)
+    logger.addHandler(s_handler)
+
+    # FileHandler show DEBUG log level
+    f_handler = logging.FileHandler(LOG_FILE)
+    f_handler.setLevel(logging.DEBUG)
+    fomatter = logging.Formatter('%(asctime)s (%(levelname)s) - %(message)s')
+    f_handler.setFormatter(fomatter)
+    logger.addHandler(f_handler)
+
+    # re-direct stdout and error
+    sys.stdout = LoggingLogger(logger, logging.INFO)
+    sys.stderr = LoggingLogger(logger, logging.ERROR)
+    print("\n\n============={}=============\n".format(getDateTimeStr()))
+    return execProg_()
 
 def run():
     _description = f"\
@@ -52,14 +69,6 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     args = parser.parse_args()
 
     procs = []
-
-    logger = logging.getLogger("rbm")
-    handler = logging.StreamHandler(sys.stdout)
-    logger.setLevel(getattr(logging, args.log_level))
-    handler.setLevel(getattr(logging, args.log_level))
-    fomatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    handler.setFormatter(fomatter)
-    logger.addHandler(handler)
 
     NOT_RUN = False     # Indicates whether to run main GUI
 
@@ -124,7 +133,7 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
         if args.no_log:
             execProg_()
         else:
-            execProg()
+            execProg(args.log_level)
 
     if args.server:
         for proc in procs:
