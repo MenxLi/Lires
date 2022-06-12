@@ -1,6 +1,6 @@
 from __future__ import annotations
 import json, os, multiprocessing, shutil, tempfile, zipfile, tempfile, string
-from typing import List, Union, Callable
+from typing import List, Union, Callable, Optional
 import markdown
 
 from RBMWeb.backend.rbmlibs import DatabaseReader
@@ -10,6 +10,7 @@ from RBMWeb.backend.discussUtils import DiscussDatabase, DiscussLine
 
 import tornado.ioloop
 import tornado.web
+import http.cookies
 
 from resbibman.confReader import getConfV, TMP_DIR, TMP_WEB, TMP_WEB_NOTES
 from resbibman.core.dataClass import DataPoint, FileManipulatorVirtual
@@ -17,10 +18,26 @@ from resbibman.core.compressTools import compressDir, decompressDir
 
 class RequestHandlerBase():
     get_argument: Callable
+    get_cookie: Callable[[str, Optional[str]], Optional[str]]
     set_header: Callable
+    cookies: http.cookies.SimpleCookie
+
+    def checkCookieKey(self):
+        """
+        Authenticates key from cookies
+        """
+        #  cookies = self.cookies
+        enc_key = self.get_cookie("RBM_ENC_KEY", "")
+        return self._checkKey(enc_key)
 
     def checkKey(self):
+        """
+        Authenticates key from params
+        """
         enc_key = self.get_argument("key")
+        return self._checkKey(enc_key)
+
+    def _checkKey(self, enc_key):
         if not queryHashKey(enc_key):
             # unauthorized
             print("Reject key ({}), abort".format(enc_key))
@@ -245,6 +262,7 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
 class DiscussionHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def get(self, file_uid: str):
         global discussion_db
+        self.checkCookieKey()
         self.setDefaultHeader()
         discussions = discussion_db.discussions(file_uid)
         base_html = string.Template(
@@ -254,7 +272,6 @@ class DiscussionHandler(tornado.web.RequestHandler, RequestHandlerBase):
         <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
         <title>Comments</title>
-        <script src="./libs/auth.js" type="module"></script>
         <style>
             img {
                 max-width: 100%;
