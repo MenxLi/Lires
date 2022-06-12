@@ -17,6 +17,7 @@ from resbibman.core.compressTools import compressDir, decompressDir
 
 class RequestHandlerBase():
     get_argument: Callable
+    set_header: Callable
 
     def checkKey(self):
         enc_key = self.get_argument("key")

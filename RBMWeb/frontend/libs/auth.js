@@ -1,19 +1,25 @@
 import { sha256 } from "./sha256.js"
 import {SERVER_URL} from "./serverAddr.js"
+import {getCookie, setCookie} from "./cookieUtils.js"
 
 function maybeLogin(){
-	const accessToken = sessionStorage.getItem("RBM_ENC_KEY");
+	// const accessToken = sessionStorage.getItem("RBM_ENC_KEY");
+	const accessToken = getCookie("RBM_ENC_KEY");
     checkToken(accessToken);
 }
 
 function askLogin(){
-    const key = prompt("Please enter your access token");
+    let key;
+    do{
+        key = prompt("Please enter your access token");
+    }while(!key);
     const encKey = sha256(key);
     checkToken(encKey)
 }
 
 function checkToken(encKey,
-    onSuccess = () => {sessionStorage.setItem("RBM_ENC_KEY", encKey);},
+    // onSuccess = () => {sessionStorage.setItem("RBM_ENC_KEY", encKey)},
+    onSuccess = () => {setCookie("RBM_ENC_KEY", encKey, 2)},
     onFailure = askLogin,
     onError = ()=>{alert("error"); askLogin()}
 ){

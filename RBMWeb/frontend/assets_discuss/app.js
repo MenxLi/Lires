@@ -1,4 +1,5 @@
 import {setFileInfoStr, setFileUrl} from "./reqServer.js"
+import {getCookie} from "../libs/cookieUtils.js"
 import {SERVER_URL} from "../libs/serverAddr.js"
 
 // const SERVER_ADDR = sessionStorage.getItem("RBMServerAddr")
@@ -65,7 +66,8 @@ function submitComment() {
       "cmd": "add",
       "file_uid": uid,
       "usr_name": document.querySelector("#usr_name").value,
-      "key": sessionStorage.getItem("RBM_ENC_KEY"),     // set with libs/auth.js
+      // "key": sessionStorage.getItem("RBM_ENC_KEY"),     // set with libs/auth.js
+      "key": getCookie("RBM_ENC_KEY"),     // set with libs/auth.js
       "content": document.querySelector("#comment_input").value,
     };
     xhr.onload = () => {
