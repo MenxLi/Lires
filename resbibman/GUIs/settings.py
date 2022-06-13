@@ -1,11 +1,13 @@
-import typing
+from __future__ import annotations
+import typing, json
 import warnings, os, shutil, time
 from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog
+from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog, QDialog, QPlainTextEdit
 
 from ..core.dataClass import DataList, DataTableList
 
 from .widgets import RefWidgetBase
+from .serverPreset import ServerPresetEdit, ServerPresetChoice
 from ..confReader import getConf, getConfV, getStyleSheets, saveToConf, TMP_DB
 
 class SubSettingsBase(RefWidgetBase):
@@ -38,14 +40,18 @@ class SetDatabase(SubSettingsBase):
 		vbox.addLayout(hbox)
 
 		self.label_host = QLabel("RBM server settings:")
+		self.btn_preset_edit = QPushButton("Edit preset")
+		self.btn_preset_choose = QPushButton("Choose preset")
 		self.lbl_host = QLabel("host: ")
 		self.line_edit_host = QLineEdit(self)
 		self.lbl_port = QLabel("port: ")
 		self.line_edit_port = QLineEdit(self)
 		self.lbl_key = QLabel("access key: ")
 		self.line_edit_key = QLineEdit(self)
+		self.line_edit_key.setEchoMode(QLineEdit.EchoMode.Password)
 		hbox1 = QHBoxLayout()
 		hbox2 = QHBoxLayout()
+		hbox3 = QHBoxLayout()
 		vbox.addWidget(self.label_host)
 		hbox1.addWidget(self.lbl_host, 0)
 		hbox1.addWidget(self.line_edit_host, 2)
@@ -53,18 +59,36 @@ class SetDatabase(SubSettingsBase):
 		hbox2.addWidget(self.line_edit_port, 1)
 		hbox2.addWidget(self.lbl_key, 0)
 		hbox2.addWidget(self.line_edit_key, 1)
+		hbox3.addWidget(self.btn_preset_edit)
+		hbox3.addWidget(self.btn_preset_choose)
 		vbox.addLayout(hbox1)
 		vbox.addLayout(hbox2)
+		vbox.addLayout(hbox3)
 
 		self._frame.setLayout(vbox)
 
 		self.line_edit_host.textChanged.connect(self.activateWidgets)
 		self.btn.clicked.connect(self.chooseDir)
+		self.btn_preset_edit.clicked.connect(self.openPresetEdit)
+		self.btn_preset_choose.clicked.connect(self.openPresetChoice)
 
 		self.line_edit_db.setText(getConf()["database"])
 		self.line_edit_host.setText(getConfV("host"))
 		self.line_edit_port.setText(getConfV("port"))
 		self.line_edit_key.setText(getConfV("access_key"))
+	
+	def openPresetEdit(self):
+		self.preset_edit = ServerPresetEdit(self)
+		self.preset_edit.show()
+
+	def openPresetChoice(self):
+		self.preset_choice = ServerPresetChoice(self)
+		def _setChoice(choice: dict):
+			self.line_edit_host.setText(str(choice["host"]))
+			self.line_edit_port.setText(str(choice["port"]))
+			self.line_edit_key.setText(str(choice["access_key"]))
+		self.preset_choice.on_ok.connect(_setChoice)
+		self.preset_choice.show()
 	
 	def activateWidgets(self, host_line: str):
 		"""

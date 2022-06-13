@@ -11,9 +11,17 @@ def generateDefaultConf():
 	saveToConf(
 		accepted_extensions = [".pdf", ".caj", ".html", ".hpack", ".md", ".pptx", ".ppt"],
 		database = DEFAULT_DATA_PATH,
+
+		# List of dictionary with key ["host", "port", "access_key"], preset server settings
+		server_preset = [{
+			"host": "",
+			"port": "",
+			"access_key": ""
+		}],
 		host = "",
 		port = "8080",
 		access_key = "",
+
 		default_tags = [],
 		sort_method = DataTableList.SORT_TIMEADDED,
 		table_headers = [ 

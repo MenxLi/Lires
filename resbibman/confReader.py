@@ -1,4 +1,5 @@
-import os, json, tempfile
+import os, json, tempfile, logging
+rbm_logger = logging.getLogger("rbm")
 
 join = os.path.join
 
@@ -116,11 +117,18 @@ def getDatabase(offline: bool):
         return TMP_DB
 
 def getConfV(key : str):
-    return getConf()[key]
+    try:
+        return getConf()[key]
+    except json.decoder.JSONDecodeError as e:
+        rbm_logger.warn("Error while reading configuration: {}".format(e))
+        with open(CONF_FILE_PATH, "r") as fp:
+            rbm_logger.debug("Current configuration file: \n{}".format(fp.read()))
+        raise Exception("Manual exception, check log.")
 
 def getServerURL() -> str:
-    host = getConf()["host"]
-    port = getConf()["port"]
+    conf = getConf()
+    host = conf["host"]
+    port = conf["port"]
     if not host:
         return ""
     else:
