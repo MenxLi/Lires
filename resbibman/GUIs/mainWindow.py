@@ -242,7 +242,7 @@ class MainWindow(MainWindowGUI):
 
     def loadData_async(self, data_path, sync_after = False):
         """
-         - data_path: local database path (Pull into this)
+         - data_path: local database path
          - sync_after: call self.syncData_async after loading data
         """
 
@@ -272,7 +272,8 @@ class MainWindow(MainWindowGUI):
         self.statusBar().setEnabled(True)
 
         self.db = DataBase()
-        if getConf()["host"] != "":
+        is_offline = getConf()["database"] == data_path
+        if not is_offline:
             # Online mode
             self.statusBarInfo("Requesting remote server...", bg_color = "blue")
             on_done = functools.partial(_on_done, set_offline_mode = False)
@@ -280,7 +281,7 @@ class MainWindow(MainWindowGUI):
             self.statusBarInfo("Loading...", bg_color = "blue")
             on_done = functools.partial(_on_done, set_offline_mode = True)
 
-        worker = InitDBWorker(self.db, data_path)
+        worker = InitDBWorker(self.db, data_path, force_offline = is_offline)
         worker.signals.finished.connect(on_done)
         self.pool.start(worker)
 
@@ -452,7 +453,7 @@ class MainWindow(MainWindowGUI):
                 # reload server
                 addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
                 req_reloadDB = addr + "/cmd/reloadDB"
-                requests.get(req_reloadDB)
+                res = requests.get(req_reloadDB, timeout = 5)
                 # loadData
                 self.loadData_async(TMP_DB, sync_after=True)    # (This will not raise an ConnectionError)
                 # self._loadData(TMP_DB)

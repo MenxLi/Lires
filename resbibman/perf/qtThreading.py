@@ -59,15 +59,16 @@ class ThreadSignalsForInitDBWorker(ThreadSignalsQ):
     finished = pyqtSignal(bool)
 
 class InitDBWorker(QRunnable):
-    def __init__(self, db: DataBase, local_db_path: str):
+    def __init__(self, db: DataBase, local_db_path: str, force_offline = False):
         super().__init__()
         self.db = db
+        self.force_offline = force_offline
         self.local_db_path = local_db_path
         self.signals = ThreadSignalsForInitDBWorker()
 
     def run(self):
         try:
-            self.db.init(self.local_db_path)
+            self.db.init(self.local_db_path, force_offline = self.force_offline)
             self.signals.finished.emit(True)
         except requests.exceptions.ConnectionError:
             self.signals.finished.emit(False)
