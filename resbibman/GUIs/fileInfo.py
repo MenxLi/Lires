@@ -146,7 +146,7 @@ class FileInfo(FileInfoGUI):
 
         self.tEdit.setEnabled(status)
         self.weburl_edit.setEnabled(status)
-        self.mdBrowser.setEnabled(status)
+        #  self.mdBrowser.setEnabled(status)
         self.open_folder_btn.setEnabled(status)
         self.open_bib_btn.setEnabled(status)
         self.open_commets_btn.setEnabled(status)
