@@ -1,0 +1,10 @@
+.git
+test
+dist/
+build/
+*.egg-info/
+*_tmp.*
+
+resbibman/conf.json
+RBMWeb/backend/data
+Database

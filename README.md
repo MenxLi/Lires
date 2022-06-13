@@ -23,9 +23,23 @@ pip install .
 rbm-resetconf  # To create default configuration
 ```
 
-## Update
+### Update
 If you dowload the source code from web url, you can update it with `update.py`  
 If you clone it from remote git repository, then please stick with `git pull`
+
+### Docker deployment
+Instead of manual installation, The the server side can be deployed and run via docker and docker-compose,   
+You may wish to edit `docker-compose.yml` to change port and mount point mapping prior to the following commands
+```bash
+# update docker image
+docker build . -t resbibman:latest
+# run
+docker-compose up
+```
+To manage access key (for usage see: `rbm-keyman -h`):
+```bash
+docker exec resbibman rbm-keyman ...
+```
 
 ## Usage:
 To start the main program:
@@ -40,21 +54,17 @@ rbm-discuss     # Manage online discussions
 rbm-collect     # Automatic add entry to database with retriving string
 ```
 
-
 **The [docs-CN](./resbibman/docs/使用说明.md) is helpful but needs more detail. Will add in the fufute**
 
-## Server deployment
-May need to install some libraries (in ubuntu2204 docker with apt):
-```
-apt install -y python3-pyqt5 libgl1-mesa-glx libnss3 libasound2 libxkbfile1
-```
-
+<!--
 ## Server usage
 Start server with `resbibman -S`  
 Access key management with `rbm-keyman`   
 Discussion management with `rbm-discuss`
 The server serve data at `database` entry of the `resbibman` configration file (`resbibman/conf.json`)
 The server port can be assigned at `RBMWeb/backend/conf.json`
+-->
+
 
 # Future works
 
