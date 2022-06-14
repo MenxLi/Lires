@@ -129,10 +129,10 @@ class FileManipulatorVirtual(FileManipulator):
             if usr_choice == "skip":
                 self.logger.warning("sync (fm): Remote file may have been changed, failed uploading {}".format(self.uuid))
                 return False
-            elif usr_choice == "upload":
+            elif usr_choice == "upload local":
                 self.logger.info("sync (fm): uploading {}".format(self.uuid))
                 return self._uploadRemote()
-            elif usr_choice == "download":
+            elif usr_choice == "download remote":
                 self.logger.debug("sync (fm): downloading {}".format(self.uuid))
                 return self._downloadRemote()
             else:
