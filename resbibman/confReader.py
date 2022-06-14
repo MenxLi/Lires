@@ -58,6 +58,8 @@ _VERSION_HISTORIES = [
     ("0.6.1", "Comment CSS update; Full screen; Bug fixes"),
     ("0.6.2", "Propmt conflict resolving when synchroning; Bug fixes: Now, delete old temp_db when server change, invalid bibtex input won't crash the program, etc."),
     ("0.6.3", "Better logging in log file; Stricter frontend access key requirements; Added update script"),
+    ("0.6.4", "Preset server configuration; Scroll online markdown in GUI; Server-side docker deployment; "\
+        "Delete cache and prompt user of unsynced data when quitting; Bug fixes: Not freeze GUI if server is down"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
