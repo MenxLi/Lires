@@ -20,9 +20,10 @@ from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser
 from ..core.utils import openFile, ProgressBarCustom
 from ..core.dataClass import DataTags, DataBase, DataPoint
-from ..confReader import DOC_PATH, TMP_DB, getConf, ICON_PATH, VERSION, getConfV, getDatabase
+from ..confReader import DOC_PATH, getConf, ICON_PATH, VERSION, getConfV, getDatabase
+from ..confReader import TMP_DB, TMP_WEB
 from ..perf.qtThreading import SyncWorker, InitDBWorker
-import os, copy, typing, requests, functools, time
+import os, copy, typing, requests, functools, time, shutil
 
 # for testing propose
 from .fileTags import TagSelector
@@ -489,3 +490,10 @@ class MainWindow(MainWindowGUI):
         self.statusBar().setStyleSheet(color[bg_color])
         # self.statusBar().setStyleSheet(f"color : {txt_color}")
         self.statusBar().showMessage(prefix + msg)
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        self.logger.info("Deleting cache")
+        for p in [TMP_DB, TMP_WEB]:
+            if os.path.exists(p):
+                shutil.rmtree(p)
+        return super().closeEvent(a0)
