@@ -239,6 +239,7 @@ class FileSelector(FileSelectorGUI):
             fname = QFileDialog.getOpenFileName(self, caption="Select file for {}".format(dp.title[:25]), filter=extension_filter)[0]
         if dp.fm.addFile(fname):
             dp.reload()
+            self.getInfoPanel().load(dp)
             QMessageBox.information(self, "Success", "File added")
 
     def addToDatabase(self, file_path:str):
