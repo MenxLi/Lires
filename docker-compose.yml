@@ -1,6 +1,6 @@
 services:
   rbmweb:
-    # build: .
+    build: .
     image: "resbibman:latest"
     container_name: resbibman
     ports:

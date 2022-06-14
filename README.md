@@ -28,11 +28,11 @@ If you dowload the source code from web url, you can update it with `update.py`
 If you clone it from remote git repository, then please stick with `git pull`
 
 ### Docker deployment
-Instead of manual installation, The the server side can be deployed and run via docker and docker-compose,   
+Instead of manual installation, The the server side can be deployed and run via docker,   
 You may wish to edit `docker-compose.yml` to change port and mount point mapping prior to the following commands
 ```bash
-# update docker image
-docker build . -t resbibman:latest
+# update docker container if it's not been built
+docker-compose build
 # run
 docker-compose up
 ```
