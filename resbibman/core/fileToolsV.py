@@ -385,6 +385,9 @@ class FileManipulatorVirtual(FileManipulator):
     
     def _log(self):
         if self.has_local:
-            return super()._log()
+            try:
+                return super()._log()
+            except FileNotFoundError:
+                self.logger.warning("_log (fm): Failed log {}".format(self.uuid))
         else:
             ...

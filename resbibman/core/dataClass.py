@@ -3,7 +3,7 @@ import logging
 import shutil, requests, json
 from ..confReader import getConfV, ASSETS_PATH
 import typing, re, string, os, asyncio
-from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict, Type, Optional
+from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict, Type, Optional, TypedDict
 import difflib
 import markdown
 from .fileTools import FileGenerator
@@ -23,6 +23,23 @@ from . import globalVar as G
 
 if TYPE_CHECKING:
     from RBMWeb.backend.rbmlibs import DataPointInfo
+
+class DataPointInfo(TypedDict):
+    has_file: bool
+    file_status: str
+    file_type: str
+    year: typing.Any
+    title: str
+    author: str
+    authors: List[str]
+    tags: List[str]
+    uuid: str
+    url: str
+    time_added: float
+    time_modified: float
+    bibtex: str
+    doc_size: float # in M.
+    base_name: str  # for directory name
 
 class DataTags(set):
     def toOrderedList(self):
@@ -60,6 +77,30 @@ class DataPoint:
     @property
     def data_path(self):
         return self.fm.path
+
+    @property
+    def v_info(self) -> DataPointInfo:
+        """
+        Generate datapoint info
+        """
+        return {
+            "has_file":self.fm.hasFile(),
+            "file_status":self.getFileStatusStr(),
+            "file_type": self.fm.file_extension,
+            "year":self.year,
+            "title":self.title,
+            "author":self.getAuthorsAbbr(),
+            "authors": self.authors,
+            "tags":list(self.tags),
+            "uuid":self.uuid,
+            "url":self.fm.getWebUrl(),
+            "time_added": self.fm.getTimeAdded(),
+            "time_modified": self.fm.getTimeModified(),
+
+            "bibtex": self.fm.readBib(),
+            "doc_size": self.fm.getDocSize(),
+            "base_name": self.fm.base_name,
+        }
     
     def _forceOffline(self):
         """
@@ -85,11 +126,15 @@ class DataPoint:
         if self.uuid in self.par_db.remote_info:
             remote_info = self.par_db.remote_info[self.uuid]
             self.fm.v_info = remote_info
-            return self.fm._sync()
+            SUCCESS = self.fm._sync()
         else:
             # New data that remote don't have
             self.logger.info("Creating new data remote {}".format(self.uuid))
-            return self.fm._uploadRemote()
+            SUCCESS = self.fm._uploadRemote()
+        if SUCCESS:
+            # update local virtual info
+            self.fm.v_info = self.v_info
+        return SUCCESS
 
     @property
     def par_db(self) -> DataBase:
@@ -580,19 +625,28 @@ class DataBase(dict):
             return False
         return True
 
-    def allUptodate(self) -> bool:
+    def allUptodate(self, fetch: bool = True, strict: bool = False) -> bool:
         """
         Return if all data points in local are up-to-date with remote
+         - fetch (bool): whether to perform self.fetch()
+         - strict (bool): only return true if all data points are the same as remote,
+            Otherwise will return true if all data points are same/advance than remote
         """
         if self.offline:
             return True
         # udpate remote file info
-        self.fetch()
+        if fetch:
+            self.fetch()
         for d in self.values():
+            d: DataPoint
+            remote_info = self.remote_info
             if d.is_local:
-                # update data point v_info to the same with remote
-                d.v_info = self.remote_info[d.uuid]
+                # update file manipulator v_info to the same with remote
+                if fetch: d.fm.v_info = remote_info[d.uuid]
                 if d.fm.is_uptodate == "behind":
-                    self.logger.info(f"data({d.uuid}) is behind remote")
+                    self.logger.info(f"allUptodate (database): data({d.uuid}) is behind remote")
+                    return False
+                if strict and d.fm.is_uptodate == "advance":
+                    self.logger.info(f"allUptodate (database): data({d.uuid}) is advance than remote")
                     return False
         return True

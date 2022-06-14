@@ -378,9 +378,11 @@ class FileManipulator:
             f.write(comments)
     
     def getUuid(self) -> str:
-        with open(self.info_p, "r", encoding = "utf-8") as f:
-            data = json.load(f)
-        return data["uuid"]
+        # uuid is not going to change, so just read once
+        if not hasattr(self, "_uuid"):
+            with open(self.info_p, "r", encoding = "utf-8") as f:
+                self._uuid = json.load(f)["uuid"]
+        return self._uuid
 
     def getTags(self) -> typing.List[str]:
         with open(self.info_p, "r", encoding = "utf-8") as f:

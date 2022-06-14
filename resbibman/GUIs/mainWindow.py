@@ -449,6 +449,10 @@ class MainWindow(MainWindowGUI):
         self.pool.start(sync_worker)
 
     def reloadData(self):
+        """
+        Reload database,
+        Will synchronize add data if in online mode
+        """
         if getConf()["host"]:
             try:
                 # reload server
@@ -492,7 +496,17 @@ class MainWindow(MainWindowGUI):
         self.statusBar().showMessage(prefix + msg)
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        # Check if all uptodate
+        if not self.database.allUptodate(fetch = False, strict = True):
+            if self.queryDialog("There are un-synchronized data, sync now?"):
+                self.reloadData()
+                # Not close window
+                a0.ignore()
+                return
+
         self.logger.info("Deleting cache")
+        # unwatch all file, as they are going to be deleted
+        self.database.watchFileChange([])   
         for p in [TMP_DB, TMP_WEB]:
             if os.path.exists(p):
                 shutil.rmtree(p)

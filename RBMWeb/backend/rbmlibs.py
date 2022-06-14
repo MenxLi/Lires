@@ -50,26 +50,27 @@ class DatabaseReader:
         return self.getDictDataFromDataPoint(self.db[uid])
 
     def getDictDataFromDataPoint(self, dp: DataPoint) -> DataPointInfo:
-        return {
-            "has_file":dp.fm.hasFile(),
-            "file_status":dp.getFileStatusStr(),
-            "file_type": dp.fm.file_extension,
-            "year":dp.year,
-            "title":dp.title,
-            "author":dp.getAuthorsAbbr(),
-            # "authors":"|".join(dp.authors),
-            "authors": dp.authors,
-            "tags":list(dp.tags),
-            "uuid":dp.uuid,
-            "url":dp.fm.getWebUrl(),
-            "time_added": dp.fm.getTimeAdded(),
-            "time_modified": dp.fm.getTimeModified(),
-
-            "bibtex": dp.fm.readBib(),
-            # "bib": dp.bib,
-            "doc_size": dp.fm.getDocSize(),
-            "base_name": dp.fm.base_name,
-        }
+        return dp.v_info
+        #  return {
+        #      "has_file":dp.fm.hasFile(),
+        #      "file_status":dp.getFileStatusStr(),
+        #      "file_type": dp.fm.file_extension,
+        #      "year":dp.year,
+        #      "title":dp.title,
+        #      "author":dp.getAuthorsAbbr(),
+        #      # "authors":"|".join(dp.authors),
+        #      "authors": dp.authors,
+        #      "tags":list(dp.tags),
+        #      "uuid":dp.uuid,
+        #      "url":dp.fm.getWebUrl(),
+        #      "time_added": dp.fm.getTimeAdded(),
+        #      "time_modified": dp.fm.getTimeModified(),
+        #
+        #      "bibtex": dp.fm.readBib(),
+        #      # "bib": dp.bib,
+        #      "doc_size": dp.fm.getDocSize(),
+        #      "base_name": dp.fm.base_name,
+        #  }
 
     def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by = DataList.SORT_TIMEADDED) -> List[dict]:
         dl = self.db.getDataByTags(tags)
