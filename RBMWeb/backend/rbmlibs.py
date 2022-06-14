@@ -50,7 +50,7 @@ class DatabaseReader:
         return self.getDictDataFromDataPoint(self.db[uid])
 
     def getDictDataFromDataPoint(self, dp: DataPoint) -> DataPointInfo:
-        return dp.v_info
+        return dp.info
         #  return {
         #      "has_file":dp.fm.hasFile(),
         #      "file_status":dp.getFileStatusStr(),

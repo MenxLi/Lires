@@ -57,12 +57,6 @@ class DataTags(set):
             return "<None>"
 
 class DataPoint:
-    #  with open(os.path.join(ASSETS_PATH, "markdown.css"), "r") as fp:
-    #      COMMENT_CSS = fp.read()
-    #
-    #  with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r") as fp:
-    #      COMMENT_HTML_TEMPLATE = string.Template(fp.read())
-
     logger = G.logger_rbm
     def __init__(self, fm: FileManipulatorVirtual):
         """
@@ -79,7 +73,7 @@ class DataPoint:
         return self.fm.path
 
     @property
-    def v_info(self) -> DataPointInfo:
+    def info(self) -> DataPointInfo:
         """
         Generate datapoint info
         """
@@ -133,7 +127,7 @@ class DataPoint:
             SUCCESS = self.fm._uploadRemote()
         if SUCCESS:
             # update local virtual info
-            self.fm.v_info = self.v_info
+            self.fm.v_info = self.info
         return SUCCESS
 
     @property
