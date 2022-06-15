@@ -248,7 +248,18 @@ def formatMarkdownHTML(md_html: str):
         css = fp.read()
     with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r", encoding="utf-8") as fp:
         html_template = string.Template(fp.read())
-    with open(os.path.join(ASSETS_PATH, "tex-chtml.js"), "r", encoding="utf-8") as fp:
-        mathjax_js = fp.read()
+
+    USE_MATHJAX = False     # To determine if using latex equation, save bandwidth
+    for sign in ["$$", "\\("]:
+        if sign in md_html:
+            USE_MATHJAX = True
+    if USE_MATHJAX:
+        with open(os.path.join(ASSETS_PATH, "tex-chtml.js"), "r", encoding="utf-8") as fp:
+            mathjax_js = fp.read()
+    else:
+        mathjax_js = ""
+
     htm = html_template.substitute(style=css, content=md_html, mathjax = mathjax_js)
+    if USE_MATHJAX:
+        logging.getLogger("rbm").debug("Using mathjax")
     return htm

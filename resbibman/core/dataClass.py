@@ -232,6 +232,7 @@ class DataPoint:
         else: return True
 
     def htmlComment(self) -> str:
+        self.logger.debug("htmlComment (DataPoint): render comment")
         comment = self.fm.readComments()
         if comment == "":
             return ""
