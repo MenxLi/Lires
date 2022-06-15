@@ -140,3 +140,4 @@ QRunnable for multithreading
 ## Credits:
 https://github.com/google/material-design-icons   
 https://github.com/GTRONICK/QSS
+https://github.com/MathJax/MathJax

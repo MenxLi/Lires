@@ -248,4 +248,7 @@ def formatMarkdownHTML(md_html: str):
         css = fp.read()
     with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r", encoding="utf-8") as fp:
         html_template = string.Template(fp.read())
-    return html_template.substitute(style=css, content=md_html)
+    with open(os.path.join(ASSETS_PATH, "tex-chtml.js"), "r", encoding="utf-8") as fp:
+        mathjax_js = fp.read()
+    htm = html_template.substitute(style=css, content=md_html, mathjax = mathjax_js)
+    return htm
