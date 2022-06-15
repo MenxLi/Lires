@@ -1,6 +1,5 @@
-# Features
-
-**My research literature manager**  
+# Resbibman 
+Resbibman: a **Res**earch **bib**liograpy **man**ager
 
 <!--![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)-->
 ![ResBibMan](./resbibman/docs/imgs/mainWindow.png)
@@ -12,6 +11,13 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 [comment]: <> (## distribution)
 
 [comment]: <> (`python setup.py bdist_wheel --universal`)
+
+## Features
+* Cross-platform
+* Markdown notes, with LaTeX equation support
+* Various file formats support, including webpage
+* Online mode (remote storage)
+* Host a server to view, share and discuss online.
 
 # Installation & Usage
 
