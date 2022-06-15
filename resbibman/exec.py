@@ -46,6 +46,16 @@ def execProg(log_level = "INFO"):
     # re-direct stdout and error
     sys.stdout = LoggingLogger(logger, logging.INFO, write_to_terminal = False)
     sys.stderr = LoggingLogger(logger, logging.ERROR, write_to_terminal = False)
+    # re-direct unhandled exceptions
+    def handle_exception(exc_type, exc_value, exc_traceback):
+        if issubclass(exc_type, KeyboardInterrupt):
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        else:
+            logger.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+        logger.info("Exit.")
+        sys.exit()
+    sys.excepthook = handle_exception
+
     print("\n\n============={}=============\n".format(getDateTimeStr()))
     return execProg_()
 
