@@ -44,8 +44,8 @@ def execProg(log_level = "INFO"):
     logger.addHandler(f_handler)
 
     # re-direct stdout and error
-    sys.stdout = LoggingLogger(logger, logging.INFO)
-    sys.stderr = LoggingLogger(logger, logging.ERROR)
+    sys.stdout = LoggingLogger(logger, logging.INFO, write_to_terminal = False)
+    sys.stderr = LoggingLogger(logger, logging.ERROR, write_to_terminal = False)
     print("\n\n============={}=============\n".format(getDateTimeStr()))
     return execProg_()
 
@@ -140,7 +140,4 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
             proc.join()
 
 if __name__=="__main__":
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
-    logging.StreamHandler(sys.stdout)
     run()
