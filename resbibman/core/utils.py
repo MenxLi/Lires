@@ -243,7 +243,10 @@ def randomAlphaNumeric(length: int):
     str = string.ascii_lowercase
     return ''.join(random.choice(str) for i in range(length))
 
-def formatMarkdownHTML(md_html: str):
+def formatMarkdownHTML(md_html: str, abs_fpath: bool = True):
+    """
+    - abs_fpath: absolute path to any file in the html template
+    """
     with open(os.path.join(ASSETS_PATH, "github-markdown-light.css"), "r", encoding="utf-8") as fp:
         css = fp.read()
     with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r", encoding="utf-8") as fp:
@@ -256,6 +259,10 @@ def formatMarkdownHTML(md_html: str):
     if USE_MATHJAX:
         with open(os.path.join(ASSETS_PATH, "tex-chtml.js"), "r", encoding="utf-8") as fp:
             mathjax_js = fp.read()
+            # for equation fonts
+            if abs_fpath:
+                fonts_path = os.path.join(ASSETS_PATH, "mathjax/output/chtml/fonts/").replace(os.sep, "/")
+                mathjax_js = mathjax_js.replace("output/chtml/fonts/", fonts_path)
     else:
         mathjax_js = ""
 

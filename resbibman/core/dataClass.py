@@ -231,19 +231,23 @@ class DataPoint:
             return False
         else: return True
 
-    def htmlComment(self) -> str:
+    def htmlComment(self, abs_fpath: bool = True) -> str:
+        """
+        - abs_fpath: whether to use absolute path to any file in the html
+        """
         self.logger.debug("htmlComment (DataPoint): render comment")
         comment = self.fm.readComments()
         if comment == "":
             return ""
         misc_f = self.fm.folder_p
         misc_f = misc_f.replace(os.sep, "/")
-        comment = comment.replace("./misc", misc_f)
+        if abs_fpath:
+            comment = comment.replace("./misc", misc_f)
 
         comment_html = markdown.markdown(comment)
         #  comment_html = self.COMMENT_HTML_TEMPLATE.substitute(\
         #                  content = comment_html, style = self.COMMENT_CSS)
-        return formatMarkdownHTML(comment_html)
+        return formatMarkdownHTML(comment_html, abs_fpath = abs_fpath)
 
     def getFileStatusStr(self):
         """

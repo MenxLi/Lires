@@ -1,7 +1,7 @@
 import typing
 import os, sys, shutil
 from typing import List, Union, TypedDict
-from resbibman.confReader import getConfV, TMP_WEB_NOTES
+from resbibman.confReader import getConfV, TMP_WEB_NOTES, ASSETS_PATH
 from resbibman.core.dataClass import DataBase, DataList, DataPoint, DataTags
 from resbibman.core.htmlTools import unpackHtmlTmp
 
@@ -89,8 +89,9 @@ class DatabaseReader:
         return html_p
 
     def getTmpNotesPathByUUID(self, uuid: str):
-        dp = self.db[uuid]
-        htm_str = self.getCommentHTMLByUUID(uuid)
+        dp: DataPoint = self.db[uuid]
+        #  htm_str = self.getCommentHTMLByUUID(uuid)
+        htm_str = dp.htmlComment(abs_fpath = False)
         tmp_notes_pth = os.path.join(TMP_WEB_NOTES, uuid)
         if os.path.exists(tmp_notes_pth):
             shutil.rmtree(tmp_notes_pth)
@@ -100,6 +101,12 @@ class DatabaseReader:
         with open(tmp_notes_html, "w") as fp:
             fp.write(htm_str)
         os.symlink(dp.fm.folder_p, tmp_notes_misc)
+
+        # For mathjax, not working somehow?
+        math_jax_path = os.path.join(ASSETS_PATH, "mathjax")
+        for f in os.listdir(math_jax_path):
+            mjf_path = os.path.join(math_jax_path, f)
+            os.symlink(mjf_path, os.path.join(tmp_notes_pth, f))
         return tmp_notes_html
 
     def getCommentPathByUUID(self, uuid: str):
@@ -109,7 +116,7 @@ class DatabaseReader:
         return self.db[uuid].fm.getWebURL()
 
     def getCommentHTMLByUUID(self, uuid: str):
+        """DEPRECATED"""
         dp: DataPoint = self.db[uuid]
-        htm = dp.htmlComment()
-        misc_p = dp.fm.folder_p
-        return htm.replace(misc_p, "misc")
+        htm = dp.htmlComment(abs_fpath = False)
+        return htm

@@ -67,6 +67,7 @@ _file_path = os.path.abspath(__file__)
 
 # CURR_PATH = join(_file_path, os.path.pardir)
 CURR_PATH = os.path.dirname(_file_path)
+#  CURR_PATH = os.path.abspath(os.path.realpath(CURR_PATH))
 CURR_PATH = os.path.abspath(CURR_PATH)
 CONF_FILE_PATH = join(CURR_PATH, "conf.json")
 ICON_PATH = join(CURR_PATH, "icons")
