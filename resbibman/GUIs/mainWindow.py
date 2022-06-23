@@ -206,12 +206,39 @@ class MainWindow(MainWindowGUI):
 
         self.act_importbib_from_clip.triggered.connect(self.importEntryFromClipboardBib)
 
-        self.act_show_panel1.triggered.connect(lambda: self.togglePanel(0))
-        self.act_show_panel2.triggered.connect(lambda: self.togglePanel(1))
-        self.act_show_panel3.triggered.connect(lambda: self.togglePanel(2))
+        self.act_show_panel1.triggered.connect(lambda: self.toggleOnlyPanel(0))
+        self.act_show_panel2.triggered.connect(lambda: self.toggleOnlyPanel(1))
+        self.act_show_panel3.triggered.connect(lambda: self.toggleOnlyPanel(2))
         self.act_toggle_fullscreen.triggered.connect(self.toggleFullScreen)
 
+    def toggleOnlyPanel(self, idx: int):
+        """
+        To only show one panel
+        """
+        assert 0<=idx<3
+        # Determine if this is the only panel that is showing
+        ONLY_THIS = True
+        if not self._cache["current_layout"][idx]:
+            ONLY_THIS = False
+        else:
+            other_panel_idx = [i for i in range(3) if i != idx]
+            for other_idx in other_panel_idx:
+                if self._cache["current_layout"][other_idx]:
+                    ONLY_THIS = False
+                    break
+        if ONLY_THIS:
+            self.toggleLayout((True, True, True))
+            return
+        else:
+            to_toggle = [False, False, False]
+            to_toggle[idx] = True
+            self.toggleLayout(tuple(to_toggle))
+            return
+
     def togglePanel(self, idx:int):
+        """
+        Toggle a panel on/off
+        """
         assert 0<=idx<3
         status = list(self._panel_status)
         s = status[idx]
