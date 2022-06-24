@@ -21,7 +21,7 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 
 # Installation & Usage
 
-~~Refer to the [docs-CN](./resbibman/docs/使用说明.md) for the usage of this software.~~
+~~Refer to the [docs-CN](./resbibman/docs/UserGuide.md) for the usage of this software.~~
 
 ## Installation
 ```Python
@@ -60,7 +60,7 @@ rbm-discuss     # Manage online discussions
 rbm-collect     # Automatic add entry to database with retriving string
 ```
 
-**The [docs-CN](./resbibman/docs/使用说明.md) is helpful but needs more detail. Will add in the fufute**
+**The [docs-CN](./resbibman/docs/UserGuide.md) is helpful but needs more detail. Will add in the fufute**
 
 <!--
 ## Server usage

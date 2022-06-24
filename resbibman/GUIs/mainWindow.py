@@ -361,7 +361,7 @@ class MainWindow(MainWindowGUI):
     def openHelpFile(self):
         # help_file_path = os.path.join(DOC_PATH, "info.html")
         # webbrowser.open("file://"+help_file_path)
-        help_file_path = os.path.join(DOC_PATH, "使用说明.md")
+        help_file_path = os.path.join(DOC_PATH, "UserGuide.md")
         openFile(help_file_path)
     
     def openAddfileSelectionDialog(self):
