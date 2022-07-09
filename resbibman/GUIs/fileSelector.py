@@ -53,6 +53,7 @@ class FileSelectorGUI(MainWidgetBase):
         self.act_copy_bib = QAction("Copy bib", self)
         self.act_copy_citation = QAction("Copy citation", self)
         self.act_add_file = QAction("Add file", self)
+        self.act_export_data = QAction("Export data", self)
         self.act_free_doc = QAction("Free document", self)
 
         self.data_view.addAction(self.act_sync_datapoint)
@@ -62,6 +63,7 @@ class FileSelectorGUI(MainWidgetBase):
         self.data_view.addAction(self.act_copy_bib)
         self.data_view.addAction(self.act_add_file)
         self.data_view.addAction(self.act_free_doc)
+        self.data_view.addAction(self.act_export_data)
         self.data_view.addAction(self.act_delete_file)
     
 
@@ -95,6 +97,7 @@ class FileSelector(FileSelectorGUI):
         self.act_free_doc.triggered.connect(self.freeDocumentOfCurrentSelection)
         self.act_edit_bib.triggered.connect(self.editBibtex)
         self.act_delete_file.triggered.connect(self.deleteCurrentSelected)
+        self.act_export_data.triggered.connect(self.exportData)
 
     def offlineStatus(self, status: bool):
         super().offlineStatus(status)
@@ -269,6 +272,16 @@ class FileSelector(FileSelectorGUI):
         self.data_model.layoutChanged.emit()
         #self.getMainPanel.refreshFileTagSelector()
         self.reloadData()
+
+    def exportData(self):
+        selected = self.getCurrentSelection(return_multiple=True)
+        if not selected:
+            return
+        dst = QFileDialog.getExistingDirectory(self, caption = "Choose destination")
+        to_export_uids = []
+        for dp in selected:
+            to_export_uids.append(dp.uuid)
+        self.database.exportFiles(to_export_uids, dst)
     
     def onRowChanged(self, current, previous):
         # self._info_panel._saveComments()

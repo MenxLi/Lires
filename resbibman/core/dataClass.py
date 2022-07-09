@@ -649,3 +649,17 @@ class DataBase(dict):
                     self.logger.info(f"allUptodate (database): data({d.uuid}) is advance than remote")
                     return False
         return True
+
+    def exportFiles(self, uids: List[str], dst: str):
+        """
+        Copy data folders to dst
+         - uids: data uids to export
+         - dst: destination folder to store the exported files (folders)
+        """
+        assert os.path.exists(dst) and os.path.isdir(dst), "Destination should be an existing directory"
+        for uid in uids:
+            dp: DataPoint = self[uid]
+            src_pth = dp.data_path
+            dst_pth = os.path.join(dst, os.path.basename(src_pth))
+            if os.path.exists(src_pth):
+                shutil.copytree(src_pth, dst_pth)
