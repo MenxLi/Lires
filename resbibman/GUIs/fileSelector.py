@@ -107,6 +107,7 @@ class FileSelector(FileSelectorGUI):
             self.act_delete_file,
             self.act_add_file,
             self.act_free_doc,
+            self.act_export_data,
             self.shortcut_delete_selection,
             self.shortcut_open_tagedit,
         ]
@@ -278,6 +279,8 @@ class FileSelector(FileSelectorGUI):
         if not selected:
             return
         dst = QFileDialog.getExistingDirectory(self, caption = "Choose destination")
+        if not dst:
+            return
         to_export_uids = []
         for dp in selected:
             to_export_uids.append(dp.uuid)
