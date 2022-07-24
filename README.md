@@ -139,9 +139,11 @@ QRunnable for multithreading
 </details>
 
 ## Known issues
+
 * May crash when changing selection (caused by auto saving)
 * Markdown horizontal line highlighter not working somehow
-* ~~QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)~~(Solved with PyQt6)
+* Adding file may encounter permission error for FAT32 format destination in Linux machine (refer to: [stackoverflow-25716333](https://stackoverflow.com/questions/25716333/))
+* ~~QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)~~(Resolved with PyQt6)
 
 ## Credits:
 https://github.com/google/material-design-icons   

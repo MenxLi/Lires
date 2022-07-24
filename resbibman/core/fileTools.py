@@ -294,12 +294,12 @@ class FileManipulator:
             self.logger.debug("Miscellaneous folder for does not exists, and is now created: {}"\
                 .format(self.folder_p))
             os.mkdir(self.folder_p)
-        if not os.path.exists(self.bib_p): warnings.warn("Bibliography file does not exists")
-        if not os.path.exists(self.comments_p): warnings.warn("Comments file does not exists")
-        if not os.path.exists(self.info_p): warnings.warn("Info file does not exists")
+        if not os.path.exists(self.bib_p): self.logger.debug("Bibliography file ({}) does not exists".format(self.base_name))
+        if not os.path.exists(self.comments_p): self.logger.debug("Comments file ({}) does not exists".format(self.base_name))
+        if not os.path.exists(self.info_p): self.logger.debug("Info file ({}) does not exists".format(self.base_name))
 
         if not set([comments_f, info_f, bib_f]).issubset(set(all_files)):
-            warnings.warn(str(self.path)+" doesn't have enough files in the directory and is neglected")
+            self.logger.error(str(self.path)+" doesn't have enough files in the directory and is neglected")
             return False
 
         return True
