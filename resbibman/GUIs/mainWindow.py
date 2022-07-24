@@ -523,6 +523,7 @@ class MainWindow(MainWindowGUI):
         self.statusBar().showMessage(prefix + msg)
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        self.logger.debug("Closing...")
         # Check if all uptodate
         if not self.database.allUptodate(fetch = False, strict = True):
             if self.queryDialog("There are un-synchronized data, sync now?"):
@@ -530,6 +531,9 @@ class MainWindow(MainWindowGUI):
                 # Not close window
                 a0.ignore()
                 return
+
+        if self.database.offline:
+            return super().closeEvent(a0)
 
         self.logger.info("Deleting cache")
         # unwatch all file, as they are going to be deleted
