@@ -1,5 +1,6 @@
 import argparse, subprocess, warnings, logging
 import shutil
+from logging.handlers import RotatingFileHandler
 from PyQt6.QtWidgets import QApplication
 import os, sys, platform
 from .core import globalVar as G
@@ -37,7 +38,7 @@ def execProg(log_level = "INFO"):
     logger.addHandler(s_handler)
 
     # FileHandler show DEBUG log level
-    f_handler = logging.FileHandler(LOG_FILE)
+    f_handler = RotatingFileHandler(LOG_FILE, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
     f_handler.setLevel(logging.DEBUG)
     fomatter = logging.Formatter('%(asctime)s (%(levelname)s) - %(message)s')
     f_handler.setFormatter(fomatter)
