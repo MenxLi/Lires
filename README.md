@@ -85,15 +85,15 @@ The server port can be assigned at `RBMWeb/backend/conf.json`
 - [x] Use cache to accelerate pdf preview
 - [x] Better way to define time-modified
 - [x] Online discussion / View comments online (Use sqlite to save discussion on server side)
+- [x] Markdown LaTeX equation support
+- [x] Export database
 - [ ] Dashboard page
-- [ ] Markdown LaTeX equation support
 - [ ] Within software cross-reference
 - [ ] Other citation format convert to bibtex
 - [ ] Better font size
 - [ ] Related works
 - [ ] Redirect some logging to status bar
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
-- [ ] Export database
 - [ ] User info, associate each user with a key in rbm-keyman
 
 In query widget while importing articles:  
