@@ -435,5 +435,8 @@ class MarkdownEdit(QTextEdit):
                     self.insertPlainText(line)
                     self._parent._saveComments()
                     return
+        elif source.hasText():
+            # Paste plain text (without format)
+            self.insertPlainText(source.text())
         else:
             super().insertFromMimeData(source)
