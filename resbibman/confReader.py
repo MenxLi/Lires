@@ -62,7 +62,8 @@ _VERSION_HISTORIES = [
     ("0.6.3", "Better logging in log file; Stricter frontend access key requirements; Added update script"),
     ("0.6.4", "Preset server configuration; Scroll online markdown in GUI; Server-side docker deployment; "\
         "Delete cache and prompt user of unsynced data when quitting; Bug fixes: Not freeze GUI if server is down"),
-    ("0.6.5", "Latex equation support; toggle panel button only show one panel; Being able to export data; Log exceptions"),
+    ("0.6.5", "Latex equation support; Toggle panel button only show one panel; Being able to export data; Log exceptions"),
+    ("0.6.6", "Better log; Discussion tab; markdown color font style; More help options; Binary distribution"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
