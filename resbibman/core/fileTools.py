@@ -244,7 +244,7 @@ class FileManipulator:
             self._log()
 
         # Exclude info path and main directory to prevent circular call
-        event_handler = PatternMatchingEventHandler(patterns = ["{}/*".format(self.path)], \
+        event_handler = PatternMatchingEventHandler(patterns = ["{}{}*".format(self.path, os.sep)], \
                                                     ignore_patterns = [
                                                         "*{}".format(self.file_names["info"]),
                                                     ], case_sensitive=True)
