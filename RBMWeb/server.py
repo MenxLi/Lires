@@ -357,7 +357,7 @@ class Application(tornado.web.Application):
         root = os.path.dirname(__file__)
         frontend_root = os.path.join(root, "frontend")
         handlers = [
-            (r"/favicon.ico()", tornado.web.StaticFileHandler, {"path": frontend_root}),
+            (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": frontend_root}),
             (r"/main/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
             (r"/doc/(.*)", DocHandler),
             (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
