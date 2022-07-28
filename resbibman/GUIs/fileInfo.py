@@ -55,6 +55,7 @@ class FileInfoGUI(MainWidgetBase):
         self.open_commets_btn = QPushButton("Comments")
         self.open_bib_btn = QPushButton("Open bibtex file")
         self.open_folder_btn = QPushButton("Misc")
+        self.weburl_edit = QLineEdit()
 
         self.md_edit_wid = QWidget()
         self.tEdit = MarkdownEdit()
@@ -67,15 +68,27 @@ class FileInfoGUI(MainWidgetBase):
         _vlayout.addLayout(_hlayout)
         self.md_edit_wid.setLayout(_vlayout)
 
-        self.weburl_edit = QLineEdit()
         self.highlighter = MarkdownSyntaxHighlighter(self.tEdit)
         self.mdBrowser = QWebEngineView()
+
+        self.discuss_wid = QWidget()
         self.discussBrowser = QWebEngineView()
+        self.btn_post_discuss = QPushButton("Post")
+        self.discuss_line = QLineEdit()
+        self.discuss_name = QLineEdit()
+        _vlayout = QVBoxLayout()
+        _hlayout = QHBoxLayout()
+        _hlayout.addWidget(self.discuss_line, 5)
+        _hlayout.addWidget(self.discuss_name, 2)
+        _hlayout.addWidget(self.btn_post_discuss, 0)
+        _vlayout.addWidget(self.discussBrowser)
+        _vlayout.addLayout(_hlayout)
+        self.discuss_wid.setLayout(_vlayout)
 
         self.tab_wid = QTabWidget()
         self.tab_wid.addTab(self.md_edit_wid, "Note.md")
         self.tab_wid.addTab(self.mdBrowser, "Note.html")
-        self.tab_wid.addTab(self.discussBrowser, "Discussion.html")
+        self.tab_wid.addTab(self.discuss_wid, "Discussion")
 
         frame_vbox = QVBoxLayout()
 
@@ -149,8 +162,8 @@ class FileInfo(FileInfoGUI):
         self.tab_wid.currentChanged.connect(self.changeTab)
         self.tEdit.textChanged.connect(self.onCommentChange)
         self.weburl_edit.textChanged.connect(self.saveWebURL)
-
         self.shortcut_save_comment.activated.connect(self._saveComments)
+        self.btn_post_discuss.clicked.connect(self.postDiscussion)
     
     def offlineStatus(self, status: bool = True):
         super().offlineStatus(status)
@@ -313,6 +326,33 @@ class FileInfo(FileInfoGUI):
             comment_save_indicate_lbl.setText("changed.")
             comment_save_indicate_lbl.setStyleSheet("QLabel { background-color : #cc0000; color: white;}")
 
+    def postDiscussion(self):
+        name = self.discuss_name.text()
+        content = self.discuss_line.text()
+        if not name:
+            self.warnDialog("Enter your name.")
+            return
+        if not content:
+            self.warnDialog("Can't post without content.")
+            return
+
+        if self.curr_data is None:
+            # shouldn't happen, for type checking purposes
+            return
+        uid = self.curr_data.uuid
+        post_url = getServerURL() + "/discussion_mod"
+        hex_key = generateHexHash(getConfV("access_key"))
+        obj = {
+            "key": hex_key,
+            "cmd": "add",
+            "file_uid": uid,
+            "content": content,
+            "usr_name": name
+        }
+        req = requests.post(url = post_url, data = obj)
+        if req.status_code == 200:
+            self.__updateDiscussion()
+
     def __thread_saveComments(self):
         def _save_comments_thread():
             if self._saveComments():
@@ -378,6 +418,7 @@ class FileInfo(FileInfoGUI):
         hex_key = generateHexHash(getConfV("access_key"))
         req = requests.get(discuss_url, cookies={"RBM_ENC_KEY": hex_key})
         self.discussBrowser.setHtml(req.text)
+        self.discuss_line.setText("")
 
     def __updateCover(self, data: Union[DataPoint,None]):
         self.cover_label.setScaledContents(False)

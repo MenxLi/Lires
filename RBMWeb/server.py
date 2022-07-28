@@ -328,7 +328,7 @@ class DiscussionModHandler (tornado.web.RequestHandler, RequestHandlerBase):
         self.setDefaultHeader()
         print("Receiving discussion modify request")
 
-        if not self.checkKey():
+        if not self.checkKey() and self.checkCookieKey():
             return
 
         cmd = self.get_argument("cmd")
