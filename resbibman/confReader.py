@@ -3,6 +3,8 @@ rbm_logger = logging.getLogger("rbm")
 
 join = os.path.join
 
+WEBPAGE = "https://github.com/MenxLi/ResBibManager"
+
 _VERSION_HISTORIES = [
     ("0.0.1 - Alpha", "Under development"),
     ("0.0.2 - Alpha", "Under development: Added tag related functions"),

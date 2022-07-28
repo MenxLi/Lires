@@ -14,6 +14,7 @@ from .bibQuery import BibQuery
 from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
 from .guiInteractions import ChoicePromptGUI, ChoicePromptDialog
+from .helpWidget import HelpWidget
 
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
@@ -24,9 +25,6 @@ from ..confReader import DOC_PATH, getConf, ICON_PATH, VERSION, getConfV, getDat
 from ..confReader import TMP_DB, TMP_WEB
 from ..perf.qtThreading import SyncWorker, InitDBWorker
 import os, copy, typing, requests, functools, time, shutil
-
-# for testing propose
-from .fileTags import TagSelector
 
 class MainWindowGUI(QMainWindow, RefWidgetBase):
     def __init__(self):
@@ -199,7 +197,7 @@ class MainWindow(MainWindowGUI):
     def initActions(self):
         self.act_settings.triggered.connect(self.openSettingsDialog)
         self.act_opendb.triggered.connect(self.openDataBaseDir)
-        self.act_help.triggered.connect(self.openHelpFile)
+        self.act_help.triggered.connect(lambda: HelpWidget(self).show())
         self.act_file_additem.triggered.connect(self.openAddfileSelectionDialog)
         self.act_reload.triggered.connect(self.reloadData)
         self.act_open_pdb.triggered.connect(self.openPendingWindow)
@@ -357,12 +355,6 @@ class MainWindow(MainWindowGUI):
         else:
             database = getConf()["database"]
         openFile(database)
-    
-    def openHelpFile(self):
-        # help_file_path = os.path.join(DOC_PATH, "info.html")
-        # webbrowser.open("file://"+help_file_path)
-        help_file_path = os.path.join(DOC_PATH, "UserGuide.md")
-        openFile(help_file_path)
     
     def openAddfileSelectionDialog(self):
         extensions = getConf()["accepted_extensions"]
