@@ -38,6 +38,9 @@ class RequestHandlerBase():
         return self._checkKey(enc_key)
 
     def _checkKey(self, enc_key):
+        if not enc_key:
+            raise tornado.web.HTTPError(401) 
+
         if not queryHashKey(enc_key):
             # unauthorized
             print("Reject key ({}), abort".format(enc_key))

@@ -1,9 +1,12 @@
 import os, shutil, uuid, time, threading, string
 from typing import Union, Literal
 import warnings
+import requests
 from PyQt6 import QtCore, QtGui
-from PyQt6.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit
+from PyQt6.QtCore import QByteArray
+from PyQt6.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit, QWidget
 from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtNetwork import QNetworkCookie
 from PyQt6.QtGui import QAction, QKeySequence, QShortcut
 from .widgets import MainWidgetBase
 from ..confReader import ICON_PATH, getConfV, TMP_COVER, getServerURL
@@ -11,12 +14,19 @@ from ..core.fileTools import FileManipulator
 from ..core.bibReader import BibParser
 from ..core.dataClass import DataPoint
 from ..core.pdfTools import getPDFCoverAsQPixelmap
+from ..core.encryptClient import generateHexHash
 
 from .mdHighlighter import MarkdownSyntaxHighlighter
 
 
 class FileInfoGUI(MainWidgetBase):
     TEDIT_SYNC_PROPMT = "Sync to edit"
+
+    # tab widget index
+    TAB_INDEX_MDEDIT = 0
+    TAB_INDEX_MDBROWSER= 1
+    TAB_INDEX_DISCUSSBROWSER= 2
+
     def __init__(self, parent = None):
         super().__init__(parent)
         self.parent = parent
@@ -46,13 +56,26 @@ class FileInfoGUI(MainWidgetBase):
         self.open_bib_btn = QPushButton("Open bibtex file")
         self.open_folder_btn = QPushButton("Misc")
 
-        self.mdTab = QTabWidget()
+        self.md_edit_wid = QWidget()
         self.tEdit = MarkdownEdit()
+        _vlayout = QVBoxLayout()
+        _hlayout = QHBoxLayout()
+        if not getConfV("auto_save_comments"):
+            _hlayout.addWidget(self.save_comment_btn, 1)
+        _hlayout.addWidget(self.comment_save_indicate_lbl, 0)
+        _vlayout.addWidget(self.tEdit)
+        _vlayout.addLayout(_hlayout)
+        self.md_edit_wid.setLayout(_vlayout)
+
         self.weburl_edit = QLineEdit()
         self.highlighter = MarkdownSyntaxHighlighter(self.tEdit)
         self.mdBrowser = QWebEngineView()
-        self.mdTab.addTab(self.tEdit, "Note.md")
-        self.mdTab.addTab(self.mdBrowser, "Note.html")
+        self.discussBrowser = QWebEngineView()
+
+        self.tab_wid = QTabWidget()
+        self.tab_wid.addTab(self.md_edit_wid, "Note.md")
+        self.tab_wid.addTab(self.mdBrowser, "Note.html")
+        self.tab_wid.addTab(self.discussBrowser, "Discussion.html")
 
         frame_vbox = QVBoxLayout()
 
@@ -67,12 +90,7 @@ class FileInfoGUI(MainWidgetBase):
         self.comment_frame = QFrame()
         comment_frame_vbox = QVBoxLayout()
         comment_frame_vbox.addWidget(self.comment_lbl, 0)
-        comment_frame_vbox.addWidget(self.mdTab,1)
-        comment_frame_hbox = QHBoxLayout()
-        if not getConfV("auto_save_comments"):
-            comment_frame_hbox.addWidget(self.save_comment_btn,1)
-        comment_frame_hbox.addWidget(self.comment_save_indicate_lbl,0)
-        comment_frame_vbox.addLayout(comment_frame_hbox, 0)
+        comment_frame_vbox.addWidget(self.tab_wid,1)
         self.comment_frame.setLayout(comment_frame_vbox)
 
         self.weburl_frame = QFrame()
@@ -116,6 +134,10 @@ class FileInfo(FileInfoGUI):
             "save_comment_in_pending": False,
         }
         self.shortcut_save_comment = QShortcut(QKeySequence("ctrl+s"), self)
+
+    @property
+    def is_offline(self):
+        return self.getMainPanel().database.offline
     
     def connectFuncs(self):
         self.getSelectPanel().selection_changed.connect(self.load)
@@ -124,7 +146,7 @@ class FileInfo(FileInfoGUI):
         self.open_commets_btn.clicked.connect(self.openComments)
         self.save_comment_btn.clicked.connect(self._saveComments)
         self.refresh_btn.clicked.connect(self.refresh)
-        self.mdTab.currentChanged.connect(self.changeTab)
+        self.tab_wid.currentChanged.connect(self.changeTab)
         self.tEdit.textChanged.connect(self.onCommentChange)
         self.weburl_edit.textChanged.connect(self.saveWebURL)
 
@@ -184,7 +206,11 @@ class FileInfo(FileInfoGUI):
         self.info_lbl.setText(data.stringInfo())
         self.weburl_edit.setText(data.fm.getWebUrl())
         self.__updateCover(data)
-        self.__renderMarkdown()
+        if self.tab_wid.currentIndex() == self.TAB_INDEX_MDBROWSER:
+            self.__renderMarkdown()
+        elif self.tab_wid.currentIndex() == self.TAB_INDEX_DISCUSSBROWSER:
+            self.__updateDiscussion()
+
         if data.is_local:
             comment = self.curr_data.fm.readComments()
             self.offlineStatus(True)
@@ -197,9 +223,12 @@ class FileInfo(FileInfoGUI):
     
     def changeTab(self, index):
         self.logger.debug("On tab change")
-        if index == 1:
+        if index == self.TAB_INDEX_MDBROWSER:
+            # to the html render
             self._saveComments()
             self.__renderMarkdown()
+        if index == self.TAB_INDEX_DISCUSSBROWSER and not self.is_offline:
+            self.__updateDiscussion()
 
     def openMiscDir(self):
         if not self.curr_data is None:
@@ -338,6 +367,17 @@ class FileInfo(FileInfoGUI):
             md_url = getServerURL() + "/comment/{}/".format(uid)
             self.logger.debug("requesting remote comment html: {}".format(md_url))
             self.mdBrowser.setUrl(QtCore.QUrl.fromUserInput(md_url))
+
+    def __updateDiscussion(self):
+        if self.curr_data is None:
+            # shouldn't happen, for type checking purposes
+            return
+        uid = self.curr_data.uuid
+        discuss_url = getServerURL() + "/discussions/{}".format(uid)
+        
+        hex_key = generateHexHash(getConfV("access_key"))
+        req = requests.get(discuss_url, cookies={"RBM_ENC_KEY": hex_key})
+        self.discussBrowser.setHtml(req.text)
 
     def __updateCover(self, data: Union[DataPoint,None]):
         self.cover_label.setScaledContents(False)
