@@ -3,7 +3,7 @@ import webbrowser
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QDialog, QMessageBox
 from .widgets import WidgetBase
 from ..core.utils import openFile
-from ..confReader import DOC_PATH, WEBPAGE
+from ..confReader import DOC_PATH, WEBPAGE, _VERSION_HISTORIES
 
 
 LICENSE = """
@@ -45,23 +45,29 @@ class HelpWidget(QDialog, WidgetBase):
         self.btn_manual = QPushButton("Manual")
         self.btn_manual.clicked.connect(self.openManual)
 
-        self.btn_license = QPushButton("License")
-        self.btn_license.clicked.connect(self.openLicense)
-
         self.btn_webpage = QPushButton("Webpage")
         self.btn_webpage.clicked.connect(self.openWebpage)
 
+        self.btn_changelog = QPushButton("Change log")
+        self.btn_changelog.clicked.connect(self.showVersionHistory)
+
+        self.btn_license = QPushButton("License")
+        self.btn_license.clicked.connect(self.openLicense)
+
         layout.addWidget(self.btn_manual)
         layout.addWidget(self.btn_webpage)
+        layout.addWidget(self.btn_changelog)
         layout.addWidget(self.btn_license)
         self.setLayout(layout)
 
     def openManual(self):
+        self.logger.debug("helpWidget: Open manual page")
         help_file_path = os.path.join(DOC_PATH, "UserGuide.md")
         openFile(help_file_path)
         self.close()
 
     def openLicense(self):
+        self.logger.debug("helpWidget: Open license")
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Icon.Information)
         msg_box.setText("LICENSE")
@@ -72,5 +78,22 @@ class HelpWidget(QDialog, WidgetBase):
         self.close()
 
     def openWebpage(self):
+        self.logger.debug("helpWidget: Open project webpage")
         webbrowser.open(WEBPAGE)
+        self.close()
+
+    def showVersionHistory(self):
+        self.logger.debug("helpWidget: Open changelog")
+        version_history = [": ".join(x) for x in _VERSION_HISTORIES]
+        if len(version_history) > 20:
+            version_history = ["..."] + version_history[-19:]
+        version_history = "\n".join(version_history)
+
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle("Versions")
+        msg_box.setIcon(QMessageBox.Icon.Information)
+        msg_box.setText("CHANGELOG")
+        msg_box.setInformativeText(version_history)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg_box.exec()
         self.close()
