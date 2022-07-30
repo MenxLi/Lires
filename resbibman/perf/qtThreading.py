@@ -17,7 +17,7 @@ class ThreadSignalsQ(QObject):
 
 
 class ThreadSignalsForSleepWorker(ThreadSignalsQ):
-    finished = pyqtSignal(bool)
+    finished = pyqtSignal()
 
 class SleepWorker(QRunnable):
     def __init__(self, wait_time: float):
@@ -28,7 +28,8 @@ class SleepWorker(QRunnable):
     def run(self):
         self.signals.started.emit()
         time.sleep(self._wait_time)
-        self.signals.finished.emit(not self._break)
+        if not self._break:
+            self.signals.finished.emit()
     def setBreak(self):
         self._break = True
 

@@ -3,7 +3,7 @@ import typing, logging, threading
 from typing import TYPE_CHECKING
 
 from PyQt6 import QtGui
-from PyQt6.QtWidgets import QWidget, QMessageBox
+from PyQt6.QtWidgets import QWidget, QMessageBox, QApplication
 from PyQt6.QtCore import QThreadPool, pyqtSignal
 
 from ..core.utils import delay_exec
@@ -77,14 +77,16 @@ class RefWidgetBase(QWidget, WidgetBase):
         # Send a signal to abort previous worker
         self.update_statusmsg.emit(info)
         self.getMainPanel().statusBarMsg(info, **kwargs)
-        def _laterDo(confirm):
-            if confirm:
-                self.getMainPanel().statusBarMsg(msg = "Welcome!", bg_color = "none")
+        def _laterDo():
+            self.getMainPanel().statusBarMsg(msg = "Welcome!", bg_color = "none")
         if time>0:
             worker = SleepWorker(time)
             worker.signals.finished.connect(_laterDo)
-            # Abort previous worker
+
+            # Abort this worker
             self.update_statusmsg.connect(lambda str_: worker.setBreak())
+            QApplication.instance().aboutToQuit.connect(worker.setBreak)    # not send signal after app exited
+
             pool = QThreadPool.globalInstance()
             pool.start(worker)
     
