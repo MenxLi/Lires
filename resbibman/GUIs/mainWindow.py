@@ -128,7 +128,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.act_settings.setIcon(QIcon(os.path.join(ICON_PATH, "settings-24px.svg")))
         self.act_help = QAction("&Info", self)
         self.act_help.setIcon(QIcon(os.path.join(ICON_PATH, "info-24px.svg")))
-        self.act_reload = QAction("&Reload", self)
+        self.act_reload = QAction("&Reload/Synchronize", self)
         self.act_reload.setIcon(QIcon(os.path.join(ICON_PATH, "refresh-24px.svg")))
         self.act_open_pdb = QAction("&Pending data", self)
         self.act_open_pdb.setIcon(QIcon(os.path.join(ICON_PATH, "hourglass_bottom_black_24dp.svg")))
