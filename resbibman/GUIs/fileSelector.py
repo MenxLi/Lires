@@ -56,13 +56,20 @@ class FileSelectorGUI(MainWidgetBase):
         self.act_export_data = QAction("Export data", self)
         self.act_free_doc = QAction("Free document", self)
 
+        def addSeparator():
+            separator = QAction(self)
+            separator.setSeparator(True)
+            self.data_view.addAction(separator)
+
         self.data_view.addAction(self.act_sync_datapoint)
         self.data_view.addAction(self.act_add_file)
-        self.data_view.addAction(self.act_edit_bib)
-        self.data_view.addAction(self.act_open_location)
+        self.data_view.addAction(self.act_free_doc)
+        addSeparator()
         self.data_view.addAction(self.act_copy_citation)
         self.data_view.addAction(self.act_copy_bib)
-        self.data_view.addAction(self.act_free_doc)
+        self.data_view.addAction(self.act_edit_bib)
+        addSeparator()
+        self.data_view.addAction(self.act_open_location)
         self.data_view.addAction(self.act_export_data)
         self.data_view.addAction(self.act_delete_file)
     
