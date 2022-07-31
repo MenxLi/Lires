@@ -1,5 +1,11 @@
-import fitz
+try:
+    import fitz
+except:
+    # Apple silicon
+    pass
+import os
 from PyQt6 import QtGui
+from ..confReader import ICON_PATH
 
 # 显示 PDF 封面
 # page_data 为 page 对象
@@ -30,7 +36,12 @@ def render_pdf_page(page_data, for_cover=False):
     return pixmap
 
 def getPDFCoverAsQPixelmap(f_path: str):
-    doc = fitz.open(f_path)
-    page = doc.load_page(0)
-    cover = render_pdf_page(page, True)
+    try:
+        doc = fitz.open(f_path)
+        page = doc.load_page(0)
+        cover = render_pdf_page(page, True)
+    except:
+        # Apple silicon
+        cover= QtGui.QPixmap()
+        cover.convertFromImage(QtGui.QImage(os.path.join(ICON_PATH, "error-48px.png")))
     return cover

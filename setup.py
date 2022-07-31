@@ -1,9 +1,15 @@
-import os
+import os, platform
 from setuptools import setup, find_packages
 from resbibman.confReader import VERSION
 
 with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as fp:
     install_requires = [pkg for pkg in fp.read().split("\n") if pkg]
+
+    if platform.system() == "Darwin" and platform.processor() == "arm":
+        # Apple silicon
+        for i in range(len(install_requires)):
+            if install_requires[i] == "PyMuPDF":
+                install_requires[i] = "fitz"
 
 setup(
     name="ResBibMan",

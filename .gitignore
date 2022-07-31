@@ -12,6 +12,7 @@ build
 venv
 */log.txt
 *_tmp*
+.DS_Store
 
 
 *.pptx
