@@ -6,6 +6,7 @@ QTableView::item {
 }        
 QTableView::item:hover:!selected {
     background-color: #D3F1FC;
+	color: #333333;
 	border-style: solid;
 	border: 1px solid #D3F1FC;
 }        
