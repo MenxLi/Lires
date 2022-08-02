@@ -35,7 +35,7 @@ _VERSION_HISTORIES = [
     ("0.3.1", "Icon change & update setup.py distribution & argparse update."),
     ("0.3.2", "Frontend add server query."),
     ("0.3.3", "Frontend add banner (reload database, search), UI update, change frontend server to tornado server, "\
-        "start front end and backend with single python cmd argument."),
+     "start front end and backend with single python cmd argument."),
     ("0.3.4", "Frontend small update. change backend port to 8079"),
     ("0.3.5", "Now can insert no-file entry by cancel in file selection prompt; Add file size to file info"),
     ("0.3.6", "API update: Change resbibman.backend to resbibman.core"),
@@ -53,17 +53,19 @@ _VERSION_HISTORIES = [
     ("0.5.2", "Asynchronous UI update when connection; Improved watch file changes; Bug fix: basename now not allowed to have question mark"),
     ("0.5.3", "Better file modification monitering; Bug fix: rename/delete tag now will affact unasynchronized data; CLI change"),
     ("0.5.4", "Document update; Use asyncio to accelerate dataloading; Add delete to context menu of file selector; "\
-        "CLI update; Bug fixs: rbmweb can serve packed webpages with style, server can serve empty database"),
+     "CLI update; Bug fixs: rbmweb can serve packed webpages with style, server can serve empty database"),
     ("0.6.0", "Online discussion avaliable; Info file record time as floating time stamp; Key login required for accessing webpage; "\
-        "rbm-collect/rbm-discuss; Server can serve notes in html format"),
+     "rbm-collect/rbm-discuss; Server can serve notes in html format"),
     ("0.6.0a", "Using PyQt6! View comment preview in online mode"),
     ("0.6.1", "Comment CSS update; Full screen; Bug fixes"),
     ("0.6.2", "Propmt conflict resolving when synchroning; Bug fixes: Now, delete old temp_db when server change, invalid bibtex input won't crash the program, etc."),
     ("0.6.3", "Better logging in log file; Stricter frontend access key requirements; Added update script"),
     ("0.6.4", "Preset server configuration; Scroll online markdown in GUI; Server-side docker deployment; "\
-        "Delete cache and prompt user of unsynced data when quitting; Bug fixes: Not freeze GUI if server is down"),
+     "Delete cache and prompt user of unsynced data when quitting; Bug fixes: Not freeze GUI if server is down"),
     ("0.6.5", "Latex equation support; Toggle panel button only show one panel; Being able to export data; Log exceptions"),
     ("0.6.6", "Better log; Discussion tab; markdown color font style; More help options; Binary distribution"),
+    ("0.6.7", "UI update: more help options | font size in configuration file | dark theme icon color | context menu separator; "\
+     "Better macos and windows file watcher; Kill statusbar updating thread after quitting")
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
