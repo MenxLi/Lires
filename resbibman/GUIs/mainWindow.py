@@ -453,8 +453,15 @@ class MainWindow(MainWindowGUI):
                 self.statusBarInfo("Successfully synchronized", 5, bg_color = "green")
             else:
                 self.statusBarInfo("Failed synchronize, check log", 5, bg_color = "red")
-            for dp in to_sync:
-                dp.fm.setWatch(True)
+
+            in_info_dp = self.getInfoPanel().curr_data
+            if in_info_dp is not None:
+                # Watch info panel data in case of note change
+                ## unzip file is somewhat asynchronous (in MacOS?), 
+                ## thus file creation may come after watching
+                ## sleep to avoid logging file creation
+                time.sleep(0.5)     
+                in_info_dp.fm.setWatch(True)
         # before start sync, make sure that all datapoint are using GUI for user prompt
         prompt_obj = ChoicePromptGUI()
         for dp in to_sync:

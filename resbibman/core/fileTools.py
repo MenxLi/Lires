@@ -8,7 +8,7 @@ from typing import List, Union, TypedDict
 import warnings
 from . import globalVar as G
 from .utils import openFile, TimeUtils
-from ..confReader import getConf, VERSION
+from ..confReader import getConf, VERSION, getConfV
 from .htmlTools import packHtml, openTmp_hpack
 
 from watchdog.observers import Observer
@@ -190,6 +190,8 @@ class FileManipulator:
     """
     logger = G.logger_rbm
     LOG_TOLERANCE_INTERVAL = 0.5
+    _WATCHING_EXT = getConfV("accepted_extensions") + ["json", "md", "bib"]
+    WATCHING_EXT = list(set(["*.{}".format(i) for i in _WATCHING_EXT]))
     def __init__(self, data_path):
         self.path = data_path
         self.base_name: str = os.path.split(data_path)[-1]
@@ -248,7 +250,7 @@ class FileManipulator:
         #                                              ignore_patterns = [
         #                                                  "*{}".format(self.file_names["info"]),
         #                                              ], case_sensitive=True)
-        event_handler = PatternMatchingEventHandler(patterns = ["*"], 
+        event_handler = PatternMatchingEventHandler(patterns = self.WATCHING_EXT, 
                                                     ignore_patterns = ["*{}".format(self.file_names["info"]), ".DS_Store"], 
                                                     case_sensitive=True)
         event_handler.on_created = _onCreated
