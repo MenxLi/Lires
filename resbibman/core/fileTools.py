@@ -244,10 +244,13 @@ class FileManipulator:
             self._log()
 
         # Exclude info path and main directory to prevent circular call
-        event_handler = PatternMatchingEventHandler(patterns = ["{}{}*".format(self.path, os.sep)], \
-                                                    ignore_patterns = [
-                                                        "*{}".format(self.file_names["info"]),
-                                                    ], case_sensitive=True)
+        #  event_handler = PatternMatchingEventHandler(patterns = ["{}{}*".format(self.path, os.sep)], \
+        #                                              ignore_patterns = [
+        #                                                  "*{}".format(self.file_names["info"]),
+        #                                              ], case_sensitive=True)
+        event_handler = PatternMatchingEventHandler(patterns = ["*"], 
+                                                    ignore_patterns = ["*{}".format(self.file_names["info"]), ".DS_Store"], 
+                                                    case_sensitive=True)
         event_handler.on_created = _onCreated
         event_handler.on_deleted = _onDeleted
         event_handler.on_modified = _onModified
