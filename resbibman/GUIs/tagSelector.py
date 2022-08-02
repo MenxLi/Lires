@@ -3,12 +3,13 @@ import typing
 from typing import Union, List
 
 from PyQt6.QtWidgets import QListView, QHBoxLayout, QInputDialog
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QFont
 from PyQt6 import QtCore
 from PyQt6 import QtGui
 
-from ..confReader import ICON_PATH, saveToConf
 from .widgets import RefWidgetBase
+from ._styleUtils import qIconFromSVG_autoBW
+from ..confReader import ICON_PATH, getConfV, saveToConf
 from ..core.dataClass import DataTags
 
 class TagSelector(RefWidgetBase):
@@ -143,18 +144,23 @@ class TagListModel(QtCore.QAbstractListModel):
                 d[0] = True
         self.datalist = datalist 
 
+        self.TICK_CHECK = qIconFromSVG_autoBW(os.path.join(ICON_PATH, "check_circle-24px.svg"))
+        self.TICK_UNCHECK = qIconFromSVG_autoBW(os.path.join(ICON_PATH, "check_circle_blank-24px.svg"))
+
     def data(self, index, role):
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             status, tag = self.datalist[index.row()]
             return tag
+        if role == QtCore.Qt.ItemDataRole.FontRole:
+            return QFont(*getConfV("font_sizes")["tag"])
         if role == QtCore.Qt.ItemDataRole.DecorationRole:
             status, _ = self.datalist[index.row()]
             if status:
                 # tick = QtGui.QColor("Green")    # or QImage
-                tick = QtGui.QImage(os.path.join(ICON_PATH, "check_circle-24px.svg"))    # or QImage
+                tick = self.TICK_CHECK
             else:
                 # tick = QtGui.QColor("Gray")
-                tick = QtGui.QImage(os.path.join(ICON_PATH, "check_circle_blank-24px.svg"))    # or QImage
+                tick = self.TICK_UNCHECK
             return tick
 
     def rowCount(self, index):

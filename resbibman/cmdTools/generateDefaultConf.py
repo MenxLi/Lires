@@ -30,6 +30,11 @@ def generateDefaultConf():
 				DataTableList.HEADER_YEAR, 
 				DataTableList.HEADER_AUTHOR
 			 ],
+		font_sizes = {
+			"data": ["Arial", 10],
+			"tag": ["Arial", 10]
+
+		},
 		auto_save_comments = False,
         stylesheet = "Simple"
     )

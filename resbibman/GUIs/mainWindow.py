@@ -15,6 +15,7 @@ from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
 from .guiInteractions import ChoicePromptGUI, ChoicePromptDialog
 from .helpWidget import HelpWidget
+from ._styleUtils import qIconFromSVG_autoBW
 
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
@@ -121,30 +122,30 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
     
     def _createActions(self):
         self.act_file_additem = QAction("&Add paper", self)
-        self.act_file_additem.setIcon(QIcon(os.path.join(ICON_PATH, "addfile-24px.svg")))
+        self.act_file_additem.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "addfile-24px.svg")))
         self.act_opendb = QAction("&Open database", self)
-        self.act_opendb.setIcon(QIcon(os.path.join(ICON_PATH, "folder-24px.svg")))
+        self.act_opendb.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "folder-24px.svg")))
         self.act_settings = QAction("&Settings", self)
-        self.act_settings.setIcon(QIcon(os.path.join(ICON_PATH, "settings-24px.svg")))
+        self.act_settings.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "settings-24px.svg")))
         self.act_help = QAction("&Info", self)
-        self.act_help.setIcon(QIcon(os.path.join(ICON_PATH, "info-24px.svg")))
+        self.act_help.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "info-24px.svg")))
         self.act_reload = QAction("&Reload/Synchronize", self)
-        self.act_reload.setIcon(QIcon(os.path.join(ICON_PATH, "refresh-24px.svg")))
+        self.act_reload.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "refresh-24px.svg")))
         self.act_open_pdb = QAction("&Pending data", self)
-        self.act_open_pdb.setIcon(QIcon(os.path.join(ICON_PATH, "hourglass_bottom_black_24dp.svg")))
+        self.act_open_pdb.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "hourglass_bottom_black_24dp.svg")))
 
         self.act_importbib_from_clip = QAction("Import bib from clipboard", self)
-        self.act_importbib_from_clip.setIcon(QIcon(os.path.join(ICON_PATH, "paste-24px.svg")))
+        self.act_importbib_from_clip.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "paste-24px.svg")))
         self.act_importbib_from_clip.setShortcut(QKeySequence("ctrl+shift+alt+i"))
 
         self.act_show_panel1 = QAction("&Show panel 1", self)
-        self.act_show_panel1.setIcon(QIcon(os.path.join(ICON_PATH, "looks_one_black_48dp.svg")))
+        self.act_show_panel1.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_one_black_48dp.svg")))
         self.act_show_panel2 = QAction("&Show panel 2", self)
-        self.act_show_panel2.setIcon(QIcon(os.path.join(ICON_PATH, "looks_two_black_48dp.svg")))
+        self.act_show_panel2.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_two_black_48dp.svg")))
         self.act_show_panel3 = QAction("&Show panel 3", self)
-        self.act_show_panel3.setIcon(QIcon(os.path.join(ICON_PATH, "looks_3_black_48dp.svg")))
+        self.act_show_panel3.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_3_black_48dp.svg")))
         self.act_toggle_fullscreen = QAction("&full screen", self)
-        self.act_toggle_fullscreen.setIcon(QIcon(os.path.join(ICON_PATH, "fullscreen_black_48dp.svg")))
+        self.act_toggle_fullscreen.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "fullscreen_black_48dp.svg")))
         #  self.act_toggle_fullscreen.setShortcut(Qt.Key_F11)
         self.act_toggle_fullscreen.setShortcut(QKeySequence("ctrl+f"))
 
