@@ -100,7 +100,6 @@ def getStyleSheets() -> dict:
         # "Aqua": join(STYLESHEET_PATH, "Aqua.qss"),
         "Breeze-light": join(STYLESHEET_PATH, "Breeze", "light.qss"),
         "Breeze-dark": join(STYLESHEET_PATH, "Breeze", "dark.qss"),
-        "Chenwen1126-qss": join(STYLESHEET_PATH, "chenwen1126-Qss", "css", "qss.css")
     }
     for f_ in os.listdir(STYLESHEET_PATH):
         k = os.path.splitext(f_)[0]

@@ -1,13 +1,13 @@
 /* https://doc.qt.io/qt-6/stylesheet-reference.html */
 QTableView {
-	gridline-color: #eeeeee;
+	gridline-color: #222222;
 }        
 QTableView::item {
 	outline: none;
 }        
 QTableView::item:hover:!selected {
-    background-color: #D3F1FC;
-	color: #333333;
+    background-color: #2f3a5b;
+	color: #cccccc;
 	border-style: solid;
 	border: 1px solid #D3F1FC;
 }        

@@ -9,7 +9,6 @@ from typing import List, overload, Union, Literal, Callable
 from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase
 from .bibtexEditor import BibEditorWithOK
-from ._styleUtils import isDarkMode
 from ..core import globalVar as G
 from ..core.fileTools import FileManipulator
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
@@ -461,9 +460,6 @@ class FileTableView(QTableView):
         self.setFont(QtGui.QFont(*getConfV("font_sizes")["data"]))
         # self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.verticalHeader().setDefaultSectionSize(int(font_size*1.1))
-
-        if isDarkMode():
-            self.setStyleSheet("QTableView {gridline-color: #222222}")
 
     def initSettings(self):
         # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a

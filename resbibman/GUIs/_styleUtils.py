@@ -1,9 +1,10 @@
 import platform
 from subprocess import Popen, PIPE
 from PyQt6.QtGui import QPainter, QPixmap, QColor, QIcon
+from ..confReader import getConfV
 
 
-def isDarkMode() -> bool:
+def isSysDarkMode() -> bool:
     """
     Detect if the system is in dark mode
     """
@@ -15,7 +16,10 @@ def isDarkMode() -> bool:
 
     return False
 
-DARKMODE = isDarkMode()
+def isThemeDarkMode() -> bool:
+    return "dark" in getConfV("stylesheet").lower()
+
+DARKMODE = isThemeDarkMode()
 COLOR_WHITE = "#cccccc"
 COLOR_BLACK = "#333333"
 
