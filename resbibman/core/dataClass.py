@@ -58,6 +58,7 @@ class DataTags(set):
 
 class DataPoint:
     logger = G.logger_rbm
+    MAX_AUTHOR_ABBR = 18
     def __init__(self, fm: FileManipulatorVirtual):
         """
         The basic data structure that hold single data
@@ -286,12 +287,16 @@ class DataPoint:
         Get authors abbreviation, i.e.:
             when only have one author: return the only author's first name
             otherwise return the first author's first name + et al.
+        Author name abbreviation has a maximum length of self.MAX_AUTHOR_ABBR
         """
         if len(self.authors) == 1:
             author = self._getFirstName(self.authors[0]) + "."
         else:
             author = self._getFirstName(self.authors[0]) + " et al."
-        return author
+        if len(author) < self.MAX_AUTHOR_ABBR:
+            return author
+        else:
+            return author[:self.MAX_AUTHOR_ABBR-4] + "..."
 
     def _getFirstName(self, name: str):
         x = name.split(", ")
