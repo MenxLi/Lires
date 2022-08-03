@@ -7,9 +7,10 @@ with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as fp:
 
     if platform.system() == "Darwin" and platform.processor() == "arm":
         # Apple silicon
-        for i in range(len(install_requires)):
+        for i in range(0, len(install_requires))[::-1]:
             if install_requires[i] == "PyMuPDF":
-                install_requires[i] = "fitz"
+                # Not install PyMuPDF in MacOS, can't compile for now
+                install_requires.pop(i)
 
 setup(
     name="ResBibMan",

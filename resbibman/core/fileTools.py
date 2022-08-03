@@ -190,8 +190,12 @@ class FileManipulator:
     """
     logger = G.logger_rbm
     LOG_TOLERANCE_INTERVAL = 0.5
-    _WATCHING_EXT = getConfV("accepted_extensions") + ["json", "md", "bib"]
-    WATCHING_EXT = list(set(["*.{}".format(i) for i in _WATCHING_EXT]))
+    try:
+        _WATCHING_EXT = getConfV("accepted_extensions") + ["json", "md", "bib"]
+        WATCHING_EXT = list(set(["*.{}".format(i) for i in _WATCHING_EXT]))
+    except FileNotFoundError:
+        # when generating configuration file
+        pass
     def __init__(self, data_path):
         self.path = data_path
         self.base_name: str = os.path.split(data_path)[-1]
