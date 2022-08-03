@@ -11,3 +11,4 @@ watchdog
 nest_asyncio
 arxiv
 pyyaml
+nbib

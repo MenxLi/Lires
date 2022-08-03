@@ -1,12 +1,13 @@
 import os
 from typing import Dict
 from datetime import date
-from PyQt6.QtWidgets import QButtonGroup, QDialog, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton
+from PyQt6.QtWidgets import QButtonGroup, QDialog, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton, QComboBox
 from PyQt6 import QtCore
 from .widgets import WidgetBase
 
 from ..confReader import DOC_PATH, BIB_TEMPLATE_PATH
 from ..core.utils import sssUUID
+from ..core.bibReader import BibConverter
 
 class TemplateChoice(WidgetBase, QDialog):
     template_selected = QtCore.pyqtSignal(str)
@@ -49,6 +50,28 @@ class TemplateChoice(WidgetBase, QDialog):
         self.close()
         return
 
+class PlainTextInput(QDialog, WidgetBase):
+    on_ok = QtCore.pyqtSignal(str)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Input")
+        self.txt_edit = QTextEdit()
+        self.txt_edit.setMinimumSize(300,200)
+        self.ok_btn = QPushButton("OK")
+        self.vlayout = QVBoxLayout()
+        self.vlayout.addWidget(self.txt_edit)
+        self.vlayout.addWidget(self.ok_btn)
+        self.ok_btn.clicked.connect(self.ok)
+        self.setLayout(self.vlayout)
+
+    def ok(self):
+        out = self.txt_edit.toPlainText()
+        self.on_ok.emit(out)
+        self.close()
+
 class BibEditor(QDialog, WidgetBase):
     def __init__(self):
         super().__init__()
@@ -59,20 +82,44 @@ class BibEditor(QDialog, WidgetBase):
         self.txt_edit = QTextEdit()
         self.txt_edit.setMinimumSize(300,200)
         self.insert_template_button = QPushButton("Use bibtex template")
+        self.from_other_format_btn = QPushButton("Convert from")
+        self.format_cb = QComboBox(self)
+        self.format_cb.addItem("nbib")
 
         self.vlayout = QVBoxLayout()
         self.vlayout.addWidget(self.txt_edit)
         self.vlayout.addWidget(self.insert_template_button)
+
+        self._hlayout = QHBoxLayout()
+        self._hlayout.addWidget(self.from_other_format_btn)
+        self._hlayout.addWidget(self.format_cb)
+        self.vlayout.addLayout(self._hlayout)
         self.setLayout(self.vlayout)
 
     def connectFuncs(self):
         self.insert_template_button.clicked.connect(self.insertBibTemplate)
+        self.from_other_format_btn.clicked.connect(self.insertFromOtherFormat)
 
     def insertBibTemplate(self):
         self.logger.debug("Open Bibtex TemplateChoice")
         self.choices = TemplateChoice()
         self.choices.template_selected.connect(lambda t: self.txt_edit.setText(t))
         self.choices.show()
+
+    def insertFromOtherFormat(self):
+        txt_query = PlainTextInput(self)
+        txt_query.on_ok.connect(lambda t: 
+                                self.txt_edit.setText(
+                                    self._convert(t, self.format_cb.currentText())
+                                ))
+        txt_query.show()
+
+    def _convert(self, txt, bib_type: str) -> str:
+        converter = BibConverter()
+        if bib_type == "nbib":
+            return converter.fromNBib(txt)
+        else:
+            return ""
 
     @property
     def text(self):

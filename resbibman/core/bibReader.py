@@ -1,8 +1,12 @@
 import pybtex.database
 from datetime import date
-import warnings
+from .utils import randomAlphaNumeric
+import warnings, logging
+import nbib
+from pybtex.database import BibliographyData, Entry
 
 class BibParser:
+    logger = logging.getLogger("rbm")
     def __init__(self, mode = "single"):
         self.mode = mode
     
@@ -43,11 +47,49 @@ class BibParser:
             bibs.append(data)
         return bibs
 
-class BibObj:
-    """
-    **deprecated**
-    Object representation of the bibliography file
-    """
-    def __init__(self, **kwargs):
-        for k in kwargs:
-            setattr(self, k, kwargs[k])
+
+class BibConverter:
+    logger = logging.getLogger("rbm")
+    def fromNBib(self, nb: str) -> str:
+        parsed = nbib.read(nb.strip("\n") + "\n")
+        if not parsed:
+            self.logger.error("Error while parsing nbib")
+            return ""
+        assert len(parsed) == 1, "Only 1 nbib assumed"
+        parsed = parsed[0]
+
+        data_dict = {
+            "title": parsed["title"],
+            "year": parsed["publication_date"][:4],
+            "author": " and ".join( a["author"] for a in parsed["authors"] ),
+        }
+        
+        if "Journal Article" in parsed["publication_types"] :
+            # for article
+            doc_type = "article"
+            for k in [["volume", "journal_volume"],
+                      ["number", "journal_issue"]]:
+                try:
+                    data_dict[k[0]] = parsed[k[1]]
+                except:
+                    self.logger.error("Could not find {} while parsing nbib".format(k[1]))
+        else:
+            # To change later
+            doc_type = "article"
+
+        # try other format
+        for k in ["journal", "journal_abbreviated", "abstract", "pages", "doi"]:
+            try:
+                data_dict[k] = parsed[k]
+            except:
+                self.logger.error("Could not find key {} while parsing nbib".format(k))
+
+        data = []
+        for k, v in data_dict.items():
+            data.append((k, v))
+
+        bib_data = BibliographyData({
+            f"{data_dict['year']}{randomAlphaNumeric(5)}":
+            Entry(doc_type, data)
+        })
+        return bib_data.to_string("bibtex")
