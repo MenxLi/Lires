@@ -7,7 +7,7 @@ from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict, Type, Option
 import difflib
 import markdown
 from .fileTools import FileGenerator
-from .utils import formatMarkdownHTML
+from .utils import formatMarkdownHTML, TimeUtils
 from .clInteractions import ChoicePromptAbstract
 from ..perf.asynciolib import asyncioLoopRun
 try:
@@ -359,7 +359,7 @@ class DataTableList(DataList):
         HEADER_YEAR: lambda x: x.year,
         HEADER_AUTHOR: lambda x: x.getAuthorsAbbr(),
         HEADER_TITLE: lambda x: x.title,
-        HEADER_TIMEMODIFY: lambda x: x.time_modified
+        HEADER_TIMEMODIFY: lambda x: TimeUtils.toStr(TimeUtils.stamp2Local(x.time_modified))
     }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
