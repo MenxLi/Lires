@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHB
 from ..core.dataClass import DataList, DataTableList
 from ..core import globalVar as G
 
+from ._styleUtils import isThemeDarkMode
 from .widgets import RefWidgetBase
 from .serverPreset import ServerPresetEdit, ServerPresetChoice
 from ..confReader import getConf, getConfV, getStyleSheets, saveToConf, TMP_DB
@@ -208,6 +209,8 @@ class SetStyle(SubSettingsBase):
 		hbox.addWidget(self.cb)
 		self._frame.setLayout(hbox)
 	def confirm(self):
+		_dark = isThemeDarkMode()
+
 		selection = self.cb.currentText()
 		if selection != getConf()["stylesheet"]:
 			saveToConf(stylesheet = selection)
@@ -219,6 +222,9 @@ class SetStyle(SubSettingsBase):
 				with open(ss, "r", encoding="utf-8") as f:
 					app.setStyleSheet(f.read())
 			self.logger.info("Loaded new style: {}".format(getConf()["stylesheet"]))
+			if _dark != isThemeDarkMode():
+				self.warnDialogCritical(messege = "Some changes not applied", \
+							info_msg = "Please consider restarting the program")
 
 class SetAutoSaveComments(SubSettingsBase):
 	def initUI(self):
