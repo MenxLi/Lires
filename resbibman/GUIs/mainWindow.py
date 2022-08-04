@@ -15,7 +15,7 @@ from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
 from .guiInteractions import ChoicePromptGUI, ChoicePromptDialog
 from .helpWidget import HelpWidget
-from ._styleUtils import qIconFromSVG_autoBW
+from ._styleUtils import qIconFromSVG_autoBW, isThemeDarkMode
 
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
@@ -512,10 +512,14 @@ class MainWindow(MainWindowGUI):
             prefix = "ResBibMan-v{} (offline): ".format(VERSION)
         else:
             prefix = "ResBibMan-v{} (online): ".format(VERSION)
+        if not isThemeDarkMode():
+            font_color = "rgba(0,0,0,255)"
+        else:
+            font_color = "rgba(255,255,255,255)"
         color = {
-            "none" : "QStatusBar{background:rgba(0,0,0,0); color: rgba(0,0,0,255)}",
+            "none" : "QStatusBar{background:rgba(0,0,0,0); color: " + font_color + "}",
             "red" : "QStatusBar{background:rgba(255,0,0,150); color: rgba(255,255,255,255)}",
-            "green" : "QStatusBar{background:rgba(0,200,0,150); color: rgba(0,0,0,255)}",
+            "green" : "QStatusBar{background:rgba(0,200,0,150); color:" + font_color + "}",
             "blue" : "QStatusBar{background:rgba(0,0,255,150); color: rgba(255,255,255,255)}",
         }
         self.statusBar().setStyleSheet(color[bg_color])
