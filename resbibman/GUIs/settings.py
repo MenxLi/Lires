@@ -5,6 +5,7 @@ from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog, QDialog, QPlainTextEdit
 
 from ..core.dataClass import DataList, DataTableList
+from ..core import globalVar as G
 
 from .widgets import RefWidgetBase
 from .serverPreset import ServerPresetEdit, ServerPresetChoice

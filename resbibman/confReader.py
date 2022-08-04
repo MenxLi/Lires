@@ -1,4 +1,5 @@
 import os, json, tempfile, logging
+from .core import globalVar as G
 rbm_logger = logging.getLogger("rbm")
 
 join = os.path.join
@@ -112,9 +113,15 @@ def getStyleSheets() -> dict:
     return ss
 
 def getConf():
-    global CONF_FILE_PATH, CURR_PATH
-    with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
-        conf = json.load(conf_file)
+    global CONF_FILE_PATH, CURR_PATH, G
+    if not hasattr(G, "config"):
+        with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
+            conf = json.load(conf_file)
+            G.config = conf
+    else:
+        # Save configuration to global buffer
+        # To not repeatedly reading configuration file
+        conf = G.config
     conf["database"] = os.path.normpath(conf["database"])
     return conf
 
@@ -152,3 +159,7 @@ def saveToConf(**kwargs):
         conf_ori[k] = v
     with open(CONF_FILE_PATH, "w", encoding="utf-8") as conf_file:
         json.dump(conf_ori, conf_file, indent=1)
+
+    # Reset global configuration buffer
+    # So that next time the configuration will be read from file by getConf/getConfV
+    G.resetGlobalConfVar()
