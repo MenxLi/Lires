@@ -11,7 +11,7 @@ from .clInteractions import ChoicePromptCLI, ChoicePromptAbstract
 from .fileTools import FileGenerator, FileManipulator
 from .encryptClient import generateHexHash
 from .compressTools import decompressDir, compressDir
-from ..confReader import getConfV, TMP_DB, getConf, TMP_DIR
+from ..confReader import getConfV, TMP_DB, TMP_DIR, getServerURL
 
 if TYPE_CHECKING:
     from RBMWeb.backend.rbmlibs import DataPointInfo
@@ -22,8 +22,6 @@ class FileManipulatorVirtual(FileManipulator):
     Provide some API at start
     To download from server and pass control to local FileManipulator
     """
-    HOST_URL = "http://{}:{}".format(getConfV("host"), getConfV("port"))
-    POST_URL = f"{HOST_URL}/file"
     INTERM_ZIP_DIR = os.path.join(TMP_DIR, "fm_zips")
     if not os.path.exists(INTERM_ZIP_DIR):
         os.mkdir(INTERM_ZIP_DIR)
@@ -52,6 +50,14 @@ class FileManipulatorVirtual(FileManipulator):
     
     def _forceOffline(self):
         self.__force_offline = True
+
+    @property
+    def POST_URL(self) -> str:
+        return f"{getServerURL()}/file"
+
+    @property
+    def POST_HEX_KEY(self) -> str:
+        return generateHexHash(getConfV("access_key"))
     
     @property
     def v_info(self) -> Union[DataPointInfo, dict]:
@@ -151,7 +157,7 @@ class FileManipulatorVirtual(FileManipulator):
         interm_file_p = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
         compressDir(self.path, interm_file_p)
         post_args = {
-            "key": generateHexHash(getConfV("access_key")),
+            "key": self.POST_HEX_KEY,
             "cmd": "upload",
             "uuid": uuid
         }
@@ -178,7 +184,7 @@ class FileManipulatorVirtual(FileManipulator):
             return False
         uuid = self.uuid
         post_args = {
-            "key": generateHexHash(getConfV("access_key")),
+            "key": self.POST_HEX_KEY,
             "cmd": "download",
             "uuid": uuid
         }
@@ -208,7 +214,7 @@ class FileManipulatorVirtual(FileManipulator):
             return False
         uuid = self.uuid
         post_args = {
-            "key": generateHexHash(getConfV("access_key")),
+            "key": self.POST_HEX_KEY,
             "cmd": "delete",
             "uuid": uuid
         }
