@@ -76,7 +76,14 @@ _file_path = os.path.abspath(__file__)
 CURR_PATH = os.path.dirname(_file_path)
 #  CURR_PATH = os.path.abspath(os.path.realpath(CURR_PATH))
 CURR_PATH = os.path.abspath(CURR_PATH)
-CONF_FILE_PATH = join(CURR_PATH, "conf.json")
+
+if G.prog_args and G.prog_args.config_file:
+    CONF_FILE_PATH = os.path.abspath(G.prog_args.config_file)
+    if os.path.isdir(CONF_FILE_PATH):
+        CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "rbm-conf.json")
+else:
+    CONF_FILE_PATH = join(CURR_PATH, "conf.json")
+
 ICON_PATH = join(CURR_PATH, "icons")
 STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
 DOC_PATH = join(CURR_PATH, "docs")
@@ -117,20 +124,14 @@ def getConf():
     if not hasattr(G, "config"):
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
             conf = json.load(conf_file)
-            
-            # Fixed configuration
-            prog_args = G.prog_args
-            if prog_args:
-                fix_config = json.loads(prog_args.configure)
-                for k, v in fix_config.items():
-                    conf[k] = v
-
             G.config = conf
     else:
         # Save configuration to global buffer
         # To not repeatedly reading configuration file
         conf = G.config
     conf["database"] = os.path.normpath(conf["database"])
+    conf["database"] = conf["database"].replace("~", os.environ["HOME"])
+    conf["database"] = os.path.realpath(conf["database"])
     return conf
 
 def getDatabase(offline: bool):

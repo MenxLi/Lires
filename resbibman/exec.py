@@ -3,13 +3,12 @@ import shutil
 from PyQt6.QtWidgets import QApplication
 import os, sys
 from .core import globalVar as G
-from .GUIs.mainWindow import MainWindow
-from .core.utils import getDateTimeStr
-from .confReader import getConf, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE
 from .parser import parseArgs
-from .initLogger import initLogger
 
 def execProg():
+    from .GUIs.mainWindow import MainWindow
+    from .confReader import getStyleSheets, getConf, VERSION
+    from .core.utils import getDateTimeStr
     logger = logging.getLogger("rbm")
     logger.info("************Welcome to ResBibMan-v{}{}**************".format(VERSION, getDateTimeStr()))
     app = QApplication(sys.argv)
@@ -28,6 +27,9 @@ def run():
     parseArgs()
     args = G.prog_args
     assert args is not None     # type checking purpose
+
+    from .confReader import getConf, saveToConf, VERSION, _VERSION_HISTORIES, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE
+    from .initLogger import initLogger
 
     if not args.no_log:
         initLogger(args.log_level)

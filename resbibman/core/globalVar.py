@@ -1,6 +1,5 @@
 import sys, shutil, logging, os, argparse
 from typing import List, TypedDict, Optional
-from ..confReader import getConf
 
 __initialized: bool
 logger_rbm: logging.Logger
