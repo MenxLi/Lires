@@ -66,7 +66,8 @@ _VERSION_HISTORIES = [
     ("0.6.5", "Latex equation support; Toggle panel button only show one panel; Being able to export data; Log exceptions"),
     ("0.6.6", "Better log; Discussion tab; markdown color font style; More help options; Binary distribution"),
     ("0.6.7", "UI update: more help options | font size in configuration file | dark theme icon color | context menu separator; "\
-     "Better macos and windows file watcher; Kill statusbar updating thread after quitting")
+     "Better macos and windows file watcher; Kill statusbar updating thread after quitting"),
+    ("0.6.8", "Convert bibtex from nbib; Argparser update; Global configuration buffer; Switch server without restarting")
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
