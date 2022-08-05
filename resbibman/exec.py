@@ -1,15 +1,17 @@
-import argparse, subprocess, warnings, logging
+import subprocess, warnings, logging
 import shutil
-from logging.handlers import RotatingFileHandler
 from PyQt6.QtWidgets import QApplication
-import os, sys, platform
+import os, sys
 from .core import globalVar as G
 from .GUIs.mainWindow import MainWindow
-from .core.utils import getDateTimeStr, Logger, LoggingLogger
-from .confReader import getConf, getConfV, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, LOG_FILE, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR
+from .core.utils import getDateTimeStr
+from .confReader import getConf, getStyleSheets, saveToConf, VERSION, _VERSION_HISTORIES, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE
+from .parser import parseArgs
+from .initLogger import initLogger
 
-def execProg_():
-    print("************Welcome to ResBibMan-v{}**************".format(VERSION))
+def execProg():
+    logger = logging.getLogger("rbm")
+    logger.info("************Welcome to ResBibMan-v{}{}**************".format(VERSION, getDateTimeStr()))
     app = QApplication(sys.argv)
     ss = getStyleSheets()[getConf()["stylesheet"]]
     if ss != "":
@@ -22,62 +24,13 @@ def execProg_():
 
     return EXIT_CODE
 
-def execProg(log_level = "INFO"):
-    """
-    Log will be recorded in LOG_FILE
-    """
-    logger = logging.getLogger("rbm")
-    #  logger.setLevel(getattr(logging, log_level))
-    logger.setLevel(logging.DEBUG)
-
-    # StreamHandler show user defined log level
-    s_handler = logging.StreamHandler(sys.stdout)
-    s_handler.setLevel(getattr(logging, log_level))
-    fomatter = logging.Formatter('%(asctime)s (%(levelname)s) - %(message)s')
-    s_handler.setFormatter(fomatter)
-    logger.addHandler(s_handler)
-
-    # FileHandler show DEBUG log level
-    f_handler = RotatingFileHandler(LOG_FILE, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
-    f_handler.setLevel(logging.DEBUG)
-    fomatter = logging.Formatter('%(asctime)s (%(levelname)s) - %(message)s')
-    f_handler.setFormatter(fomatter)
-    logger.addHandler(f_handler)
-
-    # re-direct stdout and error
-    sys.stdout = LoggingLogger(logger, logging.INFO, write_to_terminal = False)
-    sys.stderr = LoggingLogger(logger, logging.ERROR, write_to_terminal = False)
-    # re-direct unhandled exceptions
-    def handle_exception(exc_type, exc_value, exc_traceback):
-        if issubclass(exc_type, KeyboardInterrupt):
-            sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        else:
-            logger.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
-        logger.info("Exit.")
-        sys.exit()
-    sys.excepthook = handle_exception
-
-    print("\n\n============={}=============\n".format(getDateTimeStr()))
-    return execProg_()
-
 def run():
-    _description = f"\
-Reseach bibiography manager (Resbibman) and Reseach bibiography manager Web (RBMWeb) \
-are literature managers\
-The configration file for the software is at {CONF_FILE_PATH},\n\
-For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
-    "
-    parser = argparse.ArgumentParser(description=_description)
-    parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
-    parser.add_argument("-s", "--server", action = "store_true", help = "Start server (RBMWeb) and resbibman GUI")
-    parser.add_argument("-S", "--server_headless", action = "store_true", help = "Start server (RBMWeb) without resbibman GUI")
-    parser.add_argument("-l", "--print_log", action = "store_true", help = "Print log and exit")
-    parser.add_argument("-L", "--log_level", action= "store", type = str, default="INFO", help = "log level")
-    parser.add_argument("-c", "--clear_cache", action = "store_true", help = "clear cache and exit")
-    parser.add_argument("--no_log", action = "store_true", help = "Open the program without recording log, stdout/stderr will be shown in terminal")
-    parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
-    parser.add_argument("--reset_conf", action = "store_true", help = "Reset configuration and exit")
-    args = parser.parse_args()
+    parseArgs()
+    args = G.prog_args
+    assert args is not None     # type checking purpose
+
+    if not args.no_log:
+        initLogger(args.log_level)
 
     procs = []
 
@@ -126,29 +79,30 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
         else:
             print("abort.")
         NOT_RUN = True
-    
-    if args.server_headless:
-        NOT_RUN = True
-        args.server = True
-
-    if args.server:
-        from RBMWeb.server import startServerProcess
-        procs.append(startServerProcess())
 
     if args.reset_conf:
         from resbibman.cmdTools.generateDefaultConf import generateDefaultConf
         generateDefaultConf()
         NOT_RUN = True
 
-    if not NOT_RUN:
-        if args.no_log:
-            execProg_()
-        else:
-            execProg(args.log_level)
+    if NOT_RUN:
+        exit()
 
-    if args.server:
-        for proc in procs:
-            proc.join()
+    # ======== Parse subcommands ========
+
+    if args.subparser is None:
+        # Set default to GUI
+        args.subparser = "gui"
+
+    if args.subparser == "server":
+        from RBMWeb.server import startServerProcess
+        procs.append(startServerProcess(args.port))
+
+    if args.subparser == "gui":
+        execProg()
+
+    for proc in procs:
+        proc.join()
 
 if __name__=="__main__":
     run()

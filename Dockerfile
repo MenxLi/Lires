@@ -17,7 +17,7 @@ deb-src https://mirrors.ustc.edu.cn/ubuntu/ jammy-proposed main restricted unive
 
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get install apt-utils
+RUN apt-get install -y apt-utils
 RUN apt-get install -y curl vim python3 python3-pip
 RUN apt-get install -y python3-pyqt5 libgl1-mesa-glx libnss3 libasound2 libxkbfile1
 
@@ -33,4 +33,4 @@ RUN rbm-resetconf
 # RUN rbm-keyman -r $rbm_key
 
 EXPOSE 8080
-ENTRYPOINT ["resbibman", "-S"]
+ENTRYPOINT ["resbibman", "server"]

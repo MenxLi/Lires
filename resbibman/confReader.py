@@ -117,6 +117,14 @@ def getConf():
     if not hasattr(G, "config"):
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
             conf = json.load(conf_file)
+            
+            # Fixed configuration
+            prog_args = G.prog_args
+            if prog_args:
+                fix_config = json.loads(prog_args.configure)
+                for k, v in fix_config.items():
+                    conf[k] = v
+
             G.config = conf
     else:
         # Save configuration to global buffer
