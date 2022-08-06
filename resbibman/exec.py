@@ -38,6 +38,11 @@ def run():
 
     NOT_RUN = False     # Indicates whether to run main GUI
 
+    if args.reset_conf:
+        from resbibman.cmdTools.generateDefaultConf import generateDefaultConf
+        generateDefaultConf()
+        NOT_RUN = True
+
     if not os.path.exists(CONF_FILE_PATH):
         subprocess.check_call("rbm-resetConf")  # Installed with setup.py
 
@@ -80,11 +85,6 @@ def run():
             print("success.")
         else:
             print("abort.")
-        NOT_RUN = True
-
-    if args.reset_conf:
-        from resbibman.cmdTools.generateDefaultConf import generateDefaultConf
-        generateDefaultConf()
         NOT_RUN = True
 
     if NOT_RUN:
