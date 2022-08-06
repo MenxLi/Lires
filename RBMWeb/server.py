@@ -261,6 +261,8 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
         elif cmd == "delete":
             if uuid in db:
                 db.delete(uuid)
+            else:
+                print(f"{uuid} not in database, thus not being deleted")
 
 class DiscussionHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def get(self, file_uid: str):

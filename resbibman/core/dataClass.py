@@ -507,10 +507,9 @@ class DataBase(dict):
             if not self.offline:
                 # If remote has this data, delete remote as well, 
                 # otherwise it will be downloaded again when sync
-                if dp.uuid in self.remote_info:     # Check if it is in remote
-                    if not dp.fm._deleteRemote():
-                        self.logger.info("Oops, the data on the server side hasn't been deleted")
-                        self.logger.warn("You may need to sync->delete again for {}".format(dp))
+                if not dp.fm._deleteRemote():
+                    self.logger.info("Oops, the data on the server side may not be deleted")
+                    self.logger.warn("You may need to sync->delete again for {}".format(dp))
             del self[uuid]
 
     def watchFileChange(self, v: List[Union[DataPoint, str]]):
