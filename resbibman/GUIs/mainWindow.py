@@ -19,7 +19,7 @@ from ._styleUtils import qIconFromSVG_autoBW, isThemeDarkMode
 
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
-from ..core.bibReader import BibParser
+from ..core.bibReader import BibParser, BibConverter
 from ..core.utils import openFile, ProgressBarCustom
 from ..core.dataClass import DataTags, DataBase, DataPoint
 from ..confReader import DOC_PATH, getConf, ICON_PATH, VERSION, getConfV, getDatabase
@@ -358,7 +358,8 @@ class MainWindow(MainWindowGUI):
         openFile(database)
     
     def openAddfileSelectionDialog(self):
-        extensions = getConf()["accepted_extensions"]
+        bib_extensions = [".bib", ".nbib"]
+        extensions = getConf()["accepted_extensions"] + bib_extensions
         extension_filter = "({})".format(" ".join(["*"+i for i in extensions]))
         fname = QFileDialog.getOpenFileName(self, caption="Select papers", filter=extension_filter)[0]
         self.addFilesToDatabaseByURL([fname])
@@ -372,7 +373,22 @@ class MainWindow(MainWindowGUI):
         curr_selected_tags = self.getCurrentSelectedTags()
         curr_total_tags = self.getTotalTags()
         for f in urls:
-            if f == "":
+            # if bib file
+            if f.endswith(".bib"):
+                with open(f) as fp:
+                    self.addFileToDataBaseByBib(fp.read())
+                continue
+            # if nbib file
+            elif f.endswith(".nbib"):
+                converter = BibConverter()
+                with open(f) as fp:
+                    nb = fp.read().strip("\n ") + "\n"
+                    bb = converter.fromNBib(nb)
+                    self.addFileToDataBaseByBib(bb)
+                continue
+
+            # else open bib_quary GUI
+            elif f == "":
                 self.bib_quary = BibQuery(self, None, tag_data=curr_selected_tags, tag_total=curr_total_tags)
             else:
                 self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
