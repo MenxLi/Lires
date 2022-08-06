@@ -141,7 +141,7 @@ class FileGenerator(FileGeneratorBase):
         else:
             # single file, just change name
             shutil.copy2(src_file, dst_file_base + file_extension)
-            os.remove(src_file)
+            #  os.remove(src_file)
 
     def _moveFile(self):
         if self.file_path is None:
