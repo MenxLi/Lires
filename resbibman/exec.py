@@ -10,7 +10,7 @@ def execProg():
     from .confReader import getStyleSheets, getConf, VERSION
     from .core.utils import getDateTimeStr
     logger = logging.getLogger("rbm")
-    logger.info("************Welcome to ResBibMan-v{}{}**************".format(VERSION, getDateTimeStr()))
+    logger.info("************Welcome to ResBibMan-v{} | {}**************".format(VERSION, getDateTimeStr()))
     app = QApplication(sys.argv)
     ss = getStyleSheets()[getConf()["stylesheet"]]
     if ss != "":
@@ -28,6 +28,7 @@ def run():
     args = G.prog_args
     assert args is not None     # type checking purpose
 
+    # Read configuration file after parse agruments
     from .confReader import getConf, saveToConf, VERSION, _VERSION_HISTORIES, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE
     from .initLogger import initLogger
 
@@ -38,13 +39,15 @@ def run():
 
     NOT_RUN = False     # Indicates whether to run main GUI
 
+    if not os.path.exists(CONF_FILE_PATH):
+        #  subprocess.check_call("rbm-resetConf")  # Installed with setup.py
+        print("Generating default configuration...")
+        args.reset_conf = True
+
     if args.reset_conf:
         from resbibman.cmdTools.generateDefaultConf import generateDefaultConf
         generateDefaultConf()
         NOT_RUN = True
-
-    if not os.path.exists(CONF_FILE_PATH):
-        subprocess.check_call("rbm-resetConf")  # Installed with setup.py
 
     if not os.path.exists(getConf()["database"]):
         warnings.warn("Database not exists, default database path is set. \

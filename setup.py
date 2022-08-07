@@ -44,7 +44,6 @@ setup(
     entry_points = {
         "console_scripts":[
             "resbibman=resbibman.exec:run",
-            "rbm-resetConf=resbibman.cmdTools.generateDefaultConf:run",
             "rbm-resetconf=resbibman.cmdTools.generateDefaultConf:run",
             "rbm-collect=resbibman.cmdTools.rbmCollect:main",
             "rbm-keyman=RBMWeb.cmd.manageKey:run",
