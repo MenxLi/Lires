@@ -191,8 +191,8 @@ class FileManipulator:
     logger = G.logger_rbm
     LOG_TOLERANCE_INTERVAL = 0.5
     try:
-        _WATCHING_EXT = getConfV("accepted_extensions") + ["json", "md", "bib"]
-        WATCHING_EXT = list(set(["*.{}".format(i) for i in _WATCHING_EXT]))
+        _WATCHING_EXT = getConfV("accepted_extensions") + [".json", ".md", ".bib"]
+        WATCHING_EXT = list(set(["*{}".format(i) for i in _WATCHING_EXT]))
     except FileNotFoundError:
         # when generating configuration file
         pass
@@ -237,17 +237,17 @@ class FileManipulator:
         file observer thread
         """
         def _onCreated(event):
-            self.logger.debug(f"file_ob (fm) - {event.src_path} created.")
-            self._log()
+            if self._log():
+                self.logger.debug(f"file_ob (fm) - {event.src_path} created.")
         def _onDeleted(event):
-            self.logger.debug(f"file_ob (fm) - {event.src_path} deleted.")
-            self._log()
+            if self._log():
+                self.logger.debug(f"file_ob (fm) - {event.src_path} deleted.")
         def _onModified(event):
-            self.logger.debug(f"file_ob (fm) - {event.src_path} modified.")
-            self._log()
+            if self._log():
+                self.logger.debug(f"file_ob (fm) - {event.src_path} modified.")
         def _onMoved(event):
-            self.logger.debug(f"file_ob (fm) - {event.src_path} moved to {event.dest_path}.")
-            self._log()
+            if self._log():
+                self.logger.debug(f"file_ob (fm) - {event.src_path} moved to {event.dest_path}.")
 
         # Exclude info path and main directory to prevent circular call
         #  event_handler = PatternMatchingEventHandler(patterns = ["{}{}*".format(self.path, os.sep)], \
@@ -354,7 +354,6 @@ class FileManipulator:
         dst_base = os.path.join(self.path, fn_base)
         FileGenerator.moveDocument(extern_file_p, dst_base)
         del extern_file_p
-        #  self._log()
         return True
     
     def getDocSize(self) -> float:
@@ -500,12 +499,12 @@ class FileManipulator:
             self.file_ob.start()
             self.logger.debug(f"setWatch (fm): Started file observer for {self.uuid}")
 
-    def _log(self):
+    def _log(self) -> bool:
         """log the modification info info file"""
         time_now = time.time()
         if time_now - self._time_last_log < self.LOG_TOLERANCE_INTERVAL:
             # Prevent multiple log at same time
-            return
+            return False
         with open(self.info_p, "r", encoding="utf-8") as f:
             info = json.load(f)
         info["time_modify"] = TimeUtils.nowStamp()
@@ -516,3 +515,4 @@ class FileManipulator:
 
         self._time_last_log = time_now
         self.logger.debug("_log (fm): {}".format(self.uuid))
+        return True
