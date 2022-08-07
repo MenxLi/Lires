@@ -67,7 +67,8 @@ _VERSION_HISTORIES = [
     ("0.6.6", "Better log; Discussion tab; markdown color font style; More help options; Binary distribution"),
     ("0.6.7", "UI update: more help options | font size in configuration file | dark theme icon color | context menu separator; "\
      "Better macos and windows file watcher; Kill statusbar updating thread after quitting"),
-    ("0.6.8", "Convert bibtex from nbib; Argparser update; Global configuration buffer; Switch server without restarting")
+    ("0.6.8", "Convert bibtex from nbib; Argparser update; Global configuration buffer; Switch server without restarting"),
+    ("0.6.9", "Being able to add bib&nbib file; Not deleting original document when adding to database; Bug fixes: mayn not delete remote file"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
