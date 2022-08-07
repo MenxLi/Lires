@@ -115,7 +115,7 @@ def getStyleSheets() -> dict:
     for f_ in os.listdir(STYLESHEET_PATH):
         k = os.path.splitext(f_)[0]
         v = join(STYLESHEET_PATH, f_)
-        if os.path.isfile(v):
+        if os.path.isfile(v) and v.endswith(".qss"):
             ss[k] = v
     ss["<None>"] = ""
     return ss
@@ -131,7 +131,6 @@ def getConf():
         # To not repeatedly reading configuration file
         conf = G.config
     conf["database"] = os.path.normpath(conf["database"])
-    conf["database"] = conf["database"].replace("~", os.environ["HOME"])
     conf["database"] = os.path.realpath(conf["database"])
     return conf
 

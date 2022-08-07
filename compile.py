@@ -12,13 +12,14 @@ data_path = [
 ( "resbibman/docs/*", "./resbibman/docs" ),
 ( "resbibman/icons/*", "./resbibman/icons" ),
 ( "resbibman/assets/*", "./resbibman/assets" ),
-( "resbibman/stylesheets/*", "./resbibman/stylesheets" ),
+( "resbibman/stylesheets/*.qss", "./resbibman/stylesheets" ),
+( "resbibman/stylesheets/Breeze", "./resbibman/stylesheets/Breeze" ),
 
 ( "RBMWeb/backend/config.json", "./RBMWeb/backend" ),
 ( "RBMWeb/frontend/*", "./RBMWeb/frontend" ),
 ]
 
-cmd = ["pyinstaller", "--noconfirm", "-i", "./resbibman/icons/resbibmanicon/favicon.ico", "./__main__.py", "--additional-hooks-dir=pyinstallerHooks"]
+cmd = ["pyinstaller", "--noconfirm", "-w", "-i", "./resbibman/icons/resbibmanicon/favicon.ico", "./__main__.py", "--additional-hooks-dir=pyinstallerHooks"]
 
 for himp in hidden_imports:
     cmd += ["--hidden-import", himp]
