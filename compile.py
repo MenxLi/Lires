@@ -9,9 +9,13 @@ hidden_imports = ["PyQt6.QtWebChannel", "PyQt6.QtNetwork", "PyQt6.QtWebEngineCor
 
 data_path = [
 ( "resbibman/conf.json", "./resbibman" ),
-( "resbibman/docs/*", "./resbibman/docs" ),
 ( "resbibman/icons/*", "./resbibman/icons" ),
 ( "resbibman/assets/*", "./resbibman/assets" ),
+
+( "resbibman/docs/*.md", "./resbibman/docs" ),
+( "resbibman/docs/bibtexTemplates/*", "./resbibman/docs/bibtexTemplates" ),
+( "resbibman/docs/imgs/*", "./resbibman/docs/imgs" ),
+
 ( "resbibman/stylesheets/*.qss", "./resbibman/stylesheets" ),
 ( "resbibman/stylesheets/Breeze", "./resbibman/stylesheets/Breeze" ),
 
