@@ -299,7 +299,8 @@ class FileManipulator:
         except NameError:
             # No file served
             self.file_p = None
-        if not os.path.exists(self.folder_p):
+        if os.path.exists(self.bib_p) and os.path.exists(self.info_p) and \
+            not os.path.exists(self.folder_p):
             self.logger.debug("Miscellaneous folder for does not exists, and is now created: {}"\
                 .format(self.folder_p))
             os.mkdir(self.folder_p)
