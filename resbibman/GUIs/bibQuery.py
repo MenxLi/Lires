@@ -36,7 +36,7 @@ class BibQueryGUI(QDialog, WidgetBase):
         #  self.bib_edit = QTextEdit()
         self.bib_edit = BibEditor()
         self.ok_button = QPushButton("OK")
-        self.cancel_button = QPushButton("Canel")
+        self.cancel_button = QPushButton("Cancel")
 
         self.tag_prompt_lbl = QLabel("Edit tags for this file:")
         self.tag_edit = TagEditor(tag_data= self.init_tag_data, tag_total=self.init_tag_total)
