@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QButtonGroup, QDialog, QPushButton, QTextEdit, QVBox
 from PyQt6 import QtCore
 from .widgets import WidgetBase
 
-from ..confReader import DOC_PATH, BIB_TEMPLATE_PATH
+from ..confReader import BIB_TEMPLATE_PATH
 from ..core.utils import sssUUID
 from ..core.bibReader import BibConverter
 

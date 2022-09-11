@@ -1,8 +1,8 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List
+from typing import List
 import json
 from ..confReader import getConfV, saveToConf
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QPushButton, QComboBox
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QPushButton, QComboBox
 from PyQt6.QtCore import pyqtSignal
 
 class ServerPresetEdit(QDialog):

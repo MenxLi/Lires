@@ -4,16 +4,16 @@ from PyQt6 import QtGui
 from PyQt6.QtGui import QIcon, QKeySequence
 from PyQt6.QtWidgets import QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
 from PyQt6.QtGui import QAction
-from PyQt6.QtCore import Qt, QThreadPool, pyqtSignal
+from PyQt6.QtCore import Qt, QThreadPool
 
-from .widgets import RefWidgetBase, WidgetBase
+from .widgets import RefWidgetBase
 from .fileInfo import FileInfo
 from .fileTags import FileTag
 from .fileSelector import FileSelector
 from .bibQuery import BibQuery
 from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
-from .guiInteractions import ChoicePromptGUI, ChoicePromptDialog
+from .guiInteractions import ChoicePromptGUI
 from .helpWidget import HelpWidget
 from ._styleUtils import qIconFromSVG_autoBW, isThemeDarkMode
 

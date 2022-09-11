@@ -1,13 +1,11 @@
-import os, shutil, uuid, time, threading, string
+import os, shutil, uuid, time, threading
 from typing import Union, Literal
 import warnings
 import requests
 from PyQt6 import QtCore, QtGui
-from PyQt6.QtCore import QByteArray
 from PyQt6.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLayout, QFrame, QHBoxLayout, QLineEdit, QWidget
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtNetwork import QNetworkCookie
-from PyQt6.QtGui import QAction, QKeySequence, QShortcut
+from PyQt6.QtGui import QKeySequence, QShortcut
 from .widgets import MainWidgetBase
 from ..confReader import ICON_PATH, getConfV, TMP_COVER, getServerURL
 from ..core.fileTools import FileManipulator

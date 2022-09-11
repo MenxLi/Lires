@@ -1,6 +1,6 @@
 import time, logging
 from typing import List
-from PyQt6.QtWidgets import QDialog, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QWidget
+from PyQt6.QtWidgets import QDialog, QPushButton, QVBoxLayout, QHBoxLayout, QLabel
 from PyQt6.QtCore import pyqtSignal, QObject
 from ..core.clInteractions import ChoicePromptAbstract
 

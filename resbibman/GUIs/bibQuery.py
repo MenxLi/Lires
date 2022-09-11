@@ -1,10 +1,9 @@
 """
 The quary dialog for bibtex input
 """
-import os, typing, difflib
+import os, typing
 import pybtex.scanner
-from PyQt6.QtWidgets import QLabel, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QDialog
-from PyQt6.QtWidgets import QSizePolicy
+from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QDialog
 from PyQt6 import QtCore
 
 from ..core.dataClass import DataPoint, DataTags, DataBase
@@ -12,8 +11,7 @@ from .tagEditor import TagEditor
 from ..core.bibReader import BibParser
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
-from ..confReader import getConf, DOC_PATH, getDatabase
-from ..core.utils import sssUUID
+from ..confReader import getDatabase
 from .widgets import WidgetBase
 from .bibtexEditor import BibEditor
 

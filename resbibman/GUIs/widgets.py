@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .mainWindow import MainWindow
     from .fileInfo import FileInfo
     from .fileSelector import FileSelector
-    from .tagSelector import TagSelector
+    from .fileTags import FileTag
 
 class WidgetBase:
     def __init__(self, *args, **kwargs) -> None:
@@ -122,10 +122,10 @@ class RefWidgetBase(QWidget, WidgetBase):
         assert self._info_panel is not None, "Info panel not set, use setInfoPanel to set the panel"
         return self._info_panel
 
-    def setTagPanel(self, panel: TagSelector):
+    def setTagPanel(self, panel: FileTag):
         self._tag_panel = panel
     
-    def getTagPanel(self) -> TagSelector:
+    def getTagPanel(self) -> FileTag:
         assert self._tag_panel is not None, "Tag panel not set, use setTagPanel to set the panel"
         return self._tag_panel
 

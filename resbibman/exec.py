@@ -1,4 +1,4 @@
-import subprocess, warnings, logging
+import warnings, logging
 import shutil
 from PyQt6.QtWidgets import QApplication
 import os, sys

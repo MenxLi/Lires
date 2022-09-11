@@ -1,9 +1,8 @@
 """
 The tools that deals with files in the database
 """
-from distutils import extension
 from pathlib import Path
-import os, shutil, json, platform, typing, uuid, logging, time, datetime
+import os, shutil, json, platform, typing, uuid, time
 from typing import List, Union, TypedDict
 import warnings
 from . import globalVar as G

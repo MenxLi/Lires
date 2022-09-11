@@ -1,11 +1,9 @@
 from __future__ import annotations
-import typing, json
 import warnings, os, shutil, time
 from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog, QDialog, QPlainTextEdit
+from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog
 
 from ..core.dataClass import DataList, DataTableList
-from ..core import globalVar as G
 
 from ._styleUtils import isThemeDarkMode
 from .widgets import RefWidgetBase

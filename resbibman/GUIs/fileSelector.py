@@ -3,14 +3,13 @@ from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
 from PyQt6.QtGui import QAction, QShortcut
 from PyQt6 import QtGui, QtCore
-import typing, os, shutil, copy, functools
+import typing, os, copy, functools
 from typing import List, overload, Union, Literal, Callable
 
 from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase
 from .bibtexEditor import BibEditorWithOK
 from ..core import globalVar as G
-from ..core.fileTools import FileManipulator
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from ..core.utils import copy2clip, openFile
 from ..confReader import getConf, getConfV
@@ -175,7 +174,7 @@ class FileSelector(FileSelectorGUI):
 
     def onSearchTextChange(self):
         text = self.search_edit.text()
-        self.loadValidData(tags = set(getConf()["default_tags"]))
+        self.loadValidData(tags = DataTags(getConf()["default_tags"]))
         curr_data = self.getCurrentSelection()
         if not curr_data is None:
             self.selection_changed.emit(curr_data)
@@ -191,6 +190,9 @@ class FileSelector(FileSelectorGUI):
     
     def copyCurrentSelectionBib(self):
         selected = self.getCurrentSelection(return_multiple=True)
+        if not selected:
+            self.logger.debug("Can't copy bib of selected: None")
+            return
         bibs =[s.fm.readBib() for s in selected]  
         if len(bibs) > 1:
             bibs = ",\n".join(bibs)
@@ -200,15 +202,19 @@ class FileSelector(FileSelectorGUI):
 
     def copyCurrentSelectionCitation(self):
         selected = self.getCurrentSelection(return_multiple=True)
+        if not selected:
+            self.logger.debug("Can't copy citation of selected: None")
+            return
         citations = [x.stringCitation() for x in selected]
         copy2clip("\""+"\n".join(citations)+"\"")
 
     def editBibtex(self):
-        selected = self.getCurrentSelection(return_multiple=False)
+        selected_ = self.getCurrentSelection(return_multiple=False)
 
-        if selected is None:
+        if selected_ is None:
+            self.logger.debug("Can't edit bibtex of selected: None")
             return
-        selected: DataPoint
+        selected: DataPoint = selected_
         self.logger.debug("Editing bibtex for {}".format(selected.uuid))
         def onConfirm(txt: str):
             new_base = selected.changeBib(txt)
@@ -383,7 +389,7 @@ class FileListModel(QtCore.QAbstractListModel):
     delete_current_selected = QtCore.pyqtSignal(DataPoint)
     def __init__(self, datalist: DataList) -> None:
         super().__init__()
-        self.datalist = copy.deepcopy(datalist)
+        self.datalist: DataList = copy.deepcopy(datalist)
     
     def data(self, index, role):
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
@@ -406,7 +412,7 @@ class FileListModel(QtCore.QAbstractListModel):
         self.layoutChanged.emit()
     
     def assignData(self, datalist: typing.List[DataPoint]):
-        self.datalist = copy.deepcopy(datalist)
+        self.datalist = DataList(datalist)
         self.layoutChanged.emit()
     
     def sortBy(self, sort_method: str):
