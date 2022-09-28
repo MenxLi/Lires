@@ -165,7 +165,8 @@ class FileSelector(FileSelectorGUI):
         if screen_pattern != "":
             valid_data = DataList([i for i in valid_data if i.screenByPattern(screen_pattern)])
         sort_method = getConf()["sort_method"]
-        valid_data.sortBy(sort_method)
+        sort_reverse = getConf()["sort_reverse"]
+        valid_data.sortBy(sort_method, reverse=sort_reverse)
         self.data_model.assignData(valid_data) 
         if hint:
             self.logger.debug("Data loaded, tags: {tags}, sorting method: {sort_method}, screen_pattern: {screen_pattern}".\
@@ -436,11 +437,11 @@ class FileTableModel(QtCore.QAbstractTableModel):
         self.datalist = DataTableList(datalist)
         self.layoutChanged.emit()
 
-    def sortBy(self, sort_method: str):
+    def sortBy(self, sort_method: str, reverse: bool):
         """
         - sort_method: refer to static items in backend.dataClass.DataList
         """
-        self.datalist.sortBy(sort_method)
+        self.datalist.sortBy(sort_method, reverse = reverse)
 
     def add(self, dp: DataPoint):
         self.datalist.append(dp)

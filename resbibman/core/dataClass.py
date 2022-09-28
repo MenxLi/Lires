@@ -325,15 +325,15 @@ class DataList(list):
     def __init__(self, *args, **kwargs):
         return super().__init__(*args, **kwargs)
 
-    def sortBy(self, mode):
+    def sortBy(self, mode, reverse: bool = False):
         if mode == self.SORT_AUTHOR:
-            return self.sort(key = lambda x: x.authors[0])
+            return self.sort(key = lambda x: x.authors[0], reverse = reverse)
         elif mode == self.SORT_YEAR:
-            return self.sort(key = lambda x: int(x.year))
+            return self.sort(key = lambda x: int(x.year), reverse = reverse)
         elif mode == self.SORT_TIMEADDED:
-            return self.sort(key = lambda x: x.time_added)
+            return self.sort(key = lambda x: x.time_added, reverse = reverse)
         elif mode == self.SORT_TIMEOPENED:
-            return self.sort(key = lambda x: x.time_modified)
+            return self.sort(key = lambda x: x.time_modified, reverse = reverse)
 
     def reloadFromFile(self, idx):
         self[idx].reload()

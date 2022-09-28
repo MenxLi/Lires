@@ -24,6 +24,7 @@ def generateDefaultConf():
 
 		default_tags = [],
 		sort_method = DataTableList.SORT_TIMEADDED,
+		sort_reverse = False,
 		table_headers = [ 
 				DataTableList.HEADER_FILESTATUS,
 				DataTableList.HEADER_TITLE,

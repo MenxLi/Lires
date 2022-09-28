@@ -143,18 +143,25 @@ class SetSortingMethod(SubSettingsBase):
 		self.cb = QComboBox(self)
 		self.cb.addItems([DataList.SORT_AUTHOR, DataList.SORT_TIMEADDED, DataList.SORT_YEAR])
 		self.cb.setCurrentText(getConf()["sort_method"])
+		
+		self.ck = QCheckBox("Reverse", self)
+		self.ck.setChecked(getConf()["sort_reverse"])
+
 		self.lbl = QLabel("Sort by: ")
 		hbox = QHBoxLayout()
-		hbox.addWidget(self.lbl)
-		hbox.addWidget(self.cb)
+		hbox.addWidget(self.lbl, 1)
+		hbox.addWidget(self.ck, 0)
+		hbox.addWidget(self.cb, 1)
 		self._frame.setLayout(hbox)
 	
 	def confirm(self):
 		selection = self.cb.currentText()
-		if selection != getConf()["sort_method"]:
-			saveToConf(sort_method = selection)
-			self.getSelectPanel().data_model.sortBy(selection)
-			self.logger.info("Sorting method changed to {}". format(getConf()["sort_method"]))
+		reverse = self.ck.isChecked()
+		if selection != getConf()["sort_method"] or reverse != getConf()["sort_reverse"]:
+			saveToConf(sort_method = selection, sort_reverse = reverse)
+			self.getSelectPanel().data_model.sortBy(selection, reverse = reverse)
+			self.logger.info("Sorting method changed to {} (Reverse: {})"\
+					.format(getConf()["sort_method"], getConf()["sort_reverse"]))
 
 class SetTableHeader(SubSettingsBase):
 	def initUI(self):
