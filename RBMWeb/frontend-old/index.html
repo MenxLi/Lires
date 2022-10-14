@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<!-- 
+    File name: index.html
+    Author: Li, Mengxun
+    Email: mengxunli@whu.edu.cn
+    Date created: Feb 11, 2022
+-->
+<html>
+    <head>
+        <title>RRM Web viewer</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script>
+            const host = window.location.hostname;
+            const port = window.location.port;
+            sessionStorage.setItem("RBMServerAddr", host);
+            sessionStorage.setItem("RBMServerPort", port);
+        </script>
+    </head>
+    <body>
+
+        <script src="./libs/auth.js" type="module"></script>
+
+        <div id="main">
+            <div id="banner">
+                <!-- <img id="refresh" class="icon_filter" src="/icon/refresh-24px.svg" alt=""> -->
+                <input id="refresh_btn" class="icon_filter" type="image" src="./icon/refresh-24px.svg">
+                <div class="search_bar">
+                    <!-- <font color="#ffffff">Search: </font> -->
+                    <select class="search_bar" id="search_kw" name="keywords" placeholder="Search">
+                    </select>
+                    <input class="search_bar" type="text">
+                </div>
+            
+            </div>
+            <table id="main_table">
+                <tr>
+                    <td id="tags_panel_td">
+                        <div id="tags_frame" class="panel"> </div>
+                    </td>
+                    <td id="selector_panel_td">
+                        <div id="selector_frame" class="panel"></div>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+        <script src="./assets/app.js" type="module"></script>
+    </body>
+</html>

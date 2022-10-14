@@ -1,0 +1,41 @@
+
+div.search_bar {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+}
+
+input.search_bar{
+    margin-left: 10px;
+    width: 100%;
+}
+
+div.dataEntry {
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: #cde;
+    border-style: solid;
+
+    background-color: #def;
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+div.yearAuthor {
+    background-color: white;
+    padding: 5px;
+    margin-right: 10px;
+    border-radius: 5px;
+    color: #888;
+    min-width: 150px;
+    max-width: 200px;
+}

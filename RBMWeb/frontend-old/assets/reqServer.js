@@ -10,14 +10,16 @@ const SERVER_PORT = sessionStorage.getItem("RBMServerPort")
 function reqFileList(tags, callbacks){
     let queryKey;
     if (Array.prototype.isPrototypeOf(tags) && tags.length === 0){
-        queryKey = "%";
+        queryKey = "";
     }
     else {
         queryKey = tags.join("&&");
     }
     const xhr = new XMLHttpRequest();
-    const reqStr =  `http://${SERVER_ADDR}:${SERVER_PORT}/filelist/${queryKey}`;
-    console.log(reqStr)
+    // const reqStr =  `http://${SERVER_ADDR}:${SERVER_PORT}/filelist/${queryKey}`;
+    let reqStr = new URL(`http://${SERVER_ADDR}:${SERVER_PORT}/filelist`);
+    reqStr.searchParams.append("tags", queryKey);
+    console.log(reqStr.toString());
     xhr.open("GET", reqStr, true);
     xhr.responseType = "json"
     xhr.onreadystatechange = function(){

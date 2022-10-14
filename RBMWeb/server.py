@@ -8,6 +8,7 @@ from RBMWeb.backend.confReader import getRBMWebConf
 from RBMWeb.backend.encryptServer import queryHashKey
 from RBMWeb.backend.discussUtils import DiscussDatabase, DiscussLine
 
+import tornado.autoreload
 import tornado.ioloop
 import tornado.web
 import http.cookies
@@ -56,7 +57,7 @@ class RequestHandlerBase():
         self.set_header("Access-Control-Expose-Headers", "*")
 
 class FileListHandler(tornado.web.RequestHandler, RequestHandlerBase):
-    def get(self, tags:str):
+    def get(self):
         """
         Args:
             tags (str): tags should be "%" or split by "&&"
@@ -67,7 +68,8 @@ class FileListHandler(tornado.web.RequestHandler, RequestHandlerBase):
         # self.checkKey()
 
         self.setDefaultHeader()
-        if tags == "%":
+        tags = self.get_argument("tags")
+        if tags == "":
             tags = []
         else:
             tags = tags.split("&&")
@@ -358,12 +360,14 @@ class Application(tornado.web.Application):
     def __init__(self) -> None:
         root = os.path.dirname(__file__)
         frontend_root = os.path.join(root, "frontend")
+        frontend_root_old = os.path.join(root, "frontend-old")
         handlers = [
             (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": frontend_root}),
-            (r"/main/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
+            (r"/frontend/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
+            (r"/main/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root_old, "default_filename" : "index.html"}),
             (r"/doc/(.*)", DocHandler),
             (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
-            (r"/filelist/(.*)", FileListHandler),
+            (r"/filelist", FileListHandler),
             (r"/fileinfo/(.*)", FileInfoHandler),
             (r"/file", FileHandler),
             (r"/comment/(.*)", CommentHandler, {"path": "/"}),
@@ -388,6 +392,8 @@ def startServer(port: Union[int, str, None] = None):
         port: str
     print("Starting server at port: ", port)
     app.listen(int(port))
+    tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
+    tornado.autoreload.start()
     tornado.ioloop.IOLoop.current().start()
 
 def startServerProcess(*args) -> multiprocessing.Process:

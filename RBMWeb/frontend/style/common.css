@@ -1,0 +1,101 @@
+:root{
+    --bg-blue: #39d;
+    --max-width: 1600px;
+    --font-color-gray: #444;
+    --font-song: "宋体", SimSun, STSong;
+}
+
+*{
+    font-size: large;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    max-width: var(--max-width);
+
+    /* centering things */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    color: #444;
+}
+
+input[type="button"]{
+    border-radius: 5px;
+    min-height: 30px;
+    font-size: smaller;
+    border-width: 1px;
+    background-color: #eee;
+}
+/* input[type="button"]:hover{ */
+/*     box-shadow: 0 0 5px #555; */
+/* } */
+
+.smoothTrans{
+    transition-property: all;
+    -webkit-transition-property: all; 
+    transition-duration: 0.2;
+    -webkit-transition-duration: 0.2s; 
+    transition-timing-function: ease;
+    -webkit-transition-timing-function: ease;
+}
+
+.hoverMaxout11:hover{
+    transform: scale(1.1);
+}
+
+.hoverMaxout105:hover{
+    transform: scale(1.05);
+}
+
+.hoverBlueWhite:hover{
+    background-color: var(--bg-blue);
+    color: white;
+}
+
+@keyframes slideIn {
+    0% {
+        visibility: hidden;
+        transform: translateY(5%);
+        opacity: 0;
+    }
+    100% {
+        visibility: visible;
+        transform: translateY(0);
+    }
+}
+@keyframes slideInBack {
+    0% {
+        visibility: hidden;
+    }
+    1% {
+        transform: translateY(6%) scale(0.95);
+        opacity: 0;
+        visibility: visible;
+    }
+    60% {
+        transform: translateY(-4%) scale(1.01);
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.gradIn {
+    animation-duration: 0.25s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: slideIn; /* the name of the animation we defined above */
+}
+
+.gradIn2{
+    /* set to hidden so it will not show up before delay */
+    animation-duration: 0.375s;
+    /* set to backwords so it will not show up before animation */
+    animation-fill-mode:backwards;
+    animation-timing-function: ease-out;
+    /* defined in common.css */
+    animation-name: slideInBack;
+}

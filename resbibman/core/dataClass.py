@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+import urllib.parse
 import shutil, requests, json
 from ..confReader import getConfV, ASSETS_PATH
 import typing, re, string, os, asyncio
@@ -462,7 +463,10 @@ class DataBase(dict):
             return None
 
         addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
-        flist_addr = "{}/filelist/%".format(addr) 
+        params = {
+            "tags":""
+        }
+        flist_addr = "{}/filelist?{}".format(addr, urllib.parse.urlencode(params)) 
 
         try:
             res = requests.get(flist_addr)
