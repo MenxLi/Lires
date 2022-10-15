@@ -3,6 +3,22 @@
     --max-width: 1600px;
     --font-color-gray: #444;
     --font-song: "宋体", SimSun, STSong;
+
+    --cw: #eee;
+    --cd: #2f2d2e;
+
+    /* --c1: #c9e4ca; */
+    /* --c2: #87bba2; */
+    /* --c3: #55828b; */
+    /* --c4: #3b6064; */
+    /* --c5: #364958; */
+
+    --c1: #BDD8EA;
+    --c2: #CCAAE4;
+    --c3: #3B6B8A;
+    --c4: #AD6CB5;
+    --c5: #142852;
+    --c6: #4E1B45;
 }
 
 *{
@@ -45,6 +61,10 @@ input[type="button"]{
 }
 
 .hoverMaxout105:hover{
+    transform: scale(1.05);
+}
+
+.hoverMaxout103:hover{
     transform: scale(1.05);
 }
 

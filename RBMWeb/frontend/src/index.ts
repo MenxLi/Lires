@@ -5,10 +5,18 @@ import { DataFilter } from "./dataFilter.js";
 import {BACKENDURL, FRONTENDURL} from "./config.js";
 import { getLogger } from "./libs/logging.js";
 import { checkUsrInfo, eraseUsrInfo } from "./login.js";
+import { sleep } from "./libs/timeUtils.js";
 
 
-// Global storage of the dataInfoList
+// Global storages ===========
+// the dataInfoList
 var g_datalist: DataInfoT[];
+// last dataEntry with action shown
+var g_prevActEntry: null|DataEntryElement
+
+interface DataEntryElement extends HTMLDivElement{
+    dataInfo: DataInfoT
+}
 
 function render(dataInfoList: DataInfoT[]){
 
@@ -43,6 +51,99 @@ function initSearch(dataInfoList: DataInfoT[]){
 }
 
 function showData(dataInfoList: DataInfoT[]){
+    function showEntryAct(entry: DataEntryElement){
+        if (entry.querySelector("div.entryAct")){
+            // If already has act entry, skip re-triggering this function
+            return;
+        }
+        // Add elements
+        entry.innerHTML += `
+        <div class="entryAct gradIn">
+        </div>
+        `
+        const acts: HTMLInputElement[] = new Array()
+        const entryFrame = entry.querySelector("div.entryAct")!;
+        const actView = document.createElement("input");
+        actView.value = "View"
+        acts.push(actView);
+        const actNote = document.createElement("input");
+        actNote.value = "Note"
+        acts.push(actNote);
+        const actDiscuss = document.createElement("input");
+        actDiscuss.value = "Discuss"
+        acts.push(actDiscuss);
+
+        for (const act of acts){
+            act.type = "button";
+            act.classList.add("smoothTrans");
+            entryFrame.appendChild(act);
+        }
+
+        // Set callbacks for the actions
+        function getOpenFileFunction(): () => void{
+            const uid = entry.dataInfo.uuid;
+            let destURL: string;
+            if (entry.dataInfo["has_file"] && entry.dataInfo["file_type"]===".pdf"){
+                destURL = `${BACKENDURL}/doc/${uid}`
+            }
+            else if (entry.dataInfo["has_file"] && entry.dataInfo["file_type"]===".hpack"){
+                destURL = `${BACKENDURL}/doc/${uid}//`
+            }
+            else if (entry.dataInfo.url){
+                destURL = entry.dataInfo.url;
+            }
+            return () => {
+                // if (destURL) window.location.href = destURL;
+                if (destURL) window.open(destURL, '_blank')?.focus();
+            }
+        }
+        function getOpenNoteFunction(): ()=>void {
+            const uid = entry.dataInfo.uuid;
+            return () => {
+                const dest = `${BACKENDURL}/comment/${uid}/`;
+                // Simulate a mouse click:
+                // it will somehow omit the last '/'
+                // window.location.href = `${BACKENDURL}/comment/${uid}/`;
+                //
+                // Use this instead
+                window.open(dest, '_blank')?.focus();
+            }
+        }
+        function getOpenDiscussionFunction(): ()=>void {
+            const uid = entry.dataInfo.uuid;
+            return () => {
+                alert("Not implemented yet.")
+            }
+        }
+        actView.addEventListener("click", getOpenFileFunction());
+        actNote.addEventListener("click", getOpenNoteFunction());
+        actDiscuss.addEventListener("click", getOpenDiscussionFunction());
+
+        // May be remove other entry frame
+        if (g_prevActEntry != null && g_prevActEntry.classList == entry.classList){
+            // compare if prev activated entry is the current one
+            // This may be unnecessary because we are not re-triggering this function 
+            // by previous condition checking
+            getLogger('rbm').debug("Staying in same entry");
+        }
+        else{
+            // Remove previous entry's action frame
+            if (g_prevActEntry){
+                removeEntryAct(g_prevActEntry);
+            }
+            // save this as global
+            g_prevActEntry = entry;
+        }
+    }
+    function removeEntryAct(entry: HTMLDivElement){
+        // remove entry action frame if it exists
+        const actFrame = entry.querySelector("div.entryAct");
+        if (actFrame){
+            entry.removeChild(actFrame);
+        }
+    }
+
+
     const selectorDiv: HTMLDivElement = document.querySelector("div.selector")!;
     // first, clear selector_frame 
     removeChilds(selectorDiv);
@@ -51,14 +152,17 @@ function showData(dataInfoList: DataInfoT[]){
     // add valid data into it
     for (const dataInfo of dataInfoList){
         idx += 1;
-        const dataEntry = document.createElement("div");
+        const dataEntry = <DataEntryElement>document.createElement("div");
+        dataEntry.dataInfo = dataInfo;
         dataEntry.classList.add("dataEntry");
         dataEntry.innerHTML = `
-        <div class="yearAuthor">
-            <label class="year">${dataInfo.year}</label> 
-            <label class="author">${dataInfo.author}</label>
+        <div class="entryInfo">
+            <div class="yearAuthor">
+                <label class="year">${dataInfo.year}</label> 
+                <label class="author">${dataInfo.author}</label>
+            </div>
+            <label class="title">${dataInfo.title}</label>
         </div>
-        <label class="title">${dataInfo.title}</label>
         `
         selectorDiv.appendChild(dataEntry);
 
@@ -66,26 +170,27 @@ function showData(dataInfoList: DataInfoT[]){
         const delay = 0.05*idx + Math.random()*0.1;
         dataEntry.classList.add("gradIn2");
         dataEntry.classList.add("smoothTrans");
-        dataEntry.classList.add("hoverMaxout105");
-        dataEntry.classList.add("hoverBlueWhite");
+        dataEntry.classList.add("hoverMaxout103");
+        // dataEntry.classList.add("hoverBlueWhite");
+        dataEntry.classList.add(dataInfo.uuid);
         dataEntry.style.animationDelay = delay.toString() + "s";
 
-        // on click
-        function getOnClickFunction(): () => void{
-            const uid = dataInfo.uuid;
-            let destURL: string;
-            if (dataInfo["has_file"] && dataInfo["file_type"]===".pdf"){
-                destURL = `${BACKENDURL}/doc/${uid}`
-            }
-            else if (dataInfo["has_file"] && dataInfo["file_type"]===".hpack"){
-                destURL = `${BACKENDURL}/doc/${uid}`
-            }
-            return () => {
-                if (destURL) window.location.href = destURL;
-            }
-        }
 
-        dataEntry.addEventListener("click", getOnClickFunction());
+        dataEntry.addEventListener("mouseover", 
+                                   (function(){ return () => { showEntryAct(dataEntry); }})()
+                                  )
+        dataEntry.addEventListener("mouseleave",
+                                   (function(){ 
+                                       return async () => { 
+                                           // to remove act frame when mouse move out of the entry 
+                                           // and not entering another entry
+                                           // delay execution is used to resolve
+                                           // flashing when hoveing betweeing two entries
+                                           await sleep(200);
+                                           removeEntryAct(dataEntry); 
+                                       }
+                                   })()
+                                  )
     }
 }
 

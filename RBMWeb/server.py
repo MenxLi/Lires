@@ -131,6 +131,7 @@ class CommentHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
     # Serve comment (Notes) as webpage
     def get(self, path):
         global db_reader
+        print("Get comment request: {}".format(path))
         self.setDefaultHeader()
         psplit = path.split("/")
         uuid = psplit[0]
@@ -362,9 +363,11 @@ class Application(tornado.web.Application):
         frontend_root = os.path.join(root, "frontend")
         frontend_root_old = os.path.join(root, "frontendV0")
         handlers = [
+            # Frontend
             (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": frontend_root}),
             (r"/frontend/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
             (r"/main/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root_old, "default_filename" : "index.html"}),
+            # Backend
             (r"/doc/(.*)", DocHandler),
             (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
             (r"/filelist", FileListHandler),

@@ -1,5 +1,9 @@
 import {getLogger} from "./logging.js";
 
+export function sleep(ms: number): Promise<void>{
+    return new Promise(r => setTimeout(r, ms));
+}
+
 /*
  * return locale time in format: yyyy-mm-dd hh:mm:ss
 * */
