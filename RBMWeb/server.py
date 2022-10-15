@@ -360,7 +360,7 @@ class Application(tornado.web.Application):
     def __init__(self) -> None:
         root = os.path.dirname(__file__)
         frontend_root = os.path.join(root, "frontend")
-        frontend_root_old = os.path.join(root, "frontend-old")
+        frontend_root_old = os.path.join(root, "frontendV0")
         handlers = [
             (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": frontend_root}),
             (r"/frontend/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
@@ -388,10 +388,11 @@ def startServer(port: Union[int, str, None] = None):
     app = Application()
     conf = getRBMWebConf()
     if port is None:
-        port = conf["port"]
-        port: str
+        port_ = conf["port"]
+    else:
+        port_ = port
     print("Starting server at port: ", port)
-    app.listen(int(port))
+    app.listen(int(port_))
     tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
     tornado.autoreload.start()
     tornado.ioloop.IOLoop.current().start()
