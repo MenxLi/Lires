@@ -72,10 +72,10 @@ _VERSION_HISTORIES = [
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
-_file_path = os.path.abspath(__file__)
+__this_file_path = os.path.abspath(__file__)
 
 # CURR_PATH = join(_file_path, os.path.pardir)
-CURR_PATH = os.path.dirname(_file_path)
+CURR_PATH = os.path.dirname(__this_file_path)
 #  CURR_PATH = os.path.abspath(os.path.realpath(CURR_PATH))
 CURR_PATH = os.path.abspath(CURR_PATH)
 
@@ -94,7 +94,10 @@ LOG_FILE = join(CURR_PATH, "log.txt")
 ASSETS_PATH = join(CURR_PATH, "assets")
 DEFAULT_DATA_PATH = join(CURR_PATH, os.pardir, "Database")
 
-TMP_DIR = tempfile.gettempdir()
+#  TMP_DIR = tempfile.gettempdir()
+TMP_DIR = os.path.join(CURR_PATH, ".TempDir")
+if not os.path.exists(TMP_DIR):
+    os.mkdir(TMP_DIR)
 TMP_DIR = os.path.join(TMP_DIR, "ResBibMan")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
