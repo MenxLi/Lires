@@ -24,7 +24,8 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 ~~Refer to the [docs-CN](./resbibman/docs/UserGuide.md) for the usage of this software.~~
 
 ## Installation
-```Python
+```bash
+tsc
 pip install .
 rbm-resetconf  # To create default configuration
 ```
