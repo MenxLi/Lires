@@ -5,12 +5,12 @@ from resbibman.confReader import VERSION
 with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as fp:
     install_requires = [pkg for pkg in fp.read().split("\n") if pkg]
 
-    if platform.system() == "Darwin" and platform.processor() == "arm":
-        # Apple silicon
-        for i in range(0, len(install_requires))[::-1]:
-            if install_requires[i] == "PyMuPDF":
-                # Not install PyMuPDF in MacOS, can't compile for now
-                install_requires.pop(i)
+    #  if platform.system() == "Darwin" and platform.processor() == "arm":
+    #      # Apple silicon
+    #      for i in range(0, len(install_requires))[::-1]:
+    #          if install_requires[i] == "PyMuPDF":
+    #              # Not install PyMuPDF in MacOS, can't compile for now
+    #              install_requires.pop(i)
 
 setup(
     name="ResBibMan",
@@ -37,8 +37,6 @@ setup(
 
     include_package_data = True,
 
-    #  install_requires = \
-    #  ["PyQt5", "pybtex", "pyperclip", "PyMuPDF>=1.19.3", "PyQtWebEngine", "markdown", "tornado", "requests", "watchdog", "nest_asyncio", "arxiv"],
     install_requires = install_requires,
 
     entry_points = {

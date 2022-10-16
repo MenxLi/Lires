@@ -1,10 +1,10 @@
 try:
     import fitz
 except:
-    # Apple silicon
     pass
 import os
 from PyQt6 import QtGui
+import logging
 from ..confReader import ICON_PATH
 
 # 显示 PDF 封面
@@ -40,8 +40,8 @@ def getPDFCoverAsQPixelmap(f_path: str):
         doc = fitz.open(f_path)
         page = doc.load_page(0)
         cover = render_pdf_page(page, True)
-    except:
-        # Apple silicon
+    except Exception as E:
+        logging.getLogger("rbm").debug(f"Error happened while rendering pdf cover: {E}")
         cover= QtGui.QPixmap()
         cover.convertFromImage(QtGui.QImage(os.path.join(ICON_PATH, "error-48px.png")))
     return cover
