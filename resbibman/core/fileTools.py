@@ -2,9 +2,11 @@
 The tools that deals with files in the database
 """
 from pathlib import Path
-import os, shutil, json, platform, typing, uuid, time
+import os, shutil, json, platform, typing, uuid, time, sys
 from typing import List, Union, TypedDict
 import warnings
+import threading
+
 from . import globalVar as G
 from .utils import openFile, TimeUtils
 from ..confReader import getConf, VERSION, getConfV
@@ -199,6 +201,10 @@ class FileManipulator:
         self.path = data_path
         self.base_name: str = os.path.split(data_path)[-1]
         self._file_extension: str = ""     # extension of the main document, "" for undefined / No file
+
+        # a switch to trigger the logging of file modification time
+        self._enable_log_modification_timestamp = True
+
         self.init()
 
     def init(self):
@@ -464,8 +470,20 @@ class FileManipulator:
         if self.file_extension == ".hpack":
             openTmp_hpack(self.file_p)
         else:
+            # Open file in MacOS will be treated as a file modification
+            # so temporarily ban file observer log modification time
+            if sys.platform == "darwin":
+                self._enable_log_modification_timestamp = False
+
             openFile(self.file_p)
-            #  self._log()     # change time modified.
+
+            # maybe re-enable file observer log modification time
+            def _restartLoggingModification():
+                # relax some time to open the file
+                time.sleep(3)
+                self._enable_log_modification_timestamp = True
+            if sys.platform == "darwin":
+                threading.Thread(target=_restartLoggingModification, args=(), daemon=True).start()
         return True
 
     def openMiscDir(self):
@@ -499,7 +517,9 @@ class FileManipulator:
             self.logger.debug(f"setWatch (fm): Started file observer for {self.uuid}")
 
     def _log(self) -> bool:
-        """log the modification info info file"""
+        """log the modification time to the info file"""
+        if not self._enable_log_modification_timestamp:
+            return False
         time_now = time.time()
         if time_now - self._time_last_log < self.LOG_TOLERANCE_INTERVAL:
             # Prevent multiple log at same time
