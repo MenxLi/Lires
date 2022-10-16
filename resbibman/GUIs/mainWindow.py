@@ -22,7 +22,7 @@ from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser, BibConverter
 from ..core.utils import openFile, ProgressBarCustom
 from ..core.dataClass import DataTags, DataBase, DataPoint
-from ..confReader import DOC_PATH, getConf, ICON_PATH, VERSION, getConfV, getDatabase
+from ..confReader import DOC_PATH, TMP_COVER, getConf, ICON_PATH, VERSION, getConfV, getDatabase
 from ..confReader import TMP_DB, TMP_WEB
 from ..perf.qtThreading import SyncWorker, InitDBWorker
 import os, copy, typing, requests, functools, time, shutil
@@ -558,7 +558,7 @@ class MainWindow(MainWindowGUI):
         self.logger.info("Deleting cache")
         # unwatch all file, as they are going to be deleted
         self.database.watchFileChange([])   
-        for p in [TMP_DB, TMP_WEB]:
+        for p in [TMP_DB, TMP_WEB, TMP_COVER]:
             if os.path.exists(p):
                 shutil.rmtree(p)
         return super().closeEvent(a0)
