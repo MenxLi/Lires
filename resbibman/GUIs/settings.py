@@ -1,4 +1,6 @@
 from __future__ import annotations
+from abc import abstractmethod
+from typing import Dict, List
 import warnings, os, shutil, time
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog
@@ -14,15 +16,34 @@ class SubSettingsBase(RefWidgetBase):
 	def __init__(self) -> None:
 		super().__init__()
 		self._frame = QFrame()
+		self._frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Sunken)
+
 		self._layout = QVBoxLayout()
 		self._layout.addWidget(self._frame)
 		self.setLayout(self._layout)
+
+		self._request_restart = False
 		self.initUI()
 
+	@abstractmethod
 	def initUI(self):
 		raise NotImplementedError("The initUI method for {} is not implemented yet".format(self.__class__.__name__))
+
+	@property
+	def frame(self):
+		return self._frame
+
 	def confirm(self):
 		warnings.warn("The confim method for {} is not implemented yet".format(self.__class__.__name__))
+	
+	def requestRestart(self):
+		self._request_restart = True
+	
+	def CONFIRM(self):
+		self.confirm()
+		if self._request_restart:
+			self.warnDialogCritical(messege = "Some changes not applied", \
+							info_msg = "Please consider restarting the program")
 
 class SetDatabase(SubSettingsBase):
 	"""
@@ -65,7 +86,7 @@ class SetDatabase(SubSettingsBase):
 		vbox.addLayout(hbox2)
 		vbox.addLayout(hbox3)
 
-		self._frame.setLayout(vbox)
+		self.frame.setLayout(vbox)
 
 		self.line_edit_host.textChanged.connect(self.activateWidgets)
 		self.btn.clicked.connect(self.chooseDir)
@@ -152,7 +173,7 @@ class SetSortingMethod(SubSettingsBase):
 		hbox.addWidget(self.lbl, 1)
 		hbox.addWidget(self.ck, 0)
 		hbox.addWidget(self.cb, 1)
-		self._frame.setLayout(hbox)
+		self.frame.setLayout(hbox)
 	
 	def confirm(self):
 		selection = self.cb.currentText()
@@ -185,7 +206,7 @@ class SetTableHeader(SubSettingsBase):
 		self.list_wid.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
 		vbox.addWidget(self.label)
 		vbox.addWidget(self.list_wid, 0)
-		self._frame.setLayout(vbox)
+		self.frame.setLayout(vbox)
 
 	def confirm(self):
 		# https://blog.csdn.net/sinat_34149445/article/details/94548871
@@ -212,7 +233,7 @@ class SetStyle(SubSettingsBase):
 		hbox = QHBoxLayout()
 		hbox.addWidget(self.lbl)
 		hbox.addWidget(self.cb)
-		self._frame.setLayout(hbox)
+		self.frame.setLayout(hbox)
 	def confirm(self):
 		_dark = isThemeDarkMode()
 
@@ -228,8 +249,47 @@ class SetStyle(SubSettingsBase):
 					app.setStyleSheet(f.read())
 			self.logger.info("Loaded new style: {}".format(getConf()["stylesheet"]))
 			if _dark != isThemeDarkMode():
-				self.warnDialogCritical(messege = "Some changes not applied", \
-							info_msg = "Please consider restarting the program")
+				self.requestRestart()
+
+class SetFont(SubSettingsBase):
+	def initUI(self):
+		hlayout = QHBoxLayout()
+		hlayout.addWidget(QLabel("Fonts: "), 1)
+		vlayout = QVBoxLayout()
+		hlayout.addLayout(vlayout, 2)
+		self.lbls: List[QLabel] = []
+		self.inpts: List[QLineEdit] = []
+		for k in getConfV("font_sizes").keys():
+			lbl = QLabel(f"{k}")
+			inpt = QLineEdit(self)
+			self.lbls.append(lbl)
+			self.inpts.append(inpt)
+			font, size = getConfV("font_sizes")[k]
+			inpt.setText(f"{font}, {size}")
+			_hlayout = QHBoxLayout()
+			_hlayout.addWidget(lbl)
+			_hlayout.addWidget(inpt)
+			vlayout.addLayout(_hlayout)
+		self.frame.setLayout(hlayout)
+	
+	def confirm(self):
+		font_sizes: Dict[str, list] = {}
+		try:
+			for lbl, inpt in zip(self.lbls, self.inpts):
+				k = lbl.text()
+				v = inpt.text()
+				font, size = v.split(", ")
+				font = font.strip()
+				size = int(size.strip())
+				font_sizes[k] = [font, size]
+		except ValueError:
+			self.warnDialog("An error happened while parsing font settings, \
+				   please check the format.")
+			return
+		if getConfV("font_sizes") != font_sizes:
+			self.requestRestart()
+			saveToConf(font_sizes = font_sizes)
+
 
 class SetAutoSaveComments(SubSettingsBase):
 	def initUI(self):
@@ -259,7 +319,8 @@ class SettingsWidget(RefWidgetBase):
 			SetDatabase(), 
 			SetSortingMethod(), 
 			SetStyle(),
-			SetAutoSaveComments(),
+			#  SetAutoSaveComments(),
+			SetFont(),
 			SetTableHeader(), 
 		]
 		for subsetting in self.sub_settings:
@@ -292,6 +353,6 @@ class SettingsWidget(RefWidgetBase):
 
 	def confirm(self):
 		for i in self.sub_settings:
-			i.confirm()
+			i.CONFIRM()
 		self.parent.close()
 
