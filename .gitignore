@@ -11,6 +11,7 @@ build
 .env
 venv
 */log.txt
+*/log.txt.1
 *_tmp*
 .DS_Store
 .TempDir
