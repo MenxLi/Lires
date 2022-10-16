@@ -88,14 +88,14 @@ The server port can be assigned at `RBMWeb/backend/conf.json`
 - [x] Online discussion / View comments online (Use sqlite to save discussion on server side)
 - [x] Markdown LaTeX equation support
 - [x] Export database
+- [x] Better font size
 - [ ] Dashboard page
 - [ ] Within software cross-reference
 - [ ] Other citation format convert to bibtex
-- [ ] Better font size
 - [ ] Related works
 - [ ] Redirect some logging to status bar
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
-- [ ] User info, associate each user with a key in rbm-keyman
+- [ ] ~~ User info, associate each user with a key in rbm-keyman ~~
 
 In query widget while importing articles:  
 
@@ -134,14 +134,15 @@ rbm-collect:
 - ~~[ ] Language support~~
 - [ ] Relation graph
 
-## Ideas:
-QRunnable for multithreading
+<!-- ## Ideas: -->
+<!-- QRunnable for multithreading -->
+<!--  -->
 
 </details>
 
 ## Known issues
 
-* May crash when changing selection (caused by auto saving)
+<!-- * May crash when changing selection (caused by auto saving) -->
 * Markdown horizontal line highlighter not working somehow
 * Adding file may encounter permission error for FAT32 format destination in Linux machine (refer to: [stackoverflow-25716333](https://stackoverflow.com/questions/25716333/))
 * ~~QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)~~(Resolved with PyQt6)
