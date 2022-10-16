@@ -1,7 +1,7 @@
 import webbrowser
 from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
-from PyQt6.QtGui import QAction, QShortcut
+from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
+from PyQt6.QtGui import QAction, QShortcut, QColor
 from PyQt6 import QtGui, QtCore
 import typing, os, copy, functools
 from typing import List, overload, Union, Literal, Callable
@@ -30,11 +30,15 @@ class FileSelectorGUI(MainWidgetBase):
 
         # self.data_view = QListView()
         # self.data_model = FileListModel(DataList([]))
+        self.data_table_delegate = FileTableDelegate()
         self.data_view = FileTableView()
+        self.data_view.setItemDelegate(self.data_table_delegate)
         self.data_model = FileTableModel(DataList([]))
         self.data_view.setModel(self.data_model)
         self.data_view.initSettings()
         self.search_edit = QLineEdit()
+
+        self.data_view.hoverIndexChanged.connect(self.data_table_delegate.onHoverIndexChanged)
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.search_edit)
@@ -458,6 +462,8 @@ class FileTableModel(QtCore.QAbstractTableModel):
         return len(getConfV("table_headers"))
 
 class FileTableView(QTableView):
+    # How to highlight entire row on hovering? - https://stackoverflow.com/a/46231218/6775765
+    hoverIndexChanged = QtCore.pyqtSignal(QtCore.QModelIndex)
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
@@ -479,5 +485,20 @@ class FileTableView(QTableView):
             else:
                 self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
-class CItemDelegate(QItemDelegate):
-    pass
+    def mouseMoveEvent(self, e: QtGui.QMouseEvent) -> None:
+        index = self.indexAt(e.pos())
+        self.hoverIndexChanged.emit(index)
+        return super().mouseMoveEvent(e)
+
+class FileTableDelegate(QItemDelegate):
+    def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
+        super().__init__(parent)
+        self.hoverrow_ = None
+
+    def onHoverIndexChanged(self, index: QtCore.QModelIndex):
+        self.hoverrow_ = index.row()
+
+    def paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> None:
+        if index.row() == self.hoverrow_:
+            painter.fillRect(option.rect, QColor(100 , 200, 200, 100))
+        return super().paint(painter, option, index)
