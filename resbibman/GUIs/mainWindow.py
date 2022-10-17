@@ -22,8 +22,9 @@ from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser, BibConverter
 from ..core.utils import openFile, ProgressBarCustom
 from ..core.dataClass import DataTags, DataBase, DataPoint
-from ..confReader import DOC_PATH, TMP_COVER, getConf, ICON_PATH, VERSION, getConfV, getDatabase, saveToConf, saveToConf_guiStatus
-from ..confReader import TMP_DB, TMP_WEB
+from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf_guiStatus
+from ..confReader import TMP_DB, TMP_WEB, TMP_COVER
+from ..version import VERSION
 from ..perf.qtThreading import SyncWorker, InitDBWorker
 import os, copy, typing, requests, functools, time, shutil
 

@@ -3,7 +3,8 @@ import webbrowser
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QDialog, QMessageBox
 from .widgets import WidgetBase
 from ..core.utils import openFile
-from ..confReader import DOC_PATH, WEBPAGE, _VERSION_HISTORIES
+from ..confReader import DOC_PATH, WEBPAGE
+from ..version import _VERSION_HISTORIES
 
 
 LICENSE = """

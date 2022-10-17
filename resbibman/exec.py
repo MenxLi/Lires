@@ -7,7 +7,8 @@ from .parser import parseArgs
 
 def execProg():
     from .GUIs.mainWindow import MainWindow
-    from .confReader import getStyleSheets, getConf, VERSION
+    from .confReader import getStyleSheets, getConf
+    from .version import VERSION
     from .core.utils import getDateTimeStr
     logger = logging.getLogger("rbm")
     logger.info("************Welcome to ResBibMan-v{} | {}**************".format(VERSION, getDateTimeStr()))
@@ -29,7 +30,8 @@ def run():
     assert args is not None     # type checking purpose
 
     # Read configuration file after parse agruments
-    from .confReader import getConf, saveToConf, VERSION, _VERSION_HISTORIES, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE
+    from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE
+    from .version import VERSION, _VERSION_HISTORIES
     from .initLogger import initLogger
 
     if not args.no_log:

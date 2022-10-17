@@ -9,7 +9,8 @@ import threading
 
 from . import globalVar as G
 from .utils import openFile, TimeUtils
-from ..confReader import getConf, VERSION, getConfV
+from ..confReader import getConf, getConfV
+from ..version import VERSION
 from .htmlTools import packHtml, openTmp_hpack
 
 from watchdog.observers import Observer

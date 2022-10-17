@@ -1,6 +1,6 @@
 import os, platform
 from setuptools import setup, find_packages
-from resbibman.confReader import VERSION
+from resbibman.version import VERSION
 
 with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as fp:
     install_requires = [pkg for pkg in fp.read().split("\n") if pkg]
