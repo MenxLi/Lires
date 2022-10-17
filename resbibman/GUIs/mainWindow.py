@@ -149,7 +149,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
 
         self.act_show_toobar = QAction("&Show tool bar", self)
         self.act_show_toobar.setCheckable(True)
-        self.act_show_toobar.setShortcut(QKeySequence("ctrl + t"))
+        self.act_show_toobar.setShortcut(QKeySequence("ctrl+t"))
 
         self.act_show_panel1 = QAction("&Show panel 1", self)
         self.act_show_panel1.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_one_black_48dp.svg")))
