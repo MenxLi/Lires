@@ -30,7 +30,7 @@ import os, copy, typing, requests, functools, time, shutil
 
 class MainWindowGUI(QMainWindow, RefWidgetBase):
     menu_bar: QMenuBar
-    toobars: List[QToolBar]
+    toolbars: List[QToolBar]
 
     def __init__(self):
         super().__init__()
@@ -147,9 +147,9 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.act_importbib_from_clip.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "paste-24px.svg")))
         self.act_importbib_from_clip.setShortcut(QKeySequence("ctrl+shift+alt+i"))
 
-        self.act_show_toobar = QAction("&Show tool bar", self)
-        self.act_show_toobar.setCheckable(True)
-        self.act_show_toobar.setShortcut(QKeySequence("ctrl+t"))
+        self.act_show_toolbar = QAction("&Show tool bar", self)
+        self.act_show_toolbar.setCheckable(True)
+        self.act_show_toolbar.setShortcut(QKeySequence("ctrl+t"))
 
         self.act_show_panel1 = QAction("&Show panel 1", self)
         self.act_show_panel1.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_one_black_48dp.svg")))
@@ -176,7 +176,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
 
         view_menu = QMenu("&View", self)
         menu_bar.addMenu(view_menu)
-        view_menu.addAction(self.act_show_toobar)
+        view_menu.addAction(self.act_show_toolbar)
         view_menu.addAction(self.act_toggle_fullscreen)
         view_menu.addAction(self.act_show_panel1)
         view_menu.addAction(self.act_show_panel2)
@@ -216,7 +216,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
     def toggleShowToobar(self, status: bool):
         for bar in self.toolbars:
             bar.setVisible(status)
-        saveToConf_guiStatus(show_toobar = status)
+        saveToConf_guiStatus(show_toolbar = status)
     
 class MainWindow(MainWindowGUI):
     def __init__(self):
@@ -242,7 +242,7 @@ class MainWindow(MainWindowGUI):
 
         self.act_importbib_from_clip.triggered.connect(self.importEntryFromClipboardBib)
 
-        self.act_show_toobar.triggered.connect(self.toggleShowToobar)
+        self.act_show_toolbar.triggered.connect(self.toggleShowToobar)
         self.act_show_panel1.triggered.connect(lambda: self.toggleOnlyPanel(0))
         self.act_show_panel2.triggered.connect(lambda: self.toggleOnlyPanel(1))
         self.act_show_panel3.triggered.connect(lambda: self.toggleOnlyPanel(2))
@@ -250,8 +250,8 @@ class MainWindow(MainWindowGUI):
 
     def initGUIStatusConfig(self):
         gui_conf = getConfV("gui_status")
-        self.act_show_toobar.setChecked(gui_conf["show_toobar"])
-        self.toggleShowToobar(gui_conf["show_toobar"])
+        self.act_show_toolbar.setChecked(gui_conf["show_toolbar"])
+        self.toggleShowToobar(gui_conf["show_toolbar"])
 
     def toggleOnlyPanel(self, idx: int):
         """

@@ -39,7 +39,7 @@ def generateDefaultConf():
         stylesheet = "Simple",
 		auto_save_comments = False,
 		gui_status = {
-			"show_toobar": True
+			"show_toolbar": True
 		}
     )
 	print("Generated default configuration file at: ", CONF_FILE_PATH)
