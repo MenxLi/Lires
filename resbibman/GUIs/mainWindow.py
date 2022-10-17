@@ -1,7 +1,7 @@
 import pyperclip
 from typing import Tuple, List, Callable
 from PyQt6 import QtGui
-from PyQt6.QtGui import QIcon, QKeySequence
+from PyQt6.QtGui import QIcon, QKeySequence, QShortcut
 from PyQt6.QtWidgets import QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
 from PyQt6.QtGui import QAction
 from PyQt6.QtCore import Qt, QThreadPool
@@ -22,12 +22,15 @@ from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser, BibConverter
 from ..core.utils import openFile, ProgressBarCustom
 from ..core.dataClass import DataTags, DataBase, DataPoint
-from ..confReader import DOC_PATH, TMP_COVER, getConf, ICON_PATH, VERSION, getConfV, getDatabase
+from ..confReader import DOC_PATH, TMP_COVER, getConf, ICON_PATH, VERSION, getConfV, getDatabase, saveToConf, saveToConf_guiStatus
 from ..confReader import TMP_DB, TMP_WEB
 from ..perf.qtThreading import SyncWorker, InitDBWorker
 import os, copy, typing, requests, functools, time, shutil
 
 class MainWindowGUI(QMainWindow, RefWidgetBase):
+    menu_bar: QMenuBar
+    toobars: List[QToolBar]
+
     def __init__(self):
         super().__init__()
         self.db = DataBase()
@@ -44,11 +47,10 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
     
     def initUI(self):
         self.setWindowTitle("Research bib manager")
-        # self.resize(900, 600)
         self.setWindowIcon(QIcon(os.path.join(ICON_PATH, "resbibman-icon.png")))
         self._initPanels()
         self._createActions()
-        # self._createMenuBar()
+        self._createMenuBar()
         self._createToolBars()
 
         self.status_bar = self.statusBar()
@@ -123,20 +125,30 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
     def _createActions(self):
         self.act_file_additem = QAction("&Add paper", self)
         self.act_file_additem.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "addfile-24px.svg")))
+
         self.act_opendb = QAction("&Open database", self)
         self.act_opendb.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "folder-24px.svg")))
+
         self.act_settings = QAction("&Settings", self)
         self.act_settings.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "settings-24px.svg")))
+
         self.act_help = QAction("&Info", self)
         self.act_help.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "info-24px.svg")))
+
         self.act_reload = QAction("&Reload/Synchronize", self)
+        self.act_reload.setShortcut(QKeySequence("ctrl+r"))
         self.act_reload.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "refresh-24px.svg")))
+
         self.act_open_pdb = QAction("&Pending data", self)
         self.act_open_pdb.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "hourglass_bottom_black_24dp.svg")))
 
         self.act_importbib_from_clip = QAction("Import bib from clipboard", self)
         self.act_importbib_from_clip.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "paste-24px.svg")))
         self.act_importbib_from_clip.setShortcut(QKeySequence("ctrl+shift+alt+i"))
+
+        self.act_show_toobar = QAction("&Show tool bar", self)
+        self.act_show_toobar.setCheckable(True)
+        self.act_show_toobar.setShortcut(QKeySequence("ctrl + t"))
 
         self.act_show_panel1 = QAction("&Show panel 1", self)
         self.act_show_panel1.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_one_black_48dp.svg")))
@@ -146,8 +158,8 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.act_show_panel3.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_3_black_48dp.svg")))
         self.act_toggle_fullscreen = QAction("&full screen", self)
         self.act_toggle_fullscreen.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "fullscreen_black_48dp.svg")))
-        #  self.act_toggle_fullscreen.setShortcut(Qt.Key_F11)
         self.act_toggle_fullscreen.setShortcut(QKeySequence("ctrl+f"))
+        #  self.act_toggle_fullscreen.setShortcut(Qt.Key_F11)
 
     def _createMenuBar(self):
         menu_bar = QMenuBar(self)
@@ -156,10 +168,26 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         files_menu = QMenu("&Files", self)
         menu_bar.addMenu(files_menu)
         files_menu.addAction(self.act_file_additem)
+        files_menu.addAction(self.act_importbib_from_clip)
+        files_menu.addAction(self.act_opendb)
+        files_menu.addAction(self.act_open_pdb)
+        files_menu.addAction(self.act_reload)
+
+        view_menu = QMenu("&View", self)
+        menu_bar.addMenu(view_menu)
+        view_menu.addAction(self.act_show_toobar)
+        view_menu.addAction(self.act_toggle_fullscreen)
+        view_menu.addAction(self.act_show_panel1)
+        view_menu.addAction(self.act_show_panel2)
+        view_menu.addAction(self.act_show_panel3)
 
         settings_menu = QMenu("&Settings", self)
         menu_bar.addMenu(settings_menu)
         settings_menu.addAction(self.act_settings)
+
+        help_menu = QMenu("&Help", self)
+        menu_bar.addMenu(help_menu)
+        help_menu.addAction(self.act_help)
     
     def _createToolBars(self):
         tool_bar = QToolBar("Toolbar")
@@ -181,6 +209,13 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         panel_bar.addAction(self.act_show_panel1)
         panel_bar.addAction(self.act_show_panel2)
         panel_bar.addAction(self.act_show_panel3)
+
+        self.toolbars = [tool_bar, file_bar, panel_bar]
+
+    def toggleShowToobar(self, status: bool):
+        for bar in self.toolbars:
+            bar.setVisible(status)
+        saveToConf_guiStatus(show_toobar = status)
     
 class MainWindow(MainWindowGUI):
     def __init__(self):
@@ -189,6 +224,7 @@ class MainWindow(MainWindowGUI):
         self.logger.debug("Configuration: ")
         self.logger.debug(getConf())
         self.initActions()
+        self.initGUIStatusConfig()
         self.reloadData()
     
     @property
@@ -205,10 +241,16 @@ class MainWindow(MainWindowGUI):
 
         self.act_importbib_from_clip.triggered.connect(self.importEntryFromClipboardBib)
 
+        self.act_show_toobar.triggered.connect(self.toggleShowToobar)
         self.act_show_panel1.triggered.connect(lambda: self.toggleOnlyPanel(0))
         self.act_show_panel2.triggered.connect(lambda: self.toggleOnlyPanel(1))
         self.act_show_panel3.triggered.connect(lambda: self.toggleOnlyPanel(2))
         self.act_toggle_fullscreen.triggered.connect(self.toggleFullScreen)
+
+    def initGUIStatusConfig(self):
+        gui_conf = getConfV("gui_status")
+        self.act_show_toobar.setChecked(gui_conf["show_toobar"])
+        self.toggleShowToobar(gui_conf["show_toobar"])
 
     def toggleOnlyPanel(self, idx: int):
         """

@@ -36,8 +36,11 @@ def generateDefaultConf():
 			"tag": ["Arial", 10]
 
 		},
+        stylesheet = "Simple",
 		auto_save_comments = False,
-        stylesheet = "Simple"
+		gui_status = {
+			"show_toobar": True
+		}
     )
 	print("Generated default configuration file at: ", CONF_FILE_PATH)
 

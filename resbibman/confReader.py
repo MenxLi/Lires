@@ -176,3 +176,10 @@ def saveToConf(**kwargs):
     # Reset global configuration buffer
     # So that next time the configuration will be read from file by getConf/getConfV
     G.resetGlobalConfVar()
+
+def saveToConf_guiStatus(**kwargs):
+    gui_status = getConfV("gui_status")
+    for k,v in kwargs.items():
+        gui_status[k] = v
+    saveToConf(gui_status = gui_status)
+
