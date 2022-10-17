@@ -61,5 +61,7 @@ _VERSION_HISTORIES = [
      "Better macos and windows file watcher; Kill statusbar updating thread after quitting"),
     ("0.6.8", "Convert bibtex from nbib; Argparser update; Global configuration buffer; Switch server without restarting"),
     ("0.6.9", "Being able to add bib&nbib file; Not deleting original document when adding to database; Bug fixes: mayn not delete remote file"),
+    ("0.6.10", "New RBMWeb sharing page; Hover highlight entire line; Add menubar, toolbar can be hidden; Font settings; "\
+     "Move cache dir out of system tempdir; Sync bug fixes on Macos;"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
