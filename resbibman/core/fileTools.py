@@ -198,24 +198,25 @@ class FileManipulator:
     except FileNotFoundError:
         # when generating configuration file
         pass
+
+    folder_p: str
+    bib_p: str
+    comments_p: str
+    info_p: str
+    file_p: Union[str, None]
+
     def __init__(self, data_path):
         self.path = data_path
         self.base_name: str = os.path.split(data_path)[-1]
         self._file_extension: str = ""     # extension of the main document, "" for undefined / No file
 
-        # a switch to trigger the logging of file modification time
-        self._enable_log_modification_timestamp = True
-
+        # Common init for subclasses should be implementd in self.init
         self.init()
 
     def init(self):
-        # Common init for subclasses
         self._time_last_log = 0
-        self.folder_p: str
-        self.bib_p: str
-        self.comments_p: str
-        self.info_p: str
-        self.file_p: Union[str, None]
+        # a switch to trigger the logging of file modification time
+        self._enable_log_modification_timestamp = True
 
     @property
     def file_names(self) -> FileNameType:
