@@ -19,6 +19,15 @@ class WidgetBase:
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.logger = logging.getLogger("rbm")
+    
+    def infoDialog(self, messege, info_msg = ""):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Icon.Information)
+        msg_box.setText(messege)
+        msg_box.setInformativeText(info_msg)
+        msg_box.setWindowTitle("Info")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+        return msg_box.exec()
 
     def warnDialog(self, messege, info_msg = ""):
         msg_box = QMessageBox()

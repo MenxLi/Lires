@@ -178,6 +178,10 @@ class DataPoint:
 
     def changeBib(self, bib_str: str) -> bool:
         """
+        **
+            May encounter permission error if any program is using the file
+            should prompt closing the file before this operation
+        **
         Change bibtex info
         - bib_str: bibtex string
         return if base_name changed

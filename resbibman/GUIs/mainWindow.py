@@ -1,3 +1,4 @@
+from threading import Thread
 import pyperclip
 from typing import Tuple, List, Callable
 from PyQt6 import QtGui
@@ -26,7 +27,7 @@ from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf_g
 from ..confReader import TMP_DB, TMP_WEB, TMP_COVER
 from ..version import VERSION
 from ..perf.qtThreading import SyncWorker, InitDBWorker
-import os, copy, typing, requests, functools, time, shutil
+import os, copy, typing, requests, functools, time, shutil, traceback
 
 class MainWindowGUI(QMainWindow, RefWidgetBase):
     menu_bar: QMenuBar
@@ -604,7 +605,14 @@ class MainWindow(MainWindowGUI):
         self.logger.info("Deleting cache")
         # unwatch all file, as they are going to be deleted
         self.database.watchFileChange([])   
-        for p in [TMP_DB, TMP_WEB, TMP_COVER]:
-            if os.path.exists(p):
-                shutil.rmtree(p)
+        try:
+            for p in [TMP_DB, TMP_WEB, TMP_COVER]:
+                if os.path.exists(p):
+                    shutil.rmtree(p)
+        except (PermissionError, FileNotFoundError) as e:
+            self.warnDialogCritical(
+                "Failed to clean to cache: " + str(e), 
+                "Please restart and close the program again to clean cache (or clean with command)"
+                )
+            self.logger.debug(f"Failed to clean cache: {traceback.format_exc()}")
         return super().closeEvent(a0)

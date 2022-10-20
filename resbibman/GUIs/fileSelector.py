@@ -1,4 +1,4 @@
-import webbrowser
+import webbrowser, traceback
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
 from PyQt6.QtGui import QAction, QShortcut, QColor
@@ -222,7 +222,21 @@ class FileSelector(FileSelectorGUI):
         selected: DataPoint = selected_
         self.logger.debug("Editing bibtex for {}".format(selected.uuid))
         def onConfirm(txt: str):
-            new_base = selected.changeBib(txt)
+            self.infoDialog("Just make sure...", 
+                "Please make sure no programs is using the file to avoid permission error. "\
+                "(e.g. close the document before changing the bibtex)")
+
+            try:
+                new_base = selected.changeBib(txt)
+            except PermissionError as e:
+                self.logger.debug(traceback.format_exc())
+                if not self.database.offline:
+                    self.warnDialogCritical("ERROR: {}".format(e), 
+                    "Please restart the program to clean cache and don't sync before cache clean for data integrity. (Check log for more info)")
+                else:
+                    self.warnDialogCritical("ERROR: {}".format(e), 
+                    "Please check data integrity manually. (check log for more info)")
+                return
             self.selection_changed.emit(selected)
             # debug
             if new_base:
