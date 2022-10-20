@@ -229,6 +229,7 @@ class FileSelector(FileSelectorGUI):
             try:
                 new_base = selected.changeBib(txt)
             except PermissionError as e:
+                # May occur if file is opened..
                 self.logger.debug(traceback.format_exc())
                 if not self.database.offline:
                     self.warnDialogCritical("ERROR: {}".format(e), 
@@ -240,6 +241,7 @@ class FileSelector(FileSelectorGUI):
             self.selection_changed.emit(selected)
             # debug
             if new_base:
+                self.infoDialog("File name changed, please be sure to sync before you quite")
                 self.logger.debug("generate new base name")
 
         self.bib_edit = BibEditorWithOK()
@@ -328,6 +330,7 @@ class FileSelector(FileSelectorGUI):
             self.statusBarInfo("You may have un-saved changes lost...", 3.5, bg_color = "red")
         # may fail because file may not be in local
         # sync with fm.setWatch(True) when finished is used to make sure files are watched
+        self.logger.debug("Set watch to {} on selection row change".format(data.uuid))
         self.database.watchFileChange([data])   
 
         self.selection_changed.emit(data)       # info panel will change here

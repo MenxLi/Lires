@@ -1,5 +1,5 @@
 import os, shutil, uuid, time, threading
-from typing import Union, Literal
+from typing import Optional, Union, Literal
 import warnings
 import requests
 from PyQt6 import QtCore, QtGui
@@ -146,9 +146,30 @@ class FileInfo(FileInfoGUI):
         }
         self.shortcut_save_comment = QShortcut(QKeySequence("ctrl+s"), self)
 
+        self.__curr_data_uid: Optional[str] = None
+
     @property
     def is_offline(self):
         return self.getMainPanel().database.offline
+    
+    # curr_data must be implemented as a reference to the current database
+    # (Here through uuid)
+    # because we may re-construct the database with reload
+    # If the curr_data is implemented as a ordinary property
+    # it maybe un-linked from the database when re-construct database
+    @property
+    def curr_data(self) -> Optional[DataPoint]:
+        if self.__curr_data_uid is not None:
+            return self.database[self.__curr_data_uid]
+        else:
+            return None
+
+    @curr_data.setter
+    def curr_data(self, dp: Optional[DataPoint]):
+        if dp:
+            self.__curr_data_uid = dp.uuid
+        else:
+            self.__curr_data_uid = None
     
     def connectFuncs(self):
         self.getSelectPanel().selection_changed.connect(self.load)

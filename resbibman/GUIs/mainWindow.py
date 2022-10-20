@@ -339,11 +339,28 @@ class MainWindow(MainWindowGUI):
                 # sync datapoint (local) if any
                 to_sync = [dp for uuid, dp in self.db.items() if dp.is_local]
                 self.syncData_async(to_sync)
+
+            # May be update data info panel, 
+            # as we are may have downloaded data from online to local
+            # more info is accessible
+            curr_dp = self.getCurrentSelection()
+            if curr_dp is not None:
+                self.file_info.load(curr_dp)
+            else:
+                self.file_info.clearPanel()
             return 
 
         # -----Start from here-----
         self.setEnabled(False)
         self.statusBar().setEnabled(True)
+
+        if hasattr(self, "db"):
+            # First unwatch all file changes, if any
+            # otherwise those observer threads will be un-refereced
+            # thus can't be stopped
+            self.logger.debug("Unwatching all data...")
+            self.db: DataBase
+            self.db.watchFileChange([])
 
         self.db = DataBase()
         is_offline = getConf()["database"] == data_path
@@ -524,6 +541,8 @@ class MainWindow(MainWindowGUI):
                 ## thus file creation may come after watching
                 ## sleep to avoid logging file creation
                 time.sleep(0.5)     
+                self.logger.debug("Starting watching {} because it's the current loaded one"\
+                    .format(in_info_dp.uuid))
                 in_info_dp.fm.setWatch(True)
         # before start sync, make sure that all datapoint are using GUI for user prompt
         prompt_obj = ChoicePromptGUI()
@@ -564,11 +583,6 @@ class MainWindow(MainWindowGUI):
             # local dir
             self.loadData_async(getConf()["database"], sync_after=False)
             #  self._loadData(getConf()["database"])
-        curr_dp = self.getCurrentSelection()
-        if curr_dp is not None:
-            self.file_info.load(curr_dp)
-        else:
-            self.file_info.clearPanel()
         
     def statusBarMsg(self, msg: str, bg_color = "none"):
         if self.db.offline:
@@ -609,10 +623,10 @@ class MainWindow(MainWindowGUI):
             for p in [TMP_DB, TMP_WEB, TMP_COVER]:
                 if os.path.exists(p):
                     shutil.rmtree(p)
-        except (PermissionError, FileNotFoundError) as e:
+        except (PermissionError, FileNotFoundError, OSError) as e:
             self.warnDialogCritical(
                 "Failed to clean to cache: " + str(e), 
                 "Please restart and close the program again to clean cache (or clean with command)"
                 )
-            self.logger.debug(f"Failed to clean cache: {traceback.format_exc()}")
+            self.logger.error(f"Failed to clean cache: {traceback.format_exc()}")
         return super().closeEvent(a0)

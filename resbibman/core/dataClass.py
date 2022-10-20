@@ -154,14 +154,32 @@ class DataPoint:
         return self.fm.file_p
 
     def reload(self):
+        _re_watch = False
         if self.fm.has_local:
+            if self.fm.is_watched:
+                # The old observer may not be stopped (because it's in another thread),
+                # so unwatch file changes, otherwise may endup in 2 file observers,
+                # and the old one can't be unwatched because we lost reference to it
+                self.logger.debug("de-watching {}".format(self.uuid))
+                self.fm.setWatch(False)
+                _re_watch = True
             self.fm = FileManipulatorVirtual(self.data_path, prompt_obj = self.fm.prompt_obj)
+            if not self.par_db.offline:
+                # set up a v_info
+                if self.uuid in self.par_db.remote_info.keys():
+                    self.fm.v_info = self.par_db.remote_info[self.uuid]
+                else:
+                    ...
         else:
             # to decide later
             pass
         if self.__force_offline:
             self.fm._forceOffline()
         self.fm.screen()
+        # set watch to True, because we may have un-watched it
+        if _re_watch:
+            self.logger.debug("re-watching {}".format(self.uuid))
+            self.fm.setWatch(True)
         self.loadInfo()
 
     def loadInfo(self):
@@ -193,10 +211,10 @@ class DataPoint:
                            authors = bib["authors"], 
                            year = bib["year"])
         # maybe change base_name
-        out = self.fm.changeBasename(fg.base_name)
+        base_name_changed = self.fm.changeBasename(fg.base_name)
         # update datapoint
         self.reload()
-        return out
+        return base_name_changed
     
     def addFile(self, extern_file_p: str) -> bool:
         """
@@ -527,7 +545,9 @@ class DataBase(dict):
          - v: list of uuid or DataPoint
         """
         for uuid, dp in self.items():
-            dp.fm.setWatch(False)
+            dp: DataPoint
+            if dp.fm.is_watched:
+                dp.fm.setWatch(False)
         for v_ in v:
             if isinstance(v_, DataPoint):
                 v_.fm.setWatch(True)

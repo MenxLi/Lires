@@ -3,7 +3,7 @@ Virtual (Remote) file tools
 """
 from __future__ import annotations
 import os, typing, requests, shutil
-from typing import TYPE_CHECKING, Union, Literal
+from typing import TYPE_CHECKING, Union, Literal, Callable
 
 from . import globalVar as G
 from .utils import TimeUtils
@@ -257,7 +257,7 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             return True
 
-    def changeBasename(self, new_basename: str) -> bool:
+    def changeBasename(self, new_basename: str, on_net_failed: Callable[[int], None] = lambda i: ...) -> bool:
         if self.has_local:
             name_changed = super().changeBasename(new_basename)    
             # delete remote old

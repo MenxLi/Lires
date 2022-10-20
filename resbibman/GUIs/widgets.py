@@ -6,6 +6,7 @@ from PyQt6 import QtGui
 from PyQt6.QtWidgets import QWidget, QMessageBox, QApplication
 from PyQt6.QtCore import QThreadPool, pyqtSignal
 
+
 from ..core.utils import delay_exec
 from ..perf.qtThreading import SleepWorker
 
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
     from .fileInfo import FileInfo
     from .fileSelector import FileSelector
     from .fileTags import FileTag
+    from ..core.dataClass import DataBase
 
 class WidgetBase:
     def __init__(self, *args, **kwargs) -> None:
@@ -146,6 +148,7 @@ class RefWidgetBase(QWidget, WidgetBase):
                 self.setEnabled(True)
         return Freezer()
 
-MainWidgetBase = RefWidgetBase
-
-
+class MainWidgetBase(RefWidgetBase):
+    @property
+    def database(self) -> DataBase:
+        return self.getMainPanel().database

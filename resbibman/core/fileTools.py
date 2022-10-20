@@ -217,6 +217,10 @@ class FileManipulator:
         self._time_last_log = 0
         # a switch to trigger the logging of file modification time
         self._enable_log_modification_timestamp = True
+    
+    @property
+    def is_watched(self) -> bool:
+        return hasattr(self, "file_ob")
 
     @property
     def file_names(self) -> FileNameType:
