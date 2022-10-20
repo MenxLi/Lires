@@ -153,10 +153,13 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
 
         self.act_show_panel1 = QAction("&Show panel 1", self)
         self.act_show_panel1.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_one_black_48dp.svg")))
+        self.act_show_panel1.setShortcut(QKeySequence("ctrl+1"))
         self.act_show_panel2 = QAction("&Show panel 2", self)
         self.act_show_panel2.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_two_black_48dp.svg")))
+        self.act_show_panel2.setShortcut(QKeySequence("ctrl+2"))
         self.act_show_panel3 = QAction("&Show panel 3", self)
         self.act_show_panel3.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_3_black_48dp.svg")))
+        self.act_show_panel3.setShortcut(QKeySequence("ctrl+3"))
         self.act_toggle_fullscreen = QAction("&full screen", self)
         self.act_toggle_fullscreen.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "fullscreen_black_48dp.svg")))
         self.act_toggle_fullscreen.setShortcut(QKeySequence("ctrl+f"))
