@@ -286,6 +286,9 @@ class FileSelector(FileSelectorGUI):
         """
         dp = self.getMainPanel().db.add(file_path)
         self.data_model.add(dp)
+        sort_method = getConf()["sort_method"]
+        sort_reverse = getConf()["sort_reverse"]
+        self.data_model.sortBy(sort_method, reverse=sort_reverse)
     
     def _deleteFromDatabase(self, data: DataPoint):
         if data.uuid in self.getMainPanel().db.keys():
