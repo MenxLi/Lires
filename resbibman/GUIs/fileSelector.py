@@ -401,7 +401,7 @@ class FileSelector(FileSelectorGUI):
     def addFilesToDatabseByURL(self, urls: List[str]):
         """deprecated"""
         curr_selected_tags = self.getMainPanel().getCurrentSelectedTags()
-        curr_total_tags = self.getMainPanel().getTotalTags()
+        curr_total_tags = self.database.total_tags
         for f in urls:
             self.bib_quary = BibQuery(self, f, tag_data=curr_selected_tags, tag_total=curr_total_tags)
             self.bib_quary.tag_edit.setMainPanel(self.getMainPanel())

@@ -395,7 +395,7 @@ class DataTableList(DataList):
     def getTableHeaderItem(self, col: int) -> str:
         return self.header_order[col]
 
-class DataBase(dict):
+class DataBase(Dict[str, DataPoint]):
     logger = G.logger_rbm
 
     @property
@@ -554,6 +554,13 @@ class DataBase(dict):
             else:
                 self[v_].setWatch(True)
         return
+
+    @property
+    def total_tags(self) -> DataTags:
+        tags = DataTags([])
+        for d in self.values():
+            tags = tags.union(d.tags)
+        return tags
     
     def getDataByTags(self, tags: Union[list, set, DataTags]) -> DataList:
         datalist = DataList()

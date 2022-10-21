@@ -97,7 +97,7 @@ class FileTag(FileTagGUI):
         for i in self.getSelectPanel().data_model.datalist:
             if i.uuid == uuid:
                 i.reload()
-        self.initTags(self.getMainPanel().getTotalTags())
+        self.initTags(self.database.total_tags)
     
     def saveCurrentTagsAsDefault(self):
         curr_tags = self.tag_selector.getSelectedTags()

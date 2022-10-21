@@ -311,7 +311,7 @@ class MainWindow(MainWindowGUI):
             self.statusBarInfo("Requesting remote server", bg_color = "blue")
         self.db.init(data_path)
         self.file_selector.loadValidData(DataTags(getConf()["default_tags"]), hint = True)
-        self.file_tags.initTags(self.getTotalTags())
+        self.file_tags.initTags(self.database.total_tags)
         self.statusBarInfo("Success", 2, bg_color = "green")
 
     def loadData_async(self, data_path, sync_after = False):
@@ -326,7 +326,7 @@ class MainWindow(MainWindowGUI):
             """
             self.setEnabled(True)
             self.file_selector.loadValidData(DataTags(getConf()["default_tags"]), hint = True)
-            self.file_tags.initTags(self.getTotalTags())
+            self.file_tags.initTags(self.database.total_tags)
             if success or set_offline_mode:
                 if sync_after:
                     self.statusBarInfo("Data loaded", 2, bg_color = "green")
@@ -383,14 +383,8 @@ class MainWindow(MainWindowGUI):
         tags = self.file_tags.tag_selector.getSelectedTags()
         return tags
     
-    def getTotalTags(self) -> DataTags:
-        tags = DataTags([])
-        for d in self.db.values():
-            tags = tags.union(d.tags)
-        return tags
-    
     def refreshFileTagSelector(self, *args):
-        self.file_tags.initTags(self.getTotalTags())
+        self.file_tags.initTags(self.database.total_tags)
 
     def _center(self):
         qr = self.frameGeometry()
@@ -435,7 +429,7 @@ class MainWindow(MainWindowGUI):
     
     def addFilesToDatabaseByURL(self, urls: typing.List[str]):
         curr_selected_tags = self.getCurrentSelectedTags()
-        curr_total_tags = self.getTotalTags()
+        curr_total_tags = self.database.total_tags
         for f in urls:
             # if bib file
             if f.endswith(".bib"):
