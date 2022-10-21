@@ -99,7 +99,7 @@ def getConf() -> ResbibmanConfT:
     global CONF_FILE_PATH, CURR_PATH, G
     if not hasattr(G, "config"):
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
-            conf = json.load(conf_file)
+            conf: ResbibmanConfT = json.load(conf_file)
             G.config = conf
     else:
         # Save configuration to global buffer

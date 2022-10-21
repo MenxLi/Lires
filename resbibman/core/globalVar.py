@@ -1,5 +1,8 @@
+from __future__ import annotations
 import sys, shutil, logging, os, argparse
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..confReader import ResbibmanConfT
 
 __initialized: bool
 logger_rbm: logging.Logger
@@ -7,7 +10,7 @@ last_status_code: int   # a register for last connection status code
 tmpdirs: List[str]      # temporary directories, will be cleared on resbibman GUI exit
 
 prog_args: Optional[argparse.Namespace]     # set by resbibman.exec
-config: dict            # configuration, set by resbibman.confReader
+config:  ResbibmanConfT           # configuration, set by resbibman.confReader
 
 def init():
     global tmpdirs
