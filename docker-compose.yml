@@ -8,4 +8,6 @@ services:
       - "8000:8080"
     volumes:
       # change the first path to your choice
-      - "~/.RBM:~/RBM"
+      # it's suggested to set a blank directory
+      # on the first run
+      - "<your/path/to/a/directory>:/root/.RBM"
