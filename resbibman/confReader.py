@@ -10,36 +10,40 @@ __this_file_path = os.path.abspath(__file__)
 
 CURR_PATH = os.path.dirname(__this_file_path)
 CURR_PATH = os.path.abspath(CURR_PATH)
+RBM_HOME = os.path.join(os.path.expanduser("~"), ".RBM")
 
 if G.prog_args and G.prog_args.config_file:
     CONF_FILE_PATH = os.path.abspath(G.prog_args.config_file)
     if os.path.isdir(CONF_FILE_PATH):
         CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "rbm-conf.json")
 else:
-    CONF_FILE_PATH = join(CURR_PATH, "conf.json")
+    CONF_FILE_PATH = join(RBM_HOME, "conf.json")
 
 ICON_PATH = join(CURR_PATH, "icons")
 STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
 DOC_PATH = join(CURR_PATH, "docs")
 BIB_TEMPLATE_PATH = join(DOC_PATH, "bibtexTemplates")
-LOG_FILE = join(CURR_PATH, "log.txt")
 ASSETS_PATH = join(CURR_PATH, "assets")
-DEFAULT_DATA_PATH = join(CURR_PATH, os.pardir, "Database")
+
+DEFAULT_DATA_PATH = join(RBM_HOME, "Database")
+LOG_FILE = join(RBM_HOME, "log.txt")
 
 #  TMP_DIR = tempfile.gettempdir()
-TMP_DIR = os.path.join(CURR_PATH, ".TempDir")
-if not os.path.exists(TMP_DIR):
-    os.mkdir(TMP_DIR)
+TMP_DIR = os.path.join(RBM_HOME, ".TempDir")
 TMP_DIR = os.path.join(TMP_DIR, "ResBibMan")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
 TMP_WEB_NOTES = os.path.join(TMP_DIR, "notes_webpage")  # For notes as webpages
 
+# Create directories if they don't exist
+if not os.path.exists(RBM_HOME):
+    os.mkdir(RBM_HOME)
+if not os.path.exists(TMP_DIR):
+    os.mkdir(TMP_DIR)
 for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES]:
     if not os.path.exists(_p):
         os.mkdir(_p)
-
 
 def getStyleSheets() -> dict:
     global STYLESHEET_PATH

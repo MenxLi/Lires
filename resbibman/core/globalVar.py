@@ -4,7 +4,7 @@ from typing import List, Optional
 __initialized: bool
 logger_rbm: logging.Logger
 last_status_code: int   # a register for last connection status code
-tmpdirs: List[str]      # temporary directories
+tmpdirs: List[str]      # temporary directories, will be cleared on resbibman GUI exit
 
 prog_args: Optional[argparse.Namespace]     # set by resbibman.exec
 config: dict            # configuration, set by resbibman.confReader
