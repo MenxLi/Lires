@@ -1,5 +1,42 @@
 import os, json, tempfile, logging
+from typing import Tuple, TypedDict, List
 from .core import globalVar as G
+
+class _ConfServerPresetT(TypedDict):
+    host: str
+    port: str
+    access_key: str
+
+class _ConfFontSizeT(TypedDict):
+    data: Tuple[str, int]
+    tag: Tuple[str, int]
+
+class _ConfGUIStatusT(TypedDict):
+    show_toolbar: bool
+
+class ResbibmanConfT(TypedDict):
+    """
+    Refer to rbm-resetconf 
+    for the generation of default configuration file
+    """
+    accepted_extensions: List[str]
+    database: str
+    # Server settings
+    server_preset: List[_ConfServerPresetT]
+    host: str
+    port: str
+    access_key: str
+    # Tag settings
+    default_tags: List[str]
+    sort_method: str
+    sort_reverse: bool
+    table_headers: List[str]
+
+    font_sizes: _ConfFontSizeT
+    stylesheet: str
+    auto_save_comments: bool
+    gui_status: _ConfGUIStatusT
+
 rbm_logger = logging.getLogger("rbm")
 
 join = os.path.join
@@ -60,7 +97,7 @@ def getStyleSheets() -> dict:
     ss["<None>"] = ""
     return ss
 
-def getConf():
+def getConf() -> ResbibmanConfT:
     global CONF_FILE_PATH, CURR_PATH, G
     if not hasattr(G, "config"):
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
