@@ -65,9 +65,7 @@ ASSETS_PATH = join(CURR_PATH, "assets")
 DEFAULT_DATA_PATH = join(RBM_HOME, "Database")
 LOG_FILE = join(RBM_HOME, "log.txt")
 
-#  TMP_DIR = tempfile.gettempdir()
-TMP_DIR = os.path.join(RBM_HOME, ".TempDir")
-TMP_DIR = os.path.join(TMP_DIR, "ResBibMan")
+TMP_DIR = os.path.join(RBM_HOME, "RBM.cache")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
