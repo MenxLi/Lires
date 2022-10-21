@@ -8,7 +8,6 @@ import subprocess, platform
 hidden_imports = ["PyQt6.QtWebChannel", "PyQt6.QtNetwork", "PyQt6.QtWebEngineCore", "PyQt6.QtPrintSupport"]
 
 data_path = [
-( "resbibman/conf.json", "./resbibman" ),
 ( "resbibman/icons/*", "./resbibman/icons" ),
 ( "resbibman/assets/*", "./resbibman/assets" ),
 
@@ -19,7 +18,6 @@ data_path = [
 ( "resbibman/stylesheets/*.qss", "./resbibman/stylesheets" ),
 ( "resbibman/stylesheets/Breeze", "./resbibman/stylesheets/Breeze" ),
 
-( "RBMWeb/backend/config.json", "./RBMWeb/backend" ),
 ( "RBMWeb/frontend/*", "./RBMWeb/frontend" ),
 ]
 

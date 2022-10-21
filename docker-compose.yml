@@ -8,5 +8,4 @@ services:
       - "8000:8080"
     volumes:
       # change the first path to your choice
-      - "./Database:/ResBibManager/Database"
-      - "./RBMWeb/backend/data:/ResBibManager/RBMWeb/backend/data"
+      - "~/.RBM:~/RBM"

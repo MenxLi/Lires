@@ -4,7 +4,6 @@ from typing import List, Union, Callable, Optional
 import markdown
 
 from RBMWeb.backend.rbmlibs import DatabaseReader
-from RBMWeb.backend.confReader import getRBMWebConf
 from RBMWeb.backend.encryptServer import queryHashKey
 from RBMWeb.backend.discussUtils import DiscussDatabase, DiscussLine
 
@@ -382,20 +381,15 @@ class Application(tornado.web.Application):
         ]
         super().__init__(handlers)
 
-def startServer(port: Union[int, str, None] = None):
+def startServer(port: Union[int, str]):
     global db_reader
     global discussion_db 
 
     discussion_db = DiscussDatabase()
     db_reader = DatabaseReader(getConfV("database"))
     app = Application()
-    conf = getRBMWebConf()
-    if port is None:
-        port_ = conf["port"]
-    else:
-        port_ = port
     print("Starting server at port: ", port)
-    app.listen(int(port_))
+    app.listen(int(port))
     tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
     tornado.autoreload.start()
     tornado.ioloop.IOLoop.current().start()
