@@ -1,6 +1,6 @@
 from threading import Thread
 import pyperclip
-from typing import Tuple, List, Callable
+from typing import Literal, Tuple, List, Callable
 from PyQt6 import QtGui
 from PyQt6.QtGui import QIcon, QKeySequence, QShortcut
 from PyQt6.QtWidgets import QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
@@ -23,7 +23,7 @@ from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser, BibConverter
 from ..core.utils import openFile, ProgressBarCustom
 from ..core.dataClass import DataTags, DataBase, DataPoint
-from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf_guiStatus
+from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf, saveToConf_guiStatus
 from ..confReader import TMP_DB, TMP_WEB, TMP_COVER
 from ..version import VERSION
 from ..perf.qtThreading import SyncWorker, InitDBWorker
@@ -154,6 +154,11 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.act_show_toolbar.setCheckable(True)
         self.act_show_toolbar.setShortcut(QKeySequence("ctrl+t"))
 
+        self.act_fontsize_increase = QAction("&Increase font size", self)
+        self.act_fontsize_increase.setShortcut(QKeySequence("ctrl++"))
+        self.act_fontsize_decrease = QAction("&Decrease font size", self)
+        self.act_fontsize_decrease.setShortcut(QKeySequence("ctrl+-"))
+
         self.act_show_panel1 = QAction("&Show panel 1", self)
         self.act_show_panel1.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_one_black_48dp.svg")))
         self.act_show_panel1.setShortcut(QKeySequence("ctrl+1"))
@@ -191,6 +196,8 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         settings_menu = QMenu("&Settings", self)
         menu_bar.addMenu(settings_menu)
         settings_menu.addAction(self.act_settings)
+        settings_menu.addAction(self.act_fontsize_increase)
+        settings_menu.addAction(self.act_fontsize_decrease)
 
         help_menu = QMenu("&Help", self)
         menu_bar.addMenu(help_menu)
@@ -224,6 +231,25 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.file_selector.applyFontConfig(font_config)
         self.file_tags.applyFontConfig(font_config)
 
+    def fontSizeStep1(self, mode: Literal["increase", "decrease"] = "increase"):
+        self.logger.debug(f"{mode} font size by 1")
+        font_config = getConf()["font_sizes"]
+        new_font_config = font_config.copy()
+        for k in ["data", "tag"]:
+            old_font = font_config[k]
+            list_font = list(old_font)
+            if mode == "increase":
+                list_font[1] += 1
+            elif mode == "decrease":
+                list_font[1] -= 1
+            else:
+                raise ValueError("Invalid mode in function: fontSizeStep1")
+            new_font = tuple(list_font)
+            new_font_config[k] = new_font
+        self.file_selector.applyFontConfig(new_font_config)
+        self.file_tags.applyFontConfig(new_font_config)
+        saveToConf(font_sizes = new_font_config)
+
     def toggleShowToobar(self, status: bool):
         for bar in self.toolbars:
             bar.setVisible(status)
@@ -254,6 +280,8 @@ class MainWindow(MainWindowGUI):
         self.act_importbib_from_clip.triggered.connect(self.importEntryFromClipboardBib)
 
         self.act_show_toolbar.triggered.connect(self.toggleShowToobar)
+        self.act_fontsize_increase.triggered.connect(lambda: self.fontSizeStep1(mode = "increase"))
+        self.act_fontsize_decrease.triggered.connect(lambda: self.fontSizeStep1(mode = "decrease"))
         self.act_show_panel1.triggered.connect(lambda: self.toggleOnlyPanel(0))
         self.act_show_panel2.triggered.connect(lambda: self.toggleOnlyPanel(1))
         self.act_show_panel3.triggered.connect(lambda: self.toggleOnlyPanel(2))

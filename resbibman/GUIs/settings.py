@@ -287,8 +287,9 @@ class SetFont(SubSettingsBase):
 				   please check the format.")
 			return
 		if getConfV("font_sizes") != font_sizes:
-			self.requestRestart()
+			#  self.requestRestart()
 			saveToConf(font_sizes = font_sizes)
+			self.getMainPanel().loadFontConfig()
 
 
 class SetAutoSaveComments(SubSettingsBase):
