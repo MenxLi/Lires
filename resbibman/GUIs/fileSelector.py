@@ -12,7 +12,7 @@ from .bibtexEditor import BibEditorWithOK
 from ..core import globalVar as G
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from ..core.utils import copy2clip, openFile
-from ..confReader import getConf, getConfV
+from ..confReader import getConf, getConfV, _ConfFontSizeT
 
 class FileSelectorGUI(MainWidgetBase):
     def __init__(self, parent):
@@ -75,6 +75,12 @@ class FileSelectorGUI(MainWidgetBase):
         self.data_view.addAction(self.act_open_location)
         self.data_view.addAction(self.act_export_data)
         self.data_view.addAction(self.act_delete_file)
+
+    def applyFontConfig(self, font_config: _ConfFontSizeT):
+        data_view = self.data_view
+        data_view.setFont(QtGui.QFont(*font_config["data"]))
+        data_font_size = font_config["data"][1]
+        data_view.verticalHeader().setDefaultSectionSize(int(data_font_size*1.1))
     
 
 class FileSelector(FileSelectorGUI):
@@ -489,10 +495,7 @@ class FileTableView(QTableView):
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
         self.setAutoScroll(False)
-        font_size = getConfV("font_sizes")["data"][1]
-        self.setFont(QtGui.QFont(*getConfV("font_sizes")["data"]))
         # self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
-        self.verticalHeader().setDefaultSectionSize(int(font_size*1.1))
 
     def initSettings(self):
         # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from .fileSelector import FileSelector
     from .fileTags import FileTag
     from ..core.dataClass import DataBase
+    from ..confReader import _ConfFontSizeT
 
 class WidgetBase:
     def __init__(self, *args, **kwargs) -> None:
@@ -152,3 +153,7 @@ class MainWidgetBase(RefWidgetBase):
     @property
     def database(self) -> DataBase:
         return self.getMainPanel().database
+
+    def applyFontConfig(self, font_config: _ConfFontSizeT):
+        # To be implemented by subclasses
+        return None

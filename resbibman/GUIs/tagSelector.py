@@ -1,6 +1,6 @@
 import os
 import typing
-from typing import Union, List
+from typing import Optional, Union, List, overload
 
 from PyQt6.QtWidgets import QListView, QHBoxLayout, QInputDialog
 from PyQt6.QtGui import QAction, QFont
@@ -30,6 +30,8 @@ class TagSelector(RefWidgetBase):
     def initUI(self):
         self.tag_view = QListView()
         self.tag_view.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tag_model = TagListModel()
+        self.tag_view.setModel(self.tag_model)
         hbox = QHBoxLayout()
         hbox.addWidget(self.tag_view)
         self.setLayout(hbox)
@@ -48,8 +50,7 @@ class TagSelector(RefWidgetBase):
     def constructDataModel(self, tag_data: DataTags, tag_total: DataTags):
         self.tag_data = tag_data
         self.tag_total = tag_total
-        self.tag_model = TagListModel(self.tag_data, self.tag_total)
-        self.tag_view.setModel(self.tag_model)
+        self.tag_model.loadTags(tag_data, tag_total)
     
     def checkCurrentTag(self):
         indexes = self.tag_view.selectedIndexes()
@@ -130,12 +131,26 @@ class TagSelector(RefWidgetBase):
         return all_data[0]
     
 class TagListModel(QtCore.QAbstractListModel):
-    def __init__(self, tag_data: DataTags, tag_total: DataTags) -> None:
+    @overload
+    def __init__(self) -> None:...
+    @overload
+    def __init__(self, tag_data: DataTags, tag_total: DataTags) -> None:...
+    def __init__(self, tag_data: Optional[DataTags] = None, tag_total: Optional[DataTags] = None) -> None:
+        super().__init__()
+        if tag_data is None:
+            tag_data = DataTags()
+        if tag_total is None:
+            tag_total = DataTags()
+        self.loadTags(tag_data, tag_total)
+
+        self.TICK_CHECK = qIconFromSVG_autoBW(os.path.join(ICON_PATH, "check_circle-24px.svg"))
+        self.TICK_UNCHECK = qIconFromSVG_autoBW(os.path.join(ICON_PATH, "check_circle_blank-24px.svg"))
+
+    def loadTags(self, tag_data: DataTags, tag_total: DataTags) -> None:
         """
         tag_data - the tags to be marked as 1, subset of tag_total
         tag_total - total tags
         """
-        super().__init__()
         if not tag_data.issubset(tag_total):
             raise Exception("Contains tag that not in total tag pool, check tags' info")
         datalist = [[False, d] for d in tag_total.toOrderedList()]
@@ -143,16 +158,12 @@ class TagListModel(QtCore.QAbstractListModel):
             if d[1] in tag_data:
                 d[0] = True
         self.datalist = datalist 
-
-        self.TICK_CHECK = qIconFromSVG_autoBW(os.path.join(ICON_PATH, "check_circle-24px.svg"))
-        self.TICK_UNCHECK = qIconFromSVG_autoBW(os.path.join(ICON_PATH, "check_circle_blank-24px.svg"))
+        self.layoutChanged.emit()
 
     def data(self, index, role):
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             status, tag = self.datalist[index.row()]
             return tag
-        if role == QtCore.Qt.ItemDataRole.FontRole:
-            return QFont(*getConfV("font_sizes")["tag"])
         if role == QtCore.Qt.ItemDataRole.DecorationRole:
             status, _ = self.datalist[index.row()]
             if status:

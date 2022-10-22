@@ -1,10 +1,11 @@
+from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QFrame
 from PyQt6 import QtCore
 from .widgets import  MainWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
 from ..core.dataClass import DataPoint, DataTags
-from ..confReader import getConf, saveToConf
+from ..confReader import getConf, saveToConf, _ConfFontSizeT
 
 class FileTagGUI(MainWidgetBase):
     """
@@ -12,7 +13,6 @@ class FileTagGUI(MainWidgetBase):
     """
     def __init__(self, parent = None):
         super().__init__(parent)
-        self.parent = parent
         self.initUI()
 
     def initUI(self):
@@ -47,6 +47,10 @@ class FileTagGUI(MainWidgetBase):
 
         vbox0.addWidget(self.tagselector_frame, 5)
         vbox0.addWidget(self.filetagselector_frame, 0)
+
+    def applyFontConfig(self, font_config: _ConfFontSizeT):
+        font = QFont(*font_config["tag"])
+        self.tag_selector.tag_view.setFont(font)
     
     def offlineStatus(self, status: bool):
         super().offlineStatus(status)
@@ -92,7 +96,10 @@ class FileTag(FileTagGUI):
         self.tag_editor.show()
     
     def acceptNewTags(self, new_tags: DataTags):
-        uuid = self.getSelectPanel().getCurrentSelection().uuid
+        data = self.getSelectPanel().getCurrentSelection()
+        if data is None:
+            return
+        uuid = data.uuid
         self.getMainPanel().db[uuid].changeTags(new_tags)
         for i in self.getSelectPanel().data_model.datalist:
             if i.uuid == uuid:

@@ -73,6 +73,8 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         wid.setLayout(hbox)
         # self._center()
 
+        self.loadFontConfig()
+
     def toggleLayout(self, toggle_mask: Tuple[bool, bool, bool]):
         # Record this to be used by toggleFullScreen
         self._cache["prev_layout"] = self._cache["current_layout"]
@@ -216,6 +218,11 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         panel_bar.addAction(self.act_show_panel3)
 
         self.toolbars = [tool_bar, file_bar, panel_bar]
+
+    def loadFontConfig(self):
+        font_config = getConf()["font_sizes"]
+        self.file_selector.applyFontConfig(font_config)
+        self.file_tags.applyFontConfig(font_config)
 
     def toggleShowToobar(self, status: bool):
         for bar in self.toolbars:
