@@ -63,5 +63,6 @@ _VERSION_HISTORIES = [
     ("0.6.9", "Being able to add bib&nbib file; Not deleting original document when adding to database; Bug fixes: mayn not delete remote file"),
     ("0.6.10", "New RBMWeb sharing page; Hover highlight entire line; Add menubar, toolbar can be hidden; Font settings; "\
      "Move cache dir out of system tempdir; Sync bug fixes on Macos;"),
+    ("0.7.0", "Use RBM_HOME directory for application data storage; Load font settings without restart; Bug fixes"),
 ]
 VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
