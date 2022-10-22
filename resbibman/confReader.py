@@ -47,7 +47,10 @@ __this_file_path = os.path.abspath(__file__)
 
 CURR_PATH = os.path.dirname(__this_file_path)
 CURR_PATH = os.path.abspath(CURR_PATH)
-RBM_HOME = os.path.join(os.path.expanduser("~"), ".RBM")
+if "RBM_HOME" in os.environ:
+    RBM_HOME = os.environ["RBM_HOME"]
+else:
+    RBM_HOME = os.path.join(os.path.expanduser("~"), ".RBM")
 
 if G.prog_args and G.prog_args.config_file:
     CONF_FILE_PATH = os.path.abspath(G.prog_args.config_file)
