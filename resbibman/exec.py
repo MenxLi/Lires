@@ -41,19 +41,21 @@ def run():
 
     NOT_RUN = False     # Indicates whether to run main GUI
 
-    if not os.path.exists(CONF_FILE_PATH):
-        #  subprocess.check_call("rbm-resetConf")  # Installed with setup.py
-        print("Generating default configuration...")
-        args.reset_conf = True
-
-    if args.reset_conf:
+    def resetConf():
         from resbibman.cmdTools.generateDefaultConf import generateDefaultConf
         generateDefaultConf()
+
+    if not os.path.exists(CONF_FILE_PATH):
+        print("Generating default configuration...")
+        resetConf()
+
+    if args.reset_conf:
+        resetConf()
         NOT_RUN = True
 
     if not os.path.exists(getConf()["database"]):
-        warnings.warn("Database not exists, default database path is set. \
-            The path can be changed in settings or conf.json")
+        G.logger_rbm.warn("Database not exists, default database path is set. "\
+                          "The path can be changed in settings or edit conf.json")
         if not os.path.exists(DEFAULT_DATA_PATH):
             os.mkdir(DEFAULT_DATA_PATH)
         saveToConf(database=DEFAULT_DATA_PATH)
