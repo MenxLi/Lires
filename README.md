@@ -35,8 +35,9 @@ If you dowload the source code from web url, you can update it with `update.py`
 If you clone it from remote git repository, then please stick with `git pull`
 
 ### Docker deployment
-Instead of manual installation, The the server side can be deployed and run via docker,   
-You may wish to edit `docker-compose.yml` to change port and mount point mapping prior to the following commands
+Instead of manual installation, The the RBMWeb server can be deployed via docker,   
+
+You need to edit `docker-compose.yml` to change port and mount point mapping, then execute the following commands to start:
 ```bash
 # update docker container if it's not been built
 docker-compose build
@@ -53,15 +54,30 @@ To start the main program:
 ```bash
 resbibman
 ```
+To start the RBMWeb server:
+```bash
+resbibman server
+```
+
 For CLI help, see `resbibman -h`  
-Other CLI command includes:
+
+
+### Configure
+`$RBM_HOME` directory is used for application data storage, by default it is set to `~/.RBM`.  
+The data directory contains the configuration file, log files, default database, RBMWeb backend data, cache files...  
+
+To start the application with arbitrary data directory, you can run: 
+```bash
+export RBM_HOME="your/path/here"; resbibman
+```
+
+Other management tools includes: 
+
 ```bash
 rbm-keyman      # Manage access key
 rbm-discuss     # Manage online discussions
 rbm-collect     # Automatic add entry to database with retriving string
 ```
-
-**The [docs-CN](./resbibman/docs/UserGuide.md) is helpful but needs more detail. Will add in the fufute**
 
 <!--
 ## Server usage
@@ -89,6 +105,7 @@ The server port can be assigned at `RBMWeb/backend/conf.json`
 - [x] Markdown LaTeX equation support
 - [x] Export database
 - [x] Better font size
+- [ ] Advance search
 - [ ] Dashboard page
 - [ ] Within software cross-reference
 - [ ] Other citation format convert to bibtex
@@ -101,8 +118,8 @@ In query widget while importing articles:
 
 - [x] Add copy from template button
 - [x] Other bibtex template
+- [x] Other format convert to bibtex
 - [ ] Format check
-- [ ] Other format convert to bibtex
 
 In file selector:
 
@@ -149,5 +166,5 @@ rbm-collect:
 
 ## Credits:
 https://github.com/google/material-design-icons   
-https://github.com/GTRONICK/QSS
+https://github.com/GTRONICK/QSS  
 https://github.com/MathJax/MathJax
