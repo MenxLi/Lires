@@ -101,7 +101,7 @@ class FileSelector(FileSelectorGUI):
         self.shortcut_delete_selection = QShortcut(QtGui.QKeySequence("Del"), self)
         self.shortcut_delete_selection.activated.connect(self.deleteCurrentSelected)
         self.shortcut_open_tagedit = QShortcut(QtGui.QKeySequence("Space"), self)
-        self.shortcut_open_tagedit.activated.connect(lambda: self.getTagPanel().openTagEditor())
+        self.shortcut_open_tagedit.activated.connect(self.editTagForThisSelection)
 
         self.search_edit.textChanged.connect(self.onSearchTextChange)
 
@@ -125,7 +125,7 @@ class FileSelector(FileSelectorGUI):
             self.act_free_doc,
             self.act_export_data,
             self.shortcut_delete_selection,
-            self.shortcut_open_tagedit,
+            # self.shortcut_open_tagedit,
         ]
         for wid in disable_wids:
             wid.setEnabled(status)
@@ -198,6 +198,21 @@ class FileSelector(FileSelectorGUI):
         curr_data = self.getCurrentSelection()
         if not curr_data is None:
             openFile(curr_data.fm.path)
+    
+    def editTagForThisSelection(self):
+        """
+        Edit tag for current selected single data entry,
+        will sync before opening tag editor, if the data is not in local
+        """
+        def _openTagEditor(success_sync: bool):
+            if success_sync:
+                self.getTagPanel().openTagEditor()
+        curr_data = self.getCurrentSelection(return_multiple=False)
+        if curr_data:
+            if curr_data.is_local:
+                _openTagEditor(True)
+            else:
+                self.syncCurrentSelections_async(callback_on_finish=_openTagEditor)
     
     def copyCurrentSelectionBib(self):
         selected = self.getCurrentSelection(return_multiple=True)
