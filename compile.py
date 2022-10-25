@@ -21,7 +21,7 @@ data_path = [
 ( "RBMWeb/frontend/*", "./RBMWeb/frontend" ),
 ]
 
-cmd = ["pyinstaller", "--noconfirm", "-w", "-i", "./resbibman/icons/resbibmanicon/favicon.ico", "./__main__.py", "--additional-hooks-dir=pyinstallerHooks"]
+cmd = ["pyinstaller", "--noconfirm", "-w", "-n", "ResBibMan", "-i", "./resbibman/icons/resbibmanicon/favicon.ico", "./__main__.py", "--additional-hooks-dir=pyinstallerHooks"]
 
 for himp in hidden_imports:
     cmd += ["--hidden-import", himp]
