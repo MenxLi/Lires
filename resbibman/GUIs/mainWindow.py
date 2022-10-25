@@ -155,7 +155,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.act_show_toolbar.setShortcut(QKeySequence("ctrl+t"))
 
         self.act_fontsize_increase = QAction("&Increase font size", self)
-        self.act_fontsize_increase.setShortcut(QKeySequence("ctrl++"))
+        self.act_fontsize_increase.setShortcut(QKeySequence("ctrl+="))
         self.act_fontsize_decrease = QAction("&Decrease font size", self)
         self.act_fontsize_decrease.setShortcut(QKeySequence("ctrl+-"))
 
