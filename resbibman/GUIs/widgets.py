@@ -1,13 +1,11 @@
 from __future__ import annotations
-import typing, logging, threading
-from typing import TYPE_CHECKING
+import typing, logging
+from typing import TYPE_CHECKING, Literal
 
 from PyQt6 import QtGui
 from PyQt6.QtWidgets import QWidget, QMessageBox, QApplication
-from PyQt6.QtCore import QThreadPool, pyqtSignal
+from PyQt6.QtCore import QThreadPool, pyqtSignal, Qt
 
-
-from ..core.utils import delay_exec
 from ..perf.qtThreading import SleepWorker
 
 if TYPE_CHECKING:
@@ -18,10 +16,11 @@ if TYPE_CHECKING:
     from ..core.dataClass import DataBase
     from ..confReader import _ConfFontSizeT
 
+LOGGER = logging.getLogger("rbm")
 class WidgetBase:
+    logger = logging.getLogger("rbm")
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.logger = logging.getLogger("rbm")
     
     def infoDialog(self, messege, info_msg = ""):
         msg_box = QMessageBox()
@@ -84,6 +83,19 @@ class RefWidgetBase(QWidget, WidgetBase):
         # AttributeError: 'MainWindow' does not have a signal with the signature update_statusmsg(QString)
         cls.update_statusmsg = pyqtSignal(str)
         return super().__init_subclass__()
+    
+    def passRefTo(self, new: RefWidgetBase):
+        if self.getMainPanel():
+            new.setMainPanel(self.getMainPanel())
+
+        if self.getInfoPanel():
+            new.setInfoPanel(self.getInfoPanel())
+
+        if self.getTagPanel():
+            new.setTagPanel(self.getTagPanel())
+
+        if self.getSelectPanel():
+            new.setSelectPanel(self.getSelectPanel())
     
     def statusBarInfo(self, info: str, time: float = -1, **kwargs):
         # Send a signal to abort previous worker
@@ -149,7 +161,31 @@ class RefWidgetBase(QWidget, WidgetBase):
                 self.setEnabled(True)
         return Freezer()
 
-class MainWidgetBase(RefWidgetBase):
+class MyQUtils(QWidget):
+    @classmethod
+    def keyModifiers(cls, *args: Literal["Control", "Shift", "Alt"]) -> bool:
+        """Check if key modifiers has been pressed
+
+        Args:
+            *args (Literal[&quot;Control&quot;, &quot;Shift&quot;, &quot;Alt&quot;]): Modifiers to be checked
+
+        Returns:
+            bool: True if all modifiers are pressed
+        """
+        modifiers = []
+        for k in args:
+            try:
+                attr = getattr(Qt.KeyboardModifier, k + "Modifier")
+                modifiers.append(attr)
+            except AttributeError:
+                LOGGER.error("Unable to get modifier from QtCore.Qt: {}".format(k))
+                return False
+        m_total = modifiers[0]
+        for m in modifiers[1:]:
+            m_total = m|m_total
+        return QApplication.keyboardModifiers() == m_total
+
+class MainWidgetBase(MyQUtils, RefWidgetBase):
     @property
     def database(self) -> DataBase:
         return self.getMainPanel().database

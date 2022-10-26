@@ -1,9 +1,8 @@
-from threading import Thread
 import pyperclip
 from typing import Literal, Tuple, List, Callable
 from PyQt6 import QtGui
-from PyQt6.QtGui import QIcon, QKeySequence, QShortcut
-from PyQt6.QtWidgets import QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QFrame, QToolBar, QSizePolicy
+from PyQt6.QtGui import QIcon, QKeySequence
+from PyQt6.QtWidgets import QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QToolBar, QTabWidget, QTabBar
 from PyQt6.QtGui import QAction
 from PyQt6.QtCore import Qt, QThreadPool
 
@@ -11,6 +10,7 @@ from .widgets import RefWidgetBase
 from .fileInfo import FileInfo
 from .fileTags import FileTag
 from .fileSelector import FileSelector
+from .docReader import DocumentReader
 from .bibQuery import BibQuery
 from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
@@ -27,7 +27,63 @@ from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf, 
 from ..confReader import TMP_DB, TMP_WEB, TMP_COVER
 from ..version import VERSION
 from ..perf.qtThreading import SyncWorker, InitDBWorker
-import os, copy, typing, requests, functools, time, shutil, traceback
+import os, typing, requests, functools, time, shutil, traceback
+
+class MainTabWidget(QTabWidget, RefWidgetBase):
+    def __init__(self, parent) -> None:
+        super().__init__(parent)
+        self.setTabsClosable(True)
+
+        # a list of tabs except the first one
+        self._tabs: List[QWidget] = []
+        self._now_tab_idx = None
+
+        self.tabCloseRequested.connect(self.closeTab)
+        self.currentChanged.connect(self.onTabChange)
+
+    def loadDocReader(self, reader: DocumentReader, name: str):
+        self.addTab(reader, name)
+        self._tabs.append(reader)
+        self.setCurrentIndex(self.count()-1)
+
+    def onTabChange(self, idx: int):
+        self.logger.debug(f"Switching to tab: {idx}")
+        if idx<0:
+            return
+        if self._now_tab_idx is not None:
+            self.onLeaveTab(self._now_tab_idx)
+
+        # Reload info panel in case comments change
+        if idx == 0:
+            # Mainwindow
+            self.getInfoPanel().reload()
+        else:
+            wid = self._tabs[idx-1]
+            if isinstance(wid, DocumentReader):
+                wid.maybeInitSpliterSize()
+                wid.info_panel.reload()
+        self._now_tab_idx = idx
+
+    def onLeaveTab(self, idx: int):
+        # maybe save unsaved comments
+        if idx == 0:
+            # mainWindow
+            self.getInfoPanel()._saveComments()
+        else:
+            for wid in self._tabs:
+                if isinstance(wid, DocumentReader):
+                    wid.info_panel._saveComments()
+
+    def closeTab(self, idx: int):
+        self.logger.debug(f"Closing tab: {idx}")
+        if idx == 0:
+            self.infoDialog("Don't close me :)", "Close the application if you want to quit")
+            return
+        self.removeTab(idx)
+        _idx = idx-1
+        wid = self._tabs[_idx]
+        wid.deleteLater()
+        self._tabs.pop(_idx)
 
 class MainWindowGUI(QMainWindow, RefWidgetBase):
     menu_bar: QMenuBar
@@ -68,9 +124,13 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.toggleLayout(self._panel_status)
         hbox.addWidget(self.splitter)
 
-        wid = QWidget(self)
-        self.setCentralWidget(wid)
-        wid.setLayout(hbox)
+        main_wid = QWidget(self)
+        main_wid.setLayout(hbox)
+
+        self.tab_wid = MainTabWidget(self)
+        self.passRefTo(self.tab_wid)
+        self.tab_wid.addTab(main_wid, "HOME")
+        self.setCentralWidget(self.tab_wid)
         # self._center()
 
         self.loadFontConfig()
@@ -291,6 +351,18 @@ class MainWindow(MainWindowGUI):
         gui_conf = getConfV("gui_status")
         self.act_show_toolbar.setChecked(gui_conf["show_toolbar"])
         self.toggleShowToobar(gui_conf["show_toolbar"])
+
+    def openDocInNewTab(self, dp: DataPoint) -> bool:
+        """
+        Return if successfully opened the file
+        """
+        new_tab = DocumentReader(self)
+        if new_tab.loadDataByUid(dp.uuid):
+            self.tab_wid.loadDocReader(new_tab, dp.getAuthorsAbbr())
+            return True
+        else:
+            new_tab.deleteLater()
+            return False
 
     def toggleOnlyPanel(self, idx: int):
         """

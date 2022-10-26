@@ -195,5 +195,6 @@ version_history:
   - Use RBM_HOME directory for application data storage
   - Load font settings without restart
   - Bug fixes
-  0.7.1:
+  0.7.0.1:
   - Use yaml to record version history
+  - Open document in new tab

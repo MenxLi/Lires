@@ -27,7 +27,6 @@ class FileInfoGUI(MainWidgetBase):
 
     def __init__(self, parent = None):
         super().__init__(parent)
-        self.parent = parent
         self.initUI()
         self.setAcceptDrops(True)
         self.show()
@@ -218,20 +217,6 @@ class FileInfo(FileInfoGUI):
         self.setCommentSaveStatusLbl("none")
         self.__updateCover(None)
 
-    def loadDir(self, dir_path: str):
-        """
-        *****Deprecated, can be called while serve as standalone widget"""
-        fm = FileManipulator(dir_path)
-        if not fm.screen():
-            warnings.warn("Data seems to be broken, please check the data externally")
-            return False
-        data = DataPoint(fm)
-        bib = fm.bib
-        bib = BibParser()(bib)[0]
-        info_txt = "【Title】\n>> {title}\n【Year】\n>> {year}\n【Authors】\n>> {authors}\n\
-            ".format(title = bib["title"], year = bib["year"], authors = " | ".join(bib["authors"]))
-        self.info_lbl.setText(info_txt)
-    
     def load(self, data: DataPoint):
         self.logger.debug("Load data point to info panel: {}".format(data.uuid))
         self.curr_data = data
@@ -252,6 +237,10 @@ class FileInfo(FileInfoGUI):
         else:
             self.offlineStatus(False)
             self.setCommentSaveStatusLbl("none")
+
+    def reload(self):
+        if self.curr_data:
+            self.load(self.curr_data)
     
     def changeTab(self, index):
         self.logger.debug("On tab change")
@@ -405,6 +394,10 @@ class FileInfo(FileInfoGUI):
         if comment == self.TEDIT_SYNC_PROPMT:
             # Don't save this...
             return False
+        if self.queryCommentSaveStatus() != "changed":
+            # no repeated save
+            self.logger.debug("Skip unnecessary comment save.")
+            return False
         self.curr_data.fm.writeComments(comment)
         self.setCommentSaveStatusLbl("saved")
         return True
@@ -458,6 +451,7 @@ class FileInfo(FileInfoGUI):
             if os.path.exists(_tmp_cover):
                 cover = QtGui.QPixmap(_tmp_cover)
             else:
+                assert data.fm.file_p   # type assertion
                 cover = getPDFCoverAsQPixelmap(data.fm.file_p)
                 cover.save(_tmp_cover)
                 self.logger.debug("Created temp cover file at: {}".format(_tmp_cover))
@@ -504,6 +498,7 @@ class MarkdownEdit(QTextEdit):
     
     def insertFromMimeData(self, source: QtCore.QMimeData) -> None:
         # https://pyside.github.io/docs/pyside/PySide/QtGui/QTextEdit.html#PySide.QtGui.PySide.QtGui.QTextEdit.insertFromMimeData
+        assert self._parent.curr_data
         if source.hasImage():
             # Add img
             fname = f"{uuid.uuid4()}.png"

@@ -81,4 +81,5 @@ __VERSION_HISTORIES__ = [
      "Move cache dir out of system tempdir; Sync bug fixes on Macos;"),
     ("0.7.0", "Use RBM_HOME directory for application data storage; Load font settings without restart; Bug fixes"),
 ]
+## DEPRECATED ##
 #===========================================#

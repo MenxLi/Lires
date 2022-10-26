@@ -1,6 +1,6 @@
 import webbrowser, traceback
 from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
+from PyQt6.QtWidgets import QApplication, QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
 from PyQt6.QtGui import QAction, QShortcut, QColor
 from PyQt6 import QtGui, QtCore
 import typing, os, copy, functools
@@ -367,7 +367,15 @@ class FileSelector(FileSelectorGUI):
             Open a data point locally
             """
             web_url = dp.fm.getWebUrl()
-            if not dp.fm.openFile() and dp.is_local:
+            if not self.keyModifiers("Alt"):
+                if self.getMainPanel().openDocInNewTab(dp):
+                    # Try to open in tab instead of using native apps
+                    return
+            if dp.is_local:
+                # try to open the file
+                if dp.fm.openFile():
+                    return
+                # No document
                 if web_url == "":
                     self.warnDialog("The file is missing", "To add the paper, right click on the entry -> add file")
                 elif os.path.exists(web_url):
