@@ -1,4 +1,20 @@
-_VERSION_HISTORIES = [
+from typing import Dict, List
+import yaml, os
+
+__this_dir = os.path.dirname(__file__)
+_yaml_version_file = os.path.join(__this_dir, "version.yaml")
+
+with open(_yaml_version_file, "r") as fp:
+    version_histories: Dict[str, List[str]] = yaml.safe_load(fp)["version_history"]
+
+_VERSION_HISTORIES = []
+for v, h in version_histories.items():
+    _VERSION_HISTORIES.append((v, "; ".join(h)))
+VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
+
+#===========================================#
+## DEPRECATED ##
+__VERSION_HISTORIES__ = [
     ("0.0.1 - Alpha", "Under development"),
     ("0.0.2 - Alpha", "Under development: Added tag related functions"),
     ("0.0.3 - Alpha", "Under development: Internal code structure change"),
@@ -57,7 +73,7 @@ _VERSION_HISTORIES = [
      "Delete cache and prompt user of unsynced data when quitting; Bug fixes: Not freeze GUI if server is down"),
     ("0.6.5", "Latex equation support; Toggle panel button only show one panel; Being able to export data; Log exceptions"),
     ("0.6.6", "Better log; Discussion tab; markdown color font style; More help options; Binary distribution"),
-    ("0.6.7", "UI update: more help options | font size in configuration file | dark theme icon color | context menu separator; "\
+    ("0.6.7", "UI update: more help options; Font size in configuration file; Dark theme icon color; Context menu separator; "\
      "Better macos and windows file watcher; Kill statusbar updating thread after quitting"),
     ("0.6.8", "Convert bibtex from nbib; Argparser update; Global configuration buffer; Switch server without restarting"),
     ("0.6.9", "Being able to add bib&nbib file; Not deleting original document when adding to database; Bug fixes: mayn not delete remote file"),
@@ -65,4 +81,4 @@ _VERSION_HISTORIES = [
      "Move cache dir out of system tempdir; Sync bug fixes on Macos;"),
     ("0.7.0", "Use RBM_HOME directory for application data storage; Load font settings without restart; Bug fixes"),
 ]
-VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
+#===========================================#

@@ -6,11 +6,15 @@ import argparse
 import subprocess
 import platform
 
+PROG_NAME = "rbm"
+
 def compileMain():
 
     hidden_imports = ["PyQt6.QtWebChannel", "PyQt6.QtNetwork", "PyQt6.QtWebEngineCore", "PyQt6.QtPrintSupport"]
 
     data_path = [
+    ( "resbibman/version.yaml", "./resbibman" ),
+
     ( "resbibman/icons/*", "./resbibman/icons" ),
     ( "resbibman/assets/*", "./resbibman/assets" ),
 
@@ -24,7 +28,7 @@ def compileMain():
     ( "RBMWeb/frontend/*", "./RBMWeb/frontend" ),
     ]
 
-    cmd = ["pyinstaller", "--noconfirm", "-w", "-n", "ResBibMan", "-i", "./resbibman/icons/resbibmanicon/favicon.ico", "./__main__.py", "--additional-hooks-dir=pyinstallerHooks"]
+    cmd = ["pyinstaller", "--onefile", "--noconfirm", "-w", "-n", PROG_NAME, "-i", "./resbibman/icons/resbibmanicon/favicon.ico", "./__main__.py", "--additional-hooks-dir=pyinstallerHooks"]
 
     for himp in hidden_imports:
         cmd += ["--hidden-import", himp]
@@ -46,7 +50,7 @@ def compileRunScript():
     tf.write("import subprocess, sys;args = sys.argv[1:];cmd = ['resbibman'] + args;subprocess.check_call(cmd)")
     tf.close()
     tmp_script = tf.name
-    cmd = ["pyinstaller", "--noconfirm", "-w", "-n", "ResBibManScript", "-i", "./resbibman/icons/resbibmanicon/favicon.ico", tmp_script]
+    cmd = ["pyinstaller", "--noconfirm", "-w", "-n", PROG_NAME, "-i", "./resbibman/icons/resbibmanicon/favicon.ico", tmp_script]
     subprocess.check_call(cmd)
 
     if os.path.exists(tmp_script):
