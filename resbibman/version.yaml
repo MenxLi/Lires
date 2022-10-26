@@ -193,8 +193,7 @@ version_history:
   - Sync bug fixes for Macos
   0.7.0:
   - Use RBM_HOME directory for application data storage
+  - Open document in new tab
+  - Use yaml to record version history
   - Load font settings without restart
   - Bug fixes
-  0.7.0.1:
-  - Use yaml to record version history
-  - Open document in new tab
