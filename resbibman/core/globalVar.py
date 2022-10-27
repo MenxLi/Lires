@@ -2,7 +2,7 @@ from __future__ import annotations
 import sys, shutil, logging, os, argparse
 from typing import List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
-    from ..confReader import ResbibmanConfT
+    from ..types.configT import ResbibmanConfT
 
 __initialized: bool
 logger_rbm: logging.Logger

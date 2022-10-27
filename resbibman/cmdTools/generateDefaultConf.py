@@ -23,14 +23,14 @@ def generateDefaultConf():
 		access_key = "",
 
 		default_tags = [],
-		sort_method = DataTableList.SORT_TIMEADDED,
-		sort_reverse = False,
 		table_headers = [ 
 				DataTableList.HEADER_FILESTATUS,
 				DataTableList.HEADER_TITLE,
 				DataTableList.HEADER_YEAR, 
 				DataTableList.HEADER_AUTHOR
 			 ],
+		sort_method = DataTableList.SORT_TIMEADDED,
+		sort_reverse = False,
 		font_sizes = {
 			"data": ["Arial", 10],
 			"tag": ["Arial", 10]

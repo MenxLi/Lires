@@ -42,7 +42,10 @@ class DataPointInfo(TypedDict):
     doc_size: float # in M.
     base_name: str  # for directory name
 
-class DataTags(set):
+class DataCore:
+    logger = G.logger_rbm
+
+class DataTags(set, DataCore):
     def toOrderedList(self):
         ordered_list = list(self)
         ordered_list.sort()
@@ -57,13 +60,12 @@ class DataTags(set):
         else:
             return "<None>"
 
-class DataPoint:
-    logger = G.logger_rbm
+class DataPoint(DataCore):
     MAX_AUTHOR_ABBR = 18
     def __init__(self, fm: FileManipulatorVirtual):
         """
-        The basic data structure that hold single data
-        fmp - FileManipulator, data completeness should be confirmed ahead (use fmp.screen())
+        The basic data structure that holds single data
+        fm - FileManipulator, data completeness should be confirmed ahead (use fm.screen())
         """
         self.fm = fm
         self.__parent_db: DataBase
@@ -330,7 +332,7 @@ class DataPoint:
     
     __repr__ = __str__
 
-class DataList(list):
+class DataList(list, DataCore):
     SORT_YEAR = "Year"
     SORT_AUTHOR = "Author"
     SORT_TIMEADDED = "Time added"
@@ -371,7 +373,7 @@ class DataList(list):
     # def getTableHeaderItem(self, col: int) -> str:
         # return self.TB_HEADER[col]
 
-class DataTableList(DataList):
+class DataTableList(DataList, DataCore):
     HEADER_FILESTATUS = "File status"
     HEADER_YEAR = "Year"
     HEADER_AUTHOR = "Author"
@@ -395,8 +397,7 @@ class DataTableList(DataList):
     def getTableHeaderItem(self, col: int) -> str:
         return self.header_order[col]
 
-class DataBase(Dict[str, DataPoint]):
-    logger = G.logger_rbm
+class DataBase(Dict[str, DataPoint], DataCore):
 
     @property
     def offline(self) -> bool:
