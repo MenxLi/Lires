@@ -27,7 +27,6 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 ```bash
 tsc
 pip install .
-rbm-resetconf  # To create default configuration
 ```
 
 ### Update
@@ -71,12 +70,13 @@ To start the application with arbitrary data directory, you can run:
 export RBM_HOME="your/path/here"; resbibman
 ```
 
-Other management tools includes: 
+Other management tools include: 
 
 ```bash
 rbm-keyman      # Manage access key
 rbm-discuss     # Manage online discussions
 rbm-collect     # Automatic add entry to database with retriving string
+rbm-resetconf   # To reset default configuration
 ```
 
 <!--
