@@ -27,7 +27,7 @@ from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf, 
 from ..confReader import TMP_DB, TMP_WEB, TMP_COVER
 from ..version import VERSION
 from ..perf.qtThreading import SyncWorker, InitDBWorker
-import os, typing, requests, functools, time, shutil, traceback
+import os, typing, requests, functools, time, shutil, traceback, webbrowser
 
 class MainTabWidget(QTabWidget, RefWidgetBase):
     def __init__(self, parent) -> None:
@@ -366,7 +366,8 @@ class MainWindow(MainWindowGUI):
 
     def openDocInternal(self, dp: DataPoint) -> bool:
         """
-        Return if successfully opened the file
+        open document with built-viewer (DocumentReader)
+        return if successfully opened the file
         """
         if self.tab_wid.switchToExistingTab(dp.uuid):
             return True
@@ -377,6 +378,25 @@ class MainWindow(MainWindowGUI):
         else:
             new_tab.deleteLater()
             return False
+
+    def openDocExternal(self, dp: DataPoint):
+        """
+        open document with system application
+        """
+        if not dp.is_local:
+            return
+
+        if dp.fm.openFile():
+            return
+
+        # No local document
+        web_url = dp.fm.getWebUrl()
+        if web_url == "":
+            self.warnDialog("The file is missing", "To add the paper, right click on the entry -> add file")
+        elif os.path.exists(web_url):
+            openFile(web_url)
+        else:
+            webbrowser.open(web_url)
 
     def toggleOnlyPanel(self, idx: int):
         """

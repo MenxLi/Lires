@@ -1,9 +1,9 @@
-import webbrowser, traceback
+import traceback
 from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import QApplication, QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
+from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
 from PyQt6.QtGui import QAction, QShortcut, QColor
 from PyQt6 import QtGui, QtCore
-import typing, os, copy, functools
+import typing, copy, functools
 from typing import List, overload, Union, Literal, Callable
 
 from .bibQuery import BibQuery
@@ -366,22 +366,12 @@ class FileSelector(FileSelectorGUI):
             """
             Open a data point locally
             """
-            web_url = dp.fm.getWebUrl()
             if not self.keyModifiers("Alt"):
                 if self.getMainPanel().openDocInternal(dp):
                     # Try to open in tab instead of using native apps
                     return
-            if dp.is_local:
-                # try to open the file
-                if dp.fm.openFile():
-                    return
-                # No document
-                if web_url == "":
-                    self.warnDialog("The file is missing", "To add the paper, right click on the entry -> add file")
-                elif os.path.exists(web_url):
-                    openFile(web_url)
-                else:
-                    webbrowser.open(web_url)
+            self.getMainPanel().openDocExternal(dp)
+
         def _onSyncDone(success, to_open):
             if not success and G.last_status_code == 401:
                 self.statusBarInfo("Unauthorized access", 5, bg_color = "red")

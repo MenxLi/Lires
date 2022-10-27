@@ -351,11 +351,11 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             ...
     
-    def openFile(self):
+    def openFile(self) -> bool:
         if self.has_local:
             return super().openFile()
         else:
-            ...
+            return False
     
     def openMiscDir(self):
         if self.has_local:

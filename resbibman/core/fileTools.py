@@ -469,7 +469,7 @@ class FileManipulator:
         self._log()     # keep this as it info_p will not be monitored by watchdog
         return
 
-    def openFile(self):
+    def openFile(self) -> bool:
         if self.file_p is None:
             warnings.warn("The file is not existing, add the file into the database with right click menu")
             return False
