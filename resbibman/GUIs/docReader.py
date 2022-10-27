@@ -1,7 +1,6 @@
 from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Optional, TypedDict
-import webbrowser
 from PyQt6.QtCore import QUrl
 from PyQt6.QtWebEngineCore import QWebEngineSettings
 from PyQt6.QtWebEngineWidgets import QWebEngineView
@@ -10,6 +9,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QSplitter
 
 from .widgets import MainWidgetBase
 from .fileInfo import FileInfo
+from ..core.htmlTools import unpackHtmlTmp
 
 if TYPE_CHECKING:
     from .mainWindow import MainWindow
@@ -83,9 +83,20 @@ class DocumentReader(MainWidgetBase):
             self._loadPDF(dp.fm.file_p)
             self._status["doc_uid"] = uid
             return True
+        if dp.fm.file_p.endswith(".hpack"):
+            self._loadHpack(dp.fm.file_p)
+            self._status["doc_uid"] = uid
+            return True
         return False
 
     def _loadPDF(self, fpath: str):
         assert fpath.endswith(".pdf")
         file_url = "file://"+fpath
         self.webview.setUrl(QUrl(file_url))
+
+    def _loadHpack(self, fpath: str):
+        assert fpath.endswith(".hpack")
+        unpacked = unpackHtmlTmp(fpath)
+        file_url = "file://"+unpacked
+        self.webview.setUrl(QUrl(file_url))
+
