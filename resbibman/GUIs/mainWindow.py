@@ -228,8 +228,10 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
 
         self.act_fontsize_increase = QAction("&Increase font size", self)
         self.act_fontsize_increase.setShortcut(QKeySequence("ctrl+="))
+        self.act_fontsize_increase.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "font-size-increase.svg")))
         self.act_fontsize_decrease = QAction("&Decrease font size", self)
         self.act_fontsize_decrease.setShortcut(QKeySequence("ctrl+-"))
+        self.act_fontsize_decrease.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "font-size-decrease.svg")))
 
         self.act_show_panel1 = QAction("&Show panel 1", self)
         self.act_show_panel1.setIcon(qIconFromSVG_autoBW(os.path.join(ICON_PATH, "looks_one_black_48dp.svg")))
