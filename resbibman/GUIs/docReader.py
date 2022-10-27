@@ -1,6 +1,6 @@
 from __future__ import annotations
 import os
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Optional, TypedDict
 import webbrowser
 from PyQt6.QtCore import QUrl
 from PyQt6.QtWebEngineCore import QWebEngineSettings
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from .mainWindow import MainWindow
 
 class DocumentReaderStatusT(TypedDict):
+    doc_uid: Optional[str]
     splitter_size_initialized: bool
 
 class DocumentReader(MainWidgetBase):
@@ -23,6 +24,7 @@ class DocumentReader(MainWidgetBase):
         parent.passRefTo(self)
         self.initUI()
         self._status: DocumentReaderStatusT = {
+            "doc_uid": None,
             "splitter_size_initialized": False
         }
 
@@ -41,6 +43,11 @@ class DocumentReader(MainWidgetBase):
         layout = QHBoxLayout()
         layout.addWidget(self.splitter)
         self.setLayout(layout)
+
+    @property
+    def doc_uid(self) -> str:
+        assert self._status["doc_uid"]
+        return self._status["doc_uid"]
 
     def maybeInitSpliterSize(self):
         # The curr_width can only be correctly obtained when the window is rendered
@@ -69,10 +76,12 @@ class DocumentReader(MainWidgetBase):
                 return False
             else:
                 self.webview.setUrl(QUrl(url))
+                self._status["doc_uid"] = uid
                 return True
 
         if dp.fm.file_p.endswith(".pdf"):
             self._loadPDF(dp.fm.file_p)
+            self._status["doc_uid"] = uid
             return True
         return False
 

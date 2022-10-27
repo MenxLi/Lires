@@ -368,7 +368,7 @@ class FileSelector(FileSelectorGUI):
             """
             web_url = dp.fm.getWebUrl()
             if not self.keyModifiers("Alt"):
-                if self.getMainPanel().openDocInNewTab(dp):
+                if self.getMainPanel().openDocInternal(dp):
                     # Try to open in tab instead of using native apps
                     return
             if dp.is_local:

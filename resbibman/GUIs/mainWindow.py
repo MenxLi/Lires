@@ -41,7 +41,19 @@ class MainTabWidget(QTabWidget, RefWidgetBase):
         self.tabCloseRequested.connect(self.closeTab)
         self.currentChanged.connect(self.onTabChange)
 
-    def loadDocReader(self, reader: DocumentReader, name: str):
+    def switchToExistingTab(self, uid: str) -> bool:
+        """
+        return if find the designated tab
+        """
+        for i in range(len(self._tabs)):
+            tab = self._tabs[i]
+            if isinstance(tab, DocumentReader):
+                if tab.doc_uid == uid:
+                    self.setCurrentIndex(i+1)
+                    return True
+        return False
+
+    def addDocReader(self, reader: DocumentReader, name: str):
         self.addTab(reader, name)
         self._tabs.append(reader)
         self.setCurrentIndex(self.count()-1)
@@ -352,13 +364,15 @@ class MainWindow(MainWindowGUI):
         self.act_show_toolbar.setChecked(gui_conf["show_toolbar"])
         self.toggleShowToobar(gui_conf["show_toolbar"])
 
-    def openDocInNewTab(self, dp: DataPoint) -> bool:
+    def openDocInternal(self, dp: DataPoint) -> bool:
         """
         Return if successfully opened the file
         """
+        if self.tab_wid.switchToExistingTab(dp.uuid):
+            return True
         new_tab = DocumentReader(self)
         if new_tab.loadDataByUid(dp.uuid):
-            self.tab_wid.loadDocReader(new_tab, dp.getAuthorsAbbr())
+            self.tab_wid.addDocReader(new_tab, dp.getAuthorsAbbr())
             return True
         else:
             new_tab.deleteLater()
