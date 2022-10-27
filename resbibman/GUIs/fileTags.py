@@ -5,7 +5,8 @@ from .widgets import  MainWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
 from ..core.dataClass import DataPoint, DataTags
-from ..confReader import getConf, saveToConf, _ConfFontSizeT
+from ..types.configT import _ConfFontSizeT
+from ..confReader import getConf, saveToConf
 
 class FileTagGUI(MainWidgetBase):
     """

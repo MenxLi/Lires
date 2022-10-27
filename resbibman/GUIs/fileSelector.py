@@ -12,7 +12,8 @@ from .bibtexEditor import BibEditorWithOK
 from ..core import globalVar as G
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from ..core.utils import copy2clip, openFile
-from ..confReader import getConf, getConfV, _ConfFontSizeT
+from ..confReader import getConf, getConfV
+from ..types.configT import _ConfFontSizeT
 
 class FileSelectorGUI(MainWidgetBase):
     def __init__(self, parent):
