@@ -51,7 +51,9 @@ class FileTagGUI(MainWidgetBase):
 
     def applyFontConfig(self, font_config: _ConfFontSizeT):
         font = QFont(*font_config["tag"])
-        self.tag_selector.tag_view.setFont(font)
+        raise NotImplementedError("To do later...")
+        # tmp test
+        # self.tag_selector.tag_view.setFont(font)
     
     def offlineStatus(self, status: bool):
         super().offlineStatus(status)
@@ -82,7 +84,7 @@ class FileTag(FileTagGUI):
     def connectFuncs(self):
         self.edit_tag_btn.clicked.connect(self.openTagEditor)
         self.clear_selection_btn.clicked.connect(self.clearSelection)
-        self.tag_selector.tag_view.clicked.connect(self.onTagSelectionChanged)
+        self.tag_selector.data_model.on_selection_change.connect(lambda _: self.onTagSelectionChanged())
         self.getSelectPanel().selection_changed.connect(self.updateTagLabel)
 
         self.tag_selector.setMainPanel(self.getMainPanel())

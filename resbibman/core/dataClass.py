@@ -4,7 +4,7 @@ import urllib.parse
 import shutil, requests, json
 from ..confReader import getConfV, ASSETS_PATH
 import typing, re, string, os, asyncio
-from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict, Type, Optional, TypedDict
+from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict, Type, Optional, TypedDict, Sequence
 import difflib
 import markdown
 from .fileTools import FileGenerator
@@ -47,17 +47,33 @@ class DataPointInfo(TypedDict):
 class DataCore:
     logger = G.logger_rbm
 
-class DataTag_hrchy(str, DataCore, CollapsibleChecklistDataItemAbstract):
+class TagRule(DataCore):
     SEP = "->"
-    def isParentOf(self, child: DataTag_hrchy) -> bool:
-        child_sp = child.split(self.SEP)
-        self_sp = self.split(self.SEP)
-        if len(self_sp) != len(child_sp)-1:
-            return False
-        return self_sp == child_sp[:-1]
-   
-    def toString(self) -> str:
-        return f"{self.split(self.SEP)[-1]}"
+    @classmethod
+    def allParentsOf(cls, tag: str) -> List[str]:
+        """
+        assume cls.SEP is '.'
+        input: a.b.c
+        return: [a, a.b]
+        """
+        sp = tag.split(cls.SEP)
+        if len(sp) == 1:
+            return []
+        accum = []
+        all_p_tags = []
+        for i in range(0, len(sp)-1):
+            accum += [sp[i]]
+            all_p_tags.append(cls.SEP.join(accum))
+        return all_p_tags
+    
+    @classmethod
+    def allChildsOf(cls, tag: str, tag_pool: Sequence[str]) -> List[str]:
+        """
+        assume cls.SEP is '.'
+        input: (a.b, [a, a.b, a.b.c, a.b.d])
+        return: [a.b.c, a.b.d]
+        """
+        ...
 
 class DataTags(Set[str], DataCore):
     def toOrderedList(self):
@@ -65,18 +81,20 @@ class DataTags(Set[str], DataCore):
         ordered_list.sort()
         return ordered_list
     
-    def union(self, *s):
+    def union(self, *s) -> DataTags:
         return DataTags(super().union(*s))
+    
+    def withParents(self) -> DataTags:
+        parents = []
+        for s in self:
+            parents += TagRule.allParentsOf(s)
+        return self.union(DataTags(parents))
     
     def toStr(self):
         if len(self) > 0:
             return "; ".join(self.toOrderedList())
         else:
             return "<None>"
-    
-    # for gui collapsible checklist
-    def toHTags(self) -> List[DataTag_hrchy]:
-        return [DataTag_hrchy(t) for t in self]
 
 class DataPoint(DataCore):
     MAX_AUTHOR_ABBR = 18
@@ -595,6 +613,10 @@ class DataBase(Dict[str, DataPoint], DataCore):
         Rename a tag for the entire database
         return if success
         """
+        # Need to stress these issues:
+        # May change node, will affact all childs
+        raise Exception("TO BE CHANGED!!")
+
         data = self.getDataByTags(DataTags([tag_old]))
         if not self.offline:
             if not self.allUptodate():
@@ -627,6 +649,10 @@ class DataBase(Dict[str, DataPoint], DataCore):
         Delete a tag for the entire database
         return if success
         """
+        # Need to stress these issues:
+        # May delete node, should it affact all childs?
+        raise Exception("TO BE CHANGED!!")
+
         data = self.getDataByTags(DataTags([tag]))
         if not self.offline:
             if not self.allUptodate():

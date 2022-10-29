@@ -32,7 +32,6 @@ class TagEditor(MainWidgetBase):
         tag = self.line_edit.text()
         if tag:
             self.tag_selector.addNewSelectedEntry(tag)
-            self.tag_selector.tag_model.layoutChanged.emit()
             self.line_edit.setText("")
     
     def getSelectedTags(self):
