@@ -22,6 +22,8 @@ from .bibReader import BibParser
 from .encryptClient import generateHexHash
 from . import globalVar as G
 
+from QCollapsibleCheckList import DataItemAbstract as CollapsibleChecklistDataItemAbstract
+
 if TYPE_CHECKING:
     from RBMWeb.backend.rbmlibs import DataPointInfo
 
@@ -45,7 +47,19 @@ class DataPointInfo(TypedDict):
 class DataCore:
     logger = G.logger_rbm
 
-class DataTags(set, DataCore):
+class DataTag_hrchy(str, DataCore, CollapsibleChecklistDataItemAbstract):
+    SEP = "->"
+    def isParentOf(self, child: DataTag_hrchy) -> bool:
+        child_sp = child.split(self.SEP)
+        self_sp = self.split(self.SEP)
+        if len(self_sp) != len(child_sp)-1:
+            return False
+        return self_sp == child_sp[:-1]
+   
+    def toString(self) -> str:
+        return f"{self.split(self.SEP)[-1]}"
+
+class DataTags(Set[str], DataCore):
     def toOrderedList(self):
         ordered_list = list(self)
         ordered_list.sort()
@@ -59,6 +73,10 @@ class DataTags(set, DataCore):
             return "; ".join(self.toOrderedList())
         else:
             return "<None>"
+    
+    # for gui collapsible checklist
+    def toHTags(self) -> List[DataTag_hrchy]:
+        return [DataTag_hrchy(t) for t in self]
 
 class DataPoint(DataCore):
     MAX_AUTHOR_ABBR = 18

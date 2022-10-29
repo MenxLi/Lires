@@ -1,0 +1,4 @@
+__pycache__
+*.swp
+*.egg-info
+.DS_Store

@@ -26,6 +26,7 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 ## Installation
 ```bash
 tsc
+pip install packages/*
 pip install .
 ```
 
