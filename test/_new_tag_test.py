@@ -1,11 +1,15 @@
 
 from resbibman.GUIs.tagSelector import TagDataModel
+from resbibman.core.dataClass import TagRule
 
-item = TagDataModel.TagDataItem("my->good->daddy")
-print(item.allParentTags())
+t = "a->b->c"
+t_pool = [
+    t,
+    "a->b->c->d",
+    "a->b->c->",
+    "a->b",
+    "a",
+]
 
-item = TagDataModel.TagDataItem("my")
-print(item.allParentTags())
-
-item = TagDataModel.TagDataItem(" ny-> dood")
-print(item.allParentTags())
+x = TagRule.allChildsOf(t, t_pool)
+print(x)

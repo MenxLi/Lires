@@ -51,9 +51,7 @@ class FileTagGUI(MainWidgetBase):
 
     def applyFontConfig(self, font_config: _ConfFontSizeT):
         font = QFont(*font_config["tag"])
-        raise NotImplementedError("To do later...")
-        # tmp test
-        # self.tag_selector.tag_view.setFont(font)
+        # self.tag_selector.ccl.setFont(font)
     
     def offlineStatus(self, status: bool):
         super().offlineStatus(status)
@@ -114,16 +112,19 @@ class FileTag(FileTagGUI):
         saveToConf(default_tags = curr_tags.toOrderedList())
     
     def clearSelection(self):
-        self.tag_selector.tag_model.setAllStatusToFalse()
+        self.tag_selector.data_model.setAllStatusToFalse()
         self.onTagSelectionChanged()
     
     def onTagSelectionChanged(self):
         self.saveCurrentTagsAsDefault()
-        self.getSelectPanel().loadValidData(self.tag_selector.getSelectedTags(), hint = True)
-        curr_data = self.getSelectPanel().getCurrentSelection()
+        curr_sel_tags = self.tag_selector.getSelectedTags()
+        self.logger.debug("onTagSelectionChanged - {}".format(curr_sel_tags))
+        self.getSelectPanel().loadValidData(curr_sel_tags)
         self.getInfoPanel().clearPanel()
-        # if curr_data is not None:
-            # self.getInfoPanel().loadInfo(curr_data)
+        curr_data = self.getSelectPanel().getCurrentSelection()
+        if curr_data is not None:
+            self.getInfoPanel().load(curr_data)
+            self.updateTagLabel(curr_data)
     
     def updateTagLabel(self, data: DataPoint):
         if isinstance(data, DataPoint):

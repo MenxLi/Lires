@@ -73,7 +73,12 @@ class TagRule(DataCore):
         input: (a.b, [a, a.b, a.b.c, a.b.d])
         return: [a.b.c, a.b.d]
         """
-        ...
+        ret = []
+        for t in tag_pool:
+            if t.startswith(tag) and len(t)>len(tag)+len(cls.SEP):
+                if t[len(tag): len(tag) + 2] == cls.SEP:
+                    ret.append(t)
+        return ret
 
 class DataTags(Set[str], DataCore):
     def toOrderedList(self):
@@ -602,9 +607,9 @@ class DataBase(Dict[str, DataPoint], DataCore):
     def getDataByTags(self, tags: Union[list, set, DataTags]) -> DataList:
         datalist = DataList()
         for data in self.values():
-            tag_data = set(data.tags)
-            tags = set(tags)
-            if tags.issubset(tag_data):
+            tag_data = DataTags(data.tags)
+            tags = DataTags(tags)
+            if tags.issubset(tag_data.withParents()):
                 datalist.append(data)
         return datalist
     

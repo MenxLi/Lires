@@ -28,7 +28,11 @@ class TagSelector(RefWidgetBase):
         return self.getMainPanel().database
     
     def initUI(self):
-        self.ccl = CollapsibleCheckList(self)
+        self.ccl = CollapsibleCheckList(
+            self,
+            hover_highlight_color="rgba(100, 100, 100, 100)",
+            click_line_select=True,
+            )
         self.data_model = TagDataModel(self, self.ccl)
         layout = QVBoxLayout()
         layout.addWidget(self.ccl)
@@ -42,7 +46,8 @@ class TagSelector(RefWidgetBase):
         self.data_model.initData(tag_data, tag_total)
 
     def getSelectedTags(self) -> DataTags:
-        return self.data_model.selected_tags
+        tags = self.data_model.selected_tags
+        return tags
 
     def getTotalTags(self) -> DataTags:
         return self.data_model.total_tags
@@ -73,7 +78,7 @@ class TagDataModel(QtCore.QObject):
 
     def __init__(self, parent: Optional[QtCore.QObject], wid: CollapsibleCheckList):
         super().__init__(parent)
-        self.ccl = wid
+        self.ccl: CollapsibleCheckList[self.TagDataItem] = wid
         self._item_pool: Dict[str, self.TagDataItem] = {}
         self._connectSignal()
     
@@ -116,6 +121,10 @@ class TagDataModel(QtCore.QObject):
             return True
         else:
             return False
+    
+    def setAllStatusToFalse(self):
+        for i in self.ccl.items_checked:
+            self.ccl.setItemChecked(i, False)
 
     @property
     def total_tags(self) -> DataTags:
