@@ -81,6 +81,12 @@ class TagDataModel(QtCore.QObject):
         def toString(self) -> str:
             # return f"{self.split(TagRule.SEP)[-1]}"
             return str(self)
+        
+        def __ge__(self, __x: TagDataModel.TagDataItem) -> bool:
+            return str(self) >= str(__x)
+        
+        def __lt__(self, __x: TagDataModel.TagDataItem) -> bool:
+            return str(self) < str(__x)
 
     on_selection_change = QtCore.pyqtSignal(DataTags)    
 
