@@ -67,24 +67,15 @@ class WidgetBase:
             qr.moveCenter(cp)
             self.move(qr.topLeft())
 
-class RefWidgetBase(QWidget, WidgetBase):
-    # Somehow not working properly... see __init_subclass__
-    update_statusmsg = pyqtSignal(str)      # to stop previously scheduled timing status bar info
-    def __init__(self, parent: typing.Optional['QWidget']=None) -> None:
-        super().__init__(parent=parent)
+class RefBase:
+    def __init__(self) -> None:
         self._main_panel = None
         self._select_panel = None
         self._info_panel = None
         self._tag_panel = None
         self._offline_status = True
 
-    def __init_subclass__(cls) -> None:
-        # Have to do this, otherwise may somehow lead to \
-        # AttributeError: 'MainWindow' does not have a signal with the signature update_statusmsg(QString)
-        cls.update_statusmsg = pyqtSignal(str)
-        return super().__init_subclass__()
-    
-    def passRefTo(self, new: RefWidgetBase):
+    def passRefTo(self, new: RefBase):
         if self.getMainPanel():
             new.setMainPanel(self.getMainPanel())
 
@@ -96,34 +87,6 @@ class RefWidgetBase(QWidget, WidgetBase):
 
         if self.getSelectPanel():
             new.setSelectPanel(self.getSelectPanel())
-    
-    def statusBarInfo(self, info: str, time: float = -1, **kwargs):
-        # Send a signal to abort previous worker
-        self.update_statusmsg.emit(info)
-        self.getMainPanel().statusBarMsg(info, **kwargs)
-        def _laterDo():
-            self.getMainPanel().statusBarMsg(msg = "Welcome!", bg_color = "none")
-        if time>0:
-            worker = SleepWorker(time)
-            worker.signals.finished.connect(_laterDo)
-
-            # Abort this worker
-            self.update_statusmsg.connect(lambda str_: worker.setBreak())
-            QApplication.instance().aboutToQuit.connect(worker.setBreak)    # not send signal after app exited
-
-            pool = QThreadPool.globalInstance()
-            pool.start(worker)
-    
-    def offlineStatus(self, status: bool):
-        """
-        To be called when change datapoint
-        e.g. Set widgets enable status
-        """
-        if self._offline_status == status:
-            # No need to run if status unchanged
-            # prevent some circular call
-            return
-        self._offline_status = status
 
     def setMainPanel(self, panel: MainWindow):
         self._main_panel = panel
@@ -152,6 +115,47 @@ class RefWidgetBase(QWidget, WidgetBase):
     def getTagPanel(self) -> FileTag:
         assert self._tag_panel is not None, "Tag panel not set, use setTagPanel to set the panel"
         return self._tag_panel
+
+
+class RefWidgetBase(QWidget, WidgetBase, RefBase):
+    # Somehow not working properly... see __init_subclass__
+    update_statusmsg = pyqtSignal(str)      # to stop previously scheduled timing status bar info
+    def __init__(self, parent: typing.Optional['QWidget']=None) -> None:
+        super().__init__(parent=parent)
+
+    def __init_subclass__(cls) -> None:
+        # Have to do this, otherwise may somehow lead to \
+        # AttributeError: 'MainWindow' does not have a signal with the signature update_statusmsg(QString)
+        cls.update_statusmsg = pyqtSignal(str)
+        return super().__init_subclass__()
+    
+    def statusBarInfo(self, info: str, time: float = -1, **kwargs):
+        # Send a signal to abort previous worker
+        self.update_statusmsg.emit(info)
+        self.getMainPanel().statusBarMsg(info, **kwargs)
+        def _laterDo():
+            self.getMainPanel().statusBarMsg(msg = "Welcome!", bg_color = "none")
+        if time>0:
+            worker = SleepWorker(time)
+            worker.signals.finished.connect(_laterDo)
+
+            # Abort this worker
+            self.update_statusmsg.connect(lambda str_: worker.setBreak())
+            QApplication.instance().aboutToQuit.connect(worker.setBreak)    # not send signal after app exited
+
+            pool = QThreadPool.globalInstance()
+            pool.start(worker)
+    
+    def offlineStatus(self, status: bool):
+        """
+        To be called when change datapoint
+        e.g. Set widgets enable status
+        """
+        if self._offline_status == status:
+            # No need to run if status unchanged
+            # prevent some circular call
+            return
+        self._offline_status = status
 
     def freeze(self):
         class Freezer:

@@ -51,7 +51,7 @@ class FileTagGUI(MainWidgetBase):
 
     def applyFontConfig(self, font_config: _ConfFontSizeT):
         font = QFont(*font_config["tag"])
-        # self.tag_selector.ccl.setFont(font)
+        self.tag_selector.ccl.setFont(font)
     
     def offlineStatus(self, status: bool):
         super().offlineStatus(status)

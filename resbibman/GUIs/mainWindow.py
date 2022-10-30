@@ -15,6 +15,7 @@ from .bibQuery import BibQuery
 from .pendingWindow import PendingWindow
 from .settings import SettingsWidget
 from .guiInteractions import ChoicePromptGUI
+from .tagModifer import TagModifier
 from .helpWidget import HelpWidget
 from ._styleUtils import qIconFromSVG_autoBW, isThemeDarkMode
 
@@ -247,6 +248,9 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.act_toggle_fullscreen.setShortcut(QKeySequence("ctrl+f"))
         #  self.act_toggle_fullscreen.setShortcut(Qt.Key_F11)
 
+        self.act_tool_renametag = QAction("&Rename tag", self)
+        self.act_tool_deletetag = QAction("&Delete tag", self)
+
     def _createMenuBar(self):
         menu_bar = QMenuBar(self)
         self.setMenuBar(menu_bar)
@@ -266,6 +270,11 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         view_menu.addAction(self.act_show_panel1)
         view_menu.addAction(self.act_show_panel2)
         view_menu.addAction(self.act_show_panel3)
+
+        tool_menu = QMenu("&Tools", self)
+        menu_bar.addMenu(tool_menu)
+        tool_menu.addAction(self.act_tool_renametag)
+        tool_menu.addAction(self.act_tool_deletetag)
 
         settings_menu = QMenu("&Settings", self)
         menu_bar.addMenu(settings_menu)
@@ -360,6 +369,9 @@ class MainWindow(MainWindowGUI):
         self.act_show_panel2.triggered.connect(lambda: self.toggleOnlyPanel(1))
         self.act_show_panel3.triggered.connect(lambda: self.toggleOnlyPanel(2))
         self.act_toggle_fullscreen.triggered.connect(self.toggleFullScreen)
+
+        self.act_tool_renametag.triggered.connect(lambda: TagModifier(self).promptRenameTag())
+        self.act_tool_deletetag.triggered.connect(lambda: TagModifier(self).promptDeleteTag())
 
     def initGUIStatusConfig(self):
         gui_conf = getConfV("gui_status")
