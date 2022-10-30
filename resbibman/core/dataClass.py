@@ -50,7 +50,7 @@ class DataCore:
 class TagRule(DataCore):
     SEP = "->"
     @classmethod
-    def allParentsOf(cls, tag: str) -> List[str]:
+    def allParentsOf(cls, tag: str) -> DataTags:
         """
         assume cls.SEP is '.'
         input: a.b.c
@@ -64,10 +64,10 @@ class TagRule(DataCore):
         for i in range(0, len(sp)-1):
             accum += [sp[i]]
             all_p_tags.append(cls.SEP.join(accum))
-        return all_p_tags
+        return DataTags(all_p_tags)
     
     @classmethod
-    def allChildsOf(cls, tag: str, tag_pool: Sequence[str]) -> List[str]:
+    def allChildsOf(cls, tag: str, tag_pool: Sequence[str]) -> DataTags:
         """
         assume cls.SEP is '.'
         input: (a.b, [a, a.b, a.b.c, a.b.d])
@@ -78,7 +78,61 @@ class TagRule(DataCore):
             if t.startswith(tag) and len(t)>len(tag)+len(cls.SEP):
                 if t[len(tag): len(tag) + 2] == cls.SEP:
                     ret.append(t)
-        return ret
+        return DataTags(ret)
+    
+    @classmethod
+    def renameTag(cls, src: DataTags, aim_tag: str, new_tag: str) -> Optional[DataTags]:
+        """
+        return None if tag not in src nor it's all parent tags
+        otherwise:
+            for tag in src:
+                if tag is the aim_tag:
+                    change tag to new_tag
+                if aim_tag is in the tag's parent tags: 
+                    change the parent tag
+                    ( e.g. <cls.SEP='.'> tag: a.b.c, aim_tag: a.b, new_tag: d,
+                        change the tag to b.c)
+                else:
+                    keep the tag same
+        """
+        if aim_tag not in src.withParents():
+            return None
+
+        out_tags = []
+        for tag in src:
+            # first determine if tag is a intermediate node
+            if tag == aim_tag:
+                out_tags.append(new_tag)
+            elif tag.startswith(aim_tag):
+                tag = new_tag + tag[len(aim_tag):]
+                out_tags.append(tag)
+            else:
+                out_tags.append(tag)
+        return DataTags(out_tags)
+    
+    @classmethod
+    def deleteTag(cls, src: DataTags, aim_tag: str) -> Optional[DataTags]:
+        """
+        delete aim_tag, as well as it's all child tags from src
+        return None if none of tags in src in aim_tag and it's child tags
+        e.g. 
+            <cls.SEP='.'>
+            src: (a.b, a.b.c, b.c)
+            aim_tag: a.b
+            return - (b.c)
+        """
+        _delete_something = False
+        out_tags = []
+        may_delete = DataTags([aim_tag]).withChildsFrom(src)
+        for t in src:
+            if t in may_delete:
+                _delete_something = True
+                continue
+            out_tags.append(t)
+        if _delete_something:
+            return DataTags(out_tags)
+        else:
+            return None
 
 class DataTags(Set[str], DataCore):
     def toOrderedList(self):
@@ -90,10 +144,16 @@ class DataTags(Set[str], DataCore):
         return DataTags(super().union(*s))
     
     def withParents(self) -> DataTags:
-        parents = []
+        parents = DataTags()
         for s in self:
-            parents += TagRule.allParentsOf(s)
-        return self.union(DataTags(parents))
+            parents = parents.union(TagRule.allParentsOf(s))
+        return self.union(parents)
+    
+    def withChildsFrom(self, child_choices: DataTags):
+        childs = DataTags()
+        for s in self:
+            childs = childs.union(TagRule.allChildsOf(s, child_choices))
+        return self.union(childs)
     
     def toStr(self):
         if len(self) > 0:
@@ -373,7 +433,7 @@ class DataPoint(DataCore):
     
     __repr__ = __str__
 
-class DataList(list, DataCore):
+class DataList(List[DataPoint], DataCore):
     SORT_YEAR = "Year"
     SORT_AUTHOR = "Author"
     SORT_TIMEADDED = "Time added"
@@ -618,10 +678,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
         Rename a tag for the entire database
         return if success
         """
-        # Need to stress these issues:
-        # May change node, will affact all childs
-        raise Exception("TO BE CHANGED!!")
-
         data = self.getDataByTags(DataTags([tag_old]))
         if not self.offline:
             if not self.allUptodate():
@@ -644,9 +700,10 @@ class DataBase(Dict[str, DataPoint], DataCore):
         self.logger.info(f"Renaming local tag: {tag_old} -> {tag_new}")
         for d in data:
             d: DataPoint
-            taglist = d.tags.toOrderedList()
-            taglist = [tag_new if i == tag_old else i for i in taglist]
-            d.changeTags(DataTags(taglist))
+            t = d.tags
+            t = TagRule.renameTag(t, tag_old, tag_new)
+            if t is not None:
+                d.changeTags(t)
         return True
     
     def deleteTag(self, tag: str) -> bool:
@@ -654,10 +711,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
         Delete a tag for the entire database
         return if success
         """
-        # Need to stress these issues:
-        # May delete node, should it affact all childs?
-        raise Exception("TO BE CHANGED!!")
-
         data = self.getDataByTags(DataTags([tag]))
         if not self.offline:
             if not self.allUptodate():
@@ -679,9 +732,11 @@ class DataBase(Dict[str, DataPoint], DataCore):
         # (After remote delete so local is always updated than remote)
         self.logger.info(f"Deleting local tag: {tag}")
         for d in data:
-            taglist = d.tags.toOrderedList()
-            taglist.remove(tag)
-            d.changeTags(DataTags(taglist))
+            d: DataPoint
+            ori_tags = d.tags
+            after_deleted = TagRule.deleteTag(ori_tags, tag)
+            if after_deleted is not None:
+                d.changeTags(after_deleted)
         return True
 
     def findSimilarByBib(self, bib_str: str) -> Union[None, DataPoint]:

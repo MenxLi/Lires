@@ -29,7 +29,7 @@ class FileTagGUI(MainWidgetBase):
         vbox1 = QVBoxLayout()
         self.tagselector_frame.setLayout(vbox1)
         self.tag_label = QLabel("Tags: ")
-        self.tag_selector = TagSelector()
+        self.tag_selector = TagSelector(self)
         self.clear_selection_btn = QPushButton("Clear selection")
         vbox1.addWidget(self.tag_label)
         vbox1.addWidget(self.tag_selector, 1)
@@ -76,7 +76,7 @@ class FileTag(FileTagGUI):
         for t in getConf()["default_tags"]:
             if t in tag_total:
                 tag_data.add(t)
-        self.tag_selector.constructDataModel(tag_data, tag_total)
+        self.tag_selector.initDataModel(tag_data, tag_total)
         saveToConf(default_tags = tag_data.toOrderedList())
     
     def connectFuncs(self):

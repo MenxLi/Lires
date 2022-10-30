@@ -9,12 +9,12 @@ class TagEditor(MainWidgetBase):
     def __init__(self, tag_data: DataTags, tag_total: DataTags, parent = None) -> None:
         super().__init__(parent=parent)
         self.initUI()
-        self.tag_selector.constructDataModel(tag_data, tag_total)
+        self.tag_selector.initDataModel(tag_data, tag_total)
         self.connectFuncs()
         self.setWindowTitle("Tag editor")
     
     def initUI(self):
-        self.tag_selector = TagSelector()
+        self.tag_selector = TagSelector(self)
         self.line_edit = QLineEdit()
         self.add_btn = QPushButton("Add")
         self.vbox = QVBoxLayout()
