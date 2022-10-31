@@ -106,6 +106,10 @@ class FileTag(FileTagGUI):
             if i.uuid == uuid:
                 i.reload()
         self.initTags(self.database.total_tags)
+        self.getSelectPanel().loadValidData(self.tag_selector.getSelectedTags())
+        curr_data = self.getSelectPanel().getCurrentSelection()
+        if curr_data:
+            self.updateTagLabel(curr_data)
     
     def saveCurrentTagsAsDefault(self):
         curr_tags = self.tag_selector.getSelectedTags()
