@@ -2,9 +2,10 @@ from __future__ import annotations
 import logging
 import urllib.parse
 import shutil, requests, json
+from numpy import isin
 from ..confReader import getConfV, ASSETS_PATH
 import typing, re, string, os, asyncio
-from typing import List, Union, Iterable, Set, TYPE_CHECKING, Dict, Type, Optional, TypedDict, Sequence
+from typing import List, Union, Set, TYPE_CHECKING, Dict, Type, Optional, TypedDict, Sequence, overload
 import difflib
 import markdown
 from .fileTools import FileGenerator
@@ -133,8 +134,44 @@ class TagRule(DataCore):
             return DataTags(out_tags)
         else:
             return None
+    
+    @classmethod
+    def stripTag(cls, tag: str) -> str:
+        tag_sp = tag.split(cls.SEP)
+        tag_sp = [t.strip() for t in tag_sp]
+        return cls.SEP.join(tag_sp)
+
+    @classmethod
+    def stripTags_(cls, tags: Sequence[str]) -> Sequence[str]:
+        """in place operation"""
+        if isinstance(tags, set):
+            for t in tags:
+                stripped = cls.stripTag(t)
+                if stripped == t:
+                    continue
+                tags.remove(t)
+                tags.add(stripped)
+        else:
+            for i in range(len(tags)):
+                tags[i] = cls.stripTag(tags[i])
+        return tags
 
 class DataTags(Set[str], DataCore):
+    @overload
+    def __init__(self):...
+    @overload
+    def __init__(self, s: Sequence[str]):...
+    @overload
+    def __init__(self, s: DataTags):...
+
+    def __init__(self, arg: Union[Sequence[str], DataTags, None] = None):
+        if arg is None:
+            super().__init__()
+        elif isinstance(arg, DataTags):
+            super().__init__(arg)
+        else:
+            super().__init__(TagRule.stripTags_(arg))
+
     def toOrderedList(self):
         ordered_list = list(self)
         ordered_list.sort()

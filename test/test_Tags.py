@@ -95,9 +95,28 @@ class TestTagRule(unittest.TestCase):
             None
         )
     
+    def test_stripTags(self):
+        s = self.SEP
+        tags = [
+            f"a{s}b {s} c",
+            f" c{s}d{s}"
+        ]
+        stripped = TagRule.stripTags_(tags)
+        self.assertIs(stripped, tags)
+        self.assertEqual(
+            stripped,
+            [
+                f"a{s}b{s}c",
+                f"c{s}d{s}"
+            ]
+        )
+    
 
 class TestDataTags(unittest.TestCase):
     SEP = TagRule.SEP
+
+    def test_initDataTags(self):
+        s = self.SEP
 
     def test_withParents(self):
         s = self.SEP
