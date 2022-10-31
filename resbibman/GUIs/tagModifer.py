@@ -1,5 +1,5 @@
 
-from typing import Callable
+from typing import Callable, Optional
 from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QInputDialog
 from .tagSelector import TagSelector, DataItemAbstract
 from .widgets import RefBase, RefWidgetBase, WidgetBase
@@ -42,7 +42,9 @@ class TagModifier(RefBase, WidgetBase):
         self.prompt = TagSelectPrompt(None, 
                 total_tags, 
                 onConfirm=_onConfirm,
-                single_select=True)
+                single_select=True,
+                window_title="RENAME tag",
+                )
         self.prompt.show()
 
     def promptDeleteTag(self):
@@ -73,7 +75,9 @@ class TagModifier(RefBase, WidgetBase):
         self.prompt = TagSelectPrompt(None, 
                 total_tags, 
                 onConfirm=_onConfirm,
-                single_select=False)
+                single_select=False,
+                window_title="DELETE tag(s)"
+                )
         self.prompt.show()
 
 class TagSelectPrompt(RefWidgetBase):
@@ -81,7 +85,8 @@ class TagSelectPrompt(RefWidgetBase):
     def __init__(self, parent, 
             total_tags: DataTags, 
             onConfirm: Callable[[DataTags], None],
-            single_select = False
+            single_select = False,
+            window_title: Optional[str] = None,
             ) -> None:
         super().__init__(parent)
         self.tag_sel = TagSelector(self, tag_data = DataTags(), tag_total= total_tags)
@@ -90,6 +95,8 @@ class TagSelectPrompt(RefWidgetBase):
         self.btn = QPushButton("OK")
         layout.addWidget(self.btn)
         self.setLayout(layout)
+        if window_title is not None:
+            self.setWindowTitle(window_title)
 
         def onDone():
             onConfirm(self._getSel())
