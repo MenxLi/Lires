@@ -75,8 +75,7 @@ class TagDataModel(QtCore.QObject, WidgetBase):
             return self_sp == child_sp[:-1]
     
         def toString(self) -> str:
-            # return f"{self.split(TagRule.SEP)[-1]}"
-            return str(self)
+            return f"{self.split(TagRule.SEP)[-1]}"
         
         def __ge__(self, __x: TagDataModel.TagDataItem) -> bool:
             return str(self) >= str(__x)
