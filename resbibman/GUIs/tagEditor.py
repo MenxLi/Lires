@@ -1,9 +1,9 @@
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton
+from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel
 
 from .tagSelector import TagSelector
 from .widgets import MainWidgetBase
-from ..core.dataClass import DataTags
+from ..core.dataClass import DataTags, TagRule
 
 class TagEditor(MainWidgetBase):
     def __init__(self, tag_data: DataTags, tag_total: DataTags, parent = None) -> None:
@@ -22,20 +22,40 @@ class TagEditor(MainWidgetBase):
         hbox.addWidget(self.line_edit)
         hbox.addWidget(self.add_btn)
         self.vbox.addWidget(self.tag_selector)
+        self.vbox.addWidget(QLabel("(Ctrl+C to input a hovering tag)"))
         self.vbox.addLayout(hbox)
         self.setLayout(self.vbox)
+        self.installEventFilter(self)
+        self.tag_selector.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
     
     def connectFuncs(self):
         self.add_btn.clicked.connect(self.addCurrTag)
     
     def addCurrTag(self):
         tag = self.line_edit.text()
+        # not allow blank tag
+        tag_sp = tag.split(TagRule.SEP)
+        for t in tag_sp:
+            if t.strip() == "":
+                self.warnDialog("No blank tag allowed")
+                return
         if tag:
             self.tag_selector.addNewSelectedEntry(tag)
             self.line_edit.setText("")
     
     def getSelectedTags(self):
         return self.tag_selector.getSelectedTags()
+    
+    def eventFilter(self, obj, event: QtCore.QEvent) -> bool:
+        if event.type() == QtCore.QEvent.Type.KeyPress:
+            if event.key() == QtCore.Qt.Key.Key_C:
+                if self.keyModifiers("Control"):
+                    curr_hovering_tag = self.tag_selector.data_model.hovering_tag
+                    self.logger.debug(f"Detected input hovering tag: {curr_hovering_tag}")
+                    if curr_hovering_tag:
+                        self.line_edit.setText(curr_hovering_tag + TagRule.SEP)
+                        return True
+        return super().eventFilter(obj, event)
 
 
 class TagEditorWidget(TagEditor):
