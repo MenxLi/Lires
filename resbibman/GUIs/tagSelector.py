@@ -141,10 +141,10 @@ class TagDataModel(QtCore.QObject, WidgetBase):
         total_tags = self.total_tags
         for i in range(len(uncollapse_status))[::-1]:
             if not uncollapse_status[i] in total_tags:
-                uncollapse_status.pop(i)
                 self.logger.info(f"Tag {uncollapse_status[i]} is not in total tags "
                 "and is popped out of default uncollapse list "
                 f"(Total tags: {total_tags})")
+                uncollapse_status.pop(i)
             else:
                 self.ccl.setCollapse(self._getItem(uncollapse_status[i]), False)
         saveToConf_guiStatus(tag_uncollapsed = uncollapse_status)
