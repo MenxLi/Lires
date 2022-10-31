@@ -26,6 +26,9 @@ def compileMain():
     ( "resbibman/stylesheets/Breeze", "./resbibman/stylesheets/Breeze" ),
 
     ( "RBMWeb/frontend/*", "./RBMWeb/frontend" ),
+
+    ( "packages/QCollapsibleCheckList/QCollapsibleCheckList/icons/*", \
+        "./QCollapsibleCheckList/icons" ),
     ]
 
     cmd = ["pyinstaller", "--onefile", "--noconfirm", "-w", "-n", PROG_NAME, "-i", "./resbibman/icons/resbibmanicon/favicon.ico", "./__main__.py", "--additional-hooks-dir=pyinstallerHooks"]

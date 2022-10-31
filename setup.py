@@ -1,5 +1,5 @@
 import os, platform
-from setuptools import setup, find_packages
+from setuptools import setup
 from resbibman.version import VERSION
 
 with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as fp:
@@ -22,7 +22,7 @@ setup(
     # 项目主页
     url="https://github.com/MenxLi/ResBibManager", 
 
-    packages=find_packages(),
+    packages=["resbibman", "RBMWeb"],
 
     classifiers = [
         #   Development Status
