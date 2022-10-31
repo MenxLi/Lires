@@ -1,11 +1,21 @@
 from io import TextIOWrapper
 import time, datetime, re, random, string, logging
 import subprocess, os, platform, sys, threading
-from typing import Callable
+from typing import Callable, TypeVar
 from ..confReader import LOG_FILE, ASSETS_PATH
 import pyperclip as pc
 from functools import wraps
 from uuid import uuid4
+
+CallVar = TypeVar("CallVar", bound = Callable)
+
+def loggedFunction(func: CallVar) -> CallVar:
+    logger = logging.getLogger("rbm")
+    @wraps(func)
+    def func_(*args, **kwargs):
+        logger.debug(f" [{func.__name__}] ")
+        return func(*args, **kwargs)
+    return func_
 
 class ProgressBarCustom(object):
     def __init__(self, n_total, call: Callable[[str], None]):
