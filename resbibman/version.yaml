@@ -190,3 +190,5 @@ version_history:
     - Use yaml to record version history
     - Load font settings without restarting
     - Bug fixes
+  0.8.0:
+    - Hierarchy tag
