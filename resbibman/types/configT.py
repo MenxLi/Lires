@@ -11,6 +11,7 @@ class _ConfFontSizeT(TypedDict):
 
 class _ConfGUIStatusT(TypedDict):
     show_toolbar: bool
+    tag_uncollapsed: List[str]
 
 class ResbibmanConfT(TypedDict):
     """

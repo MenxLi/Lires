@@ -1,17 +1,13 @@
 from __future__ import annotations
-import os
-from typing import Callable, Optional, Sequence, Union, List, overload, Dict
+from typing import Optional, Dict
 
-from PyQt6.QtWidgets import QListView, QHBoxLayout, QInputDialog, QVBoxLayout, QWidget, QPushButton
-from PyQt6.QtGui import QAction, QFont
+from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6 import QtCore
-from PyQt6 import QtGui
 
 from QCollapsibleCheckList import CollapsibleCheckList, DataItemAbstract
 
-from .widgets import RefWidgetBase
-from ._styleUtils import qIconFromSVG_autoBW
-from ..confReader import ICON_PATH, getConfV, saveToConf
+from .widgets import RefWidgetBase, WidgetBase
+from ..confReader import saveToConf_guiStatus, getConf
 from ..core.dataClass import DataTags, TagRule
 
 class TagSelector(RefWidgetBase):
@@ -65,7 +61,7 @@ class TagSelector(RefWidgetBase):
             self.infoDialog("The tag already exists")
 
 
-class TagDataModel(QtCore.QObject):
+class TagDataModel(QtCore.QObject, WidgetBase):
     """
     An interface to hide data communication with CollapsibleCheckList
     Only expose str and DataTags to outside
@@ -89,6 +85,7 @@ class TagDataModel(QtCore.QObject):
             return str(self) < str(__x)
 
     on_selection_change = QtCore.pyqtSignal(DataTags)    
+    on_hover_tag = QtCore.pyqtSignal(str)
 
     def __init__(self, parent: Optional[QtCore.QObject], wid: CollapsibleCheckList):
         super().__init__(parent)
@@ -99,6 +96,10 @@ class TagDataModel(QtCore.QObject):
     def _connectSignal(self):
         self.ccl.onCheckItem.connect(lambda _: self.on_selection_change.emit(self.selected_tags))
         self.ccl.onUnCheckItem.connect(lambda _: self.on_selection_change.emit(self.selected_tags))
+
+        self.ccl.onManualCollapseWidget.connect(lambda nodewid: self.setDefaultUnCollapseStatus(str(nodewid.data), False))
+        self.ccl.onManualUnCollapseWidget.connect(lambda nodewid: self.setDefaultUnCollapseStatus(str(nodewid.data), True))
+        self.ccl.onHoverEnter.connect(lambda item: self.on_hover_tag.emit(str(item)))
     
     def _getItem(self, n: str) -> TagDataModel.TagDataItem:
         """
@@ -114,6 +115,41 @@ class TagDataModel(QtCore.QObject):
                 return k
         raise ValueError("Tagitem not in tag pool")
     
+    def setDefaultUnCollapseStatus(self, tag: str, status: bool):
+        """
+        save to configuration
+        """
+        conf = getConf()
+        uncollapse_status = conf["gui_status"]["tag_uncollapsed"]
+
+        if status:
+            if not tag in uncollapse_status:
+                uncollapse_status.append(tag)
+                self.logger.debug(f"Append {tag} to default uncollapse list")
+        else:
+            #remove both tag and it's subtags from uncollapsed
+            potential_remove = DataTags([tag]).withChildsFrom(self.total_tags)
+            for i in range(len(uncollapse_status))[::-1]:
+                if uncollapse_status[i] in potential_remove:
+                    self.logger.debug(f"Pop {uncollapse_status[i]} from default uncollapse list")
+                    uncollapse_status.pop(i)
+        saveToConf_guiStatus(tag_uncollapsed = uncollapse_status)
+
+    def loadDefaultUnCollapseStatus(self):
+        conf = getConf()
+        uncollapse_status = conf["gui_status"]["tag_uncollapsed"]
+        total_tags = self.total_tags
+        for i in range(len(uncollapse_status))[::-1]:
+            if not uncollapse_status[i] in total_tags:
+                uncollapse_status.pop(i)
+                self.logger.info(f"Tag {uncollapse_status[i]} is not in total tags "
+                "and is popped out of default uncollapse list "
+                f"(Total tags: {total_tags})")
+            else:
+                self.ccl.setCollapse(self._getItem(uncollapse_status[i]), False)
+        saveToConf_guiStatus(tag_uncollapsed = uncollapse_status)
+        return
+    
     def initData(self, tag_data: DataTags, tag_total: DataTags):
         assert tag_total.withParents().issuperset(tag_data.withParents())
         tag_items = []
@@ -124,6 +160,7 @@ class TagDataModel(QtCore.QObject):
             tag_items.append(self._getItem(t))
         
         self.ccl.initData(tag_items, selected)
+        self.loadDefaultUnCollapseStatus()
         return
     
     def addNewData(self, tag: str, status: bool, unfold = True) -> bool:
