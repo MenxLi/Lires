@@ -1,7 +1,10 @@
-from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QFrame
+from PyQt6.QtGui import QFont, QPainter
+from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QFrame, QWidget
 from PyQt6 import QtCore
-from .widgets import  MainWidgetBase
+
+from QFlowLayout import FlowLayout
+
+from .widgets import  MainWidgetBase, RefWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
 from ..core.dataClass import DataPoint, DataTags
@@ -39,11 +42,14 @@ class FileTagGUI(MainWidgetBase):
         vbox2 = QVBoxLayout()
         self.filetagselector_frame.setLayout(vbox2)
         self.tag_label2 = QLabel("Tags for this file:")
-        self.file_tag_label = QLabel("<File tags>")
-        self.file_tag_label.setWordWrap(True)
+
+        self.file_tag_wid = FileTagWidget(self)
+        # self.file_tag_label = QLabel("<File tags>")
+        # self.file_tag_label.setWordWrap(True)
         self.edit_tag_btn = QPushButton("Edit tags")
         vbox2.addWidget(self.tag_label2)
-        vbox2.addWidget(self.file_tag_label)
+        # vbox2.addWidget(self.file_tag_label)
+        vbox2.addWidget(self.file_tag_wid)
         vbox2.addWidget(self.edit_tag_btn)
 
         vbox0.addWidget(self.tagselector_frame, 5)
@@ -132,7 +138,8 @@ class FileTag(FileTagGUI):
     
     def updateTagLabel(self, data: DataPoint):
         if isinstance(data, DataPoint):
-            self.file_tag_label.setText(data.tags.toStr())
+            # self.file_tag_label.setText(data.tags.toStr())
+            self.file_tag_wid.loadTags(data.tags)
             self.offlineStatus(data.is_local)
     
     def _getTagFromCurrSelection(self) -> DataTags:
@@ -141,4 +148,33 @@ class FileTag(FileTagGUI):
             return data.tags
         else: return None
 
+class Bubble(QLabel):
+    def __init__(self, text):
+        super(Bubble, self).__init__(text)
+        self.word = text
+        self.setContentsMargins(5, 5, 5, 5)
 
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.drawRoundedRect(
+            0, 0, self.width() - 1, self.height() - 1, 5, 5)
+        super(Bubble, self).paintEvent(event)
+
+class FileTagWidget(RefWidgetBase):
+    def __init__(self, parent: QWidget = None) -> None:
+        super().__init__(parent)
+        layout = FlowLayout(self)
+        self.flayout = layout
+
+    def loadTags(self, tags: DataTags):
+        self.clearTags()
+        for t in tags:
+            bubble = Bubble(t)
+            self.flayout.addWidget(bubble)
+    
+    def clearTags(self):
+        bubble_count = self.flayout.count()
+        for i in range(bubble_count):
+            wid = self.flayout.itemAt(i).widget()
+            wid.deleteLater()
