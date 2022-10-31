@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict, Generic, List, Literal, Tuple, TypedDict, overload,  Optional
+from typing import Dict, Generic, List, Literal, Tuple, TypedDict, overload,  Optional, Any
 
 from PyQt6.QtGui import QFont
 
@@ -12,7 +12,8 @@ from PyQt6 import QtCore
 class CCLConfigT(TypedDict):
     font: Optional[QFont]
     hover_highlight_color: Optional[str]
-    click_line: Literal["check", "fold", "none"]
+    left_click_line: Literal["check", "fold", "none"]
+    right_click_line: Literal["check", "fold", "none"]
 
 class CollapsibleCheckList(QWidget, Generic[DataItemT]):
 
@@ -42,7 +43,8 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
                  init_check_status : Optional[List[bool]] = None,
                  # configurations
                  hover_highlight_color: Optional[str] = None,
-                 click_line: Literal["check", "fold", "none"] = "none",
+                 left_click_line: Literal["check", "fold", "none"] = "none",
+                 right_click_line: Literal["check", "fold", "none"] = "none",
                  ) -> None:
         super().__init__(parent)
 
@@ -54,7 +56,8 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
         self.config: CCLConfigT = {
             "font": None,
             "hover_highlight_color": hover_highlight_color,
-            "click_line": click_line
+            "left_click_line": left_click_line,
+            "right_click_line": right_click_line
         }
 
         self.initUI()
@@ -243,13 +246,21 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
             data = a
         return self.check_status[data.dataitem_uid]
 
-    def eventFilter(self, a0, a1: QtCore.QEvent) -> bool:
+    def eventFilter(self, a0, a1: Any) -> bool:
         if a1.type() == QtCore.QEvent.Type.MouseButtonPress:
+            print(self.focusWidget())
             if a1.button() == QtCore.Qt.MouseButton.LeftButton:
-                if self.config["click_line"] == "check":
+                if self.config["left_click_line"] == "check":
                     if self.item_hover:
                         self.setItemChecked(self.item_hover, not self.isItemChecked(self.item_hover))
-                elif self.config["click_line"] == "fold":
+                elif self.config["left_click_line"] == "fold":
+                    if self._hovering_wid:
+                        self._hovering_wid.onCollapseClicked()
+            if a1.button() == QtCore.Qt.MouseButton.RightButton:
+                if self.config["right_click_line"] == "check":
+                    if self.item_hover:
+                        self.setItemChecked(self.item_hover, not self.isItemChecked(self.item_hover))
+                elif self.config["right_click_line"] == "fold":
                     if self._hovering_wid:
                         self._hovering_wid.onCollapseClicked()
 

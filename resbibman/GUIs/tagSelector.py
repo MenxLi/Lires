@@ -27,7 +27,8 @@ class TagSelector(RefWidgetBase):
         self.ccl = CollapsibleCheckList(
             self,
             hover_highlight_color="rgba(100, 100, 100, 100)",
-            click_line="check",
+            left_click_line="check",
+            right_click_line="fold",
             )
         self.data_model = TagDataModel(self, self.ccl)
         layout = QVBoxLayout()
@@ -88,8 +89,8 @@ class TagDataModel(QtCore.QObject, WidgetBase):
 
     def __init__(self, parent: Optional[QtCore.QObject], wid: CollapsibleCheckList):
         super().__init__(parent)
-        self.ccl: CollapsibleCheckList[self.TagDataItem] = wid
-        self._item_pool: Dict[str, self.TagDataItem] = {}
+        self.ccl: CollapsibleCheckList[TagDataModel.TagDataItem] = wid
+        self._item_pool: Dict[str, TagDataModel.TagDataItem] = {}
         self._connectSignal()
     
     def _connectSignal(self):

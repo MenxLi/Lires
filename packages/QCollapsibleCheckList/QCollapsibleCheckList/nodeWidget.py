@@ -270,12 +270,16 @@ class NodeWidget(QWidget, Generic[DataItemT]):
             self._parent.onManualCollapseWidget.emit(self)
 
     def _collapseFrame(self):
+        if self._collapsed:
+            return
         self._removeChilds()
         self._parent.onCollapseNode.emit(self.node)
         self._parent.onCollapseNodeWidget.emit(self)
         self._updateCollapseBtnStyle(self.clp_btn)
 
     def _unCollapseFrame(self):
+        if not self.node.childs:
+            return
         self._appendChilds()
         self._parent.onUnCollapseNode.emit(self.node)
         self._parent.onUnCollapseNodeWidget.emit(self)
