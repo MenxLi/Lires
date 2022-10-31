@@ -102,6 +102,8 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
             self.check_status[d.dataitem_uid] = status
             self.shown_item_wids[d.dataitem_uid] = []
 
+        # import pdb; pdb.set_trace()
+
         for n in self.graph.nodes:
             if n.parents == []:
                 wid = self._createNodeWid(n)
@@ -137,7 +139,7 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
         self.shown_item_wids.setdefault(i.dataitem_uid, [])
 
         last_node = self.graph.nodes[-1]
-        debug("current root node_wids: ", [wid.node for wid in self.root_node_wids])
+        debug(f"current root node_wids: {[wid.node for wid in self.root_node_wids]}")
         if last_node.parents == []:
             # root node
             wid = self._createNodeWid(last_node)
@@ -146,7 +148,7 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
         for wid in [ w for w in self.root_node_wids ]:
             # have to use this trick
             # because the root node may be deleted on the way updating
-            debug("UPDATING NODE WIDGET: ", wid)
+            debug(f"UPDATING NODE WIDGET: {wid}")
             wid.onNodeUpdate()
         return True
 

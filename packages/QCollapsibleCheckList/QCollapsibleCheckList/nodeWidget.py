@@ -32,7 +32,9 @@ class NodeVlayout(QVBoxLayout, Generic[DataItemT]):
                 raise ValueError("NodeVlayout can only take NodeWidget")
 
         total_count = self.count()
-        debug("Total count", total_count)
+        # import pdb; pdb.set_trace()
+        debug(f"Total count: {total_count}")
+        debug(f"Adding widget: {wid}")
         try:
             if total_count == 0:
                 debug("add first wid")
@@ -49,11 +51,11 @@ class NodeVlayout(QVBoxLayout, Generic[DataItemT]):
                 return
 
             for i in range(0, total_count - 1):
-                debug(i)
                 w0 = widAt(i)
                 w1 = widAt(i+1)
-                if wid.node >= w0.node and wid.node < w1.node:
-                    super().insertWidget(i, wid)
+                if wid.node < w1.node and wid.node >= w0.node:
+                    super().insertWidget(i+1, wid)
+                    debug(f"insert to {i+1}")
                     return
             debug("...")
         except NotImplementedError:
@@ -210,7 +212,7 @@ class NodeWidget(QWidget, Generic[DataItemT]):
         return self._parent.shown_item_wids[self.node.value.dataitem_uid]
 
     def onNodeUpdate(self):
-        debug("update...", self)
+        debug(f"update... {self}")
         if not self.node.in_graph:
             # indicate has been poped out of the graph
             self.removeSelf()
