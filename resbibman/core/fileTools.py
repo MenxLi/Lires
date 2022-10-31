@@ -441,6 +441,11 @@ class FileManipulator:
         #      self.logger.debug("Using modified_time - {} ()".format(modified_time, self.uuid))
         #      return modified_time
     
+    def getVersionModify(self) -> str:
+        with open(self.info_p, "r", encoding = "utf-8") as f:
+            data = json.load(f)
+        return data["version_modify"]
+    
     def getWebUrl(self) -> str:
         with open(self.info_p, "r", encoding = "utf-8") as f:
             data = json.load(f)

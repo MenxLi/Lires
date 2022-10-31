@@ -332,6 +332,12 @@ class FileManipulatorVirtual(FileManipulator):
             return super().getTimeModified()
         else:
             return self.v_info["time_modified"]
+
+    def getVersionModify(self) -> str:
+        if self.has_local:
+            return super().getVersionModify()
+        else:
+            raise NotImplementedError()
     
     def getWebUrl(self) -> str:
         if self.has_local:
