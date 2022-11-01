@@ -1,4 +1,5 @@
 from __future__ import annotations
+from csv import QUOTE_ALL
 import os
 from typing import TYPE_CHECKING, Optional, TypedDict
 from PyQt6.QtCore import QUrl
@@ -97,9 +98,9 @@ class DocumentReader(MainWidgetBase):
             self.warnDialog("Pdf.js viewer not installed", 
                 "Download and place it in: {}".format(viewer_path))
             return
-        viewer_url = "file://"+viewer_path
-        file_url = "file://"+fpath
-        qurl = QUrl.fromUserInput("%s?file=%s"%(viewer_url,file_url))
+        viewer_url = QUrl.fromLocalFile(viewer_path)
+        file_url = QUrl.fromLocalFile(fpath)
+        qurl = QUrl.fromUserInput("%s?file=%s"%(viewer_url.toString(),file_url.toString()))
         self.logger.debug("Loading url: {}".format(qurl))
         self.webview.load(qurl)
 
