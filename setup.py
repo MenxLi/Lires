@@ -44,6 +44,7 @@ setup(
             "resbibman=resbibman.exec:run",
             "rbm-resetconf=resbibman.cmd.generateDefaultConf:run",
             "rbm-collect=resbibman.cmd.rbmCollect:main",
+            "rbm-utils=resbibman.cmd.miscUtils:main",
             "rbm-keyman=RBMWeb.cmd.manageKey:run",
             "rbm-discuss=RBMWeb.cmd.rbmDiscuss:main",
         ]

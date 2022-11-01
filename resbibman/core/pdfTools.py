@@ -5,10 +5,11 @@ except:
 import os
 from PyQt6 import QtGui
 import logging
-
 import requests, os, zipfile
 from tqdm import tqdm
 from ..confReader import ICON_PATH, DEFAULT_PDF_VIEWER_DIR, TMP_DIR
+
+DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v3.0.279/pdfjs-3.0.279-dist.zip"
 
 def render_pdf_page(page_data, for_cover=False):
     zoom_matrix = fitz.Matrix(4, 4)
@@ -41,9 +42,8 @@ def getPDFCoverAsQPixelmap(f_path: str):
         cover.convertFromImage(QtGui.QImage(os.path.join(ICON_PATH, "error-48px.png")))
     return cover
 
-def downloadDefaultPDFjsViewer() -> bool:
+def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL) -> bool:
     tmp_download = os.path.join(TMP_DIR, "pdfjs.zip")
-    download_url = "https://github.com/mozilla/pdf.js/releases/download/v3.0.279/pdfjs-3.0.279-dist.zip"
     print("Downloading pdf.js from {}".format(download_url))
     # https://stackoverflow.com/a/37573701/6775765
     response = requests.get(download_url, stream=True)
@@ -55,8 +55,18 @@ def downloadDefaultPDFjsViewer() -> bool:
             progress_bar.update(len(data))
             file.write(data)
     progress_bar.close()
+
+    SUCCESS = True
     if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
         print("ERROR, something went wrong")
+        SUCCESS = False
+    if response.status_code != 200:
+        print("ERROR ({})".format(response.status_code))
+        SUCCESS = False
+
+    if not SUCCESS:
+        if os.path.exists(tmp_download):
+            os.remove(tmp_download)
         return False
     
     print("Extracting to default viewer location...")
@@ -64,3 +74,4 @@ def downloadDefaultPDFjsViewer() -> bool:
         zp.extractall(path = DEFAULT_PDF_VIEWER_DIR)
     print("Finished. downloaded PDF.js to: {}".format(DEFAULT_PDF_VIEWER_DIR))
     os.remove(tmp_download)
+    return True
