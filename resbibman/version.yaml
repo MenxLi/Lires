@@ -192,3 +192,11 @@ version_history:
     - Bug fixes
   0.8.0:
     - Hierarchy tag
+  0.8.1:
+    - Use PDF.js viewer as internal PDF reader
+    - rbm-utils
+    - Use flow layout to show selected file tags
+    - Can hover copy tag in tag-selector
+    - Can right click on tag to unfold
+    - Bug fix - tag selector sorting
+    - Bug fix - now update frames after selected data moved out of the current tags
