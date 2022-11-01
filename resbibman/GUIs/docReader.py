@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QSplitter
 from .widgets import MainWidgetBase
 from .fileInfo import FileInfo
 from ..core.htmlTools import unpackHtmlTmp
+from ..confReader import getConf
 
 if TYPE_CHECKING:
     from .mainWindow import MainWindow
@@ -91,8 +92,16 @@ class DocumentReader(MainWidgetBase):
 
     def _loadPDF(self, fpath: str):
         assert fpath.endswith(".pdf")
+        viewer_path = getConf()["pdfjs_viewer_path"]
+        if not os.path.exists(viewer_path):
+            self.warnDialog("Pdf.js viewer not installed", 
+                "Download and place it in: {}".format(viewer_path))
+            return
+        viewer_url = "file://"+viewer_path
         file_url = "file://"+fpath
-        self.webview.setUrl(QUrl(file_url))
+        qurl = QUrl.fromUserInput("%s?file=%s"%(viewer_url,file_url))
+        self.logger.debug("Loading url: {}".format(qurl))
+        self.webview.load(qurl)
 
     def _loadHpack(self, fpath: str):
         assert fpath.endswith(".hpack")

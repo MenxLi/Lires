@@ -5,24 +5,20 @@ except:
 import os
 from PyQt6 import QtGui
 import logging
-from ..confReader import ICON_PATH
 
-# 显示 PDF 封面
-# page_data 为 page 对象
+import requests, os, zipfile
+from tqdm import tqdm
+from ..confReader import ICON_PATH, DEFAULT_PDF_VIEWER_DIR, TMP_DIR
+
 def render_pdf_page(page_data, for_cover=False):
-    # 图像缩放比例
     zoom_matrix = fitz.Matrix(4, 4)
     if for_cover:
         zoom_matrix = fitz.Matrix(1, 1)
     
-    # 获取封面对应的 Pixmap 对象
-    # alpha 设置背景为白色
     pagePixmap = page_data.get_pixmap(
         matrix = zoom_matrix, 
         alpha=False) 
-    # 获取 image 格式
     imageFormat = QtGui.QImage.Format.Format_RGB888 
-    # 生成 QImage 对象
     pageQImage = QtGui.QImage(
         pagePixmap.samples,
         pagePixmap.width, 
@@ -30,7 +26,6 @@ def render_pdf_page(page_data, for_cover=False):
         pagePixmap.stride,
         imageFormat)
 
-    # 生成 pixmap 对象
     pixmap = QtGui.QPixmap()
     pixmap.convertFromImage(pageQImage)
     return pixmap
@@ -45,3 +40,27 @@ def getPDFCoverAsQPixelmap(f_path: str):
         cover= QtGui.QPixmap()
         cover.convertFromImage(QtGui.QImage(os.path.join(ICON_PATH, "error-48px.png")))
     return cover
+
+def downloadDefaultPDFjsViewer() -> bool:
+    tmp_download = os.path.join(TMP_DIR, "pdfjs.zip")
+    download_url = "https://github.com/mozilla/pdf.js/releases/download/v3.0.279/pdfjs-3.0.279-dist.zip"
+    print("Downloading pdf.js from {}".format(download_url))
+    # https://stackoverflow.com/a/37573701/6775765
+    response = requests.get(download_url, stream=True)
+    total_size_in_bytes= int(response.headers.get('content-length', 0))
+    block_size = 1024 #1 Kibibyte
+    progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+    with open(tmp_download, 'wb') as file:
+        for data in response.iter_content(block_size):
+            progress_bar.update(len(data))
+            file.write(data)
+    progress_bar.close()
+    if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+        print("ERROR, something went wrong")
+        return False
+    
+    print("Extracting to default viewer location...")
+    with zipfile.ZipFile(tmp_download, "r", compression=zipfile.ZIP_DEFLATED) as zp:
+        zp.extractall(path = DEFAULT_PDF_VIEWER_DIR)
+    print("Finished. downloaded PDF.js to: {}".format(DEFAULT_PDF_VIEWER_DIR))
+    os.remove(tmp_download)

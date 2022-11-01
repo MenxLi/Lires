@@ -1,5 +1,6 @@
+import os
 from ..core.dataClass import DataTableList
-from ..confReader import CONF_FILE_PATH, saveToConf, DEFAULT_DATA_PATH
+from ..confReader import CONF_FILE_PATH, saveToConf, DEFAULT_DATA_PATH, DEFAULT_PDF_VIEWER_DIR
 
 def run():
 	generateDefaultConf()
@@ -21,6 +22,8 @@ def generateDefaultConf():
 		host = "",
 		port = "8080",
 		access_key = "",
+
+		pdfjs_viewer_path = os.path.join(DEFAULT_PDF_VIEWER_DIR, "web", "viewer.html"),
 
 		default_tags = [],
 		table_headers = [ 

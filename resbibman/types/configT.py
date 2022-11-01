@@ -26,6 +26,10 @@ class ResbibmanConfT(TypedDict):
     port: str
     access_key: str
 
+    # PDFjs viewer for pdf render in qwebengine
+    # the path is suppose to be the viewer.html
+    pdfjs_viewer_path: str
+
     # Tag settings
     default_tags: List[str]
     table_headers: List[str]

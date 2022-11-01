@@ -12,3 +12,4 @@ nest_asyncio
 arxiv
 pyyaml
 nbib
+tqdm

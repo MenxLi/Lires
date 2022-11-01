@@ -31,6 +31,7 @@ BIB_TEMPLATE_PATH = join(DOC_PATH, "bibtexTemplates")
 ASSETS_PATH = join(CURR_PATH, "assets")
 
 DEFAULT_DATA_PATH = join(RBM_HOME, "Database")
+DEFAULT_PDF_VIEWER_DIR = join(RBM_HOME, "pdf-viewer")
 LOG_FILE = join(RBM_HOME, "log.txt")
 
 TMP_DIR = os.path.join(RBM_HOME, "RBM.cache")
@@ -42,8 +43,9 @@ TMP_WEB_NOTES = os.path.join(TMP_DIR, "notes_webpage")  # For notes as webpages
 # Create directories if they don't exist
 if not os.path.exists(RBM_HOME):
     os.mkdir(RBM_HOME)
-if not os.path.exists(TMP_DIR):
-    os.mkdir(TMP_DIR)
+for _p in [TMP_DIR, DEFAULT_PDF_VIEWER_DIR]:
+    if not os.path.exists(_p):
+        os.mkdir(_p)
 for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES]:
     if not os.path.exists(_p):
         os.mkdir(_p)
