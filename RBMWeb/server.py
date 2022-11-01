@@ -182,7 +182,7 @@ class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerBase):
         if cmd == "deleteTagAll":
             db.deleteTag(args[0])
         if cmd == "rbm-collect":
-            from resbibman.cmdTools.rbmCollect import exec as exec_rbmCollect
+            from resbibman.cmd.rbmCollect import exec as exec_rbmCollect
             d_path = exec_rbmCollect(args[0], **kwargs)
             if d_path:
                 db.add(d_path)

@@ -42,7 +42,7 @@ def run():
     NOT_RUN = False     # Indicates whether to run main GUI
 
     def resetConf():
-        from resbibman.cmdTools.generateDefaultConf import generateDefaultConf
+        from resbibman.cmd.generateDefaultConf import generateDefaultConf
         generateDefaultConf()
 
     if not os.path.exists(CONF_FILE_PATH):
