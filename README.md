@@ -26,6 +26,7 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 ## Installation
 ```bash
 tsc                             # compile typescript for RBMweb frontend
+pip install setuptools wheel pyyaml
 pip install packages/*
 pip install .
 rbm-utils download_pdfjs        # download pdf.js viewer to view pdf inside resbibman

@@ -2,7 +2,6 @@ from __future__ import annotations
 import logging
 import urllib.parse
 import shutil, requests, json
-from numpy import isin
 from ..confReader import getConfV, ASSETS_PATH
 import typing, re, string, os, asyncio
 from typing import List, Union, Set, TYPE_CHECKING, Dict, Type, Optional, TypedDict, Sequence, overload
