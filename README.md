@@ -25,9 +25,10 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 
 ## Installation
 ```bash
-tsc
+tsc                             # compile typescript for RBMweb frontend
 pip install packages/*
 pip install .
+rbm-utils download_pdfjs        # download pdf.js viewer to view pdf inside resbibman
 ```
 
 ### Update
@@ -78,6 +79,7 @@ rbm-keyman      # Manage access key
 rbm-discuss     # Manage online discussions
 rbm-collect     # Automatic add entry to database with retriving string
 rbm-resetconf   # To reset default configuration
+rbm-utils       # Miscellaneous utilities
 ```
 
 <!--
@@ -136,7 +138,7 @@ settings:
 
 Tags:
 - [x] Right click: rename; delete;
-- [ ] Sub-tags (Cascading tags / Nested tags)
+- [x] Sub-tags (Cascading tags / Nested tags)
 
 Refractor:
 - [ ] Move more methods into core classes
