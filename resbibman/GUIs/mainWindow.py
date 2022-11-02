@@ -131,9 +131,6 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.splitter.addWidget(self.file_tags)
         self.splitter.addWidget(self.file_selector)
         self.splitter.addWidget(self.file_info)
-        #  self.splitter.setStretchFactor(0,1)
-        #  self.splitter.setStretchFactor(1,4)
-        #  self.splitter.setStretchFactor(2,2)
         self.toggleLayout(self._panel_status)
         hbox.addWidget(self.splitter)
 

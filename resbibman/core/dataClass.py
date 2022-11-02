@@ -184,7 +184,7 @@ class DataTags(Set[str], DataCore):
         for s in self:
             parents = parents.union(TagRule.allParentsOf(s))
         return self.union(parents)
-    
+
     def withChildsFrom(self, child_choices: DataTags):
         childs = DataTags()
         for s in self:

@@ -1,3 +1,4 @@
+from typing import Optional
 from PyQt6.QtGui import QFont, QPainter
 from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QFrame, QWidget
 from PyQt6 import QtCore
@@ -37,6 +38,7 @@ class FileTagGUI(MainWidgetBase):
         vbox1.addWidget(self.tag_label)
         vbox1.addWidget(self.tag_selector, 1)
         vbox1.addWidget(self.clear_selection_btn, 0)
+        vbox1.setContentsMargins(0,0,0,0)
 
         self.filetagselector_frame = QFrame()
         vbox2 = QVBoxLayout()
@@ -84,6 +86,10 @@ class FileTag(FileTagGUI):
                 tag_data.add(t)
         self.tag_selector.initDataModel(tag_data, tag_total)
         saveToConf(default_tags = tag_data.toOrderedList())
+
+    @property
+    def selected_tags(self):
+        return self.tag_selector.getSelectedTags()
     
     def connectFuncs(self):
         self.edit_tag_btn.clicked.connect(self.openTagEditor)
@@ -139,7 +145,7 @@ class FileTag(FileTagGUI):
     def updateTagLabel(self, data: DataPoint):
         if isinstance(data, DataPoint):
             # self.file_tag_label.setText(data.tags.toStr())
-            self.file_tag_wid.loadTags(data.tags)
+            self.file_tag_wid.loadTags(data.tags, self.selected_tags)
             self.offlineStatus(data.is_local)
     
     def _getTagFromCurrSelection(self) -> DataTags:
@@ -152,26 +158,47 @@ class Bubble(QLabel):
     def __init__(self, text):
         super(Bubble, self).__init__(text)
         self.word = text
-        self.setContentsMargins(5, 5, 5, 5)
+        self._draw_rect = True
+        self.setContentsMargins(5, 3, 5, 3)
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        painter.drawRoundedRect(
-            0, 0, self.width() - 1, self.height() - 1, 5, 5)
+        if self._draw_rect:
+            painter.drawRoundedRect(
+                0, 0, self.width() - 1, self.height() - 1, 5, 5)
         super(Bubble, self).paintEvent(event)
 
+    def setStyleSheetBackgroundColor(self, s: str):
+        self.setStyleSheet(f"background-color: {s}")
+
+    def setNoRoundRect(self):
+        self._draw_rect = False
+
 class FileTagWidget(RefWidgetBase):
-    def __init__(self, parent: QWidget = None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         layout = FlowLayout(self)
         self.flayout = layout
 
-    def loadTags(self, tags: DataTags):
+    def loadTags(self, curr_data_tags: DataTags, selected_tags: DataTags):
         self.clearTags()
-        for t in tags:
-            bubble = Bubble(t)
+        loaded = []
+        for tag in curr_data_tags:
+            bubble = Bubble(tag)
+            loaded.append(tag)
             self.flayout.addWidget(bubble)
+            if tag in selected_tags:
+                bubble.setStyleSheetBackgroundColor("rgba(0, 150, 150, 200)")
+            elif tag in selected_tags.withChildsFrom(curr_data_tags):
+                bubble.setStyleSheetBackgroundColor("rgba(0, 50, 100, 100)")
+            else:
+                bubble.setStyleSheetBackgroundColor("rgba(100, 100, 100, 100)")
+        for tag in selected_tags:
+            if not tag in loaded:
+                bubble = Bubble(tag)
+                bubble.setNoRoundRect()
+                self.flayout.addWidget(bubble)
     
     def clearTags(self):
         bubble_count = self.flayout.count()

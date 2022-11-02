@@ -125,6 +125,10 @@ class FileInfoGUI(MainWidgetBase):
         frame_vbox.addWidget(self.btn_frame, 0)
         self.frame.setLayout(frame_vbox)
 
+        comment_frame_vbox.setContentsMargins(0,0,0,0)
+        self.btn_frame.setContentsMargins(0,0,0,0)
+        frame_vbox.setContentsMargins(0,0,0,0)
+
 class FileInfo(FileInfoGUI):
     """
     Implement the functions for file info
