@@ -2,7 +2,8 @@
 Resbibman: a **Res**earch **bib**liograpy **man**ager
 
 <!--![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)-->
-![ResBibMan](./resbibman/docs/imgs/mainWindow.png)
+<!--![ResBibMan](./resbibman/docs/imgs/mainWindow.png)-->
+![ResBibMan](http://limengxun.com/files/imgs/resbibman.png)
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for notes.
 
@@ -14,10 +15,11 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 
 ## Features
 * Cross-platform
+* Cascading tags  
 * Markdown notes, with LaTeX equation support
-* Various file formats support, including webpage
 * Online mode (remote storage)
 * Host a server to view, share and discuss online.
+<!--* Various file formats support, including webpage-->
 
 # Installation & Usage
 
@@ -31,10 +33,6 @@ pip install packages/*
 pip install .
 rbm-utils download_pdfjs        # download pdf.js viewer to view pdf inside resbibman
 ```
-
-### Update
-If you dowload the source code from web url, you can update it with `update.py`  
-If you clone it from remote git repository, then please stick with `git pull`
 
 ### Docker deployment
 Instead of manual installation, The the RBMWeb server can be deployed via docker,   
@@ -82,15 +80,6 @@ rbm-collect     # Automatic add entry to database with retriving string
 rbm-resetconf   # To reset default configuration
 rbm-utils       # Miscellaneous utilities
 ```
-
-<!--
-## Server usage
-Start server with `resbibman -S`  
-Access key management with `rbm-keyman`   
-Discussion management with `rbm-discuss`
-The server serve data at `database` entry of the `resbibman` configration file (`resbibman/conf.json`)
-The server port can be assigned at `RBMWeb/backend/conf.json`
--->
 
 
 # Future works
