@@ -1,15 +1,15 @@
 from __future__ import annotations
-from csv import QUOTE_ALL
 import os
 from typing import TYPE_CHECKING, Optional, TypedDict
 from PyQt6.QtCore import QUrl
-from PyQt6.QtWebEngineCore import QWebEngineSettings
+from PyQt6.QtWebEngineCore import QWebEngineSettings, QWebEngineDownloadRequest
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 from PyQt6.QtWidgets import QHBoxLayout, QSplitter
 
 from .widgets import MainWidgetBase
 from .fileInfo import FileInfo
+from ..core.dataClass import DataPoint
 from ..core.htmlTools import unpackHtmlTmp
 from ..confReader import getConf
 
@@ -29,6 +29,7 @@ class DocumentReader(MainWidgetBase):
             "doc_uid": None,
             "splitter_size_initialized": False
         }
+        self.dp: Optional[DataPoint] = None
 
     def initUI(self):
         self.webview = QWebEngineView(self)
@@ -67,6 +68,7 @@ class DocumentReader(MainWidgetBase):
         """
         dp = self.database[uid]
         self.info_panel.load(dp)
+        self.dp = dp
 
         if not dp.is_local or not dp.fm.file_p:
             url = dp.fm.getWebUrl()
@@ -103,10 +105,30 @@ class DocumentReader(MainWidgetBase):
         qurl = QUrl.fromUserInput("%s?file=%s"%(viewer_url.toString(),file_url.toString()))
         self.logger.debug("Loading url: {}".format(qurl))
         self.webview.load(qurl)
-
+        self.webview.page().profile().downloadRequested.connect(self._on_downloadPDF)
+    
     def _loadHpack(self, fpath: str):
         assert fpath.endswith(".hpack")
         unpacked = unpackHtmlTmp(fpath)
         file_url = "file://"+unpacked
         self.webview.setUrl(QUrl(file_url))
+        self.webview.page().profile().downloadRequested.connect(lambda _: ...)
 
+    def _on_downloadPDF(self, download_req: QWebEngineDownloadRequest):
+        self.logger.debug("Downloading {}:{}".format(self.dp.uuid, self.dp))
+        def on_stateChange(state: QWebEngineDownloadRequest.DownloadState):
+            if state == QWebEngineDownloadRequest.DownloadState.DownloadCompleted:
+                self.statusBarInfo("Saved!", time = 3)
+            if state == QWebEngineDownloadRequest.DownloadState.DownloadInterrupted \
+                or state == QWebEngineDownloadRequest.DownloadState.DownloadCancelled:
+                self.logger.error(f"Download state: {state}")
+                self.warnDialog("Failed", "file not saved, check log.")
+        assert self.dp is not None
+        assert self.dp.fm.file_p is not None
+        assert self.dp.fm.file_p.endswith(".pdf")
+        dir_path, fname = os.path.split(self.dp.fm.file_p)
+        self.logger.debug(f"set download path to: {self.dp.fm.file_p}")
+        download_req.setDownloadDirectory(dir_path)
+        download_req.setDownloadFileName(fname)
+        download_req.stateChanged.connect(on_stateChange)
+        download_req.accept()
