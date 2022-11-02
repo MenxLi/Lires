@@ -45,7 +45,7 @@ class FileInfoGUI(MainWidgetBase):
         # self.cover_label.setMaximumHeight(300)
         self.cover_label.setMaximumWidth(150)
         self.cover_label.setMinimumSize(100, 150)
-        self.comment_lbl = QLabel("Comments: ")
+        #  self.comment_lbl = QLabel("Comments: ")
         self.comment_save_indicate_lbl = QLabel("")
         self.save_comment_btn = QPushButton("Save")
         self.refresh_btn = QPushButton("Refresh")
@@ -91,7 +91,7 @@ class FileInfoGUI(MainWidgetBase):
 
         self.info_frame = QFrame()
         # self.info_frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shape.Sunken)
-        self.info_frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Sunken)
+        #  self.info_frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Sunken)
         info_frame_hbox = QHBoxLayout()
         info_frame_hbox.addWidget(self.info_lbl)
         info_frame_hbox.addWidget(self.cover_label)
@@ -99,7 +99,7 @@ class FileInfoGUI(MainWidgetBase):
 
         self.comment_frame = QFrame()
         comment_frame_vbox = QVBoxLayout()
-        comment_frame_vbox.addWidget(self.comment_lbl, 0)
+        #  comment_frame_vbox.addWidget(self.comment_lbl, 0)
         comment_frame_vbox.addWidget(self.tab_wid,1)
         self.comment_frame.setLayout(comment_frame_vbox)
 

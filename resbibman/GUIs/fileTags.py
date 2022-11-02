@@ -43,16 +43,12 @@ class FileTagGUI(MainWidgetBase):
         self.filetagselector_frame = QFrame()
         vbox2 = QVBoxLayout()
         self.filetagselector_frame.setLayout(vbox2)
-        self.tag_label2 = QLabel("Tags for this file:")
 
         self.file_tag_wid = FileTagWidget(self)
-        # self.file_tag_label = QLabel("<File tags>")
-        # self.file_tag_label.setWordWrap(True)
         self.edit_tag_btn = QPushButton("Edit tags")
-        vbox2.addWidget(self.tag_label2)
-        # vbox2.addWidget(self.file_tag_label)
         vbox2.addWidget(self.file_tag_wid)
         vbox2.addWidget(self.edit_tag_btn)
+        vbox2.setContentsMargins(0,0,0,0)
 
         vbox0.addWidget(self.tagselector_frame, 5)
         vbox0.addWidget(self.filetagselector_frame, 0)
@@ -138,17 +134,21 @@ class FileTag(FileTagGUI):
         self.getSelectPanel().loadValidData(curr_sel_tags)
         self.getInfoPanel().clearPanel()
         curr_data = self.getSelectPanel().getCurrentSelection()
+        self.updateTagLabel(curr_data)
         if curr_data is not None:
             self.getInfoPanel().load(curr_data)
-            self.updateTagLabel(curr_data)
+        else:
+            self.getInfoPanel().clearPanel()
     
-    def updateTagLabel(self, data: DataPoint):
+    def updateTagLabel(self, data: Optional[DataPoint]):
         if isinstance(data, DataPoint):
             # self.file_tag_label.setText(data.tags.toStr())
             self.file_tag_wid.loadTags(data.tags, self.selected_tags)
             self.offlineStatus(data.is_local)
+        else:
+            self.file_tag_wid.loadTags(DataTags([]), self.selected_tags)
     
-    def _getTagFromCurrSelection(self) -> DataTags:
+    def _getTagFromCurrSelection(self) -> Optional[DataTags]:
         data = self.getSelectPanel().getCurrentSelection()
         if isinstance(data, DataPoint):
             return data.tags
