@@ -1,4 +1,4 @@
-import traceback
+import traceback, math
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
 from PyQt6.QtGui import QAction, QShortcut, QColor
@@ -81,7 +81,7 @@ class FileSelectorGUI(MainWidgetBase):
         data_view = self.data_view
         data_view.setFont(QtGui.QFont(*font_config["data"]))
         data_font_size = font_config["data"][1]
-        data_view.verticalHeader().setDefaultSectionSize(int(data_font_size*1.5))
+        data_view.verticalHeader().setDefaultSectionSize(math.ceil(data_font_size*1.5))
 
 class FileSelector(FileSelectorGUI):
     selection_changed = QtCore.pyqtSignal(DataPoint)
