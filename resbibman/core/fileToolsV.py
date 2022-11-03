@@ -3,7 +3,7 @@ Virtual (Remote) file tools
 """
 from __future__ import annotations
 import os, typing, requests, shutil
-from typing import TYPE_CHECKING, Union, Literal, Callable
+from typing import Union, Literal, Callable
 
 from . import globalVar as G
 from .utils import TimeUtils
@@ -12,9 +12,7 @@ from .fileTools import FileManipulator
 from .encryptClient import generateHexHash
 from .compressTools import decompressDir, compressDir
 from ..confReader import getConfV, TMP_DB, TMP_DIR, getServerURL
-
-if TYPE_CHECKING:
-    from RBMWeb.backend.rbmlibs import DataPointInfo
+from ..types.dataT import DataPointSummary
 
 class FileManipulatorVirtual(FileManipulator):
     """
@@ -25,7 +23,7 @@ class FileManipulatorVirtual(FileManipulator):
     INTERM_ZIP_DIR = os.path.join(TMP_DIR, "fm_zips")
     if not os.path.exists(INTERM_ZIP_DIR):
         os.mkdir(INTERM_ZIP_DIR)
-    def __init__(self, v: Union[DataPointInfo, str], \
+    def __init__(self, v: Union[DataPointSummary, str], \
                  prompt_obj: ChoicePromptAbstract = ChoicePromptCLI()):
         """
          - v [DataPointInfo]: dictionary datapoint info,
@@ -60,7 +58,7 @@ class FileManipulatorVirtual(FileManipulator):
         return generateHexHash(getConfV("access_key"))
     
     @property
-    def v_info(self) -> Union[DataPointInfo, dict]:
+    def v_info(self) -> Union[DataPointSummary, dict]:
         """ Virtual file info (from remote) """
         if hasattr(self, "_v_info"):
             return self._v_info
@@ -68,7 +66,7 @@ class FileManipulatorVirtual(FileManipulator):
             return dict()
 
     @v_info.setter
-    def v_info(self, v_info_update: DataPointInfo):
+    def v_info(self, v_info_update: DataPointSummary):
         # Maybe update v_info when synchronized
         self._v_info = v_info_update
 

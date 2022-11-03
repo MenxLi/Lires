@@ -1,9 +1,9 @@
-import typing
-import os, sys, shutil
-from typing import List, Union, TypedDict
+import os, shutil
+from typing import List, Union
 from resbibman.confReader import getConfV, TMP_WEB_NOTES, ASSETS_PATH
 from resbibman.core.dataClass import DataBase, DataList, DataPoint, DataTags
 from resbibman.core.htmlTools import unpackHtmlTmp
+from resbibman.types.dataT import DataPointSummary
 
 def getDataBaseInfo() -> Union[List[dict], None]:
     db_path = getConfV("database")
@@ -15,25 +15,6 @@ def getDataBaseInfo() -> Union[List[dict], None]:
         "uuid":None
     }
     return [ a ]
-
-class DataPointInfo(TypedDict):
-    has_file: bool
-    file_status: str
-    file_type: str
-    year: typing.Any
-    title: str
-    author: str
-    authors: List[str]
-    tags: List[str]
-    uuid: str
-    url: str
-    time_added: float
-    time_modified: float
-
-    # bib: dict       # refer to BibParser.__call__ | DataPoint.bib
-    bibtex: str
-    doc_size: float # in M.
-    base_name: str  # for directory name
 
 class DatabaseReader:
     def __init__(self, db_path: str) -> None:
@@ -49,7 +30,7 @@ class DatabaseReader:
     def getDataInfo(self, uid: str):
         return self.getDictDataFromDataPoint(self.db[uid])
 
-    def getDictDataFromDataPoint(self, dp: DataPoint) -> DataPointInfo:
+    def getDictDataFromDataPoint(self, dp: DataPoint) -> DataPointSummary:
         return dp.info
         #  return {
         #      "has_file":dp.fm.hasFile(),

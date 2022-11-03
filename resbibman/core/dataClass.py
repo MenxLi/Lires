@@ -1,10 +1,9 @@
 from __future__ import annotations
-import logging
 import urllib.parse
 import shutil, requests, json
 from ..confReader import getConfV, ASSETS_PATH
-import typing, re, string, os, asyncio
-from typing import List, Union, Set, TYPE_CHECKING, Dict, Type, Optional, TypedDict, Sequence, overload
+import re, os, asyncio
+from typing import List, Union, Set, Dict, Optional, Sequence, overload
 import difflib
 import markdown
 from .fileTools import FileGenerator
@@ -20,29 +19,10 @@ except (FileNotFoundError, KeyError):
 from .bibReader import BibParser
 #  from .utils import HTML_TEMPLATE_RAW
 from .encryptClient import generateHexHash
+from ..types.dataT import DataPointSummary
 from . import globalVar as G
 
 from QCollapsibleCheckList import DataItemAbstract as CollapsibleChecklistDataItemAbstract
-
-if TYPE_CHECKING:
-    from RBMWeb.backend.rbmlibs import DataPointInfo
-
-class DataPointInfo(TypedDict):
-    has_file: bool
-    file_status: str
-    file_type: str
-    year: typing.Any
-    title: str
-    author: str
-    authors: List[str]
-    tags: List[str]
-    uuid: str
-    url: str
-    time_added: float
-    time_modified: float
-    bibtex: str
-    doc_size: float # in M.
-    base_name: str  # for directory name
 
 class DataCore:
     logger = G.logger_rbm
@@ -214,7 +194,7 @@ class DataPoint(DataCore):
         return self.fm.path
 
     @property
-    def info(self) -> DataPointInfo:
+    def info(self) -> DataPointSummary:
         """
         Generate datapoint info
         """
@@ -552,7 +532,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         return count
     
     @property
-    def remote_info(self)-> Dict[str, DataPointInfo]:
+    def remote_info(self)-> Dict[str, DataPointSummary]:
         d = dict()
         for f_info in self.__file_list_remote:
             d[f_info["uuid"]] = f_info
@@ -581,7 +561,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
                     to_load.append(f_path)
             asyncioLoopRun(self.constuct(to_load))
 
-    async def constuct(self, vs: Union[List[str], List[DataPointInfo]], force_offline = False):
+    async def constuct(self, vs: Union[List[str], List[DataPointSummary]], force_offline = False):
         """
         Construct the DataBase (Add new entries to database)
          - vs: list of DataPointInfo or local data directories
@@ -611,7 +591,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         if force_offline:
             self._force_offline = True
 
-    def fetch(self) -> Union[List[DataPointInfo], None]:
+    def fetch(self) -> Union[List[DataPointSummary], None]:
         """
         update self.remote_info
         will not change data
