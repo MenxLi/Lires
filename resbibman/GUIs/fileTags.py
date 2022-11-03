@@ -189,15 +189,24 @@ class FileTagWidget(RefWidgetBase):
             loaded.append(tag)
             self.flayout.addWidget(bubble)
             if tag in selected_tags:
+                # tag in data is selected
                 bubble.setStyleSheetBackgroundColor("rgba(0, 150, 150, 200)")
             elif tag in selected_tags.withChildsFrom(curr_data_tags):
-                bubble.setStyleSheetBackgroundColor("rgba(0, 50, 100, 100)")
+                # tag in data is a child from current selected tags
+                bubble.setStyleSheetBackgroundColor("rgba(0, 100, 50, 100)")
             else:
-                bubble.setStyleSheetBackgroundColor("rgba(100, 100, 100, 100)")
-        for tag in selected_tags:
-            if not tag in loaded:
-                bubble = Bubble(tag)
-                bubble.setNoRoundRect()
+                # tag in data but is not selected
+                ...
+
+        for sel_tag in selected_tags:
+            if not sel_tag in loaded:
+                bubble = Bubble(sel_tag)
+                if sel_tag in curr_data_tags.withParents():
+                    # selected tag is a parent of the tag in data
+                    bubble.setStyleSheetBackgroundColor("rgba(0, 50, 100, 100)")
+                else:
+                    # selected tag not shown in current data
+                    bubble.setNoRoundRect()
                 self.flayout.addWidget(bubble)
     
     def clearTags(self):
