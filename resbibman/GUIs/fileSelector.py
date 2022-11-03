@@ -59,6 +59,7 @@ class FileSelectorGUI(MainWidgetBase):
         self.act_copy_citation = QAction("Copy citation", self)
         self.act_export_data = QAction("Export data", self)
         self.act_free_doc = QAction("Free document", self)
+        self.act_share_doc = QAction("Copy share link", self)
 
         def addSeparator():
             separator = QAction(self)
@@ -72,6 +73,8 @@ class FileSelectorGUI(MainWidgetBase):
         self.data_view.addAction(self.act_copy_citation)
         self.data_view.addAction(self.act_copy_bib)
         self.data_view.addAction(self.act_edit_bib)
+        addSeparator()
+        self.data_view.addAction(self.act_share_doc)
         addSeparator()
         self.data_view.addAction(self.act_open_location)
         self.data_view.addAction(self.act_export_data)
@@ -114,6 +117,8 @@ class FileSelector(FileSelectorGUI):
         self.act_edit_bib.triggered.connect(self.editBibtex)
         self.act_delete_file.triggered.connect(self.deleteCurrentSelected)
         self.act_export_data.triggered.connect(self.exportData)
+
+        self.act_share_doc.triggered.connect(self.copyCurrentSelectionShareLink)
 
     def offlineStatus(self, status: bool):
         super().offlineStatus(status)
@@ -233,6 +238,13 @@ class FileSelector(FileSelectorGUI):
             return
         citations = [x.stringCitation() for x in selected]
         copy2clip("\""+"\n".join(citations)+"\"")
+    
+    def copyCurrentSelectionShareLink(self):
+        selected = self.getCurrentSelection(return_multiple=False)
+        if not selected:
+            return
+        selected: DataPoint
+        copy2clip(selected.getDocShareLink())
 
     def editBibtex(self):
         selected_ = self.getCurrentSelection(return_multiple=False)

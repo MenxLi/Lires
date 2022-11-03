@@ -440,6 +440,20 @@ class DataPoint(DataCore):
         else:
             return author[:self.MAX_AUTHOR_ABBR-4] + "..."
 
+    def getDocShareLink(self) -> str:
+        ftype = self.info["file_type"]
+        if ftype == "":
+            if self.info["url"]:
+                return self.info["url"]
+        else:
+            base_addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
+            if ftype == ".pdf":
+                return f"{base_addr}/doc/{self.uuid}"
+            elif ftype == ".hpack":
+                return f"{base_addr}/hdoc/{self.uuid}/"
+            else:
+                return ""
+
     def _getFirstName(self, name: str):
         x = name.split(", ")
         return x[0]

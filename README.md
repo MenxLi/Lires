@@ -119,7 +119,7 @@ In file selector:
 - [x] Add search bar
 - [x] Multiple selection
 - [x] Right click: export, export bib, delete
-- [ ] Right click: open url, free local
+- [x] Right click: open url, free local
 
 Main window:
 - [x] Refresh button
@@ -141,8 +141,8 @@ rbm-collect:
 
 ### Long time goals
 
-- ~~[ ] Language support~~
 - [ ] Relation graph
+- [ ] ~~Language support~~
 
 <!-- ## Ideas: -->
 <!-- QRunnable for multithreading -->
@@ -156,7 +156,7 @@ rbm-collect:
 * Markdown horizontal line highlighter not working somehow
 * Adding file may encounter permission error for FAT32 format destination in Linux machine (refer to: [stackoverflow-25716333](https://stackoverflow.com/questions/25716333/))
 * ~~QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)~~(Resolved with PyQt6)
-* PDFReader based on QWebEngineView may not show PDF (For PyQt6 under Windows, refer to: [stachoverflow-73350761](https://stackoverflow.com/questions/73350761/))
+* ~~PDFReader based on QWebEngineView may not show PDF (For PyQt6 under Windows, refer to: [stachoverflow-73350761](https://stackoverflow.com/questions/73350761/))~~(Resolved using PDF.js)
 
 ## Credits:
 https://github.com/google/material-design-icons   
