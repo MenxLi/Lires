@@ -167,7 +167,7 @@ function showData(dataInfoList: DataInfoT[]){
         selectorDiv.appendChild(dataEntry);
 
         // animation property
-        const delay = 0.05*idx + Math.random()*0.1;
+        const delay = 0.025*idx + Math.random()*0.1;
         dataEntry.classList.add("gradIn2");
         dataEntry.classList.add("smoothTrans");
         dataEntry.classList.add("hoverMaxout103");
