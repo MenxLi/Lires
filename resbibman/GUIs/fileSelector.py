@@ -243,7 +243,6 @@ class FileSelector(FileSelectorGUI):
         selected = self.getCurrentSelection(return_multiple=False)
         if not selected:
             return
-        selected: DataPoint
         copy2clip(selected.getDocShareLink())
 
     def editBibtex(self):

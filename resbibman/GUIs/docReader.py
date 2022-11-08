@@ -37,7 +37,7 @@ class DocumentReader(MainWidgetBase):
         self.webview.settings().setAttribute(QWebEngineSettings.WebAttribute.PdfViewerEnabled, True)
         self.info_panel = FileInfo(self)
         self.passRefTo(self.info_panel)
-        self.info_panel.connectFuncs()
+        self.info_panel.connectFuncs(load_on_sel_change=False)
 
         self.splitter = QSplitter()
         self.splitter.addWidget(self.webview)
@@ -66,6 +66,7 @@ class DocumentReader(MainWidgetBase):
         """
         return if successfully opened in webview
         """
+        self.logger.debug(f"Loading {uid} to DocumentReader")
         dp = self.database[uid]
         self.info_panel.load(dp)
         self.dp = dp
@@ -115,6 +116,7 @@ class DocumentReader(MainWidgetBase):
         self.webview.page().profile().downloadRequested.connect(lambda _: ...)
 
     def _on_downloadPDF(self, download_req: QWebEngineDownloadRequest):
+        assert self.dp      # type assertion
         self.logger.debug("Downloading {}:{}".format(self.dp.uuid, self.dp))
         def on_stateChange(state: QWebEngineDownloadRequest.DownloadState):
             if state == QWebEngineDownloadRequest.DownloadState.DownloadCompleted:

@@ -174,8 +174,12 @@ class FileInfo(FileInfoGUI):
         else:
             self.__curr_data_uid = None
     
-    def connectFuncs(self):
-        self.getSelectPanel().selection_changed.connect(self.load)
+    def connectFuncs(self, load_on_sel_change: bool = True):
+        """
+        - load_on_sel_change: whether to load new datapoint on file selector's selection change
+        """
+        if load_on_sel_change:
+            self.getSelectPanel().selection_changed.connect(self.load)
         self.open_folder_btn.clicked.connect(self.openMiscDir)
         self.open_bib_btn.clicked.connect(self.openBib)
         self.open_commets_btn.clicked.connect(self.openComments)
