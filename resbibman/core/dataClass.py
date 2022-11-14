@@ -387,9 +387,11 @@ class DataPoint(DataCore):
         if abs_fpath:
             comment = comment.replace("./misc", misc_f)
 
-        comment_html = markdown.markdown(comment)
-        #  comment_html = self.COMMENT_HTML_TEMPLATE.substitute(\
-        #                  content = comment_html, style = self.COMMENT_CSS)
+        _md_extensions = [
+            'tables',
+            'toc'
+        ]
+        comment_html = markdown.markdown(comment, extensions=_md_extensions)
         return formatMarkdownHTML(comment_html, abs_fpath = abs_fpath)
 
     def getFileStatusStr(self):
