@@ -506,7 +506,9 @@ class MarkdownEdit(QTextEdit):
     
     def insertFromMimeData(self, source: QtCore.QMimeData) -> None:
         # https://pyside.github.io/docs/pyside/PySide/QtGui/QTextEdit.html#PySide.QtGui.PySide.QtGui.QTextEdit.insertFromMimeData
-        assert self._parent.curr_data
+        if self._parent.curr_data is None:
+            self._parent.warnDialog("Failed", "No data selected")
+            return
         if source.hasImage():
             # Add img
             fname = f"{uuid.uuid4()}.png"
