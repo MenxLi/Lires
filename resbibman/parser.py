@@ -20,7 +20,7 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
 
     sp = parser.add_subparsers(dest = "subparser", help = "Sub-commands")
 
-    parser_gui = sp.add_parser("gui", help = "Start gui program (default)")
+    parser_client = sp.add_parser("client", help = "Start client gui program (default)")
 
     parser_server = sp.add_parser("server", help = "Start RBMWeb server")
     parser_server.add_argument("-p", "--port", action = "store", default = "8080", help = "port, default to 8080")

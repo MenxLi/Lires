@@ -122,14 +122,14 @@ def run():
     # ======== Parse subcommands ========
 
     if args.subparser is None:
-        # Set default to GUI
-        args.subparser = "gui"
+        # Set default to run client GUI
+        args.subparser = "client"
 
     if args.subparser == "server":
         from RBMWeb.server import startServerProcess
         procs.append(startServerProcess(args.port))
 
-    if args.subparser == "gui":
+    if args.subparser == "client":
         execProg()
 
     for proc in procs:
