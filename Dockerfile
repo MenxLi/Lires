@@ -20,7 +20,7 @@ COPY . .
 
 RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN python3 -m pip install --upgrade pip
-RUN pip install wheel setuptools
+RUN pip install wheel setuptools pyyaml
 RUN pip install -e /ResBibManager
 
 RUN rbm-resetconf
