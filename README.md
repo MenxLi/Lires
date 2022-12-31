@@ -50,7 +50,7 @@ docker exec resbibman rbm-keyman ...
 ```
 
 ## Usage:
-To start the main program:
+To start the client GUI program:
 ```bash
 resbibman
 ```
@@ -79,6 +79,7 @@ rbm-discuss     # Manage online discussions
 rbm-collect     # Automatic add entry to database with retriving string
 rbm-resetconf   # To reset default configuration
 rbm-utils       # Miscellaneous utilities
+rbm-share       # To generate share url
 ```
 
 
@@ -161,4 +162,5 @@ rbm-collect:
 ## Credits:
 https://github.com/google/material-design-icons   
 https://github.com/GTRONICK/QSS  
-https://github.com/MathJax/MathJax
+https://github.com/MathJax/MathJax  
+https://mozilla.github.io/pdf.js/  
