@@ -200,3 +200,8 @@ version_history:
     - Can right click on tag to unfold
     - Bug fix - tag selector sorting
     - Bug fix - now update frames after selected data moved out of the current tags
+  0.8.2:
+    - rbm-share
+    - Markdown TOC and table
+    - Socks5 proxy for qt
+    - CMD arguments update
