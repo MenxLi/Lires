@@ -48,7 +48,7 @@ def run():
     assert args is not None     # type checking purpose
 
     # Read configuration file after parse agruments
-    from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE
+    from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE, RBM_HOME
     from .version import VERSION, _VERSION_HISTORIES
     from .initLogger import initLogger
 
@@ -96,6 +96,10 @@ def run():
             with open(LOG_FILE, "r") as log_file:
                 print(log_file.read())
         else: print("Log file not exits, run the program to create the log file")
+        NOT_RUN = True
+
+    if args.show_home:
+        print(RBM_HOME)
         NOT_RUN = True
     
     if args.clear_cache:

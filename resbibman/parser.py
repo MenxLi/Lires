@@ -12,6 +12,7 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     parser.add_argument("-l", "--print_log", action = "store_true", help = "Print log and exit")
     parser.add_argument("-c", "--config_file", action = "store", help = "Configuration file path", default = None)
     parser.add_argument("-L", "--log_level", action= "store", type = str, default="INFO", help = "log level")
+    parser.add_argument("-H", "--show_home", action= "store_true", help = "Print RBM_HOME and exit")
     parser.add_argument("--no_log", action = "store_true", help = "Open the program without recording log, stdout/stderr will be shown in terminal")
     parser.add_argument("--clear_cache", action = "store_true", help = "clear cache and exit")
     parser.add_argument("--clear_log", action = "store_true", help = "Clear (delete) log file")
