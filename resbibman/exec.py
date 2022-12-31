@@ -1,9 +1,11 @@
-import warnings, logging
+import logging
 import shutil
 from PyQt6.QtWidgets import QApplication
 import os, sys
 from .core import globalVar as G
 from .parser import parseArgs
+
+from PyQt6 import QtNetwork
 
 def execProg():
     from .GUIs.mainWindow import MainWindow
@@ -12,6 +14,22 @@ def execProg():
     from .core.utils import getDateTimeStr
     logger = logging.getLogger("rbm")
     logger.info("************Welcome to ResBibMan-v{} | {}**************".format(VERSION, getDateTimeStr()))
+
+    # Qt proxy settings
+    if getConf()["proxies"]["enable_requests"]:
+        raise NotImplementedError("Proxy not implemented for requests yet.")
+    proxy_settings = getConf()["proxies"]["proxy_config"]
+    if proxy_settings["proxy_type"] and getConf()["proxies"]["enable_qt"]:
+        proxy = QtNetwork.QNetworkProxy()
+        if proxy_settings["proxy_type"].lower() == "socks5":
+            proxy.setType(QtNetwork.QNetworkProxy.ProxyType.Socks5Proxy)
+        else:
+            raise NotImplementedError("qt proxy type not implemented: {}".format(proxy_settings["proxy_type"]))
+        logger.info("Using qt proxy: {}".format(proxy_settings))
+        proxy.setHostName(proxy_settings["host"])
+        proxy.setPort(int(proxy_settings["port"]))
+        QtNetwork.QNetworkProxy.setApplicationProxy(proxy)
+
     app = QApplication(sys.argv)
     ss = getStyleSheets()[getConf()["stylesheet"]]
     if ss != "":

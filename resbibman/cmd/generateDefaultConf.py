@@ -44,7 +44,17 @@ def generateDefaultConf():
 		gui_status = {
 			"show_toolbar": True,
 			"tag_uncollapsed": []
-		}
+		},
+		proxies = {
+			"proxy_config": {
+				"proxy_type": "socks5",
+				"host": "127.0.0.1",
+				"port": ""
+			},
+			"enable_requests": False,
+			"enable_qt": False,
+		},
+
     )
 	print("Generated default configuration file at: ", CONF_FILE_PATH)
 

@@ -1,4 +1,5 @@
-from typing import Tuple, TypedDict, List
+from __future__ import annotations
+from typing import Literal, Optional, Tuple, TypedDict, List, Union
 
 class _ConfServerPresetT(TypedDict):
     host: str
@@ -12,6 +13,16 @@ class _ConfFontSizeT(TypedDict):
 class _ConfGUIStatusT(TypedDict):
     show_toolbar: bool
     tag_uncollapsed: List[str]
+
+class _ConfProxyT(TypedDict):
+    proxy_config: _ProxyT
+    enable_requests: bool
+    enable_qt: bool
+
+class _ProxyT(TypedDict):
+    proxy_type: Optional[Literal["socks5", "http", ""]]
+    host: str
+    port: Union[str, int]
 
 class ResbibmanConfT(TypedDict):
     """
@@ -43,3 +54,4 @@ class ResbibmanConfT(TypedDict):
     auto_save_comments: bool
     gui_status: _ConfGUIStatusT
 
+    proxies: _ConfProxyT
