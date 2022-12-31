@@ -732,9 +732,22 @@ class MainWindow(MainWindowGUI):
         
     def statusBarMsg(self, msg: str, bg_color = "none"):
         if self.db.offline:
-            prefix = "ResBibMan-v{} (offline): ".format(VERSION)
+            prefix = "ResBibMan-v{} (offline) ".format(VERSION)
         else:
-            prefix = "ResBibMan-v{} (online): ".format(VERSION)
+            prefix = "ResBibMan-v{} (online) ".format(VERSION)
+
+        proxy_status = []
+        if getConf()["proxies"]["enable_requests"]:
+            proxy_status.append("requests")
+        if getConf()["proxies"]["enable_qt"]:
+            proxy_status.append("qt")
+        if proxy_status:
+            prefix += "[proxy<{}>: {}] ".format(
+                getConf()["proxies"]["proxy_config"]["proxy_type"], 
+                " ".join(proxy_status)
+            )
+        prefix += ": "
+
         if not isThemeDarkMode():
             font_color = "rgba(0,0,0,255)"
         else:
