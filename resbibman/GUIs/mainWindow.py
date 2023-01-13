@@ -493,7 +493,7 @@ class MainWindow(MainWindowGUI):
                 self.syncData_async(to_sync)
 
             # May be update data info panel, 
-            # as we are may have downloaded data from online to local
+            # as we may have downloaded data from online to local
             # more info is accessible
             curr_dp = self.getCurrentSelection()
             if curr_dp is not None:

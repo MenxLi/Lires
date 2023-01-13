@@ -38,7 +38,7 @@ class TagRule(DataCore):
         """
         sp = tag.split(cls.SEP)
         if len(sp) == 1:
-            return []
+            return DataTags([])
         accum = []
         all_p_tags = []
         for i in range(0, len(sp)-1):
@@ -139,9 +139,9 @@ class DataTags(Set[str], DataCore):
     @overload
     def __init__(self):...
     @overload
-    def __init__(self, s: Sequence[str]):...
+    def __init__(self, arg: Sequence[str]):...
     @overload
-    def __init__(self, s: DataTags):...
+    def __init__(self, arg: DataTags):...
 
     def __init__(self, arg: Union[Sequence[str], DataTags, None] = None):
         if arg is None:
