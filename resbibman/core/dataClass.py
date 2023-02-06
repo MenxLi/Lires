@@ -178,7 +178,7 @@ class DataTags(Set[str], DataCore):
             return "<None>"
 
 class DataPoint(DataCore):
-    MAX_AUTHOR_ABBR = 18
+    MAX_AUTHOR_ABBR = 36
     def __init__(self, fm: FileManipulatorVirtual):
         """
         The basic data structure that holds single data
@@ -418,12 +418,17 @@ class DataPoint(DataCore):
         bib = self.bib
         title = bib["title"]
         year = bib["year"]
-        string = f"{self.getAuthorsAbbr()} {title}. ({year})"
+        # string = f"{self.getAuthorsAbbr()} {title}. ({year})"
+        source: str = ""
         if "journal" in bib:
-            string += ". {}".format(bib["journal"][0])
+            source = bib["journal"][0]
+            if source.endswith("."):
+                source = source[:len(source)-1]
         elif "booktitle" in bib:
-            string += ". {}".format(bib["booktitle"][0])
-        string += "."
+            source = bib["booktitle"][0]
+        elif "publisher" in bib:
+            source = bib["publisher"][0]
+        string = f"{self.getAuthorsAbbr()}, {source} ({year})"
         return string
 
     def getAuthorsAbbr(self):

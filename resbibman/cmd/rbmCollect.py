@@ -22,7 +22,7 @@ class DocCollector(ABC):
     @abstractmethod
     def retrive(self) -> bool:
         """
-        Performance the connection and retrive the data
+        Does the connection and retrive the data
         prepare as much as possible for other things such as bibtex, pdf dowload etc.
         """
         ...
@@ -67,6 +67,7 @@ class ArXivCollector(DocCollector):
                         ('archivePrefix', 'arXiv'),
                         ('primaryClass', result.primary_category),
                         ('abstract', abstract),
+                        ('publisher', "arXiv"),
                         ('date', '{:04d}-{:02d}-{:02d}'.format(date.today().year,date.today().month,date.today().day))
                     ])
                 })
