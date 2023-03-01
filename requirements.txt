@@ -12,4 +12,5 @@ nest_asyncio
 arxiv
 pyyaml
 nbib
+typing_extensions
 tqdm

@@ -85,6 +85,7 @@ class BibEditor(QDialog, WidgetBase):
         self.from_other_format_btn = QPushButton("Convert from")
         self.format_cb = QComboBox(self)
         self.format_cb.addItem("nbib")
+        self.format_cb.addItem("endnote")
 
         self.vlayout = QVBoxLayout()
         self.vlayout.addWidget(self.txt_edit)
@@ -118,6 +119,8 @@ class BibEditor(QDialog, WidgetBase):
         converter = BibConverter()
         if bib_type == "nbib":
             return converter.fromNBib(txt)
+        elif bib_type == "endnote":
+            return converter.fromEndNote(txt)
         else:
             return ""
 

@@ -1,6 +1,8 @@
 import pybtex.database
 from datetime import date
+from . import refparser
 from .utils import randomAlphaNumeric
+from .customError import RBMDocTypeNotSupportedError
 import warnings, logging
 import nbib
 from pybtex.database import BibliographyData, Entry
@@ -68,6 +70,7 @@ class BibConverter:
             # for article
             doc_type = "article"
             for k in [["volume", "journal_volume"],
+                      ["issue", "journal_issue"],
                       ["number", "journal_issue"]]:
                 try:
                     data_dict[k[0]] = parsed[k[1]]
@@ -75,7 +78,7 @@ class BibConverter:
                     self.logger.error("Could not find {} while parsing nbib".format(k[1]))
         else:
             # To change later
-            doc_type = "article"
+            raise RBMDocTypeNotSupportedError("Not supported document type {}".format(parsed["publication_types"]))
 
         # try other format
         for k in ["journal", "journal_abbreviated", "abstract", "pages", "doi"]:
@@ -89,7 +92,11 @@ class BibConverter:
             data.append((k, v))
 
         bib_data = BibliographyData({
-            f"{data_dict['year']}{randomAlphaNumeric(5)}":
+            f"{data_dict['year']}_{randomAlphaNumeric(5)}":
             Entry(doc_type, data)
         })
         return bib_data.to_string("bibtex")
+    
+    def fromEndNote(self, en: str):
+        parser = refparser.EndnoteParser()
+        return parser.toBibtex(en)
