@@ -205,3 +205,5 @@ version_history:
     - Markdown TOC and table
     - Socks5 proxy for qt
     - CMD arguments update
+  0.8.3:
+    - Bibliograhy conversion from endnote
