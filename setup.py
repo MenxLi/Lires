@@ -46,8 +46,8 @@ setup(
             "rbm-collect=resbibman.cmd.rbmCollect:main",
             "rbm-utils=resbibman.cmd.miscUtils:main",
             "rbm-share=resbibman.cmd.rbmShare:main",
-            "rbm-keyman=RBMWeb.cmd.manageKey:run",
-            "rbm-discuss=RBMWeb.cmd.rbmDiscuss:main",
+            "rbm-keyman=resbibman.cmd.manageKey:run",
+            "rbm-discuss=resbibman.cmd.rbmDiscuss:main",
         ]
     }
 )

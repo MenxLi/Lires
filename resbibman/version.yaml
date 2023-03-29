@@ -207,3 +207,4 @@ version_history:
     - CMD arguments update
   0.8.3:
     - Bibliograhy conversion from endnote
+    - Refactor - RBMWeb.backend -> resbibman.server

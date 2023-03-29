@@ -126,8 +126,8 @@ def run():
         args.subparser = "client"
 
     if args.subparser == "server":
-        from RBMWeb.server import startServerProcess
-        procs.append(startServerProcess(args.port))
+        from .server.main import startServer
+        procs.append(startServer(args.port))
 
     if args.subparser == "client":
         execProg()

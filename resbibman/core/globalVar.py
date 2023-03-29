@@ -12,15 +12,19 @@ tmpdirs: List[str]      # temporary directories, will be cleared on resbibman GU
 prog_args: Optional[argparse.Namespace]     # set by resbibman.exec
 config:  ResbibmanConfT           # configuration, set by resbibman.confReader
 
+__global_dict: dict
+
 def init():
     global tmpdirs
     global logger_rbm
     global __initialized
     global last_status_code
     global prog_args
+    global __global_dict
 
     thismodule = sys.modules[__name__]
     if hasattr(thismodule, "__initialized") and __initialized:
+        logger_rbm.warn("Skipping re-initialization of globalVar")
         return
     else:
         __initialized = True
@@ -29,6 +33,23 @@ def init():
     logger_rbm = logging.getLogger("rbm")
     last_status_code = 200
     prog_args = None
+    __global_dict = dict()
+
+def setGlobalAttr(key, val):
+    global __global_dict
+    __global_dict[key] = val
+
+def getGlobalAttr(key):
+    global __global_dict
+    return __global_dict[key]
+
+def deleteGlobalAttr(key):
+    global __global_dict
+    del __global_dict[key]
+
+def hasGlobalAttr(key):
+    global __global_dict
+    return hasattr(__global_dict, key)
 
 def clearTempDirs():
     global tmpdirs
