@@ -8,6 +8,7 @@ from PyQt6.QtCore import QObject, QRunnable, pyqtSignal
 from ..core import globalVar as G
 if TYPE_CHECKING:
     from ..core.dataClass import DataPoint, DataBase
+    from ..core.dataSearcher import DataSearcher
 
 
 class ThreadSignalsQ(QObject):
@@ -72,3 +73,21 @@ class InitDBWorker(QRunnable):
             self.signals.finished.emit(True)
         except requests.exceptions.ConnectionError:
             self.signals.finished.emit(False)
+
+class ThreadSignalsForSearching(ThreadSignalsQ):
+    # sending dict of 
+    # {"id": id of the worker, "res": StringSearchT}
+    finished = pyqtSignal(dict)
+
+class SearchWorker(QRunnable):
+    def __init__(self, searcher: DataSearcher) -> None:
+        super().__init__()
+        self.searcher: DataSearcher = searcher
+        self.signals = ThreadSignalsForSearching()
+
+    def run(self):
+        res = self.searcher.run()
+        self.signals.finished.emit({
+            "id": id(self),
+            "res": res
+        })

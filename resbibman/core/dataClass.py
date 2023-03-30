@@ -363,6 +363,7 @@ class DataPoint(DataCore):
     
     def screenByPattern(self, pattern) -> bool:
         """
+        ## DEPRECATED ##
         Return if the self.stringInfo meets the regex pattern
         """
         # string = self.title+";"+";".join(self.authors)+";"+self.year
@@ -701,9 +702,13 @@ class DataBase(Dict[str, DataPoint], DataCore):
             tags = tags.union(d.tags)
         return tags
     
-    def getDataByTags(self, tags: Union[list, set, DataTags]) -> DataList:
+    def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> DataList:
         datalist = DataList()
         for data in self.values():
+            if not from_uids is None:
+                # filter by uids (for searching purposes)
+                if data.uuid not in from_uids:
+                    continue
             tag_data = DataTags(data.tags)
             tags = DataTags(tags)
             if tags.issubset(tag_data.withParents()):

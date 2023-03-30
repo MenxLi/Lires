@@ -4,13 +4,15 @@ from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, 
 from PyQt6.QtGui import QAction, QShortcut, QColor
 from PyQt6 import QtGui, QtCore
 import typing, copy, functools
-from typing import List, overload, Union, Literal, Callable
+from typing import List, overload, Union, Literal, Callable, Optional
 
 from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase
 from .bibtexEditor import BibEditorWithOK
+from ..perf.qtThreading import SearchWorker
 from ..core import globalVar as G
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
+from ..core.dataSearcher import DataSearcher, StringSearchT
 from ..core.utils import copy2clip, openFile
 from ..confReader import getConf, getConfV
 from ..types.configT import _ConfFontSizeT
@@ -97,6 +99,10 @@ class FileSelector(FileSelectorGUI):
     def database(self):
         return self.getMainPanel().database
     
+    @property
+    def pool(self):
+        return self.getMainPanel().pool
+    
     def connectFuncs(self):
         self.data_view.selectionModel().currentChanged.connect(self.onRowChanged)
         self.data_view.doubleClicked.connect(self.doubleClickOnEntry)
@@ -173,27 +179,47 @@ class FileSelector(FileSelectorGUI):
         self.getMainPanel().syncData_async(selections, on_finish)
         return 
 
-    def loadValidData(self, tags: DataTags, hint = False):
+    def loadValidData(self, tags: DataTags, from_uids: Optional[List[str]] = None, hint = False):
         """Load valid data by tags"""
-        valid_data = self.getMainPanel().db.getDataByTags(tags)
-        screen_pattern = self.search_edit.text()
-        if screen_pattern != "":
-            valid_data = DataList([i for i in valid_data if i.screenByPattern(screen_pattern)])
+        valid_data = self.getMainPanel().db.getDataByTags(tags, from_uids=from_uids)
+        # if screen_pattern != "":
+        #     valid_data = DataList([i for i in valid_data if i.screenByPattern(screen_pattern)])
         sort_method = getConf()["sort_method"]
         sort_reverse = getConf()["sort_reverse"]
         valid_data.sortBy(sort_method, reverse=sort_reverse)
         self.data_model.assignData(valid_data) 
         if hint:
+            screen_pattern = self.search_edit.text()
             self.logger.debug("Data loaded, tags: {tags}, sorting method: {sort_method}, screen_pattern: {screen_pattern}".\
                 format(tags = " | ".join(tags), sort_method = sort_method, screen_pattern = screen_pattern))
         return True
 
     def onSearchTextChange(self):
+        def onFinish(signal):
+            if signal["id"] != self.__working_search_id:
+                # not updating the panel if the signal was not sent 
+                # from the latest search worker
+                return
+            res: StringSearchT = signal["res"]
+            vaild_uids = res.keys()
+            self.loadValidData(tags = DataTags(getConf()["default_tags"]), from_uids=vaild_uids)
+            curr_data = self.getCurrentSelection()
+            if not curr_data is None:
+                self.selection_changed.emit(curr_data)
+        
         text = self.search_edit.text()
-        self.loadValidData(tags = DataTags(getConf()["default_tags"]))
-        curr_data = self.getCurrentSelection()
-        if not curr_data is None:
-            self.selection_changed.emit(curr_data)
+        searcher = DataSearcher(self.database)
+        searcher.setRunConfig(
+            "searchStringInfo", 
+            {
+                "pattern": text,
+                "ignore_case": True
+            }
+        )
+        worker = SearchWorker(searcher)
+        worker.signals.finished.connect(onFinish)
+        self.__working_search_id = id(worker)
+        self.pool.start(worker)
 
     def reloadData(self):
         # self._clearList()
