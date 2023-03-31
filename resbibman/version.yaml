@@ -209,3 +209,5 @@ version_history:
     - Bibliograhy conversion from endnote
     - Asynchronous search
     - Refactor - RBMWeb.backend -> resbibman.server
+  0.8.4:
+    - More on search
