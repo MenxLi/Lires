@@ -8,11 +8,12 @@ from typing import List, overload, Union, Literal, Callable, Optional
 
 from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase
+from .searchBar import SearchBar
 from .bibtexEditor import BibEditorWithOK
 from ..perf.qtThreading import SearchWorker
 from ..core import globalVar as G
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
-from ..core.dataSearcher import DataSearcher, StringSearchT
+from ..core.dataSearcher import StringSearchT, DataSearcher
 from ..core.utils import copy2clip, openFile
 from ..confReader import getConf, getConfV
 from ..types.configT import _ConfFontSizeT
@@ -39,12 +40,12 @@ class FileSelectorGUI(MainWidgetBase):
         self.data_model = FileTableModel(DataList([]))
         self.data_view.setModel(self.data_model)
         self.data_view.initSettings()
-        self.search_edit = QLineEdit()
+        self.search_bar = SearchBar()
 
         self.data_view.hoverIndexChanged.connect(self.data_table_delegate.onHoverIndexChanged)
 
         vbox = QVBoxLayout()
-        vbox.addWidget(self.search_edit)
+        vbox.addWidget(self.search_bar)
         vbox.addWidget(self.data_view)
         self.frame.setLayout(vbox)
 
@@ -112,7 +113,7 @@ class FileSelector(FileSelectorGUI):
         self.shortcut_open_tagedit = QShortcut(QtGui.QKeySequence("Space"), self)
         self.shortcut_open_tagedit.activated.connect(self.editTagForThisSelection)
 
-        self.search_edit.textChanged.connect(self.onSearchTextChange)
+        self.search_bar.updateSearch.connect(self.onUpdateSearch)
 
         self.act_sync_datapoint.triggered.connect(lambda: self.syncCurrentSelections_async())
         self.act_open_location.triggered.connect(self.openCurrFileLocation)
@@ -189,12 +190,12 @@ class FileSelector(FileSelectorGUI):
         valid_data.sortBy(sort_method, reverse=sort_reverse)
         self.data_model.assignData(valid_data) 
         if hint:
-            screen_pattern = self.search_edit.text()
+            screen_pattern = self.search_bar.text()
             self.logger.debug("Data loaded, tags: {tags}, sorting method: {sort_method}, screen_pattern: {screen_pattern}".\
                 format(tags = " | ".join(tags), sort_method = sort_method, screen_pattern = screen_pattern))
         return True
 
-    def onSearchTextChange(self):
+    def onUpdateSearch(self):
         def onFinish(signal):
             if signal["id"] != self.__working_search_id:
                 # not updating the panel if the signal was not sent 
@@ -207,15 +208,8 @@ class FileSelector(FileSelectorGUI):
             if not curr_data is None:
                 self.selection_changed.emit(curr_data)
         
-        text = self.search_edit.text()
         searcher = DataSearcher(self.database)
-        searcher.setRunConfig(
-            "searchStringInfo", 
-            {
-                "pattern": text,
-                "ignore_case": True
-            }
-        )
+        self.search_bar.prepareSearcher(searcher)
         worker = SearchWorker(searcher)
         worker.signals.finished.connect(onFinish)
         self.__working_search_id = id(worker)

@@ -45,6 +45,15 @@ class DataSearcher(DataCore):
             if not res is None:
                 results[uid] = res
         return results
+
+    def searchAuthor(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
+        results: StringSearchT = {}
+        for uid, dp in self.db.items():
+            to_search = ", ".join(dp.authors)
+            res = self._searchRegex(pattern, to_search, ignore_case)
+            if not res is None:
+                results[uid] = res
+        return results
     
     def _searchRegex(self, pattern: str, aim: str, ignore_case: bool):
         if ignore_case:
