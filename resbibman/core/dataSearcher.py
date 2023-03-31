@@ -2,12 +2,17 @@
 Search database by certain criteria
 """
 
-import re
+import re, requests, json
+import asyncio
 from typing import List, Dict, Optional
+from . import globalVar as G
 from .dataClass import DataCore, DataBase, DataPoint
+from .encryptClient import generateHexHash
+from ..confReader import getConfV, getServerURL
+from ..perf.asynciolib import asyncioLoopRun
 
 # a dictionary of uuid and matchs
-StringSearchT = Dict[str, re.Match]
+StringSearchT = Dict[str, Optional[re.Match]]
 class DataSearcher(DataCore):
 
     def __init__(self, db: Optional[DataBase] = None) -> None:
@@ -54,6 +59,53 @@ class DataSearcher(DataCore):
             if not res is None:
                 results[uid] = res
         return results
+
+    def searchYear(self, pattern: str) -> StringSearchT:
+        results: StringSearchT = {}
+        for uid, dp in self.db.items():
+            year = str(dp.year); pattern = str(pattern)
+            if year.startswith(pattern):
+                results[uid] = None
+        return results
+    
+    def searchComment(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
+
+        async def _searchComment(db: DataBase):
+            results: StringSearchT = {}
+            async_tasks = []
+            uids = []
+            for uid, dp in self.db.items():
+                async_tasks.append(_searchCommentSingle(dp, pattern, ignore_case))
+                uids.append(uid)
+            all_res = await asyncio.gather(*async_tasks)
+            for uid, res in zip(uids, all_res):
+                if res is not None:
+                    results[uid] = res
+            return results
+        
+        async def _searchCommentSingle(dp: DataPoint, pattern_, ignore_case_):
+            comments = dp.fm.readComments()
+            res = self._searchRegex(pattern, comments, ignore_case)
+            return res
+
+        if self.db.offline:
+            return asyncioLoopRun(_searchComment(self.db))
+        
+        else:
+            post_args = {
+                "key": self.POST_HEX_KEY,
+                "method": "searchComment",
+                "kwargs": json.dumps({
+                    "pattern": pattern,
+                    "ignore_case": ignore_case
+                })
+            }
+            res = requests.post(self.POST_URL, params = post_args)
+            if not self._checkRes(res):
+                self.logger.error("Error connection")
+                return {}
+            else:
+                return json.loads(res.text)
     
     def _searchRegex(self, pattern: str, aim: str, ignore_case: bool):
         if ignore_case:
@@ -61,3 +113,23 @@ class DataSearcher(DataCore):
         else:
             res = re.search(pattern, aim)
         return res
+
+    @property
+    def POST_HEX_KEY(self) -> str:
+        return generateHexHash(getConfV("access_key"))
+    
+    @property
+    def POST_URL(self) -> str:
+        return getServerURL() + "/search"
+
+    def _checkRes(self, res: requests.Response) -> bool:
+        """
+        Check if response is valid
+        """
+        status_code = res.status_code
+        if status_code != 200:
+            self.logger.debug("Get response {}".format(res.status_code))
+        if status_code == 401:
+            self.logger.warning("Unauthorized access")
+        G.last_status_code = res.status_code
+        return res.ok

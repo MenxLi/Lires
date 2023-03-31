@@ -7,7 +7,7 @@ class SearchLineEdit(QLineEdit):
 
     def __init__(self, *args, **kwargs):
         super(SearchLineEdit, self).__init__(*args, **kwargs)
-        self.clear_sc = QShortcut(QKeySequence('Ctrl+U'), self)
+        self.clear_sc = QShortcut(QKeySequence.StandardKey.DeleteCompleteLine, self)    # Alt + Backspace
         self.clear_sc.activated.connect(self.clearText)
     
     def clearText(self):
@@ -22,7 +22,7 @@ class SearchBar(QWidget):
     def initUI(self):
         self.search_edit = SearchLineEdit()
         self.combo_box = QComboBox()
-        self.combo_box.addItems(["General", "Title", "Author"])
+        self.combo_box.addItems(["General", "Title", "Author", "Year", "Note"])
         self.combo_box.setCurrentText("General")
 
         hlayout = QHBoxLayout()
@@ -39,7 +39,7 @@ class SearchBar(QWidget):
     def category(self):
         return self.combo_box.currentText()
 
-    def prepareSearcher(self, searcher):
+    def prepareSearcher(self, searcher: DataSearcher):
         text = self.text()
         category = self.category()
         if category == "Title":
@@ -58,7 +58,23 @@ class SearchBar(QWidget):
                     "ignore_case": True
                 }
             )
+        elif category == "Year":
+            searcher.setRunConfig(
+                "searchYear", 
+                {
+                    "pattern": text,
+                }
+            )
+        elif category == "Note":
+            searcher.setRunConfig(
+                "searchComment", 
+                {
+                    "pattern": text,
+                    "ignore_case": True
+                }
+            )
         else:
+            assert category == "General"
             searcher.setRunConfig(
                 "searchStringInfo", 
                 {

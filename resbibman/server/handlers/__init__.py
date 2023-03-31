@@ -5,3 +5,4 @@ from .comment import CommentHandler
 from .file import FileHandler
 from .auth import AuthHandler
 from .discuss import DiscussionHandler, DiscussionModHandler
+from .search import SearchHandler
