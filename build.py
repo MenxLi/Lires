@@ -8,7 +8,7 @@ import platform
 
 PROG_NAME = "rbm"
 
-def compileMain():
+def compileMain(addtional_flags: list):
 
     hidden_imports = ["PyQt6.QtWebChannel", "PyQt6.QtNetwork", "PyQt6.QtWebEngineCore", "PyQt6.QtPrintSupport"]
 
@@ -31,7 +31,8 @@ def compileMain():
         "./QCollapsibleCheckList/icons" ),
     ]
 
-    cmd = ["pyinstaller", "--onefile", "--noconfirm", "-w", "-n", PROG_NAME, "-i", "./resbibman/icons/resbibmanicon/favicon.ico", "./__main__.py", "--additional-hooks-dir=pyinstallerHooks"]
+    cmd = ["pyinstaller", "--noconfirm", "-w", "-n", PROG_NAME, "-i", "./resbibman/icons/resbibmanicon/favicon.ico", "./__main__.py", "--additional-hooks-dir=pyinstallerHooks"]
+    cmd += addtional_flags
 
     for himp in hidden_imports:
         cmd += ["--hidden-import", himp]
@@ -47,13 +48,14 @@ def compileMain():
     print(" ".join(cmd))
     subprocess.check_call(cmd)
 
-def compileRunScript():
+def compileRunScript(additional_flags: list):
     import tempfile, os
     tf = tempfile.NamedTemporaryFile(mode = "w", suffix=".py", delete=False)
     tf.write("import subprocess, sys;args = sys.argv[1:];cmd = ['resbibman'] + args;subprocess.check_call(cmd)")
     tf.close()
     tmp_script = tf.name
     cmd = ["pyinstaller", "--noconfirm", "-w", "-n", PROG_NAME, "-i", "./resbibman/icons/resbibmanicon/favicon.ico", tmp_script]
+    cmd += additional_flags
     subprocess.check_call(cmd)
 
     if os.path.exists(tmp_script):
@@ -66,10 +68,15 @@ if __name__ == "__main__":
         Compile as an executable calling subprocess 'resbibman ...'\n\
         Should install the app by pip in prior to using the executable\
     ")
+    parser.add_argument("--onefile", action="store_true", help="bulid single file application")
     args = parser.parse_args()
+
+    additional_flags = []
+    if args.onefile:
+        additional_flags.append("--onefile")
 
     if args.script:
         print("Compiling run script command")
-        compileRunScript()
+        compileRunScript(additional_flags)
     else:
-        compileMain()
+        compileMain(additional_flags)
