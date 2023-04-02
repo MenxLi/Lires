@@ -114,6 +114,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
 
         self.initUI()
         self.showMaximized()
+        self.toggleLayout(self._panel_status)
         self.show() 
     
     def initUI(self):
@@ -131,7 +132,6 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.splitter.addWidget(self.file_tags)
         self.splitter.addWidget(self.file_selector)
         self.splitter.addWidget(self.file_info)
-        self.toggleLayout(self._panel_status)
         hbox.addWidget(self.splitter)
 
         main_wid = QWidget(self)
@@ -151,7 +151,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self._cache["current_layout"] = toggle_mask
 
         # Calculate width
-        stretch_factor = [1, 4, 2]                  # default stretch factor
+        stretch_factor = [3, 10, 3]                  # default stretch factor
         stretch_factor = [ toggle_mask[i]*stretch_factor[i] for i in range(3) ]
         stretch_factor = [ float(f)/sum(stretch_factor) for f in stretch_factor ]
         curr_width = self.frameGeometry().width()

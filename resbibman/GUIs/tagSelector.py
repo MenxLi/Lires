@@ -32,14 +32,9 @@ class TagSelector(RefWidgetBase):
             )
         self.data_model = TagDataModel(self, self.ccl)
         layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.ccl)
         self.setLayout(layout)
-
-        # self.act_rename_tag = QAction("Rename tag", self)
-        # self.act_delete_tag = QAction("Delete tag", self)
-        # self.ccl.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
-        # self.ccl.addAction(self.act_rename_tag)
-        # self.ccl.addAction(self.act_delete_tag)
 
     def initDataModel(self, tag_data: DataTags, tag_total: DataTags):
         """
