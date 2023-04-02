@@ -99,10 +99,12 @@ rbm-share       # To generate share url
 - [x] Markdown LaTeX equation support
 - [x] Export database
 - [x] Better font size
+- [x] Other citation format convert to bibtex
+- [ ] Key-user relation, mandatory tags
+- [ ] Reading time
 - [ ] Advance search
 - [ ] Dashboard page
 - [ ] Within software cross-reference
-- [ ] Other citation format convert to bibtex
 - [ ] Related works
 - [ ] Redirect some logging to status bar
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
