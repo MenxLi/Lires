@@ -1,46 +1,60 @@
 
-import hashlib, os
-from .._config import ENC_KEY_PATH
+import os
+from typing import Optional, List
+from .account import Account, AccountPermission
+from .._config import ACCOUNT_DIR
 
-def saveHashKey(h: str) -> bool:
-    """
-    Save encrypted hash key 
-    """
-    if not os.path.exists(ENC_KEY_PATH):
-        mode = "w"
-    else:
-        mode = "a"
-    with open(ENC_KEY_PATH, mode, encoding="utf-8") as fp:
-        fp.write(h + "\n")
+def _getAccountFilePath(hashkey):
+    return os.path.join(ACCOUNT_DIR, hashkey + ".json")
+
+def createAccount(hashkey: str, identifier: str, is_admin: bool, mandatory_tags) -> bool:
+    aim_file = _getAccountFilePath(hashkey)
+    if os.path.exists(aim_file):
+        print("Account already exists")
+        return False
+    
+    account = Account(hashkey = hashkey, identifier = identifier, is_admin = is_admin, mandatory_tags = mandatory_tags)
+    account.toFile(aim_file)
     return True
 
-def queryHashKey(h: str) -> bool:
+def queryAccount(hashkey: str) -> Optional[AccountPermission]:
     """
-    Check if a hash key is in saved buffer
+    return None indicates that the account does not exist
     """
-    if not os.path.exists(ENC_KEY_PATH):
-        return False
-    with open(ENC_KEY_PATH, "r", encoding="utf-8") as fp:
-        txt = fp.read()
-    keys = txt.split("\n")
-    return h in keys
+    aim_file = _getAccountFilePath(hashkey)
+    if not os.path.exists(aim_file):
+        return None
+    account = Account().fromFile(aim_file)
+    return account.permission
 
-def deleteHashKey(h: str) -> bool:
-    if not os.path.exists(ENC_KEY_PATH):
+def deleteAccount(hashkey: str) -> bool:
+    aim_file = _getAccountFilePath(hashkey)
+    if not os.path.exists(aim_file):
+        print("Account does not exist")
         return False
-    with open(ENC_KEY_PATH, "r", encoding="utf-8") as fp:
-        txt = fp.read()
-    keys = txt.split("\n")
-    DELETED = False
-    while True:
-        try:
-            i = keys.index(h)
-            keys.pop(i)
-            DELETED = True
-        except ValueError:
-            break
-    if DELETED:
-        with open(ENC_KEY_PATH, "w", encoding="utf-8") as fp:
-            fp.write("\n".join(keys))
+    else:
+        os.remove(aim_file)
         return True
-    return False
+
+def getHashKeyByIdentifier(identifier: str) -> List[str]:
+    ret = []
+    for f in os.listdir(ACCOUNT_DIR):
+        if not f.endswith(".json"):
+            continue
+        hashkey = f.strip(".json")
+        aim_file = _getAccountFilePath(hashkey)
+        account = Account().fromFile(aim_file)
+        if account.identifier == identifier:
+            ret.append(hashkey)
+    return ret
+
+def getAllAccounts():
+    accounts = {}
+    for f in os.listdir(ACCOUNT_DIR):
+        if not f.endswith(".json"):
+            continue
+        hashkey = f.strip(".json")
+        aim_file = _getAccountFilePath(hashkey)
+        account = Account().fromFile(aim_file)
+        accounts[hashkey] = account
+    return accounts

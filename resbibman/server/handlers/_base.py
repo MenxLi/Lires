@@ -2,7 +2,7 @@ from typing import Callable, Optional
 import tornado.web
 import http.cookies
 # from RBMWeb.backend.encryptServer import queryHashKey
-from ..auth.encryptServer import queryHashKey
+from ..auth.encryptServer import queryAccount
 from ..discussUtils import DiscussDatabase
 from resbibman.core import globalVar as G
 from resbibman.core.dataClass import DataBase
@@ -63,7 +63,7 @@ class RequestHandlerBase():
         if not enc_key:
             raise tornado.web.HTTPError(401) 
 
-        if not queryHashKey(enc_key):
+        if queryAccount(enc_key) is None:
             # unauthorized
             print("Reject key ({}), abort".format(enc_key))
             raise tornado.web.HTTPError(401) 
