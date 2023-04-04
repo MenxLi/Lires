@@ -54,9 +54,13 @@ class RequestHandlerBase():
 
     def checkKey(self) -> AccountPermission:
         """
-        Authenticates key from params
+        Authenticates key from params, then cookies
         """
-        enc_key = self.get_argument("key")
+        try:
+            enc_key = self.get_argument("key")
+        except tornado.web.HTTPError:
+            # no key defined in params
+            enc_key = self.get_cookie("RBM_ENC_KEY", "")
         return self._checkKey(enc_key)
 
     def _checkKey(self, enc_key) -> AccountPermission:
