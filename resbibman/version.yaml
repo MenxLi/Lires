@@ -211,3 +211,10 @@ version_history:
     - Refactor - RBMWeb.backend -> resbibman.server
   0.8.4:
     - More on search
+  0.9.0:
+    - Better user management with user identifier and mandatory tags
+    - Tag-based user permissions
+    - Optimize resizing performance
+    - UI - better tableview highlighting; more compact layout
+    - Refactor - serverconn
+    - rbm-keyman update
