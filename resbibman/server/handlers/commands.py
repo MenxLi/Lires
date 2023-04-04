@@ -29,8 +29,10 @@ class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerBase):
         kwargs = json.loads(self.get_argument("kwargs"))
         print("Receiving argument command: ", cmd, uuid, args, kwargs)
 
-        if not self.checkKey():
-            return 
+        permission =  self.checkKey()
+        if not permission["is_admin"]:
+            # only admin access
+            raise tornado.web.HTTPError(401)
 
         if cmd == "renameTagAll":
             self.db.renameTag(args[0], args[1])

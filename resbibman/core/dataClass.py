@@ -652,7 +652,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         self[data.uuid] = data
         return data
     
-    def delete(self, uuid: str):
+    def delete(self, uuid: str) -> bool:
         """
         Delete a DataPoint by uuid,
         will delete remote data if in online mode and remote data exists
@@ -662,13 +662,17 @@ class DataBase(Dict[str, DataPoint], DataCore):
             if dp.fm.has_local:
                 dp.fm.setWatch(False)
                 shutil.rmtree(dp.data_path)
+                res = True
             if not self.offline:
                 # If remote has this data, delete remote as well, 
                 # otherwise it will be downloaded again when sync
-                if not dp.fm._deleteRemote():
+                res = dp.fm._deleteRemote()
+                if not res:
                     self.logger.info("Oops, the data on the server side may not be deleted")
                     self.logger.warn("You may need to sync->delete again for {}".format(dp))
             del self[uuid]
+            return res
+        return False
 
     def watchFileChange(self, v: List[Union[DataPoint, str]]):
         """

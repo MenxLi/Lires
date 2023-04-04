@@ -87,12 +87,13 @@ class ServerConn:
         else:
             return True
         
-    def uploadData(self, fpath: str, uid: str, dst_fname: str) -> bool:
+    def uploadData(self, fpath: str, uid: str, dst_fname: str, tags: List[str]) -> bool:
         post_url = self.SERVER_URL + "/file"
         post_args = {
             "key": self.hash_key,
             "cmd": "upload",
-            "uuid": uid
+            "uuid": uid, 
+            "tags": json.dumps(tags)
         }
         with open(fpath, "rb") as fp:
             file_args = {

@@ -147,7 +147,7 @@ class FileManipulatorVirtual(FileManipulator):
         uuid = self.uuid
         interm_file_p = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
         compressDir(self.path, interm_file_p)
-        return ServerConn().uploadData(interm_file_p, self.uuid, self.base_name.encode("utf-8"))
+        return ServerConn().uploadData(interm_file_p, self.uuid, self.base_name.encode("utf-8"), tags = self.getTags())
 
     def _downloadRemote(self) -> bool:
         if self.offline:

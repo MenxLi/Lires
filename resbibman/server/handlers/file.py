@@ -1,5 +1,5 @@
 from ._base import *
-import os, shutil
+import os, shutil, json
 from resbibman.confReader import TMP_DIR, getConfV
 from resbibman.core.compressTools import compressDir, decompressDir
 from resbibman.core.dataClass import DataPoint
@@ -21,11 +21,13 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
         uuid = self.get_argument("uuid")
         print("Receiving file request: ", cmd, uuid)
 
-        if not self.checkKey():
-            return 
+        permission =  self.checkKey()
 
         if cmd == "download":
             dp: DataPoint = db[uuid]
+            if not permission["is_admin"]:
+                # tag permission check
+                self.checkTagPermission(dp.tags, permission["mandatory_tags"])
             tmp_zip = os.path.join(self.zip_tmp_dir, uuid+".zip")
             compressed = compressDir(dp.data_path, tmp_zip)
             with open(compressed, "rb") as f:
@@ -36,6 +38,10 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
                     self.write(data)
         
         elif cmd == "upload":
+            if not permission["is_admin"]:
+                # tag permission check
+                tags = json.loads(self.get_argument("tags"))
+                self.checkTagPermission(tags, permission["mandatory_tags"])
             tmp_zip = os.path.join(self.zip_tmp_dir, uuid+".zip")
             req_file = self.request.files
             f_body = req_file["file"][0]["body"]
@@ -51,6 +57,10 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
             db.add(dest)
         
         elif cmd == "delete":
+            if not permission["is_admin"]:
+                # tag permission check
+                dp: DataPoint = db[uuid]
+                self.checkTagPermission(dp.tags, permission["mandatory_tags"])
             if uuid in db:
                 db.delete(uuid)
             else:

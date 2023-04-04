@@ -65,13 +65,15 @@ class DiscussionModHandler (tornado.web.RequestHandler, RequestHandlerBase):
         self.setDefaultHeader()
         print("Receiving discussion modify request")
 
-        if not self.checkKey() and self.checkCookieKey():
-            return
-
         cmd = self.get_argument("cmd")
         file_uid = self.get_argument("file_uid")
         content = self.get_argument("content")
         usr_name = self.get_argument("usr_name")
+
+        permission =  self.checkKey()
+        if not permission["is_admin"]:
+            dp = self.db[file_uid]
+            self.checkTagPermission(dp.tags, permission["mandatory_tags"])
 
         if cmd == "add":
             print("Adding discussion...")

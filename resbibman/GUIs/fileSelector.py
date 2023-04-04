@@ -345,7 +345,9 @@ class FileSelector(FileSelectorGUI):
     
     def _deleteFromDatabase(self, data: DataPoint):
         if data.uuid in self.getMainPanel().db.keys():
-            self.getMainPanel().db.delete(data.uuid)
+            res = self.getMainPanel().db.delete(data.uuid)
+            if not res:
+                self.warnDialog("Incomplete deletion", "Check log for more information")
     
     def deleteCurrentSelected(self):
         query_line = "Delete this entry?"
