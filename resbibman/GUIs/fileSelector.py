@@ -1,6 +1,6 @@
 import traceback, math
 from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
+from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog, QStyledItemDelegate, QStyle
 from PyQt6.QtGui import QAction, QShortcut, QColor
 from PyQt6 import QtGui, QtCore
 import typing, copy, functools
@@ -589,9 +589,9 @@ class FileTableView(QTableView, LazyResizeMixin):
             self.reset_timer.start()
         return super().wheelEvent(a0)
 
-class FileTableDelegate(QItemDelegate):
-    hover_color = QColor(100 , 200, 200, 100) 
-    select_color = QColor(0 , 100, 200, 100) 
+class FileTableDelegate(QStyledItemDelegate):
+    # hover_color = QColor(100 , 200, 200, 100) 
+    # select_color = QColor(0 , 100, 200, 100) 
     def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
         self.hoverrow_ = None
@@ -605,7 +605,11 @@ class FileTableDelegate(QItemDelegate):
 
     def paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> None:
         if index.row() == self.hoverrow_:
-            painter.fillRect(option.rect, self.hover_color)
-        if index.row() == self.selectrow_:
-            painter.fillRect(option.rect, self.select_color)
+            # painter.fillRect(option.rect, self.hover_color)
+            option.state |= QStyle.StateFlag.State_MouseOver
+        else:
+            option.state &= ~QStyle.StateFlag.State_MouseOver
+
+        # if index.row() == self.selectrow_:
+        #     painter.fillRect(option.rect, self.select_color)
         return super().paint(painter, option, index)
