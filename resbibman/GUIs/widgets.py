@@ -4,8 +4,9 @@ from typing import TYPE_CHECKING, Literal
 
 from PyQt6 import QtGui
 from PyQt6.QtWidgets import QWidget, QMessageBox, QApplication
-from PyQt6.QtCore import QThreadPool, pyqtSignal, Qt
+from PyQt6.QtCore import QThreadPool, pyqtSignal, Qt, QTimer
 
+from abc import abstractmethod
 from ..perf.qtThreading import SleepWorker
 
 if TYPE_CHECKING:
@@ -116,6 +117,33 @@ class RefBase:
         assert self._tag_panel is not None, "Tag panel not set, use setTagPanel to set the panel"
         return self._tag_panel
 
+class LazyResizeMixin(QWidget):
+    # https://stackoverflow.com/a/44676463/6775765
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.resize_timer = QTimer(self)
+        self.resize_timer.setSingleShot(True)
+        self.resize_timer.setInterval(100)
+        self.resize_timer.timeout.connect(self.delayed_update)
+
+    def delayed_update(self):
+        self.update()
+
+    @abstractmethod
+    def paintEvent(self, event):
+        if self.resize_timer.isActive():
+            ...
+
+            # Your `lightweight' rendering goes here and will be used
+            # while the widget is being resized.
+        else:
+            ...
+
+            # Full rendering code goes here.
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.resize_timer.start()
 
 class RefWidgetBase(QWidget, WidgetBase, RefBase):
     # Somehow not working properly... see __init_subclass__

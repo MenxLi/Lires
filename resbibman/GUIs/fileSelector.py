@@ -7,7 +7,7 @@ import typing, copy, functools
 from typing import List, overload, Union, Literal, Callable, Optional
 
 from .bibQuery import BibQuery
-from .widgets import  MainWidgetBase
+from .widgets import  MainWidgetBase, LazyResizeMixin
 from .searchBar import SearchBar
 from .bibtexEditor import BibEditorWithOK
 from ..perf.qtThreading import SearchWorker
@@ -531,7 +531,7 @@ class FileTableModel(QtCore.QAbstractTableModel):
     def columnCount(self, parent: QtCore.QModelIndex) -> int:
         return len(getConfV("table_headers"))
 
-class FileTableView(QTableView):
+class FileTableView(QTableView, LazyResizeMixin):
     # How to highlight entire row on hovering? - https://stackoverflow.com/a/46231218/6775765
     hoverIndexChanged = QtCore.pyqtSignal(QtCore.QModelIndex)
     def __init__(self, *args, **kwargs) -> None:
@@ -539,18 +539,37 @@ class FileTableView(QTableView):
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
         self.setAutoScroll(False)
-        # self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
 
     def initSettings(self):
         # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
         self.header = self.horizontalHeader()       
         self.header.setVisible(False)
         self.header.setMinimumSectionSize(1)
+        self._init_headerResizeMode(fast = False)
+    
+    def paintEvent(self, e: QtGui.QPaintEvent) -> None:
+        if self.resize_timer.isActive():
+            self._init_headerResizeMode(fast = True)
+            return super().paintEvent(e)
+        else:
+            self._init_headerResizeMode(fast = False)
+            return super().paintEvent(e)
+    
+    def delayed_update(self):
+        print("Update!, ", self.resize_timer.isActive())
+        self.update()
+        self.repaint()
+
+    
+    def _init_headerResizeMode(self, fast: bool = False):
         for i in range(len(getConfV("table_headers"))):
             if getConfV("table_headers")[i] == DataTableList.HEADER_TITLE:
                 self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.Stretch)
             else:
-                self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                if not fast:
+                    self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)    # This is slow
+                else:
+                    self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.Fixed)
 
     def mouseMoveEvent(self, e: QtGui.QMouseEvent) -> None:
         index = self.indexAt(e.pos())
