@@ -24,7 +24,17 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerBase):
             tags = []
         else:
             tags = tags.split("&&")
-
+        self.emitDataList(tags)
+    
+    def post(self):
+        """
+        tags are list of strings
+        """
+        print("posting file list request")
+        tags = json.loads(self.get_argument("tags"))
+        self.emitDataList(tags)
+    
+    def emitDataList(self, tags):
         data_info = self.getDictDataListByTags(tags)
         if data_info is not None:
             json_data = {

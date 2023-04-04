@@ -20,6 +20,7 @@ from .bibReader import BibParser
 #  from .utils import HTML_TEMPLATE_RAW
 from .encryptClient import generateHexHash
 from ..types.dataT import DataPointSummary
+from .serverConn import ServerConn
 from . import globalVar as G
 
 from QCollapsibleCheckList import DataItemAbstract as CollapsibleChecklistDataItemAbstract
@@ -176,6 +177,8 @@ class DataTags(Set[str], DataCore):
             return "; ".join(self.toOrderedList())
         else:
             return "<None>"
+
+DataTagT = Union[DataTags, List[str], Set[str]]
 
 class DataPoint(DataCore):
     MAX_AUTHOR_ABBR = 36
@@ -624,23 +627,12 @@ class DataBase(Dict[str, DataPoint], DataCore):
             self.logger.info("Offline mode, can't fetch database")
             return None
 
-        addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
-        params = {
-            "tags":""
-        }
-        flist_addr = "{}/filelist?{}".format(addr, urllib.parse.urlencode(params)) 
-
         try:
-            res = requests.get(flist_addr)
-            if res.status_code != 200:
-                self.logger.info("Faild to fetch remote data ({})".format(res.status_code))
-                return None
+            flist = ServerConn().filelist([])
         except requests.exceptions.ConnectionError:
             self.logger.warning("Server is down, abort fetching remote data.")
             return None
         
-        flist = res.text
-        flist = json.loads(flist)["data"]
         self.__file_list_remote = flist
         return flist
 

@@ -1,6 +1,6 @@
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 import asyncio
 import requests, json
 from . import globalVar as G
@@ -10,6 +10,7 @@ from ..confReader import getServerURL, getConfV
 if TYPE_CHECKING:
     from resbibman.server.auth.account import AccountPermission
     from resbibman.core.dataSearcher import StringSearchT
+    from resbibman.core.dataClass import DataTagT, DataPointSummary
 
 class ServerConn:
 
@@ -61,3 +62,14 @@ class ServerConn:
             return None
         else:
             return json.loads(res.text)
+    
+    def filelist(self, tags: DataTagT = []) -> Optional[List[DataPointSummary]]:
+        post_url = self.SERVER_URL + "/filelist"
+        post_args = {
+            "tags": json.dumps([ t for t in tags])
+        }
+        res = requests.post(post_url, data = post_args)
+        if not self._checkRes(res):
+            return None
+        else:
+            return json.loads(res.text)["data"]
