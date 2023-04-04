@@ -1,8 +1,12 @@
+"""
+Interface for server connections,
+refer to resbibman.server for more information
+"""
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, Optional, List, Literal
 import asyncio
-import requests, json
+import requests, json, os
 from . import globalVar as G
 from .encryptClient import generateHexHash
 from ..confReader import getServerURL, getConfV
@@ -11,6 +15,7 @@ if TYPE_CHECKING:
     from resbibman.server.auth.account import AccountPermission
     from resbibman.core.dataSearcher import StringSearchT
     from resbibman.core.dataClass import DataTagT, DataPointSummary
+    from resbibman.core.fileToolsV import FileManipulatorVirtual
 
 class ServerConn:
 
@@ -81,8 +86,50 @@ class ServerConn:
             return False
         else:
             return True
+        
+    def uploadData(self, fpath: str, uid: str, dst_fname: str) -> bool:
+        post_url = self.SERVER_URL + "/file"
+        post_args = {
+            "key": self.hash_key,
+            "cmd": "upload",
+            "uuid": uid
+        }
+        with open(fpath, "rb") as fp:
+            file_args = {
+                "filename": dst_fname,
+                "file": fp
+            }
+            res = requests.post(post_url, params = post_args, files=file_args)
+        if not self._checkRes(res):
+            return False
+        else:
+            return True
     
-    def deleteTag(self, tag_to_be_deleted: str):
+    def downloadData(self, out_fpath, uid: str) -> bool:
+        post_url = self.SERVER_URL + "/file"
+        post_args = {
+            "key": self.hash_key,
+            "cmd": "download",
+            "uuid": uid
+        }
+        res = requests.post(post_url, params = post_args)
+        if not self._checkRes(res):
+            return False
+        with open(out_fpath, "wb") as fp:
+            fp.write(res.content)
+        return True
+    
+    def deleteData(self, uid: str) -> bool:
+        post_url = self.SERVER_URL + "/file"
+        post_args = {
+            "key": self.hash_key,
+            "cmd": "delete",
+            "uuid": uid
+        }
+        res = requests.post(post_url, params = post_args)
+        return self._checkRes(res)
+    
+    def deleteTag(self, tag_to_be_deleted: str) -> bool:
         post_args = {
             "key": self.hash_key,
             "cmd": "deleteTagAll",
@@ -92,7 +139,7 @@ class ServerConn:
         }
         return self._remoteCMD(post_args)
 
-    def renameTag(self, src_tag: str, dst_tag: str):
+    def renameTag(self, src_tag: str, dst_tag: str) -> bool:
         post_args = {
             "key": self.hash_key,
             "cmd": "renameTagAll",
@@ -101,6 +148,18 @@ class ServerConn:
             "kwargs": json.dumps({})
         }
         return self._remoteCMD(post_args)
+    
+    def postDiscussion(self, uid: str, name: str, content: str) -> bool:
+        post_url = self.SERVER_URL + "/discussion_mod"
+        post_args = {
+            "key": self.hash_key,
+            "cmd": "add",
+            "file_uid": uid,
+            "content": content,
+            "usr_name": name
+        }
+        res = requests.post(url = post_url, data = post_args)
+        return self._checkRes(res)
 
     def _remoteCMD(self, post_args) -> bool:
         """
@@ -108,6 +167,19 @@ class ServerConn:
         """
         post_addr = "{}/cmdA".format(self.SERVER_URL) 
         res = requests.post(post_addr, params = post_args)
-        if not self._checkRes(res):
-            return False
-        return True
+        return self._checkRes(res)
+    
+    def getDocURL(self, uid: str, dtype: Literal["pdf, hpack"]) -> str:
+        if dtype == "pdf":
+            return self.SERVER_URL + "/doc/{}".format(uid)
+        elif dtype == "hpack":
+            return self.SERVER_URL + "/hdoc/{}/".format(uid)
+        else:
+            raise NotImplementedError
+
+    def getNoteURL(self, uid: str) -> str:
+        return self.SERVER_URL + "/comment/{}/".format(uid)
+
+    def getDisscussionURL(self, uid: str) -> str:
+        return self.SERVER_URL + "/discussions/{}".format(uid)
+    

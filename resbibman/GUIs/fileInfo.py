@@ -8,9 +8,8 @@ from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtGui import QKeySequence, QShortcut
 from .widgets import MainWidgetBase
 from ..confReader import ICON_PATH, getConfV, TMP_COVER, getServerURL
-from ..core.fileTools import FileManipulator
-from ..core.bibReader import BibParser
 from ..core.dataClass import DataPoint
+from ..core.serverConn import ServerConn
 from ..core.pdfTools import getPDFCoverAsQPixelmap
 from ..core.encryptClient import generateHexHash
 
@@ -356,17 +355,8 @@ class FileInfo(FileInfoGUI):
             # shouldn't happen, for type checking purposes
             return
         uid = self.curr_data.uuid
-        post_url = getServerURL() + "/discussion_mod"
-        hex_key = generateHexHash(getConfV("access_key"))
-        obj = {
-            "key": hex_key,
-            "cmd": "add",
-            "file_uid": uid,
-            "content": content,
-            "usr_name": name
-        }
-        req = requests.post(url = post_url, data = obj)
-        if req.status_code == 200:
+        success = ServerConn().postDiscussion(uid = uid, name = name, content = content)
+        if success:
             self.__updateDiscussion()
 
     def __thread_saveComments(self):
@@ -424,7 +414,7 @@ class FileInfo(FileInfoGUI):
         else:
             # set online url
             uid = self.curr_data.uuid
-            md_url = getServerURL() + "/comment/{}/".format(uid)
+            md_url = ServerConn().getNoteURL(uid)
             self.logger.debug("requesting remote comment html: {}".format(md_url))
             self.mdBrowser.setUrl(QtCore.QUrl.fromUserInput(md_url))
 
@@ -433,7 +423,7 @@ class FileInfo(FileInfoGUI):
             # shouldn't happen, for type checking purposes
             return
         uid = self.curr_data.uuid
-        discuss_url = getServerURL() + "/discussions/{}".format(uid)
+        discuss_url = ServerConn().getDisscussionURL(uid)
         
         hex_key = generateHexHash(getConfV("access_key"))
         req = requests.get(discuss_url, cookies={"RBM_ENC_KEY": hex_key})

@@ -10,6 +10,7 @@ from .utils import TimeUtils
 from .clInteractions import ChoicePromptCLI, ChoicePromptAbstract
 from .fileTools import FileManipulator
 from .encryptClient import generateHexHash
+from .serverConn import ServerConn
 from .compressTools import decompressDir, compressDir
 from ..confReader import getConfV, TMP_DB, TMP_DIR, getServerURL
 from ..types.dataT import DataPointSummary
@@ -49,14 +50,6 @@ class FileManipulatorVirtual(FileManipulator):
     def _forceOffline(self):
         self.__force_offline = True
 
-    @property
-    def POST_URL(self) -> str:
-        return f"{getServerURL()}/file"
-
-    @property
-    def POST_HEX_KEY(self) -> str:
-        return generateHexHash(getConfV("access_key"))
-    
     @property
     def v_info(self) -> Union[DataPointSummary, dict]:
         """ Virtual file info (from remote) """
@@ -154,51 +147,17 @@ class FileManipulatorVirtual(FileManipulator):
         uuid = self.uuid
         interm_file_p = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
         compressDir(self.path, interm_file_p)
-        post_args = {
-            "key": self.POST_HEX_KEY,
-            "cmd": "upload",
-            "uuid": uuid
-        }
-        with open(interm_file_p, "rb") as fp:
-            file_args = {
-                "filename": self.base_name.encode("utf-8"),
-                "file": fp
-            }
-            res = requests.post(self.POST_URL, params = post_args, files=file_args)
-            #  try:
-            #      res = requests.post(self.POST_URL, params = post_args, files=file_args)
-            #  except requests.exceptions.ConnectionError:
-            #      self.logger.info("uploadRemote (fm): Connection error")
-            #      G.last_status_code = 0
-            #      return False
-
-        if not self._checkRes(res):
-            return False
-        else:
-            return True
+        return ServerConn().uploadData(interm_file_p, self.uuid, self.base_name.encode("utf-8"))
 
     def _downloadRemote(self) -> bool:
         if self.offline:
             return False
         uuid = self.uuid
-        post_args = {
-            "key": self.POST_HEX_KEY,
-            "cmd": "download",
-            "uuid": uuid
-        }
-        res = requests.post(self.POST_URL, params = post_args)
-        #  try:
-        #      res = requests.post(self.POST_URL, params = post_args)
-        #  except requests.exceptions.ConnectionError:
-        #      self.logger.info("downloadRemote (fm): Connection error")
-        #      G.last_status_code = 0
-        #      return False
-        if not self._checkRes(res):
-            return False
-        out_file = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
         # intermediate zip file
-        with open(out_file, "wb") as fp:
-            fp.write(res.content)
+        out_file = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
+        res = ServerConn().downloadData(out_file, uuid)
+        if not res:
+            return False
         # delete old data
         if os.path.exists(self.path):
             shutil.rmtree(self.path)
@@ -210,37 +169,9 @@ class FileManipulatorVirtual(FileManipulator):
     def _deleteRemote(self) -> bool:
         if self.offline:
             return False
-        uuid = self.uuid
-        post_args = {
-            "key": self.POST_HEX_KEY,
-            "cmd": "delete",
-            "uuid": uuid
-        }
-        self.logger.debug("Request remote delete {}".format(uuid))
-        res = requests.post(self.POST_URL, params = post_args)
-        #  try:
-        #      res = requests.post(self.POST_URL, params = post_args)
-        #  except requests.exceptions.ConnectionError:
-        #      self.logger.info("deleteRemote (fm): Connection error")
-        #      G.last_status_code = 0
-        #      return False
-        if not self._checkRes(res):
-            self.logger.warning("Remote delete failed for {}".format(uuid))
-            return False
-        return True
+        self.logger.debug("Request remote delete {}".format(self.uuid))
+        return ServerConn().deleteData(self.uuid)
     
-    def _checkRes(self, res: requests.Response) -> bool:
-        """
-        Check if response is valid
-        """
-        status_code = res.status_code
-        if status_code != 200:
-            self.logger.debug("Get response {}".format(res.status_code))
-        if status_code == 401:
-            self.logger.warning("Unauthorized access")
-        G.last_status_code = res.status_code
-        return res.ok
-
     #=========================== Below emulate local manipulator class
 
     def _createFileOB(self):
