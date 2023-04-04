@@ -2,7 +2,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Optional, TypedDict
 from PyQt6.QtCore import QUrl
-from PyQt6.QtWebEngineCore import QWebEngineSettings, QWebEngineDownloadRequest
+from PyQt6.QtWebEngineCore import QWebEngineSettings, QWebEngineDownloadRequest, QWebEnginePage
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 from PyQt6.QtWidgets import QHBoxLayout, QSplitter
@@ -20,6 +20,13 @@ class DocumentReaderStatusT(TypedDict):
     doc_uid: Optional[str]
     splitter_size_initialized: bool
 
+class CustomWebEnginePage(QWebEnginePage):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+        # Prevent error messages from being printed to the console
+        if level == QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel or level == QWebEnginePage.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
+            return True
+        return super().javaScriptConsoleMessage(level, message, lineNumber, sourceID)
+
 class DocumentReader(MainWidgetBase):
     def __init__(self, parent: MainWindow) -> None:
         super().__init__(parent)
@@ -35,6 +42,7 @@ class DocumentReader(MainWidgetBase):
         self.webview = QWebEngineView(self)
         self.webview.settings().setAttribute(QWebEngineSettings.WebAttribute.PluginsEnabled, True)
         self.webview.settings().setAttribute(QWebEngineSettings.WebAttribute.PdfViewerEnabled, True)
+        self.webview.setPage(CustomWebEnginePage())     # Somehow not working ??
         self.info_panel = FileInfo(self)
         self.passRefTo(self.info_panel)
         self.info_panel.connectFuncs(load_on_sel_change=False)

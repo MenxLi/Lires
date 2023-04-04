@@ -9,6 +9,21 @@ from uuid import uuid4
 
 CallVar = TypeVar("CallVar", bound = Callable)
 
+class MuteEverything:
+    def __enter__(self):
+        # Redirect stdout and stderr to /dev/null
+        self.stdout = sys.stdout
+        self.stderr = sys.stderr
+        sys.stdout = open(os.devnull, 'w')
+        sys.stderr = open(os.devnull, 'w')
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Restore stdout and stderr
+        sys.stdout.close()
+        sys.stderr.close()
+        sys.stdout = self.stdout
+        sys.stderr = self.stderr
+
 def loggedFunction(func: CallVar) -> CallVar:
     logger = logging.getLogger("rbm")
     @wraps(func)

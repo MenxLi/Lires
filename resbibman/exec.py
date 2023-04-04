@@ -30,6 +30,10 @@ def execProg():
         proxy.setPort(int(proxy_settings["port"]))
         QtNetwork.QNetworkProxy.setApplicationProxy(proxy)
 
+    # supress webengine warnings
+    # os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-logging"
+    os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--enable-logging --log-level=3"
+
     app = QApplication(sys.argv)
     ss = getStyleSheets()[getConf()["stylesheet"]]
     if ss != "":
