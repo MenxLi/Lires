@@ -18,7 +18,8 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 * Cascading tags  
 * Markdown notes, with LaTeX equation support
 * Online mode (remote storage)
-* Host a server to view, share and discuss online.
+* Host a server to view, share and discuss online
+* Multi-user permission management
 <!--* Various file formats support, including webpage-->
 
 # Installation & Usage
@@ -100,9 +101,9 @@ rbm-share       # To generate share url
 - [x] Export database
 - [x] Better font size
 - [x] Other citation format convert to bibtex
-- [ ] Key-user relation, mandatory tags
+- [x] Key-user relation, mandatory tags
+- [x] Server search
 - [ ] Reading time
-- [ ] Advance search
 - [ ] Dashboard page
 - [ ] Within software cross-reference
 - [ ] Related works
@@ -158,6 +159,7 @@ rbm-collect:
 <!-- * May crash when changing selection (caused by auto saving) -->
 * Markdown horizontal line highlighter not working somehow
 * Adding file may encounter permission error for FAT32 format destination in Linux machine (refer to: [stackoverflow-25716333](https://stackoverflow.com/questions/25716333/))
+* Add data without tag permission on non-admin account, then delete local will raise exception
 * ~~QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)~~(Resolved with PyQt6)
 * ~~PDFReader based on QWebEngineView may not show PDF (For PyQt6 under Windows, refer to: [stachoverflow-73350761](https://stackoverflow.com/questions/73350761/))~~(Resolved using PDF.js)
 
