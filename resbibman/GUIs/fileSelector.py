@@ -1,6 +1,6 @@
 import traceback, math
 from PyQt6 import QtWidgets
-from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QLineEdit, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
+from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog
 from PyQt6.QtGui import QAction, QShortcut, QColor
 from PyQt6 import QtGui, QtCore
 import typing, copy, functools
@@ -43,6 +43,7 @@ class FileSelectorGUI(MainWidgetBase):
         self.search_bar = SearchBar()
 
         self.data_view.hoverIndexChanged.connect(self.data_table_delegate.onHoverIndexChanged)
+        self.data_view.selectionModel().currentChanged.connect(self.data_table_delegate.onSelectionIndexChanged)
 
         vbox = QVBoxLayout()
         vbox.addWidget(self.search_bar)
@@ -539,6 +540,11 @@ class FileTableView(QTableView, LazyResizeMixin):
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
         self.setAutoScroll(False)
+        self.resize_timer.setInterval(50)
+        self.reset_timer = QtCore.QTimer()
+        self.reset_timer.setInterval(50)
+        self.reset_timer.setSingleShot(True)
+        self.reset_timer.timeout.connect(self.reset)
 
     def initSettings(self):
         # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
@@ -549,17 +555,15 @@ class FileTableView(QTableView, LazyResizeMixin):
     
     def paintEvent(self, e: QtGui.QPaintEvent) -> None:
         if self.resize_timer.isActive():
-            self._init_headerResizeMode(fast = True)
-            return super().paintEvent(e)
+            # self._init_headerResizeMode(fast = True)
+            # return super().paintEvent(e)
+            return
         else:
             self._init_headerResizeMode(fast = False)
             return super().paintEvent(e)
     
     def delayed_update(self):
-        print("Update!, ", self.resize_timer.isActive())
-        self.update()
-        self.repaint()
-
+        self.reset()
     
     def _init_headerResizeMode(self, fast: bool = False):
         for i in range(len(getConfV("table_headers"))):
@@ -575,16 +579,33 @@ class FileTableView(QTableView, LazyResizeMixin):
         index = self.indexAt(e.pos())
         self.hoverIndexChanged.emit(index)
         return super().mouseMoveEvent(e)
+    
+    def wheelEvent(self, a0: QtGui.QWheelEvent) -> None:
+        selected_indexes = self.selectedIndexes()
+        selected_rows = set([idx.row() for idx in selected_indexes])
+        if not len(selected_rows) > 1:
+            # force update highlighting
+            # not to do so when multiple rows are selected
+            self.reset_timer.start()
+        return super().wheelEvent(a0)
 
 class FileTableDelegate(QItemDelegate):
+    hover_color = QColor(100 , 200, 200, 100) 
+    select_color = QColor(0 , 100, 200, 100) 
     def __init__(self, parent: typing.Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
         self.hoverrow_ = None
+        self.selectrow_ = None
 
     def onHoverIndexChanged(self, index: QtCore.QModelIndex):
         self.hoverrow_ = index.row()
 
+    def onSelectionIndexChanged(self, index: QtCore.QModelIndex):
+        self.selectrow_ = index.row()
+
     def paint(self, painter: QtGui.QPainter, option: QStyleOptionViewItem, index: QtCore.QModelIndex) -> None:
         if index.row() == self.hoverrow_:
-            painter.fillRect(option.rect, QColor(100 , 200, 200, 100))
+            painter.fillRect(option.rect, self.hover_color)
+        if index.row() == self.selectrow_:
+            painter.fillRect(option.rect, self.select_color)
         return super().paint(painter, option, index)
