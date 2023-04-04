@@ -23,6 +23,7 @@ from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser, BibConverter
 from ..core.utils import openFile, ProgressBarCustom
+from ..core.serverConn import ServerConn
 from ..core.dataClass import DataTags, DataBase, DataPoint
 from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf, saveToConf_guiStatus
 from ..confReader import TMP_DB, TMP_WEB, TMP_COVER
@@ -711,15 +712,9 @@ class MainWindow(MainWindowGUI):
         if getConf()["host"]:
             try:
                 # reload server
-                addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
-                req_reloadDB = addr + "/cmd/reloadDB"
-                res = requests.get(req_reloadDB, timeout = 5)
+                ServerConn().reloadDB()
                 # loadData
                 self.loadData_async(TMP_DB, sync_after=True)    # (This will not raise an ConnectionError)
-                # self._loadData(TMP_DB)
-                # sync local with remote
-                #  to_sync = [dp for uuid, dp in self.db.items() if dp.is_local]
-                #  self.syncData_async(to_sync)
             except requests.exceptions.ConnectionError:
                 self.statusBarInfo("Connection error", 5, bg_color = "red")
                 self.logger.warning("Server is down, not reload server.")

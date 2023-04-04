@@ -73,3 +73,41 @@ class ServerConn:
             return None
         else:
             return json.loads(res.text)["data"]
+    
+    def reloadDB(self) -> bool:
+        post_url = self.SERVER_URL + "/cmd/reloadDB"
+        res = requests.get(post_url, timeout=5)
+        if not self._checkRes(res):
+            return False
+        else:
+            return True
+    
+    def deleteTag(self, tag_to_be_deleted: str):
+        post_args = {
+            "key": self.hash_key,
+            "cmd": "deleteTagAll",
+            "uuid": "_",
+            "args": json.dumps([tag_to_be_deleted]),
+            "kwargs": json.dumps({})
+        }
+        return self._remoteCMD(post_args)
+
+    def renameTag(self, src_tag: str, dst_tag: str):
+        post_args = {
+            "key": self.hash_key,
+            "cmd": "renameTagAll",
+            "uuid": "_",
+            "args": json.dumps([src_tag, dst_tag]),
+            "kwargs": json.dumps({})
+        }
+        return self._remoteCMD(post_args)
+
+    def _remoteCMD(self, post_args) -> bool:
+        """
+        post command to remote/cmdA
+        """
+        post_addr = "{}/cmdA".format(self.SERVER_URL) 
+        res = requests.post(post_addr, params = post_args)
+        if not self._checkRes(res):
+            return False
+        return True

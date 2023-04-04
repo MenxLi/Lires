@@ -718,14 +718,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
                 self.logger.warning("Rename failed, remote file is advance than local, solve conflict before renaming")
                 return False
             # request remote tag change
-            post_args = {
-                "key": generateHexHash(getConfV("access_key")),
-                "cmd": "renameTagAll",
-                "uuid": "_",
-                "args": json.dumps([tag_old, tag_new]),
-                "kwargs": json.dumps({})
-            }
-            if not self.remoteCMD(post_args):
+            if self.offline or not ServerConn().renameTag(tag_old, dst_tag=tag_new):
                 self.logger.info("Abort renaming")
                 return False
 
@@ -751,14 +744,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
                 self.logger.warning("Delete tag failed, remote file is advance than local, solve conflict before deleting tag")
                 return False
             # request remote tag delete
-            post_args = {
-                "key": generateHexHash(getConfV("access_key")),
-                "cmd": "deleteTagAll",
-                "uuid": "_",
-                "args": json.dumps([tag]),
-                "kwargs": json.dumps({})
-            }
-            if not self.remoteCMD(post_args):
+            if self.offline or not ServerConn().deleteTag(tag):
                 self.logger.info("Abort deleting tag")
                 return False
 
@@ -787,20 +773,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
             if similarity > 0.8:
                 return v
         return None
-
-    def remoteCMD(self, post_args) -> bool:
-        """
-        post command to remote/cmdA
-        """
-        if self.offline:
-            return False
-        addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
-        post_addr = "{}/cmdA".format(addr) 
-        res = requests.post(post_addr, params = post_args)
-        if not res.ok:
-            self.logger.info(f"failed requesting {post_addr} ({res.status_code}).")
-            return False
-        return True
 
     def allUptodate(self, fetch: bool = True, strict: bool = False) -> bool:
         """
