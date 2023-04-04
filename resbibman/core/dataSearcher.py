@@ -2,14 +2,12 @@
 Search database by certain criteria
 """
 
-import re, requests, json
+import re
 import asyncio
-from typing import List, Dict, Optional
-from . import globalVar as G
+from typing import Dict, Optional
 from .dataClass import DataCore, DataBase, DataPoint
-from .encryptClient import generateHexHash
-from ..confReader import getConfV, getServerURL
 from ..perf.asynciolib import asyncioLoopRun
+from .serverConn import ServerConn
 
 # a dictionary of uuid and matchs
 StringSearchT = Dict[str, Optional[re.Match]]
@@ -92,20 +90,15 @@ class DataSearcher(DataCore):
             return asyncioLoopRun(_searchComment(self.db))
         
         else:
-            post_args = {
-                "key": self.POST_HEX_KEY,
-                "method": "searchComment",
-                "kwargs": json.dumps({
-                    "pattern": pattern,
-                    "ignore_case": ignore_case
-                })
-            }
-            res = requests.post(self.POST_URL, params = post_args)
-            if not self._checkRes(res):
-                self.logger.error("Error connection")
+            conn = ServerConn()
+            res = conn.search("searchComment", kwargs = {
+                "pattern": pattern,
+                "ignore_case": ignore_case,
+            })
+            if res is None:
                 return {}
             else:
-                return json.loads(res.text)
+                return res
     
     def _searchRegex(self, pattern: str, aim: str, ignore_case: bool):
         if ignore_case:
@@ -113,23 +106,3 @@ class DataSearcher(DataCore):
         else:
             res = re.search(pattern, aim)
         return res
-
-    @property
-    def POST_HEX_KEY(self) -> str:
-        return generateHexHash(getConfV("access_key"))
-    
-    @property
-    def POST_URL(self) -> str:
-        return getServerURL() + "/search"
-
-    def _checkRes(self, res: requests.Response) -> bool:
-        """
-        Check if response is valid
-        """
-        status_code = res.status_code
-        if status_code != 200:
-            self.logger.debug("Get response {}".format(res.status_code))
-        if status_code == 401:
-            self.logger.warning("Unauthorized access")
-        G.last_status_code = res.status_code
-        return res.ok
