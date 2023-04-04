@@ -1,11 +1,11 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, List
 import tornado.web
 import http.cookies
-# from RBMWeb.backend.encryptServer import queryHashKey
+from ..auth.account import AccountPermission
 from ..auth.encryptServer import queryAccount
 from ..discussUtils import DiscussDatabase
 from resbibman.core import globalVar as G
-from resbibman.core.dataClass import DataBase
+from resbibman.core.dataClass import DataBase, TagRule, DataTags
 from resbibman.confReader import getConf
 
 G.init()
@@ -44,7 +44,7 @@ class RequestHandlerBase():
     def discussion_db(self) -> DiscussDatabase:
         return G.getGlobalAttr("server_discussion_db")
 
-    def checkCookieKey(self):
+    def checkCookieKey(self) -> AccountPermission:
         """
         Authenticates key from cookies
         """
@@ -52,23 +52,33 @@ class RequestHandlerBase():
         enc_key = self.get_cookie("RBM_ENC_KEY", "")
         return self._checkKey(enc_key)
 
-    def checkKey(self):
+    def checkKey(self) -> AccountPermission:
         """
         Authenticates key from params
         """
         enc_key = self.get_argument("key")
         return self._checkKey(enc_key)
 
-    def _checkKey(self, enc_key):
+    def _checkKey(self, enc_key) -> AccountPermission:
         if not enc_key:
             raise tornado.web.HTTPError(401) 
 
-        if queryAccount(enc_key) is None:
+        res = queryAccount(enc_key)
+        if res is None:
             # unauthorized
             print("Reject key ({}), abort".format(enc_key))
             raise tornado.web.HTTPError(401) 
         self.enc_key = enc_key
-        return True
+        return res
+    
+    def checkTagPermission(self, _tags: List[str], _mandatory_tags: List[str]):
+        """
+        Check if tags are dominated by mandatory_tags
+        """
+        tags = DataTags(_tags)
+        mandatory_tags = DataTags(_mandatory_tags)
+        if not mandatory_tags.issubset(tags.withParents()):
+            raise tornado.web.HTTPError(401) 
 
     def setDefaultHeader(self):
         self.set_header("Access-Control-Allow-Origin", "*")
