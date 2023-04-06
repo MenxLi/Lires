@@ -65,6 +65,25 @@ class DataSearcher(DataCore):
             if year.startswith(pattern):
                 results[uid] = None
         return results
+
+    def searchPublication(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
+        results: StringSearchT = {}
+        for uid, dp in self.db.items():
+            bib = dp.bib
+            res = None
+            for k in ["journal", "booktitle"]:
+                if k in bib:
+                    raw_to_search = bib[k]
+                    if isinstance(raw_to_search, str):
+                        to_search = raw_to_search
+                    elif isinstance(raw_to_search, tuple) or isinstance(raw_to_search, list):
+                        to_search = raw_to_search[0]
+                    else:
+                        raise ValueError
+                    res = self._searchRegex(pattern, to_search, ignore_case)
+            if not res is None:
+                results[uid] = res
+        return results
     
     def searchComment(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
 

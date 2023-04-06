@@ -22,7 +22,7 @@ class SearchBar(QWidget):
     def initUI(self):
         self.search_edit = SearchLineEdit()
         self.combo_box = QComboBox()
-        self.combo_box.addItems(["General", "Title", "Author", "Year", "Note"])
+        self.combo_box.addItems(["General", "Title", "Author", "Year", "Publication", "Note"])
         self.combo_box.setCurrentText("General")
 
         hlayout = QHBoxLayout()
@@ -68,6 +68,14 @@ class SearchBar(QWidget):
         elif category == "Note":
             searcher.setRunConfig(
                 "searchComment", 
+                {
+                    "pattern": text,
+                    "ignore_case": True
+                }
+            )
+        elif category == "Publication":
+            searcher.setRunConfig(
+                "searchPublication", 
                 {
                     "pattern": text,
                     "ignore_case": True
