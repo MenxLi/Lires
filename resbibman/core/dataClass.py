@@ -191,7 +191,7 @@ class DataPoint(DataCore):
         self.__parent_db: DataBase
         self.__force_offline = False
         self.loadInfo()
-
+    
     @property
     def data_path(self):
         return self.fm.path
@@ -540,6 +540,13 @@ class DataTableList(DataList, DataCore):
         return self.header_order[col]
 
 class DataBase(Dict[str, DataPoint], DataCore):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__account_permission = None
+
+    @property
+    def account_permission(self):
+        return self.__account_permission
 
     @property
     def offline(self) -> bool:
@@ -629,6 +636,8 @@ class DataBase(Dict[str, DataPoint], DataCore):
 
         try:
             flist = ServerConn().filelist([])
+            self.__account_permission = ServerConn().permission()
+            G.account_permission = self.account_permission
         except requests.exceptions.ConnectionError:
             self.logger.warning("Server is down, abort fetching remote data.")
             return None

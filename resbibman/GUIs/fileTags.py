@@ -8,9 +8,11 @@ from QFlowLayout import FlowLayout
 from .widgets import  MainWidgetBase, RefWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
-from ..core.dataClass import DataPoint, DataTags
+from ..core.dataClass import DataPoint, DataTags, DataTagT
 from ..types.configT import _ConfFontSizeT
 from ..confReader import getConf, saveToConf
+
+from ..core import globalVar as G
 
 class FileTagGUI(MainWidgetBase):
     """
@@ -75,12 +77,12 @@ class FileTag(FileTagGUI):
     def __init__(self, parent = None):
         super().__init__(parent)
     
-    def initTags(self, tag_total: DataTags):
+    def initTags(self, tag_total: DataTags, mandatory_tags: DataTagT = []):
         tag_data = DataTags([])
         for t in getConf()["default_tags"]:
             if t in tag_total:
                 tag_data.add(t)
-        self.tag_selector.initDataModel(tag_data, tag_total)
+        self.tag_selector.initDataModel(tag_data, tag_total, mandatory_tags=mandatory_tags)
         saveToConf(default_tags = tag_data.toOrderedList())
 
     @property
@@ -113,7 +115,12 @@ class FileTag(FileTagGUI):
         for i in self.getSelectPanel().data_model.datalist:
             if i.uuid == uuid:
                 i.reload()
-        self.initTags(self.database.total_tags)
+        
+        if G.account_permission is None:
+            mandatory_tags = []
+        else:
+            mandatory_tags = G.account_permission["mandatory_tags"]
+        self.initTags(self.database.total_tags, mandatory_tags)
         def on_done(success: bool):
             if success:
                 curr_data = self.getSelectPanel().getCurrentSelection()

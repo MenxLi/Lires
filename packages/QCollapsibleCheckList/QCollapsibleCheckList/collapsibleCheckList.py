@@ -121,6 +121,13 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
             for wid in v:
                 wid.setFont(a0)
         return super().setFont(a0)
+    
+    def setHighlight(self, i: DataItemT, status: bool):
+        for v in self.shown_item_wids.values():
+            for wid in v:
+                if wid.node.value == i:
+                    wid.setHighlight(status)
+
 
     def getFont(self) -> Optional[QFont]:
         return self.config["font"]

@@ -3,6 +3,7 @@ import sys, shutil, logging, os, argparse
 from typing import List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..types.configT import ResbibmanConfT
+    from ..server.auth.account import AccountPermission
 
 __initialized: bool
 logger_rbm: logging.Logger
@@ -11,6 +12,7 @@ tmpdirs: List[str]      # temporary directories, will be cleared on resbibman GU
 
 prog_args: Optional[argparse.Namespace]     # set by resbibman.exec
 config:  ResbibmanConfT           # configuration, set by resbibman.confReader
+account_permission: Optional[AccountPermission]
 
 __global_dict: dict
 
@@ -21,6 +23,7 @@ def init():
     global last_status_code
     global prog_args
     global __global_dict
+    global account_permission
 
     thismodule = sys.modules[__name__]
     if hasattr(thismodule, "__initialized") and __initialized:
@@ -33,6 +36,7 @@ def init():
     logger_rbm = logging.getLogger("rbm")
     last_status_code = 200
     prog_args = None
+    account_permission = None
     __global_dict = dict()
 
 def setGlobalAttr(key, val):

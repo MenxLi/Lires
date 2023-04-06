@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6 import QtCore
@@ -8,16 +8,16 @@ from QCollapsibleCheckList import CollapsibleCheckList, DataItemAbstract
 
 from .widgets import RefWidgetBase, WidgetBase
 from ..confReader import saveToConf_guiStatus, getConf
-from ..core.dataClass import DataTags, TagRule
+from ..core.dataClass import DataTags, TagRule, DataTagT
 
 class TagSelector(RefWidgetBase):
     entry_added = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent, tag_data = Optional[DataTags], tag_total = Optional[DataTags]) -> None:
+    def __init__(self, parent, tag_data = Optional[DataTags], tag_total = Optional[DataTags], mandatory_tags: DataTagT = []) -> None:
         super().__init__(parent)
         self.initUI()
         if isinstance(tag_data, DataTags) and isinstance(tag_total, DataTags):
-            self.initDataModel(tag_data, tag_total)    
+            self.initDataModel(tag_data, tag_total, mandatory_tags)    
 
     @property
     def database(self):
@@ -36,11 +36,11 @@ class TagSelector(RefWidgetBase):
         layout.addWidget(self.ccl)
         self.setLayout(layout)
 
-    def initDataModel(self, tag_data: DataTags, tag_total: DataTags):
+    def initDataModel(self, tag_data: DataTags, tag_total: DataTags, mandatory_tags: DataTagT = []):
         """
         Load new data
         """
-        self.data_model.initData(tag_data, tag_total)
+        self.data_model.initData(tag_data, tag_total, mandatory_tags = mandatory_tags)
 
     def getSelectedTags(self) -> DataTags:
         tags = self.data_model.selected_tags
@@ -145,26 +145,37 @@ class TagDataModel(QtCore.QObject, WidgetBase):
         saveToConf_guiStatus(tag_uncollapsed = uncollapse_status)
         return
     
-    def initData(self, tag_data: DataTags, tag_total: DataTags):
+    def initData(self, tag_data: DataTags, tag_total: DataTags, mandatory_tags: DataTagT = []):
         assert tag_total.withParents().issuperset(tag_data.withParents())
+        self.__mandatory_tags = mandatory_tags
         tag_items = []
         selected = []
+        _to_highlight = []
 
         for t in tag_total.withParents():
             selected.append(t in tag_data)
-            tag_items.append(self._getItem(t))
+            t_item = self._getItem(t)
+            tag_items.append(t_item)
+            if t in mandatory_tags:
+                _to_highlight.append(t_item)
         
         self.ccl.initData(tag_items, selected)
+        for titem in _to_highlight:
+            self.ccl.setHighlight(titem, True)
         self.loadDefaultUnCollapseStatus()
         return
     
     def addNewData(self, tag: str, status: bool, unfold = True) -> bool:
         new_item = self._getItem(tag)
+        if tag in self.__mandatory_tags:
+            self.ccl.setHighlight(new_item, True)
         if self.ccl.addItem(new_item, status):
             # add parent as well
             for p in TagRule.allParentsOf(tag):
                 it = self._getItem(p)
                 self.ccl.addItem(it, False)
+                if p in self.__mandatory_tags:
+                    self.ccl.setHighlight(it, True)
             if unfold:
                 parent_nodes =  self.ccl.graph.getNodeByItem(new_item).parents
                 if parent_nodes:

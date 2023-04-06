@@ -19,6 +19,7 @@ from .tagModifer import TagModifier
 from .helpWidget import HelpWidget
 from ._styleUtils import qIconFromSVG_autoBW, isThemeDarkMode
 
+from ..core import globalVar as G
 from ..core.fileTools import FileGenerator
 from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser, BibConverter
@@ -478,7 +479,11 @@ class MainWindow(MainWindowGUI):
             Load data into GUI, update status bar
             """
             self.setEnabled(True)
-            self.file_tags.initTags(self.database.total_tags)
+            if G.account_permission is None:
+                mandatory_tags = []
+            else:
+                mandatory_tags = G.account_permission["mandatory_tags"]
+            self.file_tags.initTags(self.database.total_tags, mandatory_tags=mandatory_tags)
             self.file_selector.async_loadValidData()
             if success or set_offline_mode:
                 if sync_after:
@@ -537,7 +542,11 @@ class MainWindow(MainWindowGUI):
         return tags
     
     def refreshFileTagSelector(self, *args):
-        self.file_tags.initTags(self.database.total_tags)
+        if G.account_permission is None:
+            mandatory_tags = []
+        else:
+            mandatory_tags = G.account_permission["mandatory_tags"]
+        self.file_tags.initTags(self.database.total_tags, mandatory_tags=mandatory_tags)
 
     def _center(self):
         qr = self.frameGeometry()

@@ -148,6 +148,12 @@ class NodeWidget(QWidget, Generic[DataItemT]):
     def setFont(self, a0: QFont) -> None:
         self.lbl.setFont(a0)
         return super().setFont(a0)
+    
+    def setHighlight(self, status: bool):
+        if status:
+            self.lbl.setStyleSheet("color: red;")
+        else:
+            self.lbl.setStyleSheet("")
 
     def enterEvent(self, event: QEnterEvent) -> None:
         self._parent.onHoverEnter.emit(self.data)
