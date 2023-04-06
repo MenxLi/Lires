@@ -527,6 +527,15 @@ class FileTableModel(QtCore.QAbstractTableModel):
     def data(self, index: QtCore.QModelIndex, role):
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             return self.datalist.getTableItem(row = index.row(), col = index.column())
+    
+    def headerData(self, section: int, orientation: QtCore.Qt.Orientation, role: int = ...) -> typing.Any:
+        if orientation == QtCore.Qt.Orientation.Horizontal:
+            if role == QtCore.Qt.ItemDataRole.DisplayRole:
+                title = getConf()["table_headers"][section]
+                if title == DataTableList.HEADER_FILESTATUS:
+                    title = ""
+                return title
+        return super().headerData(section, orientation, role)
 
     def rowCount(self, parent: QtCore.QModelIndex) -> int:
         return len(self.datalist)
@@ -536,6 +545,8 @@ class FileTableModel(QtCore.QAbstractTableModel):
 
 class FileTableView(QTableView, LazyResizeMixin):
     # How to highlight entire row on hovering? - https://stackoverflow.com/a/46231218/6775765
+    # https://stackoverflow.com/questions/4031168/qtableview-is-extremely-slow-even-for-only-3000-rows
+    # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
     hoverIndexChanged = QtCore.pyqtSignal(QtCore.QModelIndex)
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -549,33 +560,51 @@ class FileTableView(QTableView, LazyResizeMixin):
         self.reset_timer.timeout.connect(self.reset)
 
     def initSettings(self):
-        # https://stackoverflow.com/questions/38098763/pyside-pyqt-how-to-make-set-qtablewidget-column-width-as-proportion-of-the-a
         self.header = self.horizontalHeader()       
-        self.header.setVisible(False)
-        self.header.setMinimumSectionSize(1)
-        self._init_headerResizeMode(fast = False)
+        self.header.setVisible(True)
+        self.header.setMinimumSectionSize(10)
+        self._init_headerResizeMode(fast = True)
+        self._init_headerSize()
+        # self._init_headerTitle()
     
     def paintEvent(self, e: QtGui.QPaintEvent) -> None:
         if self.resize_timer.isActive():
-            # self._init_headerResizeMode(fast = True)
-            # return super().paintEvent(e)
             return
         else:
-            self._init_headerResizeMode(fast = False)
             return super().paintEvent(e)
+    
+    @property
+    def table_headers(self) -> List[str]:
+        return getConf()["table_headers"]
     
     def delayed_update(self):
         self.reset()
     
+    # def _init_headerTitle(self):
+    #     for i in range(len(self.table_headers)):
+    #         if self.table_headers[i] == DataTableList.HEADER_FILESTATUS:
+    #             title = ""
+    #         else:
+    #             title = self.table_headers[i]
+    #         self.model().setHeaderData(i, QtCore.Qt.Orientation.Horizontal, title)
+    
     def _init_headerResizeMode(self, fast: bool = False):
-        for i in range(len(getConfV("table_headers"))):
+        for i in range(len(self.table_headers)):
             if getConfV("table_headers")[i] == DataTableList.HEADER_TITLE:
                 self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.Stretch)
             else:
                 if not fast:
                     self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)    # This is slow
                 else:
-                    self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.Fixed)
+                    self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        
+    def _init_headerSize(self):
+        self.header.setDefaultSectionSize(120)
+        for i in range(len(self.table_headers)):
+            if getConfV("table_headers")[i] == DataTableList.HEADER_FILESTATUS:
+                self.header.resizeSection(i, 20)
+            if getConfV("table_headers")[i] == DataTableList.HEADER_YEAR:
+                self.header.resizeSection(i, 50)
 
     def mouseMoveEvent(self, e: QtGui.QMouseEvent) -> None:
         index = self.indexAt(e.pos())
