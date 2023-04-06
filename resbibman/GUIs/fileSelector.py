@@ -114,7 +114,7 @@ class FileSelector(FileSelectorGUI):
         self.shortcut_open_tagedit = QShortcut(QtGui.QKeySequence("Space"), self)
         self.shortcut_open_tagedit.activated.connect(self.editTagForThisSelection)
 
-        self.search_bar.updateSearch.connect(self.onUpdateSearch)
+        self.search_bar.updateSearch.connect(self.async_loadValidData)
 
         self.act_sync_datapoint.triggered.connect(lambda: self.syncCurrentSelections_async())
         self.act_open_location.triggered.connect(self.openCurrFileLocation)
@@ -196,11 +196,15 @@ class FileSelector(FileSelectorGUI):
                 format(tags = " | ".join(tags), sort_method = sort_method, screen_pattern = screen_pattern))
         return True
 
-    def onUpdateSearch(self):
+    def async_loadValidData(self, callback: Callable[[bool], None] = lambda success: None):
+        """
+        Loads valid data by current search keyword and selected tags
+        """
         def onFinish(signal):
             if signal["id"] != self.__working_search_id:
                 # not updating the panel if the signal was not sent 
                 # from the latest search worker
+                callback(False)
                 return
             res: StringSearchT = signal["res"]
             vaild_uids = res.keys()
@@ -208,6 +212,7 @@ class FileSelector(FileSelectorGUI):
             curr_data = self.getCurrentSelection()
             if not curr_data is None:
                 self.selection_changed.emit(curr_data)
+            callback(True)
         
         searcher = DataSearcher(self.database)
         self.search_bar.prepareSearcher(searcher)
@@ -217,8 +222,7 @@ class FileSelector(FileSelectorGUI):
         self.pool.start(worker)
 
     def reloadData(self):
-        # self._clearList()
-        self.loadValidData(tags = self.getMainPanel().getCurrentSelectedTags(), )
+        self.async_loadValidData()
     
     def openCurrFileLocation(self):
         curr_data = self.getCurrentSelection()

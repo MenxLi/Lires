@@ -114,10 +114,12 @@ class FileTag(FileTagGUI):
             if i.uuid == uuid:
                 i.reload()
         self.initTags(self.database.total_tags)
-        self.getSelectPanel().loadValidData(self.tag_selector.getSelectedTags())
-        curr_data = self.getSelectPanel().getCurrentSelection()
-        if curr_data:
-            self.updateTagLabel(curr_data)
+        def on_done(success: bool):
+            if success:
+                curr_data = self.getSelectPanel().getCurrentSelection()
+                if curr_data:
+                    self.updateTagLabel(curr_data)
+        self.getSelectPanel().async_loadValidData(on_done)
     
     def saveCurrentTagsAsDefault(self):
         curr_tags = self.tag_selector.getSelectedTags()
@@ -131,14 +133,16 @@ class FileTag(FileTagGUI):
         self.saveCurrentTagsAsDefault()
         curr_sel_tags = self.tag_selector.getSelectedTags()
         self.logger.debug("onTagSelectionChanged - {}".format(curr_sel_tags))
-        self.getSelectPanel().loadValidData(curr_sel_tags)
-        self.getInfoPanel().clearPanel()
-        curr_data = self.getSelectPanel().getCurrentSelection()
-        self.updateTagLabel(curr_data)
-        if curr_data is not None:
-            self.getInfoPanel().load(curr_data)
-        else:
-            self.getInfoPanel().clearPanel()
+        def on_done(success):
+            if success:
+                self.getInfoPanel().clearPanel()
+                curr_data = self.getSelectPanel().getCurrentSelection()
+                self.updateTagLabel(curr_data)
+                if curr_data is not None:
+                    self.getInfoPanel().load(curr_data)
+                else:
+                    self.getInfoPanel().clearPanel()
+        self.getSelectPanel().async_loadValidData(on_done)
     
     def updateTagLabel(self, data: Optional[DataPoint]):
         if isinstance(data, DataPoint):

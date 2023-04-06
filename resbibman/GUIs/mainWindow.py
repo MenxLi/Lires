@@ -478,8 +478,8 @@ class MainWindow(MainWindowGUI):
             Load data into GUI, update status bar
             """
             self.setEnabled(True)
-            self.file_selector.loadValidData(DataTags(getConf()["default_tags"]), hint = True)
             self.file_tags.initTags(self.database.total_tags)
+            self.file_selector.async_loadValidData()
             if success or set_offline_mode:
                 if sync_after:
                     self.statusBarInfo("Data loaded", 2, bg_color = "green")
