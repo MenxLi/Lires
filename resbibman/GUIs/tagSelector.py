@@ -29,6 +29,7 @@ class TagSelector(RefWidgetBase):
             hover_highlight_color="rgba(100, 100, 100, 100)",
             left_click_line="check",
             right_click_line="fold",
+            font_highlight_color="red",
             )
         self.data_model = TagDataModel(self, self.ccl)
         layout = QVBoxLayout()
@@ -150,7 +151,7 @@ class TagDataModel(QtCore.QObject, WidgetBase):
         self.__mandatory_tags = mandatory_tags
         tag_items = []
         selected = []
-        _to_highlight = []
+        _to_highlight: List[TagDataModel.TagDataItem] = []
 
         for t in tag_total.withParents():
             selected.append(t in tag_data)
@@ -161,21 +162,21 @@ class TagDataModel(QtCore.QObject, WidgetBase):
         
         self.ccl.initData(tag_items, selected)
         for titem in _to_highlight:
-            self.ccl.setHighlight(titem, True)
+            self.ccl.setDataHighlight(titem, True)
         self.loadDefaultUnCollapseStatus()
         return
-    
+
     def addNewData(self, tag: str, status: bool, unfold = True) -> bool:
         new_item = self._getItem(tag)
         if tag in self.__mandatory_tags:
-            self.ccl.setHighlight(new_item, True)
+            self.ccl.setDataHighlight(new_item, True)
         if self.ccl.addItem(new_item, status):
             # add parent as well
             for p in TagRule.allParentsOf(tag):
                 it = self._getItem(p)
                 self.ccl.addItem(it, False)
                 if p in self.__mandatory_tags:
-                    self.ccl.setHighlight(it, True)
+                    self.ccl.setDataHighlight(it, True)
             if unfold:
                 parent_nodes =  self.ccl.graph.getNodeByItem(new_item).parents
                 if parent_nodes:

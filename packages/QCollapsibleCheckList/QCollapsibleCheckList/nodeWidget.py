@@ -149,9 +149,9 @@ class NodeWidget(QWidget, Generic[DataItemT]):
         self.lbl.setFont(a0)
         return super().setFont(a0)
     
-    def setHighlight(self, status: bool):
+    def setFontHighlight(self, status: bool):
         if status:
-            self.lbl.setStyleSheet("color: red;")
+            self.lbl.setStyleSheet("color: {};".format(self._parent.config["font_highlight_color"]))
         else:
             self.lbl.setStyleSheet("")
 
@@ -267,6 +267,11 @@ class NodeWidget(QWidget, Generic[DataItemT]):
         wid = self._parent._createNodeWid(n).setParentNodeWidget(self)
         self.child_widgets.append(wid)
         self.c_frame.layout().addWidget(wid)
+
+        # maybe highlight font if created a widget with known highlight status
+        if wid.node.value in self._parent.data_highlight_status:
+            status = self._parent.data_highlight_status[wid.node.value]
+            wid.setFontHighlight(status)
         return wid
 
     def onCollapseClicked(self):

@@ -14,6 +14,7 @@ class CCLConfigT(TypedDict):
     hover_highlight_color: Optional[str]
     left_click_line: Literal["check", "fold", "none"]
     right_click_line: Literal["check", "fold", "none"]
+    font_highlight_color: str
 
 class CollapsibleCheckList(QWidget, Generic[DataItemT]):
 
@@ -45,6 +46,7 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
                  hover_highlight_color: Optional[str] = None,
                  left_click_line: Literal["check", "fold", "none"] = "none",
                  right_click_line: Literal["check", "fold", "none"] = "none",
+                 font_highlight_color: str =  "rgba(255, 255, 255, 255)",
                  ) -> None:
         super().__init__(parent)
 
@@ -57,12 +59,14 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
             "font": None,
             "hover_highlight_color": hover_highlight_color,
             "left_click_line": left_click_line,
-            "right_click_line": right_click_line
+            "right_click_line": right_click_line,
+            "font_highlight_color": font_highlight_color
         }
 
         self.initUI()
         self.initData(init_items, init_check_status)
         self.installEventFilter(self)
+        self.data_highlight_status: Dict[DataItemT, bool] = {}  # font highlight status, refer to widget.setFontHighlight
     
     def initUI(self):
         layout = QVBoxLayout()
@@ -122,12 +126,12 @@ class CollapsibleCheckList(QWidget, Generic[DataItemT]):
                 wid.setFont(a0)
         return super().setFont(a0)
     
-    def setHighlight(self, i: DataItemT, status: bool):
+    def setDataHighlight(self, i: DataItemT, status: bool):
         for v in self.shown_item_wids.values():
             for wid in v:
                 if wid.node.value == i:
-                    wid.setHighlight(status)
-
+                    wid.setFontHighlight(status)
+        self.data_highlight_status[i] = status
 
     def getFont(self) -> Optional[QFont]:
         return self.config["font"]
