@@ -12,8 +12,6 @@ from ..core.dataClass import DataPoint, DataTags, DataTagT
 from ..types.configT import _ConfFontSizeT
 from ..confReader import getConf, saveToConf
 
-from ..core import globalVar as G
-
 class FileTagGUI(MainWidgetBase):
     """
     Implement the GUI for file tree
@@ -77,7 +75,7 @@ class FileTag(FileTagGUI):
     def __init__(self, parent = None):
         super().__init__(parent)
     
-    def initTags(self, tag_total: DataTags, mandatory_tags: DataTagT = []):
+    def initTags(self, tag_total: DataTags, mandatory_tags: Optional[DataTagT] = None):
         tag_data = DataTags([])
         for t in getConf()["default_tags"]:
             if t in tag_total:
@@ -116,11 +114,7 @@ class FileTag(FileTagGUI):
             if i.uuid == uuid:
                 i.reload()
         
-        if G.account_permission is None:
-            mandatory_tags = []
-        else:
-            mandatory_tags = G.account_permission["mandatory_tags"]
-        self.initTags(self.database.total_tags, mandatory_tags)
+        self.initTags(self.database.total_tags)
         def on_done(success: bool):
             if success:
                 curr_data = self.getSelectPanel().getCurrentSelection()

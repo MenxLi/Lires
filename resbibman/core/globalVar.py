@@ -12,7 +12,7 @@ tmpdirs: List[str]      # temporary directories, will be cleared on resbibman GU
 
 prog_args: Optional[argparse.Namespace]     # set by resbibman.exec
 config:  ResbibmanConfT           # configuration, set by resbibman.confReader
-account_permission: Optional[AccountPermission]
+account_permission: Optional[AccountPermission]     # account permission, set by Database.fetch
 
 __global_dict: dict
 

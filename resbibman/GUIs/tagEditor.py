@@ -4,12 +4,13 @@ from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QL
 from .tagSelector import TagSelector
 from .widgets import MainWidgetBase
 from ..core.dataClass import DataTags, TagRule, DataTagT
+from ..core import globalVar as G
 
 class TagEditor(MainWidgetBase):
-    def __init__(self, tag_data: DataTags, tag_total: DataTags, parent = None, mandatory_tags: DataTagT = []) -> None:
+    def __init__(self, tag_data: DataTags, tag_total: DataTags, parent = None) -> None:
         super().__init__(parent=parent)
         self.initUI()
-        self.tag_selector.initDataModel(tag_data, tag_total, mandatory_tags=mandatory_tags)
+        self.tag_selector.initDataModel(tag_data, tag_total)
         self.connectFuncs()
         self.setWindowTitle("Tag editor")
     

@@ -9,15 +9,28 @@ from QCollapsibleCheckList import CollapsibleCheckList, DataItemAbstract
 from .widgets import RefWidgetBase, WidgetBase
 from ..confReader import saveToConf_guiStatus, getConf
 from ..core.dataClass import DataTags, TagRule, DataTagT
+from ..core import globalVar as G
 
 class TagSelector(RefWidgetBase):
     entry_added = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent, tag_data = Optional[DataTags], tag_total = Optional[DataTags], mandatory_tags: DataTagT = []) -> None:
+    def __init__(self, parent, tag_data = Optional[DataTags], tag_total = Optional[DataTags], mandatory_tags: Optional[DataTagT] = None) -> None:
         super().__init__(parent)
         self.initUI()
+        if mandatory_tags is None:
+            mandatory_tags = self.getGlobalMandatoryTags()
         if isinstance(tag_data, DataTags) and isinstance(tag_total, DataTags):
             self.initDataModel(tag_data, tag_total, mandatory_tags)    
+    
+    def getGlobalMandatoryTags(self):
+        account_permission = G.account_permission
+        if account_permission is not None:
+            mandatory_tags = account_permission["mandatory_tags"]
+            if mandatory_tags is None:
+                mandatory_tags = []
+        else:
+            mandatory_tags = []
+        return mandatory_tags
 
     @property
     def database(self):
@@ -37,10 +50,11 @@ class TagSelector(RefWidgetBase):
         layout.addWidget(self.ccl)
         self.setLayout(layout)
 
-    def initDataModel(self, tag_data: DataTags, tag_total: DataTags, mandatory_tags: DataTagT = []):
+    def initDataModel(self, tag_data: DataTags, tag_total: DataTags, mandatory_tags: Optional[DataTagT] = None):
         """
         Load new data
         """
+        mandatory_tags = self.getGlobalMandatoryTags()
         self.data_model.initData(tag_data, tag_total, mandatory_tags = mandatory_tags)
 
     def getSelectedTags(self) -> DataTags:
