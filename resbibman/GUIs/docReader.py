@@ -43,7 +43,7 @@ class DocumentReader(MainWidgetBase):
         self.webview.settings().setAttribute(QWebEngineSettings.WebAttribute.PluginsEnabled, True)
         self.webview.settings().setAttribute(QWebEngineSettings.WebAttribute.PdfViewerEnabled, True)
         self.webview.setPage(CustomWebEnginePage())     # Somehow not working ??
-        self.info_panel = FileInfo(self)
+        self.info_panel = FileInfo(self, less_content = True)
         self.passRefTo(self.info_panel)
         self.info_panel.connectFuncs(load_on_sel_change=False)
 

@@ -24,13 +24,13 @@ class FileInfoGUI(MainWidgetBase):
     TAB_INDEX_MDBROWSER= 1
     TAB_INDEX_DISCUSSBROWSER= 2
 
-    def __init__(self, parent = None):
+    def __init__(self, parent = None, less_content = False):
         super().__init__(parent)
-        self.initUI()
+        self.initUI(less_content)
         self.setAcceptDrops(True)
         self.show()
 
-    def initUI(self):
+    def initUI(self, less_content: bool):
         self.frame = QFrame()
         self.frame.setFrameStyle(QFrame.Shape.StyledPanel)
         hbox = QHBoxLayout()
@@ -93,7 +93,8 @@ class FileInfoGUI(MainWidgetBase):
         #  self.info_frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Sunken)
         info_frame_hbox = QHBoxLayout()
         info_frame_hbox.addWidget(self.info_lbl)
-        info_frame_hbox.addWidget(self.cover_label)
+        if not less_content:
+            info_frame_hbox.addWidget(self.cover_label)
         self.info_frame.setLayout(info_frame_hbox)
 
         self.comment_frame = QFrame()
@@ -118,10 +119,11 @@ class FileInfoGUI(MainWidgetBase):
         #  btn_frame_vbox.addWidget(self.open_folder_btn)
         self.btn_frame.setLayout(btn_frame_vbox)
 
-        frame_vbox.addWidget(self.info_frame, 3)
+        frame_vbox.addWidget(self.info_frame, 2)
         frame_vbox.addWidget(self.comment_frame, 7)
-        frame_vbox.addWidget(self.weburl_frame, 0)
-        frame_vbox.addWidget(self.btn_frame, 0)
+        if not less_content:
+            frame_vbox.addWidget(self.weburl_frame, 0)
+            frame_vbox.addWidget(self.btn_frame, 0)
         self.frame.setLayout(frame_vbox)
 
         comment_frame_vbox.setContentsMargins(0,0,0,0)
@@ -135,12 +137,10 @@ class FileInfo(FileInfoGUI):
     COMMENT_SAVE_TOLERANCE_INTERVAL = 2
     #  COMMENT_HTML_TEMPLATE = string.Template(HTML_TEMPLATE_RAW)
 
-    def __init__(self, parent = None, **kwargs):
-        super().__init__(parent)
+    def __init__(self, parent = None, less_content = False):
+        super().__init__(parent, less_content)
         self.curr_data = None
         self.tEdit.setParent(self)
-        for k, v in kwargs:
-            setattr(self, k, v)
         
         self.__cache = {
             "save_comment_time_prev" : 0,
