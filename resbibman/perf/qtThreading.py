@@ -86,7 +86,11 @@ class SearchWorker(QRunnable):
         self.signals = ThreadSignalsForSearching()
 
     def run(self):
-        res = self.searcher.run()
+        try:
+            res = self.searcher.run()
+        except AttributeError as e: 
+            G.logger_rbm.warning("Error while runing searcher: {}".format(e))
+            return
         self.signals.finished.emit({
             "id": id(self),
             "res": res
