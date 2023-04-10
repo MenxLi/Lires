@@ -23,6 +23,7 @@ class DocumentReaderStatusT(TypedDict):
 class CustomWebEnginePage(QWebEnginePage):
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         # Prevent error messages from being printed to the console
+        # Somehow not working properly, DEPRECATED.
         if level == QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel or level == QWebEnginePage.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
             return True
         return super().javaScriptConsoleMessage(level, message, lineNumber, sourceID)
@@ -42,7 +43,6 @@ class DocumentReader(MainWidgetBase):
         self.webview = QWebEngineView(self)
         self.webview.settings().setAttribute(QWebEngineSettings.WebAttribute.PluginsEnabled, True)
         self.webview.settings().setAttribute(QWebEngineSettings.WebAttribute.PdfViewerEnabled, True)
-        self.webview.setPage(CustomWebEnginePage())     # Somehow not working ??
         self.info_panel = FileInfo(self, less_content = True)
         self.passRefTo(self.info_panel)
         self.info_panel.connectFuncs(load_on_sel_change=False)
