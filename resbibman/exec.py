@@ -97,7 +97,7 @@ def run():
 
     if args.print_log:
         if os.path.exists(LOG_FILE):
-            with open(LOG_FILE, "r") as log_file:
+            with open(LOG_FILE, "r", encoding="utf-8") as log_file:
                 print(log_file.read())
         else: print("Log file not exits, run the program to create the log file")
         NOT_RUN = True
