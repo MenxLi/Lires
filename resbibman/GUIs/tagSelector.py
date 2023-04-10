@@ -99,6 +99,8 @@ class TagDataModel(QtCore.QObject, WidgetBase):
 
     def __init__(self, parent: Optional[QtCore.QObject], wid: CollapsibleCheckList):
         super().__init__(parent)
+        self.__mandatory_tags: DataTagT = []
+        self.__cache_highlighted_dataitems: List[TagDataModel.TagDataItem] = []
         self.ccl: CollapsibleCheckList[TagDataModel.TagDataItem] = wid
         self._item_pool: Dict[str, TagDataModel.TagDataItem] = {}
         self._connectSignal()
@@ -162,7 +164,11 @@ class TagDataModel(QtCore.QObject, WidgetBase):
     
     def initData(self, tag_data: DataTags, tag_total: DataTags, mandatory_tags: DataTagT = []):
         assert tag_total.withParents().issuperset(tag_data.withParents())
+        # init mandatory tags
         self.__mandatory_tags = mandatory_tags
+        for it in self.__cache_highlighted_dataitems:
+            self.ccl.setDataHighlight(it, False)
+        self.__cache_highlighted_dataitems = []
         tag_items = []
         selected = []
         _to_highlight: List[TagDataModel.TagDataItem] = []
@@ -177,6 +183,7 @@ class TagDataModel(QtCore.QObject, WidgetBase):
         self.ccl.initData(tag_items, selected)
         for titem in _to_highlight:
             self.ccl.setDataHighlight(titem, True)
+            self.__cache_highlighted_dataitems.append(titem)
         self.loadDefaultUnCollapseStatus()
         return
 
@@ -184,6 +191,7 @@ class TagDataModel(QtCore.QObject, WidgetBase):
         new_item = self._getItem(tag)
         if tag in self.__mandatory_tags:
             self.ccl.setDataHighlight(new_item, True)
+            self.__cache_highlighted_dataitems.append(new_item)
         if self.ccl.addItem(new_item, status):
             # add parent as well
             for p in TagRule.allParentsOf(tag):
@@ -191,6 +199,7 @@ class TagDataModel(QtCore.QObject, WidgetBase):
                 self.ccl.addItem(it, False)
                 if p in self.__mandatory_tags:
                     self.ccl.setDataHighlight(it, True)
+                    self.__cache_highlighted_dataitems.append(it)
             if unfold:
                 parent_nodes =  self.ccl.graph.getNodeByItem(new_item).parents
                 if parent_nodes:
