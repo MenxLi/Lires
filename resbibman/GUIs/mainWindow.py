@@ -477,7 +477,9 @@ class MainWindow(MainWindowGUI):
             """
             Load data into GUI, update status bar
             """
-            self.setEnabled(True)
+            # self.setEnabled(True)
+            self.file_selector.setEnabled(True)
+            self.file_info.setEnabled(True)
             self.file_tags.initTags(self.database.total_tags)
             self.file_selector.loadValidData_async()
             if success or set_offline_mode:
@@ -504,7 +506,11 @@ class MainWindow(MainWindowGUI):
             return 
 
         # -----Start from here-----
-        self.setEnabled(False)
+        # Disable file info panel and selector panel, 
+        # because we are to re-create the database object
+        # self.setEnabled(False)
+        self.file_selector.setEnabled(False)
+        self.file_info.setEnabled(False)
         self.statusBar().setEnabled(True)
 
         if hasattr(self, "db"):
@@ -779,7 +785,7 @@ class MainWindow(MainWindowGUI):
                     shutil.rmtree(p)
         except (PermissionError, FileNotFoundError, OSError) as e:
             self.warnDialogCritical(
-                "Failed to clean to cache: " + str(e), 
+                "Failed to clean the cache: " + str(e), 
                 "Please restart and close the program again to clean cache (or clean with command)"
                 )
             self.logger.error(f"Failed to clean cache: {traceback.format_exc()}")
