@@ -56,6 +56,7 @@ class FileTagGUI(MainWidgetBase):
     def applyFontConfig(self, font_config: _ConfFontSizeT):
         font = QFont(*font_config["tag"])
         self.tag_selector.ccl.setFont(font)
+        self.file_tag_wid.applyFontConfig(font_config)
     
     def offlineStatus(self, status: bool):
         super().offlineStatus(status)
@@ -224,3 +225,12 @@ class FileTagWidget(RefWidgetBase):
         for i in range(bubble_count):
             wid = self.flayout.itemAt(i).widget()
             wid.deleteLater()
+    
+    def applyFontConfig(self, font_config: _ConfFontSizeT):
+        bubble_count = self.flayout.count()
+        for i in range(bubble_count):
+            wid = self.flayout.itemAt(i).widget()
+            if isinstance(wid, Bubble):
+                ftype, size = font_config["tag"]
+                font = QFont(ftype, size)
+                wid.setFont(font)

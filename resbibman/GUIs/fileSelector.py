@@ -572,6 +572,7 @@ class FileTableView(QTableView, LazyResizeMixin):
         # self._init_headerTitle()
     
     def paintEvent(self, e: QtGui.QPaintEvent) -> None:
+        return super().paintEvent(e)
         if self.resize_timer.isActive():
             return
         else:
@@ -582,15 +583,8 @@ class FileTableView(QTableView, LazyResizeMixin):
         return getConf()["table_headers"]
     
     def delayed_update(self):
-        self.reset()
-    
-    # def _init_headerTitle(self):
-    #     for i in range(len(self.table_headers)):
-    #         if self.table_headers[i] == DataTableList.HEADER_FILESTATUS:
-    #             title = ""
-    #         else:
-    #             title = self.table_headers[i]
-    #         self.model().setHeaderData(i, QtCore.Qt.Orientation.Horizontal, title)
+        # self.reset()
+        self.update()
     
     def _init_headerResizeMode(self, fast: bool = False):
         for i in range(len(self.table_headers)):
