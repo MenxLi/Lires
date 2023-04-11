@@ -218,3 +218,10 @@ version_history:
     - UI - better tableview highlighting; more compact layout
     - Refactor - serverconn
     - rbm-keyman update
+  0.9.1:
+    - Show header title
+    - Search publications
+    - Highlight mandatory_tags
+    - Document reader show less content on info panel
+    - Tag font now affects file tag bubble
+    - Fix - include search results when tag change
