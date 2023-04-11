@@ -120,7 +120,7 @@ class FileTag(FileTagGUI):
                 curr_data = self.getSelectPanel().getCurrentSelection()
                 if curr_data:
                     self.updateTagLabel(curr_data)
-        self.getSelectPanel().async_loadValidData(on_done)
+        self.getSelectPanel().loadValidData_async(on_done)
     
     def saveCurrentTagsAsDefault(self):
         curr_tags = self.tag_selector.getSelectedTags()
@@ -143,7 +143,7 @@ class FileTag(FileTagGUI):
                     self.getInfoPanel().load(curr_data)
                 else:
                     self.getInfoPanel().clearPanel()
-        self.getSelectPanel().async_loadValidData(on_done)
+        self.getSelectPanel().loadValidData_async(on_done)
     
     def updateTagLabel(self, data: Optional[DataPoint]):
         if isinstance(data, DataPoint):

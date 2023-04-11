@@ -479,7 +479,7 @@ class MainWindow(MainWindowGUI):
             """
             self.setEnabled(True)
             self.file_tags.initTags(self.database.total_tags)
-            self.file_selector.async_loadValidData()
+            self.file_selector.loadValidData_async()
             if success or set_offline_mode:
                 if sync_after:
                     self.statusBarInfo("Data loaded", 2, bg_color = "green")

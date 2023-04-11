@@ -114,7 +114,7 @@ class FileSelector(FileSelectorGUI):
         self.shortcut_open_tagedit = QShortcut(QtGui.QKeySequence("Space"), self)
         self.shortcut_open_tagedit.activated.connect(self.editTagForThisSelection)
 
-        self.search_bar.updateSearch.connect(self.async_loadValidData)
+        self.search_bar.updateSearch.connect(self.loadValidData_async)
 
         self.act_sync_datapoint.triggered.connect(lambda: self.syncCurrentSelections_async())
         self.act_open_location.triggered.connect(self.openCurrFileLocation)
@@ -196,7 +196,7 @@ class FileSelector(FileSelectorGUI):
                 format(tags = " | ".join(tags), sort_method = sort_method, screen_pattern = screen_pattern))
         return True
 
-    def async_loadValidData(self, callback: Callable[[bool], None] = lambda success: None):
+    def loadValidData_async(self, callback: Callable[[bool], None] = lambda success: None):
         """
         Loads valid data by current search keyword and selected tags
         """
@@ -222,7 +222,7 @@ class FileSelector(FileSelectorGUI):
         self.pool.start(worker)
 
     def reloadData(self):
-        self.async_loadValidData()
+        self.loadValidData_async()
     
     def openCurrFileLocation(self):
         curr_data = self.getCurrentSelection()
