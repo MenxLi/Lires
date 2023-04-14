@@ -17,3 +17,8 @@ export interface DataInfoT {
     doc_size: number;
     base_name: string;
 }
+
+export interface AccountPermission {
+    is_admin: boolean;
+    mandatory_tags: string[];
+}

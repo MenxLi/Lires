@@ -2,48 +2,29 @@
 // Server connection
 
 import {BACKENDURL} from "../config.js";
-import type { DataInfoT } from "./protocalT.js";
+import type { DataInfoT, AccountPermission } from "./protocalT.js";
 
 export class ServerConn {
-     authUsr(
-        encKey: string,
-        {
-            onSuccess = function(){},
-            onFailure = function(msg){},
-        }: {
-            onSuccess?: ()=>void;
-            onFailure?: (msg: string)=>void;
-        } = {}): void{
+    async authUsr( encKey: string ): Promise<AccountPermission>{
 
             const params = new URLSearchParams();
             params.set("key", encKey);
+            params.set("require_permission", "true");
 
-            fetch(`${BACKENDURL}/auth`, 
-                  {
-                      method: "POST",
-                      headers: {
-                          "Content-Type":"application/x-www-form-urlencoded"
-                      },
-                      body: params.toString()
-                  }).then(
-                      (response) => {
-                          if (response.ok){
-                              return response.text();
-                          }
-                          else{
-                              return `Failed - ${response.status.toString()}`;
-                          }
-                      }
-                  ).then(
-                      (data) => {
-                          if (data == "Success"){
-                              onSuccess();
-                          }
-                          else{
-                              onFailure(data);
-                          }
-                      }
-                  )
+            const response = await fetch(`${BACKENDURL}/auth`, 
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":"application/x-www-form-urlencoded"
+                    },
+                    body: params.toString()
+                })
+            if (response.ok && response.status === 200) {
+                return JSON.parse(await response.text());
+            }
+            else{
+                throw new Error(`Got response: ${response.status}`);
+            }
     }
 
     
