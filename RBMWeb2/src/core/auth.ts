@@ -1,8 +1,8 @@
 
-import { ServerConn } from "@/serverConn/serverConn";
+import { ServerConn } from "@/core/serverConn";
 import { STAY_LOGIN_DAYS } from "@/config";
 import { setCookie, getCookie } from "../libs/cookie";
-import type { AccountPermission } from "@/serverConn/protocalT";
+import type { AccountPermission } from "@/core/protocalT";
 
 export function saveAuthentication(
     encKey: string, 

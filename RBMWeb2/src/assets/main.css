@@ -32,6 +32,16 @@ a,
   }
 }
 
+div.panel{
+    height: 100%;
+    width: 100%;
+    align-self: center;
+    /*overflow: hidden;*/
+    margin: 0em;
+    overflow-y:auto;
+    overflow-x:auto;
+}
+
 input[type="text"],input[type="password"]{
   border-radius: 8px;
 }

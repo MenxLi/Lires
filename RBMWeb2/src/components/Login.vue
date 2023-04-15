@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { ServerConn } from '@/serverConn/serverConn';
+import { ServerConn } from '@/core/serverConn';
 import { sha256 } from '@/libs/sha256lib';
 import { STAY_LOGIN_DAYS, LOCATIONS } from '@/config';
 import { saveAuthentication } from '@/core/auth.js'

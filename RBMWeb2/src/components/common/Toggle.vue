@@ -4,16 +4,17 @@
     import {ref} from "vue"
 
     const emit = defineEmits<{
-        (e: "onCheck", is_checked: boolean): void
+        (e: "onCheck", is_checked: boolean, identifier: string|undefined): void
     }>()
-    const props = defineProps({
-        checked: Boolean,
-    })
+    const props = defineProps<{
+        checked?: boolean,
+        identifier?: string,
+    }>()
     const is_checked = ref(props.checked);
 
     function _onCheck(event: Event){
         is_checked.value = !is_checked.value;
-        emit("onCheck", is_checked.value);
+        emit("onCheck", is_checked.value?true:false, props.identifier);
     }
 </script>
 
