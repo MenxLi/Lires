@@ -34,6 +34,9 @@
   --color-text: var(--vt-c-text-light-1);
 
   --section-gap: 160px;
+
+  --theme-color: rgb(80, 180, 200);
+  --theme-hover-hight-color: rgba(100, 250, 200, 0.2);
 }
 
 @media (prefers-color-scheme: dark) {

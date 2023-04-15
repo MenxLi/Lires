@@ -3,7 +3,7 @@
 /*
  * expDays: set to null for session cookie
 * */
-function setCookie(key: string, value: any, expDays: number|null = null): void{
+function setCookie(key: string, value: string, expDays: number|null = null): void{
     let expStr = "";
     if (expDays){
         let date = new Date();

@@ -1,4 +1,5 @@
 @import './base.css';
+@import './anim.css';
 
 #app {
   margin: 0 auto;
@@ -29,4 +30,11 @@ a,
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
+}
+
+input[type="text"],input[type="password"]{
+  border-radius: 8px;
+}
+input[type="button"], button{
+  border-radius: 5px;
 }
