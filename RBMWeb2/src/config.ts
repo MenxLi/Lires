@@ -14,7 +14,7 @@ else{
     // production code
     DOMAINURL = "http://" + window.location.hostname;
     PORT = window.location.port;
-    FRONTENDURL = `${DOMAINURL}:${PORT}/frontend`; //
+    FRONTENDURL = `${DOMAINURL}:${PORT}`; //
 }
 function getBackendURL(){
     let BACKEND_PORT = "8080"
