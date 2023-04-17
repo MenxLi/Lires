@@ -11,7 +11,7 @@
     import type { TagCheckStatus } from "./components/_interface";
 
     const conn = new ServerConn();
-    conn.authUsr(getCookie("RBM_ENC_KEY") as string).then(
+    conn.authUsr(getCookie("encKey") as string).then(
         ()=>{},
         ()=>{window.location.href = `${FRONTENDURL}/login.html`},
     )
