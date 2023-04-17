@@ -16,7 +16,7 @@ class Application(tornado.web.Application):
 
 def startServer(port: Union[int, str] = 8081):
     app = Application()
-    print("Starting server at port: ", port)
+    print("Starting RBMWeb server at port: ", port)
     app.listen(int(port))
     tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
     tornado.autoreload.start()

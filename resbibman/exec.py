@@ -130,8 +130,10 @@ def run():
         args.subparser = "client"
 
     if args.subparser == "server":
-        from .server.main import startServer
-        procs.append(startServer(args.port))
+        from .server.main import startServerProcess
+        from RBMWeb2.main import startServerProcess as startRBMWeb2ServerProcess
+        procs.append(startServerProcess(args.port))
+        procs.append(startRBMWeb2ServerProcess(args.rbmweb_port))
 
     if args.subparser == "client":
         execProg()
