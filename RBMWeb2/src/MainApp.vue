@@ -39,7 +39,7 @@
 </script>
 
 <template>
-    <div id="main">
+    <div id="main" class="gradIn2">
         <table class="fullHeight">
             <tr>
                 <td id="fileTags">

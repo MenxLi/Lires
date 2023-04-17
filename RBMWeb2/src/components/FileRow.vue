@@ -15,7 +15,7 @@
 </script>
 
 <template>
-    <div class="row hoverMaxout103" @click="(ev) => openDataURL()">
+    <div class="row hoverMaxout101" @click="(ev) => openDataURL()">
         <div id="authorYear" class="text">{{ datapoint.authorYear() }}</div>
         <div class="text">{{ datapoint.info.title }}</div>
     </div>
