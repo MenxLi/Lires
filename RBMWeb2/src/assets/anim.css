@@ -1,8 +1,19 @@
 
-@keyframes slideIn {
+@keyframes slideInUp {
     0% {
         visibility: hidden;
         transform: translateY(5%);
+        opacity: 0;
+    }
+    100% {
+        visibility: visible;
+        transform: translateY(0);
+    }
+}
+@keyframes slideInDown {
+    0% {
+        visibility: hidden;
+        transform: translateY(-5%);
         opacity: 0;
     }
     100% {
@@ -27,13 +38,25 @@
         opacity: 1;
     }
 }
+@keyframes rotate90in {
+    0% { transform: rotateZ(-90deg); }
+    100% { transform: rotateZ(0deg); }
+}
 
 .gradIn {
     animation-duration: 0.375s; /* the duration of the animation */
     animation-timing-function: ease-out; /* how the animation will behave */
     animation-delay: 0s; /* how long to delay the animation from starting */
     animation-iteration-count: 1; /* how many times the animation will play */
-    animation-name: slideIn; /* the name of the animation we defined above */
+    animation-name: slideInUp; /* the name of the animation we defined above */
+}
+
+.gradInDown {
+    animation-duration: 0.375s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: slideInDown; /* the name of the animation we defined above */
 }
 
 .gradIn2{
@@ -44,4 +67,12 @@
     animation-timing-function: ease-out;
     /* defined in common.css */
     animation-name: slideInBack;
+}
+
+.rotate90in {
+    animation-duration: 0.375s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: rotate90in; /* the name of the animation we defined above */
 }

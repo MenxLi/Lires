@@ -6,10 +6,13 @@
     const emit = defineEmits<{
         (e: "onCheck", is_checked: boolean, identifier: string|undefined): void
     }>()
-    const props = defineProps<{
+    const props = withDefaults(defineProps<{
         checked?: boolean,
         identifier?: string,
-    }>()
+    }>(), {
+        checked: false,
+        identifier: "",
+    })
     const is_checked = ref(props.checked);
 
     function _onCheck(event: Event){

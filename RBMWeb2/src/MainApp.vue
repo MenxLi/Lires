@@ -1,24 +1,20 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { DataBase } from "./core/dataClass";
-import TagSelector from "@/components/TagSelector.vue"
+    import { ref } from "vue";
+    import { DataBase } from "./core/dataClass";
+    import TagSelector from "@/components/TagSelector.vue"
 
-const database = new DataBase();
-const loaded = ref(false)
+    import type { TagCheckStatus } from "./components/_interface";
 
-database.requestData().then(
-    (_) => loaded.value = true
-);
+    const database = new DataBase();
+    const loaded = ref(false)
 
-function onTagSelected(tag: string, selected: boolean){
-    if (selected){
-        console.log("TagSelected: ", tag);
+    database.requestData().then(
+        (_) => loaded.value = true
+    );
+
+    function onTagSelected(status: TagCheckStatus){
+        console.log(status);
     }
-    else{
-        console.log("TagUnSelected: ", tag);
-    }
-}
-
 </script>
 
 <template>

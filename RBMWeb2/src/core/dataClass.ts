@@ -1,11 +1,56 @@
 import type { DataInfoT } from "./protocalT";
 import { ServerConn } from "./serverConn";
 
+export interface TagHierarchy extends Record<string, TagHierarchy>{};
+export const TAG_SEP = "->";
+
 export class TagRule {
-    sep = "->";
-    allParentsOf(tag: string): string[]{
-        const splitted = tag.split(this.sep);
-        return splitted;
+    static allParentsOf(tag: string): string[]{
+        return [];
+    }
+
+    static tagHierarchy(tags: string[]): TagHierarchy{
+        const SEP = TAG_SEP;
+
+        function splitFirstElement(tag: string, sep: string): [string, string] | [string]{
+            const splitted = tag.split(sep);
+            if (splitted.length === 1) {return [tag]};
+            return [splitted[0], splitted.slice(1, ).join(sep)]
+        }
+
+        // Turn a list of tags into TagHierarchy objects without parents
+        function disassemble(tags: string[], sep: string = SEP): TagHierarchy{
+            const interm: Record<string, string[]> = {}
+            const splittedTags = tags.map((tag) => splitFirstElement(tag, sep))
+            for (const st of splittedTags){
+                if (!(st[0] in interm)){
+                    interm[st[0]] = [];
+                }
+                if (st.length === 2){
+                    interm[st[0]].push(st[1]);
+                }
+            }
+            const res: TagHierarchy = {};
+            for (const key in interm){
+                res[key] = disassemble(interm[key], sep);
+            }
+            return res;
+        }
+
+        // Aggregately add parent portion of the hierarchy, in-place operation
+        function assemble(disassembled: TagHierarchy, sep: string = SEP): TagHierarchy{
+            for (const key in disassembled){
+                const value = disassembled[key];
+                for (const childKey in value){
+                    const newKey = [key, childKey].join(SEP);
+                    value[newKey] = value[childKey];
+                    delete value[childKey];
+                }
+                assemble(value, sep);
+            }
+            return disassembled;
+        }
+        return assemble(disassemble(tags));
     }
 }
 
