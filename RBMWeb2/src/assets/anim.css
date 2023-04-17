@@ -76,3 +76,15 @@
     animation-iteration-count: 1; /* how many times the animation will play */
     animation-name: rotate90in; /* the name of the animation we defined above */
 }
+
+.hoverMaxout11:hover{
+    transform: scale(1.1);
+}
+
+.hoverMaxout105:hover{
+    transform: scale(1.05);
+}
+
+.hoverMaxout103:hover{
+    transform: scale(1.03);
+}

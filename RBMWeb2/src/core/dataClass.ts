@@ -1,5 +1,6 @@
 import type { DataInfoT } from "./protocalT";
 import { ServerConn } from "./serverConn";
+import { BACKENDURL } from "@/config";
 
 export interface TagHierarchy extends Record<string, TagHierarchy>{};
 export const TAG_SEP = "->";
@@ -52,6 +53,17 @@ export class TagRule {
         }
         return assemble(disassemble(tags));
     }
+
+    static isSubset(query: Array<string>, value: Array<string>): boolean{
+        let flag = true;
+        for (const q of query){
+            if (!(value.includes(q))){
+                flag = false;
+                break;
+            }
+        }
+        return flag;
+    }
 }
 
 export class DataPoint {
@@ -70,6 +82,20 @@ export class DataPoint {
 
     authorYear(): string{
         return `${this.authorAbbr()} ${this.info.year}`
+    }
+
+    getOpenDocURL(): string {
+        const uid = this.info.uuid;
+        if (this.info["has_file"] && this.info["file_type"] == ".pdf"){
+            return `${BACKENDURL}/doc/${uid}`
+        }
+        if (this.info["has_file"] && this.info["file_type"] == ".hpack"){
+            return `${BACKENDURL}/hdoc/${uid}`
+        }
+        if (!this.info["has_file"] && this.info["url"]){
+            return this.info.url;
+        }
+        return ""
     }
 }
 
@@ -113,5 +139,17 @@ export class DataBase {
             }
         }
         return all_tags;
+    }
+
+    getUidByTags(tags: string[]): string[] {
+        const valid_data = [];
+        for (const uid in this.data){
+            const data = this.data[uid];
+            const data_tag = data.info["tags"];
+            if (TagRule.isSubset(tags, data_tag)) {
+                valid_data.push(data.info.uuid)
+            }
+        }
+        return valid_data;
     }
 }
