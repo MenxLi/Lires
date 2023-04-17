@@ -225,3 +225,5 @@ version_history:
     - Document reader show less content on info panel
     - Tag font now affects file tag bubble
     - Fix - include search results when tag change
+  0.10.0:
+    - RBMWeb2
