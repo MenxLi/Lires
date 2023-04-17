@@ -44,7 +44,18 @@ div.panel{
 
 input[type="text"],input[type="password"]{
   border-radius: 8px;
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  background-color: var(--color-background-soft);
+  background-color: transparent;
 }
 input[type="button"], button{
   border-radius: 5px;
+  border: 2px solid var(--color-border);
+  background-color: var(--color-background-soft);
+  /* background-color: transparent; */
+  color: var(--color-text);
+}
+input[type="button"]:hover, button:hover{
+  background-color: var(--theme-color);
 }

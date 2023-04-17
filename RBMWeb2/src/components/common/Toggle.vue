@@ -43,6 +43,7 @@
     div.toggle{
         justify-content: left;
         flex-direction: row-reverse;
+        flex-wrap: wrap;
     }
     div.checkCircle {
         border: 3px solid var(--color-border);

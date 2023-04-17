@@ -1,11 +1,20 @@
 <script setup lang="ts">
     import { ref } from "vue";
     import { DataBase, TagRule } from "./core/dataClass";
+    import { FRONTENDURL } from "./config";
+    import { ServerConn } from "./core/serverConn";
+    import { getCookie } from "./libs/cookie";
     import TagSelector from "@/components/TagSelector.vue"
     import FileSelector from "./components/FileSelector.vue";
 
     import type { Ref } from "vue";
     import type { TagCheckStatus } from "./components/_interface";
+
+    const conn = new ServerConn();
+    conn.authUsr(getCookie("RBM_ENC_KEY") as string).then(
+        ()=>{},
+        ()=>{window.location.href = `${FRONTENDURL}/login.html`},
+    )
 
     const database = new DataBase();
     const loaded = ref(false);

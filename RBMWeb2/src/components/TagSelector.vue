@@ -50,6 +50,7 @@
 
 <style scoped>
     div#tagSelector{
+        min-width: 280px;
         border: 3px solid var(--color-border);
         border-radius: 10px;
         padding: 20px;

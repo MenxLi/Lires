@@ -1,7 +1,7 @@
 
 // Server connection
 
-import {BACKENDURL} from "../config.js";
+import {getBackendURL} from "../config.js";
 import type { DataInfoT, AccountPermission } from "./protocalT.js";
 
 export class ServerConn {
@@ -11,7 +11,7 @@ export class ServerConn {
             params.set("key", encKey);
             params.set("require_permission", "true");
 
-            const response = await fetch(`${BACKENDURL}/auth`, 
+            const response = await fetch(`${getBackendURL()}/auth`, 
                 {
                     method: "POST",
                     headers: {
@@ -30,7 +30,7 @@ export class ServerConn {
     
     async reqFileList( tags: string[] ): Promise<DataInfoT[]>{
         const concatTags = tags.join("&&");
-        const url = new URL(`${BACKENDURL}/filelist`);
+        const url = new URL(`${getBackendURL()}/filelist`);
         url.searchParams.append("tags", concatTags);
 
         const response = await fetch(url.toString());

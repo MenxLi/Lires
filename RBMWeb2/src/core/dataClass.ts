@@ -1,6 +1,6 @@
 import type { DataInfoT } from "./protocalT";
 import { ServerConn } from "./serverConn";
-import { BACKENDURL } from "@/config";
+import { getBackendURL } from "@/config";
 
 export interface TagHierarchy extends Record<string, TagHierarchy>{};
 export const TAG_SEP = "->";
@@ -87,10 +87,10 @@ export class DataPoint {
     getOpenDocURL(): string {
         const uid = this.info.uuid;
         if (this.info["has_file"] && this.info["file_type"] == ".pdf"){
-            return `${BACKENDURL}/doc/${uid}`
+            return `${getBackendURL()}/doc/${uid}`
         }
         if (this.info["has_file"] && this.info["file_type"] == ".hpack"){
-            return `${BACKENDURL}/hdoc/${uid}`
+            return `${getBackendURL()}/hdoc/${uid}`
         }
         if (!this.info["has_file"] && this.info["url"]){
             return this.info.url;
