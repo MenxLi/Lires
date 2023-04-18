@@ -20,7 +20,8 @@
 
 <style scoped>
     div.main{
-        min-width: 280px;
         padding: 20px;
+        min-width: 280px;
+        width: fit-content;
     }
 </style>

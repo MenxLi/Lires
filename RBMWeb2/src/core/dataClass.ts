@@ -1,6 +1,7 @@
 import type { DataInfoT } from "./protocalT";
 import { ServerConn } from "./serverConn";
 import { getBackendURL } from "@/config";
+import type { SearchStatus } from "@/components/_interface";
 
 export interface TagHierarchy extends Record<string, TagHierarchy>{};
 export const TAG_SEP = "->";
@@ -141,15 +142,32 @@ export class DataBase {
         return all_tags;
     }
 
-    getUidByTags(tags: string[]): string[] {
+    getDataByTags(tags: string[]): DataPoint[] {
         const valid_data = [];
         for (const uid in this.data){
             const data = this.data[uid];
             const data_tag = data.info["tags"];
             if (TagRule.isSubset(tags, data_tag)) {
-                valid_data.push(data.info.uuid)
+                valid_data.push(data)
             }
         }
         return valid_data;
+    }
+}
+
+
+export class DataSearcher{
+    static async filter(datapoints: DataPoint[], searchStatus: SearchStatus): Promise<DataPoint[]> {
+        const pattern = searchStatus["content"].toLowerCase();
+        if (!pattern){
+            return datapoints;
+        }
+        const dp_new: DataPoint[] = new Array();
+        for (const dp of datapoints){
+            // to improve later
+            const toSearch = `${dp.info.title}|${dp.info.authors.join(", ")}|${dp.info.year}`.toLowerCase()
+            if (toSearch.search(pattern) !== -1){ dp_new.push(dp); }
+        }
+        return dp_new;
     }
 }

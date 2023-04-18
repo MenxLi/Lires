@@ -20,6 +20,6 @@
     div.panel {
         border: 3px solid var(--color-border);
         border-radius: 10px;
-        padding: 20px;
+        padding: 15px;
     }
 </style>

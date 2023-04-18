@@ -3,3 +3,8 @@ export interface TagCheckStatus{
     isChecked: boolean,
     currentlySelected: string[]
 }
+
+export interface SearchStatus{
+    // dtype: string,
+    content: string
+}

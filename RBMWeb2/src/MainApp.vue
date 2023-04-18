@@ -1,15 +1,17 @@
 <script setup lang="ts">
     import { ref } from "vue";
-    import { DataBase, TagRule } from "./core/dataClass";
+    import { DataBase, DataSearcher } from "./core/dataClass";
     import { FRONTENDURL } from "./config";
     import { ServerConn } from "./core/serverConn";
     import { getCookie } from "./libs/cookie";
-    // import TagSelector from "@/components/TagSelector.vue"
     import FileTags from "./components/FileTags.vue";
     import FileSelector from "./components/FileSelector.vue";
+    import Banner from "./components/Banner.vue";
 
     import type { Ref } from "vue";
     import type { TagCheckStatus } from "./components/_interface";
+    import type { SearchStatus } from "./components/_interface";
+import type { DataPoint } from "./core/dataClass";
 
     const conn = new ServerConn();
     conn.authUsr(getCookie("encKey") as string).then(
@@ -19,9 +21,6 @@
 
     const database = new DataBase();
     const loaded = ref(false);
-    const selectedTags: Ref<string[]> = ref([]);
-    const showUids: Ref<string[]> = ref([]);
-
     database.requestData().then(
         (_) => {
             loaded.value = true;
@@ -29,28 +28,37 @@
         }
     );
 
-    function updateShownData(){
-        showUids.value = database.getUidByTags(selectedTags.value);
-    }
-
+    const selectedTags: Ref<string[]> = ref([]);
     function onTagSelected(status: TagCheckStatus){
         selectedTags.value = status["currentlySelected"];
         updateShownData();
     }
+
+    const searchStatus: Ref<SearchStatus> = ref({
+        "content":""
+    })
+    function onSearchChanged(status: SearchStatus){
+        searchStatus.value = status;
+        updateShownData();
+    }
+
+    const showUids: Ref<string[]> = ref([]);
+    function updateShownData(){
+        const tagFilteredDataPoints = database.getDataByTags(selectedTags.value);
+        DataSearcher.filter(tagFilteredDataPoints, searchStatus.value).then(
+            (datapoints: DataPoint[]) => showUids.value = datapoints.map((dp) => dp.info.uuid)
+        )
+    }
+
 </script>
 
 <template>
     <div id="main" class="gradIn2">
-        <table class="fullHeight">
-            <tr>
-                <td id="fileTags">
-                    <FileTags v-if="loaded" :database="database" @onCheck="onTagSelected"></FileTags>
-                </td>
-                <td id="fileSelector" class="fullWidth">
-                    <FileSelector v-if="loaded" :database="database" :showUids="showUids"></FileSelector>
-                </td>
-            </tr>
-        </table>
+        <Banner :initSearchText="searchStatus['content']" @onSearchChange="onSearchChanged"></Banner>
+        <div class="horizontal fullHeight">
+            <FileTags v-if="loaded" :database="database" @onCheck="onTagSelected"></FileTags>
+            <FileSelector v-if="loaded" :database="database" :showUids="showUids"></FileSelector>
+        </div>
     </div>
 </template>
 
@@ -58,11 +66,18 @@
     #main{
         height: 95vh;
         width: 95vw;
+        display: flex;
+        flex-direction: column;
     }
     .fullHeight{
         height: 100%;
     }
     .fullWidth{
         width: 100%;
+    }
+    div.horizontal{
+        display: flex;
+        padding-top: 10px;
+        gap: 10px;
     }
 </style>
