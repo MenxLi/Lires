@@ -32,7 +32,11 @@
 <template>
     <div class="main">
         <div class="button">
-            <button @click="logout">Logout</button>
+            <!-- <button @click="logout">Logout</button> -->
+            <span class="hoverMaxout105 button" @click="logout">
+                <img id="logoutIcon" src="@/assets/icons/logout.svg" alt="Logout">
+                <label for="logoutIcon" id="logoutIconLabel">Logout</label>
+            </span>
         </div>
         <div class="searchbar">
             <label for="searchbar"> Search: </label>
@@ -46,5 +50,23 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+    }
+    div.button{
+        display: flex;
+        align-items: center;
+    }
+    span.button{
+        padding: 3px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        font-size: smaller;
+    }
+    span.button:hover{
+        background-color: var(--theme-hover-hight-color);
+    }
+    #logoutIcon {
+        height: 20px;
+        filter: invert(0.5) opacity(0.5) drop-shadow(0 0 0 var(--color-border)) ;
     }
 </style>
