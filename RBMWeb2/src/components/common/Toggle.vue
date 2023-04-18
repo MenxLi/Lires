@@ -35,7 +35,7 @@
 <style scoped>
     div{
         --radius: 16px;
-        --radius-inner: 8px;
+        --radius-inner: 6px;
         display: flex;
         align-items: center;
         gap: 5px;
@@ -50,7 +50,7 @@
         height: var(--radius);
         width: var(--radius);
         border-radius: 50%;
-        /* margin-right: 5px; */
+        justify-content: center;
     }
     div.checkStatus{
         height: var(--radius-inner);
