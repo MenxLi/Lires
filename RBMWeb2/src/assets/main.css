@@ -4,6 +4,11 @@
 #app {
   margin: 0 auto;
   font-weight: normal;
+  text-align: center;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 a,

@@ -50,6 +50,11 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        background-color: rgba(102, 51, 153, 0.491);
+        background-color: var(--color-background-soft);
+        border-radius: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
     div.button{
         display: flex;
@@ -57,7 +62,7 @@
     }
     span.button{
         padding: 3px;
-        border-radius: 5px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         font-size: smaller;

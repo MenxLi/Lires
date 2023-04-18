@@ -11,7 +11,7 @@
     import type { Ref } from "vue";
     import type { TagCheckStatus } from "./components/_interface";
     import type { SearchStatus } from "./components/_interface";
-import type { DataPoint } from "./core/dataClass";
+    import type { DataPoint } from "./core/dataClass";
 
     const conn = new ServerConn();
     conn.authUsr(getCookie("encKey") as string).then(
@@ -65,12 +65,12 @@ import type { DataPoint } from "./core/dataClass";
 <style scoped>
     #main{
         height: 95vh;
-        width: 95vw;
+        width: 97vw;
         display: flex;
         flex-direction: column;
     }
     .fullHeight{
-        height: 100%;
+        height: calc(100% - 30px);
     }
     .fullWidth{
         width: 100%;
