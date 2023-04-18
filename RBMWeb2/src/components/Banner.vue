@@ -3,6 +3,7 @@
 
     import { ref } from "vue";
     import type {SearchStatus} from "./_interface"
+    import { saveAuthentication } from "@/core/auth";
     import type { Ref } from "vue";
 
     const props = defineProps<{
@@ -21,10 +22,18 @@
         emit("onSearchChange", status);
     }
 
+    function logout(){
+        saveAuthentication("", null, false, 0);
+        window.location.reload();
+    }
+
 </script>
 
 <template>
     <div class="main">
+        <div class="button">
+            <button @click="logout">Logout</button>
+        </div>
         <div class="searchbar">
             <label for="searchbar"> Search: </label>
             <input id="searchbar" type="text" v-model="searchInput" @input="_onSearchChange">
@@ -36,5 +45,6 @@
     div.main{
         display: flex;
         align-items: center;
+        justify-content: space-between;
     }
 </style>

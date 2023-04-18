@@ -6,12 +6,13 @@ import type { AccountPermission } from "@/core/protocalT";
 
 export function saveAuthentication(
     encKey: string, 
-    permission: AccountPermission, 
+    permission: AccountPermission|null, 
     stayLogin: boolean,
     keepDays: number|null = STAY_LOGIN_DAYS,
     ){
         setCookie("encKey", encKey, keepDays);
-        setCookie("accountPermission", JSON.stringify(permission), keepDays);
+        if (permission){ setCookie("accountPermission", JSON.stringify(permission), keepDays); }
+        else{ setCookie("accountPermission", "", 0)}
         setCookie("keepLogin", stayLogin?"1":"0", keepDays);
     }
 
