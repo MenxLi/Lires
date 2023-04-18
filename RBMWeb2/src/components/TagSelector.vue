@@ -38,7 +38,7 @@
 </script>
 
 <template>
-    <div id="tagSelector" class = "panel">
+    <div id="tagSelector">
         <CollapsibleToggle v-for="(v, k) in hierarchy" 
             :identifier="String(k)" 
             :children="v" 
@@ -49,10 +49,4 @@
 </template>
 
 <style scoped>
-    div#tagSelector{
-        min-width: 280px;
-        border: 3px solid var(--color-border);
-        border-radius: 10px;
-        padding: 20px;
-    }
 </style>

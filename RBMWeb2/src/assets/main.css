@@ -40,6 +40,8 @@ div.panel{
     margin: 0em;
     overflow-y:auto;
     overflow-x:auto;
+    border: 3px solid var(--color-border);
+    border-radius: 10px;
 }
 
 input[type="text"],input[type="password"]{

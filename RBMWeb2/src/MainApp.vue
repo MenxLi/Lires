@@ -4,7 +4,8 @@
     import { FRONTENDURL } from "./config";
     import { ServerConn } from "./core/serverConn";
     import { getCookie } from "./libs/cookie";
-    import TagSelector from "@/components/TagSelector.vue"
+    // import TagSelector from "@/components/TagSelector.vue"
+    import FileTags from "./components/FileTags.vue";
     import FileSelector from "./components/FileSelector.vue";
 
     import type { Ref } from "vue";
@@ -43,7 +44,7 @@
         <table class="fullHeight">
             <tr>
                 <td id="fileTags">
-                    <TagSelector v-if="loaded" :database="database" @onCheck="onTagSelected"></TagSelector>
+                    <FileTags v-if="loaded" :database="database" @onCheck="onTagSelected"></FileTags>
                 </td>
                 <td id="fileSelector" class="fullWidth">
                     <FileSelector v-if="loaded" :database="database" :showUids="showUids"></FileSelector>
