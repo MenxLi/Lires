@@ -15,9 +15,11 @@ const error = ref("");
 const stayLogin = ref(false);
 const showPassword = ref(false);
 const inputType = computed(() => showPassword.value?"text":"password");
+const loginText = ref("Login")
 
 function login(){
     setCookie("backendPort", port.value, STAY_LOGIN_DAYS);
+    loginText.value = "Connecting..."
 
     const encKey = sha256(accessKey.value);
     const conn = new ServerConn();
@@ -39,9 +41,11 @@ function login(){
                     window.location.href = LOCATIONS[redirect];
                 }
             }
+            loginText.value = "Login"
         },
         (error_) => {
             error.value = error_;
+            loginText.value = "Login"
         }
     );
 };
@@ -63,7 +67,7 @@ function login(){
                 <Toggle :checked="stayLogin" @onCheck="(is_checked) => {stayLogin=is_checked}">Stay login</Toggle>
                 <Toggle :checked="showPassword" @onCheck="(is_checked) => {showPassword=is_checked}">Show key</Toggle>
             </div>
-            <button type="submit" @click.prevent="login">Login</button>
+            <button type="submit" @click.prevent="login">{{ loginText }}</button>
         </form>
         <p v-if="error" class="error">{{ error }}</p>
         </div>
