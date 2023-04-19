@@ -19,11 +19,9 @@
         ()=>{window.location.href = `${FRONTENDURL}/login.html`},
     )
 
-    const database = new DataBase();
-    const loaded = ref(false);
-    database.requestData().then(
+    const database = ref(new DataBase());
+    database.value.requestData().then(
         (_) => {
-            loaded.value = true;
             updateShownData();
         }
     );
@@ -44,7 +42,7 @@
 
     const showUids: Ref<string[]> = ref([]);
     function updateShownData(){
-        const tagFilteredDataPoints = database.getDataByTags(selectedTags.value);
+        const tagFilteredDataPoints = database.value.getDataByTags(selectedTags.value);
         DataSearcher.filter(tagFilteredDataPoints, searchStatus.value).then(
             (datapoints: DataPoint[]) => showUids.value = datapoints.map((dp) => dp.info.uuid)
         )
@@ -56,8 +54,8 @@
     <div id="main" class="gradIn">
         <Banner :initSearchText="searchStatus['content']" @onSearchChange="onSearchChanged"></Banner>
         <div class="horizontal fullHeight">
-            <FileTags v-if="loaded" :database="database" @onCheck="onTagSelected"></FileTags>
-            <FileSelector v-if="loaded" :database="database" :showUids="showUids"></FileSelector>
+            <FileTags :database="database" @onCheck="onTagSelected"></FileTags>
+            <FileSelector :database="database" :showUids="showUids"></FileSelector>
         </div>
     </div>
 </template>
