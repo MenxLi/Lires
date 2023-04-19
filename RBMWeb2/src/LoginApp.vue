@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import Login from "./components/Login.vue"
+import Banner from "./components/Banner.vue";
 </script>
 
 <template>
-  <Login/>
+  <div>
+    <Banner/>
+    <Login/>
+  </div>
 </template>

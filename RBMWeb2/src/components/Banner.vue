@@ -3,13 +3,15 @@
 
     import { ref, computed } from "vue";
     import type {SearchStatus} from "./_interface"
-    import { saveAuthentication } from "@/core/auth";
+    import { checkCookieLogout, cookieLogout } from "@/core/auth";
     import type { Ref } from "vue";
     import { toggleDarkMode, isDefaultDarkMode } from "@/core/misc";
 
-    const props = defineProps<{
+    const props = withDefaults(defineProps<{
         initSearchText: string
-    }>()
+    }>(), {
+        "initSearchText": ""
+    })
 
     const emit = defineEmits<{
         (e: "onSearchChange", status: SearchStatus):void
@@ -24,7 +26,7 @@
     }
 
     function logout(){
-        saveAuthentication("", null, false, 0);
+        cookieLogout();
         window.location.reload();
     }
 
@@ -47,7 +49,7 @@
     <div class="main">
         <div class="button">
             <!-- <button @click="logout">Logout</button> -->
-            <span class="hoverMaxout105 button" @click="logout">
+            <span v-if="!checkCookieLogout()" class="hoverMaxout105 button" @click="logout">
                 <img id="logoutIcon" class="icon" src="@/assets/icons/logout.svg" alt="Logout">
                 <label for="logoutIcon" id="logoutIconLabel">Logout</label>
             </span>
@@ -56,7 +58,7 @@
                 <label for="themeIcon" id="themeIconLabel">{{ themeLabel }}</label>
             </span>
         </div>
-        <div class="searchbar">
+        <div v-if="!checkCookieLogout()" class="searchbar">
             <label for="searchbar"> Search: </label>
             <input id="searchbar" type="text" v-model="searchInput" @input="_onSearchChange">
         </div>

@@ -53,7 +53,7 @@
 </script>
 
 <template>
-    <div id="main" class="gradIn2">
+    <div id="main" class="gradIn">
         <Banner :initSearchText="searchStatus['content']" @onSearchChange="onSearchChanged"></Banner>
         <div class="horizontal fullHeight">
             <FileTags v-if="loaded" :database="database" @onCheck="onTagSelected"></FileTags>

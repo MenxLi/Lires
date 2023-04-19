@@ -43,7 +43,11 @@
         background-color: var(--color-background-soft);
         border-radius: 10px;
         margin: 5px;
-        padding: 5px
+        margin-top: 3px;
+        margin-bottom: 3px;
+        padding: 5px;
+        padding-top: 3px;
+        padding-bottom: 3px;
     }
     div.text{
         padding: 0px;
