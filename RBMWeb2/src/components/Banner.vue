@@ -1,10 +1,11 @@
 
 <script setup lang="ts">
 
-    import { ref } from "vue";
+    import { ref, computed } from "vue";
     import type {SearchStatus} from "./_interface"
     import { saveAuthentication } from "@/core/auth";
     import type { Ref } from "vue";
+    import { toggleDarkMode, isDefaultDarkMode } from "@/core/misc";
 
     const props = defineProps<{
         initSearchText: string
@@ -27,6 +28,19 @@
         window.location.reload();
     }
 
+    const isDarkMode = ref(isDefaultDarkMode());
+    const themeLabel = computed(function(){
+        if (isDarkMode.value){ return "LightMode"; }
+        else { return "DarkMode"; }
+    })
+    if (isDarkMode.value) {
+        toggleDarkMode()
+    }
+    function toggleTheme(){
+        toggleDarkMode();
+        isDarkMode.value = !isDarkMode.value;
+    }
+
 </script>
 
 <template>
@@ -34,8 +48,12 @@
         <div class="button">
             <!-- <button @click="logout">Logout</button> -->
             <span class="hoverMaxout105 button" @click="logout">
-                <img id="logoutIcon" src="@/assets/icons/logout.svg" alt="Logout">
+                <img id="logoutIcon" class="icon" src="@/assets/icons/logout.svg" alt="Logout">
                 <label for="logoutIcon" id="logoutIconLabel">Logout</label>
+            </span>
+            <span class="hoverMaxout105 button" @click="(ev)=>toggleTheme()">
+                <img id="themeIcon" class="icon" src="@/assets/icons/bulb_tips.svg" alt="Logout">
+                <label for="themeIcon" id="themeIconLabel">{{ themeLabel }}</label>
             </span>
         </div>
         <div class="searchbar">
@@ -70,8 +88,8 @@
     span.button:hover{
         background-color: var(--theme-hover-hight-color);
     }
-    #logoutIcon {
+    img.icon {
         height: 20px;
-        filter: invert(0.5) opacity(0.5) drop-shadow(0 0 0 var(--color-border)) ;
+        filter: invert(0.5) opacity(0.75) drop-shadow(0 0 0 var(--color-border)) ;
     }
 </style>
