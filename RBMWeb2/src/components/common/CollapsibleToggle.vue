@@ -37,7 +37,7 @@
 
 <template>
     <div class="row">
-        <div :class="buttonClass" ref="button" @click="onClickButton">
+        <div id="button" :class="buttonClass" ref="button" @click="onClickButton">
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
         <Toggle 
@@ -70,6 +70,8 @@
     div.collapseButton{
         width: var(--button-dim);
         height: var(--button-dim);
+        min-width: var(--button-dim);
+        min-height: var(--button-dim);
         /* border: 1px solid var(--color-border); */
         border-radius: 50%;
         display: flex;

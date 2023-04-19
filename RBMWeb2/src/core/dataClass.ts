@@ -85,6 +85,10 @@ export class DataPoint {
         return `${this.authorAbbr()} ${this.info.year}`
     }
 
+    yearAuthor(hyphen=" "): string{
+        return `${this.info.year}${hyphen}${this.authorAbbr()}`
+    }
+
     getOpenDocURL(): string {
         const uid = this.info.uuid;
         if (this.info["has_file"] && this.info["file_type"] == ".pdf"){

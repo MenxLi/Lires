@@ -26,8 +26,8 @@
         <label for="chk" @click="_onCheck">
             <slot></slot>
         </label>
-        <div class="checkCircle" @click="_onCheck">
-            <div v-if="is_checked" class="checkStatus"></div>
+        <div id="checkCircle" @click="_onCheck">
+            <div v-if="is_checked" id="checkStatus"></div>
         </div>
     </div>
 </template>
@@ -43,25 +43,31 @@
     div.toggle{
         justify-content: left;
         flex-direction: row-reverse;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
     }
-    div.checkCircle {
+    #checkCircle {
         border: 3px solid var(--color-border);
         height: var(--radius);
         width: var(--radius);
         border-radius: 50%;
         justify-content: center;
     }
-    div.checkStatus{
+    #checkStatus{
         height: var(--radius-inner);
         width: var(--radius-inner);
         border-radius: 50%;
         background-color: var(--theme-color);
     }
-    div.checkCircle:hover {
+    #checkCircle:hover {
         background-color: var(--theme-hover-hight-color);
     }
-    label:hover + div.checkCircle {
+    label:hover + #checkCircle {
         background-color: var(--theme-hover-hight-color);
+    }
+    label{
+        text-align: left;
+        text-overflow: ellipsis;
+        overflow: clip;
+        /* white-space: nowrap; */
     }
 </style>
