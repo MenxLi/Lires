@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { computed, ref } from 'vue';
-    import { DataBase, TagRule, TAG_SEP } from '@/core/dataClass';
+    import { DataBase, TagRule, TAG_SEP, type TagHierarchy } from '@/core/dataClass';
     import CollapsibleToggle from './common/CollapsibleToggle.vue';
     import { assert } from '@vue/compiler-core';
 
@@ -17,6 +17,9 @@
 
     const allTags = computed(() => prop.database?.getAllTags());
     const hierarchy = computed(() => TagRule.tagHierarchy(Array.from(allTags.value!)));
+    function sortedHierarchyKeys(hierarchy: TagHierarchy){
+        return Object.keys(hierarchy).sort();
+    }
 
     function _onCheck(is_checked: boolean, identifier: string|undefined) {
         assert(typeof(allTags.value) != "undefined");
@@ -39,9 +42,9 @@
 
 <template>
     <div id="tagSelector">
-        <CollapsibleToggle v-for="(v, k) in hierarchy" 
+        <CollapsibleToggle v-for="k of sortedHierarchyKeys(hierarchy)"
             :identifier="String(k)" 
-            :children="v" 
+            :children="hierarchy[k]" 
             @onCheck="_onCheck">
             {{ String(k).split(TAG_SEP).slice(-1)[0] }}
         </CollapsibleToggle>
