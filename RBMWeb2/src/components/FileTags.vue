@@ -13,7 +13,7 @@
     }>()
 </script>
 <template>
-    <div class="main panel">
+    <div class="main panel gradInFast">
         <TagSelector :database="database" @onCheck="(status) => emit('onCheck', status)"></TagSelector>
     </div>
 </template>

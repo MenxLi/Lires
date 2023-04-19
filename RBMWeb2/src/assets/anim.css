@@ -51,6 +51,14 @@
     animation-name: slideInUp; /* the name of the animation we defined above */
 }
 
+.gradInFast {
+    animation-duration: 0.15s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: slideInUp; /* the name of the animation we defined above */
+}
+
 .gradInDown {
     animation-duration: 0.375s; /* the duration of the animation */
     animation-timing-function: ease-out; /* how the animation will behave */
