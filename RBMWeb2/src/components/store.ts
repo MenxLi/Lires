@@ -8,4 +8,15 @@ export const useTagSelectionStore = defineStore(
                 currentlySelected: [] as string[]
             }
         }
-})
+    }
+)
+
+export const useDataStore = defineStore(
+    "data", {
+        state: () => {
+            return {
+                selectorShownUIDs: [] as string[]
+            }
+        }
+    }
+)

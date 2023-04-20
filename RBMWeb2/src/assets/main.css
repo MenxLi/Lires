@@ -35,13 +35,16 @@ div.panel{
     align-self: center;
     /*overflow: hidden;*/
     margin: 0em;
-    overflow-y:auto;
-    overflow-x:auto;
     border: 3px solid var(--color-border);
     border-radius: 10px;
     /* scrollbar-width: thin;
     scrollbar-color: dark; */
 
+}
+
+div.scrollable{
+    overflow-y:auto;
+    overflow-x:auto;
 }
 
 /* scrollbar */

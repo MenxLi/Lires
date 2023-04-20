@@ -4,7 +4,7 @@
     import { FRONTENDURL } from "./config";
     import { ServerConn } from "./core/serverConn";
     import { getCookie } from "./libs/cookie";
-    import { useTagSelectionStore } from "./components/store";
+    import { useTagSelectionStore, useDataStore } from "./components/store";
     import FileTags from "./components/FileTags.vue";
     import FileSelector from "./components/FileSelector.vue";
     import Banner from "./components/Banner.vue";
@@ -35,6 +35,7 @@
     }
 
     const tagStore = useTagSelectionStore();
+    const dataStore = useDataStore();
     const showUids: Ref<string[]> = ref([]);
     function updateShownData(){
         const tagFilteredDataPoints = database.value.getDataByTags(tagStore.currentlySelected);

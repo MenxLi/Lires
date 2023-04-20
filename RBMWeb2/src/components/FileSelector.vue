@@ -23,7 +23,7 @@
 </script>
 
 <template>
-    <div class="panel gradInFast">
+    <div class="panel scrollable">
         <FileRow v-for="uid in sortedUIDs" :datapoint="database.data[uid]"></FileRow>
     </div>
 </template>
