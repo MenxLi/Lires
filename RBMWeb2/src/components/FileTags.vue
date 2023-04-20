@@ -1,21 +1,28 @@
 
 <script setup lang="ts">
+    import { ref, nextTick } from 'vue';
     import TagSelector from './TagSelector.vue';
     import { useUIStateStore } from './store';
-    import type { DataBase } from '@/core/dataClass';
     import type { TagCheckStatus } from './_interface';
 
     const emit = defineEmits<{
         (e: "onCheck", status: TagCheckStatus) : void
     }>()
 
+    const renderSelector = ref(true);
     function clearTagSelection(){
+        const uiState = useUIStateStore();
+        uiState.currentlySelectedTags = [];
+        uiState.updateShownData();
+        // re-render tagSelector
+        renderSelector.value = false;
+        nextTick(() => renderSelector.value = true);
     }
     
 </script>
 <template>
     <div class="main panel gradInFast">
-        <TagSelector @onCheck="(status) => emit('onCheck', status)"></TagSelector>
+        <TagSelector v-if="renderSelector" @onCheck="(status) => emit('onCheck', status)"></TagSelector>
         <div class="buttons">
             <button id="btnClear" @click="clearTagSelection">Clear tags</button>
         </div>

@@ -14,6 +14,15 @@ export const useUIStateStore = defineStore(
                     } as SearchStatus,
             }
         },
+        getters: {
+            // tagSelectionState(): Record<string, boolean> {
+            //     const ret: Record<string, boolean> = {};
+            //     const allTags = useDataStore().database.getAllTags();
+            //     allTags.forEach(tag => ret[tag] = tag in this.currentlySelectedTags);
+            //     console.log(ret)
+            //     return ret;
+            // }
+        },
         actions: {
             updateShownData(){
                 // update shownDataUIDs

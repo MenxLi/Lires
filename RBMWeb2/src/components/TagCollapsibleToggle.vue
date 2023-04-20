@@ -9,7 +9,7 @@
     import { useUIStateStore } from "./store";
     import type { TagHierarchy } from "@/core/dataClass";
 
-    const uiStatusStore = useUIStateStore()
+    const uiState = useUIStateStore()
 
     const props = withDefaults(defineProps<{
         identifier: string,
@@ -36,7 +36,7 @@
                 if (childTags.includes(s)){ return false; }
             }
             return true
-        }(uiStatusStore.currentlySelectedTags));     // uncollapse selected tags
+        }(uiState.currentlySelectedTags));     // uncollapse selected tags
     const button = ref(null);
     const triangleClass = computed(() => collapsed.value?"triangle-right":"triangle-down rotate90in")
     function onClickButton(e: Event){
@@ -58,10 +58,10 @@
         // change global state
         if (identifier === undefined){ return;}
         if (is_checked){
-            if (!uiStatusStore.currentlySelectedTags.includes(identifier)){ uiStatusStore.currentlySelectedTags.push(identifier)}
+            if (!uiState.currentlySelectedTags.includes(identifier)){ uiState.currentlySelectedTags.push(identifier)}
         }
         else{
-            uiStatusStore.currentlySelectedTags = uiStatusStore.currentlySelectedTags.filter((v) => v!==identifier)
+            uiState.currentlySelectedTags = uiState.currentlySelectedTags.filter((v) => v!==identifier)
         }
         // emit
         emit("onCheck", is_checked, identifier);
@@ -74,7 +74,7 @@
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
         <Toggle 
-            :checked="uiStatusStore.currentlySelectedTags.includes(props.identifier)" 
+            :checked="uiState.currentlySelectedTags.includes(props.identifier)" 
             :identifier="props.identifier"
             @onCheck="_onCheck">
             <slot></slot>
