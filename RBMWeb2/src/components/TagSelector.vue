@@ -16,7 +16,7 @@
     }>()
 
     const allTags = computed(() => prop.database?.getAllTags());
-    const hierarchy = computed(() => TagRule.tagHierarchy(Array.from(allTags.value!)));
+    const hierarchy = computed(() => TagRule.tagHierarchy(allTags.value!));
     function sortedHierarchyKeys(hierarchy: TagHierarchy){
         return Object.keys(hierarchy).sort();
     }
