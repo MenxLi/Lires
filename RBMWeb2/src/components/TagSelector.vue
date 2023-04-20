@@ -4,18 +4,16 @@
     // import CollapsibleToggle from './common/CollapsibleToggle.vue';
     import TagCollapsibleToggle from './TagCollapsibleToggle.vue';
     import { assert } from '@vue/compiler-core';
-    import { useTagSelectionStore } from './store';
+    import { useUIStateStore, useDataStore } from './store';
 
     import type { TagCheckStatus } from "./_interface"
 
-    const prop = defineProps({
-        database: DataBase
-    })
     const emit = defineEmits<{
         (e: "onCheck", status: TagCheckStatus) : void
     }>()
 
-    const allTags = computed(() => prop.database?.getAllTags());
+    const dataStore = useDataStore()
+    const allTags = computed(() => dataStore.database.getAllTags());
     const hierarchy = computed(() => TagRule.tagHierarchy(allTags.value!));
     function sortedHierarchyKeys(hierarchy: TagHierarchy){
         return Object.keys(hierarchy).sort();
@@ -26,7 +24,7 @@
         emit("onCheck", {
             identifier: identifier as string,
             isChecked: is_checked,
-            currentlySelected: useTagSelectionStore().currentlySelected
+            currentlySelected: useUIStateStore().currentlySelectedTags
         });
     }
 

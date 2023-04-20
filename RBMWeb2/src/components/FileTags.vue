@@ -1,23 +1,23 @@
 
 <script setup lang="ts">
     import TagSelector from './TagSelector.vue';
-    import { useTagSelectionStore } from './store';
+    import { useUIStateStore } from './store';
     import type { DataBase } from '@/core/dataClass';
     import type { TagCheckStatus } from './_interface';
-
-    const props = defineProps<{
-        database: DataBase
-    }>()
 
     const emit = defineEmits<{
         (e: "onCheck", status: TagCheckStatus) : void
     }>()
+
+    function clearTagSelection(){
+    }
+    
 </script>
 <template>
     <div class="main panel gradInFast">
-        <TagSelector :database="database" @onCheck="(status) => emit('onCheck', status)"></TagSelector>
+        <TagSelector @onCheck="(status) => emit('onCheck', status)"></TagSelector>
         <div class="buttons">
-            <button id="btnClear">Clear tags</button>
+            <button id="btnClear" @click="clearTagSelection">Clear tags</button>
         </div>
     </div>
 </template>

@@ -6,10 +6,10 @@
     import Toggle from "./common/Toggle.vue";
     import TagCollapsibleToggle from "./TagCollapsibleToggle.vue"
     import { TAG_SEP } from '@/core/dataClass';
-    import { useTagSelectionStore } from "./store";
+    import { useUIStateStore } from "./store";
     import type { TagHierarchy } from "@/core/dataClass";
 
-    const tagStore = useTagSelectionStore()
+    const uiStatusStore = useUIStateStore()
 
     const props = withDefaults(defineProps<{
         identifier: string,
@@ -36,7 +36,7 @@
                 if (childTags.includes(s)){ return false; }
             }
             return true
-        }(tagStore.currentlySelected));     // uncollapse selected tags
+        }(uiStatusStore.currentlySelectedTags));     // uncollapse selected tags
     const button = ref(null);
     const triangleClass = computed(() => collapsed.value?"triangle-right":"triangle-down rotate90in")
     function onClickButton(e: Event){
@@ -58,10 +58,10 @@
         // change global state
         if (identifier === undefined){ return;}
         if (is_checked){
-            if (!tagStore.currentlySelected.includes(identifier)){ tagStore.currentlySelected.push(identifier)}
+            if (!uiStatusStore.currentlySelectedTags.includes(identifier)){ uiStatusStore.currentlySelectedTags.push(identifier)}
         }
         else{
-            tagStore.currentlySelected = tagStore.currentlySelected.filter((v) => v!==identifier)
+            uiStatusStore.currentlySelectedTags = uiStatusStore.currentlySelectedTags.filter((v) => v!==identifier)
         }
         // emit
         emit("onCheck", is_checked, identifier);
@@ -74,7 +74,7 @@
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
         <Toggle 
-            :checked="tagStore.currentlySelected.includes(props.identifier)" 
+            :checked="uiStatusStore.currentlySelectedTags.includes(props.identifier)" 
             :identifier="props.identifier"
             @onCheck="_onCheck">
             <slot></slot>

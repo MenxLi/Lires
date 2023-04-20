@@ -1,17 +1,13 @@
 <script setup lang="ts">
-    import { ref } from "vue";
-    import { DataBase, DataSearcher } from "./core/dataClass";
     import { FRONTENDURL } from "./config";
     import { ServerConn } from "./core/serverConn";
     import { getCookie } from "./libs/cookie";
-    import { useTagSelectionStore, useDataStore } from "./components/store";
+    import { useUIStateStore, useDataStore } from "./components/store";
     import FileTags from "./components/FileTags.vue";
     import FileSelector from "./components/FileSelector.vue";
     import Banner from "./components/Banner.vue";
 
-    import type { Ref } from "vue";
     import type { SearchStatus } from "./components/_interface";
-    import type { DataPoint } from "./core/dataClass";
 
     const conn = new ServerConn();
     conn.authUsr(getCookie("encKey") as string).then(
@@ -19,39 +15,28 @@
         ()=>{window.location.href = `${FRONTENDURL}/login.html`},
     )
 
-    const database = ref(new DataBase());
-    database.value.requestData().then(
+    const dataStore = useDataStore()
+    const uiState = useUIStateStore();
+
+    dataStore.database.requestData().then(
         (_) => {
-            updateShownData();
+            uiState.updateShownData();
         }
     );
 
-    const searchStatus: Ref<SearchStatus> = ref({
-        "content":""
-    })
     function onSearchChanged(status: SearchStatus){
-        searchStatus.value = status;
-        updateShownData();
-    }
-
-    const tagStore = useTagSelectionStore();
-    const dataStore = useDataStore();
-    const showUids: Ref<string[]> = ref([]);
-    function updateShownData(){
-        const tagFilteredDataPoints = database.value.getDataByTags(tagStore.currentlySelected);
-        DataSearcher.filter(tagFilteredDataPoints, searchStatus.value).then(
-            (datapoints: DataPoint[]) => showUids.value = datapoints.map((dp) => dp.info.uuid)
-        )
+        uiState.searchState = status;
+        uiState.updateShownData();
     }
 
 </script>
 
 <template>
     <div id="main" class="gradIn">
-        <Banner :initSearchText="searchStatus['content']" @onSearchChange="onSearchChanged"></Banner>
+        <Banner :initSearchText="uiState.searchState['content']" @onSearchChange="onSearchChanged"></Banner>
         <div class="horizontal fullHeight">
-            <FileTags :database="database" @onCheck="(_) => updateShownData()"></FileTags>
-            <FileSelector :database="database" :showUids="showUids"></FileSelector>
+            <FileTags @onCheck="(_) => uiState.updateShownData()"></FileTags>
+            <FileSelector></FileSelector>
         </div>
     </div>
 </template>
