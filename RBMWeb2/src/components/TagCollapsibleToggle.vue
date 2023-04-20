@@ -1,20 +1,21 @@
 
-<!-- DEPRECATED, use TagCollapsibleToggle -->
 
 <script setup lang="ts">
 
     import {ref, computed} from "vue";
-    import Toggle from "./Toggle.vue";
-    import CollapsibleToggle from "./CollapsibleToggle.vue"
+    import Toggle from "./common/Toggle.vue";
+    import TagCollapsibleToggle from "./TagCollapsibleToggle.vue"
     import { TAG_SEP } from '@/core/dataClass';
+    import { useTagSelectionStore } from "./store";
     import type { TagHierarchy } from "@/core/dataClass";
+
+    const tagStore = useTagSelectionStore()
 
     const props = withDefaults(defineProps<{
         identifier: string,
         children: TagHierarchy,
-        checked?: boolean,
     }>(), {
-        checked: false,
+        identifier: ""
     })
 
     // emit from both itself and the following children
@@ -22,18 +23,49 @@
         (e: "onCheck", is_checked: boolean, identifier: string|undefined): void
     }>()
 
+    // if has child change style
     const buttonClass = ref("collapseButton")
     if (Object.keys(props.children).length !== 0) {
         buttonClass.value += " collapsible"
     }
 
-    const toggled = ref(false);
+    // collapsed
+    const collapsed = ref(function(selected){
+            const childTags = allChildTags(props.children);
+            for (const s of selected){
+                if (childTags.includes(s)){ return false; }
+            }
+            return true
+        }(tagStore.currentlySelected));     // uncollapse selected tags
     const button = ref(null);
-    const triangleClass = computed(() => toggled.value?"triangle-down rotate90in":"triangle-right")
+    const triangleClass = computed(() => collapsed.value?"triangle-right":"triangle-down rotate90in")
     function onClickButton(e: Event){
-        toggled.value = !toggled.value;
+        collapsed.value = !collapsed.value;
+    }
+    function allChildTags(hierarchy: TagHierarchy): string[]{
+        let res: string[] = [];
+        for (let key in hierarchy){
+            if (hierarchy.hasOwnProperty(key)){
+                if (Object.keys(hierarchy[key]).length === 0){res.push(key)} // empty key - key: {}
+                else {res = res.concat(allChildTags(hierarchy[key]))}
+            }
+        }
+        return res;
     }
 
+    // change tag store and emit
+    function _onCheck(is_checked: boolean, identifier: string|undefined){
+        // change global state
+        if (identifier === undefined){ return;}
+        if (is_checked){
+            if (!tagStore.currentlySelected.includes(identifier)){ tagStore.currentlySelected.push(identifier)}
+        }
+        else{
+            tagStore.currentlySelected = tagStore.currentlySelected.filter((v) => v!==identifier)
+        }
+        // emit
+        emit("onCheck", is_checked, identifier);
+    }
 </script>
 
 <template>
@@ -42,19 +74,19 @@
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
         <Toggle 
-            :checked="props.checked" 
+            :checked="tagStore.currentlySelected.includes(props.identifier)" 
             :identifier="props.identifier"
-            @onCheck="(is_checked, identifier) => emit('onCheck', is_checked, identifier)">
+            @onCheck="_onCheck">
             <slot></slot>
         </Toggle>
     </div>
-    <div v-show="toggled" class="children gradInDown">
-        <CollapsibleToggle v-for="(v, k) in children" 
+    <div v-show="!collapsed" class="children gradInDown">
+        <TagCollapsibleToggle v-for="(v, k) in children" 
             :identifier="String(k)" 
             :children="v" 
             @onCheck="(is_checked, identifier) => emit('onCheck', is_checked, identifier)">
             {{ String(k).split(TAG_SEP).slice(-1)[0] }}
-        </CollapsibleToggle>
+        </TagCollapsibleToggle>
     </div>
 </template>
 
@@ -91,18 +123,6 @@
         background-color: var(--theme-color);
 		clip-path: polygon(0 0, 100% 0%, 50% 100%);
     }
-    /* .triangle-right {
-        border-left: calc(var(--button-dim)/2) solid var(--theme-color);
-        border-right: calc(var(--button-dim)/2) solid transparent;
-        border-bottom: calc(var(--button-dim)/2) solid transparent;
-        border-top: calc(var(--button-dim)/2) solid transparent;
-    } */
-    /* .triangle-down {
-        border-top: calc(var(--button-dim)/2) solid var(--theme-color);
-        border-right: calc(var(--button-dim)/2) solid transparent;
-        border-bottom: calc(var(--button-dim)/2) solid transparent;
-        border-left: calc(var(--button-dim)/2) solid transparent;
-    } */
     div.children{
         margin-left: 20px;
     }

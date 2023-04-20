@@ -20,10 +20,24 @@ export function toggleDarkMode() {
 }
 
 export function isDefaultDarkMode(){
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return true;
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+export function inPlacePopByValue(arr: Array<any>, toPop: any){
+  let continuePop = true;
+  let idx;
+  while(continuePop){
+    idx = arr.indexOf(toPop)
+    if (idx === -1){
+      continuePop = false;
     }
     else{
-        return false;
+      arr.splice(idx, 1);
     }
+  }
 }

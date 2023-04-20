@@ -4,12 +4,12 @@
     import { FRONTENDURL } from "./config";
     import { ServerConn } from "./core/serverConn";
     import { getCookie } from "./libs/cookie";
+    import { useTagSelectionStore } from "./components/store";
     import FileTags from "./components/FileTags.vue";
     import FileSelector from "./components/FileSelector.vue";
     import Banner from "./components/Banner.vue";
 
     import type { Ref } from "vue";
-    import type { TagCheckStatus } from "./components/_interface";
     import type { SearchStatus } from "./components/_interface";
     import type { DataPoint } from "./core/dataClass";
 
@@ -26,12 +26,6 @@
         }
     );
 
-    const selectedTags: Ref<string[]> = ref([]);
-    function onTagSelected(status: TagCheckStatus){
-        selectedTags.value = status["currentlySelected"];
-        updateShownData();
-    }
-
     const searchStatus: Ref<SearchStatus> = ref({
         "content":""
     })
@@ -40,9 +34,10 @@
         updateShownData();
     }
 
+    const tagStore = useTagSelectionStore();
     const showUids: Ref<string[]> = ref([]);
     function updateShownData(){
-        const tagFilteredDataPoints = database.value.getDataByTags(selectedTags.value);
+        const tagFilteredDataPoints = database.value.getDataByTags(tagStore.currentlySelected);
         DataSearcher.filter(tagFilteredDataPoints, searchStatus.value).then(
             (datapoints: DataPoint[]) => showUids.value = datapoints.map((dp) => dp.info.uuid)
         )
@@ -54,7 +49,7 @@
     <div id="main" class="gradIn">
         <Banner :initSearchText="searchStatus['content']" @onSearchChange="onSearchChanged"></Banner>
         <div class="horizontal fullHeight">
-            <FileTags :database="database" @onCheck="onTagSelected"></FileTags>
+            <FileTags :database="database" @onCheck="(_) => updateShownData()"></FileTags>
             <FileSelector :database="database" :showUids="showUids"></FileSelector>
         </div>
     </div>
