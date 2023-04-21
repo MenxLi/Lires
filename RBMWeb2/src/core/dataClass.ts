@@ -147,7 +147,7 @@ export class DataPoint {
             return `${getBackendURL()}/doc/${uid}`
         }
         if (this.info["has_file"] && this.info["file_type"] == ".hpack"){
-            return `${getBackendURL()}/hdoc/${uid}`
+            return `${getBackendURL()}/hdoc/${uid}/`
         }
         if (!this.info["has_file"] && this.info["url"]){
             return this.info.url;
