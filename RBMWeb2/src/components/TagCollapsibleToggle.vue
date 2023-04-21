@@ -58,10 +58,10 @@
         // change global state
         if (identifier === undefined){ return;}
         if (is_checked){
-            if (!uiState.currentlySelectedTags.includes(identifier)){ uiState.currentlySelectedTags.push(identifier)}
+            if (!uiState.currentlySelectedTags.has(identifier)){ uiState.currentlySelectedTags.add(identifier)}
         }
         else{
-            uiState.currentlySelectedTags = uiState.currentlySelectedTags.filter((v) => v!==identifier)
+            uiState.currentlySelectedTags.delete(identifier)
         }
         // emit
         emit("onCheck", is_checked, identifier);
@@ -74,7 +74,7 @@
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
         <Toggle 
-            :checked="uiState.currentlySelectedTags.includes(props.identifier)" 
+            :checked="uiState.currentlySelectedTags.has(props.identifier)" 
             :identifier="props.identifier"
             @onCheck="_onCheck">
             <slot></slot>

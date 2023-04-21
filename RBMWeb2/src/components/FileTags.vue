@@ -1,6 +1,7 @@
 
 <script setup lang="ts">
     import { ref, nextTick } from 'vue';
+    import { DataTags } from '@/core/dataClass';
     import TagSelector from './TagSelector.vue';
     import { useUIStateStore } from './store';
     import type { TagCheckStatus } from './_interface';
@@ -12,7 +13,7 @@
     const renderSelector = ref(true);
     function clearTagSelection(){
         const uiState = useUIStateStore();
-        uiState.currentlySelectedTags = [];
+        uiState.currentlySelectedTags = new DataTags();
         uiState.updateShownData();
         // re-render tagSelector
         renderSelector.value = false;

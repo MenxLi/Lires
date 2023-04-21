@@ -1,13 +1,14 @@
 
 import { defineStore } from 'pinia'
-import { DataBase, DataSearcher, DataPoint } from '@/core/dataClass'
+import { DataBase, DataSearcher, DataPoint, DataTags } from '@/core/dataClass'
 import type { SearchStatus } from './_interface'
 
 export const useUIStateStore = defineStore(
     "uiStatus", {
         state: () => {
             return {
-                currentlySelectedTags: [] as string[],
+                // currentlySelectedTags: [] as string[],
+                currentlySelectedTags: new DataTags(),
                 shownDataUIDs: [] as string[],
                 searchState: {
                         "content": ""

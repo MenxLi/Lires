@@ -29,7 +29,7 @@
         emit("onCheck", {
             identifier: identifier as string,
             isChecked: is_checked,
-            currentlySelected: useUIStateStore().currentlySelectedTags
+            currentlySelected: Array.from(useUIStateStore().currentlySelectedTags)
         });
     }
 
