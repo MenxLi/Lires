@@ -10,20 +10,16 @@
         (e: "onCheck", status: TagCheckStatus) : void
     }>()
 
-    const renderSelector = ref(true);
     function clearTagSelection(){
         const uiState = useUIStateStore();
         uiState.currentlySelectedTags = new DataTags();
         uiState.updateShownData();
-        // re-render tagSelector
-        renderSelector.value = false;
-        nextTick(() => renderSelector.value = true);
     }
     
 </script>
 <template>
     <div class="main panel gradInFast">
-        <TagSelector v-if="renderSelector" @onCheck="(status) => emit('onCheck', status)"></TagSelector>
+        <TagSelector @onCheck="(status) => emit('onCheck', status)"></TagSelector>
         <div class="buttons">
             <button id="btnClear" @click="clearTagSelection">Clear tags</button>
         </div>

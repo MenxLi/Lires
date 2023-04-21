@@ -7,8 +7,8 @@ export const useUIStateStore = defineStore(
     "uiStatus", {
         state: () => {
             return {
-                // currentlySelectedTags: [] as string[],
                 currentlySelectedTags: new DataTags(),
+                unfoldedTags: new DataTags(),
                 shownDataUIDs: [] as string[],
                 searchState: {
                         "content": ""

@@ -29,36 +29,27 @@
         buttonClass.value += " collapsible"
     }
 
-    // collapsed
-    const collapsed = ref(function(selected){
-            const childTags = allChildTags(props.children);
-            for (const s of selected){
-                if (childTags.includes(s)){ return false; }
-            }
-            return true
-        }(uiState.currentlySelectedTags));     // uncollapse selected tags
     const button = ref(null);
+    const collapsed = computed(() => !uiState.unfoldedTags.has(props.identifier))
     const triangleClass = computed(() => collapsed.value?"triangle-right":"triangle-down rotate90in")
     function onClickButton(e: Event){
-        collapsed.value = !collapsed.value;
-    }
-    function allChildTags(hierarchy: TagHierarchy): string[]{
-        let res: string[] = [];
-        for (let key in hierarchy){
-            if (hierarchy.hasOwnProperty(key)){
-                if (Object.keys(hierarchy[key]).length === 0){res.push(key)} // empty key - key: {}
-                else {res = res.concat(allChildTags(hierarchy[key]))}
-            }
+        if (uiState.unfoldedTags.has(props.identifier)){
+            uiState.unfoldedTags.delete(props.identifier);
         }
-        return res;
+        else{
+            uiState.unfoldedTags.add(props.identifier);
+        }
     }
 
     // change tag store and emit
-    function _onCheck(is_checked: boolean, identifier: string|undefined){
+    const isChecked = computed(() => uiState.currentlySelectedTags.has(props.identifier))
+    function _onCheck(identifier: string|undefined){
         // change global state
         if (identifier === undefined){ return;}
-        if (is_checked){
-            if (!uiState.currentlySelectedTags.has(identifier)){ uiState.currentlySelectedTags.add(identifier)}
+        let is_checked = false;
+        if (!uiState.currentlySelectedTags.has(identifier)){
+            uiState.currentlySelectedTags.add(identifier);
+            is_checked = true;
         }
         else{
             uiState.currentlySelectedTags.delete(identifier)
@@ -74,7 +65,7 @@
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
         <Toggle 
-            :checked="uiState.currentlySelectedTags.has(props.identifier)" 
+            :checked="isChecked" 
             :identifier="props.identifier"
             @onCheck="_onCheck">
             <slot></slot>

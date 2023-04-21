@@ -19,7 +19,7 @@
 
     // emit from both itself and the following children
     const emit = defineEmits<{
-        (e: "onCheck", is_checked: boolean, identifier: string|undefined): void
+        (e: "onCheck", identifier: string|undefined): void
     }>()
 
     const buttonClass = ref("collapseButton")
@@ -44,7 +44,7 @@
         <Toggle 
             :checked="props.checked" 
             :identifier="props.identifier"
-            @onCheck="(is_checked, identifier) => emit('onCheck', is_checked, identifier)">
+            @onCheck="(identifier) => emit('onCheck', identifier)">
             <slot></slot>
         </Toggle>
     </div>
@@ -52,7 +52,7 @@
         <CollapsibleToggle v-for="(v, k) in children" 
             :identifier="String(k)" 
             :children="v" 
-            @onCheck="(is_checked, identifier) => emit('onCheck', is_checked, identifier)">
+            @onCheck="(identifier) => emit('onCheck', identifier)">
             {{ String(k).split(TAG_SEP).slice(-1)[0] }}
         </CollapsibleToggle>
     </div>

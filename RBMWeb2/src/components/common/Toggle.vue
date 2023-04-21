@@ -1,23 +1,20 @@
 
 
 <script setup lang="ts">
-    import {ref} from "vue"
+    import {ref, computed} from "vue"
 
     const emit = defineEmits<{
-        (e: "onCheck", is_checked: boolean, identifier: string|undefined): void
+        (e: "onCheck", identifier: string|undefined): void
     }>()
     const props = withDefaults(defineProps<{
-        checked?: boolean,
+        checked: boolean,
         identifier?: string,
     }>(), {
-        checked: false,
         identifier: "",
     })
-    const is_checked = ref(props.checked);
 
     function _onCheck(event: Event){
-        is_checked.value = !is_checked.value;
-        emit("onCheck", is_checked.value?true:false, props.identifier);
+        emit("onCheck", props.identifier);
     }
 </script>
 
@@ -27,7 +24,7 @@
             <slot></slot>
         </label>
         <div id="checkCircle" @click="_onCheck">
-            <div v-if="is_checked" id="checkStatus"></div>
+            <div v-if="checked" id="checkStatus"></div>
         </div>
     </div>
 </template>

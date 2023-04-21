@@ -64,8 +64,8 @@ function login(){
                 <input type="text" id="port" v-model="port" />
             </div>
             <div class="options">
-                <Toggle :checked="stayLogin" @onCheck="(is_checked) => {stayLogin=is_checked}">Stay login</Toggle>
-                <Toggle :checked="showPassword" @onCheck="(is_checked) => {showPassword=is_checked}">Show key</Toggle>
+                <Toggle :checked="stayLogin" @onCheck="(_) => {stayLogin=!stayLogin}">Stay login</Toggle>
+                <Toggle :checked="showPassword" @onCheck="(_) => {showPassword=!showPassword}">Show key</Toggle>
             </div>
             <button type="submit" @click.prevent="login">{{ loginText }}</button>
         </form>
