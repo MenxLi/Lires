@@ -366,6 +366,7 @@ class FileManipulator:
         dst_base = os.path.join(self.path, fn_base)
         FileGenerator.moveDocument(extern_file_p, dst_base)
         del extern_file_p
+        self._log()
         return True
     
     def getDocSize(self) -> float:
