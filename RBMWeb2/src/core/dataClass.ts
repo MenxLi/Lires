@@ -14,6 +14,16 @@ export class DataTags extends Set<string>{
     }
     union_(tags: DataTags){
         tags.forEach((value) => this.add(value));
+        return this;
+    }
+    pop( tags: DataTags){
+        const ret = new DataTags(this);
+        ret.pop_(tags);
+        return ret;
+    }
+    pop_(tags: DataTags){
+        tags.forEach((value) => this.delete(value));
+        return this;
     }
     issubset(tags: DataTags){
         return TagRule.isSubset(this, tags)

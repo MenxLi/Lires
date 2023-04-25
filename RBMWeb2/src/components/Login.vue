@@ -36,9 +36,9 @@ function login(){
             }
             else {
                 const params = new URLSearchParams(urlSearchString);
-                const redirect = params.get("redirect") as null|"main"|"login";
-                if (redirect){
-                    window.location.href = LOCATIONS[redirect];
+                const from = params.get("from")
+                if (from){
+                    window.location.href = from;
                 }
             }
             loginText.value = "Login"

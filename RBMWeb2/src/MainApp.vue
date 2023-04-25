@@ -4,21 +4,27 @@
     import { ServerConn } from "./core/serverConn";
     import { getCookie } from "./libs/cookie";
     import { useUIStateStore, useDataStore } from "./components/store";
+    import { DataTags } from "./core/dataClass";
     import FileTags from "./components/FileTags.vue";
     import FileSelector from "./components/FileSelector.vue";
     import Banner from "./components/Banner.vue";
 
     import type { SearchStatus } from "./components/_interface";
 
+    // check login
     const conn = new ServerConn();
     conn.authUsr(getCookie("encKey") as string).then(
         ()=>{},
-        ()=>{window.location.href = `${FRONTENDURL}/login.html`},
+        function(){
+            const loginSearchParams = new URLSearchParams();
+            loginSearchParams.append("from", window.location.href);
+            window.location.href = `${FRONTENDURL}/login.html?${loginSearchParams.toString()}`
+        },
     )
 
+    // get data
     const dataStore = useDataStore()
     const uiState = useUIStateStore();
-
     dataStore.database.requestData().then(
         (_) => {
             uiState.updateShownData();
@@ -38,6 +44,14 @@
             }
     });
     const showFileTags = computed(() => windowWidth.value > 600);
+
+    // maybe change tag from url search params
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const defaultTags = urlSearchParams.get("tags")?.split("&&");
+    if (defaultTags != undefined){
+        uiState.currentlySelectedTags = new DataTags(defaultTags);
+        uiState.unfoldedTags = uiState.currentlySelectedTags.withParents().pop(uiState.currentlySelectedTags)
+    }
 
 </script>
 
