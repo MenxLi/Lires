@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { ref, computed, onMounted } from "vue";
     import { FRONTENDURL } from "./config";
     import { ServerConn } from "./core/serverConn";
     import { getCookie } from "./libs/cookie";
@@ -29,13 +30,22 @@
         uiState.updateShownData();
     }
 
+    // not show fileTag panel on small screen
+    let windowWidth = ref(window.innerWidth);
+    onMounted(() => {
+        window.onresize = () => {
+                windowWidth.value = window.innerWidth
+            }
+    });
+    const showFileTags = computed(() => windowWidth.value > 560);
+
 </script>
 
 <template>
     <div id="main" class="gradIn">
         <Banner :initSearchText="uiState.searchState['content']" @onSearchChange="onSearchChanged"></Banner>
         <div class="horizontal fullHeight">
-            <FileTags @onCheck="(_) => uiState.updateShownData()"></FileTags>
+            <FileTags v-if="showFileTags" @onCheck="(_) => uiState.updateShownData()"></FileTags>
             <FileSelector></FileSelector>
         </div>
     </div>
