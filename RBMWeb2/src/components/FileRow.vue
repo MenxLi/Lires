@@ -13,15 +13,17 @@
 
     function openDataURL(event: Event){
         // check if event target is authorYear div or not
+        let url = "";
         if ((event.target as HTMLElement).id == "authorYear"){
             if (props.datapoint.info.note_linecount > NOTE_SHOW_THRESHOLD){
-                const url = props.datapoint.getOpenNoteURL()
-                window.open(url, '_blank')?.focus();
+                url = props.datapoint.getOpenNoteURL()
             }
             event.stopPropagation();    // prevent open doc
         }
         else{
-            const url = props.datapoint.getOpenDocURL()
+            url = props.datapoint.getOpenDocURL()
+        }
+        if (url !== ""){
             window.open(url, '_blank')?.focus();
         }
     }
@@ -49,10 +51,11 @@
 </script>
 
 <template>
-    <div class="row hoverMaxout101" @click="openDataURL">
-        <div id="authorYear" class="text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">{{ authorYearText }}</div>
-        <div id="titleStatus">
-            <div id="title" class="text"><p>{{ datapoint.info.title }}</p></div>
+    <div id="fileRow" class="row hoverMaxout101" @click="openDataURL">
+        <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
+            {{ authorYearText }}
+        </div>
+        <div id="titleStatus" class="row">
             <div id="statusDiv">
                 <div class="status">
                     <img v-if="datapoint.info.file_type == '.pdf'" src="@/assets/icons/pdf_fill.svg" alt="" class="icon">
@@ -66,24 +69,28 @@
                     <img v-else src="@/assets/icons/dot_fill.svg" alt="" class="icon placeholder">
                 </div>
             </div>
+            <div id="title" class="text"><p>{{ datapoint.info.title }}</p></div>
         </div>
     </div>
 </template>
 
 <style scoped>
-    div.row {
+    div.row{
         display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    div#fileRow {
         flex-wrap: wrap;
         border: 1px solid var(--color-border);
         border-radius: 5px;
-        column-gap: 10px;
-        align-items: center;
-        justify-content: flex-start;
-        padding-left: 3px;
+        padding: 3px;
+        padding-left: 5px;
         margin-top: 3px;
         margin-bottom: 3px;
+        column-gap: 10px;
     }
-    div.row:hover{
+    div#fileRow:hover{
         background-color: var(--theme-hover-hight-color);
     }
     #authorYear{
@@ -91,22 +98,18 @@
         white-space: nowrap;
         background-color: var(--color-background-soft);
         border-radius: 10px;
-        margin: 5px;
-        margin-top: 3px;
-        margin-bottom: 3px;
-        padding: 5px;
+        /* margin-top: 3px;
+        margin-bottom: 3px; */
+        padding: 10px;
         padding-top: 3px;
         padding-bottom: 3px;
     }
     #authorYear:hover{
         text-align: center;
+        justify-content: center;
     }
     #titleStatus{
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 10px;
+        column-gap: 8px;
     }
     div.text{
         padding: 0px;
@@ -116,7 +119,7 @@
         overflow: hidden;
     }
     @media (max-width: 1500px){
-        div.row{
+        div#fileRow{
             flex-direction: column;
             align-items:flex-start;
         }

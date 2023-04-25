@@ -37,7 +37,7 @@
                 windowWidth.value = window.innerWidth
             }
     });
-    const showFileTags = computed(() => windowWidth.value > 560);
+    const showFileTags = computed(() => windowWidth.value > 600);
 
 </script>
 
