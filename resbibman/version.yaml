@@ -227,3 +227,11 @@ version_history:
     - Fix - include search results when tag change
   0.10.0:
     - RBMWeb2
+  0.10.1:
+    - RBMWeb2 ui update
+    - As ios webapp
+    - Sorted tags and file selector
+    - Banner for search, logout and theme change
+    - Reactive toggle and search with pinia global storage
+    - Not showing file tags on small screen
+    - Fix - now log adding document
