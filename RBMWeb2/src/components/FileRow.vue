@@ -2,6 +2,10 @@
 <script setup lang="ts">
 
     import type { DataPoint } from '@/core/dataClass';
+
+    const NOTE_FULLSHOW_THRESHOLD = 8;
+    const NOTE_SHOW_THRESHOLD = 1;
+
     const props = defineProps<{
         datapoint: DataPoint
     }>()
@@ -17,7 +21,22 @@
 <template>
     <div class="row hoverMaxout101" @click="(ev) => openDataURL()">
         <div id="authorYear" class="text">{{ datapoint.yearAuthor(" :: ")}}</div>
-        <div id="title" class="text">{{ datapoint.info.title }}</div>
+        <div id="titleStatus">
+            <div id="title" class="text"><p>{{ datapoint.info.title }}</p></div>
+            <div id="statusDiv">
+                <div class="status">
+                    <img v-if="datapoint.info.file_type == '.pdf'" src="@/assets/icons/pdf_fill.svg" alt="" class="icon">
+                    <img v-else-if="datapoint.info.url" src="@/assets/icons/cloud_fill.svg" alt="" class="icon">
+                    <img v-else src="@/assets/icons/dot_fill.svg" alt="" class="icon placeholder">
+                </div>
+
+                <div class="status">
+                    <img v-if="datapoint.info.note_linecount>NOTE_FULLSHOW_THRESHOLD" src="@/assets/icons/note_fill.svg" alt="" class="icon">
+                    <img v-else-if="datapoint.info.note_linecount>NOTE_SHOW_THRESHOLD" src="@/assets/icons/note.svg" alt="" class="icon">
+                    <img v-else src="@/assets/icons/dot_fill.svg" alt="" class="icon placeholder">
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -49,6 +68,13 @@
         padding-top: 3px;
         padding-bottom: 3px;
     }
+    #titleStatus{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+    }
     div.text{
         padding: 0px;
         margin: 0px;
@@ -56,7 +82,6 @@
         text-overflow: ellipsis;
         overflow: hidden;
     }
-
     @media (max-width: 1500px){
         div.row{
             flex-direction: column;
@@ -67,5 +92,22 @@
         #authorYear{
             width: 180px;
         }
+    }
+    div#statusDiv, div#title, div.status{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    div.status{
+        justify-content: center;
+        width: 15px;
+    }
+    img.icon {
+        height: 15px;
+        filter: invert(0.5) opacity(0.25) drop-shadow(0 0 0 var(--color-border)) ;
+    }
+    img.placeholder{
+        height: 8px
     }
 </style>

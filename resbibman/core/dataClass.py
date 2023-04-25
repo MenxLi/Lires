@@ -218,6 +218,8 @@ class DataPoint(DataCore):
             "bibtex": self.fm.readBib(),
             "doc_size": self.fm.getDocSize(),
             "base_name": self.fm.base_name,
+
+            "note_linecount": len([line for line in self.fm.readComments().split("\n") if line.strip() != ""]),
         }
     
     def _forceOffline(self):

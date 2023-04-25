@@ -16,3 +16,5 @@ class DataPointSummary(TypedDict):
     bibtex: str
     doc_size: float # in M.
     base_name: str  # for directory name
+
+    note_linecount: int
