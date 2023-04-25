@@ -154,6 +154,11 @@ export class DataPoint {
         }
         return ""
     }
+
+    getOpenNoteURL(): string {
+        const uid = this.info.uuid;
+        return `${getBackendURL()}/comment/${uid}/`;
+    }
 }
 
 export class DataBase {

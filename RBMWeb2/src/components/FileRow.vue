@@ -1,26 +1,56 @@
 
 <script setup lang="ts">
 
+    import { ref, computed } from 'vue';
     import type { DataPoint } from '@/core/dataClass';
 
-    const NOTE_FULLSHOW_THRESHOLD = 8;
+    const NOTE_FULLSHOW_THRESHOLD = 12;
     const NOTE_SHOW_THRESHOLD = 1;
 
     const props = defineProps<{
         datapoint: DataPoint
     }>()
 
-    function openDataURL(){
-        const url = props.datapoint.getOpenDocURL()
-        if (url){
-            window.open(url);
+    function openDataURL(event: Event){
+        // check if event target is authorYear div or not
+        if ((event.target as HTMLElement).id == "authorYear"){
+            if (props.datapoint.info.note_linecount > NOTE_SHOW_THRESHOLD){
+                const url = props.datapoint.getOpenNoteURL()
+                window.open(url, '_blank')?.focus();
+            }
+            event.stopPropagation();    // prevent open doc
+        }
+        else{
+            const url = props.datapoint.getOpenDocURL()
+            window.open(url, '_blank')?.focus();
         }
     }
+
+    // record if mouse is hovering on authorYear div
+    const isHoveringAuthorYear = ref(false);
+    function hoverInAuthorYear(){
+        isHoveringAuthorYear.value = true;
+    }
+    function hoverOutAuthorYear(){
+        isHoveringAuthorYear.value = false;
+    }
+    const authorYearText = computed(() => {
+        if (!isHoveringAuthorYear.value){
+            return props.datapoint.yearAuthor(" :: ");
+        }
+        else if(props.datapoint.info.note_linecount <= NOTE_SHOW_THRESHOLD){
+            return "_"
+        }
+        else{
+            return "NOTE";
+        }
+    })
+
 </script>
 
 <template>
-    <div class="row hoverMaxout101" @click="(ev) => openDataURL()">
-        <div id="authorYear" class="text">{{ datapoint.yearAuthor(" :: ")}}</div>
+    <div class="row hoverMaxout101" @click="openDataURL">
+        <div id="authorYear" class="text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">{{ authorYearText }}</div>
         <div id="titleStatus">
             <div id="title" class="text"><p>{{ datapoint.info.title }}</p></div>
             <div id="statusDiv">
@@ -67,6 +97,9 @@
         padding: 5px;
         padding-top: 3px;
         padding-bottom: 3px;
+    }
+    #authorYear:hover{
+        text-align: center;
     }
     #titleStatus{
         display: flex;
