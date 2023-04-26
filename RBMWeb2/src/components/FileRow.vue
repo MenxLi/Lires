@@ -52,7 +52,7 @@
 
 <template>
     <div id="fileRow" class="row hoverMaxout101 gradIn2" @click="openDataURL">
-        <div id="authorYear" class="row text hoverMaxout103" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
+        <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
             {{ authorYearText }}
         </div>
         <div id="titleStatus" class="row">
@@ -92,7 +92,7 @@
     }
     div#fileRow:hover{
         background-color: var(--theme-hover-highlight-color);
-        transition: all 0.2s;
+        transition: background-color 0.2s;
     }
     #authorYear{
         width: 250px;
