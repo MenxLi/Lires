@@ -56,10 +56,12 @@
         background-color: var(--theme-color);
     }
     #checkCircle:hover {
-        background-color: var(--theme-hover-hight-color);
+        background-color: var(--theme-hover-highlight-color);
+        transition: all 0.2s;
     }
     label:hover + #checkCircle {
-        background-color: var(--theme-hover-hight-color);
+        background-color: var(--theme-hover-highlight-color);
+        transition: all 0.2s;
     }
     label{
         text-align: left;

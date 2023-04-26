@@ -40,7 +40,7 @@
 /* my colors */
 :root {
   --theme-color: rgb(80, 180, 200);
-  --theme-hover-hight-color: rgba(100, 250, 200, 0.2);
+  --theme-hover-highlight-color: rgba(100, 250, 200, 0.2);
 }
 
 :root.dark {

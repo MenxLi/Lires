@@ -88,7 +88,8 @@
         font-size: smaller;
     }
     span.button:hover{
-        background-color: var(--theme-hover-hight-color);
+        background-color: var(--theme-hover-highlight-color);
+        transition: all 0.2s;
     }
     img.icon {
         height: 20px;
