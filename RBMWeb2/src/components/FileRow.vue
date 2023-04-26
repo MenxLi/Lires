@@ -51,7 +51,7 @@
 </script>
 
 <template>
-    <div id="fileRow" class="row hoverMaxout101" @click="openDataURL">
+    <div id="fileRow" class="row hoverMaxout101 gradIn2" @click="openDataURL">
         <div id="authorYear" class="row text hoverMaxout103" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
             {{ authorYearText }}
         </div>
