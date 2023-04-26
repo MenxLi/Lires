@@ -46,7 +46,7 @@
 </script>
 
 <template>
-    <div class="main">
+    <div class="main shadow">
         <div class="button">
             <!-- <button @click="logout">Logout</button> -->
             <span v-if="!checkCookieLogout()" class="hoverMaxout105 button" @click="logout">
@@ -79,6 +79,7 @@
     div.button{
         display: flex;
         align-items: center;
+        gap: 3px;
     }
     span.button{
         padding: 3px;
@@ -89,6 +90,7 @@
     }
     span.button:hover{
         background-color: var(--theme-hover-highlight-color);
+        box-shadow: 0 1px 3px 2px var(--color-shadow);
         transition: all 0.2s;
     }
     img.icon {

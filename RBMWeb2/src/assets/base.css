@@ -23,6 +23,8 @@
 
 /* semantic color variables for this project */
 :root, :root.light {
+  --section-gap: 160px;
+
   --color-background: var(--vt-c-white);
   --color-background-soft: var(--vt-c-white-soft);
   --color-background-mute: var(--vt-c-white-mute);
@@ -33,14 +35,7 @@
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-1);
 
-  --section-gap: 160px;
-
-}
-
-/* my colors */
-:root {
-  --theme-color: rgb(80, 180, 200);
-  --theme-hover-highlight-color: rgba(100, 250, 200, 0.2);
+  --color-shadow: rgba(0, 0, 0, 0.1);
 }
 
 :root.dark {
@@ -53,6 +48,14 @@
 
   --color-heading: var(--vt-c-text-dark-1);
   --color-text: var(--vt-c-text-dark-2);
+
+  --color-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* my colors */
+:root {
+  --theme-color: rgb(80, 180, 200);
+  --theme-hover-highlight-color: rgba(100, 250, 200, 0.2);
 }
 
 /* @media (prefers-color-scheme: dark) {

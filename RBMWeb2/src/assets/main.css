@@ -33,13 +33,13 @@ div.panel{
     height: 100%;
     width: 100%;
     align-self: center;
-    /*overflow: hidden;*/
     margin: 0em;
-    border: 3px solid var(--color-border);
+    border: 2px solid var(--color-border);
     border-radius: 10px;
-    /* scrollbar-width: thin;
-    scrollbar-color: dark; */
+}
 
+.shadow{
+    box-shadow: 0 1px 3px 2px var(--color-shadow);
 }
 
 div.scrollable{
