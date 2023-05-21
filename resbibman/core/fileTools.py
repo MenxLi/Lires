@@ -294,6 +294,7 @@ class FileManipulator:
         info_f = self.file_names["info"]
         bib_f = self.file_names["bibtex"]
         folder_f = self.file_names["misc"]
+        file_f = ""    # file name with extension
         for ext in getConf()["accepted_extensions"]:
             # search if legitimate document exists in the self.path
             file_f_candidate = self.file_names["document"] + ext
@@ -305,10 +306,10 @@ class FileManipulator:
         self.bib_p = os.path.join(self.path, bib_f)
         self.comments_p = os.path.join(self.path, comments_f)
         self.info_p = os.path.join(self.path, info_f)
-        try:
+        if file_f != "":
             self.file_p = os.path.join(self.path, file_f)
             if not os.path.exists(self.file_p): warnings.warn("The file does not exists")
-        except NameError:
+        else:
             # No file served
             self.file_p = None
         if os.path.exists(self.bib_p) and os.path.exists(self.info_p) and \
@@ -373,6 +374,7 @@ class FileManipulator:
         if not self.hasFile():
             return 0.0
             # return None
+        assert self.file_p      # make sure file_p is not None, type check
         size = os.path.getsize(self.file_p)
         size = size/(1048576)   # byte to M
         return round(size, 2)

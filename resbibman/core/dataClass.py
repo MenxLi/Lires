@@ -3,7 +3,7 @@ import urllib.parse
 import shutil, requests, json
 from ..confReader import getConfV, ASSETS_PATH
 import re, os, asyncio
-from typing import List, Union, Set, Dict, Optional, Sequence, overload
+from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar
 import difflib
 import markdown
 from .fileTools import FileGenerator
@@ -122,7 +122,7 @@ class TagRule(DataCore):
         return cls.SEP.join(tag_sp)
 
     @classmethod
-    def stripTags_(cls, tags: Sequence[str]) -> Sequence[str]:
+    def stripTags_(cls, tags: DataTagT_G) -> DataTagT_G:
         """in place operation"""
         if isinstance(tags, set):
             for t in tags:
@@ -140,11 +140,9 @@ class DataTags(Set[str], DataCore):
     @overload
     def __init__(self):...
     @overload
-    def __init__(self, arg: Sequence[str]):...
-    @overload
-    def __init__(self, arg: DataTags):...
+    def __init__(self, arg: DataTagT):...
 
-    def __init__(self, arg: Union[Sequence[str], DataTags, None] = None):
+    def __init__(self, arg: Union[DataTagT, None] = None):
         if arg is None:
             super().__init__()
         elif isinstance(arg, DataTags):
@@ -179,6 +177,7 @@ class DataTags(Set[str], DataCore):
             return "<None>"
 
 DataTagT = Union[DataTags, List[str], Set[str]]
+DataTagT_G = TypeVar('DataTagT_G', bound=DataTagT)
 
 class DataPoint(DataCore):
     MAX_AUTHOR_ABBR = 36
@@ -458,6 +457,7 @@ class DataPoint(DataCore):
         if ftype == "":
             if self.info["url"]:
                 return self.info["url"]
+            else: return ""
         else:
             base_addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
             if ftype == ".pdf":
@@ -568,6 +568,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
     @property
     def remote_info(self)-> Dict[str, DataPointSummary]:
         d = dict()
+        assert self.__file_list_remote is not None # should be called after successful fetch
         for f_info in self.__file_list_remote:
             d[f_info["uuid"]] = f_info
         return d
@@ -699,7 +700,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
             if isinstance(v_, DataPoint):
                 v_.fm.setWatch(True)
             else:
-                self[v_].setWatch(True)
+                self[v_].fm.setWatch(True)
         return
 
     @property

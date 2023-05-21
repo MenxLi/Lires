@@ -109,7 +109,7 @@
         text-align: center;
         justify-content: center;
         transition: all 0.25s;
-        box-shadow: 0 1px 3px 2px var(--color-shadow);
+        box-shadow: 0 1px 3px 3px var(--color-shadow);
     }
     #titleStatus{
         column-gap: 8px;

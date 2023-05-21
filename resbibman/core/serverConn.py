@@ -97,7 +97,7 @@ class ServerConn:
         }
         with open(fpath, "rb") as fp:
             file_args = {
-                "filename": dst_fname,
+                "filename": dst_fname.encode("utf-8"),
                 "file": fp
             }
             res = requests.post(post_url, params = post_args, files=file_args)

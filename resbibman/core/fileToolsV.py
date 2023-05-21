@@ -147,7 +147,7 @@ class FileManipulatorVirtual(FileManipulator):
         uuid = self.uuid
         interm_file_p = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
         compressDir(self.path, interm_file_p)
-        return ServerConn().uploadData(interm_file_p, self.uuid, self.base_name.encode("utf-8"), tags = self.getTags())
+        return ServerConn().uploadData(interm_file_p, self.uuid, self.base_name, tags = self.getTags())
 
     def _downloadRemote(self) -> bool:
         if self.offline:
@@ -186,7 +186,7 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             return True
 
-    def changeBasename(self, new_basename: str, on_net_failed: Callable[[int], None] = lambda i: ...) -> bool:
+    def changeBasename(self, new_basename: str, on_net_failed: Callable[[int], None] = lambda _: None) -> bool:
         if self.has_local:
             name_changed = super().changeBasename(new_basename)    
             # delete remote old
