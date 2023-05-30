@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QMessageBox, QStyleOptio
 from PyQt6.QtGui import QAction, QShortcut, QColor
 from PyQt6 import QtGui, QtCore
 import typing, copy, functools
-from typing import List, overload, Union, Literal, Callable, Optional
+from typing import List, overload, Union, Literal, Callable, Optional, cast
 
 from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase, LazyResizeMixin
@@ -21,7 +21,7 @@ from ..types.configT import _ConfFontSizeT
 class FileSelectorGUI(MainWidgetBase):
     def __init__(self, parent):
         super().__init__(parent)
-        self.parent = parent
+        self._parent = parent
         self.initUI()
         self.setAcceptDrops(True)
     
@@ -207,7 +207,7 @@ class FileSelector(FileSelectorGUI):
                 callback(False)
                 return
             res: StringSearchT = signal["res"]
-            vaild_uids = res.keys()
+            vaild_uids = cast(List[str], res.keys())
             self.loadValidData(tags = DataTags(getConf()["default_tags"]), from_uids=vaild_uids)
             curr_data = self.getCurrentSelection()
             if not curr_data is None:

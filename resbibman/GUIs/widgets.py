@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from .fileSelector import FileSelector
     from .fileTags import FileTag
     from ..core.dataClass import DataBase
-    from ..confReader import _ConfFontSizeT
+    from ..types.configT import _ConfFontSizeT
 
 LOGGER = logging.getLogger("rbm")
 class WidgetBase:

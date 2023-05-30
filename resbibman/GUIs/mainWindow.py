@@ -175,20 +175,23 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.file_info = FileInfo(self)
         self.file_selector = FileSelector(self)
 
-        self.setMainPanel(self)
+        # Set reference, this is a bit tricky, for type checking
+        _self_cast = typing.cast(MainWindow, self)
+
+        self.setMainPanel(_self_cast)
         self.setInfoPanel(self.file_info)
         self.setSelectPanel(self.file_selector)
         self.setTagPanel(self.file_tags)
 
-        self.file_tags.setMainPanel(self)
+        self.file_tags.setMainPanel(_self_cast)
         self.file_tags.setInfoPanel(self.file_info)
         self.file_tags.setSelectPanel(self.file_selector)
 
-        self.file_info.setMainPanel(self)
+        self.file_info.setMainPanel(_self_cast)
         self.file_info.setTagPanel(self.file_tags)
         self.file_info.setSelectPanel(self.file_selector)
 
-        self.file_selector.setMainPanel(self)
+        self.file_selector.setMainPanel(_self_cast)
         self.file_selector.setInfoPanel(self.file_info)
         self.file_selector.setTagPanel(self.file_tags)
 
