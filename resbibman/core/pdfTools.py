@@ -1,7 +1,4 @@
-try:
-    import fitz
-except:
-    pass
+import fitz     # PyMuPDF
 import os
 from PyQt6 import QtGui
 import logging
@@ -33,9 +30,9 @@ def render_pdf_page(page_data, for_cover=False):
 
 def getPDFCoverAsQPixelmap(f_path: str):
     try:
-        doc = fitz.open(f_path)
-        page = doc.load_page(0)
-        cover = render_pdf_page(page, True)
+        with PDFReader(f_path) as doc:
+            cover = doc.getCoverIcon()
+        return cover
     except Exception as E:
         logging.getLogger("rbm").debug(f"Error happened while rendering pdf cover: {E}")
         cover= QtGui.QPixmap()
@@ -75,3 +72,24 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
     print("Finished. downloaded PDF.js to: {}".format(DEFAULT_PDF_VIEWER_DIR))
     os.remove(tmp_download)
     return True
+
+class PDFReader:
+    def __init__(self, fpath: str) -> None:
+        self.fpath = fpath
+        self.doc: fitz.Document
+    
+    def __enter__(self):
+        self.doc = fitz.open(self.fpath)
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.doc.close()
+
+    def getCoverIcon(self) -> QtGui.QPixmap:
+        page = self.doc.load_page(0)
+        cover = render_pdf_page(page)
+        return cover
+    
+    def getText(self) -> str:
+        text = chr(12).join([page.get_text() for page in self.doc])
+        return text
