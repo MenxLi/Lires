@@ -1,11 +1,11 @@
 import logging
 import shutil
-from PyQt6.QtWidgets import QApplication
 import os, sys
 from .core import globalVar as G
 from .parser import parseArgs
 
 from PyQt6 import QtNetwork
+from PyQt6.QtWidgets import QApplication, QStyleFactory
 
 def execProg():
     from .GUIs.mainWindow import MainWindow
@@ -31,10 +31,21 @@ def execProg():
         QtNetwork.QNetworkProxy.setApplicationProxy(proxy)
 
     # supress webengine warnings
-    # os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-logging"
-    os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--enable-logging --log-level=3"
+    os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-logging"
+    # os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--enable-logging --log-level=3"
 
     app = QApplication(sys.argv)
+
+    # set system default style
+    logger.debug("Available styles: {}".format(QStyleFactory.keys()))
+    if sys.platform == "win32":
+        app.setStyle(QStyleFactory.create("Fusion"))
+    elif sys.platform == "darwin":
+        app.setStyle(QStyleFactory.create("macOS"))     # default
+    else: 
+        ...
+
+    # load user stylesheet
     ss = getStyleSheets()[getConf()["stylesheet"]]
     if ss != "":
         with open(ss, "r", encoding="utf-8") as f:
