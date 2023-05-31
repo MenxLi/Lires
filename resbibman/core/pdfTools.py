@@ -30,7 +30,7 @@ def render_pdf_page(page_data, for_cover=False):
 
 def getPDFCoverAsQPixelmap(f_path: str):
     try:
-        with PDFReader(f_path) as doc:
+        with PDFAnalyser(f_path) as doc:
             cover = doc.getCoverIcon()
         return cover
     except Exception as E:
@@ -73,7 +73,8 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
     os.remove(tmp_download)
     return True
 
-class PDFReader:
+# https://pymupdf.readthedocs.io/en/latest/index.html
+class PDFAnalyser:
     def __init__(self, fpath: str) -> None:
         self.fpath = fpath
         self.doc: fitz.Document
@@ -91,5 +92,5 @@ class PDFReader:
         return cover
     
     def getText(self) -> str:
-        text = chr(12).join([page.get_text() for page in self.doc])
+        text = chr(12).join([page.get_text() for page in self.doc]).replace("\n", "")
         return text
