@@ -1,9 +1,10 @@
 
 """Language Model Interface"""
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
-from typing import Any, TypedDict, Literal
+from typing import Any, TypedDict, Literal, Type
 import dataclasses
 
 # check python version
@@ -34,6 +35,29 @@ class Conversation:
         system = [{"role": "system", "content": self.system}]
         conv = [{"role": c[0], "content": c[1]} for c in self.conversations]
         return system + conv
+
+def streamOutput(output_stream: Iterator[StreamData], print_callback: Any = lambda x, end=" ", flush=True: ...):
+    """
+    Obtain the output from the stream, and maybe print it to stdout
+    print_callback: a function that takes a string and print it to stdout, \
+        should have the same interface as print (i.e. print_callback("hello", end=" ", flush=True))
+    """
+    try:
+        print_callback("", end="", flush=True)
+    except TypeError:
+        raise TypeError("print_func should have the same interface as print, i.e. contains end and flush")
+
+    pre = 0
+    output_text = ""
+    for outputs in output_stream:
+        output_text = outputs["text"]
+        output_text = output_text.strip().split(" ")
+        now = len(output_text) - 1
+        if now > pre:
+            print_callback(" ".join(output_text[pre:now]), end=" ", flush=True)
+            pre = now
+    print_callback(" ".join(output_text[pre:]), flush=True)
+    return " ".join(output_text)
 
 class StreamData(TypedDict):
     """a class to represent the data returned by the model output stream"""
@@ -75,3 +99,10 @@ class OpenAIStreamIter(StreamIter):
             }
             yield data
         self.conversations.add(role = "assistant", content = text)
+
+StreamIterType = Literal["openai-gpt3.5"]
+def getStreamIter(itype: StreamIterType = "openai-gpt3.5") -> StreamIter:
+    if itype == "openai-gpt3.5":
+        return OpenAIStreamIter(model="gpt-3.5-turbo")
+    else:
+        raise ValueError("Unknown interface type: {}".format(itype))

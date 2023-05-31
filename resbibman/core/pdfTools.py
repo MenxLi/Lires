@@ -91,6 +91,11 @@ class PDFAnalyser:
         cover = render_pdf_page(page)
         return cover
     
-    def getText(self) -> str:
-        text = chr(12).join([page.get_text() for page in self.doc]).replace("\n", "") # type: ignore
+    def getText(self, no_new_line = True, smaller_space = True) -> str:
+        text = chr(12).join([page.get_text() for page in self.doc]) # type: ignore
+        if no_new_line:
+            text = text.replace("\n", " ")
+        if smaller_space:
+            # replace multiple spaces with one space
+            text = " ".join(text.split())
         return text
