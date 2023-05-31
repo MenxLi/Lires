@@ -80,7 +80,7 @@ class PDFAnalyser:
         self.doc: fitz.Document
     
     def __enter__(self):
-        self.doc = fitz.open(self.fpath)
+        self.doc = fitz.open(self.fpath) # type: ignore
         return self
     
     def __exit__(self, exc_type, exc_value, traceback):
@@ -92,5 +92,5 @@ class PDFAnalyser:
         return cover
     
     def getText(self) -> str:
-        text = chr(12).join([page.get_text() for page in self.doc]).replace("\n", "")
+        text = chr(12).join([page.get_text() for page in self.doc]).replace("\n", "") # type: ignore
         return text

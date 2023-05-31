@@ -95,7 +95,7 @@ class DataSearcher(DataCore):
                 async_tasks.append(_searchCommentSingle(dp, pattern, ignore_case))
                 uids.append(uid)
             all_res = await asyncio.gather(*async_tasks)
-            for uid, res in zip(uids, all_res):
+            for uid, res in zip(uids, all_res): # type: ignore
                 if res is not None:
                     results[uid] = res
             return results
