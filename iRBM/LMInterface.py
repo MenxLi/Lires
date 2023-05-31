@@ -14,8 +14,8 @@ if sys.version_info < (3, 9):
 else:
     from collections.abc import Iterator
 
-try: import openai
-except: Warning("openai not installed")
+import openai
+
 
 ConvRole = Literal["user", "assistant"]
 ConvContent = str
@@ -75,12 +75,21 @@ class StreamIter(ABC):
     def __call__(self, prompt) -> Iterator[StreamData]:
         return self.call(prompt, self.temperature, self.max_response_length)
 
+# Check if FastChat server url is setup in the environment variable
+FS_URL = os.environ.get("FASTCHAT_SERVER", None)
+if FS_URL is not None:
+    openai.api_key = "EMPTY"
+    openai.api_base = FS_URL
+    print("Using FastChat server: {}".format(FS_URL))
+
 class OpenAIStreamIter(StreamIter):
 
     def __init__(self, model: str = "gpt-3.5-turbo") -> None:
         super().__init__()
         self.model = model
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
+        if model == "vicuna-13b-v1.1":
+            assert FS_URL is not None, "FASTCHAT_SERVER environment variable is not set"
     
     def generateMessages(self, prompt: str):
         self.conversations.add(role = "user", content = prompt)
@@ -100,9 +109,11 @@ class OpenAIStreamIter(StreamIter):
             yield data
         self.conversations.add(role = "assistant", content = text)
 
-StreamIterType = Literal["openai-gpt3.5"]
+StreamIterType = Literal["openai-gpt3.5", "fs-vicuna-13b-v1.1"]
 def getStreamIter(itype: StreamIterType = "openai-gpt3.5") -> StreamIter:
     if itype == "openai-gpt3.5":
         return OpenAIStreamIter(model="gpt-3.5-turbo")
+    elif itype == "fs-vicuna-13b-v1.1":
+        return OpenAIStreamIter(model="vicuna-13b-v1.1")
     else:
         raise ValueError("Unknown interface type: {}".format(itype))
