@@ -22,7 +22,7 @@ setup(
     # 项目主页
     url="https://github.com/MenxLi/ResBibManager", 
 
-    packages=["resbibman", "RBMWeb"],
+    packages=["resbibman", "RBMWeb", "RBMWeb2", "iRBM"],
 
     classifiers = [
         #   Development Status
