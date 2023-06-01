@@ -21,8 +21,9 @@ def parseArgs() -> argparse.Namespace:
 
     sp_feat = subparsers.add_parser("build", help="build the index")
     sp_feat.add_argument("--force", action="store_true", help="force-rebuild")
-    sp_feat.add_argument("--model", action="store", help="model name", default="gpt-3.5-turbo")
-    sp_feat.add_argument("--max-words", action="store", type=int, default=512, help="max words per document for summarization")
+    sp_feat.add_argument("--model", action="store", help="model name, can be empty('') or StreamIterType. defaults to empty, will extract feature from pdf text. "\
+                        "otherwise use LLM to summarize the pdf text prior to feature extraction", default="")
+    sp_feat.add_argument("--max-words", action="store", type=int, default=4096, help="max words per document used for summarization, more words will be truncated")
 
     sp_query = subparsers.add_parser("query", help="query the index")
     sp_query.add_argument("aim", action="store", type=str, help="query string")
@@ -92,6 +93,9 @@ def buildFeatureIndex(
             summary = createSummaryWithLLM(pdf_text, dp)
         else:
             summary = pdf_text
+            if summary == "":
+                print("Warning: empty pdf text, use title only: {}".format(dp.title))
+                summary = dp.title
 
         # featurize the summary
         feature_dict[uid] = asyncio.run(featurize(summary, dim_reduce=True))  # [d_feature]
