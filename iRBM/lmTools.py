@@ -67,7 +67,7 @@ async def vectorize(
         elif model_name == "bert-base-uncased": max_len = 512
         elif model_name == "yikuan8/Clinical-Longformer": max_len = 4096
         elif model_name == "allenai/longformer-base-4096": max_len = 4096
-        # elif model_name == "sentence-transformers/all-mpnet-base-v2": max_len = ??
+        elif model_name == "sentence-transformers/all-mpnet-base-v2": max_len = 512
 
     if auto_tokenizer is None or auto_model is None:
         auto_tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -92,7 +92,7 @@ async def vectorize(
     # Normalize embeddings
     sentence_embeddings = F.normalize(sentence_embeddings, p=2, dim=1)
 
-
+    # import pdb; pdb.set_trace()
     with MuteEverything(enable=not verbose):
         if len(encoded_input['input_ids'][0]) == max_len:   # type: ignore
             print("Warning<vectorize>: input text is too long, truncated.")
@@ -100,12 +100,14 @@ async def vectorize(
 
 async def featurize(
         txt: str, 
-        word_chunk: int = 1024, 
+        word_chunk: int = 256, 
         model_name: EncoderT = _default_encoder, 
-        verbose = False) -> tuple[torch.Tensor, list[int]]:
+        dim_reduce: bool = False,
+        verbose = False) -> torch.Tensor:
     """
     take a long text return it's feature
-    return a tuple of (feats [n, d_feature], chunk_lengths)
+    if dim_reduce is True, return a tensor of shape [d_feature]
+    else, return a tensor of shape [n, d_feature]
     """
     assert txt != "", "txt cannot be empty"
     txt_split = txt.split()
@@ -114,5 +116,15 @@ async def featurize(
     vec_chunks: list[torch.Tensor] = await asyncio.gather(*_vec_chunk_tasks)
     feats = torch.cat(vec_chunks, dim=0)    # [n, d_feature]
 
-    chunk_lengths = [len(chunk.split()) for chunk in txt_chunks]
-    return feats, chunk_lengths
+    if not dim_reduce:
+        return feats
+    else:
+        if len(feats) == 1:
+            return feats[0]
+
+    last_chunk_len = len(txt_chunks[-1].split())
+    last_chunk_weight = last_chunk_len / word_chunk
+
+    # weighted average
+    feat = torch.sum(feats[:-1], dim=0) + feats[-1] * last_chunk_weight
+    return feat/(len(feats)-1+last_chunk_weight)

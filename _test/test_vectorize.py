@@ -1,7 +1,7 @@
 
 # random text
 import random, string, asyncio
-from iRBM.lmTools import featurize, vectorize
+from iRBM.lmTools import vectorize, featurize, EncoderT
 
 def random_text(words: int):
     def random_word():
@@ -10,10 +10,18 @@ def random_text(words: int):
     return " ".join([random_word() for _ in range(words)])
 
 
+import sys
+text = random_text(int(sys.argv[1]))
 
-text = random_text(1000)
+model_name: EncoderT = "sentence-transformers/all-mpnet-base-v2"
 
-vec = asyncio.run(vectorize(text, model_name="allenai/longformer-base-4096"))
+vec = asyncio.run(vectorize(text, model_name=model_name, verbose=True))
 print(vec.shape)
+
+feat = asyncio.run(featurize(text, model_name=model_name, verbose=True))
+print(feat.shape)
+
+feat2 = asyncio.run(featurize(text, model_name=model_name, verbose=True, dim_reduce=True))
+print(feat2.shape)
 
 

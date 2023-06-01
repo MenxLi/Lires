@@ -2,13 +2,14 @@
 Build search index for the database
 """
 import argparse, asyncio, os
+
 import torch, tqdm
 import openai.error
 from resbibman.confReader import TMP_INDEX, getConf
-from resbibman.core.dataClass import DataBase
+from resbibman.core.dataClass import DataBase, DataPoint
 from resbibman.core.pdfTools import PDFAnalyser
 
-from ..lmTools import vectorize, structuredSummerize
+from ..lmTools import featurize, structuredSummerize
 from ..lmInterface import StreamIterType
 from ..utils import MuteEverything
 
@@ -44,6 +45,36 @@ def buildFeatureIndex(
         feature_dict = torch.load(DOC_FEATURE_PATH)
     else:
         feature_dict = {}
+    
+    def createSummaryWithLLM(text: str, dp: DataPoint):
+        summary = ""
+        _summary_title: str = "Title: " + dp.title + "\n"
+        print("\n" + _summary_title, end=" ")
+
+        __trail_count = 0
+        __max_trail = 3
+        while __trail_count < __max_trail and summary == "":
+            try:
+                summary = asyncio.run(structuredSummerize(text, model=model_name, print_func=print))
+                summary = _summary_title + summary
+            except openai.error.APIError as e:
+                if __trail_count == __max_trail - 1:
+                    print("ERROR: MAX TRAIL REACHED, SKIPPING THIS DOC WITH ONLY TITLE")
+                    summary = _summary_title
+                print(e)
+                print("OpenAI API error, retrying...")
+                __trail_count += 1
+        return summary
+    
+    def getPDFText(pdf_path: str, max_word: int = 8192) -> str:
+        with PDFAnalyser(pdf_path) as doc:
+            pdf_text = doc.getText()
+            if len(pdf_text.split()) > max_word:
+                # too long, truncate
+                pdf_text = " ".join(pdf_text.split()[:max_word])
+            if len(pdf_text.split()) == 0:
+                return ""
+        return pdf_text
 
     for idx, (uid, dp) in enumerate(tqdm.tqdm(db.items())):
         if not (dp.is_local and dp.has_file and dp.fm.file_extension == ".pdf"):
@@ -55,54 +86,25 @@ def buildFeatureIndex(
 
         # load pdf
         doc_path = dp.file_path
-        with PDFAnalyser(doc_path) as doc:
-            MAX_WORDS = 8192
-            pdf_text = doc.getText()
-            if len(pdf_text.split()) > MAX_WORDS:
-                # too long, truncate
-                pdf_text = " ".join(pdf_text.split()[:MAX_WORDS])
-            if len(pdf_text.split()) == 0:
-                # empty pdf
-                continue
-        if len(pdf_text.split()) > max_words_per_doc:
-            pdf_text = " ".join(pdf_text.split()[:max_words_per_doc])
+        pdf_text = getPDFText(doc_path, max_words_per_doc)
         
         if model_name != "":
-            # create summary with LLM
-            summary = ""
-            _summary_title: str = "Title: " + dp.title + "\n"
-            print("\n" + _summary_title, end=" ")
-
-            __trail_count = 0
-            __max_trail = 3
-            while __trail_count < __max_trail and summary == "":
-                try:
-                    summary = asyncio.run(structuredSummerize(pdf_text, model=model_name, print_func=print))
-                    summary = _summary_title + summary
-                except openai.error.APIError as e:
-                    if __trail_count == __max_trail - 1:
-                        print("ERROR: MAX TRAIL REACHED, SKIPPING THIS DOC")
-                    print(e)
-                    print("OpenAI API error, retrying...")
-                    __trail_count += 1
-            if summary == "":
-                continue
+            summary = createSummaryWithLLM(pdf_text, dp)
         else:
-            # use the original text
             summary = pdf_text
 
         # featurize the summary
-        feature_dict[uid] = asyncio.run(vectorize(summary))[0]  # [d_feature]
+        feature_dict[uid] = asyncio.run(featurize(summary, dim_reduce=True))  # [d_feature]
     
         # save the feature dict on every 10 document to avoid losing progress
         if idx % 10 == 0:
             torch.save(feature_dict, DOC_FEATURE_PATH)
     torch.save(feature_dict, DOC_FEATURE_PATH)
 
-def queryFeatureIndex(query: str, n_return: int = 10) -> list[str]:
+def queryFeatureIndex(query: str, n_return: int = 16):
     feature_dict = torch.load(DOC_FEATURE_PATH)
 
-    query_vec = asyncio.run(vectorize(query))[0] # [d_feature]
+    query_vec = asyncio.run(featurize(query, dim_reduce=True)) # [d_feature]
     # print("Query vector:", query_vec.shape, torch.norm(query_vec))
 
     # collect uuid and features in to a large buffer
