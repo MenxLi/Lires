@@ -84,6 +84,9 @@ def buildFeatureIndex(
                 print(e)
                 print("OpenAI API error, retrying...")
                 __trail_count += 1
+        #  import pdb; pdb.set_trace()
+        if summary == "":
+            continue
 
         # featurize the summary
         feature_dict[uid] = asyncio.run(featurize(summary, dim_reduct=True))  # [d_feature]
