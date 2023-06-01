@@ -34,6 +34,7 @@ async def structuredSummerize(txt: str, model: StreamIterType = "gpt-3.5-turbo",
     prompt = "Please summarize the following paper in about 200 words, "\
         "your summary should be 3 paragraphs, each paragraph should start with \'Background and Motivations: \', "\
         "\'Methods: \' and \'Contributions: \' respectively. "\
+        "No need to mention the title in your summary."\
         f"Here is the paper: {txt}"
     return streamOutput(ai(prompt), print_func)
 

@@ -24,15 +24,22 @@ def parseArgs() -> argparse.Namespace:
     args = parser.parse_args()
     return args
 
-def buildFeatureIndex(db: DataBase, max_words_per_doc: int = 512):
-    MAX_WORDS = 8192
-    feature_dict = {}
+def buildFeatureIndex(db: DataBase, max_words_per_doc: int = 512, force = False):
+    if os.path.exists(DOC_FEATURE_PATH) and not force:
+        feature_dict = torch.load(DOC_FEATURE_PATH)
+    else:
+        feature_dict = {}
+
     for uid, dp in tqdm.tqdm(db.items()):
         if not (dp.is_local and dp.has_file and dp.fm.file_extension == ".pdf"):
+            continue
+        if uid in feature_dict:
+            print(f"Skipping re-build feature index for {dp}")
             continue
         assert dp.file_path is not None  # type hint
         doc_path = dp.file_path
         with PDFAnalyser(doc_path) as doc:
+            MAX_WORDS = 8192
             pdf_text = doc.getText()
             if len(pdf_text.split()) > MAX_WORDS:
                 # too long, truncate
@@ -46,7 +53,7 @@ def buildFeatureIndex(db: DataBase, max_words_per_doc: int = 512):
 
         summary = ""
         _summary_title: str = "Title: " + dp.title + "\n"
-        print(_summary_title, end=" ")
+        print("\n" + _summary_title, end=" ")
 
         __trail_count = 0
         __max_trail = 3
@@ -64,8 +71,8 @@ def buildFeatureIndex(db: DataBase, max_words_per_doc: int = 512):
         feature_dict[uid] = asyncio.run(featurize(summary, dim_reduct=True))  # [d_feature]
         # break
     
-    # save the feature dict
-    torch.save(feature_dict, DOC_FEATURE_PATH)
+        # save the feature dict on every document...
+        torch.save(feature_dict, DOC_FEATURE_PATH)
 
 def queryFeatureIndex(query: str, n_return: int = 10) -> list[str]:
     feature_dict = torch.load(DOC_FEATURE_PATH)
