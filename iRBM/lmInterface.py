@@ -88,8 +88,8 @@ class OpenAIStreamIter(StreamIter):
         super().__init__()
         self.model = model
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
-        if model in ["vicuna-13b"]:
-            assert FS_URL is not None, "FASTCHAT_SERVER environment variable is not set"
+        if FS_URL is not None:
+            assert model in ["vicuna-13b"], "FastChat only supports vicuna-13b"
     
     def generateMessages(self, prompt: str):
         self.conversations.add(role = "user", content = prompt)
@@ -109,9 +109,9 @@ class OpenAIStreamIter(StreamIter):
             yield data
         self.conversations.add(role = "assistant", content = text)
 
-StreamIterType = Literal["openai-gpt3.5", "vicuna-13b"]
-def getStreamIter(itype: StreamIterType = "openai-gpt3.5") -> StreamIter:
-    if itype in ["openai-gpt3.5", "vicuna-13b"]:
+StreamIterType = Literal["gpt-3.5-turbo", "vicuna-13b"]
+def getStreamIter(itype: StreamIterType = "gpt-3.5-turbo") -> StreamIter:
+    if itype in ["gpt-3.5-turbo", "vicuna-13b"]:
         return OpenAIStreamIter(model=itype)
     else:
         raise ValueError("Unknown interface type: {}".format(itype))
