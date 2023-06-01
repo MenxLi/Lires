@@ -6,7 +6,7 @@ import asyncio
 from typing import Callable
 from .lmInterface import StreamData, Iterator
 from .lmInterface import getStreamIter, streamOutput, StreamIterType
-from .utils import autoTorchDevice
+from .utils import autoTorchDevice, MuteEverything
 
 import torch
 import numpy as np
@@ -27,29 +27,15 @@ async def structuredSummerize(txt: str, model: StreamIterType = "gpt-3.5-turbo",
         PRINT = False
 
     ai = getStreamIter(model)
+    ai.conversations.system = "A conversation between a human and an AI research assistant. "\
+        "The human is asking the AI to summarize a paper."\
+        "The AI gives short and conscise response in academic literature style. "\
 
-    prompt = "I'm going to ask you to summarize the following paper, "\
-        "in the following three aspects: background and motivations, methods and contributions, "\
-        "each in a paragraph around 50 words. "\
-        "Your summary should be in academic literature style. Don't exagerate the significance. "\
+    prompt = "Please summarize the following paper in about 200 words, "\
+        "your summary should be 3 paragraphs, each paragraph should start with \'Background and Motivations: \', "\
+        "\'Methods: \' and \'Contributions: \' respectively. "\
         f"Here is the paper: {txt}"
-    
-    # if PRINT: print("Background and Motivations: ", end="")
-    prompt += "\n\n Now summarize the paper's background and motivations. "\
-        "Your response should start with \'Background and Motivations: \'"
-    background = streamOutput(ai(prompt), print_func)
-
-    # if PRINT: print("Methods: ", end="")
-    prompt = "Summarize the paper's methods. "\
-        "Your response should start with \'Methods: \'"
-    methods = streamOutput(ai(prompt), print_func)
-
-    # if PRINT: print("Contributions: ", end="")
-    prompt = "Summarize the paper's contributions. "\
-        "Your response should start with \'Contributions: \'"
-    contributions = streamOutput(ai(prompt), print_func)
-
-    return f"{background}\n{methods}\n{contributions}".replace("\n", "  ")
+    return streamOutput(ai(prompt), print_func)
 
 
 bert_tokenizer = None
@@ -58,7 +44,7 @@ bert_model = None
 @torch.inference_mode()
 async def vectorize(txt: str, max_len: int = 512, verbose = False) -> torch.Tensor:
     """
-    take a long text and return a vector of shape [1, 768]
+    take a long text and return a vector of shape [1, d_feature]
     """
     global bert_tokenizer, bert_model
     device = autoTorchDevice()
@@ -70,19 +56,34 @@ async def vectorize(txt: str, max_len: int = 512, verbose = False) -> torch.Tens
         bert_model = AutoModel.from_pretrained("distilbert-base-uncased").to(device)
 
     inputs = bert_tokenizer(txt, return_tensors="pt", padding=True, truncation=True, max_length=max_len).to(device)
-    if verbose and len(inputs['input_ids'][0]) == 512:   # type: ignore
-        print("Warning<vectorize>: input text is too long, truncated.")
-    hidden = bert_model(**inputs).last_hidden_state[:, 0, :].detach().cpu()  # [1, 768]
+    hidden = bert_model(**inputs).last_hidden_state[:, 0, :].detach()  # [1, 768]
+
+    with MuteEverything(enable=not verbose):
+        if len(inputs['input_ids'][0]) == 512:   # type: ignore
+            print("Warning<vectorize>: input text is too long, truncated.")
     return hidden
 
-async def featurize(txt: str, word_chunk: int = 256, verbose = False, ignore_last = True) -> torch.Tensor:
+async def featurize(txt: str, word_chunk: int = 256, verbose = False, supress_last = True, dim_reduct = False) -> torch.Tensor:
     """
-    take a long text and return a vector of shape [n, 768]
+    take a long text and return a vector of shape [n, d_feature]
+    if supress_last is True, the last chunk will be weighted by the ratio of the number of words in the last chunk to word_chunk
+    if dim_reduct is True, the output will be of shape [1, d_feature]
     """
+    if txt == "":
+        txt = " "
     txt_split = txt.split()
     txt_chunks = [" ".join(txt_split[i:i+word_chunk]) for i in range(0, len(txt_split), word_chunk)]
-    if ignore_last and len(txt_chunks) > 1:
-        txt_chunks = txt_chunks[:-1]
+    if supress_last:
+        last_chunk_weight = len(txt_chunks[-1].split()) / word_chunk
+    else:
+        last_chunk_weight = 1.
     _vec_chunk_tasks = [vectorize(chunk, verbose=verbose) for chunk in txt_chunks]
     vec_chunks: list[torch.Tensor] = await asyncio.gather(*_vec_chunk_tasks)
-    return torch.cat(vec_chunks, dim=0)
+    vec_chunks[-1] = vec_chunks[-1] * last_chunk_weight
+    feats = torch.cat(vec_chunks, dim=0)    # [n, d_feature]
+    if not dim_reduct:
+        return feats
+    else:
+        feat = torch.sum(feats, dim=0, keepdim=False)  # [d_feature]
+        feat = feat / (feats.shape[0] - 1 + last_chunk_weight)
+        return feat
