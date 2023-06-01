@@ -39,6 +39,7 @@ TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
 TMP_WEB_NOTES = os.path.join(TMP_DIR, "notes_webpage")  # For notes as webpages
+TMP_INDEX = os.path.join(TMP_DIR, "index")      # For index cache
 
 # Create directories if they don't exist
 if not os.path.exists(RBM_HOME):
@@ -46,7 +47,7 @@ if not os.path.exists(RBM_HOME):
 for _p in [TMP_DIR, DEFAULT_PDF_VIEWER_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
-for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES]:
+for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES, TMP_INDEX]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 
