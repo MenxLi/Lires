@@ -3,12 +3,14 @@
 
 import asyncio
 
-from typing import Callable
+from typing import Callable, Optional, Literal
 from .lmInterface import StreamData, Iterator
 from .lmInterface import getStreamIter, streamOutput, StreamIterType
 from .utils import autoTorchDevice, MuteEverything
 
+import pdb
 import torch
+import torch.nn.functional as F
 import numpy as np
 from transformers import AutoTokenizer, AutoModel
 
@@ -39,52 +41,78 @@ async def structuredSummerize(txt: str, model: StreamIterType = "gpt-3.5-turbo",
     return streamOutput(ai(prompt), print_func)
 
 
-bert_tokenizer = None
-bert_model = None
-# reference: https://towardsdatascience.com/feature-extraction-with-bert-for-text-classification-533dde44dc2f
+auto_tokenizer = None
+auto_model = None
+EncoderT = Literal["distilbert-base-uncased", "yikuan8/Clinical-Longformer", "allenai/longformer-base-4096", "bert-base-uncased", "sentence-transformers/all-mpnet-base-v2"]
+_default_encoder = "sentence-transformers/all-mpnet-base-v2"
+# reference: https://huggingface.co/sentence-transformers/all-mpnet-base-v2
 @torch.inference_mode()
-async def vectorize(txt: str, max_len: int = 512, verbose = False) -> torch.Tensor:
+async def vectorize(
+    txt: str, 
+    model_name: EncoderT = _default_encoder,
+    max_len: Optional[int] = None, 
+    verbose = False
+    ) -> torch.Tensor:
     """
+    max_len: the max length of the input text, the rest will be truncated, automatically set to the length of the model if None
     take a long text and return a vector of shape [1, d_feature]
     """
-    global bert_tokenizer, bert_model
+    global auto_tokenizer, auto_model
     device = autoTorchDevice()
     txt = txt.replace("\n", " ")
     txt = " ".join(txt.split())
 
-    if bert_tokenizer is None or bert_model is None:
-        bert_tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
-        bert_model = AutoModel.from_pretrained("distilbert-base-uncased").to(device)
+    if max_len is None:
+        if model_name == "distilbert-base-uncased": max_len = 512
+        elif model_name == "bert-base-uncased": max_len = 512
+        elif model_name == "yikuan8/Clinical-Longformer": max_len = 4096
+        elif model_name == "allenai/longformer-base-4096": max_len = 4096
+        # elif model_name == "sentence-transformers/all-mpnet-base-v2": max_len = ??
 
-    inputs = bert_tokenizer(txt, return_tensors="pt", padding=True, truncation=True, max_length=max_len).to(device)
-    hidden = bert_model(**inputs).last_hidden_state[:, 0, :].detach()  # [1, 768]
+    if auto_tokenizer is None or auto_model is None:
+        auto_tokenizer = AutoTokenizer.from_pretrained(model_name)
+        auto_model = AutoModel.from_pretrained(model_name).to(device)
+
+    # Tokenize sentences
+    encoded_input = auto_tokenizer(txt, padding=True, truncation=True, return_tensors='pt')
+
+    # Compute token embeddings
+    with torch.no_grad():
+        model_output = auto_model(**encoded_input)
+
+    #Mean Pooling - Take attention mask into account for correct averaging
+    def mean_pooling(model_output, attention_mask):
+        token_embeddings = model_output[0] #First element of model_output contains all token embeddings
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+        return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+        
+    # Perform pooling
+    sentence_embeddings = mean_pooling(model_output, encoded_input['attention_mask'])
+
+    # Normalize embeddings
+    sentence_embeddings = F.normalize(sentence_embeddings, p=2, dim=1)
+
 
     with MuteEverything(enable=not verbose):
-        if len(inputs['input_ids'][0]) == 512:   # type: ignore
+        if len(encoded_input['input_ids'][0]) == max_len:   # type: ignore
             print("Warning<vectorize>: input text is too long, truncated.")
-    return hidden
+    return sentence_embeddings
 
-async def featurize(txt: str, word_chunk: int = 256, verbose = False, supress_last = True, dim_reduct = False) -> torch.Tensor:
+async def featurize(
+        txt: str, 
+        word_chunk: int = 1024, 
+        model_name: EncoderT = _default_encoder, 
+        verbose = False) -> tuple[torch.Tensor, list[int]]:
     """
-    take a long text and return a vector of shape [n, d_feature]
-    if supress_last is True, the last chunk will be weighted by the ratio of the number of words in the last chunk to word_chunk
-    if dim_reduct is True, the output will be of shape [1, d_feature]
+    take a long text return it's feature
+    return a tuple of (feats [n, d_feature], chunk_lengths)
     """
-    if txt == "":
-        txt = " "
+    assert txt != "", "txt cannot be empty"
     txt_split = txt.split()
     txt_chunks = [" ".join(txt_split[i:i+word_chunk]) for i in range(0, len(txt_split), word_chunk)]
-    if supress_last:
-        last_chunk_weight = len(txt_chunks[-1].split()) / word_chunk
-    else:
-        last_chunk_weight = 1.
-    _vec_chunk_tasks = [vectorize(chunk, verbose=verbose) for chunk in txt_chunks]
+    _vec_chunk_tasks = [vectorize(chunk, verbose=verbose, model_name=model_name) for chunk in txt_chunks]
     vec_chunks: list[torch.Tensor] = await asyncio.gather(*_vec_chunk_tasks)
-    vec_chunks[-1] = vec_chunks[-1] * last_chunk_weight
     feats = torch.cat(vec_chunks, dim=0)    # [n, d_feature]
-    if not dim_reduct:
-        return feats
-    else:
-        feat = torch.sum(feats, dim=0, keepdim=False)  # [d_feature]
-        feat = feat / (feats.shape[0] - 1 + last_chunk_weight)
-        return feat
+
+    chunk_lengths = [len(chunk.split()) for chunk in txt_chunks]
+    return feats, chunk_lengths
