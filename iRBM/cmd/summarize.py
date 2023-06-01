@@ -21,9 +21,9 @@ def main():
         txt = " ".join(pdf_text.split()[:max_len])
     else: txt = pdf_text
 
-    vec = asyncio.run(featurize(txt, verbose=True))
-    print(vec.shape)
-    exit()
+    # vec = asyncio.run(featurize(txt, verbose=True))
+    # print(vec.shape)
+    # exit()
 
     if args.structured:
         res = asyncio.run(structuredSummerize(txt, print_func=print, model=args.model))

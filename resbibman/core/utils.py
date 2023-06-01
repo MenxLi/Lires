@@ -10,7 +10,18 @@ from uuid import uuid4
 CallVar = TypeVar("CallVar", bound = Callable)
 
 class MuteEverything:
+    def __init__(self, enable: bool = True):
+        self.stdout = None
+        self.stderr = None
+        self.enable = enable
+    def on(self):
+        self.__enter__()
+    def off(self):
+        self.__exit__(None, None, None)
+
     def __enter__(self):
+        if not self.enable:
+            return
         # Redirect stdout and stderr to /dev/null
         self.stdout = sys.stdout
         self.stderr = sys.stderr
@@ -18,6 +29,8 @@ class MuteEverything:
         sys.stderr = open(os.devnull, 'w')
     
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if not self.enable:
+            return
         # Restore stdout and stderr
         sys.stdout.close()
         sys.stderr.close()

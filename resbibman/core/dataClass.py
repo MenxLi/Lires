@@ -573,7 +573,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
             d[f_info["uuid"]] = f_info
         return d
 
-    def init(self, db_local = "", force_offline = False):
+    def init(self, db_local = "", force_offline = False) -> DataBase:
         """
         An abstraction of self.construct, load both db_local and remote server
         reset offline status
@@ -595,6 +595,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
                 if os.path.isdir(f_path):
                     to_load.append(f_path)
             asyncioLoopRun(self.constuct(to_load))
+        return self     # enable chaining initialization
 
     async def constuct(self, vs: Union[List[str], List[DataPointSummary]], force_offline = False):
         """
