@@ -1,6 +1,6 @@
 
 import torch
-from resbibman.core.utils import MuteEverything     # needed, for chain import
+from resbibman.core.utils import *     # needed, for chain import
 
 def autoTorchDevice() -> str:
     if torch.cuda.is_available():

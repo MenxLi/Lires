@@ -6,7 +6,7 @@ import asyncio
 from typing import Callable, Optional, Literal
 from .lmInterface import StreamData, Iterator
 from .lmInterface import getStreamIter, streamOutput, StreamIterType
-from .utils import autoTorchDevice, MuteEverything
+from .utils import autoTorchDevice, MuteEverything, Timer
 
 import pdb
 import torch
@@ -70,8 +70,9 @@ async def vectorize(
         elif model_name == "sentence-transformers/all-mpnet-base-v2": max_len = 512
 
     if auto_tokenizer is None or auto_model is None:
-        auto_tokenizer = AutoTokenizer.from_pretrained(model_name)
-        auto_model = AutoModel.from_pretrained(model_name).to(device)
+        with Timer("Loading text encoder model"):
+            auto_tokenizer = AutoTokenizer.from_pretrained(model_name)
+            auto_model = AutoModel.from_pretrained(model_name).to(device)
 
     # Tokenize sentences
     encoded_input = auto_tokenizer(txt, padding=True, truncation=True, return_tensors='pt')

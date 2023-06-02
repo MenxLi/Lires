@@ -45,6 +45,23 @@ def loggedFunction(func: CallVar) -> CallVar:
         return func(*args, **kwargs)
     return func_
 
+class Timer:
+    def __init__(self, name: str = "", print_func: Callable[[str], None] = print):
+        self.name = name
+        self.start = time.time()
+        self.end = None
+        self.duration = None
+        self.print_func = print_func
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end = time.time()
+        self.duration = self.end - self.start
+        if self.name:
+            self.print_func(f"{self.name} finished in {self.duration:.3f} seconds")
+
 class ProgressBarCustom(object):
     def __init__(self, n_total, call: Callable[[str], None]):
         """
