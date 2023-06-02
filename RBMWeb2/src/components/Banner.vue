@@ -84,11 +84,15 @@
         border-radius: 10px;
         padding-left: 10px;
         padding-right: 10px;
+        font-size: small;
     }
     div.button{
         display: flex;
         align-items: center;
         gap: 3px;
+    }
+    select.searchType{
+        font-size: smaller;
     }
     span.button{
         padding: 3px;
