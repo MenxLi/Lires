@@ -14,6 +14,8 @@ class SearchHandler(tornado.web.RequestHandler, RequestHandlerBase):
         searcher.setRunConfig(method, kwargs)
         res = searcher.run()
         for k in res.keys():
-            # match object is not json serializable, set to None
-            res[k] = None
+            this_res = res[k]
+            if this_res is not None:
+                # Make sure the result is serializable
+                this_res["match"] = None
         self.write(json.dumps(res))

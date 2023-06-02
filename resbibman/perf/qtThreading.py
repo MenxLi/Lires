@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import time
 import requests
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, TypedDict
 from PyQt6.QtCore import QObject, QRunnable, pyqtSignal
 
 from ..core import globalVar as G
 if TYPE_CHECKING:
     from ..core.dataClass import DataPoint, DataBase
-    from ..core.dataSearcher import DataSearcher
+    from ..core.dataSearcher import DataSearcher, StringSearchT
 
 
 class ThreadSignalsQ(QObject):

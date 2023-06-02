@@ -4,13 +4,17 @@ Search database by certain criteria
 
 import re
 import asyncio
-from typing import Dict, Optional
+from typing import Dict, Optional, TypedDict
 from .dataClass import DataCore, DataBase, DataPoint
 from ..perf.asynciolib import asyncioLoopRun
 from .serverConn import ServerConn
+from iRBM.textFeature import queryFeatureIndex
 
-# a dictionary of uuid and matchs
-StringSearchT = Dict[str, Optional[re.Match]]
+class _searchResult(TypedDict):
+    score: Optional[float]  # sort by score, the higher the better match
+    match: Optional[re.Match]
+
+StringSearchT = Dict[str, Optional[_searchResult]]
 class DataSearcher(DataCore):
 
     def __init__(self, db: Optional[DataBase] = None) -> None:
@@ -38,7 +42,7 @@ class DataSearcher(DataCore):
         for uid, dp in self.db.items():
             res = self._searchRegex(pattern, dp.stringInfo(), ignore_case)
             if not res is None:
-                results[uid] = res
+                results[uid] = {"score": None, "match": res}
         return results
     
     def searchTitle(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
@@ -46,7 +50,7 @@ class DataSearcher(DataCore):
         for uid, dp in self.db.items():
             res = self._searchRegex(pattern, dp.title, ignore_case)
             if not res is None:
-                results[uid] = res
+                results[uid] = {"score": None, "match": res}
         return results
 
     def searchAuthor(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
@@ -55,7 +59,7 @@ class DataSearcher(DataCore):
             to_search = ", ".join(dp.authors)
             res = self._searchRegex(pattern, to_search, ignore_case)
             if not res is None:
-                results[uid] = res
+                results[uid] = {"score": None, "match": res}
         return results
 
     def searchYear(self, pattern: str) -> StringSearchT:
@@ -82,7 +86,7 @@ class DataSearcher(DataCore):
                         raise ValueError
                     res = self._searchRegex(pattern, to_search, ignore_case)
             if not res is None:
-                results[uid] = res
+                results[uid] = {"score": None, "match": res}
         return results
     
     def searchComment(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
@@ -113,6 +117,23 @@ class DataSearcher(DataCore):
             res = conn.search("searchComment", kwargs = {
                 "pattern": pattern,
                 "ignore_case": ignore_case,
+            })
+            if res is None:
+                return {}
+            else:
+                return res
+    
+    def searchFeature(self, pattern: str, n_return = 999) -> StringSearchT:
+        if self.db.offline:
+            if pattern.strip() == "":
+                return {uid: None for uid in self.db.keys()}
+            search_res = queryFeatureIndex(pattern, n_return=n_return)
+            return {uid: {"score": score, "match": None} for uid, score in zip(search_res["uids"], search_res["scores"])}
+        else:
+            conn = ServerConn()
+            res = conn.search("searchFeature", kwargs = {
+                "pattern": pattern,
+                "n_return": n_return,
             })
             if res is None:
                 return {}

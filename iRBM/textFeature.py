@@ -2,6 +2,7 @@
 import os
 import asyncio
 import tqdm
+from typing import TypedDict
 import torch
 import openai, openai.error
 from resbibman.confReader import DOC_FEATURE_PATH
@@ -12,6 +13,7 @@ from .lmInterface import StreamIterType
 from .lmTools import structuredSummerize, featurize
 
 FeatureDict = dict[str, torch.Tensor]
+FeatureQueryResult = TypedDict("FeatureQueryResult", {"uids": list[str], "scores": list[float]})
 def buildFeatureStorage(
         db: DataBase, 
         max_words_per_doc: int, 
@@ -71,7 +73,7 @@ def buildFeatureStorage(
             torch.save(feature_dict, DOC_FEATURE_PATH)
     torch.save(feature_dict, DOC_FEATURE_PATH)
 
-def queryFeatureIndex(query: str, n_return: int = 16) -> list[str]:
+def queryFeatureIndex(query: str, n_return: int = 16) -> FeatureQueryResult:
     if os.path.exists(DOC_FEATURE_PATH):
         feature_dict: FeatureDict = torch.load(DOC_FEATURE_PATH)
     else:
@@ -93,10 +95,9 @@ def queryFeatureIndex(query: str, n_return: int = 16) -> list[str]:
         n_return = len(scores)
     # return the top n_return of the corresponding uuids
     topk = torch.topk(scores, n_return)
-    print("Top scores:", topk.values)
-    return [uuids[i] for i in topk.indices]
+    return {"scores": topk.values.tolist(), "uids": [uuids[i] for i in topk.indices]}
 
-def queryFeatureIndexByUID(db: DataBase, query_uid: str, n_return: int = 16) -> list[str]:
+def queryFeatureIndexByUID(db: DataBase, query_uid: str, n_return: int = 16) -> FeatureQueryResult:
     """
     query the related documents of the given uid
     """

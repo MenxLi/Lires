@@ -181,16 +181,31 @@ class FileSelector(FileSelectorGUI):
         self.getMainPanel().syncData_async(selections, on_finish)
         return 
 
-    def loadValidData(self, tags: DataTags, from_uids: Optional[List[str]] = None, hint = False):
-        """Load valid data by tags"""
+    def loadValidData(
+            self, 
+            tags: DataTags, 
+            from_uids: Optional[List[str]] = None, 
+            sort_uids: Optional[List[str]] = None,
+            hint = False
+            ):
+        """
+        Load valid data by tags
+        - tags: tags selected
+        - from_uids: if not None, only load data from these uids, can be used to load data from search result
+        - sort_uids: if not None, sort data by this order
+        - hint: if True, print debug info
+        """
         valid_data = self.getMainPanel().db.getDataByTags(tags, from_uids=from_uids)
         # if screen_pattern != "":
         #     valid_data = DataList([i for i in valid_data if i.screenByPattern(screen_pattern)])
         sort_method = getConf()["sort_method"]
         sort_reverse = getConf()["sort_reverse"]
-        valid_data.sortBy(sort_method, reverse=sort_reverse)
+        if sort_uids is not None:
+            valid_data.sortBy(sort_uids, reverse=False)
+        else:
+            valid_data.sortBy(sort_method, reverse=sort_reverse)
         self.data_model.assignData(valid_data) 
-        if hint:
+        if hint:    # debuggin purpose
             screen_pattern = self.search_bar.text()
             self.logger.debug("Data loaded, tags: {tags}, sorting method: {sort_method}, screen_pattern: {screen_pattern}".\
                 format(tags = " | ".join(tags), sort_method = sort_method, screen_pattern = screen_pattern))
@@ -208,7 +223,21 @@ class FileSelector(FileSelectorGUI):
                 return
             res: StringSearchT = signal["res"]
             vaild_uids = cast(List[str], res.keys())
-            self.loadValidData(tags = DataTags(getConf()["default_tags"]), from_uids=vaild_uids)
+
+            # maybe create a temporary sort_uids here
+            sort_uids = None
+            if len(res)>0:
+                _test_key = next(iter(res.keys()))  # get the first key, to determine if the res contains score
+                _test_res_obj = res[_test_key]
+                if _test_res_obj is not None and _test_res_obj["score"] is not None:
+                    # if res contains score, sort by score
+                    sort_uids = [i for i, _ in sorted(res.items(), key=lambda x: x[1]["score"], reverse=True)] # type: ignore
+
+            self.loadValidData(
+                tags = DataTags(getConf()["default_tags"]), 
+                from_uids=vaild_uids,
+                sort_uids=sort_uids
+                )
             curr_data = self.getCurrentSelection()
             if not curr_data is None:
                 self.selection_changed.emit(curr_data)

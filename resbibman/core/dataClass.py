@@ -494,7 +494,18 @@ class DataList(List[DataPoint], DataCore):
     def __init__(self, *args, **kwargs):
         return super().__init__(*args, **kwargs)
 
-    def sortBy(self, mode, reverse: bool = False):
+    def sortBy(self, mode: str | list[str], reverse: bool = False):
+        """
+        Mode can be a list of uuid or a string indicating the sorting mode
+        """
+        if isinstance(mode, list):
+            # sort by uuid list
+            index_dict = {uuid: i for i, uuid in enumerate(mode)}
+            def sortKey(x):
+                if x.uuid not in index_dict:
+                    return -1
+                return index_dict[x.uuid]
+            return self.sort(key = sortKey)
         if mode == self.SORT_AUTHOR:
             return self.sort(key = lambda x: x.authors[0], reverse = reverse)
         elif mode == self.SORT_YEAR:
