@@ -27,15 +27,27 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 ~~Refer to the [docs-CN](./resbibman/docs/UserGuide.md) for the usage of this software.~~
 
 ## Installation
+
+installation for client-side GUI only:
 ```bash
-tsc                             # [optional] compile typescript for RBMweb frontend
 pip install setuptools wheel pyyaml
-pip install packages/*
+pip install packages/QFlowLayout packages/QCollapsibleCheckList
 pip install .
-rbm-utils download_pdfjs        # [optional] download pdf.js viewer to view pdf inside resbibman
+rbm-utils download_pdfjs                # [optional] download pdf.js viewer to view pdf inside resbibman
+
+# pip install .[ai]                     # [optional] to install with AI dependencies
 ```
 
-### Docker deployment
+installation for Server and development
+```bash
+tsc
+cd RBMWeb2 && npm install && npm run build && cd ..
+pip install setuptools wheel pyyaml
+pip install .[full]
+```
+
+### Docker deployment <span style="color:red">[outdated]</span>
+<span style="color:blue">To be revised...</span>
 Instead of manual installation, The the RBMWeb server can be deployed via docker,   
 
 You need to edit `docker-compose.yml` to change port and mount point mapping, then execute the following commands to start:
@@ -81,8 +93,8 @@ rbm-collect     # Automatic add entry to database with retriving string
 rbm-resetconf   # To reset default configuration
 rbm-utils       # Miscellaneous utilities
 rbm-share       # To generate share url
+rbm-index       # To build and query feature of the database, for fuzzy search
 ```
-
 
 # Future works
 
@@ -103,7 +115,7 @@ rbm-share       # To generate share url
 - [x] Other citation format convert to bibtex
 - [x] Key-user relation, mandatory tags
 - [x] Server search
-- [x] Related works
+- [ ] Related works
 - [ ] Reading time
 - [ ] Dashboard page
 - [ ] Within software cross-reference
