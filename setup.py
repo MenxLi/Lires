@@ -1,16 +1,15 @@
 import os, platform
-from setuptools import setup
+from setuptools import setup, find_packages
 from resbibman.version import VERSION
 
 with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as fp:
     install_requires = [pkg for pkg in fp.read().split("\n") if pkg]
 
-    #  if platform.system() == "Darwin" and platform.processor() == "arm":
-    #      # Apple silicon
-    #      for i in range(0, len(install_requires))[::-1]:
-    #          if install_requires[i] == "PyMuPDF":
-    #              # Not install PyMuPDF in MacOS, can't compile for now
-    #              install_requires.pop(i)
+with open(os.path.join(os.path.dirname(__file__), "iRBM", "requirements.txt")) as fp:
+    ai_requires = [pkg for pkg in fp.read().split("\n") if pkg]
+
+with open(os.path.join(os.path.dirname(__file__), "requirements-dev.txt")) as fp:
+    dev_requires = [pkg for pkg in fp.read().split("\n") if pkg]
 
 setup(
     name="ResBibMan",
@@ -22,7 +21,7 @@ setup(
     # 项目主页
     url="https://github.com/MenxLi/ResBibManager", 
 
-    packages=["resbibman", "RBMWeb", "RBMWeb2", "iRBM"],
+    packages=find_packages(),
 
     classifiers = [
         #   Development Status
@@ -38,6 +37,10 @@ setup(
     include_package_data = True,
 
     install_requires = install_requires,
+    extras_require= {
+        "ai": ai_requires,
+        "full": ai_requires + dev_requires
+    },
 
     entry_points = {
         "console_scripts":[
@@ -48,6 +51,7 @@ setup(
             "rbm-share=resbibman.cmd.rbmShare:main",
             "rbm-keyman=resbibman.cmd.manageKey:run",
             "rbm-discuss=resbibman.cmd.rbmDiscuss:main",
+            "rbm-index=iRBM.cmd.index:main",
         ]
     }
 )
