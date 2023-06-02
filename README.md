@@ -28,11 +28,11 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 
 ## Installation
 ```bash
-tsc                             # compile typescript for RBMweb frontend
+tsc                             # [optional] compile typescript for RBMweb frontend
 pip install setuptools wheel pyyaml
 pip install packages/*
 pip install .
-rbm-utils download_pdfjs        # download pdf.js viewer to view pdf inside resbibman
+rbm-utils download_pdfjs        # [optional] download pdf.js viewer to view pdf inside resbibman
 ```
 
 ### Docker deployment
@@ -69,7 +69,7 @@ The data directory contains the configuration file, log files, default database,
 
 To start the application with arbitrary data directory, you can run: 
 ```bash
-export RBM_HOME="your/path/here"; resbibman
+RBM_HOME="your/path/here" resbibman
 ```
 
 Other management tools include: 
@@ -103,10 +103,10 @@ rbm-share       # To generate share url
 - [x] Other citation format convert to bibtex
 - [x] Key-user relation, mandatory tags
 - [x] Server search
+- [x] Related works
 - [ ] Reading time
 - [ ] Dashboard page
 - [ ] Within software cross-reference
-- [ ] Related works
 - [ ] Redirect some logging to status bar
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
 - [ ] ~~ User info, associate each user with a key in rbm-keyman ~~
