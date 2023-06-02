@@ -11,6 +11,7 @@ export const useUIStateStore = defineStore(
                 unfoldedTags: new DataTags(),
                 shownDataUIDs: [] as string[],
                 searchState: {
+                        "searchBy": "",
                         "content": ""
                     } as SearchStatus,
             }

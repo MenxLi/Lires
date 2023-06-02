@@ -1,4 +1,4 @@
-import type { DataInfoT } from "./protocalT";
+import type { DataInfoT, SearchResultant } from "./protocalT";
 import { ServerConn } from "./serverConn";
 import { getBackendURL } from "@/config";
 import type { SearchStatus } from "@/components/_interface";
@@ -229,17 +229,89 @@ export class DataBase {
 
 
 export class DataSearcher{
+
+    // perform a search and sort on the datapoints
     static async filter(datapoints: DataPoint[], searchStatus: SearchStatus): Promise<DataPoint[]> {
         const pattern = searchStatus["content"].toLowerCase();
         if (!pattern){
-            return datapoints;
+            return this.sortDefault(datapoints, false);
         }
-        const dp_new: DataPoint[] = new Array();
+        const valid_uids = new Set();
         for (const dp of datapoints){
-            // to improve later
-            const toSearch = `${dp.info.title}|${dp.info.authors.join(", ")}|${dp.info.year}`.toLowerCase()
-            if (toSearch.search(pattern) !== -1){ dp_new.push(dp); }
+            valid_uids.add(dp.info.uuid);
         }
-        return dp_new;
+
+        const dp_new: DataPoint[] = new Array();
+
+        // server search
+        if (searchStatus.searchBy.toLowerCase() === "feature"){
+            const conn = new ServerConn();
+            const res = await conn.search("searchFeature", {"pattern": searchStatus.content , "n_return": 999});
+            const scores: number[] = new Array();
+            for (const dp of datapoints){
+                if (res[dp.info.uuid]){
+                    dp_new.push(dp);
+                    const score = (res[dp.info.uuid] as SearchResultant).score as number;   // score exists on feature search
+                    scores.push(score);
+                }
+            }
+
+            return this.sortByScore(dp_new, scores, false);
+        } 
+
+        // local search
+        if (searchStatus.searchBy.toLowerCase() === "title"){
+            for (const dp of datapoints){
+                if (dp.info.title.toLowerCase().search(pattern) !== -1){
+                    dp_new.push(dp);
+                }
+            }
+        }
+        else if (searchStatus["searchBy"].toLowerCase() === "general"){
+            for (const dp of datapoints){
+                const toSearch = `${dp.info.title}|${dp.info.authors.join(", ")}|${dp.info.year}`.toLowerCase()
+                if (toSearch.search(pattern) !== -1){ dp_new.push(dp); }
+            }
+        }
+        else{
+            throw new Error("Unknown searchBy option");
+        }
+        return this.sortDefault(dp_new, false);
+    }
+
+    // sort datapoints by default method
+    static sortDefault(datapoints: DataPoint[], reverse = false): DataPoint[]{
+        if (reverse){
+            return datapoints.sort((a, b) => b.info.time_added - a.info.time_added)
+        }
+        return datapoints.sort((b, a) => b.info.time_added - a.info.time_added)
+    }
+
+    // return a list of datapoints that are sorted by scores
+    // - reverse: if false, sort in descending order
+    static sortByScore<T>(arr: T[], scores: number[], reverse = false): T[]{
+        if (arr.length !== scores.length){
+            throw new Error("arr.length !== scores.length");
+        }
+
+        const arr_score = new Array();
+        for (let i = 0; i < arr.length; i++){
+            arr_score.push([arr[i], scores[i]]);
+        }
+
+        let arr_score_sorted;
+        if (reverse){
+            arr_score_sorted = arr_score.sort((a, b) => a[1] - b[1]);
+        }
+        else{
+            arr_score_sorted = arr_score.sort((a, b) => b[1] - a[1]);
+        }
+
+        const ret = new Array();
+        for (const item of arr_score_sorted){
+            ret.push(item[0]);
+        }
+
+        return ret;
     }
 }

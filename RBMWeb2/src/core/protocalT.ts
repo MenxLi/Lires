@@ -24,3 +24,10 @@ export interface AccountPermission {
     is_admin: boolean;
     mandatory_tags: string[];
 }
+
+export interface SearchResultant {
+    score: number | null;
+    match: null;
+}
+
+export type SearchResult = Record<string, SearchResultant | null>;

@@ -1,8 +1,9 @@
 
 // Server connection
 
+import { getCookie } from "@/libs/cookie.js";
 import {getBackendURL} from "../config.js";
-import type { DataInfoT, AccountPermission } from "./protocalT.js";
+import type { DataInfoT, AccountPermission, SearchResult} from "./protocalT.js";
 
 export class ServerConn {
     async authUsr( encKey: string ): Promise<AccountPermission>{
@@ -43,4 +44,28 @@ export class ServerConn {
             throw new Error(`Got response: ${response.status}`)
         }
     };
+
+    async search(method: string, kwargs: any): Promise<SearchResult>{
+        const params = new URLSearchParams();
+
+        params.set("key", getCookie("encKey"));
+        params.set("method", method);
+        params.set("kwargs", JSON.stringify(kwargs));
+        const response = await fetch(`${getBackendURL()}/search`, 
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/x-www-form-urlencoded"
+                },
+                body: params.toString(),
+            })
+        if (response.ok && response.status === 200) {
+            const res: SearchResult = JSON.parse(await response.text());
+            return res
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`);
+        }
+
+    }
 }

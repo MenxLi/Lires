@@ -1,25 +1,27 @@
 
 <script setup lang="ts">
 
-    import { ref, computed } from "vue";
+    import { ref, computed, onMounted, type Ref } from "vue";
     import type {SearchStatus} from "./_interface"
     import { checkCookieLogout, cookieLogout } from "@/core/auth";
-    import type { Ref } from "vue";
     import { toggleDarkMode, isDefaultDarkMode } from "@/core/misc";
 
     const props = withDefaults(defineProps<{
-        initSearchText: string
+        searchText: string
     }>(), {
-        "initSearchText": ""
+        "searchText": "",
     })
+    const searchTypesPool = ref(["general", "title", "feature"])
 
     const emit = defineEmits<{
         (e: "onSearchChange", status: SearchStatus):void
     }>();
     
-    const searchInput = ref(props.initSearchText)
+    const searchInput = ref(props.searchText)
+    const searchSelector: Ref<HTMLSelectElement | null> = ref(null)
     function _onSearchChange(event: Event){
         const status: SearchStatus = {
+            searchBy: searchSelector.value!.value,
             content: searchInput.value
         }
         emit("onSearchChange", status);
@@ -43,6 +45,10 @@
         isDarkMode.value = !isDarkMode.value;
     }
 
+    onMounted(() => {
+        searchSelector.value!.focus()
+    })
+
 </script>
 
 <template>
@@ -60,6 +66,9 @@
         </div>
         <div v-if="!checkCookieLogout()" class="searchbar">
             <label for="searchbar"> Search: </label>
+            <select ref="searchSelector" name="search_type" id="searchType" @change="_onSearchChange">
+                <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
+            </select>
             <input id="searchbar" type="text" v-model="searchInput" @input="_onSearchChange">
         </div>
     </div>

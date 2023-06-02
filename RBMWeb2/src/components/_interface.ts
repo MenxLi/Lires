@@ -6,6 +6,6 @@ export interface TagCheckStatus{
 }
 
 export interface SearchStatus{
-    // dtype: string,
+    searchBy: string,
     content: string
 }
