@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Callable, Optional, List
 import tornado.web
 import http.cookies
@@ -34,7 +35,7 @@ class RequestHandlerBase():
         G.setGlobalAttr("server_db", loadDataBase(getLocalDatabasePath()))
         G.setGlobalAttr("server_discussion_db", DiscussDatabase())
     
-    initdb(None)
+    initdb(None)    # type: ignore
     
     @property
     def db(self) -> DataBase:
@@ -75,7 +76,7 @@ class RequestHandlerBase():
         self.enc_key = enc_key
         return res
     
-    def checkTagPermission(self, _tags: List[str], _mandatory_tags: List[str]):
+    def checkTagPermission(self, _tags: List[str] | DataTags, _mandatory_tags: List[str]):
         """
         Check if tags are dominated by mandatory_tags
         """

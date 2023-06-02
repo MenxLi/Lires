@@ -5,7 +5,7 @@ from typing import Union, List
 import json
 import tornado.web
 
-from resbibman.core.dataClass import DataList, DataTags, DataPoint
+from resbibman.core.dataClass import DataList, DataTags, DataPoint, DataPointSummary
 from ._base import RequestHandlerBase
 
 class DataListHandler(tornado.web.RequestHandler, RequestHandlerBase):
@@ -45,7 +45,7 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerBase):
             self.write("Something wrong with the server.")
         return
 
-    def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by = DataList.SORT_TIMEADDED) -> List[dict]:
+    def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by = DataList.SORT_TIMEADDED) -> List[DataPointSummary]:
         dl = self.db.getDataByTags(tags)
         dl.sortBy(sort_by)
         return [d.info for d in dl]

@@ -37,13 +37,21 @@ class MuteEverything:
         sys.stdout = self.stdout
         sys.stderr = self.stderr
 
-def loggedFunction(func: CallVar) -> CallVar:
+def hintCall(func: CallVar) -> CallVar:
     logger = logging.getLogger("rbm")
     @wraps(func)
     def func_(*args, **kwargs):
         logger.debug(f" [{func.__name__}] ")
         return func(*args, **kwargs)
-    return func_
+    return func_    # type: ignore
+
+def timedFunc(func: CallVar) -> CallVar:
+    logger = logging.getLogger("rbm")
+    @wraps(func)
+    def func_(*args, **kwargs):
+        with Timer(func.__name__, print_func=lambda x: logger.debug(x)) as timer:
+            return func(*args, **kwargs)
+    return func_    # type: ignore
 
 class Timer:
     def __init__(self, name: str = "", print_func: Callable[[str], None] = print):
@@ -150,9 +158,9 @@ def openFile(filepath):
     # https://stackoverflow.com/questions/434597/open-document-with-default-os-application-in-python-both-in-windows-and-mac-os
 
     if platform.system() == 'Darwin':       # macOS
-        subprocess.Popen(('open', filepath))
+        subprocess.Popen(('open', filepath))    # type: ignore
     elif platform.system() == 'Windows':    # Windows
-        os.startfile(filepath)
+        os.startfile(filepath)  # type: ignore
     else:                                   # linux variants
         subprocess.Popen(('xdg-open', filepath))
 

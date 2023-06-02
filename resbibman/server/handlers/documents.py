@@ -48,5 +48,6 @@ class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
         if not dp.fm.file_extension == ".hpack":
             return ""
         file_p = dp.fm.file_p
+        assert file_p is not None
         html_p = unpackHtmlTmp(file_p, tmp_dir_name = uuid)
         return html_p
