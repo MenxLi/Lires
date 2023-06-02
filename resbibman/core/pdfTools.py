@@ -1,4 +1,5 @@
 import fitz     # PyMuPDF
+from typing import Optional
 import os
 from PyQt6 import QtGui
 import logging
@@ -99,3 +100,15 @@ class PDFAnalyser:
             # replace multiple spaces with one space
             text = " ".join(text.split())
         return text
+
+def getPDFText(pdf_path: str, max_word: Optional[int] = None) -> str:
+    with PDFAnalyser(pdf_path) as doc:
+        pdf_text = doc.getText()
+        if len(pdf_text.split()) == 0:
+            return ""
+        if max_word is None:
+            return pdf_text
+        if len(pdf_text.split()) > max_word:
+            # too long, truncate
+            pdf_text = " ".join(pdf_text.split()[:max_word])
+    return pdf_text

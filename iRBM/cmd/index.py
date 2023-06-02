@@ -2,18 +2,19 @@
 Build search index for the database
 """
 import argparse, asyncio, os
+from functools import wraps
 
 import torch, tqdm
 import openai.error
-from resbibman.confReader import TMP_INDEX, getConf
+from resbibman.confReader import DOC_FEATURE_PATH, getConf
 from resbibman.core.dataClass import DataBase, DataPoint
-from resbibman.core.pdfTools import PDFAnalyser
+from resbibman.core.pdfTools import getPDFText
 
 from ..lmTools import featurize, structuredSummerize
 from ..lmInterface import StreamIterType
 from ..utils import MuteEverything
+from ..utils import Timer
 
-DOC_FEATURE_PATH = os.path.join(TMP_INDEX, "feature.pt")
 
 def parseArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build search index for the database")
@@ -22,13 +23,14 @@ def parseArgs() -> argparse.Namespace:
     sp_feat = subparsers.add_parser("build", help="build the index")
     sp_feat.add_argument("--force", action="store_true", help="force-rebuild")
     sp_feat.add_argument("--model", action="store", help="model name, can be empty('') or StreamIterType. defaults to empty, will extract feature from pdf text. "\
-                        "otherwise use LLM to summarize the pdf text prior to feature extraction", default="")
+                        "otherwise use LLM to summarize the pdf text, use the summary for feature extraction", default="")
     sp_feat.add_argument("--max-words", action="store", type=int, default=4096, help="max words per document used for summarization, more words will be truncated")
 
     sp_query = subparsers.add_parser("query", help="query the index")
     sp_query.add_argument("aim", action="store", type=str, help="query string")
     sp_query.add_argument("--n-return", action="store", type=int, default=16, help="number of documents to return")
-    sp_query.add_argument("--uid", action="store_true", help="print uid instead of human-readable result")
+    sp_query.add_argument("-ou", "--output_uid", action="store_true", help="print uid instead of human-readable result")
+    sp_query.add_argument("-iu", "--input_uid", action="store_true", help="input is uid instead of query string, essentially ask for reading the document with the given uid")
 
     args = parser.parse_args()
     if args.subparser is None:
@@ -36,6 +38,7 @@ def parseArgs() -> argparse.Namespace:
         exit()
     return args
 
+FeatureDict = dict[str, torch.Tensor]
 def buildFeatureIndex(
         db: DataBase, 
         max_words_per_doc: int, 
@@ -67,16 +70,6 @@ def buildFeatureIndex(
                 __trail_count += 1
         return summary
     
-    def getPDFText(pdf_path: str, max_word: int = 8192) -> str:
-        with PDFAnalyser(pdf_path) as doc:
-            pdf_text = doc.getText()
-            if len(pdf_text.split()) > max_word:
-                # too long, truncate
-                pdf_text = " ".join(pdf_text.split()[:max_word])
-            if len(pdf_text.split()) == 0:
-                return ""
-        return pdf_text
-
     for idx, (uid, dp) in enumerate(tqdm.tqdm(db.items())):
         if not (dp.is_local and dp.has_file and dp.fm.file_extension == ".pdf"):
             continue
@@ -105,13 +98,14 @@ def buildFeatureIndex(
             torch.save(feature_dict, DOC_FEATURE_PATH)
     torch.save(feature_dict, DOC_FEATURE_PATH)
 
-def queryFeatureIndex(query: str, n_return: int = 16):
-    feature_dict = torch.load(DOC_FEATURE_PATH)
-
+def queryFeatureIndex(query: str, n_return: int = 16) -> list[str]:
+    if os.path.exists(DOC_FEATURE_PATH):
+        feature_dict: FeatureDict = torch.load(DOC_FEATURE_PATH)
+    else:
+        raise FileNotFoundError("Feature index not found, please build the index first")
     query_vec = asyncio.run(featurize(query, dim_reduce=True)) # [d_feature]
-    # print("Query vector:", query_vec.shape, torch.norm(query_vec))
 
-    # collect uuid and features in to a large buffer
+    # collect uuid and features in to a large chunk for batch processing
     uuids = []
     features = []
     for uid, vec in feature_dict.items():
@@ -122,15 +116,25 @@ def queryFeatureIndex(query: str, n_return: int = 16):
     # find the closest doc by cosine similarity (dot product)
     scores = torch.matmul(features, query_vec)  # [n_docs]
 
-    # find the closest doc by euclidean distance
-    # scores = -torch.norm(features - query_vec, dim=1)  # [n_docs]
-
     if n_return > len(scores):
         n_return = len(scores)
     # return the top n_return of the corresponding uuids
     topk = torch.topk(scores, n_return)
     print("Top scores:", topk.values)
     return [uuids[i] for i in topk.indices]
+
+def queryRelatedDocuments(db: DataBase, query_uid: str, n_return: int = 16) -> list[str]:
+    """
+    query the related documents of the given uid
+    """
+    # read the document with the given uid
+    pdf_path = db[query_uid].file_path
+    if pdf_path is None:
+        query_string: str = db[query_uid].title
+        print("Warning: no pdf file found, use title only: {}".format(query_string))
+    else:
+        query_string = getPDFText(pdf_path, 4096)
+    return queryFeatureIndex(query_string, n_return)
 
 
 def main():
@@ -143,12 +147,15 @@ def main():
         buildFeatureIndex(db, force=args.force, max_words_per_doc=args.max_words, model_name=args.model)
 
     elif args.subparser == "query":
-        res = queryFeatureIndex(args.aim, args.n_return)
+        if args.input_uid:
+            res = queryRelatedDocuments(db, args.aim, args.n_return)
+        else:
+            res = queryFeatureIndex(args.aim, args.n_return)
         print("-----------------------------------")
-        print(f"Query: {args.aim}")
+        print(f"Query: {args.aim if not args.input_uid else '[' + db[args.aim].title + ']'}")
         print("Top results:")
         for i, uid in enumerate(res):
-            if args.uid:
+            if args.output_uid:
                 print(f"{uid}")
             else:
                 print(f"{i+1}: {db[uid].title}")

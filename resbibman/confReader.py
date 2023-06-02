@@ -8,6 +8,19 @@ join = os.path.join
 
 WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 
+# a schematic ascii image of the file tree
+# RBM_HOME
+# ├── conf.json
+# ├── Database (default)
+# ├── pdf-viewer
+# ├── log.txt
+# ├── RBM.cache [TMP_DIR]
+# │   ├── Database [TMP_DB]
+# │   ├── cover [TMP_COVER]
+# │   ├── webpage [TMP_WEB]
+# │   ├── notes_webpage [TMP_WEB_NOTES]
+# │   └── index [TMP_INDEX]
+
 __this_file_path = os.path.abspath(__file__)
 
 CURR_PATH = os.path.dirname(__this_file_path)
@@ -24,6 +37,8 @@ if G.prog_args and G.prog_args.config_file:
 else:
     CONF_FILE_PATH = join(RBM_HOME, "conf.json")
 
+
+
 ICON_PATH = join(CURR_PATH, "icons")
 STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
 DOC_PATH = join(CURR_PATH, "docs")
@@ -34,12 +49,16 @@ DEFAULT_DATA_PATH = join(RBM_HOME, "Database")
 DEFAULT_PDF_VIEWER_DIR = join(RBM_HOME, "pdf-viewer")
 LOG_FILE = join(RBM_HOME, "log.txt")
 
+# things under rbm_cache
 TMP_DIR = os.path.join(RBM_HOME, "RBM.cache")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
 TMP_WEB_NOTES = os.path.join(TMP_DIR, "notes_webpage")  # For notes as webpages
 TMP_INDEX = os.path.join(TMP_DIR, "index")      # For index cache
+
+# indexing related
+DOC_FEATURE_PATH = os.path.join(TMP_INDEX, "feature.pt")
 
 # Create directories if they don't exist
 if not os.path.exists(RBM_HOME):
