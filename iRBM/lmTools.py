@@ -1,7 +1,7 @@
 
 """Language Model Tools"""
 
-import asyncio
+import asyncio, os
 
 from typing import Callable, Optional, Literal
 from .lmInterface import StreamData, Iterator
@@ -41,6 +41,7 @@ async def structuredSummerize(txt: str, model: StreamIterType = "gpt-3.5-turbo",
     return streamOutput(ai(prompt), print_func)
 
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 auto_tokenizer = None
 auto_model = None
 EncoderT = Literal["distilbert-base-uncased", "yikuan8/Clinical-Longformer", "allenai/longformer-base-4096", "bert-base-uncased", "sentence-transformers/all-mpnet-base-v2"]
