@@ -35,19 +35,19 @@ pip install packages/QFlowLayout packages/QCollapsibleCheckList
 pip install .
 rbm-utils download_pdfjs                # [optional] download pdf.js viewer to view pdf inside resbibman
 
-# pip install .[ai]                     # [optional] to install with AI dependencies
+# pip install ".[ai]"                   # [optional] to install with AI dependencies
 ```
 
-installation for Server and development
+installation for server and development
 ```bash
 tsc
 cd RBMWeb2 && npm install && npm run build && cd ..
 pip install setuptools wheel pyyaml
-pip install .[full]
+pip install -e ".[full]"
 ```
 
 ### Docker deployment <span style="color:red">[outdated]</span>
-<span style="color:blue">To be revised...</span>
+<span style="color:blue">To be revised...</span>   
 Instead of manual installation, The the RBMWeb server can be deployed via docker,   
 
 You need to edit `docker-compose.yml` to change port and mount point mapping, then execute the following commands to start:
@@ -65,11 +65,15 @@ docker exec resbibman rbm-keyman ...
 ## Usage:
 To start the client GUI program:
 ```bash
-resbibman
+resbibman client
 ```
 To start the RBMWeb server:
 ```bash
 resbibman server
+```
+To start the iRBM server:
+```bash
+resbibman iserver
 ```
 
 For CLI help, see `resbibman -h`  
