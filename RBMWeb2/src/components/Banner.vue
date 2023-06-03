@@ -4,7 +4,7 @@
     import { ref, computed, onMounted, type Ref } from "vue";
     import type {SearchStatus} from "./_interface"
     import { checkCookieLogout, cookieLogout } from "@/core/auth";
-    import { toggleDarkMode, isDefaultDarkMode } from "@/core/misc";
+    import { ThemeMode } from "@/core/misc";
 
     const props = withDefaults(defineProps<{
         searchText: string
@@ -32,17 +32,15 @@
         window.location.reload();
     }
 
-    const isDarkMode = ref(isDefaultDarkMode());
+    ThemeMode.setDefaultDarkMode();
+    const _currentDarkTheme = ref(ThemeMode.isDarkMode());
     const themeLabel = computed(function(){
-        if (isDarkMode.value){ return "LightMode"; }
+        if (_currentDarkTheme.value){ return "LightMode"; }
         else { return "DarkMode"; }
     })
-    if (isDarkMode.value) {
-        toggleDarkMode()
-    }
     function toggleTheme(){
-        toggleDarkMode();
-        isDarkMode.value = !isDarkMode.value;
+        ThemeMode.toggleDarkMode();
+        _currentDarkTheme.value = !_currentDarkTheme.value;
     }
 
     onMounted(() => {

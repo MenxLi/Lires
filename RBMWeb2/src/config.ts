@@ -32,3 +32,8 @@ export const LOCATIONS = {
     "main": FRONTENDURL,
     "login": `${FRONTENDURL}/login.html`
 }
+
+export const MAINTAINER = {
+    name: "Li, Mengxun",
+    email: "mengxunli@whu.edu.cn"
+}
