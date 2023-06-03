@@ -9,6 +9,7 @@ dist
 build
 .venv
 .env
+.vite
 venv
 */log.txt
 */log.txt.1

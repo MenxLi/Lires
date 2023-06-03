@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import Login from "./components/Login.vue"
-import Banner from "./components/Banner.vue";
+// import Banner from "./components/Banner.vue";
 </script>
 
 <template>
   <div>
-    <Banner/>
+    <!-- <Banner/> -->
     <Login/>
   </div>
 </template>
