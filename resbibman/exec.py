@@ -143,8 +143,16 @@ def run():
     if args.subparser == "server":
         from .server.main import startServerProcess
         from RBMWeb2.main import startServerProcess as startRBMWeb2ServerProcess
-        procs.append(startServerProcess(args.port))
+        procs.append(startServerProcess(args.port, args.iserver_host, args.iserver_port))
         procs.append(startRBMWeb2ServerProcess(args.rbmweb_port))
+    
+    if args.subparser == "iserver":
+        import subprocess
+        subprocess.check_call(
+            ["python", "-m", "iRBM.server"] + \
+            ["--port", str(args.port)] + \
+            ["--host", args.host]
+        )
 
     if args.subparser == "client":
         execProg()

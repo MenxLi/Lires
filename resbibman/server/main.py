@@ -1,6 +1,7 @@
 import os, multiprocessing
 from typing import Union
 from RBMWeb import RBMWEB_SRC_ROOT
+from resbibman.core import globalVar as G
 
 import tornado
 import tornado.ioloop
@@ -34,7 +35,12 @@ class Application(tornado.web.Application):
         ]
         super().__init__(handlers)
 
-def startServer(port: Union[int, str]):
+def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[int, str]):
+    # set global variables of iServer
+    # so that when initializing iServerConn, it can get the correct host and port
+    G.iserver_host = iserver_host
+    G.iserver_port = iserver_port
+
     app = Application()
     print("Starting server at port: ", port)
     app.listen(int(port))
@@ -49,4 +55,4 @@ def startServerProcess(*args) -> multiprocessing.Process:
 
 
 if __name__ == "__main__":
-    startServer(8080)
+    startServer(8080, "127.0.0.1", "8731")

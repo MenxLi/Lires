@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from typing import Any, TypedDict, Literal, Type
-import dataclasses
+import dataclasses, json
 
 # check python version
 import sys, os
@@ -19,6 +19,10 @@ import openai
 
 ConvRole = Literal["user", "assistant"]
 ConvContent = str
+ConversationDictT = TypedDict("ConversationDictT", {
+    "system": str,
+    "conversations": list[tuple[ConvRole, ConvContent]]
+})
 @dataclasses.dataclass
 class Conversation:
     system: str
@@ -30,6 +34,15 @@ class Conversation:
     def __str__(self) -> str:
         template = "[system]\n> {}\n".format(self.system)
         return template + "\n".join(["[{}]\n> {}".format(c[0], c[1]) for c in self.conversations])
+    def toDict(self) -> ConversationDictT:
+        return {
+            "system": self.system,
+            "conversations": self.conversations
+        }
+    def setFromDict(self, dict: ConversationDictT):
+        self.system = dict["system"]
+        self.conversations = dict["conversations"]
+        return self
     @property
     def openai_conversations(self):
         system = [{"role": "system", "content": self.system}]
@@ -69,6 +82,10 @@ class StreamIter(ABC):
     temperature = 0.8
     max_response_length = 1024
     conversations: Conversation
+
+    # whether to return the pieces of the output stream or return the concatenated whole output stream
+    return_pieces: bool = False     
+
     @abstractmethod
     def call(self, message: str, temperature: float, max_len: int = 1024) -> Iterator[StreamData]:
         ...
@@ -101,9 +118,10 @@ class OpenAIStreamIter(StreamIter):
         )
         text = ""
         for chunk in res:
-            text += chunk["choices"][0]["delta"].get("content", "") # type: ignore
+            piece: str = chunk["choices"][0]["delta"].get("content", "") # type: ignore
+            text += piece
             data: StreamData = {
-                "text": text,
+                "text": piece if self.return_pieces else text,
                 "error_code": 0
             }
             yield data

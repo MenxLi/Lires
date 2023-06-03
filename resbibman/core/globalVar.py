@@ -14,6 +14,9 @@ prog_args: Optional[argparse.Namespace]     # set by resbibman.exec
 config:  ResbibmanConfT           # configuration, set by resbibman.confReader
 account_permission: Optional[AccountPermission]     # account permission, set by Database.fetch
 
+iserver_host: Optional[str] = None
+iserver_port: Optional[str] = None
+
 __global_dict: dict
 
 def init():
