@@ -51,8 +51,11 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             return
         
         assert dp.file_path
-        # __max_words = 768
-        __max_words = 2048
+        model_name = "gpt-3.5-turbo"
+        if model_name == "gpt-3.5-turbo":
+            __max_words = 2048
+        else:
+            __max_words = 768
         pdf_txt = getPDFText(dp.file_path, __max_words)
 
         summary_txt = ""
@@ -66,8 +69,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
                 "your summary should focus on the motivation and contribution. "\
                 "Don't mention title."
                 f"Here is the paper: {pdf_txt}",
-            model_name = "gpt-3.5-turbo"
-            # model_name="vicuna-13b"
+            model_name = model_name
         )
         self.logger.debug(f"PDFtext: {pdf_txt}")
 
