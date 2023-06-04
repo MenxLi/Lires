@@ -43,6 +43,7 @@ installation for server and development
 tsc
 cd RBMWeb2 && npm install && npm run build && cd ..
 pip install setuptools wheel pyyaml
+pip install packages/QFlowLayout packages/QCollapsibleCheckList
 pip install -e ".[full]"
 ```
 
