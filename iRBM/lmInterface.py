@@ -92,27 +92,30 @@ class StreamIter(ABC):
     def __call__(self, prompt) -> Iterator[StreamData]:
         return self.call(prompt, self.temperature, self.max_response_length)
 
-# Check if FastChat server url is setup in the environment variable
-FS_URL = os.environ.get("FASTCHAT_SERVER", None)
-if FS_URL is not None:
-    openai.api_key = "EMPTY"
-    openai.api_base = FS_URL
-    print("Using FastChat server: {}".format(FS_URL))
-
+_openai_base_default = openai.api_base
 class OpenAIStreamIter(StreamIter):
 
     def __init__(self, model: str = "gpt-3.5-turbo") -> None:
         super().__init__()
         self.model = model
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
-        if FS_URL is not None:
-            assert model in ["vicuna-13b"], "FastChat only supports vicuna-13b"
+        if model in ["vicuna-13b"]:
+            assert os.environ.get("FASTCHAT_SERVER", None) is not None, "Please setup the FastChat server url in the environment variable ($FASTCHAT_SERVER)"
     
     def generateMessages(self, prompt: str):
         self.conversations.add(role = "user", content = prompt)
         return self.conversations.openai_conversations
+    
+    @property
+    def openai_base(self):
+        if self.model in ["vicuna-13b"]:
+            return os.environ.get("FASTCHAT_SERVER", None)
+        else:
+            return _openai_base_default
 
     def call(self, prompt: str, temperature: float, max_len: int = 1024) -> Iterator[StreamData]:
+        openai.api_base = self.openai_base      # set the api base according to the model
+
         res = openai.ChatCompletion.create(
             model=self.model, messages=self.generateMessages(prompt), temperature=temperature, stream=True
         )

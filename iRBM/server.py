@@ -57,7 +57,7 @@ def queryFeatureIndex(req: QueryFeatureIndexRequest):
 
 class ChatBotRequest(BaseModel):
     prompt: str
-    model_name: StreamIterType = "vicuna-13b"
+    model_name: StreamIterType = "gpt-3.5-turbo"
     temperature: float = 0.7
     conv_dict: str = '{\
         "system": "A conversation between a human and an AI assistant.",\
