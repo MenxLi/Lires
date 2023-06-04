@@ -235,3 +235,8 @@ version_history:
     - Reactive toggle and search with pinia global storage
     - Not showing file tags on small screen
     - Fix - now log adding document
+  0.11.0:
+    - iRBM module
+    - Feature search
+    - AI summary
+    - New qt stylesheet on windows
