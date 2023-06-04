@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 from typing import Callable, Optional, List
 import tornado.web
 import http.cookies
@@ -27,6 +28,7 @@ class RequestHandlerBase():
     set_header: Callable
     cookies: http.cookies.SimpleCookie
     db_path: str = getLocalDatabasePath()
+    logger = G.logger_rbm_server
 
     def initdb(self):
         if G.hasGlobalAttr("server_db"):

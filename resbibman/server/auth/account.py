@@ -28,7 +28,7 @@ class Account:
     def __init__(self, **kwargs):
         # default constructor
         self.hashkey: Optional[str] = None
-        self.identifier: bool = ""
+        self.identifier: str = ""
         self.is_admin: bool = False
         self.mandatory_tags: List[str] = []
 

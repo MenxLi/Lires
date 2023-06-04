@@ -2,7 +2,7 @@
 To expose the interfaces as a server,
 thus the client don't need to install the heavy packages...
 """
-import asyncio
+import asyncio, json
 
 import fastapi
 from fastapi.responses import StreamingResponse
@@ -59,17 +59,18 @@ class ChatBotRequest(BaseModel):
     prompt: str
     model_name: StreamIterType = "vicuna-13b"
     temperature: float = 0.7
-    conv_dict: ConversationDictT = {
-        "system": "A conversation between a human and an AI assistant.",
-        "conversations": []
-    }
+    conv_dict: str = '{\
+        "system": "A conversation between a human and an AI assistant.",\
+        "conversations": []\
+    }'
 @app.post("/chatbot")
 def chatbot(req: ChatBotRequest):
     def _chatbot():
         ai = getStreamIter(req.model_name)
         ai.temperature = req.temperature
         ai.return_pieces = True
-        ai.conversations.setFromDict(req.conv_dict)
+        conv_dict = json.loads(req.conv_dict)
+        ai.conversations.setFromDict(conv_dict)
         for piece in ai(req.prompt):
             yield piece["text"]
     return StreamingResponse(_chatbot(), media_type="text/plain")

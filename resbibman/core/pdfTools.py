@@ -101,14 +101,31 @@ class PDFAnalyser:
             text = " ".join(text.split())
         return text
 
-def getPDFText(pdf_path: str, max_word: Optional[int] = None) -> str:
+def getPDFText(pdf_path: str, max_word: Optional[int] = None, possible_offset: int = 0) -> str:
+    """
+    possible_offset: if the pdf has more words than max_word, 
+        then the offset will be used to get the text from the start of the pdf. 
+        then actual offset will be calculated based on the number of words in the pdf.
+    """
     with PDFAnalyser(pdf_path) as doc:
-        pdf_text = doc.getText()
-        if len(pdf_text.split()) == 0:
-            return ""
-        if max_word is None:
-            return pdf_text
-        if len(pdf_text.split()) > max_word:
-            # too long, truncate
-            pdf_text = " ".join(pdf_text.split()[:max_word])
+        pdf_text_ori = doc.getText()
+
+    n_words = len(pdf_text_ori.split())
+    if n_words == 0:
+        return ""
+    if max_word is None:
+        max_word = n_words
+    
+    # need more testing...
+    if n_words > max_word + possible_offset:
+        offset = possible_offset
+    elif n_words > max_word:
+        offset = n_words - max_word
+    else:
+        offset = 0
+    
+    if offset + max_word > n_words:
+        max_word = n_words - offset
+    
+    pdf_text = " ".join(pdf_text_ori.split()[offset:offset + max_word])
     return pdf_text

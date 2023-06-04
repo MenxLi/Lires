@@ -194,7 +194,7 @@ class ServerConn(ConnectionBase):
         return self.SERVER_URL + "/discussions/{}".format(uid)
     
 
-class iServerConn(ConnectionBase):
+class IServerConn(ConnectionBase):
     """Connection to iRBM.server"""
 
     def __init__(self, host: str = "", port: str|int = "") -> None:

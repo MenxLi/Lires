@@ -1,4 +1,4 @@
-import os, multiprocessing
+import os, multiprocessing, logging
 from typing import Union
 from RBMWeb import RBMWEB_SRC_ROOT
 from resbibman.core import globalVar as G
@@ -32,10 +32,20 @@ class Application(tornado.web.Application):
             (r"/discussion_mod", DiscussionModHandler),
             (r"/auth", AuthHandler),
             (r"/search", SearchHandler),
+            (r"/summary/(.*)", SummaryHandler),
+            (r"/summary-post", SummaryPostHandler)
         ]
         super().__init__(handlers)
 
 def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[int, str]):
+
+    # initialize G.logger_rbm_server to print to stdout
+    G.logger_rbm_server.setLevel(logging.DEBUG)
+    _ch = logging.StreamHandler()
+    _ch.setLevel(logging.DEBUG)
+    _ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    G.logger_rbm_server.addHandler(_ch)
+
     # set global variables of iServer
     # so that when initializing iServerConn, it can get the correct host and port
     G.iserver_host = iserver_host

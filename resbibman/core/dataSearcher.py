@@ -8,7 +8,7 @@ from . import globalVar as G
 from typing import Dict, Optional, TypedDict
 from .dataClass import DataCore, DataBase, DataPoint
 from ..perf.asynciolib import asyncioLoopRun
-from .serverConn import ServerConn, iServerConn
+from .serverConn import ServerConn, IServerConn
 
 class _searchResult(TypedDict):
     score: Optional[float]  # sort by score, the higher the better match
@@ -124,7 +124,7 @@ class DataSearcher(DataCore):
                 return res
     
     def searchFeature(self, pattern: str, n_return = 999) -> StringSearchT:
-        iconn = iServerConn()
+        iconn = IServerConn()
         
         if self.db.offline:
             if pattern.strip() == "":

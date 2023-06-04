@@ -19,7 +19,9 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # │   ├── cover [TMP_COVER]
 # │   ├── webpage [TMP_WEB]
 # │   ├── notes_webpage [TMP_WEB_NOTES]
-# │   └── index [TMP_INDEX]
+# │   ├── index [TMP_INDEX]
+# │   │   ├── feature.pt [DOC_FEATURE_PATH]
+# │   │   └── summary [DOC_SUMMARY_DIR]
 
 __this_file_path = os.path.abspath(__file__)
 
@@ -59,6 +61,7 @@ TMP_INDEX = os.path.join(TMP_DIR, "index")      # For index cache
 
 # indexing related
 DOC_FEATURE_PATH = os.path.join(TMP_INDEX, "feature.pt")
+DOC_SUMMARY_DIR = os.path.join(TMP_INDEX, "summary")
 
 # Create directories if they don't exist
 if not os.path.exists(RBM_HOME):
@@ -66,7 +69,7 @@ if not os.path.exists(RBM_HOME):
 for _p in [TMP_DIR, DEFAULT_PDF_VIEWER_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
-for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES, TMP_INDEX]:
+for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES, TMP_INDEX, DOC_SUMMARY_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 

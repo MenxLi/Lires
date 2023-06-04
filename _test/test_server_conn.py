@@ -1,10 +1,10 @@
-from resbibman.core.serverConn import ServerConn, iServerConn
+from resbibman.core.serverConn import ServerConn, IServerConn
 
 conn = ServerConn()
 print(conn.permission())
 print(conn.filelist(["xx"]))
 
-iconn = iServerConn()
+iconn = IServerConn()
 print(iconn.status)
 # print(iconn.featurize("hello"))
 print(iconn.queryFeatureIndex("hello"))

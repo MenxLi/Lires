@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 __initialized: bool
 logger_rbm: logging.Logger
+logger_rbm_server: logging.Logger
 last_status_code: int   # a register for last connection status code
 tmpdirs: List[str]      # temporary directories, will be cleared on resbibman GUI exit
 
@@ -22,6 +23,7 @@ __global_dict: dict
 def init():
     global tmpdirs
     global logger_rbm
+    global logger_rbm_server
     global __initialized
     global last_status_code
     global prog_args
@@ -37,6 +39,7 @@ def init():
 
     tmpdirs = []
     logger_rbm = logging.getLogger("rbm")
+    logger_rbm_server = logging.getLogger("rbm_server")
     last_status_code = 200
     prog_args = None
     account_permission = None

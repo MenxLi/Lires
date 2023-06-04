@@ -1,4 +1,4 @@
-import traceback, math
+import traceback, math, webbrowser
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog, QStyledItemDelegate, QStyle
 from PyQt6.QtGui import QAction, QShortcut, QColor
@@ -15,7 +15,7 @@ from ..core import globalVar as G
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from ..core.dataSearcher import StringSearchT, DataSearcher
 from ..core.utils import copy2clip, openFile
-from ..confReader import getConf, getConfV
+from ..confReader import getConf, getConfV, getServerURL
 from ..types.configT import _ConfFontSizeT
 
 class FileSelectorGUI(MainWidgetBase):
@@ -61,9 +61,11 @@ class FileSelectorGUI(MainWidgetBase):
         self.act_export_bib = QAction("Export as .bib", self)
         self.act_copy_bib = QAction("Copy bib", self)
         self.act_copy_citation = QAction("Copy citation", self)
+        self.act_copy_uuid = QAction("Copy uuid", self)
         self.act_export_data = QAction("Export data", self)
         self.act_free_doc = QAction("Free document", self)
         self.act_share_doc = QAction("Copy share link", self)
+        self.act_summarize = QAction("Summarize", self)
 
         def addSeparator():
             separator = QAction(self)
@@ -77,8 +79,11 @@ class FileSelectorGUI(MainWidgetBase):
         self.data_view.addAction(self.act_copy_citation)
         self.data_view.addAction(self.act_copy_bib)
         self.data_view.addAction(self.act_edit_bib)
+        self.data_view.addAction(self.act_copy_uuid)
         addSeparator()
         self.data_view.addAction(self.act_share_doc)
+        addSeparator()
+        self.data_view.addAction(self.act_summarize)
         addSeparator()
         self.data_view.addAction(self.act_open_location)
         self.data_view.addAction(self.act_export_data)
@@ -120,11 +125,13 @@ class FileSelector(FileSelectorGUI):
         self.act_open_location.triggered.connect(self.openCurrFileLocation)
         self.act_copy_bib.triggered.connect(self.copyCurrentSelectionBib)
         self.act_copy_citation.triggered.connect(self.copyCurrentSelectionCitation)
+        self.act_copy_uuid.triggered.connect(self.copyCurrentSelectionUUID)
         self.act_add_file.triggered.connect(lambda : self.addFileToCurrentSelection(fname = None))
         self.act_free_doc.triggered.connect(self.freeDocumentOfCurrentSelection)
         self.act_edit_bib.triggered.connect(self.editBibtex)
         self.act_delete_file.triggered.connect(self.deleteCurrentSelected)
         self.act_export_data.triggered.connect(self.exportData)
+        self.act_summarize.triggered.connect(self.summarizeCurrentSelection)
 
         self.act_share_doc.triggered.connect(self.copyCurrentSelectionShareLink)
 
@@ -298,6 +305,19 @@ class FileSelector(FileSelectorGUI):
         if not selected:
             return
         copy2clip(selected.getDocShareLink())
+    
+    def copyCurrentSelectionUUID(self):
+        selected = self.getCurrentSelection(return_multiple=False)
+        if not selected:
+            return
+        copy2clip(selected.uuid)
+    
+    def summarizeCurrentSelection(self):
+        sel = self.getCurrentSelection(return_multiple=False)
+        if not sel:
+            return
+        url = getServerURL() + "/summary/" + sel.uuid
+        webbrowser.open(url)
 
     def editBibtex(self):
         selected_ = self.getCurrentSelection(return_multiple=False)
