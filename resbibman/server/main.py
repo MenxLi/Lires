@@ -32,7 +32,7 @@ class Application(tornado.web.Application):
             (r"/discussion_mod", DiscussionModHandler),
             (r"/auth", AuthHandler),
             (r"/search", SearchHandler),
-            (r"/summary/(.*)", SummaryHandler),
+            (r"/summary", SummaryHandler),
             (r"/summary-post", SummaryPostHandler)
         ]
         super().__init__(handlers)

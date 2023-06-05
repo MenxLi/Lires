@@ -15,6 +15,7 @@ from ..core import globalVar as G
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from ..core.dataSearcher import StringSearchT, DataSearcher
 from ..core.utils import copy2clip, openFile
+from ..core.encryptClient import generateHexHash
 from ..confReader import getConf, getConfV, getServerURL
 from ..types.configT import _ConfFontSizeT
 
@@ -316,7 +317,7 @@ class FileSelector(FileSelectorGUI):
         sel = self.getCurrentSelection(return_multiple=False)
         if not sel:
             return
-        url = getServerURL() + "/summary/" + sel.uuid
+        url = getServerURL() + "/summary" + "?uuid=" + sel.uuid + "&key=" + generateHexHash(getConf()["access_key"])
         webbrowser.open(url)
 
     def editBibtex(self):

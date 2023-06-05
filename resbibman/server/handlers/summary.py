@@ -13,11 +13,16 @@ class SummaryHandler(tornado.web.RequestHandler, RequestHandlerBase):
             _summary_html_template = fp.read()
         return _summary_html_template
 
-    def get(self, uuid):
+    def get(self):
+        if not self.checkKey():
+            raise tornado.web.HTTPError(403)
         return self.write(self.summary_html_template)
 
 class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def post(self):
+        if not self.checkKey():
+            self.write("ERROR: Invalid key.")
+            raise tornado.web.HTTPError(403)
         # Set the appropriate headers to enable streaming
         self.set_header('Content-Type', 'text/plain')
         # self.set_header('Transfer-Encoding', 'chunked')

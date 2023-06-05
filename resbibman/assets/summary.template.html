@@ -45,14 +45,18 @@
     const port = location.port;
     const post_url = protocol + "//" + domain + ":" + port + "/summary-post";
 
-    const uuid = location.pathname.split("/").pop();
+    // const uuid = location.pathname.split("/").pop();
+    // get uuid from url search params
+    const urlParams = new URLSearchParams(window.location.search);
+    const uuid = urlParams.get('uuid');
+    const encKey = urlParams.get('key');
 
     const noteElem = document.getElementById("note");
     const contentElem = document.getElementById("content");
     noteElem.innerHTML = "(Summarizing...)";
 
     function postSummary(force = "false"){
-        const post_url_withParams = post_url + "?uuid=" + uuid + "&force=" + force;
+        const post_url_withParams = post_url + "?uuid=" + uuid + "&force=" + force + "&key=" + encKey;
         const res = fetch(post_url_withParams, {
                 method: "POST",
                 headers: {
