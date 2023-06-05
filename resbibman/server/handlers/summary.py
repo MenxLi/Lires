@@ -25,11 +25,11 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             raise tornado.web.HTTPError(403)
         # Set the appropriate headers to enable streaming
         self.set_header('Content-Type', 'text/plain')
-        # self.set_header('Transfer-Encoding', 'chunked')
         self.set_header('Cache-Control', 'no-cache')
 
         uuid = self.get_argument("uuid")
         force = self.get_argument("force", "false").lower() == "true"
+        model_name = self.get_argument("model", "gpt-3.5-turbo")
 
         iconn = IServerConn()
         istatus = iconn.status
@@ -56,9 +56,10 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             return
         
         assert dp.file_path
-        model_name = "gpt-3.5-turbo"
         if model_name == "gpt-3.5-turbo":
             __max_words = 2048
+        elif model_name == "gpt-4":
+            __max_words = 4096
         else:
             __max_words = 768
         pdf_txt = getPDFText(dp.file_path, __max_words)

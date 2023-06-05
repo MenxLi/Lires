@@ -56,7 +56,14 @@
     noteElem.innerHTML = "(Summarizing...)";
 
     function postSummary(force = "false"){
-        const post_url_withParams = post_url + "?uuid=" + uuid + "&force=" + force + "&key=" + encKey;
+        // create post parameters
+        const postParams = {
+            uuid: uuid,
+            force: force,
+            key: encKey,
+            model: "gpt-4"
+        };
+        const post_url_withParams = post_url + "?" + new URLSearchParams(postParams).toString();
         const res = fetch(post_url_withParams, {
                 method: "POST",
                 headers: {
