@@ -50,7 +50,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const uuid = urlParams.get('uuid');
     const encKey = urlParams.get('key');
-    const model = urlParams.get('model');
+    let model = urlParams.get('model');
     if (model == null){
         model = "gpt-3.5-turbo";
     }
