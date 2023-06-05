@@ -60,7 +60,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             for uuid, score in zip(uids, scores):
                 dp = self.db[uuid]
                 if dp.uuid != uuid:
-                    self.write(f"<a href='/doc/{dp.uuid}'>{dp.title}</a> ({score:.2f})<br>")
+                    self.write(f"<a href='{dp.getDocShareLink()}'>{dp.title}</a> ({score:.2f})<br>")
                     self.flush()
         
         # a cache for summary
