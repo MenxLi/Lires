@@ -50,6 +50,11 @@
     const urlParams = new URLSearchParams(window.location.search);
     const uuid = urlParams.get('uuid');
     const encKey = urlParams.get('key');
+    const modelName = urlParams.get('model');
+    if (modelName != null){
+        modelName = 'gpt-4'
+    }
+    document.title = "Summary (" + modelName + ")";
 
     const noteElem = document.getElementById("note");
     const contentElem = document.getElementById("content");
@@ -61,7 +66,7 @@
             uuid: uuid,
             force: force,
             key: encKey,
-            model: "gpt-4"
+            model: modelName
         };
         const post_url_withParams = post_url + "?" + new URLSearchParams(postParams).toString();
         const res = fetch(post_url_withParams, {
