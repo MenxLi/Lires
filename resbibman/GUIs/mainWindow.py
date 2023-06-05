@@ -2,7 +2,7 @@ import pyperclip
 from typing import Literal, Tuple, List, Callable
 from PyQt6 import QtGui
 from PyQt6.QtGui import QIcon, QKeySequence
-from PyQt6.QtWidgets import QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QToolBar, QTabWidget, QTabBar
+from PyQt6.QtWidgets import QDialog, QFileDialog, QMainWindow, QMenu, QMenuBar, QSplitter, QWidget, QHBoxLayout, QToolBar, QTabWidget, QTabBar, QApplication
 from PyQt6.QtGui import QAction
 from PyQt6.QtCore import Qt, QThreadPool
 
@@ -26,7 +26,7 @@ from ..core.utils import openFile, ProgressBarCustom
 from ..core.serverConn import ServerConn
 from ..core.dataClass import DataTags, DataBase, DataPoint
 from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf, saveToConf_guiStatus
-from ..confReader import TMP_DB, TMP_WEB, TMP_COVER
+from ..confReader import TMP_DB, TMP_WEB, TMP_COVER, getStyleSheets
 from ..version import VERSION
 from ..perf.qtThreading import SyncWorker, InitDBWorker
 import os, typing, requests, functools, time, shutil, traceback, webbrowser
@@ -717,6 +717,7 @@ class MainWindow(MainWindowGUI):
         """
         Reload database,
         Will synchronize add data if in online mode
+        by the way... realod stylesheet
         """
         if getConf()["host"]:
             try:
@@ -733,6 +734,13 @@ class MainWindow(MainWindowGUI):
             # local dir
             self.loadData_async(getConf()["database"], sync_after=False)
             #  self._loadData(getConf()["database"])
+        # reload stylesheet
+        # get application style, for development purpose
+        app: QApplication = QApplication.instance()     # type: ignore
+        ss = getStyleSheets()[getConf()["stylesheet"]]
+        if ss != "":
+            with open(ss, "r", encoding="utf-8") as f:
+                app.setStyleSheet(f.read())
         
     def statusBarMsg(self, msg: str, bg_color = "none"):
         if self.db.offline:
