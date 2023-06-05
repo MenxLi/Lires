@@ -23,16 +23,9 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 <!--* Various file formats support, including webpage-->
 
 # Installation & Usage
-
-~~Refer to the [docs-CN](./resbibman/docs/UserGuide.md) for the usage of this software.~~
-
 ## Installation
-> **Prerequisites:**
-> Python 3.8+
-> Node.js
-> TypeScript
-
 installation for client-side GUI only:
+> **Prerequisites:**  Python 3.8+
 ```bash
 pip install setuptools wheel pyyaml
 pip install packages/QFlowLayout packages/QCollapsibleCheckList
@@ -42,15 +35,15 @@ rbm-utils download_pdfjs                # [optional] download pdf.js viewer to v
 # pip install ".[ai]"                   # [optional] to install with AI dependencies
 ```
 installation for server and development
+> **Prerequisites:**  Python 3.8+, Node.js, TypeScript
 ```bash
-tsc
 cd RBMWeb2 && npm install && npm run build && cd ..
 pip install setuptools wheel pyyaml
 pip install packages/QFlowLayout packages/QCollapsibleCheckList
 pip install -e ".[full]"
 ```
 
-### Docker deployment <span style="color:red">[outdated]</span>
+<!-- ### Docker deployment <span style="color:red">[outdated]</span>
 <span style="color:blue">To be revised...</span>   
 Instead of manual installation, The the RBMWeb server can be deployed via docker,   
 
@@ -64,21 +57,29 @@ docker-compose up
 To manage access key (for usage see: `rbm-keyman -h`):
 ```bash
 docker exec resbibman rbm-keyman ...
-```
+``` -->
 
 ## Usage:
-To start the client GUI program:
+**To start the client GUI program:**
 ```bash
 resbibman client
 ```
-To start the RBMWeb server:
+The client is a GUI written in PyQt6, it can be used to manage local database, or to connect to the RBM server and work in online mode.
+
+**To start the RBMWeb server:**
 ```bash
 resbibman server
 ```
-To start the iRBM server:
+The RBM server is a server written in Tornado, it provides API for the client to communicate with, and also start RBMWeb frontend.
+
+**To start the iRBM server:**
 ```bash
 resbibman iserver
 ```
+The iRBM server is a server written with FastAPI, it provides additional AI features and is designed to be connected by the server, so that the server can provide AI features to the client.  
+> The reason to separate iRBM server from RBM server is that the AI features may require more resources, so that the iserver can be deployed on a more powerful machine.  
+> It is also possible that the iserver needs a proxy to access the internet, while the RBM server does not.
+
 
 For CLI help, see `resbibman -h`  
 
@@ -89,7 +90,7 @@ The data directory contains the configuration file, log files, default database,
 
 To start the application with arbitrary data directory, you can run: 
 ```bash
-RBM_HOME="your/path/here" resbibman
+RBM_HOME="your/path/here" resbibman ...
 ```
 
 Other management tools include: 
@@ -99,9 +100,9 @@ rbm-keyman      # Manage access key
 rbm-discuss     # Manage online discussions
 rbm-collect     # Automatic add entry to database with retriving string
 rbm-resetconf   # To reset default configuration
-rbm-utils       # Miscellaneous utilities
 rbm-share       # To generate share url
 rbm-index       # To build and query feature of the database, for fuzzy search
+rbm-utils       # Miscellaneous utilities
 ```
 
 # Future works
