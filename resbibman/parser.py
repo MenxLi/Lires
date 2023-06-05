@@ -29,8 +29,11 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     parser_server.add_argument("--iserver_port", action = "store", default = "8731", help = "port, default to 8731")
 
     parser_iserver = sp.add_parser("iserver", help = "Start iRBM server")
+    # set according to iRBM.server
     parser_iserver.add_argument("--port", type=int, default=8731, help="port, default to 8731")
     parser_iserver.add_argument("--host", type=str, default="127.0.0.1")
+    parser_iserver.add_argument("--openai-api-base", type=str, default="https://api.openai.com/v1")
+    parser_iserver.add_argument("--fastchat-api-base", type=str, default="")
 
     args = parser.parse_args()
     G.prog_args = args

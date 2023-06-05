@@ -15,6 +15,7 @@ else:
     from collections.abc import Iterator
 
 import openai
+from . import globalConfig as config
 
 
 ConvRole = Literal["user", "assistant"]
@@ -92,7 +93,6 @@ class StreamIter(ABC):
     def __call__(self, prompt) -> Iterator[StreamData]:
         return self.call(prompt, self.temperature, self.max_response_length)
 
-_openai_base_default = openai.api_base
 class OpenAIStreamIter(StreamIter):
 
     def __init__(self, model: str = "gpt-3.5-turbo") -> None:
@@ -100,7 +100,7 @@ class OpenAIStreamIter(StreamIter):
         self.model = model
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
         if model in ["vicuna-13b"]:
-            assert os.environ.get("FASTCHAT_SERVER", None) is not None, "Please setup the FastChat server url in the environment variable ($FASTCHAT_SERVER)"
+            assert config.fastchat_api_base, "fastchat_api_base is not set"
     
     def generateMessages(self, prompt: str):
         self.conversations.add(role = "user", content = prompt)
@@ -109,9 +109,9 @@ class OpenAIStreamIter(StreamIter):
     @property
     def openai_base(self):
         if self.model in ["vicuna-13b"]:
-            return os.environ.get("FASTCHAT_SERVER", None)
+            return config.fastchat_api_base
         else:
-            return _openai_base_default
+            return config.openai_api_base
 
     def call(self, prompt: str, temperature: float, max_len: int = 1024) -> Iterator[StreamData]:
         openai.api_base = self.openai_base      # set the api base according to the model
@@ -130,9 +130,9 @@ class OpenAIStreamIter(StreamIter):
             yield data
         self.conversations.add(role = "assistant", content = text)
 
-StreamIterType = Literal["gpt-3.5-turbo", "vicuna-13b"]
+StreamIterType = Literal["gpt-3.5-turbo", "vicuna-13b", "gpt-4", "gpt-4-32k"]
 def getStreamIter(itype: StreamIterType = "gpt-3.5-turbo") -> StreamIter:
-    if itype in ["gpt-3.5-turbo", "vicuna-13b"]:
+    if itype in ["gpt-3.5-turbo", "vicuna-13b", "gpt-4", "gpt-4-32k"]:
         return OpenAIStreamIter(model=itype)
     else:
         raise ValueError("Unknown interface type: {}".format(itype))

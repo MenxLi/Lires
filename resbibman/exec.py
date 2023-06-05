@@ -148,11 +148,16 @@ def run():
     
     if args.subparser == "iserver":
         import subprocess
-        subprocess.check_call(
-            ["python", "-m", "iRBM.server"] + \
-            ["--port", str(args.port)] + \
-            ["--host", args.host]
-        )
+        call_args = ["python", "-m", "iRBM.server"]
+        for k in [
+            "port", "host", 
+            "openai-api-base", 
+            "fastchat-api-base"
+            ]:
+            val = getattr(args, k.replace("-", "_"))
+            call_args += ["--" + k, str(val)]
+
+        subprocess.check_call(call_args)
 
     if args.subparser == "client":
         execProg()

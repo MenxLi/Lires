@@ -16,10 +16,10 @@ from .utils import autoTorchDevice
 from .lmTools import EncoderT, _default_encoder
 from .lmTools import featurize as lmFeaturize
 from .lmTools import structuredSummerize as lmStructuredSummerize
-
-from .lmInterface import Conversation, ConvRole, ConvContent, StreamIterType, getStreamIter, ConversationDictT
-
+from .lmInterface import StreamIterType, getStreamIter
 from .textFeature import queryFeatureIndex as tfQueryFeatureIndex
+
+from . import globalConfig as config
 
 logger = logging.getLogger("iRBM")
 
@@ -84,9 +84,14 @@ def main():
     parser.add_argument("--port", type=int, default=8731)
     parser.add_argument("--host", type=str, default="127.0.0.1")
     parser.add_argument("--log-level", type=str, default="info")
+    parser.add_argument("--openai-api-base", type=str, default=config.openai_api_base)
+    parser.add_argument("--fastchat-api-base", type=str, default=config.fastchat_api_base)
     args = parser.parse_args()
 
     initLogger(args.log_level)
+
+    config.openai_api_base = args.openai_api_base
+    config.fastchat_api_base = args.fastchat_api_base
 
     uvicorn.run(
         app,
