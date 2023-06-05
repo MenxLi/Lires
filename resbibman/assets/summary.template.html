@@ -51,7 +51,7 @@
     const uuid = urlParams.get('uuid');
     const encKey = urlParams.get('key');
     const modelName = urlParams.get('model');
-    if (modelName != null){
+    if (modelName == null){
         modelName = 'gpt-4'
     }
     document.title = "Summary (" + modelName + ")";
