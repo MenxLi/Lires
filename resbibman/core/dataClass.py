@@ -452,14 +452,20 @@ class DataPoint(DataCore):
         else:
             return author[:self.MAX_AUTHOR_ABBR-4] + "..."
 
-    def getDocShareLink(self) -> str:
+    def getDocShareLink(self, with_base: bool = True) -> str:
+        """
+        with_base: whether to include the base address
+        """
         ftype = self.info["file_type"]
         if ftype == "":
             if self.info["url"]:
                 return self.info["url"]
             else: return ""
         else:
-            base_addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
+            if with_base:
+                base_addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
+            else:
+                base_addr = ""
             if ftype == ".pdf":
                 return f"{base_addr}/doc/{self.uuid}"
             elif ftype == ".hpack":

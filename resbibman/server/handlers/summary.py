@@ -58,8 +58,10 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
 
             uids, scores = similar["uids"], similar["scores"]
             for uuid, score in zip(uids, scores):
+                if uuid == except_uuid:
+                    continue
                 dp = self.db[uuid]
-                self.write(f"<a href='{dp.getDocShareLink()}'>{dp.title}</a> ({score:.2f})<br>")
+                self.write(f"<a href='{dp.getDocShareLink(with_base=False)}'>{dp.title}</a> ({score:.2f})<br>")
                 self.flush()
         
         # a cache for summary
@@ -104,9 +106,8 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
         
         assert res is not None
         self.logger.info(f"Generating summary for {dp.title} ...")
-        summary_txt += "Title: " + dp.title + "\n"
-        self.write(f"<h3>Title: {dp.title}</h3>")
-        self.write("<br>")
+        summary_txt += f"<h3>Title: {dp.title}</h3>\n"
+        self.write(summary_txt)
         for msg in res:
             summary_txt += msg      # save to cache
             self.write(msg)
