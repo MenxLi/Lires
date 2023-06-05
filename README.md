@@ -27,6 +27,10 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 ~~Refer to the [docs-CN](./resbibman/docs/UserGuide.md) for the usage of this software.~~
 
 ## Installation
+> **Prerequisites:**
+> Python 3.8+
+> Node.js
+> TypeScript
 
 installation for client-side GUI only:
 ```bash
@@ -37,7 +41,6 @@ rbm-utils download_pdfjs                # [optional] download pdf.js viewer to v
 
 # pip install ".[ai]"                   # [optional] to install with AI dependencies
 ```
-
 installation for server and development
 ```bash
 tsc
