@@ -105,7 +105,9 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             return
         self.write("<h3>Similar papers:</h3>")
         self.flush()
-        for uuid, score in similar:
+
+        uids, scores = similar["uids"], similar["scores"]
+        for uuid, score in zip(uids, scores):
             dp = self.db[uuid]
             if dp.uuid != uuid:
                 self.write(f"<a href='/doc/{dp.uuid}'>{dp.title}</a> ({score:.2f})<br>")
