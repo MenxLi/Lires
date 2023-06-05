@@ -461,7 +461,7 @@ class FileSelector(FileSelectorGUI):
             self.getMainPanel().openDocExternal(dp)
 
         def _onSyncDone(success, to_open):
-            if not success and G.last_status_code == 401:
+            if not success and G.last_status_code == 403:
                 self.statusBarInfo("Unauthorized access", 5, bg_color = "red")
             if success:
                 _open(to_open)

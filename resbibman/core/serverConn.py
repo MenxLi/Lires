@@ -39,7 +39,7 @@ class ConnectionBase:
         status_code = res.status_code
         if status_code != 200:
             self.logger.debug("Get response {}".format(res.status_code))
-        if status_code == 401:
+        if status_code == 403:
             self.logger.warning("Unauthorized access")
         G.last_status_code = res.status_code
         return res.ok

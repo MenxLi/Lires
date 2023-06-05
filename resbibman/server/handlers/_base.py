@@ -72,13 +72,13 @@ class RequestHandlerBase():
 
     def _checkKey(self, enc_key) -> AccountPermission:
         if not enc_key:
-            raise tornado.web.HTTPError(401) 
+            raise tornado.web.HTTPError(403) 
 
         res = queryAccount(enc_key)
         if res is None:
             # unauthorized
             print("Reject key ({}), abort".format(enc_key))
-            raise tornado.web.HTTPError(401) 
+            raise tornado.web.HTTPError(403) 
         self.enc_key = enc_key
         return res
     
@@ -89,7 +89,7 @@ class RequestHandlerBase():
         tags = DataTags(_tags)
         mandatory_tags = DataTags(_mandatory_tags)
         if not mandatory_tags.issubset(tags.withParents()):
-            raise tornado.web.HTTPError(401) 
+            raise tornado.web.HTTPError(402) 
 
     def setDefaultHeader(self):
         self.set_header("Access-Control-Allow-Origin", "*")

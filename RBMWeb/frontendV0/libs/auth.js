@@ -31,7 +31,7 @@ function checkToken(encKey,
         if (xhr.status === 200){
             onSuccess();
         }
-        else if (xhr.status == 401){
+        else if (xhr.status == 403){
             onFailure();
         }
         else {

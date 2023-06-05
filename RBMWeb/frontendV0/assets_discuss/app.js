@@ -71,7 +71,7 @@ function submitComment() {
       "content": document.querySelector("#comment_input").value,
     };
     xhr.onload = () => {
-        if (xhr.status === 401){
+        if (xhr.status === 403){
             alert("Unauthorized.");
         }
         else if (xhr.status === 200){

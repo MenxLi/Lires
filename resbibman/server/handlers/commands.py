@@ -32,7 +32,7 @@ class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerBase):
         permission =  self.checkKey()
         if not permission["is_admin"]:
             # only admin access
-            raise tornado.web.HTTPError(401)
+            raise tornado.web.HTTPError(403)
 
         if cmd == "renameTagAll":
             self.db.renameTag(args[0], args[1])
