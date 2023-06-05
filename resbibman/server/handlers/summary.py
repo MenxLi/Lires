@@ -49,7 +49,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
         def generateSimilar(summary_txt, except_uuid=""):
             # find similar papers
             self.write("\n<hr>")
-            similar = iconn.queryFeatureIndex(summary_txt, n_return=10)
+            similar = iconn.queryFeatureIndex(summary_txt, n_return=9)
             if similar is None:
                 self.write("ERROR: iRBM server error while finding similar papers.")
                 return
@@ -106,7 +106,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
         
         assert res is not None
         self.logger.info(f"Generating summary for {dp.title} ...")
-        summary_txt += f"<h3>Title: {dp.title}</h3>\n"
+        summary_txt += f"<h3>Title: {dp.title}</h3>"
         self.write(summary_txt)
         for msg in res:
             summary_txt += msg      # save to cache
