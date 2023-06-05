@@ -46,7 +46,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             self.write("ERROR: No pdf file.")
             return
 
-        def generateSimilar(summary_txt):
+        def generateSimilar(summary_txt, except_uuid=""):
             # find similar papers
             self.write("\n<hr>")
             similar = iconn.queryFeatureIndex(summary_txt, n_return=10)
@@ -59,9 +59,8 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             uids, scores = similar["uids"], similar["scores"]
             for uuid, score in zip(uids, scores):
                 dp = self.db[uuid]
-                if dp.uuid != uuid:
-                    self.write(f"<a href='{dp.getDocShareLink()}'>{dp.title}</a> ({score:.2f})<br>")
-                    self.flush()
+                self.write(f"<a href='{dp.getDocShareLink()}'>{dp.title}</a> ({score:.2f})<br>")
+                self.flush()
         
         # a cache for summary
         summary_txt_path = os.path.join(DOC_SUMMARY_DIR, uuid + ".txt")
@@ -71,7 +70,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             for line in summary_txt.split("\n"):
                 self.write(line)
                 self.flush()
-            generateSimilar(summary_txt)
+            generateSimilar(summary_txt, except_uuid=uuid)
             self.finish()
             return
         
@@ -117,7 +116,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             self.logger.info(f"Saving summary to {summary_txt_path} ...")
             fp.write(summary_txt)
         
-        generateSimilar(summary_txt)
+        generateSimilar(summary_txt, except_uuid=uuid)
 
         self.finish()  # Signal the end of the response
         return
