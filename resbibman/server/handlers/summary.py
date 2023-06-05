@@ -45,14 +45,34 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
         if not (dp.file_path and dp.fm.file_extension == ".pdf"):
             self.write("ERROR: No pdf file.")
             return
+
+        def generateSimilar(summary_txt):
+            # find similar papers
+            self.write("\n<hr>")
+            similar = iconn.queryFeatureIndex(summary_txt, n_return=10)
+            if similar is None:
+                self.write("ERROR: iRBM server error while finding similar papers.")
+                return
+            self.write("<h3>Similar papers:</h3>")
+            self.flush()
+
+            uids, scores = similar["uids"], similar["scores"]
+            for uuid, score in zip(uids, scores):
+                dp = self.db[uuid]
+                if dp.uuid != uuid:
+                    self.write(f"<a href='/doc/{dp.uuid}'>{dp.title}</a> ({score:.2f})<br>")
+                    self.flush()
         
         # a cache for summary
         summary_txt_path = os.path.join(DOC_SUMMARY_DIR, uuid + ".txt")
         if os.path.exists(summary_txt_path) and not force:
             with open(summary_txt_path, "r") as fp:
-                for line in fp.readlines():
-                    self.write(line)
-                    self.flush()
+                summary_txt = fp.read()
+            for line in summary_txt.split("\n"):
+                self.write(line)
+                self.flush()
+            generateSimilar(summary_txt)
+            self.finish()
             return
         
         assert dp.file_path
@@ -97,21 +117,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
             self.logger.info(f"Saving summary to {summary_txt_path} ...")
             fp.write(summary_txt)
         
-        # find similar papers
-        self.write("\n<hr>")
-        similar = iconn.queryFeatureIndex(summary_txt, n_return=10)
-        if similar is None:
-            self.write("ERROR: iRBM server error while finding similar papers.")
-            return
-        self.write("<h3>Similar papers:</h3>")
-        self.flush()
-
-        uids, scores = similar["uids"], similar["scores"]
-        for uuid, score in zip(uids, scores):
-            dp = self.db[uuid]
-            if dp.uuid != uuid:
-                self.write(f"<a href='/doc/{dp.uuid}'>{dp.title}</a> ({score:.2f})<br>")
-                self.flush()
+        generateSimilar(summary_txt)
 
         self.finish()  # Signal the end of the response
         return
