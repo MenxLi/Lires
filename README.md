@@ -7,7 +7,7 @@ Resbibman: a **Res**earch **bib**liograpy **man**ager
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for notes.
 
-It also has server-side module (RBM-web) with a web viewer so that it can be deployed onto a server to share literatures or work in online mode.
+It also has server modules: resbibman-server (RBM server) with a web viewer (RBMWeb) so that it can be deployed onto a server to share literatures or work in online mode.
 
 [comment]: <> (## distribution)
 
@@ -20,7 +20,7 @@ It also has server-side module (RBM-web) with a web viewer so that it can be dep
 * Online mode (remote storage)
 * Host a server to view, share and discuss online
 * Multi-user permission management
-<!--* Various file formats support, including webpage-->
+* AI-powered features (iRBM)
 
 # Installation & Usage
 ## Installation
@@ -31,7 +31,6 @@ pip install setuptools wheel pyyaml
 pip install packages/QFlowLayout packages/QCollapsibleCheckList
 pip install .
 rbm-utils download_pdfjs                # [optional] download pdf.js viewer to view pdf inside resbibman
-
 # pip install ".[ai]"                   # [optional] to install with AI dependencies
 ```
 installation for server and development
@@ -66,19 +65,22 @@ resbibman client
 ```
 The client is a GUI written in PyQt6, it can be used to manage local database, or to connect to the RBM server and work in online mode.
 
-**To start the RBMWeb server:**
+**To start the RBM server and RBMWeb server:**
 ```bash
 resbibman server
 ```
-The RBM server is a server written in Tornado, it provides API for the client to communicate with, and also start RBMWeb frontend.
+The RBM and RBMWeb server are Tornado servers,   
+- RBM server provides API for the client (GUI & WebUI & CLI) to communicate with.
+- RBMWeb server is a frontend server for RBMWeb(2) frontend.
 
 **To start the iRBM server:**
 ```bash
 resbibman iserver
 ```
-The iRBM server is a server written with FastAPI, it provides additional AI features and is designed to be connected by the server, so that the server can provide AI features to the client.  
-> The reason to separate iRBM server from RBM server is that the AI features may require more resources, so that the iserver can be deployed on a more powerful machine.  
-> It is also possible that the iserver needs a proxy to access the internet, while the RBM server does not.
+The iRBM server is written with FastAPI, it provides additional AI features and is designed to be connected by the RBM server, so that the server can provide AI features to the client.  
+> The reason to separate iRBM server from RBM server are the following:
+>  AI features may require more resources, so that the iserver can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the iserver and install the heavy AI dependencies.
+>  It is also possible that the iserver needs a proxy to access the internet, while the RBM server does not.  
 
 
 For CLI help, see `resbibman -h`  
@@ -124,7 +126,7 @@ rbm-utils       # Miscellaneous utilities
 - [x] Other citation format convert to bibtex
 - [x] Key-user relation, mandatory tags
 - [x] Server search
-- [ ] Related works
+- [x] Related works
 - [ ] Reading time
 - [ ] Dashboard page
 - [ ] Within software cross-reference
@@ -184,8 +186,7 @@ rbm-collect:
 * ~~QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)~~(Resolved with PyQt6)
 * ~~PDFReader based on QWebEngineView may not show PDF (For PyQt6 under Windows, refer to: [stachoverflow-73350761](https://stackoverflow.com/questions/73350761/))~~(Resolved using PDF.js)
 
-## Credits:
+<!-- ## Credits:
 https://github.com/google/material-design-icons   
-https://github.com/GTRONICK/QSS  
-https://github.com/MathJax/MathJax  
-https://mozilla.github.io/pdf.js/  
+https://mozilla.github.io/pdf.js/   -->
+<!-- https://github.com/MathJax/MathJax   -->
