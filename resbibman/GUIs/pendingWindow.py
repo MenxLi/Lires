@@ -82,7 +82,7 @@ class PendingWindow(PendingWindowGUI):
 		fpath = self.file_model.datalist[row]
 		self._updateCover(fpath)
 
-	def loadData(self):
+	def loadData(self, *args):
 		pend_files = [os.path.join(self.ppath, f) for f in os.listdir(self.ppath)]	
 		self.pend_files = [i for i in pend_files if self.checkExtension(i)]
 		self.file_model.assignData(pend_files)

@@ -37,7 +37,8 @@ class CommentHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
         tmp_notes_misc = os.path.join(tmp_notes_pth, "misc")
         with open(tmp_notes_html, "w") as fp:
             fp.write(htm_str)
-        os.symlink(dp.fm.folder_p, tmp_notes_misc)
+        if dp.fm.hasMisc():
+            os.symlink(dp.fm.getMiscDir(), tmp_notes_misc)
 
         # For mathjax, not working somehow?
         math_jax_path = os.path.join(ASSETS_PATH, "mathjax")

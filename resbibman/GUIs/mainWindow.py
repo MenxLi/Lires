@@ -19,7 +19,7 @@ from .tagModifer import TagModifier
 from .helpWidget import HelpWidget
 from ._styleUtils import qIconFromSVG_autoBW, isThemeDarkMode
 
-from ..core.fileTools import FileGenerator
+from ..core.fileTools import addDocument
 from ..core.fileToolsV import FileManipulatorVirtual
 from ..core.bibReader import BibParser, BibConverter
 from ..core.utils import openFile, ProgressBarCustom
@@ -644,17 +644,9 @@ class MainWindow(MainWindowGUI):
             if not self.queryDialog(title = "File may exist", msg = "\n".join(query_strs)):
                 return
 
-
-        fg = FileGenerator(
-            file_path = None,
-            title = bib["title"],
-            year = bib["year"],
-            authors = bib["authors"]
-        )
-        if not fg.generateDefaultFiles(getDatabase(self.db.offline)):
-            return 
-        dst_dir = fg.dst_dir
-        fm = FileManipulatorVirtual(dst_dir)
+        uid = addDocument(self.database.conn, bib_str)
+        if uid is None: return 
+        fm = FileManipulatorVirtual(uid, self.database.conn)
         fm.screen()
         fm.writeBib(bib_str)
         fm.writeTags(tag_list)

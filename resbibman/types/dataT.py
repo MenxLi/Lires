@@ -2,7 +2,6 @@ from typing import TypedDict, Any, List
 
 class DataPointSummary(TypedDict):
     has_file: bool
-    file_status: str
     file_type: str
     year: Any
     title: str
@@ -15,6 +14,7 @@ class DataPointSummary(TypedDict):
     time_modified: float
     bibtex: str
     doc_size: float # in M.
-    base_name: str  # for directory name
 
     note_linecount: int
+
+    # base_name: str  # for directory name, deprecated.

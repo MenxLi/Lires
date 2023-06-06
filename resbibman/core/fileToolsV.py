@@ -3,16 +3,16 @@ Virtual (Remote) file tools
 """
 from __future__ import annotations
 import os, typing, requests, shutil
-from typing import Union, Literal, Callable
+from typing import Union, Literal, Callable, Optional
 
 from . import globalVar as G
 from .utils import TimeUtils
 from .clInteractions import ChoicePromptCLI, ChoicePromptAbstract
-from .fileTools import FileManipulator
+from .fileTools import FileManipulator, DBConnection
 from .encryptClient import generateHexHash
 from .serverConn import ServerConn
 from .compressTools import decompressDir, compressDir
-from ..confReader import getConfV, TMP_DB, TMP_DIR, getServerURL
+from ..confReader import getConfV, TMP_DB, TMP_DIR, getServerURL, getDatabase, getConf
 from ..types.dataT import DataPointSummary
 
 class FileManipulatorVirtual(FileManipulator):
@@ -24,44 +24,51 @@ class FileManipulatorVirtual(FileManipulator):
     INTERM_ZIP_DIR = os.path.join(TMP_DIR, "fm_zips")
     if not os.path.exists(INTERM_ZIP_DIR):
         os.mkdir(INTERM_ZIP_DIR)
-    def __init__(self, v: Union[DataPointSummary, str], \
-                 prompt_obj: ChoicePromptAbstract = ChoicePromptCLI()):
+    
+    def __init__(
+            self, v: Union[DataPointSummary, str], 
+            db_local: Optional[DBConnection | str] = None,
+            prompt_obj: ChoicePromptAbstract = ChoicePromptCLI(), 
+            ):
         """
          - v [DataPointInfo]: dictionary datapoint info,
                 to construct vitrual file manipulator
-         - v [str]: local data path, 
+         - v [str]: local data uid, 
                 to construct local file manipulator
          - prompt_cls: class that inherited from core.clInteractions.ChoicePromptAbstract,
                 For prompt user interaction
         """
         self.__force_offline = False
         if isinstance(v, str):
-            super().__init__(v)
+            # uuid and conn
+            super().__init__(v, db_local)
         else:
             assert not self.offline
-            self.base_name = v["base_name"]
             self._file_extension = v["file_type"]
-            self.path = os.path.join(TMP_DB, self.base_name)
 
-            self._v_info = v    # a backup of the Datapoint Info
+            self._v_summary = v    # a backup of the Datapoint Info
         self.prompt_obj = prompt_obj
-        self.init()
+        self.init(db_local)
     
     def _forceOffline(self):
         self.__force_offline = True
+    
+    @property
+    def path(self):
+        raise DeprecationWarning("file manipulator now has no path")
 
     @property
-    def v_info(self) -> Union[DataPointSummary, dict]:
+    def v_summary(self) -> Union[DataPointSummary, dict]:
         """ Virtual file info (from remote) """
-        if hasattr(self, "_v_info"):
-            return self._v_info
+        if hasattr(self, "_v_summary"):
+            return self._v_summary
         else:
             return dict()
 
-    @v_info.setter
-    def v_info(self, v_info_update: DataPointSummary):
-        # Maybe update v_info when synchronized
-        self._v_info = v_info_update
+    @v_summary.setter
+    def v_summary(self, v_summary_update: DataPointSummary):
+        # Maybe update v_summary when synchronized
+        self._v_summary = v_summary_update
 
     @property
     def offline(self) -> bool:
@@ -76,7 +83,7 @@ class FileManipulatorVirtual(FileManipulator):
         """
         if self.offline:
             return True
-        return os.path.exists(self.path)
+        return self.conn[self.uuid] != None
 
     @property
     def is_uptodate(self) -> Literal["behind", "same", "advance"]:
@@ -87,7 +94,7 @@ class FileManipulatorVirtual(FileManipulator):
             return "same"
 
         local_time_modified = TimeUtils.stamp2Local(self.getTimeModified())
-        remote_time_modified = TimeUtils.stamp2Local(self.v_info["time_modified"])
+        remote_time_modified = TimeUtils.stamp2Local(self.v_summary["time_modified"])
 
         if local_time_modified == remote_time_modified:
             return "same"
@@ -142,6 +149,7 @@ class FileManipulatorVirtual(FileManipulator):
             return True
     
     def _uploadRemote(self) -> bool:
+        raise NotImplementedError
         if self.offline:
             return False
         uuid = self.uuid
@@ -150,6 +158,7 @@ class FileManipulatorVirtual(FileManipulator):
         return ServerConn().uploadData(interm_file_p, self.uuid, self.base_name, tags = self.getTags())
 
     def _downloadRemote(self) -> bool:
+        raise NotImplementedError
         if self.offline:
             return False
         uuid = self.uuid
@@ -167,12 +176,20 @@ class FileManipulatorVirtual(FileManipulator):
         return self.screen()
     
     def _deleteRemote(self) -> bool:
+        raise NotImplementedError
         if self.offline:
             return False
         self.logger.debug("Request remote delete {}".format(self.uuid))
         return ServerConn().deleteData(self.uuid)
     
     #=========================== Below emulate local manipulator class
+
+    @property
+    def uuid(self) -> str:
+        if self.has_local:
+            return super().uuid
+        else:
+            return self.v_summary["uuid"]
 
     def _createFileOB(self):
         if self.has_local:
@@ -181,26 +198,23 @@ class FileManipulatorVirtual(FileManipulator):
             raise ValueError("File not local")
 
     def screen(self) -> bool:
+        print("TODO: remove fmv.screen")
         if self.has_local:
             return super().screen()
         else:
             return True
 
-    def changeBasename(self, new_basename: str, on_net_failed: Callable[[int], None] = lambda _: None) -> bool:
-        if self.has_local:
-            name_changed = super().changeBasename(new_basename)    
-            # delete remote old
-            if name_changed and not self.offline:
-                self._deleteRemote()
-            return name_changed
-        else:
-            raise NotImplementedError
-    
     def hasFile(self):
         if self.has_local:
             return super().hasFile()
         else:
-            return self.v_info["has_file"]
+            return self.v_summary["has_file"]
+    
+    def hasMisc(self):
+        if self.has_local:
+            return super().hasMisc()
+        else:
+            return False
     
     def addFile(self, extern_file_p) -> bool:
         if self.has_local:
@@ -212,13 +226,13 @@ class FileManipulatorVirtual(FileManipulator):
         if self.has_local:
             return super().getDocSize()
         else:
-            return self.v_info["doc_size"]
+            return self.v_summary["doc_size"]
     
     def readBib(self) -> str:
         if self.has_local:
             return super().readBib()
         else:
-            return self.v_info["bibtex"]
+            return self.v_summary["bibtex"]
     
     def writeBib(self, bib: str):
         if self.has_local:
@@ -238,29 +252,23 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             ...
     
-    def getUuid(self) -> str:
-        if self.has_local:
-            return super().getUuid()
-        else:
-            return self.v_info["uuid"]
-    
     def getTags(self) -> typing.List[str]:
         if self.has_local:
             return super().getTags()
         else:
-            return self.v_info["tags"]
+            return self.v_summary["tags"]
     
     def getTimeAdded(self) -> float:
         if self.has_local:
             return super().getTimeAdded()
         else:
-            return self.v_info["time_added"]
+            return self.v_summary["time_added"]
     
     def getTimeModified(self) -> float:
         if self.has_local:
             return super().getTimeModified()
         else:
-            return self.v_info["time_modified"]
+            return self.v_summary["time_modified"]
 
     def getVersionModify(self) -> str:
         if self.has_local:
@@ -272,7 +280,7 @@ class FileManipulatorVirtual(FileManipulator):
         if self.has_local:
             return super().getWebUrl()
         else:
-            return self.v_info["url"]
+            return self.v_summary["url"]
     
     def setWebUrl(self, url: str):
         if self.has_local:
@@ -295,12 +303,6 @@ class FileManipulatorVirtual(FileManipulator):
     def openMiscDir(self):
         if self.has_local:
             return super().openMiscDir()
-        else:
-            ...
-    
-    def openComments(self):
-        if self.has_local:
-            return super().openComments()
         else:
             ...
     

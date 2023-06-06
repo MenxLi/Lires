@@ -31,7 +31,7 @@ class DatabaseReader:
         return self.getDictDataFromDataPoint(self.db[uid])
 
     def getDictDataFromDataPoint(self, dp: DataPoint) -> DataPointSummary:
-        return dp.info
+        return dp.summary
         #  return {
         #      "has_file":dp.fm.hasFile(),
         #      "file_status":dp.getFileStatusStr(),
@@ -81,7 +81,8 @@ class DatabaseReader:
         tmp_notes_misc = os.path.join(tmp_notes_pth, "misc")
         with open(tmp_notes_html, "w") as fp:
             fp.write(htm_str)
-        os.symlink(dp.fm.folder_p, tmp_notes_misc)
+        if dp.fm.hasMisc():
+            os.symlink(dp.fm.getMiscDir(), tmp_notes_misc)
 
         # For mathjax, not working somehow?
         math_jax_path = os.path.join(ASSETS_PATH, "mathjax")
@@ -90,11 +91,8 @@ class DatabaseReader:
             os.symlink(mjf_path, os.path.join(tmp_notes_pth, f))
         return tmp_notes_html
 
-    def getCommentPathByUUID(self, uuid: str):
-        return self.db[uuid].fm.comment_p
-
     def getURLByUUID(self, uuid: str):
-        return self.db[uuid].fm.getWebURL()
+        return self.db[uuid].fm.getWebUrl()
 
     def getCommentHTMLByUUID(self, uuid: str):
         """DEPRECATED"""

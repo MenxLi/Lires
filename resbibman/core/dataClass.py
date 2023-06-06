@@ -1,12 +1,11 @@
 from __future__ import annotations
 import urllib.parse
 import shutil, requests, json
-from ..confReader import getConfV, ASSETS_PATH
+from ..confReader import getConfV, ASSETS_PATH, getDatabase
 import re, os, asyncio
 from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar
 import difflib
 import markdown
-from .fileTools import FileGenerator
 from .utils import formatMarkdownHTML, TimeUtils
 from .clInteractions import ChoicePromptAbstract
 from ..perf.asynciolib import asyncioLoopRun
@@ -18,12 +17,9 @@ except (FileNotFoundError, KeyError):
     pass
 from .bibReader import BibParser
 #  from .utils import HTML_TEMPLATE_RAW
-from .encryptClient import generateHexHash
 from ..types.dataT import DataPointSummary
 from .serverConn import ServerConn
 from . import globalVar as G
-
-from QCollapsibleCheckList import DataItemAbstract as CollapsibleChecklistDataItemAbstract
 
 class DataCore:
     logger = G.logger_rbm
@@ -192,17 +188,12 @@ class DataPoint(DataCore):
         self.loadInfo()
     
     @property
-    def data_path(self):
-        return self.fm.path
-
-    @property
-    def info(self) -> DataPointSummary:
+    def summary(self) -> DataPointSummary:
         """
         Generate datapoint info
         """
         return {
             "has_file":self.fm.hasFile(),
-            "file_status":self.getFileStatusStr(),
             "file_type": self.fm.file_extension,
             "year":self.year,
             "title":self.title,
@@ -216,7 +207,6 @@ class DataPoint(DataCore):
 
             "bibtex": self.fm.readBib(),
             "doc_size": self.fm.getDocSize(),
-            "base_name": self.fm.base_name,
 
             "note_linecount": len([line for line in self.fm.readComments().split("\n") if line.strip() != ""]),
         }
@@ -244,7 +234,7 @@ class DataPoint(DataCore):
         """
         if self.uuid in self.par_db.remote_info:
             remote_info = self.par_db.remote_info[self.uuid]
-            self.fm.v_info = remote_info
+            self.fm.v_summary = remote_info
             SUCCESS = self.fm._sync()
         else:
             # New data that remote don't have
@@ -252,7 +242,7 @@ class DataPoint(DataCore):
             SUCCESS = self.fm._uploadRemote()
         if SUCCESS:
             # update local virtual info
-            self.fm.v_info = self.info
+            self.fm.v_summary = self.summary
         return SUCCESS
 
     @property
@@ -277,39 +267,15 @@ class DataPoint(DataCore):
         return self.fm.file_p
 
     def reload(self):
-        _re_watch = False
-        if self.fm.has_local:
-            if self.fm.is_watched:
-                # The old observer may not be stopped (because it's in another thread),
-                # so unwatch file changes, otherwise may endup in 2 file observers,
-                # and the old one can't be unwatched because we lost reference to it
-                self.logger.debug("de-watching {}".format(self.uuid))
-                self.fm.setWatch(False)
-                _re_watch = True
-            self.fm = FileManipulatorVirtual(self.data_path, prompt_obj = self.fm.prompt_obj)
-            if not self.par_db.offline:
-                # set up a v_info
-                if self.uuid in self.par_db.remote_info.keys():
-                    self.fm.v_info = self.par_db.remote_info[self.uuid]
-                else:
-                    ...
-        else:
-            # to decide later
-            pass
-        if self.__force_offline:
-            self.fm._forceOffline()
-        self.fm.screen()
-        # set watch to True, because we may have un-watched it
-        if _re_watch:
-            self.logger.debug("re-watching {}".format(self.uuid))
+        if self.fm.is_watched:
+            self.fm.setWatch(False)
             self.fm.setWatch(True)
         self.loadInfo()
 
     def loadInfo(self):
-        #  self.logger.debug("Loading info for: {}".format(self.data_path))
         self.has_file = self.fm.hasFile()
         self.bib = BibParser()(self.fm.readBib())[0]
-        self.uuid = self.fm.getUuid()
+        self.uuid = self.fm.uuid
         self.tags = DataTags(self.fm.getTags())
         self.title = self.bib["title"]
         self.authors = self.bib["authors"]
@@ -327,17 +293,10 @@ class DataPoint(DataCore):
         - bib_str: bibtex string
         return if base_name changed
         """
-        self.fm.writeBib(bib_str)
-        bib = BibParser()(bib_str)[0]
-        fg = FileGenerator(None, 
-                           title = bib["title"], 
-                           authors = bib["authors"], 
-                           year = bib["year"])
-        # maybe change base_name
-        base_name_changed = self.fm.changeBasename(fg.base_name)
+        ret = bool(self.fm.writeBib(bib_str))
         # update datapoint
         self.reload()
-        return base_name_changed
+        return ret
     
     def addFile(self, extern_file_p: str) -> bool:
         """
@@ -387,7 +346,8 @@ class DataPoint(DataCore):
         comment = self.fm.readComments()
         if comment == "":
             return ""
-        misc_f = self.fm.folder_p
+        
+        misc_f = self.fm.getMiscDir()
         misc_f = misc_f.replace(os.sep, "/")
         if abs_fpath:
             comment = comment.replace("./misc", misc_f)
@@ -456,10 +416,10 @@ class DataPoint(DataCore):
         """
         with_base: whether to include the base address
         """
-        ftype = self.info["file_type"]
+        ftype = self.summary["file_type"]
         if ftype == "":
-            if self.info["url"]:
-                return self.info["url"]
+            if self.summary["url"]:
+                return self.summary["url"]
             else: return ""
         else:
             if with_base:
@@ -562,6 +522,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__account_permission = None
+        self.__conn = None
 
     @property
     def account_permission(self):
@@ -583,6 +544,12 @@ class DataBase(Dict[str, DataPoint], DataCore):
         return count
     
     @property
+    def conn(self):
+        if self.__conn is None:
+            raise RuntimeError("Database not initialized")
+        return self.__conn
+    
+    @property
     def remote_info(self)-> Dict[str, DataPointSummary]:
         d = dict()
         assert self.__file_list_remote is not None # should be called after successful fetch
@@ -590,13 +557,17 @@ class DataBase(Dict[str, DataPoint], DataCore):
             d[f_info["uuid"]] = f_info
         return d
 
-    def init(self, db_local = "", force_offline = False) -> DataBase:
+    def init(self, db_local, force_offline = False) -> DataBase:
         """
         An abstraction of self.construct, load both db_local and remote server
         reset offline status
         """
+        assert os.path.exists(db_local)
         self._force_offline = force_offline
+        conn = FileManipulatorVirtual.getDatabaseConnection(db_local) 
+        self.__conn = conn
         if not self.offline:
+            raise NotImplementedError("Remote database not implemented")
             flist = self.fetch()
             if flist is None:
                 # None indicate an server error
@@ -607,11 +578,9 @@ class DataBase(Dict[str, DataPoint], DataCore):
         if db_local:
             # when load database is provided
             to_load = []
-            for f in os.listdir(db_local):
-                f_path = os.path.join(db_local, f)
-                if os.path.isdir(f_path):
-                    to_load.append(f_path)
-            asyncioLoopRun(self.constuct(to_load))
+            to_load = conn.keys()
+            for uuid in to_load:
+                self.add(uuid)
         return self     # enable chaining initialization
 
     async def constuct(self, vs: Union[List[str], List[DataPointSummary]], force_offline = False):
@@ -621,16 +590,15 @@ class DataBase(Dict[str, DataPoint], DataCore):
          - force_offline: use when called by server side
                          or when server is down
         """
+        raise DeprecationWarning
         async def _getDataPoint(v_, force_offline_: bool) -> Union[DataPoint, None]:
             fm = FileManipulatorVirtual(v_)
-            if fm.screen():
-                # this process, if in local mode, is IO-bounded (DataPoint.loadInfo)
-                data = DataPoint(fm)
-                if force_offline_:
-                    data._forceOffline()
-            else:
-                data = None
+            data = DataPoint(fm)
+            if force_offline_:
+                data._forceOffline()
             return data
+        if force_offline:
+            FileManipulatorVirtual.initDatabaseConnection(getDatabase(offline = True))
 
         # load all datapoint
         async_tasks = []
@@ -669,14 +637,12 @@ class DataBase(Dict[str, DataPoint], DataCore):
     def add(self, data: Union[DataPoint, str]) -> DataPoint:
         """
         Add a data to the DataBase
-         - data: DataPoint or path to the local data directory
+         - data: DataPoint or uid
         return DataPoint
         """
         if isinstance(data, str):
-            # path to the data folder
-            assert os.path.exists(data)
-            fm = FileManipulatorVirtual(data)
-            fm.screen()
+            # uid of the data
+            fm = FileManipulatorVirtual(data, db_local = self.conn)
             data = DataPoint(fm)
         data.par_db = self
         self[data.uuid] = data
@@ -691,8 +657,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
             dp: DataPoint = self[uuid]
             if dp.fm.has_local:
                 dp.fm.setWatch(False)
-                shutil.rmtree(dp.data_path)
-                res = True
+                res = dp.fm.deleteEntry()
             if not self.offline:
                 # If remote has this data, delete remote as well, 
                 # otherwise it will be downloaded again when sync
@@ -824,8 +789,8 @@ class DataBase(Dict[str, DataPoint], DataCore):
             d: DataPoint
             remote_info = self.remote_info
             if d.is_local:
-                # update file manipulator v_info to the same with remote
-                if fetch: d.fm.v_info = remote_info[d.uuid]
+                # update file manipulator v_summary to the same with remote
+                if fetch: d.fm.v_summary = remote_info[d.uuid]
                 if d.fm.is_uptodate == "behind":
                     self.logger.info(f"allUptodate (database): data({d.uuid}) is behind remote")
                     return False
@@ -840,6 +805,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
          - uids: data uids to export
          - dst: destination folder to store the exported files (folders)
         """
+        raise NotImplementedError
         assert os.path.exists(dst) and os.path.isdir(dst), "Destination should be an existing directory"
         for uid in uids:
             dp: DataPoint = self[uid]

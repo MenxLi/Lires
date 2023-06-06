@@ -1,7 +1,6 @@
 
 export interface DataInfoT {
     has_file: boolean;
-    file_status: string;
     file_type: string;
     year: string;
     title: string;

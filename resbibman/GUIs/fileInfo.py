@@ -48,8 +48,6 @@ class FileInfoGUI(MainWidgetBase):
         self.comment_save_indicate_lbl = QLabel("")
         self.save_comment_btn = QPushButton("Save")
         self.refresh_btn = QPushButton("Refresh")
-        self.open_commets_btn = QPushButton("Comments")
-        self.open_bib_btn = QPushButton("Open bibtex file")
         self.open_folder_btn = QPushButton("Misc")
         self.weburl_edit = QLineEdit()
 
@@ -57,6 +55,7 @@ class FileInfoGUI(MainWidgetBase):
         self.tEdit = MarkdownEdit()
         _vlayout = QVBoxLayout()
         _hlayout = QHBoxLayout()
+        _hlayout.addWidget(self.open_folder_btn, 1)
         if not getConfV("auto_save_comments"):
             _hlayout.addWidget(self.save_comment_btn, 1)
         _hlayout.addWidget(self.comment_save_indicate_lbl, 0)
@@ -109,25 +108,22 @@ class FileInfoGUI(MainWidgetBase):
         weburl_hbox.addWidget(self.weburl_edit)
         self.weburl_frame.setLayout(weburl_hbox)
 
-        self.btn_frame = QFrame()
-        btn_frame_vbox = QVBoxLayout()
-        btn_frame_hbox = QHBoxLayout()
-        btn_frame_hbox.addWidget(self.open_commets_btn)
-        btn_frame_hbox.addWidget(self.open_folder_btn)
-        #  btn_frame_hbox.addWidget(self.open_bib_btn)
-        btn_frame_vbox.addLayout(btn_frame_hbox)
-        #  btn_frame_vbox.addWidget(self.open_folder_btn)
-        self.btn_frame.setLayout(btn_frame_vbox)
+        # self.btn_frame = QFrame()
+        # btn_frame_vbox = QVBoxLayout()
+        # btn_frame_hbox = QHBoxLayout()
+        # btn_frame_hbox.addWidget(self.open_folder_btn)
+        # btn_frame_vbox.addLayout(btn_frame_hbox)
+        # self.btn_frame.setLayout(btn_frame_vbox)
 
         frame_vbox.addWidget(self.info_frame, 2)
         frame_vbox.addWidget(self.comment_frame, 7)
         if not less_content:
             frame_vbox.addWidget(self.weburl_frame, 0)
-            frame_vbox.addWidget(self.btn_frame, 0)
+            # frame_vbox.addWidget(self.btn_frame, 0)
         self.frame.setLayout(frame_vbox)
 
         comment_frame_vbox.setContentsMargins(0,0,0,0)
-        self.btn_frame.setContentsMargins(0,0,0,0)
+        # self.btn_frame.setContentsMargins(0,0,0,0)
         frame_vbox.setContentsMargins(0,0,0,0)
 
 class FileInfo(FileInfoGUI):
@@ -180,8 +176,6 @@ class FileInfo(FileInfoGUI):
         if load_on_sel_change:
             self.getSelectPanel().selection_changed.connect(self.load)
         self.open_folder_btn.clicked.connect(self.openMiscDir)
-        self.open_bib_btn.clicked.connect(self.openBib)
-        self.open_commets_btn.clicked.connect(self.openComments)
         self.save_comment_btn.clicked.connect(self._saveComments)
         self.refresh_btn.clicked.connect(self.refresh)
         self.tab_wid.currentChanged.connect(self.changeTab)
@@ -208,10 +202,6 @@ class FileInfo(FileInfoGUI):
         self.weburl_edit.setEnabled(status)
         #  self.mdBrowser.setEnabled(status)
         self.open_folder_btn.setEnabled(status)
-        self.open_bib_btn.setEnabled(status)
-        self.open_commets_btn.setEnabled(status)
-        self.open_folder_btn.setEnabled(status)
-        self.save_comment_btn.setEnabled(status)
         self.refresh_btn.setEnabled(status)
         #  self.mdTab.setEnabled(status)
     
@@ -261,14 +251,6 @@ class FileInfo(FileInfoGUI):
     def openMiscDir(self):
         if not self.curr_data is None:
             self.curr_data.fm.openMiscDir()
-    
-    def openComments(self):
-        if not self.curr_data is None:
-            self.curr_data.fm.openComments()
-    
-    def openBib(self):
-        if not self.curr_data is None:
-            self.curr_data.fm.openBib()
     
     def onCommentChange(self):
         self.setCommentSaveStatusLbl("changed")
@@ -502,7 +484,7 @@ class MarkdownEdit(QTextEdit):
         if source.hasImage():
             # Add img
             fname = f"{uuid.uuid4()}.png"
-            fpath = os.path.join(self._parent.curr_data.fm.folder_p, fname)
+            fpath = os.path.join(self._parent.curr_data.fm.getMiscDir(create=True), fname)
             source.imageData().save(fpath)
             line = f"![](./misc/{fname})"
             # line = f"<img src=\"./misc/{fname}\" alt=\"drawing\" width=\"100%\"/>"
@@ -524,7 +506,7 @@ class MarkdownEdit(QTextEdit):
             for extension in [".jpg", ".png"]:
                 if fpath.endswith(extension):
                     fname = os.path.basename(fpath)
-                    shutil.copy2(fpath, self._parent.curr_data.fm.folder_p)
+                    shutil.copy2(fpath, self._parent.curr_data.fm.getMiscDir(create=True))
                     # line = f"<img src=\"./misc/{fname}\" alt=\"drawing\" width=\"100%\"/>"
                     line = f"![](./misc/{fname})"
                     self.insertPlainText(line)

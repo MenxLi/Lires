@@ -9,7 +9,7 @@ from PyQt6 import QtCore
 from ..core.dataClass import DataPoint, DataTags, DataBase
 from .tagEditor import TagEditor
 from ..core.bibReader import BibParser
-from ..core.fileTools import FileGenerator
+from ..core.fileTools import addDocument
 from ..core.fileToolsV import FileManipulatorVirtual
 from ..confReader import getDatabase
 from .widgets import WidgetBase
@@ -67,7 +67,7 @@ class BibQueryGUI(QDialog, WidgetBase):
 
 
 class BibQuery(BibQueryGUI):
-    file_added = QtCore.pyqtSignal(str)     # send generated folder path
+    file_added = QtCore.pyqtSignal(str)     # send generated uid
     add_to_pending = QtCore.pyqtSignal(str)   # send file_path
     def __init__(self, parent, file_path: typing.Union[str, None], tag_data: DataTags, tag_total:DataTags):
         """
@@ -94,27 +94,8 @@ class BibQuery(BibQueryGUI):
         self.cancel_button.clicked.connect(self.cancel)
 
     def confirm(self):
-        parser = BibParser(mode = "single")
         bib_txt = self.bib_edit.text
-        try:
-            bib = parser(bib_txt)[0]
-        except IndexError as e:
-            self.logger.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
-            return 
-        except pybtex.scanner.PrematureEOF:
-            self.logger.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
-            return 
-        except KeyError:
-            self.logger.warning(f"KeyError. (Author year and title must be provided)")
-            return 
-
         tag_list = self.tag_edit.getSelectedTags().toOrderedList()
-        fg = FileGenerator(
-            file_path = self.file_path,
-            title = bib["title"],
-            year = bib["year"],
-            authors = bib["authors"]
-        )
         # Check if the file already exists
         sim_bib = self.db.findSimilarByBib(bib_txt)
         if isinstance(sim_bib, DataPoint):
@@ -128,17 +109,17 @@ class BibQuery(BibQueryGUI):
                 self.close()
                 return
 
-        if not fg.generateDefaultFiles(getDatabase(self.db.offline)):
+        uid = addDocument(self.db.conn, bib_txt, doc_src=self.file_path)
+        if uid is None:
             self.add_to_pending.emit(self.file_path)
             self.close()
             return 
 
-        dst_dir = fg.dst_dir
-        fm = FileManipulatorVirtual(dst_dir)
+        fm = FileManipulatorVirtual(uid, db_local=self.db.conn)
         fm.screen()
         fm.writeBib(bib_txt)
         fm.writeTags(tag_list)
-        self.file_added.emit(dst_dir)
+        self.file_added.emit(uid)
         self.close()
     
     def cancel(self):

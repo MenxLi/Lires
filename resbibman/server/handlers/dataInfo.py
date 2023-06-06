@@ -48,7 +48,7 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerBase):
     def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by = DataList.SORT_TIMEADDED) -> List[DataPointSummary]:
         dl = self.db.getDataByTags(tags)
         dl.sortBy(sort_by)
-        return [d.info for d in dl]
+        return [d.summary for d in dl]
 
 class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerBase):
     """
@@ -66,7 +66,7 @@ class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerBase):
             cmd = None
         dp: DataPoint = self.db[uid]
         if cmd is None:
-            d_info = self.db[uid].info
+            d_info = self.db[uid].summary
             self.write(json.dumps(d_info))
             return
         elif cmd == "stringInfo":

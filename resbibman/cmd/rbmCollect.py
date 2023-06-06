@@ -7,7 +7,7 @@ from datetime import date
 from pybtex.database import BibliographyData, Entry
 
 from resbibman.core.bibReader import BibParser
-from resbibman.core.fileTools import FileGenerator
+from resbibman.core.fileTools import addDocument, DBConnection
 from resbibman.core.fileToolsV import FileManipulatorVirtual
 from resbibman.core.dataClass import DataPoint
 from resbibman.confReader import TMP_DIR, getConfV
@@ -101,7 +101,7 @@ class RBMRetriver:
 
     def run(self, download_doc: bool = False, tags: List[str] = []) -> str:
         """
-        Return data path or ''
+        Return data uuid or ''
         """
         database_dir = getConfV("database")
         collector = self.collector
@@ -111,17 +111,15 @@ class RBMRetriver:
             return ''
         # Generate data
         bib_str = collector.bibtexStr()
-        bib = BibParser()(bib_str)[0]
-        fg = FileGenerator(None, bib["title"], bib["year"], bib["authors"])
-        fg.generateDefaultFiles(database_dir)
-        # Add bibtex and write information
-        fm = FileManipulatorVirtual(fg.dst_path)
+        conn = DBConnection(database_dir)
+        uid = addDocument(conn, bib_str)
+        assert uid is not None, "Failed to add document"
+        fm = FileManipulatorVirtual(uid)
         fm._forceOffline()
-        fm.screen()
         fm.writeBib(collector.bibtexStr())
         fm.setWebUrl(collector.url())
         fm.writeTags(tags)
-        self.logger.debug("File generated: {}".format(fm.path))
+        self.logger.debug("File generated: {}".format(fm.uuid))
         # Add file if needed
         if download_doc:
             dp = DataPoint(fm)
@@ -132,10 +130,10 @@ class RBMRetriver:
                 # will delete f_path_tmp
                 print(f_path_tmp)
                 if dp.addFile(f_path_tmp):
-                    return fm.path
+                    return fm.uuid
                 else:
                     return ''
-        return fm.path
+        return fm.uuid
 
 def exec(retrive_str: str, **kwargs) -> str:
     retriver = RBMRetriver(retrive_str)

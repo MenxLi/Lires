@@ -102,11 +102,19 @@ def getConf() -> ResbibmanConfT:
     conf["database"] = os.path.realpath(conf["database"])
     return conf
 
-def getDatabase(offline: bool):
-    if offline:
-        return getConf()["database"]
+def getDatabase(offline: Optional[bool] = None):
+    if offline is None:
+        if getConf()["host"]:
+            return TMP_DB
+        else:
+            return getConf()["database"]
+    if isinstance(offline, bool):
+        if offline:
+            return getConf()["database"]
+        else:
+            return TMP_DB
     else:
-        return TMP_DB
+        raise TypeError("offline should be bool or None")
 
 def getConfV(key : str):
     try:
