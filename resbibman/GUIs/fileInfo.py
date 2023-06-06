@@ -158,7 +158,11 @@ class FileInfo(FileInfoGUI):
     @property
     def curr_data(self) -> Optional[DataPoint]:
         if self.__curr_data_uid is not None:
-            return self.database[self.__curr_data_uid]
+            try:
+                return self.database[self.__curr_data_uid]
+            except Exception as e:
+                self.logger.error("Un-caught error when getting curr_data: {}".format(e))
+                return None
         else:
             return None
 
