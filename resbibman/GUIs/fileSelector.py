@@ -329,14 +329,15 @@ class FileSelector(FileSelectorGUI):
         selected: DataPoint = selected_
         self.logger.debug("Editing bibtex for {}".format(selected.uuid))
         def onConfirm(txt: str):
-            self.infoDialog("Just make sure...", 
-                "Please make sure no programs is using the file to avoid permission error. "\
-                "(e.g. close the document before changing the bibtex)")
+            # self.infoDialog("Just make sure...", 
+            #     "Please make sure no programs is using the file to avoid permission error. "\
+            #     "(e.g. close the document before changing the bibtex)")
 
             try:
-                new_base = selected.changeBib(txt)
+                success = selected.changeBib(txt)
             except PermissionError as e:
                 # May occur if file is opened..
+                # (should not be a problem after 0.12.0?)
                 self.logger.debug(traceback.format_exc())
                 if not self.database.offline:
                     self.warnDialogCritical("ERROR: {}".format(e), 
@@ -345,11 +346,11 @@ class FileSelector(FileSelectorGUI):
                     self.warnDialogCritical("ERROR: {}".format(e), 
                     "Please check data integrity manually. (check log for more info)")
                 return
-            self.selection_changed.emit(selected)
-            # debug
-            if new_base:
-                self.infoDialog("File name changed, please be sure to sync before you quite")
-                self.logger.debug("generate new base name")
+            if success:
+                self.selection_changed.emit(selected)
+                self.infoDialog("Success")
+            else:
+                self.warnDialog("Failed to change bibtex", "Please check log for more info")
 
         self.bib_edit = BibEditorWithOK()
         self.bib_edit.text = selected.fm.readBib()
