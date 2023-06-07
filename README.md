@@ -183,6 +183,7 @@ rbm-collect:
 * Markdown horizontal line highlighter not working somehow
 * Adding file may encounter permission error for FAT32 format destination in Linux machine (refer to: [stackoverflow-25716333](https://stackoverflow.com/questions/25716333/))
 * Add data without tag permission on non-admin account, then delete local will raise exception
+* Full-screen GUI in macOS may somehow crash
 * ~~QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)~~(Resolved with PyQt6)
 * ~~PDFReader based on QWebEngineView may not show PDF (For PyQt6 under Windows, refer to: [stachoverflow-73350761](https://stackoverflow.com/questions/73350761/))~~(Resolved using PDF.js)
 
