@@ -40,4 +40,5 @@ pprint(dp.fm.readComments())
 
 # it's save to delete the temporary database now
 import shutil
+assert tmp_db_path == getDatabase(offline=False) # make sure don't accidentally delete the wrong path
 shutil.rmtree(tmp_db_path)
