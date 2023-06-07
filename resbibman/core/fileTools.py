@@ -3,9 +3,10 @@ The tools that deals with files in the database
 """
 from pathlib import Path
 import os, shutil, json, platform, typing, uuid, time, sys, sqlite3
-from typing import List, Union, TypedDict, Optional
+from typing import List, Union, TypedDict, Optional, TypeVar
 import threading
 import dataclasses
+from functools import wraps
 
 from . import globalVar as G
 from .bibReader import BibParser
@@ -65,6 +66,14 @@ class DBFileInfo(TypedDict):
     info_str: str       # Info string, json serializable string of DocInfo
     doc_ext: str        # Document file type, e.g. '.pdf', '.docx'
 
+# a wrapper that marks an object instance needs lock,
+def lock_required(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        assert hasattr(self, "lock"), "The object does not have a lock attribute"
+        with self.lock:
+            return func(self, *args, **kwargs)
+    return wrapper
 class DBConnection:
     """
     to manage database connection
@@ -72,6 +81,7 @@ class DBConnection:
     logger = G.logger_rbm
     db_fname = "rbm.db"
     lock = threading.Lock()
+
     def __init__(self, db_dir: str) -> None:
         # create db if not exist
         db_path = os.path.join(db_dir, self.db_fname)
@@ -112,6 +122,7 @@ class DBConnection:
     def close(self):
         self.conn.close()
     
+    @lock_required
     def __getitem__(self, uuid: str) -> Optional[DBFileInfo]:
         """
         Get file info by uuid
@@ -129,6 +140,21 @@ class DBConnection:
             "doc_ext": row[5],
         }
     
+    def insertItem(self, item: DBFileInfo) -> bool:
+        """
+        Insert item into database, will overwrite if uuid already exists
+        """
+        if self[item["uuid"]] is not None:
+            # if uuid already exists, delete it first
+            self.cursor.execute("DELETE FROM files WHERE uuid=?", (item["uuid"],))
+        with self.lock:
+            self.cursor.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
+                item["uuid"], item["bibtex"], item["abstract"], item["comments"], item["info_str"], item["doc_ext"], None
+            ))
+            self.conn.commit()
+        return True
+    
+    @lock_required
     def keys(self) -> list[str]:
         """
         Return all uuids
@@ -177,6 +203,7 @@ class DBConnection:
         with self.lock:
             self.cursor.execute("DELETE FROM files WHERE uuid=?", (uuid,))
             self.conn.commit()
+        self.logger.debug("Removed entry {}".format(uuid))
         return True
     
     def setDocExt(self, uuid: str, ext: Optional[str]) -> bool:
@@ -209,8 +236,9 @@ class DBConnection:
     
     def printData(self, uuid: str):
         if not self._ensureExist(uuid): return False
-        self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
-        row = self.cursor.fetchone()
+        with self.lock:
+            self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
+            row = self.cursor.fetchone()
         print(row)
 
 
@@ -337,6 +365,28 @@ class FileManipulator:
 
     def hasFile(self):
         return self.file_p is not None
+
+    ValidFileT = TypedDict("ValidFileT", {"root": str, "fname": List[str]})
+    def gatherFiles(self) -> ValidFileT:
+        """
+        gather all files associated with this datapoint,
+        may include: document and misc files
+        could be used to compress files for upload and download
+        """
+        # get selected files
+        selected_files = []
+        if self.hasFile():
+            selected_files.append(self.file_p)
+        if self.hasMisc():
+            selected_files.append(self.getMiscDir())
+        for f in selected_files:
+            assert (os.path.exists(f) and self.conn.db_dir in f), "File {} not in db_dir {}".format(f, self.conn.db_dir)
+        selected_fname = [os.path.basename(f) for f in selected_files]
+        return {
+            "root": self.conn.db_dir,
+            "fname": selected_fname,
+        }
+    
 
     @property
     def is_watched(self) -> bool:
@@ -551,4 +601,7 @@ class FileManipulator:
         return True
 
     def setWatch(self, status: bool = False):
+        """
+        Watch the file for changes, and update timestamp if changed.
+        """
         self.logger.warn("TODO: implement setWatch")

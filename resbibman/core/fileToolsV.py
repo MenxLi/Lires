@@ -3,7 +3,7 @@ Virtual (Remote) file tools
 """
 from __future__ import annotations
 import os, typing, requests, shutil
-from typing import Union, Literal, Callable, Optional
+from typing import Union, Literal, Callable, Optional, TypedDict, List
 
 from . import globalVar as G
 from .utils import TimeUtils
@@ -11,7 +11,7 @@ from .clInteractions import ChoicePromptCLI, ChoicePromptAbstract
 from .fileTools import FileManipulator, DBConnection
 from .encryptClient import generateHexHash
 from .serverConn import ServerConn
-from .compressTools import decompressDir, compressDir
+from .compressTools import decompressDir, compressDir, compressSelected
 from ..confReader import getConfV, TMP_DB, TMP_DIR, getServerURL, getDatabase, getConf
 from ..types.dataT import DataPointSummary
 
@@ -149,34 +149,41 @@ class FileManipulatorVirtual(FileManipulator):
             return True
     
     def _uploadRemote(self) -> bool:
-        raise NotImplementedError
         if self.offline:
             return False
         uuid = self.uuid
         interm_file_p = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
-        compressDir(self.path, interm_file_p)
-        return ServerConn().uploadData(interm_file_p, self.uuid, self.base_name, tags = self.getTags())
+        # compress
+        this_files = self.gatherFiles()
+        compressSelected(this_files["root"], this_files["fname"], interm_file_p)
+        db_info = self.conn[uuid]; assert not db_info is None
+        return ServerConn().uploadData(db_info, interm_file_p)
 
     def _downloadRemote(self) -> bool:
-        raise NotImplementedError
         if self.offline:
             return False
         uuid = self.uuid
         # intermediate zip file
         out_file = os.path.join(self.INTERM_ZIP_DIR, uuid + ".zip")
-        res = ServerConn().downloadData(out_file, uuid)
-        if not res:
+        d_info = ServerConn().downloadData(out_file, uuid)
+        if not d_info:
             return False
-        # delete old data
-        if os.path.exists(self.path):
-            shutil.rmtree(self.path)
+        if self.has_local:
+            # remove possible existing old data
+            file_path = self.file_p
+            if file_path is not None:
+                os.remove(file_path)
+            misc_dir = self.getMiscDir()
+            if os.path.exists(misc_dir):
+                shutil.rmtree(misc_dir)
+        # insert into db
+        self.conn.insertItem(d_info)
         # unzip
-        decompressDir(out_file, self.path)
+        decompressDir(out_file, self.conn.db_dir)
         self.logger.info("Downloaded {}".format(uuid))
-        return self.screen()
+        return True
     
     def _deleteRemote(self) -> bool:
-        raise NotImplementedError
         if self.offline:
             return False
         self.logger.debug("Request remote delete {}".format(self.uuid))
@@ -186,10 +193,21 @@ class FileManipulatorVirtual(FileManipulator):
 
     @property
     def uuid(self) -> str:
-        if self.has_local:
-            return super().uuid
-        else:
+        if "uuid" in self.v_summary:
             return self.v_summary["uuid"]
+        elif hasattr(self, "_uid"):
+            return self._uid
+        else:
+            raise ValueError("No uuid found")
+        ## this may end up with circular call
+        # if self.has_local:
+        #     return super().uuid
+        # else:
+        #     return self.v_summary["uuid"]
+    
+    def gatherFiles(self):
+        assert self.has_local
+        return super().gatherFiles()
 
     def _createFileOB(self):
         if self.has_local:

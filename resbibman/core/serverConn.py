@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from resbibman.core.dataSearcher import StringSearchT
     from resbibman.core.dataClass import DataTagT, DataPointSummary
     from resbibman.core.fileToolsV import FileManipulatorVirtual
+    from resbibman.core.fileTools import DBFileInfo
     from iRBM.lmInterface import ConversationDictT, StreamIterType
 
 class ConnectionBase:
@@ -96,27 +97,50 @@ class ServerConn(ConnectionBase):
         else:
             return True
         
-    def uploadData(self, fpath: str, uid: str, dst_fname: str, tags: List[str]) -> bool:
+    def uploadData(self, d_info: DBFileInfo, fpath: str) -> bool:
+        """
+        d_info: dict, data info to insert into server database
+        fpath: str, file path to upload, should be zip file of the data associated with d_info
+            the original data is supposed to be under database directory
+        """
         post_url = self.SERVER_URL + "/file"
+        uid = d_info["uuid"]
         post_args = {
             "key": self.hash_key,
             "cmd": "upload",
             "uuid": uid, 
-            "tags": json.dumps(tags)
+            "d_info": json.dumps(d_info)
         }
+        # compress file...
         with open(fpath, "rb") as fp:
             file_args = {
-                "filename": dst_fname.encode("utf-8"),
+                "filename": (uid + ".zip").encode("utf-8"),
                 "file": fp
             }
             res = requests.post(post_url, params = post_args, files=file_args)
+
         if not self._checkRes(res):
             return False
         else:
             return True
     
-    def downloadData(self, out_fpath, uid: str) -> bool:
+    def downloadData(self, out_fpath, uid: str) -> Optional[DBFileInfo]:
+        """
+        out_fpath: str, output file path, the downloaded data will be a zip file
+        """
         post_url = self.SERVER_URL + "/file"
+        # first get data info for inserting into database
+        post_args = {
+            "key": self.hash_key,
+            "cmd": "download-d_info",
+            "uuid": uid
+        }
+        res = requests.post(post_url, params = post_args)
+        if not self._checkRes(res):
+            return None
+        d_info = json.loads(res.text)
+
+        # then download file
         post_args = {
             "key": self.hash_key,
             "cmd": "download",
@@ -124,10 +148,10 @@ class ServerConn(ConnectionBase):
         }
         res = requests.post(post_url, params = post_args)
         if not self._checkRes(res):
-            return False
+            return None
         with open(out_fpath, "wb") as fp:
             fp.write(res.content)
-        return True
+        return d_info
     
     def deleteData(self, uid: str) -> bool:
         post_url = self.SERVER_URL + "/file"

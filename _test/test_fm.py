@@ -56,15 +56,19 @@ def testFileManipulator(fm: FileManipulator):
 db_pth = getDatabase(True)
 conn = DBConnection(db_pth)
 uid = addDocument(conn, test_bibtex, doc_src=pdf_path); assert uid
-# fm = FileManipulator(uid)
-fmv = FileManipulatorVirtual(uid)
-fmv._forceOffline()
+# fm = FileManipulator(uid, conn)
+fm = FileManipulatorVirtual(uid, conn)
+dp = DataPoint(fm)
+dp._forceOffline()
 # assert conn is fm.conn
 
-testFileManipulator(fmv)
-# testFileManipulator(fmv)
+assert fm.conn.db_dir == db_pth, (fm.conn.db_dir, db_pth)
 
-dp = DataPoint(fmv)
+print(fm.has_local)
+
+testFileManipulator(fm)
+
+dp._forceOffline()
 pprint(dp.summary)
 
 db = DataBase().init(db_pth, force_offline=True)

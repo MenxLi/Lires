@@ -13,6 +13,7 @@ try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable
     from .fileToolsV import FileManipulatorVirtual
+    from .fileTools import DBFileInfo
 except (FileNotFoundError, KeyError):
     pass
 from .bibReader import BibParser
@@ -210,6 +211,18 @@ class DataPoint(DataCore):
 
             "note_linecount": len([line for line in self.fm.readComments().split("\n") if line.strip() != ""]),
         }
+    
+    @property
+    def d_info(self) -> Optional[DBFileInfo]:
+        """
+        Return the DBFileInfo object (Raw sqlite database data information) if the data is in local database
+        """
+        if self.is_local:
+            d_info = self.fm.conn[self.uuid]
+            assert d_info is not None
+            return d_info
+        else:
+            return None
     
     def _forceOffline(self):
         """
@@ -560,14 +573,15 @@ class DataBase(Dict[str, DataPoint], DataCore):
     def init(self, db_local, force_offline = False) -> DataBase:
         """
         An abstraction of self.construct, load both db_local and remote server
-        reset offline status
+        if force_offline is True, the database will be initialized as offline on db_local
+
+        Call this function may reset offline status
         """
         assert os.path.exists(db_local)
         self._force_offline = force_offline
         conn = FileManipulatorVirtual.getDatabaseConnection(db_local) 
         self.__conn = conn
         if not self.offline:
-            raise NotImplementedError("Remote database not implemented")
             flist = self.fetch()
             if flist is None:
                 # None indicate an server error
@@ -590,15 +604,12 @@ class DataBase(Dict[str, DataPoint], DataCore):
          - force_offline: use when called by server side
                          or when server is down
         """
-        raise DeprecationWarning
         async def _getDataPoint(v_, force_offline_: bool) -> Union[DataPoint, None]:
-            fm = FileManipulatorVirtual(v_)
+            fm = FileManipulatorVirtual(v_, db_local=self.conn)
             data = DataPoint(fm)
             if force_offline_:
                 data._forceOffline()
             return data
-        if force_offline:
-            FileManipulatorVirtual.initDatabaseConnection(getDatabase(offline = True))
 
         # load all datapoint
         async_tasks = []
@@ -653,8 +664,10 @@ class DataBase(Dict[str, DataPoint], DataCore):
         Delete a DataPoint by uuid,
         will delete remote data if in online mode and remote data exists
         """
+        self.logger.info("Deleting {}".format(uuid))
         if uuid in self.keys():
             dp: DataPoint = self[uuid]
+            res = True      # fallback to True if offline and no local (should not happen)
             if dp.fm.has_local:
                 dp.fm.setWatch(False)
                 res = dp.fm.deleteEntry()
