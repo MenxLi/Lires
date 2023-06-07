@@ -12,6 +12,17 @@ class BibParser:
     def __init__(self, mode = "single"):
         self.mode = mode
     
+    @classmethod
+    def removeAbstract(cls, bib_str: str) -> str:
+        """
+        Remove abstract from bib string
+        """
+        bib_data = pybtex.database.parse_string(bib_str, bib_format="bibtex")
+        for k in bib_data.entries.keys():
+            if "abstract" in bib_data.entries[k].fields:
+                bib_data.entries[k].fields.pop("abstract")
+        return bib_data.to_string("bibtex")
+    
     def __call__(self, bib_str: str):
         """
             datapoint: {
@@ -25,6 +36,7 @@ class BibParser:
                 "doi": <str>,
                 "booktitle": <str>,
                 "pages": <>,
+                "abstract": <str>
         """
         bib_data = pybtex.database.parse_string(bib_str, bib_format="bibtex")
         if len(bib_data.entries.keys()) >1 and self.mode == "single":
@@ -43,7 +55,7 @@ class BibParser:
                 "year": _d.fields["year"],
                 "authors": [str(p) for p in _d.persons["author"]]
             }
-            for bib_entry in ["journal", "doi", "booktitle", "pages"]:
+            for bib_entry in ["journal", "doi", "booktitle", "pages", "abstract"]:
                 if bib_entry in _d.fields:
                     data[bib_entry] = _d.fields[bib_entry],
             bibs.append(data)

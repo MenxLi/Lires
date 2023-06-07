@@ -305,7 +305,11 @@ def addDocument(
         return 
 
     if "abstract" in bib and abstract == "":
-        abstract = bib["abstract"]
+        abstract = bib["abstract"][0]
+    
+    # maybe remove abstract from citation, so that the bibtex won't be too long
+    # the abstract will be stored in the database separately
+    citation = BibParser.removeAbstract(citation)
 
     uid = db_conn.addEntry(citation, abstract, comments, doc_info = doc_info)
     if uid is None:
