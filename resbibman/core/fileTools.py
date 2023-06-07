@@ -36,7 +36,7 @@ class DocInfo:
     url: str
 
     DocInfoDictT = typing.TypedDict("DocInfoDictT", {
-        "uuid": str,
+        "uuid": str,            # maybe ommited in the future, duplicate with file key
         "time_import": float,
         "time_modify": float,
         "version_import": str,
