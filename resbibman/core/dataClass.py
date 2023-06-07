@@ -576,7 +576,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         assert os.path.exists(db_local)
         self._force_offline = force_offline
         conn = FileManipulatorVirtual.getDatabaseConnection(db_local) 
-        self.__conn = conn
+        self.__conn = conn      # set global database connection instance
         if not self.offline:
             flist = self.fetch()
             if flist is None:
@@ -589,8 +589,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
             # when load database is provided
             to_load = []
             to_load = conn.keys()
-            for uuid in to_load:
-                self.add(uuid)
+            asyncioLoopRun(self.constuct(to_load, force_offline=self._force_offline))
         return self     # enable chaining initialization
 
     async def constuct(self, vs: Union[List[str], List[DataPointSummary]], force_offline = False):
