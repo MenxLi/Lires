@@ -761,6 +761,7 @@ class MainWindow(MainWindowGUI):
             "red" : "QStatusBar{background:rgba(255,0,0,150); color: rgba(255,255,255,255)}",
             "green" : "QStatusBar{background:rgba(0,200,0,150); color:" + font_color + "}",
             "blue" : "QStatusBar{background:rgba(0,0,255,150); color: rgba(255,255,255,255)}",
+            "yellow" : "QStatusBar{background:rgba(255,255,0,150); color: rgba(0,0,0,255)}",
         }
         self.statusBar().setStyleSheet(color[bg_color])
         # self.statusBar().setStyleSheet(f"color : {txt_color}")

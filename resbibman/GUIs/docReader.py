@@ -93,7 +93,19 @@ class DocumentReader(MainWidgetBase):
                 return True
 
         if dp.fm.file_p.endswith(".pdf"):
-            self._loadPDF(dp.fm.file_p)
+            viewer_path = getConf()["pdfjs_viewer_path"]
+            # check if pdf.js viewer is installed
+            if not os.path.exists(viewer_path):
+                self.logger.info(
+                    "Pdf.js viewer not installed. "
+                    "Download and place it in: {}".format(viewer_path)
+                    )
+                self.getMainPanel().statusBarInfo(
+                    "Pdf.js viewer not installed (check log for more info.)", 
+                    time = 3, bg_color = "yellow"
+                    )
+                return False
+            self._loadPDF(dp.fm.file_p, viewer_path)
             self._status["doc_uid"] = uid
             return True
         if dp.fm.file_p.endswith(".hpack"):
@@ -102,13 +114,8 @@ class DocumentReader(MainWidgetBase):
             return True
         return False
 
-    def _loadPDF(self, fpath: str):
+    def _loadPDF(self, fpath: str, viewer_path: str):
         assert fpath.endswith(".pdf")
-        viewer_path = getConf()["pdfjs_viewer_path"]
-        if not os.path.exists(viewer_path):
-            self.warnDialog("Pdf.js viewer not installed", 
-                "Download and place it in: {}".format(viewer_path))
-            return
         viewer_url = QUrl.fromLocalFile(viewer_path)
         file_url = QUrl.fromLocalFile(fpath)
         qurl = QUrl.fromUserInput("%s?file=%s"%(viewer_url.toString(),file_url.toString()))
