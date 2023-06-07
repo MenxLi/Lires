@@ -279,12 +279,12 @@ export class DataSearcher{
         return this.sortDefault(dp_new, false);
     }
 
-    // sort datapoints by default method
+    // sort datapoints by default method, the later added, the first (descending order)
     static sortDefault(datapoints: DataPoint[], reverse = false): DataPoint[]{
         if (reverse){
-            return datapoints.sort((a, b) => b.info.time_added - a.info.time_added)
+            return datapoints.sort((a, b) => a.info.time_added - b.info.time_added)
         }
-        return datapoints.sort((b, a) => b.info.time_added - a.info.time_added)
+        return datapoints.sort((b, a) => a.info.time_added - b.info.time_added)
     }
 
     // return a list of datapoints that are sorted by scores
