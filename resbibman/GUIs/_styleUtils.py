@@ -7,12 +7,42 @@ from ..confReader import getConfV
 def isSysDarkMode() -> bool:
     """
     Detect if the system is in dark mode
+    ref: https://stackoverflow.com/questions/65294987/detect-os-dark-mode-in-python
     """
+    import darkdetect
+    return darkdetect.isDark() # type: ignore
+
+    def detect_darkmode_in_windows(): 
+        try:
+            import winreg
+        except ImportError:
+            return False
+        registry = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
+        reg_keypath = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize'
+        try:
+            reg_key = winreg.OpenKey(registry, reg_keypath)
+        except FileNotFoundError:
+            return False
+
+        for i in range(1024):
+            try:
+                value_name, value, _ = winreg.EnumValue(reg_key, i)
+                if value_name == 'AppsUseLightTheme':
+                    return value == 0
+            except OSError:
+                break
+        return False
+
     if platform.system() == "Darwin":
         p = Popen("defaults read -g AppleInterfaceStyle", shell=True, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
         if b"Dark" in stdout:
             return True
+        else:
+            return False
+
+    if platform.system() == "Windows":
+        return detect_darkmode_in_windows()
 
     return False
 

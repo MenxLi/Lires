@@ -1,6 +1,7 @@
 import os
 from ..core.dataClass import DataTableList
 from ..confReader import CONF_FILE_PATH, saveToConf, DEFAULT_DATA_PATH, DEFAULT_PDF_VIEWER_DIR
+from ..GUIs._styleUtils import isSysDarkMode
 
 def run():
 	generateDefaultConf()
@@ -39,7 +40,7 @@ def generateDefaultConf():
 			"tag": ["Arial", 10]
 
 		},
-        stylesheet = "Simple",
+        stylesheet = "Simple-dark" if isSysDarkMode() else "Simple",
 		auto_save_comments = False,
 		gui_status = {
 			"show_toolbar": True,

@@ -14,3 +14,4 @@ pyyaml
 nbib
 typing_extensions
 tqdm
+darkdetect
