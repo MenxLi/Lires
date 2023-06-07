@@ -245,6 +245,7 @@ version_history:
     - Summary page check key
     - Choose model from summary url
     - 401 -> 403 for unauthorized access
-    - fix - restore node package version
+    - Fix - restore node package version
   0.12.0:
-    - Sqlite database storage format
+    - Sqlite database storage format!
+    - Fix - search note; catch last row deletion uuid keyerror
