@@ -1,12 +1,12 @@
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel
+from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QDialog
 
 from .tagSelector import TagSelector
-from .widgets import MainWidgetBase
+from .widgets import RefMixin, QUtilsMixin, WidgetMixin
 from ..core.dataClass import DataTags, TagRule, DataTagT
 from ..core import globalVar as G
 
-class TagEditor(MainWidgetBase):
+class TagEditor(QDialog, RefMixin, QUtilsMixin, WidgetMixin):
     def __init__(self, tag_data: DataTags, tag_total: DataTags, parent = None) -> None:
         super().__init__(parent=parent)
         self.initUI()
@@ -49,7 +49,7 @@ class TagEditor(MainWidgetBase):
     
     def eventFilter(self, obj, event: QtCore.QEvent) -> bool:
         if event.type() == QtCore.QEvent.Type.KeyPress:
-            if event.key() == QtCore.Qt.Key.Key_C:
+            if event.key() == QtCore.Qt.Key.Key_C:  # type: ignore
                 if self.keyModifiers("Control"):
                     curr_hovering_tag = self.tag_selector.data_model.hovering_tag
                     self.logger.debug(f"Detected input hovering tag: {curr_hovering_tag}")
