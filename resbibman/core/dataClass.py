@@ -573,7 +573,8 @@ class DataBase(Dict[str, DataPoint], DataCore):
 
         Call this function may reset offline status
         """
-        assert os.path.exists(db_local)
+        if not os.path.exists(db_local):
+            os.mkdir(db_local)
         self._force_offline = force_offline
         conn = FileManipulatorVirtual.getDatabaseConnection(db_local) 
         self.__conn = conn      # set global database connection instance
