@@ -1,14 +1,15 @@
 
 from typing import Callable, Optional
-from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QInputDialog
+from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QInputDialog, QDialog
 from .tagSelector import TagSelector, DataItemAbstract
 from .widgets import RefMixin, RefWidgetBase, WidgetMixin
 from ..confReader import saveToConf
 from ..core.dataClass import TagRule, DataTags
 
 class TagModifier(RefMixin, WidgetMixin):
-    def __init__(self, origin: RefMixin) -> None:
+    def __init__(self, origin: RefWidgetBase) -> None:
         super().__init__()
+        self.origin = origin
         origin.passRefTo(self)
 
     def database(self):
@@ -22,7 +23,7 @@ class TagModifier(RefMixin, WidgetMixin):
             data = self.getMainPanel().db.getDataByTags(DataTags([tag]))
             n_online = len(["" for d in data if not d.is_local])
             # confirm
-            text, ok = QInputDialog.getText(None, "Edit tag".format(len(data)), \
+            text, ok = QInputDialog.getText(self.origin, "Edit tag".format(len(data)), \
                                             "Enter new tag for {} files ({} remote)".format(len(data), n_online), text = tag)
             if not ok:
                 return 
@@ -80,7 +81,7 @@ class TagModifier(RefMixin, WidgetMixin):
                 )
         self.prompt.show()
 
-class TagSelectPrompt(RefWidgetBase):
+class TagSelectPrompt(QDialog):
 
     def __init__(self, parent, 
             total_tags: DataTags, 
