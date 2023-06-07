@@ -45,7 +45,7 @@ class TagRule(DataCore):
         return DataTags(all_p_tags)
     
     @classmethod
-    def allChildsOf(cls, tag: str, tag_pool: Sequence[str]) -> DataTags:
+    def allChildsOf(cls, tag: str, tag_pool: Sequence[str] | DataTags) -> DataTags:
         """
         assume cls.SEP is '.'
         input: (a.b, [a, a.b, a.b.c, a.b.d])
@@ -152,7 +152,7 @@ class DataTags(Set[str], DataCore):
         ordered_list.sort()
         return ordered_list
     
-    def union(self, *s) -> DataTags:
+    def union(self, *s: Set|DataTags|list) -> DataTags:
         return DataTags(super().union(*s))
     
     def withParents(self) -> DataTags:
@@ -165,7 +165,7 @@ class DataTags(Set[str], DataCore):
         childs = DataTags()
         for s in self:
             childs = childs.union(TagRule.allChildsOf(s, child_choices))
-        return self.union(childs)
+        return self.union(childs) # type: ignore
     
     def toStr(self):
         if len(self) > 0:
