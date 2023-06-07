@@ -14,7 +14,7 @@ from ..core import globalVar as G
 class TagSelector(RefWidgetBase):
     entry_added = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent, tag_data = Optional[DataTags], tag_total = Optional[DataTags], mandatory_tags: Optional[DataTagT] = None) -> None:
+    def __init__(self, parent, tag_data: Optional[DataTags] = None, tag_total: Optional[DataTags] = None, mandatory_tags: Optional[DataTagT] = None) -> None:
         super().__init__(parent)
         self.initUI()
         if mandatory_tags is None:
