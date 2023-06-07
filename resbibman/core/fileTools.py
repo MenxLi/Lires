@@ -168,24 +168,33 @@ class DBConnection:
             return False
         return True
     
-    def addEntry(self, bibtex: str, abstract: str = "", comments: str = "", doc_ext: str = "") -> Optional[str]:
+    def addEntry(
+            self, bibtex: str, 
+            abstract: str = "", 
+            comments: str = "", 
+            doc_ext: str = "",
+            doc_info: Optional[DocInfo] = None
+            ) -> Optional[str]:
         """
         Add an entry to the database
+        DocInfo will be generated if not provided, should be None for new data generated,
+            can be provided for data imported from other sources (e.g. old version)
         return uuid if success, None if failed
         """
         # generate info
-        default_info = DocInfo(
-            uuid = str(uuid.uuid4()),
-            time_import = TimeUtils.nowStamp(),
-            time_modify = TimeUtils.nowStamp(),
-            version_import = VERSION,
-            version_modify = VERSION,
-            device_import = platform.node(),
-            device_modify = platform.node(),
-            tags = [],
-            url = ""
-        )
-        uid = default_info.uuid
+        if doc_info is None:
+            doc_info = DocInfo(
+                uuid = str(uuid.uuid4()),
+                time_import = TimeUtils.nowStamp(),
+                time_modify = TimeUtils.nowStamp(),
+                version_import = VERSION,
+                version_modify = VERSION,
+                device_import = platform.node(),
+                device_modify = platform.node(),
+                tags = [],
+                url = ""
+            )
+        uid = doc_info.uuid
         # check if uuid already exists
         if self[uid] is not None:
             self.logger.error("uuid {} already exists".format(uid))
@@ -193,7 +202,7 @@ class DBConnection:
         # insert
         with self.lock:
             self.cursor.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
-                uid, bibtex, abstract, comments, default_info.toString(), doc_ext, None
+                uid, bibtex, abstract, comments, doc_info.toString(), doc_ext, None
             ))
             self.conn.commit()
         return uid
@@ -263,13 +272,21 @@ def _addDocumentFile(db_conn: DBConnection, uid: str, src: str):
     shutil.copyfile(src, dst)
     db_conn.setDocExt(uid, ext)
 
-def addDocument(db_conn: DBConnection, citation: str, abstract: str = "", comments: str = "", doc_src: Optional[str] = None) -> Optional[str]:
+def addDocument(
+        db_conn: DBConnection, 
+        citation: str, abstract: str = "", 
+        comments: str = "", 
+        doc_src: Optional[str] = None,
+        uid: Optional[str] = None,
+        doc_info: Optional[DocInfo] = None
+        ) -> Optional[str]:
     """
     Should use this function to add document to database instead of directly using DBConnection.addEntry or use FileGenerator
 
     - citation: bibtex string, should be valid, at least contains title, year, authors
         may support other formats in the future...
     - doc_src: document source path, should be a file path, if None, doc_ext will be empty, else the document will be copied to the database directory
+    - doc_info: DocInfo object, should be None for new data generated, can be provided for data imported from other sources (e.g. old version)
 
     return uuid if success, None if failed
     """
@@ -290,7 +307,7 @@ def addDocument(db_conn: DBConnection, citation: str, abstract: str = "", commen
     if "abstract" in bib and abstract == "":
         abstract = bib["abstract"]
 
-    uid = db_conn.addEntry(citation, abstract, comments)
+    uid = db_conn.addEntry(citation, abstract, comments, doc_info = doc_info)
     if uid is None:
         return None
 
@@ -495,6 +512,7 @@ class FileManipulator:
             return False
         _addDocumentFile(self.conn, self.uuid, extern_file_p)
         self.logger.debug("addFile (fm): {}".format(self.uuid))
+        self._log()
         return True
 
     def getDocSize(self) -> float:
@@ -511,6 +529,7 @@ class FileManipulator:
         return db_data["bibtex"]
 
     def writeBib(self, bib: str):
+        self._log()
         return self.conn.updateBibtex(self.uuid, bib)
     
     def readComments(self) -> str:

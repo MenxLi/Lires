@@ -246,3 +246,5 @@ version_history:
     - Choose model from summary url
     - 401 -> 403 for unauthorized access
     - fix - restore node package version
+  0.12.0:
+    - Sqlite database storage format
