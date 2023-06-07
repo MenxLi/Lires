@@ -44,13 +44,17 @@ def execProg():
         app.setStyle(QStyleFactory.create("macOS"))     # default
     else: 
         ...
-
+    
     # load user stylesheet
     ss = getStyleSheets()[getConf()["stylesheet"]]
     if ss != "":
         with open(ss, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())
+
+    # default style may change font size
+    # apply font size from conf
     gui = MainWindow()
+    gui.loadFontConfig()
     EXIT_CODE =  app.exec()
     
     G.clearTempDirs()
