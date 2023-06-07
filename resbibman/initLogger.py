@@ -2,7 +2,7 @@ import logging, sys
 from .confReader import LOG_FILE
 from logging.handlers import RotatingFileHandler
 
-def initLogger(log_level = "INFO"):
+def initLogger(log_level = "INFO") -> logging.Logger:
     """
     Log will be recorded in LOG_FILE
     """
@@ -36,6 +36,7 @@ def initLogger(log_level = "INFO"):
         logger.info("Exit.")
         sys.exit()
     sys.excepthook = handle_exception
+    return logger
 
 class LoggingLogger():
     """
