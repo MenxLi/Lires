@@ -44,8 +44,8 @@ else:
 ICON_PATH = join(CURR_PATH, "icons")
 STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
 DOC_PATH = join(CURR_PATH, "docs")
-BIB_TEMPLATE_PATH = join(DOC_PATH, "bibtexTemplates")
 ASSETS_PATH = join(CURR_PATH, "assets")
+BIB_TEMPLATE_PATH = join(ASSETS_PATH, "bibtexTemplates")
 
 DEFAULT_DATA_PATH = join(RBM_HOME, "Database")
 DEFAULT_PDF_VIEWER_DIR = join(RBM_HOME, "pdf-viewer")
