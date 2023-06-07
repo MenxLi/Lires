@@ -4,7 +4,7 @@ from tornado import iostream
 from resbibman.confReader import TMP_DIR, getConfV
 from resbibman.core.compressTools import compressDir, decompressDir, compressSelected
 from resbibman.core.dataClass import DataPoint
-from resbibman.core.fileTools import DBFileInfo
+from resbibman.core.fileTools import DBFileInfo, DocInfo
 
 class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
     ZIP_TMP_DIR = os.path.join(TMP_DIR, "server_zips")
@@ -66,12 +66,12 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
             self.logger.debug(f"File {uuid} sent to client")
         
         elif cmd == "upload":
+            d_info: DBFileInfo = json.loads(self.get_argument("d_info"))
             if not permission["is_admin"]:
                 # tag permission check
-                tags = json.loads(self.get_argument("tags"))
+                tags = DocInfo.fromString(d_info["info_str"]).tags
                 self.checkTagPermission(tags, permission["mandatory_tags"])
             # add through DBConnection
-            d_info: DBFileInfo = json.loads(self.get_argument("d_info"))
             self.db.conn.insertItem(d_info)
             assert uuid == d_info["uuid"], "uuid not match" # should not happen
             db_dir = db.conn.db_dir
