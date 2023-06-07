@@ -7,7 +7,8 @@ import requests, os, zipfile
 from tqdm import tqdm
 from ..confReader import ICON_PATH, DEFAULT_PDF_VIEWER_DIR, TMP_DIR
 
-DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v3.0.279/pdfjs-3.0.279-dist.zip"
+# DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v3.0.279/pdfjs-3.0.279-dist.zip"
+DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v3.7.107/pdfjs-3.7.107-dist.zip"
 
 def render_pdf_page(page_data, for_cover=False):
     zoom_matrix = fitz.Matrix(4, 4)
@@ -41,6 +42,10 @@ def getPDFCoverAsQPixelmap(f_path: str):
     return cover
 
 def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL) -> bool:
+    if os.path.exists(DEFAULT_PDF_VIEWER_DIR):
+        print("Should delete old pdf.js viewer first: ", DEFAULT_PDF_VIEWER_DIR)
+        print("call: rm -rf {}".format(DEFAULT_PDF_VIEWER_DIR))
+        return False
     tmp_download = os.path.join(TMP_DIR, "pdfjs.zip")
     print("Downloading pdf.js from {}".format(download_url))
     # https://stackoverflow.com/a/37573701/6775765
@@ -68,6 +73,7 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
         return False
     
     print("Extracting to default viewer location...")
+    os.mkdir(DEFAULT_PDF_VIEWER_DIR)
     with zipfile.ZipFile(tmp_download, "r", compression=zipfile.ZIP_DEFLATED) as zp:
         zp.extractall(path = DEFAULT_PDF_VIEWER_DIR)
     print("Finished. downloaded PDF.js to: {}".format(DEFAULT_PDF_VIEWER_DIR))

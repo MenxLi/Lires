@@ -66,7 +66,7 @@ DOC_SUMMARY_DIR = os.path.join(TMP_INDEX, "summary")
 # Create directories if they don't exist
 if not os.path.exists(RBM_HOME):
     os.mkdir(RBM_HOME)
-for _p in [TMP_DIR, DEFAULT_PDF_VIEWER_DIR]:
+for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES, TMP_INDEX, DOC_SUMMARY_DIR]:
