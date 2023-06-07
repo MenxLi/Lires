@@ -204,6 +204,13 @@ class FileManipulatorVirtual(FileManipulator):
         #     return super().uuid
         # else:
         #     return self.v_summary["uuid"]
+
+    @property
+    def file_extension(self) -> str:
+        if self.has_local:
+            return super().file_extension
+        else:
+            return self.v_summary["file_type"]
     
     def gatherFiles(self):
         assert self.has_local
