@@ -1,13 +1,17 @@
 
 from pprint import pprint
-from resbibman.core import DataBase
+from resbibman.core.dataClass import DataBase
 from resbibman.confReader import getDatabase
 from resbibman.initLogger import initLogger
 
 logger = initLogger("DEBUG")
 
+# the data will be stored in a separate database when online mode is used
+# you can use any database path you want
+tmp_db_path = getDatabase(offline=False) 
+
 ## server information should be setup in the config file
-database = DataBase().init(getDatabase(offline=False))
+database = DataBase().init(tmp_db_path)
 
 all_uids = database.keys()
 uid = next(iter(all_uids))
@@ -33,3 +37,7 @@ dp.fm.writeComments(f"{old_comments}\nThis is a new comment!")
 dp.sync()
 
 pprint(dp.fm.readComments())
+
+# it's save to delete the temporary database now
+import shutil
+shutil.rmtree(tmp_db_path)

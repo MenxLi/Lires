@@ -8,7 +8,7 @@ from typing import Union, Literal, Callable, Optional, TypedDict, List
 from . import globalVar as G
 from .utils import TimeUtils
 from .clInteractions import ChoicePromptCLI, ChoicePromptAbstract
-from .fileTools import FileManipulator, DBConnection
+from .fileTools import FileManipulator, DBConnection, addDocument
 from .encryptClient import generateHexHash
 from .serverConn import ServerConn
 from .compressTools import decompressDir, compressDir, compressSelected

@@ -2,7 +2,8 @@
 
 import os
 from pprint import pprint
-from resbibman.core import addDocument, DataBase
+from resbibman.core.fileToolsV import addDocument
+from resbibman.core.dataClass import DataBase 
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
