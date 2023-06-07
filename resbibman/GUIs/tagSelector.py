@@ -6,7 +6,7 @@ from PyQt6 import QtCore
 
 from QCollapsibleCheckList import CollapsibleCheckList, DataItemAbstract
 
-from .widgets import RefWidgetBase, WidgetBase
+from .widgets import RefWidgetBase, WidgetMixin
 from ..confReader import saveToConf_guiStatus, getConf
 from ..core.dataClass import DataTags, TagRule, DataTagT
 from ..core import globalVar as G
@@ -72,7 +72,7 @@ class TagSelector(RefWidgetBase):
             self.infoDialog("The tag already exists")
 
 
-class TagDataModel(QtCore.QObject, WidgetBase):
+class TagDataModel(QtCore.QObject, WidgetMixin):
     """
     An interface to hide data communication with CollapsibleCheckList
     Only expose str and DataTags to outside

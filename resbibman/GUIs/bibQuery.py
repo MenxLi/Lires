@@ -12,10 +12,10 @@ from ..core.bibReader import BibParser
 from ..core.fileTools import addDocument
 from ..core.fileToolsV import FileManipulatorVirtual
 from ..confReader import getDatabase
-from .widgets import WidgetBase
+from .widgets import WidgetMixin
 from .bibtexEditor import BibEditor
 
-class BibQueryGUI(QDialog, WidgetBase):
+class BibQueryGUI(QDialog, WidgetMixin):
     def __init__(self, parent, tag_data: DataTags, tag_total: DataTags):
         """
         file_path: path to the original paper

@@ -1,7 +1,7 @@
 import os
 import webbrowser
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QDialog, QMessageBox
-from .widgets import WidgetBase
+from .widgets import WidgetMixin
 from ..core.utils import openFile
 from ..confReader import DOC_PATH, WEBPAGE
 from ..version import _VERSION_HISTORIES
@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 
-class HelpWidget(QDialog, WidgetBase):
+class HelpWidget(QDialog, WidgetMixin):
     def __init__(self,*args,**kwargs):
         super(HelpWidget, self).__init__(*args,**kwargs)
         self.initUI()

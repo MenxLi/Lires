@@ -2,12 +2,12 @@
 from typing import Callable, Optional
 from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QInputDialog
 from .tagSelector import TagSelector, DataItemAbstract
-from .widgets import RefBase, RefWidgetBase, WidgetBase
+from .widgets import RefMixin, RefWidgetBase, WidgetMixin
 from ..confReader import saveToConf
 from ..core.dataClass import TagRule, DataTags
 
-class TagModifier(RefBase, WidgetBase):
-    def __init__(self, origin: RefBase) -> None:
+class TagModifier(RefMixin, WidgetMixin):
+    def __init__(self, origin: RefMixin) -> None:
         super().__init__()
         origin.passRefTo(self)
 

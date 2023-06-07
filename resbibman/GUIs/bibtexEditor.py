@@ -3,13 +3,13 @@ from typing import Dict
 from datetime import date
 from PyQt6.QtWidgets import QButtonGroup, QDialog, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget, QRadioButton, QComboBox
 from PyQt6 import QtCore
-from .widgets import WidgetBase
+from .widgets import WidgetMixin
 
 from ..confReader import BIB_TEMPLATE_PATH
 from ..core.utils import sssUUID
 from ..core.bibReader import BibConverter
 
-class TemplateChoice(WidgetBase, QDialog):
+class TemplateChoice(WidgetMixin, QDialog):
     template_selected = QtCore.pyqtSignal(str)
     def __init__(self, parent = None):
         super().__init__(parent)
@@ -50,7 +50,7 @@ class TemplateChoice(WidgetBase, QDialog):
         self.close()
         return
 
-class PlainTextInput(QDialog, WidgetBase):
+class PlainTextInput(QDialog, WidgetMixin):
     on_ok = QtCore.pyqtSignal(str)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -72,7 +72,7 @@ class PlainTextInput(QDialog, WidgetBase):
         self.on_ok.emit(out)
         self.close()
 
-class BibEditor(QDialog, WidgetBase):
+class BibEditor(QDialog, WidgetMixin):
     def __init__(self):
         super().__init__()
         self.initUI()

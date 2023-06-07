@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ..types.configT import _ConfFontSizeT
 
 LOGGER = logging.getLogger("rbm")
-class WidgetBase:
+class WidgetMixin:
     logger = logging.getLogger("rbm")
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -68,7 +68,7 @@ class WidgetBase:
             qr.moveCenter(cp)
             self.move(qr.topLeft())
 
-class RefBase:
+class RefMixin:
     def __init__(self) -> None:
         self._main_panel = None
         self._select_panel = None
@@ -76,7 +76,7 @@ class RefBase:
         self._tag_panel = None
         self._offline_status = True
 
-    def passRefTo(self, new: RefBase):
+    def passRefTo(self, new: RefMixin):
         if self.getMainPanel():
             new.setMainPanel(self.getMainPanel())
 
@@ -145,7 +145,7 @@ class LazyResizeMixin(QWidget):
         super().resizeEvent(event)
         self.resize_timer.start()
 
-class RefWidgetBase(QWidget, WidgetBase, RefBase):
+class RefWidgetBase(QWidget, WidgetMixin, RefMixin):
     # Somehow not working properly... see __init_subclass__
     update_statusmsg = pyqtSignal(str)      # to stop previously scheduled timing status bar info
     def __init__(self, parent: typing.Optional['QWidget']=None) -> None:
@@ -193,7 +193,7 @@ class RefWidgetBase(QWidget, WidgetBase, RefBase):
                 self.setEnabled(True)
         return Freezer()
 
-class MyQUtils(QWidget):
+class QUtilsMixin:
     @classmethod
     def keyModifiers(cls, *args: Literal["Control", "Shift", "Alt"]) -> bool:
         """Check if key modifiers has been pressed
@@ -217,7 +217,7 @@ class MyQUtils(QWidget):
             m_total = m|m_total
         return QApplication.keyboardModifiers() == m_total
 
-class MainWidgetBase(MyQUtils, RefWidgetBase):
+class MainWidgetBase(QUtilsMixin, RefWidgetBase):
     @property
     def database(self) -> DataBase:
         return self.getMainPanel().database
