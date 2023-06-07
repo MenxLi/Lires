@@ -783,6 +783,7 @@ class MainWindow(MainWindowGUI):
         self.logger.info("Deleting cache")
         # unwatch all file, as they are going to be deleted
         self.database.watchFileChange([])   
+        self.database.conn.close()
         try:
             for p in [TMP_DB, TMP_WEB, TMP_COVER]:
                 if os.path.exists(p):
