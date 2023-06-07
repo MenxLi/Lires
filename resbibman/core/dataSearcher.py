@@ -101,7 +101,7 @@ class DataSearcher(DataCore):
             all_res = await asyncio.gather(*async_tasks)
             for uid, res in zip(uids, all_res): # type: ignore
                 if res is not None:
-                    results[uid] = res
+                    results[uid] = {"score": None, "match": res}
             return results
         
         async def _searchCommentSingle(dp: DataPoint, pattern_, ignore_case_):
