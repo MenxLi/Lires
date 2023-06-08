@@ -5,6 +5,7 @@
 It is designed for easy retrieval of most frequently used modules of resbibman
 
 **For example, to retrieve a list of all the papers information:**
+
 From local database:
 ```python
 from resbibman.api import DataBase, getConf
@@ -19,4 +20,4 @@ from resbibman.api import ServerConn
 summaries = ServerConn().summaries()
 ```
 
-More examples can be found in the [api_examples](../api_examples) folder.
+More examples can be found in the [api_examples](../../api_examples) folder.
