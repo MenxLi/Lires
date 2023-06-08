@@ -2,17 +2,16 @@
 Virtual (Remote) file tools
 """
 from __future__ import annotations
-import os, typing, requests, shutil
-from typing import Union, Literal, Callable, Optional, TypedDict, List
+import os, typing, shutil
+from typing import Union, Literal, Optional
 
 from . import globalVar as G
 from .utils import TimeUtils
 from .clInteractions import ChoicePromptCLI, ChoicePromptAbstract
 from .fileTools import FileManipulator, DBConnection, addDocument
-from .encryptClient import generateHexHash
 from .serverConn import ServerConn
-from .compressTools import decompressDir, compressDir, compressSelected
-from ..confReader import getConfV, TMP_DB, TMP_DIR, getServerURL, getDatabase, getConf
+from .compressTools import decompressDir, compressSelected
+from ..confReader import getConfV, TMP_DIR
 from ..types.dataT import DataPointSummary
 
 class FileManipulatorVirtual(FileManipulator):

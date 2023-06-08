@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from resbibman.core.dataSearcher import StringSearchT
     from resbibman.core.dataClass import DataTagT, DataPointSummary
     from resbibman.core.fileToolsV import FileManipulatorVirtual
-    from resbibman.core.fileTools import DBFileInfo
+    from resbibman.core.dbConn import DBFileInfo
     from iRBM.lmInterface import ConversationDictT, StreamIterType
 
 class ConnectionBase:

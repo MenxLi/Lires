@@ -4,7 +4,7 @@ from tornado import iostream
 from resbibman.confReader import TMP_DIR, getConfV
 from resbibman.core.compressTools import compressDir, decompressDir, compressSelected
 from resbibman.core.dataClass import DataPoint
-from resbibman.core.fileTools import DBFileInfo, DocInfo
+from resbibman.core.dbConn import DBFileInfo, DocInfo
 
 class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
     ZIP_TMP_DIR = os.path.join(TMP_DIR, "server_zips")

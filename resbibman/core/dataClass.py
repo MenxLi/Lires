@@ -13,7 +13,7 @@ try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable
     from .fileToolsV import FileManipulatorVirtual
-    from .fileTools import DBFileInfo
+    from .dbConn import DBFileInfo
 except (FileNotFoundError, KeyError):
     pass
 from .bibReader import BibParser
