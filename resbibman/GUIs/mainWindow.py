@@ -733,6 +733,7 @@ class MainWindow(MainWindowGUI):
         if ss != "":
             with open(ss, "r", encoding="utf-8") as f:
                 app.setStyleSheet(f.read())
+            self.loadFontConfig()   # we should reload font config whenever stylesheet is loaded
         
     def statusBarMsg(self, msg: str, bg_color = "none"):
         if self.db.offline:
