@@ -268,10 +268,8 @@ class FileInfo(FileInfoGUI):
             #  self.warnDialog("No file selected.")
             self.logger.info("No file selected")
             return
-        prev_url = self.curr_data.fm.getWebUrl()
         weburl = self.weburl_edit.text()
-        if weburl != prev_url:
-            self.curr_data.fm.setWebUrl(weburl)
+        self.curr_data.fm.setWebUrl(weburl)
     
     def refresh(self):
         if not self.curr_data is None:
