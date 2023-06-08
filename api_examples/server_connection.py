@@ -1,3 +1,6 @@
+"""
+This script shows how to build a online database and syncronize data to the server.
+"""
 
 from pprint import pprint
 from resbibman.api import DataBase

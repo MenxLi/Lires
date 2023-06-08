@@ -1,4 +1,15 @@
+"""
+There are currently two ways to use the API to add data to the database:
+    1. Top Down: create a database object and use the object to add data
+    2. Bottom Up: create a sqlite connection and use the connection to add data
+This script shows how to use the Bottom Up approach to add data to the database.
+We recommend using the Top Down approach because it's more convenient and more flexible.
+However, the Bottom Up approach is useful when you want to use the API without creating a database object.
 
+In the Bottom Up approach, we create a sqlite connection and use the connection to add data to the sqlite database, 
+    then, we create a FileManipulatorVirtual object which is in charge of IO operations of the data,
+    afterward, we create a DataPoint object which is the core data structure of resbibman out of the FileManipulatorVirtual object.
+"""
 
 import os
 from pprint import pprint

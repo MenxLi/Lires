@@ -1,4 +1,14 @@
+"""
+There are currently two ways to use the API to add data to the database:
+    1. Top Down: create a database object and use the object to add data
+    2. Bottom Up: create a sqlite connection and use the connection to add data
+This script shows how to use the Top Down approach to add data to the database.
+We recommend using the Top Down approach because it's more convenient and more flexible.
 
+In the Top Down approach, we create a database object and use the object to obtain a sqlite connection,
+    then we use the sqlite connection to add data to the sqlite database (physical database), 
+    afterward we use the database object to load the data from the sqlite database and obtain a DataPoint object.
+"""
 
 import os
 from pprint import pprint
