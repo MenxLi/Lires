@@ -56,9 +56,7 @@ def execProg():
     gui = MainWindow()
     gui.loadFontConfig()
     EXIT_CODE =  app.exec()
-    
     G.clearTempDirs()
-
     return EXIT_CODE
 
 def run():

@@ -188,6 +188,12 @@ class DataPoint(DataCore):
         self.__force_offline = False
         self.loadInfo()
     
+    def __del__(self):
+        """
+        Make sure the associated FileManipulator is deleted
+        """
+        del self.fm
+    
     @property
     def summary(self) -> DataPointSummary:
         """
@@ -536,9 +542,19 @@ class DataBase(Dict[str, DataPoint], DataCore):
         if local_path is not None:
             self.init(local_path, force_offline)
     
-    def close(self):
+    def destroy(self):
+        """
+        Make sure all datapoint is deleted from database
+        """
+        self.watchFileChange([])
+        for k in self.uuids:
+            del self[k]
+        self.logger.debug("Closing DataBase's DBConnection")
         if self.__conn is not None:
             self.__conn.close()
+            del self.__conn
+            self.__conn = None
+        self.logger.debug("Deleted DataBase object")
 
     @property
     def account_permission(self):
@@ -709,6 +725,10 @@ class DataBase(Dict[str, DataPoint], DataCore):
         for d in self.values():
             tags = tags.union(d.tags)
         return tags
+    
+    @property
+    def uuids(self) -> List[str]:
+        return list(self.keys())
     
     def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> DataList:
         datalist = DataList()

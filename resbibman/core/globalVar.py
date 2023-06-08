@@ -63,6 +63,7 @@ def hasGlobalAttr(key):
 
 def clearTempDirs():
     global tmpdirs
+    logger_rbm.info("Clearing temporary directories...")
     for d in tmpdirs:
         if os.path.exists(d):
             shutil.rmtree(d)

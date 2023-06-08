@@ -133,6 +133,8 @@ class SetDatabase(SubSettingsBase):
 		port = self.line_edit_port.text()
 		access_key = self.line_edit_key.text()
 		RELOAD = False
+
+		main_window = self.getMainPanel()
 		if not database_path == getConf()["database"]:
 			saveToConf(database = database_path)
 			self.logger.debug("Database path saved, Database path set to: {}".format(getConf()["database"]))
@@ -142,10 +144,14 @@ class SetDatabase(SubSettingsBase):
 			saveToConf(host = host, port = port)
 			self.logger.debug("RBMWeb host set to: {}:{}".format(host, port))
 			self.logger.info("Server settings changed, deleting previous local temporary files")
+			main_window.releaseDatabaseResources()
 			for f in os.listdir(TMP_DB):
 				f_path = os.path.join(TMP_DB, f)
+				if os.path.isfile(f_path):
+					os.remove(f_path)
 				if os.path.isdir(f_path):
 					shutil.rmtree(f_path)
+				self.logger.info("Local temporary files deleted, reloading database from server...")
 			RELOAD = True
 		
 		if not access_key == getConf()["access_key"]:
@@ -158,7 +164,7 @@ class SetDatabase(SubSettingsBase):
 			# Dont know if necessary to sleep
 			# add to test if loading empty config will still happen, if settings changed
 			time.sleep(0.5) 
-			self.getMainPanel().reloadData()
+			main_window.reloadData()
 
 class SetSortingMethod(SubSettingsBase):
 	def initUI(self):

@@ -352,6 +352,16 @@ class MainWindow(MainWindowGUI):
     @property
     def database(self):
         return self.db
+    
+    def releaseDatabaseResources(self):
+        """
+        remove all references to database object, 
+        close database connection, and delete the object
+        otherwise, the database file can't be deleted...
+        """
+        self.getSelectPanel().clearData()
+        self.db.destroy()
+        del self.db
 
     def initActions(self):
         self.act_settings.triggered.connect(self.openSettingsDialog)
@@ -516,16 +526,16 @@ class MainWindow(MainWindowGUI):
         self.file_info.setEnabled(False)
         self.statusBar().setEnabled(True)
 
-        if hasattr(self, "db"):
-            # First unwatch all file changes, if any
-            # otherwise those observer threads will be un-refereced
-            # thus can't be stopped
-            self.logger.debug("Unwatching all data...")
-            self.db: DataBase
-            self.db.watchFileChange([])
-            self.db.close()
+        try:
+            if hasattr(self, "db"):
+                # have to release database resources on reload,
+                # otherwise, some other componets may still keep a reference to the database file
+                self.releaseDatabaseResources()
+        except Exception as e:
+            self.logger.error(f"Error releasing database resource: {e}")
+        finally:
+            self.db = DataBase()
 
-        self.db = DataBase()
         is_offline = getConf()["database"] == data_path
         if not is_offline:
             # Online mode
@@ -737,10 +747,14 @@ class MainWindow(MainWindowGUI):
             self.loadFontConfig()   # we should reload font config whenever stylesheet is loaded
         
     def statusBarMsg(self, msg: str, bg_color = "none"):
-        if self.db.offline:
-            prefix = "ResBibMan-v{} (offline) ".format(VERSION)
-        else:
-            prefix = "ResBibMan-v{} (online) ".format(VERSION)
+        try:
+            # database may not initialized
+            if self.database.offline:
+                prefix = "ResBibMan-v{} (offline) ".format(VERSION)
+            else:
+                prefix = "ResBibMan-v{} (online) ".format(VERSION)
+        except AttributeError:
+            prefix = "ResBibMan-v{}".format(VERSION)
 
         proxy_status = []
         if getConf()["proxies"]["enable_requests"]:
@@ -781,11 +795,9 @@ class MainWindow(MainWindowGUI):
 
         if self.database.offline:
             return super().closeEvent(a0)
-
-        self.logger.info("Deleting cache")
-        # unwatch all file, as they are going to be deleted
-        self.database.watchFileChange([])   
-        self.database.close()
+        
+        self.logger.info("Deleting temporary files...")
+        self.releaseDatabaseResources()
         try:
             for p in [TMP_DB, TMP_WEB, TMP_COVER]:
                 if os.path.exists(p):

@@ -111,6 +111,13 @@ class FileSelector(FileSelectorGUI):
     def pool(self):
         return self.getMainPanel().pool
     
+    def clearData(self):
+        """
+        Clear data in the file selector,
+        Keep no reference to the data of the database, for database to be savely deleted
+        """
+        self.data_model.assignData(DataList([]))
+    
     def connectFuncs(self):
         self.data_view.selectionModel().currentChanged.connect(self.onRowChanged)
         self.data_view.doubleClicked.connect(self.doubleClickOnEntry)
