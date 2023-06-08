@@ -1,12 +1,13 @@
-import requests, zipfile, shutil, os, argparse, json
+import requests, zipfile, shutil, os, argparse
 
 DOWNLOAD_URL = "http://limengxun.com/files/src/resbibman.zip"
 CURR_DIR = os.path.abspath(os.path.realpath(os.path.dirname(__file__)))
 
 def main():
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--install", action="store_true")
+    parser = argparse.ArgumentParser(
+        description="Download the newest release version source code of resbibman"
+    )
     args = parser.parse_args()
 
     print("=========================")
@@ -35,14 +36,9 @@ def main():
     with zipfile.ZipFile(zip_path, "r", compression=zipfile.ZIP_DEFLATED) as zp:
         shutil.rmtree(CURR_DIR)
         zp.extractall(path = CURR_DIR)
+    
+    print("Done.")
 
-    if args.install:
-        print("Installing...")
-        os.chdir(CURR_DIR)
-        os.system("pip install -e .")
-        if args.reconfigure:
-            print("Generate default configuration")
-            os.system("rbm-resetconf")
 
 if __name__ == "__main__":
     main()
