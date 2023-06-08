@@ -107,6 +107,10 @@ rbm-index       # To build and query feature of the database, for fuzzy search
 rbm-utils       # Miscellaneous utilities
 ```
 
+# Manual and documentations
+- [api-usage](resbibman/docs/api.md)
+
+
 # Future works
 
 <details>
