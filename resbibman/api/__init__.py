@@ -11,7 +11,7 @@ from resbibman.core.serverConn import ServerConn, IServerConn
 
 # variables and functions
 from resbibman.core.fileTools import addDocument
-from resbibman.confReader import RBM_HOME, getDatabase, getConf
+from resbibman.confReader import RBM_HOME, getDatabase, getConf, saveToConf
 
 __all__ = [
     "DataPoint",
@@ -26,4 +26,5 @@ __all__ = [
     "addDocument",
     "getDatabase",
     "getConf",
+    "saveToConf",
 ]
