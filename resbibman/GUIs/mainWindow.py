@@ -711,6 +711,10 @@ class MainWindow(MainWindowGUI):
         Will synchronize add data if in online mode
         by the way... realod stylesheet
         """
+        try:
+            self.database.conn.close()
+        except RuntimeError:
+            pass        # database.conn not initialized
         if getConf()["host"]:
             try:
                 # reload server
