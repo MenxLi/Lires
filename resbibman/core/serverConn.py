@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from resbibman.server.auth.account import AccountPermission
     from resbibman.core.dataSearcher import StringSearchT
     from resbibman.core.dataClass import DataTagT, DataPointSummary
-    from resbibman.core.fileToolsV import FileManipulatorVirtual
     from resbibman.core.dbConn import DBFileInfo
     from iRBM.lmInterface import ConversationDictT, StreamIterType
 

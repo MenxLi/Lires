@@ -2,8 +2,7 @@
 
 import os
 from pprint import pprint
-from resbibman.core.fileToolsV import addDocument, FileManipulatorVirtual, DBConnection
-from resbibman.core.dataClass import DataPoint
+from resbibman.api import addDocument, FileManipulatorVirtual, DBConnection, DataPoint
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 

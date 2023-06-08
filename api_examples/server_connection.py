@@ -1,6 +1,6 @@
 
 from pprint import pprint
-from resbibman.core.dataClass import DataBase
+from resbibman.api import DataBase
 from resbibman.confReader import getDatabase
 from resbibman.initLogger import initLogger
 
