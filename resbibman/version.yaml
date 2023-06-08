@@ -249,3 +249,12 @@ version_history:
   0.12.0:
     - Sqlite database storage format!
     - Fix - search note; catch last row deletion uuid keyerror
+  0.12.1:
+    - resbibman.api
+    - Update pdf.js version
+    - GUI - tageditor as qdialog
+    - Fix - rbmweb default sort reverse
+    - Fix - close sqlite connection before deleting/reloading
+    - Fix - load fontconfig after stylesheet loading
+    - Fix - upload tag check
+    - Some refactors
