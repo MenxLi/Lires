@@ -528,10 +528,13 @@ class DataTableList(DataList, DataCore):
         return self.header_order[col]
 
 class DataBase(Dict[str, DataPoint], DataCore):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, local_path: Optional[str] = None, force_offline: bool = False):
+        super().__init__()
         self.__account_permission = None
         self.__conn = None
+
+        if local_path is not None:
+            self.init(local_path, force_offline)
 
     @property
     def account_permission(self):

@@ -28,7 +28,7 @@ doc_path = None         # pdf file path, set to None if no pdf file
 # ================== Top Down ==================
 # use force_offline=True to force the program to use offline mode
 # otherwise the program will try to connect to the server specified in the config file
-database = DataBase().init(db_dir, force_offline=True)
+database = DataBase(db_dir, force_offline=True)     # equivalent to DataBase().init(db_dir, force_offline=True)
 
 # get sqlite connection
 db_conn = database.conn
