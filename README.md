@@ -9,9 +9,22 @@ it relies on tags to differentiate papers, and use markdown for notes.
 
 It also has server modules: resbibman-server (RBM server) with a web viewer (RBMWeb) so that it can be deployed onto a server to share literatures or work in online mode.
 
-[comment]: <> (## distribution)
+**Table of content**
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+- [Resbibman](#resbibman)
+  - [Features](#features)
+- [Installation \& Usage](#installation--usage)
+  - [Installation](#installation)
+  - [Usage:](#usage)
+    - [Configure](#configure)
+- [Manuals and documentations](#manuals-and-documentations)
+- [Future works](#future-works)
+  - [Todo-list](#todo-list)
+  - [Known issues](#known-issues)
 
-[comment]: <> (`python setup.py bdist_wheel --universal`)
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 ## Features
 * Cross-platform
@@ -107,8 +120,9 @@ rbm-index       # To build and query feature of the database, for fuzzy search
 rbm-utils       # Miscellaneous utilities
 ```
 
-# Manual and documentations
+# Manuals and documentations
 - [api-usage](resbibman/docs/api.md)
+- [development](resbibman/docs/devGuide.md)
 
 
 # Future works
@@ -116,7 +130,7 @@ rbm-utils       # Miscellaneous utilities
 <details>
 <summary> Future works</summary>
 
-## Todo list
+## Todo-list
 
 - [x] To use TableView of the selection panel
 - [x] PDF cover preview
@@ -136,7 +150,6 @@ rbm-utils       # Miscellaneous utilities
 - [ ] Within software cross-reference
 - [ ] Redirect some logging to status bar
 - [ ] Pdf compression - [reference?](https://blog.csdn.net/xinRCNN/article/details/113273463)
-- [ ] ~~ User info, associate each user with a key in rbm-keyman ~~
 
 In query widget while importing articles:  
 
@@ -170,14 +183,9 @@ rbm-collect:
 - [ ] bioRxiv
 - [ ] PMID
 
-### Long time goals
+Long term goals
 
 - [ ] Relation graph
-- [ ] ~~Language support~~
-
-<!-- ## Ideas: -->
-<!-- QRunnable for multithreading -->
-<!--  -->
 
 </details>
 
