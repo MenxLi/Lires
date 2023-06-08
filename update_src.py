@@ -1,4 +1,8 @@
-import requests, zipfile, shutil, os, argparse
+"""
+This is a script to download the newest release version source code of resbibman,
+for those who do not have access to the git repository.
+"""
+import requests, zipfile, shutil, os, argparse, tempfile
 
 DOWNLOAD_URL = "http://limengxun.com/files/src/resbibman.zip"
 CURR_DIR = os.path.abspath(os.path.realpath(os.path.dirname(__file__)))
@@ -8,11 +12,12 @@ def main():
     parser = argparse.ArgumentParser(
         description="Download the newest release version source code of resbibman"
     )
-    parser.add_argument("--here", action="store_true", help="download to this directory and overwrite original files")
+    parser.add_argument("-d", "--dest", action="store", help="destination directory, default to <this_dir>/resbibman", default=os.path.join(CURR_DIR, "resbibman"))
     parser.add_argument("-y", "--yes", action="store_true", help="do not ask for confirmation")
     args = parser.parse_args()
 
-    dst_dir = CURR_DIR if args.here else os.path.join(CURR_DIR, "resbibman")
+    dst_dir = args.dest
+    zip_path = os.path.join(tempfile.gettempdir(), "rbm.zip")
 
     print("=========================")
     lines = [
@@ -24,12 +29,13 @@ def main():
 
     if not os.path.exists(dst_dir):
         if not args.yes:
-            ans = input(f"Destination directory ({dst_dir}) not exists, continue? (y/[else])")
+            ans = input(f"Will create {dst_dir}, continue? (y/[else])")
             if ans != "y":
                 print("abort.")
                 return
         os.mkdir(dst_dir)
     else:
+        assert os.path.isdir(dst_dir), f"{dst_dir} is not a directory"
         if not args.yes:
             ans = input(f"Will overwrite {dst_dir}, continue? (y/[else])")
             if ans != "y":
@@ -38,9 +44,8 @@ def main():
 
     print("Downloading...")
     res = requests.get(DOWNLOAD_URL, stream=True)
-    zip_path = os.path.join(CURR_DIR, "rbm.zip")
     if res.ok and res.status_code == 200:
-        with open(os.path.join(CURR_DIR, "rbm.zip"), "wb") as fp:
+        with open(zip_path, "wb") as fp:
             # create a progress bar
             total_length = int(res.headers.get('content-length'))   # type: ignore
             for chunk in res.iter_content(chunk_size=1024):
@@ -49,7 +54,7 @@ def main():
                     fp.flush()
                     done = int(50 * fp.tell() / total_length)
                     print("\r[%s%s]" % ('=' * done, ' ' * (50-done)), end="")
-            print("\n")
+        print("", end="\n")
     else:
         print("failed.")
         return
