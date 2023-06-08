@@ -523,6 +523,7 @@ class MainWindow(MainWindowGUI):
             self.logger.debug("Unwatching all data...")
             self.db: DataBase
             self.db.watchFileChange([])
+            self.db.close()
 
         self.db = DataBase()
         is_offline = getConf()["database"] == data_path
@@ -711,10 +712,6 @@ class MainWindow(MainWindowGUI):
         Will synchronize add data if in online mode
         by the way... realod stylesheet
         """
-        try:
-            self.database.conn.close()
-        except RuntimeError:
-            pass        # database.conn not initialized
         if getConf()["host"]:
             try:
                 # reload server
@@ -788,7 +785,7 @@ class MainWindow(MainWindowGUI):
         self.logger.info("Deleting cache")
         # unwatch all file, as they are going to be deleted
         self.database.watchFileChange([])   
-        self.database.conn.close()
+        self.database.close()
         try:
             for p in [TMP_DB, TMP_WEB, TMP_COVER]:
                 if os.path.exists(p):

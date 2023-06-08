@@ -86,7 +86,12 @@ class DBConnection:
 
         self.db_dir = db_dir
         self.db_path = db_path
-
+        self.init()
+    
+    def init(self):
+        """
+        May call this function to re-init the connection after close
+        """
         # when check_same_thread=False, the connection can be used in multiple threads
         # however, we have to ensure that only one thread is doing writing at the same time
         # refer to: https://docs.python.org/3/library/sqlite3.html#sqlite3.connect
@@ -110,7 +115,6 @@ class DBConnection:
         )
         """)
         self.conn.commit()
-    
     
     def close(self):
         self.conn.close()

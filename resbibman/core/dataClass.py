@@ -535,6 +535,10 @@ class DataBase(Dict[str, DataPoint], DataCore):
 
         if local_path is not None:
             self.init(local_path, force_offline)
+    
+    def close(self):
+        if self.__conn is not None:
+            self.__conn.close()
 
     @property
     def account_permission(self):
@@ -581,6 +585,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         self._force_offline = force_offline
         conn = FileManipulatorVirtual.getDatabaseConnection(db_local) 
         self.__conn = conn      # set global database connection instance
+        self.logger.debug("Initializing new DataBase's DBConnection")
         if not self.offline:
             flist = self.fetch()
             if flist is None:
