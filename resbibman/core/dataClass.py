@@ -634,7 +634,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
             return None
 
         try:
-            flist = ServerConn().filelist([])
+            flist = ServerConn().summaries([])
             self.__account_permission = ServerConn().permission()
             G.account_permission = self.account_permission
         except requests.exceptions.ConnectionError:

@@ -2,7 +2,7 @@ from resbibman.core.serverConn import ServerConn, IServerConn
 
 conn = ServerConn()
 print(conn.permission())
-print(conn.filelist(["xx"]))
+print(conn.summaries(["xx"]))
 
 iconn = IServerConn()
 print(iconn.status)

@@ -77,7 +77,7 @@ class ServerConn(ConnectionBase):
         else:
             return json.loads(res.text)
     
-    def filelist(self, tags: DataTagT = []) -> Optional[List[DataPointSummary]]:
+    def summaries(self, tags: DataTagT = []) -> Optional[List[DataPointSummary]]:
         post_url = self.SERVER_URL + "/filelist"
         post_args = {
             "tags": json.dumps([ t for t in tags])
