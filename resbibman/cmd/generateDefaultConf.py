@@ -1,11 +1,12 @@
 import os
+import darkdetect
 from ..core.dataClass import DataTableList
 from ..confReader import CONF_FILE_PATH, saveToConf, DEFAULT_DATA_PATH, DEFAULT_PDF_VIEWER_DIR
-from ..GUIs._styleUtils import isSysDarkMode
 
 def run():
 	generateDefaultConf()
 
+is_sys_darkmode = darkdetect.isDark()
 def generateDefaultConf():
 	"""
 	"database" points to local database, used by RBMWeb,
@@ -40,7 +41,7 @@ def generateDefaultConf():
 			"tag": ["Arial", 10]
 
 		},
-        stylesheet = "Simple-dark" if isSysDarkMode() else "Simple",
+        stylesheet = "Simple-dark" if is_sys_darkmode else "Simple",
 		auto_save_comments = False,
 		gui_status = {
 			"show_toolbar": True,
