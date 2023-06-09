@@ -437,7 +437,7 @@ class FileSelector(FileSelectorGUI):
         self.database.exportFiles(to_export_uids, dst)
     
     def onRowChanged(self, current, previous):
-        # self._info_panel._saveComments()
+        # self._info_panel.saveComments()
         row = current.row()
         data: DataPoint = self.data_model.datalist[row]
 

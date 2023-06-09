@@ -82,11 +82,11 @@ class MainTabWidget(QTabWidget, RefWidgetBase):
         # maybe save unsaved comments
         if idx == 0:
             # mainWindow
-            self.getInfoPanel()._saveComments()
+            self.getInfoPanel().saveComments()
         else:
             for wid in self._tabs:
                 if isinstance(wid, DocumentReader):
-                    wid.info_panel._saveComments()
+                    wid.info_panel.saveComments()
 
     def closeTab(self, idx: int):
         self.logger.debug(f"Closing tab: {idx}")
