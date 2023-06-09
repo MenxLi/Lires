@@ -342,7 +342,6 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
 class MainWindow(MainWindowGUI):
     def __init__(self):
         super().__init__()
-        self.pool = QThreadPool.globalInstance()
         self.logger.debug("Configuration: ")
         self.logger.debug(getConf())
         self.initActions()
@@ -547,7 +546,7 @@ class MainWindow(MainWindowGUI):
 
         worker = InitDBWorker(self.db, data_path, force_offline = is_offline)
         worker.signals.finished.connect(on_done)
-        self.pool.start(worker)
+        self.thread_pool.start(worker)
 
     def getCurrentSelection(self)->typing.Union[None, DataPoint]:
         return self.file_selector.getCurrentSelection()
@@ -712,9 +711,9 @@ class MainWindow(MainWindowGUI):
         sync_worker.signals.on_chekpoint.connect(on_middle)
         sync_worker.signals.finished.connect(on_finish)
         sync_worker.signals.finished.connect(callback_on_finish)
-        threadCount = QThreadPool.globalInstance().maxThreadCount()
+        threadCount = self.thread_pool.maxThreadCount()
         self.logger.debug(f"Running {threadCount} Threads")
-        self.pool.start(sync_worker)
+        self.thread_pool.start(sync_worker)
 
     def reloadData(self):
         """

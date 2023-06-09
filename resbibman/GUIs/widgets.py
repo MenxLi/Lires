@@ -22,6 +22,10 @@ class WidgetMixin:
     logger = logging.getLogger("rbm")
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    @property
+    def thread_pool(self):
+        return QThreadPool.globalInstance()
     
     def infoDialog(self, messege, info_msg = ""):
         msg_box = QMessageBox()
@@ -69,6 +73,9 @@ class WidgetMixin:
             self.move(qr.topLeft())
 
 class RefMixin:
+    """
+    Keep a reference to the other main widgets
+    """
     def __init__(self) -> None:
         self._main_panel = None
         self._select_panel = None
@@ -146,6 +153,7 @@ class LazyResizeMixin(QWidget):
         self.resize_timer.start()
 
 class RefWidgetBase(QWidget, WidgetMixin, RefMixin):
+    # The main widget class
     # Somehow not working properly... see __init_subclass__
     update_statusmsg = pyqtSignal(str)      # to stop previously scheduled timing status bar info
     def __init__(self, parent: typing.Optional['QWidget']=None) -> None:
@@ -171,8 +179,7 @@ class RefWidgetBase(QWidget, WidgetMixin, RefMixin):
             self.update_statusmsg.connect(lambda str_: worker.setBreak())
             QApplication.instance().aboutToQuit.connect(worker.setBreak)    # not send signal after app exited
 
-            pool = QThreadPool.globalInstance()
-            pool.start(worker)
+            self.thread_pool.start(worker)
     
     def offlineStatus(self, status: bool):
         """

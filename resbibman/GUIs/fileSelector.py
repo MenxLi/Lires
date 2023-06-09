@@ -107,10 +107,6 @@ class FileSelector(FileSelectorGUI):
     def database(self):
         return self.getMainPanel().database
     
-    @property
-    def pool(self):
-        return self.getMainPanel().pool
-    
     def clearData(self):
         """
         Clear data in the file selector,
@@ -263,7 +259,7 @@ class FileSelector(FileSelectorGUI):
         worker = SearchWorker(searcher)
         worker.signals.finished.connect(onFinish)
         self.__working_search_id = id(worker)
-        self.pool.start(worker)
+        self.thread_pool.start(worker)
 
     def reloadData(self):
         self.loadValidData_async()
