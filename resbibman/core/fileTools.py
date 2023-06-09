@@ -305,6 +305,7 @@ class FileManipulator:
         return db_data["bibtex"]
 
     def writeBib(self, bib: str):
+        self.logger.debug("(fm) writeBib: {}".format(self.uuid))
         self._log()
         return self.conn.updateBibtex(self.uuid, bib)
     
@@ -313,6 +314,7 @@ class FileManipulator:
         return db_data["comments"]
     
     def writeComments(self, comments: str):
+        self.logger.debug("(fm) writeComments: {}".format(self.uuid))
         self.conn.updateComments(self.uuid, comments)
         self._log()
     
@@ -322,6 +324,7 @@ class FileManipulator:
         return info.tags
     
     def writeTags(self, tags: list[str] | DataTags):
+        self.logger.debug("(fm) writeTags: {}".format(self.uuid))
         if not isinstance(tags, list):
             tags = list(tags)
         db_data = self.conn[self.uuid]; assert db_data
