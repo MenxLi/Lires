@@ -210,9 +210,10 @@ class FileInfo(FileInfoGUI):
 
         self.tEdit.setEnabled(status)
         self.weburl_edit.setEnabled(status)
-        #  self.mdBrowser.setEnabled(status)
         self.open_folder_btn.setEnabled(status)
         self.refresh_btn.setEnabled(status)
+        self.open_external_btn.setEnabled(status)
+        #  self.mdBrowser.setEnabled(status)
         #  self.mdTab.setEnabled(status)
     
     def clearPanel(self):
