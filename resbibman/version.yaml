@@ -258,3 +258,11 @@ version_history:
     - Fix - load fontconfig after stylesheet loading
     - Fix - upload tag check
     - Some refactors
+  0.12.2:
+    - Open external button
+    - Auto save comment settings
+    - Fix - time modification error
+    - Fix - release database resources before deleting/reloading
+    - Fix - rbm-reserconf dependency chicken and egg problem
+    - update_src.py update
+    - Some refactors
