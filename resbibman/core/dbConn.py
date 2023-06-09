@@ -141,6 +141,7 @@ class DBConnection:
         """
         Insert item into database, will overwrite if uuid already exists
         """
+        self.logger.debug("(db_conn) Inserting item {}".format(item["uuid"]))
         if self[item["uuid"]] is not None:
             # if uuid already exists, delete it first
             self.cursor.execute("DELETE FROM files WHERE uuid=?", (item["uuid"],))
@@ -197,6 +198,7 @@ class DBConnection:
             self.logger.error("uuid {} already exists".format(uid))
             return None
         # insert
+        self.logger.debug("(db_conn) Adding entry {}".format(uid))
         with self.lock:
             self.cursor.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
                 uid, bibtex, abstract, comments, doc_info.toString(), doc_ext, None
@@ -206,6 +208,7 @@ class DBConnection:
     
     def removeEntry(self, uuid: str) -> bool:
         if not self._ensureExist(uuid): return False
+        self.logger.debug("(db_conn) Removing entry {}".format(uuid))
         with self.lock:
             self.cursor.execute("DELETE FROM files WHERE uuid=?", (uuid,))
             self.conn.commit()
@@ -214,6 +217,7 @@ class DBConnection:
     
     def setDocExt(self, uuid: str, ext: Optional[str]) -> bool:
         if not self._ensureExist(uuid): return False
+        self.logger.debug("(db_conn) Setting doc_ext for {} to {}".format(uuid, ext))
         with self.lock:
             self.cursor.execute("UPDATE files SET doc_ext=? WHERE uuid=?", (ext, uuid))
             self.conn.commit()
@@ -221,6 +225,7 @@ class DBConnection:
     
     def updateInfo(self, uuid: str, info: DocInfo) -> bool:
         if not self._ensureExist(uuid): return False
+        self.logger.debug("(db_conn) Updating info for {} - {}".format(uuid, info))
         with self.lock:
             self.cursor.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.toString(), uuid))
             self.conn.commit()
@@ -228,6 +233,7 @@ class DBConnection:
     
     def updateBibtex(self, uuid: str, bibtex: str) -> bool:
         if not self._ensureExist(uuid): return False
+        self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
         with self.lock:
             self.cursor.execute("UPDATE files SET bibtex=? WHERE uuid=?", (bibtex, uuid))
             self.conn.commit()
@@ -235,6 +241,7 @@ class DBConnection:
     
     def updateComments(self, uuid: str, comments: str) -> bool:
         if not self._ensureExist(uuid): return False
+        # self.logger.debug("(db_conn) Updating comments for {}".format(uuid))   # too verbose
         with self.lock:
             self.cursor.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
             self.conn.commit()

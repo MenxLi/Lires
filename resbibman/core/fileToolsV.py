@@ -3,7 +3,7 @@ Virtual (Remote) file tools
 """
 from __future__ import annotations
 import os, typing, shutil
-from typing import Union, Literal, Optional
+from typing import Union, Literal, Optional, TYPE_CHECKING
 
 from . import globalVar as G
 from .utils import TimeUtils
@@ -13,6 +13,9 @@ from .serverConn import ServerConn
 from .compressTools import decompressDir, compressSelected
 from ..confReader import getConfV, TMP_DIR
 from ..types.dataT import DataPointSummary
+
+if TYPE_CHECKING:
+    from .dataClass import DataTags
 
 class FileManipulatorVirtual(FileManipulator):
     """
@@ -312,7 +315,7 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             ...
     
-    def writeTags(self, tags: list):
+    def writeTags(self, tags: list[str] | DataTags):
         if self.has_local:
             return super().writeTags(tags)
         else:

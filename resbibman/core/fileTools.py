@@ -1,8 +1,9 @@
 """
 The tools that deals with files in the database
 """
+from __future__ import annotations
 import os, shutil, platform, time, sys
-from typing import List, TypedDict, Optional
+from typing import List, TypedDict, Optional, TYPE_CHECKING
 import threading
 
 from . import globalVar as G
@@ -16,6 +17,9 @@ from .htmlTools import openTmp_hpack
 
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
+
+if TYPE_CHECKING:
+    from .dataClass import DataTags
 
 def _getFileExt(fpath: str):
     """
@@ -90,7 +94,7 @@ def addDocument(
 class FileManipulator:
     logger = G.logger_rbm
 
-    LOG_TOLERANCE_INTERVAL = 0.5
+    # LOG_TOLERANCE_INTERVAL = 0.5
 
     @staticmethod
     def getDatabaseConnection(db_dir: str) -> DBConnection:
@@ -234,22 +238,24 @@ class FileManipulator:
         return True
     
     def _log(self) -> bool:
-        """log the modification time to the info file"""
+        """
+        log the modification time to the info file,
+        the log should be triggered last in case of other updateInfo overwrite the modification time
+        """
         if not self._enable_log_modification_timestamp:
             return False
         time_now = time.time()
-        if time_now - self._time_last_log < self.LOG_TOLERANCE_INTERVAL:
-            # Prevent multiple log at same time
-            return False
+        # if time_now - self._time_last_log < self.LOG_TOLERANCE_INTERVAL:
+        #     # Prevent multiple log at same time
+        #     return False
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.time_modify = TimeUtils.nowStamp()
         info.device_modify = platform.node()
         info.version_modify = VERSION
-        self.conn.updateInfo(self.uuid, info)
+        assert self.conn.updateInfo(self.uuid, info), "Failed to update info when logging modification time"
 
         self._time_last_log = time_now
-        self.logger.debug("_log (fm): {}".format(self.uuid))
         return True
     
     def screen(self):
@@ -315,14 +321,14 @@ class FileManipulator:
         info = DocInfo.fromString(db_data["info_str"])
         return info.tags
     
-    def writeTags(self, tags: list[str]):
+    def writeTags(self, tags: list[str] | DataTags):
         if not isinstance(tags, list):
             tags = list(tags)
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.tags = tags
+        assert self.conn.updateInfo(self.uuid, info), "Failed to update info when setting tags"
         self._log()
-        return self.conn.updateInfo(self.uuid, info)
     
     def getWebUrl(self) -> str:
         db_data = self.conn[self.uuid]; assert db_data
@@ -333,8 +339,8 @@ class FileManipulator:
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.url = url
+        assert self.conn.updateInfo(self.uuid, info), "Failed to update info when setting url"
         self._log()
-        return self.conn.updateInfo(self.uuid, info)
     
     def getTimeAdded(self) -> float:
         db_data = self.conn[self.uuid]; assert db_data
