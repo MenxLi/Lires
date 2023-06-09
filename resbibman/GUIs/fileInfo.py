@@ -289,7 +289,8 @@ class FileInfo(FileInfoGUI):
             self.logger.info("No file selected")
             return
         weburl = self.weburl_edit.text()
-        self.curr_data.fm.setWebUrl(weburl)
+        if weburl != self.curr_data.fm.getWebUrl():
+            self.curr_data.fm.setWebUrl(weburl)
     
     def refresh(self):
         if not self.curr_data is None:

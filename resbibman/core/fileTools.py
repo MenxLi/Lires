@@ -242,6 +242,7 @@ class FileManipulator:
         log the modification time to the info file,
         the log should be triggered last in case of other updateInfo overwrite the modification time
         """
+        self.logger.debug("(fm) _log: {}".format(self.uuid))
         if not self._enable_log_modification_timestamp:
             return False
         time_now = time.time()
@@ -287,7 +288,7 @@ class FileManipulator:
             self.logger.warn("The file extension is not supported")
             return False
         _addDocumentFile(self.conn, self.uuid, extern_file_p)
-        self.logger.debug("addFile (fm): {}".format(self.uuid))
+        self.logger.debug("(fm) addFile: {}".format(self.uuid))
         self._log()
         return True
 
@@ -339,6 +340,7 @@ class FileManipulator:
         return info.url
     
     def setWebUrl(self, url: str):
+        self.logger.debug("(fm) setWebUrl: {}".format(self.uuid))
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.url = url
@@ -394,7 +396,7 @@ class FileManipulator:
         file_p = self.file_p; assert file_p is not None
         os.remove(file_p)
         self.conn.setDocExt(self.uuid, "")
-        self.logger.debug("deleteDocument (fm): {}".format(self.uuid))
+        self.logger.debug("(fm) deleteDocument: {}".format(self.uuid))
         self._log()
         return True
 
