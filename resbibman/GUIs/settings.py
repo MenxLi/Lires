@@ -24,6 +24,7 @@ class SubSettingsBase(RefWidgetBase):
 		self.setLayout(self._layout)
 
 		self._request_restart = False
+		self._request_restart_is_critical = False
 		self.initUI()
 
 	@abstractmethod
@@ -37,14 +38,19 @@ class SubSettingsBase(RefWidgetBase):
 	def confirm(self):
 		warnings.warn("The confim method for {} is not implemented yet".format(self.__class__.__name__))
 	
-	def requestRestart(self):
+	def requestRestart(self, is_critical = False):
 		self._request_restart = True
+		self._request_restart_is_critical = is_critical
 	
 	def CONFIRM(self):
 		self.confirm()
 		if self._request_restart:
-			self.warnDialogCritical(messege = "Some changes not applied", \
-							info_msg = "Please consider restarting the program")
+			if self._request_restart_is_critical:
+				self.warnDialogCritical(messege = "Some changes not applied", \
+							info_msg = "Please restart the program")
+			else:
+				self.warnDialog(messege = "Some changes not applied", \
+								info_msg = "Please consider restarting the program")
 
 class SetDatabase(SubSettingsBase):
 	"""
@@ -312,6 +318,7 @@ class SetAutoSaveComments(SubSettingsBase):
 		status = self.cb.isChecked()
 		if status != getConfV("auto_save_comments"):
 			saveToConf(auto_save_comments = status)
+			self.requestRestart()
 			if status:
 				self.logger.info("Autosave comments enabled.")
 			else:
@@ -327,7 +334,7 @@ class SettingsWidget(RefWidgetBase):
 			SetDatabase(), 
 			SetSortingMethod(), 
 			SetStyle(),
-			#  SetAutoSaveComments(),
+			SetAutoSaveComments(),
 			SetFont(),
 			SetTableHeader(), 
 		]
