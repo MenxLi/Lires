@@ -49,17 +49,22 @@ class FileInfoGUI(MainWidgetBase):
         self.save_comment_btn = QPushButton("Save")
         self.refresh_btn = QPushButton("Refresh")
         self.open_folder_btn = QPushButton("Misc")
+        self.open_external_btn = QPushButton("Open")
         self.weburl_edit = QLineEdit()
 
         self.md_edit_wid = QWidget()
         self.tEdit = MarkdownEdit()
         _vlayout = QVBoxLayout()
-        _hlayout = QHBoxLayout()
-        _hlayout.addWidget(self.open_folder_btn, 1)
-        if not getConfV("auto_save_comments"):
-            _hlayout.addWidget(self.save_comment_btn, 1)
-        _hlayout.addWidget(self.comment_save_indicate_lbl, 0)
         _vlayout.addWidget(self.tEdit)
+        _hlayout = QHBoxLayout()
+        if not getConfV("auto_save_comments"):
+            _save_h_layout = QHBoxLayout()
+            _save_h_layout.addWidget(self.save_comment_btn, 1)
+            _save_h_layout.addWidget(self.comment_save_indicate_lbl, 0)
+            _vlayout.addLayout(_save_h_layout)
+
+        _hlayout.addWidget(self.open_folder_btn, 1)
+        _hlayout.addWidget(self.open_external_btn, 1)
         _vlayout.addLayout(_hlayout)
         self.md_edit_wid.setLayout(_vlayout)
 
@@ -180,12 +185,13 @@ class FileInfo(FileInfoGUI):
         if load_on_sel_change:
             self.getSelectPanel().selection_changed.connect(self.load)
         self.open_folder_btn.clicked.connect(self.openMiscDir)
-        self.save_comment_btn.clicked.connect(self._saveComments)
+        self.save_comment_btn.clicked.connect(self._saveCommentSlot)
+        self.open_external_btn.clicked.connect(lambda: self.getMainPanel().openDocExternal(self.curr_data) if self.curr_data else None)
         self.refresh_btn.clicked.connect(self.refresh)
         self.tab_wid.currentChanged.connect(self.changeTab)
         self.tEdit.textChanged.connect(self.onCommentChange)
         self.weburl_edit.textChanged.connect(self.saveWebURL)
-        self.shortcut_save_comment.activated.connect(self._saveComments)
+        self.shortcut_save_comment.activated.connect(self._saveCommentSlot)
         self.btn_post_discuss.clicked.connect(self.postDiscussion)
     
     def offlineStatus(self, status: bool = True):
@@ -247,7 +253,7 @@ class FileInfo(FileInfoGUI):
         self.logger.debug("On tab change")
         if index == self.TAB_INDEX_MDBROWSER:
             # to the html render
-            self._saveComments()
+            self.saveComments()
             self.__renderMarkdown()
         if index == self.TAB_INDEX_DISCUSSBROWSER and not self.is_offline:
             self.__updateDiscussion()
@@ -257,11 +263,24 @@ class FileInfo(FileInfoGUI):
             self.curr_data.fm.openMiscDir()
     
     def onCommentChange(self):
+        # get previous comment
+        if self.curr_data is None:
+            return
+        prev_comment = self.curr_data.fm.readComments()
+        if prev_comment == self.tEdit.toPlainText():
+            # has not changed
+            # check this to avoid unnecessary saving if auto save is on
+            return 
+
         self.setCommentSaveStatusLbl("changed")
         # Asynchronous saving
         if getConfV("auto_save_comments"):
-            t = threading.Thread(target=self.__thread_saveComments, args=())
-            t.start()
+            # synchronous saving for now...
+            self.saveComments()
+
+            ## Maybe adopt lazy saving in the future...
+            # t = threading.Thread(target=self.__thread_saveComments, args=())
+            # t.start()
     
     def saveWebURL(self):
         if self.curr_data is None:
@@ -345,7 +364,7 @@ class FileInfo(FileInfoGUI):
 
     def __thread_saveComments(self):
         def _save_comments_thread():
-            if self._saveComments():
+            if self.saveComments():
                 self.__cache["save_comment_in_pending"] = False
                 self.__cache["save_comment_time_prev"] = time.time()
                 self.logger.debug("Comment saved")
@@ -365,7 +384,9 @@ class FileInfo(FileInfoGUI):
             time.sleep(sleeptime)
             _save_comments_thread()
 
-    def _saveComments(self) -> bool:
+    def _saveCommentSlot(self):     # type checking purpose, have to return None
+        self.saveComments()
+    def saveComments(self) -> bool:
         if self.curr_data is None:
             self.setCommentSaveStatusLbl("none")
             return False
@@ -491,7 +512,7 @@ class MarkdownEdit(QTextEdit):
             line = f"![](./misc/{fname})"
             # line = f"<img src=\"./misc/{fname}\" alt=\"drawing\" width=\"100%\"/>"
             self.insertPlainText(line)
-            self._parent._saveComments()
+            self._parent.saveComments()
         elif source.hasUrls():
             # file
             files = [u.toLocalFile() for u in source.urls()]
@@ -512,7 +533,7 @@ class MarkdownEdit(QTextEdit):
                     # line = f"<img src=\"./misc/{fname}\" alt=\"drawing\" width=\"100%\"/>"
                     line = f"![](./misc/{fname})"
                     self.insertPlainText(line)
-                    self._parent._saveComments()
+                    self._parent.saveComments()
                     return
         elif source.hasText():
             # Paste plain text (without format)
