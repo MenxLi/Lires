@@ -339,20 +339,6 @@ class DataPoint(DataCore):
         info_txt = "--{}--\n".format(bib["type"]) + info_txt
         return info_txt
     
-    def screenByPattern(self, pattern) -> bool:
-        """
-        ## DEPRECATED ##
-        Return if the self.stringInfo meets the regex pattern
-        """
-        # string = self.title+";"+";".join(self.authors)+";"+self.year
-        string = self.stringInfo() + "\n" + self.uuid
-        string = string.lower()
-        pattern = pattern.lower()
-        result = re.search(pattern, string)
-        if result is None:
-            return False
-        else: return True
-
     def htmlComment(self, abs_fpath: bool = True) -> str:
         """
         - abs_fpath: whether to use absolute path to any file in the html

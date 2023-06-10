@@ -1,5 +1,5 @@
 """
-Sqlite server connection interface
+Sqlite connection interface
 """
 import json, os, threading, sqlite3, uuid
 import typing
