@@ -33,7 +33,8 @@ class Application(tornado.web.Application):
             (r"/auth", AuthHandler),
             (r"/search", SearchHandler),
             (r"/summary", SummaryHandler),
-            (r"/summary-post", SummaryPostHandler)
+            (r"/summary-post", SummaryPostHandler),
+            (r"/collect", CollectHandler),
         ]
         super().__init__(handlers)
 

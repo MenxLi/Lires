@@ -38,10 +38,10 @@ class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerBase):
             self.db.renameTag(args[0], args[1])
         if cmd == "deleteTagAll":
             self.db.deleteTag(args[0])
-        if cmd == "rbm-collect":
-            from resbibman.cmd.rbmCollect import exec as exec_rbmCollect
-            d_path = exec_rbmCollect(args[0], **kwargs)
-            if d_path:
-                self.db.add(d_path)
-            else:
-                raise tornado.web.HTTPError(418) 
+        # if cmd == "rbm-collect":
+        #     from resbibman.cmd.rbmCollect import exec as exec_rbmCollect
+        #     d_path = exec_rbmCollect(args[0], **kwargs)
+        #     if d_path:
+        #         self.db.add(d_path)
+        #     else:
+        #         raise tornado.web.HTTPError(418) 

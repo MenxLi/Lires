@@ -7,3 +7,4 @@ from .auth import AuthHandler
 from .discuss import DiscussionHandler, DiscussionModHandler
 from .search import SearchHandler
 from .summary import SummaryHandler, SummaryPostHandler
+from .collect import CollectHandler

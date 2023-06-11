@@ -3,7 +3,7 @@ The tools that deals with files in the database
 """
 from __future__ import annotations
 import os, shutil, platform, time, sys
-from typing import List, TypedDict, Optional, TYPE_CHECKING
+from typing import List, TypedDict, Optional, TYPE_CHECKING, Any
 import threading
 
 from . import globalVar as G
@@ -47,8 +47,8 @@ def addDocument(
         citation: str, abstract: str = "", 
         comments: str = "", 
         doc_src: Optional[str] = None,
-        uid: Optional[str] = None,
-        doc_info: Optional[DocInfo] = None
+        doc_info: Optional[DocInfo | dict[str, Any]] = None,
+        check_duplicate: bool = True
         ) -> Optional[str]:
     """
     Should use this function to add document to database instead of directly using DBConnection.addEntry or use FileGenerator
@@ -57,7 +57,8 @@ def addDocument(
         may support other formats in the future...
     - doc_src: document source path, should be a file path, if None, doc_ext will be empty, else the document will be copied to the database directory
     - doc_info: DocInfo object, should be None for new data generated, can be provided for data imported from other sources (e.g. old version)
-
+        or, a dict that contains partial information of DocInfo
+    - check_duplicate: if True, will check if there is duplicate entry in the database, if there is, will not add the document
     return uuid if success, None if failed
     """
     import pybtex.scanner
@@ -80,6 +81,21 @@ def addDocument(
     # maybe remove abstract from citation, so that the bibtex won't be too long
     # the abstract will be stored in the database separately
     citation = BibParser.removeAbstract(citation)
+
+    if check_duplicate:
+        # check if duplicate
+        def getSearchStr(bib: dict[str, Any]) -> str:
+            return f"title:{bib['title'].lower()} AND year:{bib['year']}"
+        bib = parser(citation)[0]
+        search_str = getSearchStr(bib)
+        # traverse all entries in the database and check if there is duplicate
+        for _uid in db_conn.keys():
+            d_file_info = db_conn[_uid]
+            aim_bib = parser(d_file_info["bibtex"])[0] # type: ignore
+            aim_search_str = getSearchStr(aim_bib)
+            if search_str == aim_search_str:
+                G.logger_rbm.warning(f"Duplicate entry found: {_uid}")
+                return None
 
     uid = db_conn.addEntry(citation, abstract, comments, doc_info = doc_info)
     if uid is None:

@@ -171,27 +171,41 @@ class DBConnection:
             abstract: str = "", 
             comments: str = "", 
             doc_ext: str = "",
-            doc_info: Optional[DocInfo] = None
+            doc_info: Optional[DocInfo | dict] = None
             ) -> Optional[str]:
         """
         Add an entry to the database
         DocInfo will be generated if not provided, should be None for new data generated,
-            can be provided for data imported from other sources (e.g. old version)
+            can be provided for data imported from other sources (e.g. old version),
+            or a dict that contains partial information (will be merged with generated default info)
         return uuid if success, None if failed
         """
         # generate info
+        doc_info_default = DocInfo(
+            uuid = str(uuid.uuid4()),
+            time_import = TimeUtils.nowStamp(),
+            time_modify = TimeUtils.nowStamp(),
+            version_import = VERSION,
+            version_modify = VERSION,
+            device_import = platform.node(),
+            device_modify = platform.node(),
+            tags = [],
+            url = ""
+        )
         if doc_info is None:
-            doc_info = DocInfo(
-                uuid = str(uuid.uuid4()),
-                time_import = TimeUtils.nowStamp(),
-                time_modify = TimeUtils.nowStamp(),
-                version_import = VERSION,
-                version_modify = VERSION,
-                device_import = platform.node(),
-                device_modify = platform.node(),
-                tags = [],
-                url = ""
-            )
+            doc_info = doc_info_default
+        elif isinstance(doc_info, dict):
+            docinfo_dict = doc_info_default.toDict()
+            docinfo_dict.update(doc_info)   # type: ignore
+            # check if all keys are valid
+            for key in docinfo_dict.keys():
+                if key not in doc_info_default.__annotations__:
+                    self.logger.error("Invalid key {} in doc_info".format(key))
+                    return None
+            doc_info = DocInfo(**docinfo_dict)
+        else:
+            assert isinstance(doc_info, DocInfo)
+            
         uid = doc_info.uuid
         # check if uuid already exists
         if self[uid] is not None:

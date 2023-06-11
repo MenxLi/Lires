@@ -1,6 +1,6 @@
 
 from abc import ABC, abstractmethod
-from typing import Dict, Type, List
+from typing import Dict, Type, List, Optional
 import arxiv
 import os, argparse, logging, sys
 from datetime import date
@@ -9,7 +9,7 @@ from pybtex.database import BibliographyData, Entry
 from resbibman.core.bibReader import BibParser
 from resbibman.core.fileTools import addDocument, DBConnection
 from resbibman.core.fileToolsV import FileManipulatorVirtual
-from resbibman.core.dataClass import DataPoint
+from resbibman.core.dataClass import DataPoint, DataBase
 from resbibman.confReader import TMP_DIR, getConfV
 from resbibman.core.utils import sssUUID
 from resbibman.core import globalVar as G
@@ -96,48 +96,90 @@ class RBMRetriver:
     }
     logger = G.logger_rbm
     def __init__(self, retrive_str: str):
+        retrive_str = retrive_str.strip().lower()
         collector_key, retrive_key = retrive_str.split(":")
         self.collector = self.KEY_COLLECTOR[collector_key.lower()](retrive_key)
 
-    def run(self, download_doc: bool = False, tags: List[str] = []) -> str:
+    def run(
+            self, 
+            database: Optional[DataBase] = None,
+            download_doc: bool = False, 
+            tags: List[str] = [], 
+            uid: Optional[str] = None, 
+            check_duplicate: bool = True
+            ) -> str:
         """
         Return data uuid or ''
         """
-        database_dir = getConfV("database")
-        collector = self.collector
+        if not database:
+            __new_database = True   # indicate if the database is newly created
+            database_dir = getConfV("database")
+            database = DataBase(database_dir, force_offline = True)
+        else:
+            __new_database = False
+
         self.logger.debug("Retrieving data")
+        collector = self.collector
         if not collector.retrive():
             # Failed
             return ''
+        
         # Generate data
         bib_str = collector.bibtexStr()
-        conn = DBConnection(database_dir)
-        uid = addDocument(conn, bib_str)
-        assert uid is not None, "Failed to add document"
-        fm = FileManipulatorVirtual(uid)
-        fm._forceOffline()
-        fm.writeBib(collector.bibtexStr())
-        fm.setWebUrl(collector.url())
-        fm.writeTags(tags)
-        self.logger.debug("File generated: {}".format(fm.uuid))
+        _doc_info = {}
+        if uid is not None:
+            _doc_info["uuid"] = uid
+        uid = addDocument(
+            database.conn, 
+            bib_str, 
+            doc_info = _doc_info, 
+            check_duplicate = check_duplicate
+            )
+        if uid is None:
+            self.logger.error("Failed to add document to database, maybe duplicated?")
+            if __new_database:
+                # clean up
+                database.destroy()
+            return ''
+
+        dp = database.add(uid)
+        dp.fm.setWebUrl(collector.url())
+        dp.fm.writeTags(tags)
+        self.logger.debug("File generated: {}".format(dp.uuid))
+
+        ret = dp.uuid
         # Add file if needed
         if download_doc:
-            dp = DataPoint(fm)
-            dp._forceOffline()
             f_path_tmp = os.path.join(TMP_DIR, sssUUID() + collector.DOC_EXT)
             self.logger.debug("Starting download...")
-            if collector.downloadDoc(f_path_tmp):
-                # will delete f_path_tmp
-                print(f_path_tmp)
-                if dp.addFile(f_path_tmp):
-                    return fm.uuid
-                else:
-                    return ''
-        return fm.uuid
+            try:
+                if collector.downloadDoc(f_path_tmp):
+                    if dp.addFile(f_path_tmp):
+                        if os.path.exists(f_path_tmp):
+                            self.logger.debug("Removing tmp file: {}".format(f_path_tmp))
+                            os.remove(f_path_tmp)
+                    else:
+                        ret = ''
+            except Exception as e:
+                self.logger.error("Failed to download file: {}".format(e))
+        
+        if __new_database:
+            # clean up
+            database.destroy()
+        return ret
 
-def exec(retrive_str: str, **kwargs) -> str:
+def exec(
+        retrive_str: str, 
+        download_doc: bool = False,
+        tags: List[str] = [],
+        uid: Optional[str] = None
+        ) -> str:
     retriver = RBMRetriver(retrive_str)
-    return retriver.run(**kwargs)
+    return retriver.run(
+        download_doc = download_doc,
+        tags = tags,
+        uid = uid,
+    )
 
 def main():
     _description = "automatically add entry to the database by id"
@@ -158,32 +200,28 @@ def main():
     handler.setFormatter(fomatter)
     logger.addHandler(handler)
 
-    _args = {
-        "tags": args.tags,
-        "download_doc": args.download
-    }
     if args.server_run:
         import requests, json
         from resbibman.core.encryptClient import generateHexHash
         post_args = {
             "key": generateHexHash(getConfV("access_key")),
-            "cmd": "rbm-collect",
-            "uuid": "_",
-            "args": json.dumps([args.retrive]),
-            "kwargs": json.dumps(_args)
+            "retrive": args.retrive,
+            "tags": json.dumps(args.tags),
+            "download_doc": "true" if args.download else "false",
+            "uuid": args.retrive,
         }
         addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
-        post_addr = "{}/cmdA".format(addr) 
+        post_addr = "{}/collect".format(addr) 
         res = requests.post(post_addr, params = post_args)
         if not res.ok:
-            logger.warning(f"Failed requesting {post_addr} ({res.status_code}).")
+            logger.error(f"Failed requesting {post_addr} ({res.status_code}).")
         else:
             logger.info("Success")
     else:
-        if exec(args.retrive, **_args):
+        if exec(args.retrive, download_doc=args.download, tags=args.tags, uid=args.retrive):
             logger.info("Success")
         else:
-            logger.warning("Failed")
+            logger.error("Failed")
 
 if __name__ == '__main__':
     main()
