@@ -2,6 +2,7 @@ import type { DataInfoT, SearchResultant } from "./protocalT";
 import { ServerConn } from "./serverConn";
 import { getBackendURL } from "../config";
 import type { SearchStatus } from "../components/_interface";
+import { getCookie } from "../libs/cookie";
 
 export interface TagHierarchy extends Record<string, TagHierarchy>{};
 export const TAG_SEP = "->";
@@ -135,6 +136,10 @@ export class DataPoint {
         this.info = summary;
     }
 
+    requestAbstract(): Promise<string> {
+        return new ServerConn().reqAbstract(this.info.uuid);
+    }
+
     authorAbbr(): string {
         let end = "";
         if (this.info.authors.length > 1) {
@@ -168,6 +173,11 @@ export class DataPoint {
     getOpenNoteURL(): string {
         const uid = this.info.uuid;
         return `${getBackendURL()}/comment/${uid}/`;
+    }
+
+    getOpenSummaryURL(): string {
+        const uid = this.info.uuid;
+        return `${getBackendURL()}/summary?uuid=${uid}&key=${getCookie("encKey")}`;
     }
 
     docType(): "" | "pdf" | "url" | "hpack" | "unknown" {

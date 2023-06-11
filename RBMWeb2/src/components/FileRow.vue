@@ -89,7 +89,7 @@
                 <div id="title" class="text"><p>{{ datapoint.info.title }}</p></div>
             </div>
         </div>
-        <div id="more" v-if="showMore" ref="moreDiv">
+        <div id="more" v-show="showMore" ref="moreDiv">
             <FileRowMore :datapoint="datapoint"></FileRowMore>
         </div>
     </div>

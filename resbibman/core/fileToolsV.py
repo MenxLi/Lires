@@ -267,6 +267,20 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             ...
     
+    def readAbstract(self) -> str:
+        if self.has_local:
+            return super().readAbstract()
+        else:
+            # abstract is not in summary,
+            # to save bandwidth
+            return "<Not avaliable>"
+    
+    def writeAbstract(self, abstract: str):
+        if self.has_local:
+            return super().writeAbstract(abstract)
+        else:
+            ...
+    
     def readComments(self) -> str:
         if self.has_local:
             return super().readComments()

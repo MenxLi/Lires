@@ -68,4 +68,18 @@ export class ServerConn {
         }
 
     }
+
+    async reqAbstract(uid: string): Promise<string>{
+        const params = new URLSearchParams();
+        params.set("key", getCookie("encKey"));
+        params.set("type", "abstract");
+        const response = await fetch(`${getBackendURL()}/fileinfo/${uid}?${params.toString()}`);
+        if (response.ok && response.status === 200) {
+            const res: string = await response.text();
+            return res
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`);
+        }
+    }
 }

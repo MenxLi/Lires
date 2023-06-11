@@ -310,6 +310,15 @@ class FileManipulator:
         self._log()
         return self.conn.updateBibtex(self.uuid, bib)
     
+    def readAbstract(self) -> str:
+        db_data = self.conn[self.uuid]; assert db_data
+        return db_data["abstract"]
+    
+    def writeAbstract(self, abstract: str):
+        self.logger.debug("(fm) writeAbstract: {}".format(self.uuid))
+        self._log()
+        return self.conn.updateAbstract(self.uuid, abstract)
+    
     def readComments(self) -> str:
         db_data = self.conn[self.uuid]; assert db_data
         return db_data["comments"]

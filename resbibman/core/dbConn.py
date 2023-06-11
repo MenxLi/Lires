@@ -247,6 +247,14 @@ class DBConnection:
             self.conn.commit()
         return True
     
+    def updateAbstract(self, uuid: str, abstract: str) -> bool:
+        if not self._ensureExist(uuid): return False
+        # self.logger.debug("(db_conn) Updating abstract for {}".format(uuid))   # too verbose
+        with self.lock:
+            self.cursor.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
+            self.conn.commit()
+        return True
+    
     def printData(self, uuid: str):
         if not self._ensureExist(uuid): return False
         with self.lock:

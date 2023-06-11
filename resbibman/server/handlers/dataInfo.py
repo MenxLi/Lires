@@ -9,6 +9,9 @@ from resbibman.core.dataClass import DataList, DataTags, DataPoint, DataPointSum
 from ._base import RequestHandlerBase
 
 class DataListHandler(tornado.web.RequestHandler, RequestHandlerBase):
+    """
+    Query information of data of the entire database
+    """
     def get(self):
         """
         Args:
@@ -61,7 +64,7 @@ class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerBase):
         self.setDefaultHeader()
         
         try:
-            cmd = self.get_argument("cmd")
+            cmd = self.get_argument("type")
         except:
             cmd = None
         dp: DataPoint = self.db[uid]
@@ -73,6 +76,9 @@ class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerBase):
             detail = dp.stringInfo()
             self.write(detail)
             return 
+        elif cmd == "abstract":
+            abstract = dp.fm.readAbstract()
+            self.write(abstract)
         else:
             # not implemented
             raise tornado.web.HTTPError(404)
