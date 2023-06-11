@@ -18,6 +18,7 @@ from .mdHighlighter import MarkdownSyntaxHighlighter
 
 class FileInfoGUI(MainWidgetBase):
     TEDIT_SYNC_PROPMT = "Sync to edit"
+    ABSTRACT_SYNC_PROPMT = "Sync to edit"
 
     # tab widget index
     TAB_INDEX_MDEDIT = 0
@@ -52,6 +53,7 @@ class FileInfoGUI(MainWidgetBase):
         self.open_external_btn = QPushButton("Open")
         self.weburl_edit = QLineEdit()
 
+        # markdown edit
         self.md_edit_wid = QWidget()
         self.tEdit = MarkdownEdit()
         _vlayout = QVBoxLayout()
@@ -62,11 +64,17 @@ class FileInfoGUI(MainWidgetBase):
             _save_h_layout.addWidget(self.save_comment_btn, 1)
             _save_h_layout.addWidget(self.comment_save_indicate_lbl, 0)
             _vlayout.addLayout(_save_h_layout)
-
         _hlayout.addWidget(self.open_folder_btn, 1)
         _hlayout.addWidget(self.open_external_btn, 1)
         _vlayout.addLayout(_hlayout)
         self.md_edit_wid.setLayout(_vlayout)
+
+        # abstract edit
+        self.abstract_edit_wid = QWidget()
+        self.abstract_edit = QTextEdit()
+        _vlayout_abstract = QVBoxLayout()
+        _vlayout_abstract.addWidget(self.abstract_edit)
+        self.abstract_edit_wid.setLayout(_vlayout_abstract)
 
         self.highlighter = MarkdownSyntaxHighlighter(self.tEdit)
         self.mdBrowser = QWebEngineView()
@@ -88,7 +96,8 @@ class FileInfoGUI(MainWidgetBase):
         self.tab_wid = QTabWidget()
         self.tab_wid.addTab(self.md_edit_wid, "Note.md")
         self.tab_wid.addTab(self.mdBrowser, "Note.html")
-        self.tab_wid.addTab(self.discuss_wid, "Discussion")
+        self.tab_wid.addTab(self.abstract_edit_wid, "Abstract")
+        # self.tab_wid.addTab(self.discuss_wid, "Discussion")
 
         frame_vbox = QVBoxLayout()
 
@@ -190,6 +199,7 @@ class FileInfo(FileInfoGUI):
         self.refresh_btn.clicked.connect(self.refresh)
         self.tab_wid.currentChanged.connect(self.changeTab)
         self.tEdit.textChanged.connect(self.onCommentChange)
+        self.abstract_edit.textChanged.connect(self._saveAbstractSlot)
         self.weburl_edit.textChanged.connect(self.saveWebURL)
         self.shortcut_save_comment.activated.connect(self._saveCommentSlot)
         self.btn_post_discuss.clicked.connect(self.postDiscussion)
@@ -198,17 +208,19 @@ class FileInfo(FileInfoGUI):
         super().offlineStatus(status)
         if not status:
             self.tEdit.setText(self.TEDIT_SYNC_PROPMT)
+            self.abstract_edit.setText(self.ABSTRACT_SYNC_PROPMT)
         else:
             # Load comments when sync download
             if self.curr_data is not None:
-                comment = self.curr_data.fm.readComments()
-                self.tEdit.setText(comment)
+                self.tEdit.setText(self.curr_data.fm.readComments())
+                self.abstract_edit.setText(self.curr_data.fm.readAbstract())
             # To avoid status change when clicking on a new data point
             self.setCommentSaveStatusLbl("saved")
             self.__updateCover(self.curr_data)
             self.__renderMarkdown()
 
         self.tEdit.setEnabled(status)
+        self.abstract_edit.setEnabled(status)
         self.weburl_edit.setEnabled(status)
         self.open_folder_btn.setEnabled(status)
         self.refresh_btn.setEnabled(status)
@@ -221,6 +233,7 @@ class FileInfo(FileInfoGUI):
         self.curr_data = None
         self.info_lbl.setText("File info")
         self.tEdit.setText("")
+        self.abstract_edit.setText("")
         self.weburl_edit.setText("")
         self.setCommentSaveStatusLbl("none")
         self.__updateCover(None)
@@ -237,9 +250,9 @@ class FileInfo(FileInfoGUI):
             self.__updateDiscussion()
 
         if data.is_local:
-            comment = self.curr_data.fm.readComments()
             self.offlineStatus(True)
-            self.tEdit.setText(comment)
+            self.tEdit.setText(self.curr_data.fm.readComments())
+            self.abstract_edit.setText(data.fm.readAbstract())
             # To avoid status change when clicking on a new data point
             self.setCommentSaveStatusLbl("saved")
         else:
@@ -405,6 +418,22 @@ class FileInfo(FileInfoGUI):
             return False
         self.curr_data.fm.writeComments(comment)
         self.setCommentSaveStatusLbl("saved")
+        return True
+    
+    def _saveAbstractSlot(self):     # type checking purpose, have to return None
+        self.saveAbstract()
+    def saveAbstract(self) -> bool:
+        if self.curr_data is None:
+            return False
+        if not self.curr_data.is_local:
+            return False
+        prev_abstract = self.curr_data.fm.readAbstract()
+        abstract = self.abstract_edit.toPlainText()
+        if abstract == prev_abstract:
+            # no repeated save
+            self.logger.debug("Skip unnecessary abstract save.")
+            return False
+        self.curr_data.fm.writeAbstract(abstract)
         return True
     
     def __renderMarkdown(self):
