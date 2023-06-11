@@ -123,6 +123,12 @@
             postSummary(true);
         }
     });
+    // press noteElem to re-run the summary
+    noteElem.addEventListener("click", function(event) {
+        contentElem.innerHTML = "";
+        noteElem.innerHTML = "(Summarizing...)";
+        postSummary(true);
+    });
 
 </script>
 </html>
