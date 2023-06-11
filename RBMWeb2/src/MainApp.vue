@@ -59,7 +59,7 @@
     <div id="main" class="gradIn">
         <Banner :searchText="uiState.searchState['content']" @onSearchChange="onSearchChanged"></Banner>
         <div class="horizontal fullHeight">
-            <FileTags v-if="showFileTags" @onCheck="(_) => uiState.updateShownData()"></FileTags>
+            <FileTags v-if="showFileTags" @onCheck="() => uiState.updateShownData()"></FileTags>
             <FileSelector></FileSelector>
         </div>
     </div>

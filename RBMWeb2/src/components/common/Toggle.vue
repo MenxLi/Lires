@@ -1,7 +1,6 @@
 
 
 <script setup lang="ts">
-    import {ref, computed} from "vue"
 
     const emit = defineEmits<{
         (e: "onCheck", identifier: string|undefined): void
@@ -13,7 +12,7 @@
         identifier: "",
     })
 
-    function _onCheck(event: Event){
+    function _onCheck(_: Event){
         emit("onCheck", props.identifier);
     }
 </script>

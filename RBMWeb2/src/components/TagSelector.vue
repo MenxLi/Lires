@@ -1,16 +1,11 @@
 <script setup lang="ts">
     import { computed} from 'vue';
-    import { TagRule, TAG_SEP, type TagHierarchy } from '@/core/dataClass';
+    import { TagRule, TAG_SEP, type TagHierarchy } from '../core/dataClass';
     import TagCollapsibleToggle from './TagCollapsibleToggle.vue';
     import { assert } from '@vue/compiler-core';
     import { useUIStateStore, useDataStore } from './store';
 
     import type { TagCheckStatus } from "./_interface"
-
-    // https://stackoverflow.com/a/54367510/6775765
-    const props = withDefaults(defineProps<{
-        reRenderKey?: number
-    }>(), {reRenderKey : 0})
 
     const emit = defineEmits<{
         (e: "onCheck", status: TagCheckStatus) : void

@@ -1,7 +1,6 @@
 
 
 <script setup lang="ts">
-    import { computed } from 'vue';
     import FileRow from './FileRow.vue';
     import { useDataStore, useUIStateStore } from './store';
 

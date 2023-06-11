@@ -5,9 +5,9 @@
     import {ref, computed} from "vue";
     import Toggle from "./common/Toggle.vue";
     import TagCollapsibleToggle from "./TagCollapsibleToggle.vue"
-    import { TAG_SEP } from '@/core/dataClass';
+    import { TAG_SEP } from '../core/dataClass';
     import { useUIStateStore } from "./store";
-    import type { TagHierarchy } from "@/core/dataClass";
+    import type { TagHierarchy } from "../core/dataClass";
 
     const uiState = useUIStateStore()
 
@@ -32,7 +32,7 @@
     const button = ref(null);
     const collapsed = computed(() => !uiState.unfoldedTags.has(props.identifier))
     const triangleClass = computed(() => collapsed.value?"triangle-right":"triangle-down rotate90in")
-    function onClickButton(e: Event){
+    function onClickButton(_: Event){
         if (uiState.unfoldedTags.has(props.identifier)){
             uiState.unfoldedTags.delete(props.identifier);
         }
@@ -75,7 +75,7 @@
         <TagCollapsibleToggle v-for="(v, k) in children" 
             :identifier="String(k)" 
             :children="v" 
-            @onCheck="(is_checked, identifier) => emit('onCheck', is_checked, identifier)">
+            @onCheck="(is_checked: boolean, identifier: string) => emit('onCheck', is_checked, identifier)">
             {{ String(k).split(TAG_SEP).slice(-1)[0] }}
         </TagCollapsibleToggle>
     </div>

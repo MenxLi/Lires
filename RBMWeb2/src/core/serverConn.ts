@@ -1,7 +1,7 @@
 
 // Server connection
 
-import { getCookie } from "@/libs/cookie.js";
+import { getCookie } from "../libs/cookie.js";
 import {getBackendURL} from "../config.js";
 import type { DataInfoT, AccountPermission, SearchResult} from "./protocalT.js";
 

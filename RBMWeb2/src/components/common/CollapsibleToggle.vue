@@ -6,8 +6,8 @@
     import {ref, computed} from "vue";
     import Toggle from "./Toggle.vue";
     import CollapsibleToggle from "./CollapsibleToggle.vue"
-    import { TAG_SEP } from '@/core/dataClass';
-    import type { TagHierarchy } from "@/core/dataClass";
+    import { TAG_SEP } from '../../core/dataClass';
+    import type { TagHierarchy } from "../../core/dataClass";
 
     const props = withDefaults(defineProps<{
         identifier: string,
@@ -30,7 +30,7 @@
     const toggled = ref(false);
     const button = ref(null);
     const triangleClass = computed(() => toggled.value?"triangle-down rotate90in":"triangle-right")
-    function onClickButton(e: Event){
+    function onClickButton(_: Event){
         toggled.value = !toggled.value;
     }
 
@@ -44,7 +44,7 @@
         <Toggle 
             :checked="props.checked" 
             :identifier="props.identifier"
-            @onCheck="(identifier) => emit('onCheck', identifier)">
+            @onCheck="(identifier: string|undefined) => emit('onCheck', identifier)">
             <slot></slot>
         </Toggle>
     </div>
@@ -52,7 +52,7 @@
         <CollapsibleToggle v-for="(v, k) in children" 
             :identifier="String(k)" 
             :children="v" 
-            @onCheck="(identifier) => emit('onCheck', identifier)">
+            @onCheck="(identifier: string|undefined) => emit('onCheck', identifier)">
             {{ String(k).split(TAG_SEP).slice(-1)[0] }}
         </CollapsibleToggle>
     </div>

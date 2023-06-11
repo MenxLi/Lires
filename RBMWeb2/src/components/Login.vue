@@ -1,11 +1,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { ServerConn } from '@/core/serverConn';
-import { sha256 } from '@/libs/sha256lib';
-import { STAY_LOGIN_DAYS, LOCATIONS } from '@/config';
-import { saveAuthentication } from '@/core/auth.js'
-import { setCookie } from '@/libs/cookie';
+import { ServerConn } from '../core/serverConn';
+import { sha256 } from '../libs/sha256lib';
+import { STAY_LOGIN_DAYS, LOCATIONS } from '../config';
+import { saveAuthentication } from '../core/auth.js'
+import { setCookie } from '../libs/cookie';
 
 import Toggle from './common/Toggle.vue'
 
@@ -64,8 +64,8 @@ function login(){
                 <input type="text" id="port" v-model="port" />
             </div>
             <div class="options">
-                <Toggle :checked="stayLogin" @onCheck="(_) => {stayLogin=!stayLogin}">Stay login</Toggle>
-                <Toggle :checked="showPassword" @onCheck="(_) => {showPassword=!showPassword}">Show key</Toggle>
+                <Toggle :checked="stayLogin" @onCheck="() => {stayLogin=!stayLogin}">Stay login</Toggle>
+                <Toggle :checked="showPassword" @onCheck="() => {showPassword=!showPassword}">Show key</Toggle>
             </div>
             <button type="submit" @click.prevent="login">{{ loginText }}</button>
         </form>

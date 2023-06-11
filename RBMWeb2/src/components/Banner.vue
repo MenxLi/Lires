@@ -3,8 +3,8 @@
 
     import { ref, computed, onMounted, type Ref } from "vue";
     import type {SearchStatus} from "./_interface"
-    import { checkCookieLogout, cookieLogout } from "@/core/auth";
-    import { ThemeMode } from "@/core/misc";
+    import { checkCookieLogout, cookieLogout } from "../core/auth";
+    import { ThemeMode } from "../core/misc";
 
     const props = withDefaults(defineProps<{
         searchText: string
@@ -19,7 +19,7 @@
     
     const searchInput = ref(props.searchText)
     const searchSelector: Ref<HTMLSelectElement | null> = ref(null)
-    function _onSearchChange(event: Event){
+    function _onSearchChange(_: Event){
         const status: SearchStatus = {
             searchBy: searchSelector.value!.value,
             content: searchInput.value
@@ -54,11 +54,11 @@
         <div class="button">
             <!-- <button @click="logout">Logout</button> -->
             <span v-if="!checkCookieLogout()" class="hoverMaxout105 button" @click="logout">
-                <img id="logoutIcon" class="icon" src="@/assets/icons/logout.svg" alt="Logout">
+                <img id="logoutIcon" class="icon" src="../assets/icons/logout.svg" alt="Logout">
                 <label for="logoutIcon" id="logoutIconLabel">Logout</label>
             </span>
-            <span class="hoverMaxout105 button" @click="(ev)=>toggleTheme()">
-                <img id="themeIcon" class="icon" src="@/assets/icons/bulb_tips.svg" alt="Logout">
+            <span class="hoverMaxout105 button" @click="(_)=>toggleTheme()">
+                <img id="themeIcon" class="icon" src="../assets/icons/bulb_tips.svg" alt="Logout">
                 <label for="themeIcon" id="themeIconLabel">{{ themeLabel }}</label>
             </span>
         </div>
