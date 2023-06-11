@@ -4,7 +4,7 @@
 import { getCookie } from "./libs/cookie";
 
 let DOMAINURL: string, PORT: string;
-let BACKENDURL: string, FRONTENDURL: string;
+let FRONTENDURL: string;
 if (import.meta.env.DEV){
     // DOMAINURL = "http://limengxun.com";
     DOMAINURL = "http://127.0.0.1";
