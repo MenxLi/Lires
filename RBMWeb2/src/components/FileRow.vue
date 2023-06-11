@@ -2,6 +2,8 @@
 <script setup lang="ts">
 
     import { ref, computed } from 'vue';
+    import FileRowMore from './FileRowMore.vue';
+    import { isChildDOMElement } from '../core/misc';
     import type { DataPoint } from '../core/dataClass';
 
     const NOTE_FULLSHOW_THRESHOLD = 12;
@@ -11,25 +13,35 @@
         datapoint: DataPoint
     }>()
 
-    function openDataURL(event: Event){
+    // record if show more is toggled
+    const showMore = ref(false);
+    // record if mouse is hovering on authorYear div
+    const isHoveringAuthorYear = ref(false);
+
+    // template refs
+    const initDiv = ref<HTMLElement | null>(null);
+    const moreDiv = ref<HTMLElement | null>(null);
+
+    function clickOnRow(event: Event){
         // check if event target is authorYear div or not
-        let url = "";
         if ((event.target as HTMLElement).id == "authorYear"){
-            if (props.datapoint.info.note_linecount > NOTE_SHOW_THRESHOLD){
-                url = props.datapoint.getOpenNoteURL()
+            // Maybe open doc
+            const url = props.datapoint.getOpenDocURL()
+            if (url !== ""){
+                window.open(url, '_blank')?.focus();
             }
-            event.stopPropagation();    // prevent open doc
+            event.stopPropagation();    // prevent show more
+        }
+        if (!isChildDOMElement(event.target as HTMLElement, moreDiv.value!)){
+            // toggle show more
+            showMore.value = !showMore.value;
         }
         else{
-            url = props.datapoint.getOpenDocURL()
-        }
-        if (url !== ""){
-            window.open(url, '_blank')?.focus();
+            // showMore.value = !showMore.value;
         }
     }
 
-    // record if mouse is hovering on authorYear div
-    const isHoveringAuthorYear = ref(false);
+    // related to authorYear div
     function hoverInAuthorYear(){
         isHoveringAuthorYear.value = true;
     }
@@ -40,36 +52,45 @@
         if (!isHoveringAuthorYear.value){
             return props.datapoint.yearAuthor(" :: ");
         }
-        else if(props.datapoint.info.note_linecount <= NOTE_SHOW_THRESHOLD){
-            return "_"
-        }
-        else{
-            return "NOTE";
+        else {
+            const dp = props.datapoint;
+            const docType = dp.docType();
+            if (docType === ""){
+                return "_"
+            }
+            else{
+                return docType;
+            }
         }
     })
 
 </script>
 
 <template>
-    <div id="fileRow" class="row hoverMaxout101 gradIn2" @click="openDataURL">
-        <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
-            {{ authorYearText }}
-        </div>
-        <div id="titleStatus" class="row">
-            <div id="statusDiv">
-                <div class="status">
-                    <img v-if="datapoint.info.file_type == '.pdf'" src="../assets/icons/pdf_fill.svg" alt="" class="icon">
-                    <img v-else-if="datapoint.info.url" src="../assets/icons/cloud_fill.svg" alt="" class="icon">
-                    <img v-else src="../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
-                </div>
-
-                <div class="status">
-                    <img v-if="datapoint.info.note_linecount>NOTE_FULLSHOW_THRESHOLD" src="../assets/icons/note_fill.svg" alt="" class="icon">
-                    <img v-else-if="datapoint.info.note_linecount>NOTE_SHOW_THRESHOLD" src="../assets/icons/note.svg" alt="" class="icon">
-                    <img v-else src="../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
-                </div>
+    <div id="fileRow" class="hoverMaxout101 gradIn2" @click="clickOnRow">
+        <div id="init" class="row" ref="initDiv">
+            <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
+                {{ authorYearText }}
             </div>
-            <div id="title" class="text"><p>{{ datapoint.info.title }}</p></div>
+            <div id="titleStatus" class="row">
+                <div id="statusDiv">
+                    <div class="status">
+                        <img v-if="datapoint.info.file_type == '.pdf'" src="../assets/icons/pdf_fill.svg" alt="" class="icon">
+                        <img v-else-if="datapoint.info.url" src="../assets/icons/cloud_fill.svg" alt="" class="icon">
+                        <img v-else src="../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
+                    </div>
+
+                    <div class="status">
+                        <img v-if="datapoint.info.note_linecount>NOTE_FULLSHOW_THRESHOLD" src="../assets/icons/note_fill.svg" alt="" class="icon">
+                        <img v-else-if="datapoint.info.note_linecount>NOTE_SHOW_THRESHOLD" src="../assets/icons/note.svg" alt="" class="icon">
+                        <img v-else src="../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
+                    </div>
+                </div>
+                <div id="title" class="text"><p>{{ datapoint.info.title }}</p></div>
+            </div>
+        </div>
+        <div id="more" v-if="showMore" ref="moreDiv">
+            <FileRowMore :datapoint="datapoint"></FileRowMore>
         </div>
     </div>
 </template>
@@ -80,6 +101,10 @@
         align-items: center;
         justify-content: flex-start;
     }
+    div#init{
+        flex-wrap: wrap;
+        column-gap: 10px;
+    }
     div#fileRow {
         flex-wrap: wrap;
         border: 1px solid var(--color-border);
@@ -88,7 +113,6 @@
         padding-left: 5px;
         margin-top: 3px;
         margin-bottom: 3px;
-        column-gap: 10px;
     }
     div#fileRow:hover{
         background-color: var(--theme-hover-highlight-color);

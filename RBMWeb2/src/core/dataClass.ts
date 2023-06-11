@@ -169,6 +169,24 @@ export class DataPoint {
         const uid = this.info.uuid;
         return `${getBackendURL()}/comment/${uid}/`;
     }
+
+    docType(): "" | "pdf" | "url" | "hpack" | "unknown" {
+        if (this.info["has_file"] && this.info["file_type"] == ".pdf"){
+            return "pdf";
+        }
+        else if (this.info["has_file"] && this.info["file_type"] == ".hpack"){
+            return "hpack";
+        }
+        else if (!this.info["has_file"] && this.info["url"]){
+            return "url";
+        }
+        else if (!this.info["has_file"] && !this.info["url"]){
+            return "";
+        }
+        else {
+            return "unknown";
+        }
+    }
 }
 
 export class DataBase {

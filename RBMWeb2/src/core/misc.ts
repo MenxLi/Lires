@@ -77,3 +77,14 @@ export function inPlacePopByValue(arr: Array<any>, toPop: any){
     }
   }
 }
+
+export function isChildDOMElement(child: HTMLElement, parent: HTMLElement){
+  let node = child.parentNode;
+  while (node != null){
+    if (node == parent){
+      return true;
+    }
+    node = node.parentNode;
+  }
+  return false;
+}
