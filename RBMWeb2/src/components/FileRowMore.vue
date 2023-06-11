@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { DataPoint } from '../core/dataClass';
+import { useDataStore } from './store';
 
 const props = defineProps<{
-    datapoint: DataPoint
+    uid: string
 }>()
+
+const dataStore = useDataStore();
+const datapoint = ref(dataStore.database.get(props.uid))
 
 const abstractParagraph = ref<HTMLParagraphElement|null>(null);
 
@@ -14,7 +17,7 @@ const setAbstract = async () => {
     const failedPrompt = "<label class='hint'>Not avaliable</label>";
     if (abstract === null || abstract === failedPrompt) {
         abstractParagraph.value!.innerHTML = "Loading...";
-        abstract = await props.datapoint.requestAbstract();
+        abstract = await datapoint.value.requestAbstract();
     }
     if (abstract.trim() === ""){
         abstract = failedPrompt;
@@ -27,9 +30,9 @@ const setAbstract = async () => {
     <div id="moreMain">
         <hr>
         <div class="row" id="buttons">
-            <a :href="props.datapoint.getOpenDocURL()" target="_blank" rel="noopener noreferrer">Open</a>
-            <a :href="props.datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a>
-            <a :href="props.datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a>
+            <a :href="datapoint.getOpenDocURL()" target="_blank" rel="noopener noreferrer">Open</a>
+            <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a>
+            <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a>
         </div>
         <div id="abstract">
             <details>

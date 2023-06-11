@@ -4,14 +4,17 @@
     import { ref, computed } from 'vue';
     import FileRowMore from './FileRowMore.vue';
     import { isChildDOMElement } from '../core/misc';
-    import type { DataPoint } from '../core/dataClass';
+    import { useDataStore } from './store';
 
     const NOTE_FULLSHOW_THRESHOLD = 12;
     const NOTE_SHOW_THRESHOLD = 1;
 
     const props = defineProps<{
-        datapoint: DataPoint
+        uid: string
     }>()
+
+    const dataStore = useDataStore();
+    const datapoint = ref(dataStore.database.get(props.uid));
 
     // record if show more is toggled
     const showMore = ref(false);
@@ -26,7 +29,7 @@
         // check if event target is authorYear div or not
         if ((event.target as HTMLElement).id == "authorYear"){
             // Maybe open doc
-            const url = props.datapoint.getOpenDocURL()
+            const url = datapoint.value.getOpenDocURL()
             if (url !== ""){
                 window.open(url, '_blank')?.focus();
             }
@@ -50,10 +53,10 @@
     }
     const authorYearText = computed(() => {
         if (!isHoveringAuthorYear.value){
-            return props.datapoint.yearAuthor(" :: ");
+            return datapoint.value.yearAuthor(" :: ");
         }
         else {
-            const dp = props.datapoint;
+            const dp = datapoint.value;
             const docType = dp.docType();
             if (docType === ""){
                 return "_"
@@ -90,7 +93,7 @@
             </div>
         </div>
         <div id="more" v-show="showMore" ref="moreDiv">
-            <FileRowMore :datapoint="datapoint"></FileRowMore>
+            <FileRowMore :uid="datapoint.info.uuid"></FileRowMore>
         </div>
     </div>
 </template>
