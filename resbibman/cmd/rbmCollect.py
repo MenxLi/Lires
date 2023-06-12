@@ -111,7 +111,7 @@ class RBMRetriver:
         """
         Return data uuid or ''
         """
-        if not database:
+        if database is None:
             __new_database = True   # indicate if the database is newly created
             database_dir = getConfV("database")
             database = DataBase(database_dir, force_offline = True)

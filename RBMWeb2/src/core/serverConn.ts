@@ -82,4 +82,30 @@ export class ServerConn {
             throw new Error(`Got response: ${response.status}`);
         }
     }
+
+    async addArxivPaperByID( id: string,): Promise<DataInfoT>{
+        if (!id.startsWith("arxiv:")){
+            id = "arxiv:" + id;
+        }
+        const params = new URLSearchParams();
+        params.set("key", getCookie("encKey"));
+        params.set("retrive", id);
+        params.set("tags", JSON.stringify(["arxiv_feed"]))
+
+        const response = await fetch(`${getBackendURL()}/collect?${params.toString()}`, 
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/x-www-form-urlencoded"
+                },
+            }
+        );
+        if (response.ok && response.status === 200) {
+            const res: DataInfoT = JSON.parse(await response.text());
+            return res
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`);
+        }
+    }
 }
