@@ -20,7 +20,7 @@
 </script>
 
 <template>
-    <div id="main">
+    <div id="main" class="gradInFast">
         <div class="articleBlock">
             <div class="titleBlock">
                 <h2>{{ props.article.title }}</h2>
@@ -34,8 +34,8 @@
                 </span>
             </div>
             <div class="actions">
-                <a :href="`https://arxiv.org/abs/${article.id}`">Arxiv</a>
-                <a :href="`https://arxiv.org/pdf/${article.id}.pdf`">PDF</a>
+                <a :href="`https://arxiv.org/abs/${article.id}`">Arxiv</a> |
+                <a :href="`https://arxiv.org/pdf/${article.id}.pdf`">PDF</a> |
                 <a href="#" @click="addToRBM">Add2RBM</a>
             </div>
             <p>Published: {{ props.article.publishedTime }}</p>
@@ -43,21 +43,30 @@
                 <summary>Abstract</summary>
                 <p>{{ props.article.abstract }}</p>
             </details>
-
-            <div class="sep"></div>
         </div>
     </div>
+
+    <!-- <div class="sep"></div> -->
 </template>
 
 <style scoped>
     div#main{
+        margin-top: 5px;
+        margin-bottom: 5px;
         display: flex;
         align-items: center;
-        padding: 1em;
+        padding: 10px;
+        box-shadow: 2px 2px 4px 2px var(--color-shadow);
+        border-radius: 5px;
+    }
+    div#main:hover{
+        transform: scale(1.005, 1.005);
+        transition: all 0.1s ease;
+        box-shadow: 2px 2px 4px 3px var(--color-shadow);
     }
     .articleBlock{
+        width: 90vw;
         max-width: 1200px;
-        width: 98vw;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -68,6 +77,7 @@
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
+        text-align: start;
         align-items: center;
         flex-wrap: wrap;
         gap: 0.25em;
@@ -87,11 +97,13 @@
         gap: 1em;
     }
 
-    div.sep{
+    /* div.sep{
+        margin-top: 5px;
+        margin-bottom: 5px;
         width: 100%;
         justify-self: center;
         height: 0.1em;
         background-color: var(--color-border);
-    }
+    } */
 </style>
     

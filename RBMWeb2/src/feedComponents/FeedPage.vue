@@ -32,7 +32,7 @@
         window.alert("Not implemented yet.")
     }
 
-    fetchArxivFeed( 20 , "cat:cs.CV").then(
+    fetchArxivFeed( 50 , "cat:cs.CV").then(
         (articles) => {
             arxivArticles.value = articles;
         },
