@@ -7,9 +7,11 @@
     import { ThemeMode } from "../core/misc";
 
     const props = withDefaults(defineProps<{
-        searchText: string
+        searchText: string,
+        showSearch: boolean,
     }>(), {
         "searchText": "",
+        "showSearch": true,
     })
     const searchTypesPool = ref(["general", "title", "feature"])
 
@@ -62,7 +64,7 @@
                 <label for="themeIcon" id="themeIconLabel">{{ themeLabel }}</label>
             </span>
         </div>
-        <div v-if="!checkCookieLogout()" class="searchbar">
+        <div v-if="!checkCookieLogout() && props.showSearch" class="searchbar">
             <label for="searchbar"> Search: </label>
             <select ref="searchSelector" name="search_type" id="searchType" @change="_onSearchChange">
                 <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>

@@ -41,7 +41,7 @@
 
 <template>
     <div id="main">
-        <Banner @onSearchChange="onSearchChanged"></Banner>
+        <Banner @onSearchChange="onSearchChanged" :showSearch="false"></Banner>
         <h1>Arxiv daily</h1>
         <h2 v-if="arxivArticles.length===0">Fetching...</h2>
         <ArticleBlock v-for="article in arxivArticles" :article="article"></ArticleBlock>
