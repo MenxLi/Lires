@@ -2,15 +2,16 @@
 
 <script setup lang="ts">
     import FileRow from './FileRow.vue';
-    import {useUIStateStore } from './store';
+    import {useUIStateStore, useDataStore } from './store';
 
     const uiState = useUIStateStore();
+    const dataStore = useDataStore();
 
 </script>
 
 <template>
     <div class="panel scrollable">
-        <FileRow v-for="uid in uiState.shownDataUIDs" :uid="uid"></FileRow>
+        <FileRow v-for="uid in uiState.shownDataUIDs" :datapoint="dataStore.database.get(uid)"></FileRow>
     </div>
 </template>
 

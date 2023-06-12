@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useDataStore } from './store';
+import { DataPoint } from '../core/dataClass';
 
 const props = defineProps<{
-    uid: string
+    datapoint: DataPoint
 }>()
-
-const dataStore = useDataStore();
-const datapoint = ref(dataStore.database.get(props.uid))
 
 const abstractParagraph = ref<HTMLParagraphElement|null>(null);
 
@@ -15,10 +12,8 @@ const abstractParagraph = ref<HTMLParagraphElement|null>(null);
 let abstract: string|null = null;
 const setAbstract = async () => {
     const failedPrompt = "<label class='hint'>Not avaliable</label>";
-    if (abstract === null || abstract === failedPrompt) {
-        abstractParagraph.value!.innerHTML = "Loading...";
-        abstract = await datapoint.value.requestAbstract();
-    }
+    abstractParagraph.value!.innerHTML = "Loading...";
+    abstract = await props.datapoint.requestAbstract();
     if (abstract.trim() === ""){
         abstract = failedPrompt;
     }
