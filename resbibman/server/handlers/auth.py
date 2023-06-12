@@ -3,8 +3,8 @@ import json
 
 class AuthHandler (tornado.web.RequestHandler, RequestHandlerBase):
     def post(self):
-        print("Get auth request")
         self.setDefaultHeader()
+        self.logger.debug(f"get auth request")
         permission = self.checkKey()
 
         require_permission = self.get_argument("require_permission", default = False)

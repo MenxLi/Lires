@@ -71,6 +71,7 @@ class RequestHandlerBase():
         return self._checkKey(enc_key)
 
     def _checkKey(self, enc_key) -> AccountPermission:
+        self.logger.debug(f"check key: {enc_key}")
         if not enc_key:
             raise tornado.web.HTTPError(403) 
 

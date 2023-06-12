@@ -10,6 +10,9 @@ export interface ArxivArticle {
   updatedTime: string;
   publishedTime: string;
 }
+export interface ArxivArticleWithFeatures extends ArxivArticle{
+  features: number[] | undefined,
+}
 
 export async function fetchArxivFeed(
   maxResults: number = 10,

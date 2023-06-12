@@ -35,6 +35,8 @@ class Application(tornado.web.Application):
             (r"/summary", SummaryHandler),
             (r"/summary-post", SummaryPostHandler),
             (r"/collect", CollectHandler),
+
+            (r"/iserver/(.*)", IServerProxyHandler),
         ]
         super().__init__(handlers)
 

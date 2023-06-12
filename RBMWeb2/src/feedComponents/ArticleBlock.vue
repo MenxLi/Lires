@@ -1,10 +1,10 @@
 
 <script setup lang="ts">
-    import type { ArxivArticle } from './arxivUtils.ts';
+    import type { ArxivArticleWithFeatures } from './arxivUtils.ts';
     import { ServerConn } from '../core/serverConn';
 
     const props = defineProps<{
-        article: ArxivArticle,
+        article: ArxivArticleWithFeatures,
     }>()
 
     function addToRBM(){

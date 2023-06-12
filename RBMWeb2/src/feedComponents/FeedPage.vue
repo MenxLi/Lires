@@ -1,14 +1,13 @@
 
 <script setup lang="ts">
-    import { ref } from 'vue';
+    import { ref, computed} from 'vue';
     import { fetchArxivFeed } from './arxivUtils.ts';
-    import type { ArxivArticle } from './arxivUtils.ts';
+    import { ArxivArticleWithFeatures } from './arxivUtils.ts';
 
     import { ServerConn } from '../core/serverConn';
     import { getCookie } from '../libs/cookie';
     import { FRONTENDURL } from '../config';
     import Banner from '../components/Banner.vue';
-    import type { SearchStatus } from '../components/_interface.ts';
 
     import ArticleBlock from './ArticleBlock.vue';
 
@@ -24,27 +23,82 @@
     )
 
     // props and data
-    const arxivArticles = ref([] as ArxivArticle[]);
+    const searchText = ref("");
+    const searchFeature = ref(null as null | number[]);
+    const arxivArticles = ref([] as ArxivArticleWithFeatures[]);
+    const sortedArxivArticles = computed(function(){
+        return arxivArticles.value.sort((a, b) => {
+            if (searchFeature.value === null || !a.features || !b.features ){
+                return 0;
+            }
+            else{
+                const feat_a = a.features as number[];
+                const feat_b = b.features as number[];
+                const feat_search = searchFeature.value as number[];
 
-    function onSearchChanged(s: SearchStatus){
-        // todo: implement
-        console.log(s);
-        window.alert("Not implemented yet.")
+                // calculate which vector is closer to the search vector
+                const dist_a = feat_a.reduce((acc, cur, idx) => {
+                    return acc + (cur - feat_search[idx]) ** 2;
+                }, 0);
+                const dist_b = feat_b.reduce((acc, cur, idx) => {
+                    return acc + (cur - feat_search[idx]) ** 2;
+                }, 0);
+                return dist_a - dist_b;
+            }
+        })
+    })
+
+
+    function onSearchChanged(){
+        // update searchFeature
+        if (searchText.value.trim() === ""){
+            searchFeature.value = null;
+            return
+        }
+        new ServerConn().featurize(searchText.value).then(
+            (features) => {
+                searchFeature.value = features;
+            },
+            () => {
+                console.log("failed to featurize");
+            },
+        )
     }
 
-    fetchArxivFeed( 50 , "cat:cs.CV").then(
+    // MAIN: fetch arxiv feed
+    const urlSearchParams = new URLSearchParams(window.location.search);    // get maxResults from url
+    let maxResults = parseInt(urlSearchParams.get("maxResults") as string) || 25;
+    if (maxResults > 100){ maxResults = 100; }
+    let initSearchString = urlSearchParams.get("search") as string || "";
+    if (initSearchString !== ""){
+        searchText.value = initSearchString;
+        onSearchChanged();
+    }
+    fetchArxivFeed( maxResults , "cat:cs.CV").then(
         (articles) => {
-            arxivArticles.value = articles;
+            for (const article of articles){
+                conn.featurize(article.abstract).then(
+                    (features) => {
+                        const article_with_features = article as ArxivArticleWithFeatures;
+                        article_with_features.features = features;
+                        arxivArticles.value.push(article_with_features);
+                    },
+                    () => {
+                        console.log("failed to featurize");
+                    },
+                )
+            }
         },
     )
 </script>
 
 <template>
     <div id="main">
-        <Banner @onSearchChange="onSearchChanged" :showSearch="false"></Banner>
+        <Banner :showSearch="false"></Banner>
         <h1>Arxiv daily</h1>
-        <h2 v-if="arxivArticles.length===0">Fetching...</h2>
-        <ArticleBlock v-for="article in arxivArticles" :article="article"></ArticleBlock>
+        <input type="text" placeholder="Search" @input="onSearchChanged" v-model="searchText">
+        <h2 v-if="sortedArxivArticles.length===0">Fetching...</h2>
+        <ArticleBlock v-for="article in sortedArxivArticles" :article="article"></ArticleBlock>
     </div>
 </template>
 

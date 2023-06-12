@@ -42,8 +42,8 @@ async def structuredSummerize(txt: str, model: StreamIterType = "gpt-3.5-turbo",
 
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-auto_tokenizer = None
-auto_model = None
+g_auto_tokenizers = {}
+g_auto_models = {}
 EncoderT = Literal["distilbert-base-uncased", "yikuan8/Clinical-Longformer", "allenai/longformer-base-4096", "bert-base-uncased", "sentence-transformers/all-mpnet-base-v2"]
 _default_encoder = "sentence-transformers/all-mpnet-base-v2"
 # reference: https://huggingface.co/sentence-transformers/all-mpnet-base-v2
@@ -58,10 +58,16 @@ async def vectorize(
     max_len: the max length of the input text, the rest will be truncated, automatically set to the length of the model if None
     take a long text and return a vector of shape [1, d_feature]
     """
-    global auto_tokenizer, auto_model
+    global g_auto_tokenizers, g_auto_models
     device = autoTorchDevice()
     txt = txt.replace("\n", " ")
     txt = " ".join(txt.split())
+
+    def getTokenizerModel(model_name, device):
+        with Timer("Loading text encoder model"):
+            _tokenizer = AutoTokenizer.from_pretrained(model_name)
+            _model = AutoModel.from_pretrained(model_name).to(device)
+        return _tokenizer, _model
 
     if max_len is None:
         if model_name == "distilbert-base-uncased": max_len = 512
@@ -69,11 +75,15 @@ async def vectorize(
         elif model_name == "yikuan8/Clinical-Longformer": max_len = 4096
         elif model_name == "allenai/longformer-base-4096": max_len = 4096
         elif model_name == "sentence-transformers/all-mpnet-base-v2": max_len = 512
-
-    if auto_tokenizer is None or auto_model is None:
-        with Timer("Loading text encoder model"):
-            auto_tokenizer = AutoTokenizer.from_pretrained(model_name)
-            auto_model = AutoModel.from_pretrained(model_name).to(device)
+    
+    try:
+        g_auto_models[model_name]
+    except KeyError:
+        _tokenizer, _model = getTokenizerModel(model_name, device)
+        g_auto_tokenizers[model_name] = _tokenizer
+        g_auto_models[model_name] = _model
+    auto_tokenizer = g_auto_tokenizers[model_name]
+    auto_model = g_auto_models[model_name]
 
     # Tokenize sentences
     encoded_input = auto_tokenizer(txt, padding=True, truncation=True, return_tensors='pt')

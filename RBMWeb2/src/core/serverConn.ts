@@ -108,4 +108,28 @@ export class ServerConn {
             throw new Error(`Got response: ${response.status}`);
         }
     }
+
+    async featurize(text: string): Promise<number[]>{
+        const params = new URLSearchParams();
+        params.set("key", getCookie("encKey"));
+        params.set("text", text);
+
+        const response = await fetch(`${getBackendURL()}/iserver/textFeature?${params.toString()}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/x-www-form-urlencoded"
+                },
+            }
+        );
+
+        if (response.ok && response.status === 200) {
+            const txt = await response.text();
+            const res: number[] = JSON.parse(txt);
+            return res
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`);
+        }
+    }
 }
