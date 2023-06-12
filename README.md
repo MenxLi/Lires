@@ -91,10 +91,13 @@ The RBM and RBMWeb server are Tornado servers,
 resbibman iserver
 ```
 The iRBM server is written with FastAPI, it provides additional AI features and is designed to be connected by the RBM server, so that the server can provide AI features to the client.  
-> The reason to separate iRBM server from RBM server are the following:
->  AI features may require more resources, so that the iserver can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the iserver and install the heavy AI dependencies.
->  It is also possible that the iserver needs a proxy to access the internet, while the RBM server does not.  
 
+> <details> 
+> <summary>The reason to separate iRBM server from RBM server</summary>  
+> - AI features may require more resources, so that the iserver can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the iserver and install the heavy AI dependencies.  <br>
+> - Allocating resources to the iserver and RBM server separately can be more flexible. For example, the iserver may need more GPU memory, we can launch multiple RBM servers pointing to different `$RBM_HOME`, while sharing the same iserver. <br>
+> -  It is also possible that the iserver needs a proxy to access the internet, while the RBM server does not.   
+</details>
 
 For CLI help, see `resbibman -h`  
 
