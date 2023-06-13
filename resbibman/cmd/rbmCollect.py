@@ -6,6 +6,9 @@ import os, argparse, logging, sys
 from datetime import date
 from pybtex.database import BibliographyData, Entry
 
+import requests, urllib
+from bs4 import BeautifulSoup
+
 from resbibman.core.bibReader import BibParser
 from resbibman.core.fileTools import addDocument, DBConnection
 from resbibman.core.fileToolsV import FileManipulatorVirtual
@@ -16,6 +19,8 @@ from resbibman.core import globalVar as G
 
 class DocCollector(ABC):
     DOC_EXT = ".pdf"
+    retrive_key: str
+    logger = G.logger_rbm
     def __init__(self, retrive_key: str):
         self.retrive_key = retrive_key
 
@@ -89,15 +94,88 @@ class ArXivCollector(DocCollector):
     def url(self) -> str:
         return self.__result.pdf_url
 
+class WebCollector(DocCollector):
+    """
+    Collect data from web
+    retrive_key: url
+    """
+    def retrive(self) -> bool:
+        url = self.retrive_key
+        r = requests.get(url)
+        if r.status_code != 200:
+            self.logger.error(f"WebCollector: got status code {r.status_code}")
+            return False
+        soup = BeautifulSoup(r.text, 'html.parser')
+
+        # GET TITLE
+        title = None
+        if soup.findAll("title"):
+            title = soup.find("title").string
+        if not title:
+            if soup.findAll("h1"):
+                title = soup.find("h1").string
+        if not title:
+            if soup.findAll("h2"):
+                title = soup.find("h2").string
+        if not title:
+            title = "unknown" + "-" + url[:20]
+        
+        # GET AUTHOR
+        author = None
+        if soup.findAll("meta", {"name": "author"}):
+            author = soup.find("meta", {"name": "author"})['content']
+        if not author:
+            # traverse all content and find the first author
+            for content in soup.findAll("meta", {"name": "content"}):
+                if content['content'].lower().startswith("author"):
+                    author = content['content'][7:]
+                    break
+        if not author:
+            # traverse body and find the first author / 作者
+            for content in soup.findAll("body"):
+                for content2 in content.findAll("p"):
+                    if content2.string.lower().startswith("author"):
+                        author = content2.string[7:]
+                        break
+                    if content2.string.lower().startswith("作者"):
+                        author = content2.string[3:]
+                        break
+                if author:
+                    break
+        if not author:
+            author = "unknown"
+
+        self.bib_data = BibliographyData({
+            sssUUID(): Entry('misc', [
+                ('title', title),
+                ('howpublished', 'Available at \\url{{{}}}'.format(url)),
+                ('year', '{:04d}'.format(date.today().year)),
+                ('author', author),
+                ('date', '{:04d}-{:02d}-{:02d}'.format(date.today().year,date.today().month,date.today().day))
+            ])})
+        return True
+        
+    def bibtexStr(self) -> str:
+        return self.bib_data.to_string('bibtex')
+    
+    def downloadDoc(self, dst: str) -> bool:
+        self.logger.warn("WebCollector: downloadDoc not implemented")
+        return False
+    
+    def url(self) -> str:
+        return self.retrive_key
+
 class RBMRetriver:
     KEY_COLLECTOR: Dict[str, Type[DocCollector]]
     KEY_COLLECTOR = {
-        "arxiv": ArXivCollector
+        "arxiv": ArXivCollector,
+        "web": WebCollector,
     }
     logger = G.logger_rbm
     def __init__(self, retrive_str: str):
-        retrive_str = retrive_str.strip().lower()
-        collector_key, retrive_key = retrive_str.split(":")
+        collector_key = retrive_str.split(":")[0].lower()
+        retrive_key = retrive_str[len(collector_key) + 1:]
+
         self.collector = self.KEY_COLLECTOR[collector_key.lower()](retrive_key)
 
     def run(
@@ -208,7 +286,7 @@ def main():
             "retrive": args.retrive,
             "tags": json.dumps(args.tags),
             "download_doc": "true" if args.download else "false",
-            "uuid": args.retrive,
+            # "uuid": args.retrive,
         }
         addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
         post_addr = "{}/collect".format(addr) 
@@ -218,7 +296,7 @@ def main():
         else:
             logger.info("Success")
     else:
-        if exec(args.retrive, download_doc=args.download, tags=args.tags, uid=args.retrive):
+        if exec(args.retrive, download_doc=args.download, tags=args.tags):
             logger.info("Success")
         else:
             logger.error("Failed")
