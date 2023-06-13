@@ -78,14 +78,15 @@
     fetchArxivFeed( maxResults , "cat:cs.CV").then(
         (articles) => {
             for (const article of articles){
+                const article_with_features = article as ArxivArticleWithFeatures;
+                article_with_features.features = null;
+                arxivArticles.value.push(article_with_features);
                 conn.featurize(article.abstract).then(
                     (features) => {
-                        const article_with_features = article as ArxivArticleWithFeatures;
                         article_with_features.features = features;
-                        arxivArticles.value.push(article_with_features);
                     },
                     () => {
-                        console.log("failed to featurize");
+                        console.log("failed to featurize: ", article.id);
                     },
                 )
             }

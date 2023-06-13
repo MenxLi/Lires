@@ -11,7 +11,7 @@ export interface ArxivArticle {
   publishedTime: string;
 }
 export interface ArxivArticleWithFeatures extends ArxivArticle{
-  features: number[] | undefined,
+  features: number[] | null,
 }
 
 export async function fetchArxivFeed(
