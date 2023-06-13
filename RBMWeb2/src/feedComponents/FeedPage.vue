@@ -75,7 +75,10 @@
         searchText.value = initSearchString;
         onSearchChanged();
     }
-    fetchArxivFeed( maxResults , "cat:cs.CV").then(
+    fetchArxivFeed(
+        maxResults , 
+        "cat:cs.CV OR cat:cs.AI", 
+        ).then(
         (articles) => {
             for (const article of articles){
                 const article_with_features = article as ArxivArticleWithFeatures;
