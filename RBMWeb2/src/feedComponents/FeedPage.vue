@@ -27,7 +27,8 @@
     const searchFeature = ref(null as null | number[]);
     const arxivArticles = ref([] as ArxivArticleWithFeatures[]);
     const sortedArxivArticles = computed(function(){
-        return arxivArticles.value.sort((a, b) => {
+        const articleShallowCopy = [...arxivArticles.value];
+        return articleShallowCopy.sort((a, b) => {
             if (searchFeature.value === null || !a.features || !b.features ){
                 return 0;
             }
