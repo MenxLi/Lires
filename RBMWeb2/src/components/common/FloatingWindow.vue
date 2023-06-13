@@ -39,7 +39,8 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: var(--color-background-soft);
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
+  border: 1px solid var(--color-border);
   border-radius: 5px;
   padding: 15px;
   display: flex;
@@ -47,7 +48,7 @@
   align-items: flex-start;
   z-index: 100;
 
-  animation-duration: 0.1s; /* the duration of the animation */
+  animation-duration: 0.15s; /* the duration of the animation */
   animation-timing-function: ease-out; /* how the animation will behave */
   animation-delay: 0s; /* how long to delay the animation from starting */
   animation-iteration-count: 1; /* how many times the animation will play */

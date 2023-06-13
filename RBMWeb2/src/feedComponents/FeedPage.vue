@@ -72,8 +72,11 @@
     }
 
     const urlSearchParams = new URLSearchParams(window.location.search);    // get maxResults from url
-    let maxResults = parseInt(urlSearchParams.get("maxResults") as string) || 25;
-    if (maxResults > 100){ maxResults = 100; }
+    let maxResults = parseInt(urlSearchParams.get("maxResults") as string) || 50;
+    if (maxResults > 200){
+        window.alert("maxResults cannot be larger than 200");
+        maxResults = 200;
+    }
     let initSearchString = urlSearchParams.get("search") as string || "";
     if (initSearchString !== ""){
         searchText.value = initSearchString;
