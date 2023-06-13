@@ -86,9 +86,10 @@
             ).then(
             (articles) => {
                 for (const article of articles){
-                    const article_with_features = article as ArxivArticleWithFeatures;
-                    article_with_features.features = ref(null);
+                    const article_with_features = article as any;       // type: ArticleWithFeatures
+                    article_with_features.features = ref(null as null | number[]);
                     arxivArticles.value.push(article_with_features);
+
                     conn.featurize(article.abstract).then(
                         // update article features
                         (features) => {
