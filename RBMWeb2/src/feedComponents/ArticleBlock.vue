@@ -36,7 +36,7 @@
             <div class="actions">
                 <a :href="`https://arxiv.org/abs/${article.id}`">Arxiv</a> |
                 <a :href="`https://arxiv.org/pdf/${article.id}.pdf`">PDF</a> |
-                <a href="#" @click="addToRBM">Add2RBM</a>
+                <a href="#" @click="addToRBM">Collect</a>
             </div>
             <p>Published: {{ props.article.publishedTime }}</p>
             <details>
