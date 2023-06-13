@@ -5,6 +5,7 @@
     import type {SearchStatus} from "./_interface"
     import { checkCookieLogout, cookieLogout } from "../core/auth";
     import { ThemeMode } from "../core/misc";
+    import FloatingWindow from "./common/FloatingWindow.vue";
 
     const props = withDefaults(defineProps<{
         searchText: string,
@@ -29,11 +30,16 @@
         emit("onSearchChange", status);
     }
 
+    // logout related
     function logout(){
         cookieLogout();
         window.location.reload();
     }
 
+    // Navigation related
+    const showNavigation = ref(false);
+
+    // theme related
     ThemeMode.setDefaultDarkMode();
     const _currentDarkTheme = ref(ThemeMode.isDarkMode());
     const themeLabel = computed(function(){
@@ -52,6 +58,13 @@
 </script>
 
 <template>
+    <FloatingWindow v-if="showNavigation" @onClose="showNavigation=!showNavigation">
+        <div id="exploreContainer">
+            <button><a href="../index.html">Home</a></button>
+            <button><a href="../feed.html">Arxiv daily</a></button>
+        </div>
+    </FloatingWindow>
+    
     <div class="main shadow">
         <div class="button">
             <!-- <button @click="logout">Logout</button> -->
@@ -59,8 +72,12 @@
                 <img id="logoutIcon" class="icon" src="../assets/icons/logout.svg" alt="Logout">
                 <label for="logoutIcon" id="logoutIconLabel">Logout</label>
             </span>
+            <span class="hoverMaxout105 button" @click="()=>{showNavigation = !showNavigation}">
+                <img id="exploreIcon" class="icon" src="../assets/icons/explore.svg" alt="Navigation">
+                <label for="exploreIcon" id="exploreIconLabel">Explore</label>
+            </span>
             <span class="hoverMaxout105 button" @click="(_)=>toggleTheme()">
-                <img id="themeIcon" class="icon" src="../assets/icons/bulb_tips.svg" alt="Logout">
+                <img id="themeIcon" class="icon" src="../assets/icons/bulb_tips.svg" alt="ThemeMode">
                 <label for="themeIcon" id="themeIconLabel">{{ themeLabel }}</label>
             </span>
         </div>
@@ -75,6 +92,16 @@
 </template>
 
 <style scoped>
+    div#exploreContainer{
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        min-width: 100px;
+    }
+    div#exploreContainer button{
+        background-color: var(--color-background-soft);
+        border: 1px solid var(--color-border);
+    }
     div.main{
         display: flex;
         align-items: center;
