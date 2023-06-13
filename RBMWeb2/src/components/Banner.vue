@@ -95,11 +95,15 @@
     div#exploreContainer{
         display: flex;
         flex-direction: column;
-        gap: 15px;
         min-width: 100px;
+        padding: 10px;
+        padding-left: 15px;
+        padding-right: 15px;
+        gap: 20px;
     }
     div#exploreContainer a{
         min-height: 2.5em;
+        min-width: 8em;
         display: flex;
         align-items: center;
         justify-content: center;
