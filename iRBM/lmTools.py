@@ -69,13 +69,6 @@ async def vectorize(
             _model = AutoModel.from_pretrained(model_name).to(device)
         return _tokenizer, _model
 
-    if max_len is None:
-        if model_name == "distilbert-base-uncased": max_len = 512
-        elif model_name == "bert-base-uncased": max_len = 512
-        elif model_name == "yikuan8/Clinical-Longformer": max_len = 4096
-        elif model_name == "allenai/longformer-base-4096": max_len = 4096
-        elif model_name == "sentence-transformers/all-mpnet-base-v2": max_len = 512
-    
     try:
         g_auto_models[model_name]
     except KeyError:
@@ -85,8 +78,17 @@ async def vectorize(
     auto_tokenizer = g_auto_tokenizers[model_name]
     auto_model = g_auto_models[model_name]
 
+    if max_len is None:
+        # if model_name == "distilbert-base-uncased": max_len = 512
+        # elif model_name == "bert-base-uncased": max_len = 512
+        # elif model_name == "yikuan8/Clinical-Longformer": max_len = 4096
+        # elif model_name == "allenai/longformer-base-4096": max_len = 4096
+        # elif model_name == "sentence-transformers/all-mpnet-base-v2": max_len = 512
+        max_len = auto_tokenizer.model_max_length
+    
+
     # Tokenize sentences
-    encoded_input = auto_tokenizer(txt, padding=True, truncation=True, return_tensors='pt')
+    encoded_input = auto_tokenizer(txt, padding=True, truncation=True, return_tensors='pt').to(device)
 
     # Compute token embeddings
     with torch.no_grad():

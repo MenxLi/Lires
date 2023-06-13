@@ -89,6 +89,7 @@ def main():
     args = parser.parse_args()
 
     initLogger(args.log_level)
+    logger.info("Using device: {}".format(autoTorchDevice()))
 
     config.openai_api_base = args.openai_api_base
     config.fastchat_api_base = args.fastchat_api_base
