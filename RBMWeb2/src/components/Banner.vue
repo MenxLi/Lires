@@ -58,10 +58,10 @@
 </script>
 
 <template>
-    <FloatingWindow v-if="showNavigation" @onClose="showNavigation=!showNavigation">
+    <FloatingWindow v-if="showNavigation" @onClose="showNavigation=!showNavigation" title="Navigation">
         <div id="exploreContainer">
-            <button><a href="../index.html">Home</a></button>
-            <button><a href="../feed.html">Arxiv daily</a></button>
+            <a href="../index.html">Home</a>
+            <a href="../feed.html">Arxiv daily</a>
         </div>
     </FloatingWindow>
     
@@ -98,9 +98,20 @@
         gap: 15px;
         min-width: 100px;
     }
-    div#exploreContainer button{
-        background-color: var(--color-background-soft);
+    div#exploreContainer a{
+        min-height: 2.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-background-mute);
         border: 1px solid var(--color-border);
+        border-radius: 5px;
+        color: var(--color-text);
+    }
+    div#exploreContainer a:hover{
+        background-color: var(--theme-hover-highlight-color);
+        box-shadow: 0 1px 3px 2px var(--color-shadow);
+        transition: all 0.2s;
     }
     div.main{
         display: flex;
