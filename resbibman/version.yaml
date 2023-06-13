@@ -266,3 +266,9 @@ version_history:
     - Fix - rbm-reserconf dependency chicken and egg problem
     - update_src.py update
     - Some refactors
+  0.12.3:
+    - Arxiv daily
+    - RBMWeb updates - explore, theme settings for session, file row update
+    - Update node packages
+    - RBMServer collect handler and iserverproxy handler
+    - GUI - Allow multiple delete, abstract in info panel
