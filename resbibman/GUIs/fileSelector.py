@@ -144,11 +144,11 @@ class FileSelector(FileSelectorGUI):
         disable_wids = [
             self.act_edit_bib,
             self.act_open_location,
-            self.act_delete_file,
+            # self.act_delete_file,
             self.act_add_file,
             self.act_free_doc,
             self.act_export_data,
-            self.shortcut_delete_selection,
+            # self.shortcut_delete_selection,
             # self.shortcut_open_tagedit,
         ]
         for wid in disable_wids:
@@ -401,27 +401,31 @@ class FileSelector(FileSelectorGUI):
         sort_reverse = getConf()["sort_reverse"]
         self.data_model.sortBy(sort_method, reverse=sort_reverse)
     
-    def _deleteFromDatabase(self, data: DataPoint):
-        if data.uuid in self.getMainPanel().db.keys():
-            res = self.getMainPanel().db.delete(data.uuid)
-            if not res:
-                self.warnDialog("Incomplete deletion", "Check log for more information")
-    
     def deleteCurrentSelected(self):
-        query_line = "Delete this entry?"
+        indexes = self.data_view.selectedIndexes()
+        if not indexes:
+            return False
+        row_unique = list(set([i.row() for i in indexes]))
+        row_unique.sort()   # sort to ascending order, so that the index will not be wrong
+
+        query_line = "Delete these entry?"
         if not self.getMainPanel().database.offline:
-            query_line += "\n(Will delete remote file as well)"
+            query_line += "\n(Will delete remote file as well)\n"
+        query_line += "\n".join(["*" + str(self.data_model.datalist[i]) for i in row_unique])
         if not self.queryDialog(query_line):
             return 
-        indexes = self.data_view.selectedIndexes()
-        if indexes:
-            index = indexes[0]
-        else:return False
-        data = self.data_model.datalist[index.row()]
-        self._deleteFromDatabase(data)
-        del self.data_model.datalist[index.row()]
+
+        ALL_SUCCESS = True
+        for row in row_unique[::-1]:            # must delete from the end!, otherwise index will be wrong
+            data = self.data_model.datalist[row]
+            res = self.database.delete(data.uuid)
+            if not res:
+                ALL_SUCCESS = False
+            del self.data_model.datalist[row]
+        if not ALL_SUCCESS:
+            self.warnDialog("Incomplete deletion", "Check log for more information")
+
         self.data_model.layoutChanged.emit()
-        #self.getMainPanel.refreshFileTagSelector()
         self.reloadData()
 
     def exportData(self):
