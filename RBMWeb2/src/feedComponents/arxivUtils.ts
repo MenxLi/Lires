@@ -9,9 +9,6 @@ export interface ArxivArticle {
   updatedTime: string;
   publishedTime: string;
 }
-export interface ArxivArticleWithFeatures extends ArxivArticle{
-  features: number[] | null,
-}
 
 export async function fetchArxivFeed(
   maxResults: number = 10,
@@ -44,7 +41,6 @@ export async function fetchArxivFeed(
 
   if (entries && Array.isArray(entries)) {
     const articles: ArxivArticle[] = entries.map((entry: any) => {
-      console.log(entry)
       const id = entry.id.split('/').pop();
       const link = entry.id;
       const title = entry.title;
@@ -52,7 +48,7 @@ export async function fetchArxivFeed(
       const authors = getAuthors(entry);
       const updatedTime = entry.updated;
       const publishedTime = entry.published;
-      return { id, link, title, abstract, authors, updatedTime, publishedTime };
+      return { id, link, title, abstract, authors, updatedTime, publishedTime};
     });
 
     return articles;

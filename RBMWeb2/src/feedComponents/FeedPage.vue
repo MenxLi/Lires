@@ -1,8 +1,8 @@
 
 <script setup lang="ts">
-    import { ref, computed} from 'vue';
+    import { ref, computed, Ref} from 'vue';
     import { fetchArxivFeed } from './arxivUtils.ts';
-    import { ArxivArticleWithFeatures } from './arxivUtils.ts';
+    import { ArxivArticle } from './arxivUtils.ts';
 
     import { ServerConn } from '../core/serverConn';
     import { getCookie } from '../libs/cookie';
@@ -10,6 +10,10 @@
     import Banner from '../components/Banner.vue';
 
     import ArticleBlock from './ArticleBlock.vue';
+
+    export interface ArxivArticleWithFeatures extends ArxivArticle{
+        features: Ref<number[] | null>,
+    }
 
     // authentication
     const conn = new ServerConn();
@@ -22,7 +26,8 @@
         },
     )
 
-    // props and data
+    // search and main data structure
+    const fetchCategory = ref("cat:cs.CV");
     const searchText = ref("");
     const searchFeature = ref(null as null | number[]);
     const arxivArticles = ref([] as ArxivArticleWithFeatures[]);
@@ -50,7 +55,7 @@
     })
 
 
-    function onSearchChanged(){
+    function updateSearchFeature(){
         // update searchFeature
         if (searchText.value.trim() === ""){
             searchFeature.value = null;
@@ -66,42 +71,54 @@
         )
     }
 
-    // MAIN: fetch arxiv feed
     const urlSearchParams = new URLSearchParams(window.location.search);    // get maxResults from url
     let maxResults = parseInt(urlSearchParams.get("maxResults") as string) || 25;
     if (maxResults > 100){ maxResults = 100; }
     let initSearchString = urlSearchParams.get("search") as string || "";
     if (initSearchString !== ""){
         searchText.value = initSearchString;
-        onSearchChanged();
     }
-    fetchArxivFeed(
-        maxResults , 
-        "cat:cs.CV OR cat:cs.AI", 
-        ).then(
-        (articles) => {
-            for (const article of articles){
-                const article_with_features = article as ArxivArticleWithFeatures;
-                article_with_features.features = null;
-                arxivArticles.value.push(article_with_features);
-                conn.featurize(article.abstract).then(
-                    (features) => {
-                        article_with_features.features = features;
-                    },
-                    () => {
-                        console.log("failed to featurize: ", article.id);
-                    },
-                )
-            }
-        },
-    )
+    function runFetchArticles(){
+        arxivArticles.value = [];
+        fetchArxivFeed(
+            maxResults , 
+            fetchCategory.value, 
+            ).then(
+            (articles) => {
+                for (const article of articles){
+                    const article_with_features = article as ArxivArticleWithFeatures;
+                    article_with_features.features = ref(null);
+                    arxivArticles.value.push(article_with_features);
+                    conn.featurize(article.abstract).then(
+                        // update article features
+                        (features) => {
+                            article_with_features.features.value = features;
+                        },
+                        () => {
+                            console.log("failed to featurize: ", article.id);
+                        },
+                    )
+                }
+            },
+        )
+        updateSearchFeature();
+    }
+
+    // MAIN: fetch arxiv feed
+    runFetchArticles();
 </script>
 
 <template>
     <div id="main">
         <Banner :showSearch="false"></Banner>
         <h1>Arxiv daily</h1>
-        <input type="text" placeholder="Search" @input="onSearchChanged" v-model="searchText">
+        <div id="settings">
+            <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">
+                <option value="cat:cs.CV">cs.CV</option>
+                <option value="cat:cs.AI">cs.AI</option>
+            </select>
+            <input type="text" placeholder="Search" @input="updateSearchFeature" v-model="searchText">
+        </div>
         <h2 v-if="sortedArxivArticles.length===0">Fetching...</h2>
         <ArticleBlock v-for="article in sortedArxivArticles" :article="article"></ArticleBlock>
     </div>
@@ -112,5 +129,11 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
+    }
+    div#settings{
+        display: flex;
+        flex-direction: row;
+        justify-content:center;
+        align-items: center;
     }
 </style>
