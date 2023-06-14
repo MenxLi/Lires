@@ -49,9 +49,10 @@ div.header {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  padding: 10px;
 }
 
-.floating-window label{
+.header label, .header span{
   font-size: x-small;
   color: var(--color-text);
   opacity: 0.5;
@@ -66,7 +67,6 @@ div.header {
   /* border: 1px solid #ccc; */
   border: 1px solid var(--color-border);
   border-radius: 5px;
-  padding: 8px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
