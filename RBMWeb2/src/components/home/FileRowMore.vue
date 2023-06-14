@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { DataPoint } from '../core/dataClass';
+import { DataPoint } from '../../core/dataClass';
 
 const props = defineProps<{
     datapoint: DataPoint
