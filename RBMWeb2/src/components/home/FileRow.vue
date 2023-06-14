@@ -5,6 +5,7 @@
     import FileRowMore from './FileRowMore.vue';
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
+    import { useUIStateStore } from '../store';
 
     const NOTE_FULLSHOW_THRESHOLD = 12;
     const NOTE_SHOW_THRESHOLD = 1;
@@ -14,7 +15,11 @@
     }>()
 
     // record if show more is toggled
-    const showMore = ref(false);
+    // const showMore = ref(false);
+    const uiState = useUIStateStore();
+    const showMore = computed(() => {
+        return uiState.unfoldedDataUIDs.includes(props.datapoint.info.uuid);
+    })
     // record if mouse is hovering on authorYear div
     const isHoveringAuthorYear = ref(false);
 
@@ -34,7 +39,13 @@
         }
         if (!isChildDOMElement(event.target as HTMLElement, moreDiv.value!)){
             // toggle show more
-            showMore.value = !showMore.value;
+            if (showMore.value){
+                uiState.unfoldedDataUIDs = uiState.unfoldedDataUIDs.filter(uid => uid !== props.datapoint.info.uuid);
+            }
+            else{
+                // uiState.unfoldedDataUIDs.push(props.datapoint.info.uuid);
+                uiState.unfoldedDataUIDs = [props.datapoint.info.uuid];
+            }
         }
         else{
             // showMore.value = !showMore.value;
