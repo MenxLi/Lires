@@ -2,7 +2,7 @@
 <script setup lang="ts">
 
     import { ref, computed, onMounted, type Ref } from "vue";
-    import type {SearchStatus} from "./_interface"
+    import type {SearchStatus} from "./home/_interface"
     import { checkCookieLogout, cookieLogout } from "../core/auth";
     import { ThemeMode } from "../core/misc";
     import FloatingWindow from "./common/FloatingWindow.vue";

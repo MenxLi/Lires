@@ -5,11 +5,11 @@
     import { getCookie } from "./libs/cookie";
     import { useUIStateStore, useDataStore } from "./components/store";
     import { DataTags } from "./core/dataClass";
-    import FileTags from "./components/FileTags.vue";
-    import FileSelector from "./components/FileSelector.vue";
+    import FileTags from "./components/home/FileTags.vue";
+    import FileSelector from "./components/home/FileSelector.vue";
     import Banner from "./components/Banner.vue";
 
-    import type { SearchStatus } from "./components/_interface";
+    import type { SearchStatus } from "./components/home/_interface";
 
     // check login
     const conn = new ServerConn();

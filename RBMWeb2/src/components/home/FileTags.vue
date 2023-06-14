@@ -1,8 +1,8 @@
 
 <script setup lang="ts">
-    import { DataTags } from '../core/dataClass';
+    import { DataTags } from '../../core/dataClass';
     import TagSelector from './TagSelector.vue';
-    import { useUIStateStore } from './store';
+    import { useUIStateStore } from '../store';
     import type { TagCheckStatus } from './_interface';
 
     const emit = defineEmits<{

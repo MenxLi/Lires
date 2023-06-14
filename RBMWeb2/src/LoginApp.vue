@@ -9,7 +9,6 @@ ThemeMode.setDefaultDarkMode();
   <div id="main">
     <Login/>
     <label for="login" id="info">
-      <!-- Need assistant? - <a href="mailto:mengxunli@whu.edu.cn">contact me</a> -->
       Need assistant? - <a :href="`mailto:${MAINTAINER.email}`">contact me</a>
     </label>
   </div>

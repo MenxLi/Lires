@@ -1,7 +1,7 @@
 import type { DataInfoT, SearchResultant } from "./protocalT";
 import { ServerConn } from "./serverConn";
 import { getBackendURL } from "../config";
-import type { SearchStatus } from "../components/_interface";
+import type { SearchStatus } from "../components/home/_interface";
 import { getCookie } from "../libs/cookie";
 
 export interface TagHierarchy extends Record<string, TagHierarchy>{};

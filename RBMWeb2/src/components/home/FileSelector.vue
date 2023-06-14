@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
     import FileRow from './FileRow.vue';
-    import {useUIStateStore, useDataStore } from './store';
+    import {useUIStateStore, useDataStore } from '../store';
 
     const uiState = useUIStateStore();
     const dataStore = useDataStore();

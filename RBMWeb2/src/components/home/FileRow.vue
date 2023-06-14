@@ -3,8 +3,8 @@
 
     import { ref, computed } from 'vue';
     import FileRowMore from './FileRowMore.vue';
-    import { isChildDOMElement } from '../core/misc';
-    import { DataPoint } from '../core/dataClass';
+    import { isChildDOMElement } from '../../core/misc';
+    import { DataPoint } from '../../core/dataClass';
 
     const NOTE_FULLSHOW_THRESHOLD = 12;
     const NOTE_SHOW_THRESHOLD = 1;

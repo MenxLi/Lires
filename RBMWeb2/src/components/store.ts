@@ -1,7 +1,7 @@
 
 import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
-import type { SearchStatus } from './_interface'
+import type { SearchStatus } from './home/_interface'
 
 export const useUIStateStore = defineStore(
     "uiStatus", {

@@ -3,11 +3,11 @@
 <script setup lang="ts">
 
     import {ref, computed} from "vue";
-    import Toggle from "./common/Toggle.vue";
+    import Toggle from "../common/Toggle.vue";
     import TagCollapsibleToggle from "./TagCollapsibleToggle.vue"
-    import { TAG_SEP } from '../core/dataClass';
-    import { useUIStateStore } from "./store";
-    import type { TagHierarchy } from "../core/dataClass";
+    import { TAG_SEP } from '../../core/dataClass';
+    import { useUIStateStore } from "../store";
+    import type { TagHierarchy } from "../../core/dataClass";
 
     const uiState = useUIStateStore()
 
