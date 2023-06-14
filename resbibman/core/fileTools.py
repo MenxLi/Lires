@@ -417,18 +417,18 @@ class FileManipulator:
                 os.mkdir(_backup_dir)
             old_entry = self.conn[self.uuid]    # must be called in advance to prevent dead lock
             with DBConnection(_backup_dir) as trash_db:
-                trash_db.addEntry(
+                _success = trash_db.addEntry(
                     old_entry["bibtex"], 
                     old_entry["abstract"], 
                     old_entry["comments"], 
                     doc_ext="",     # ignore the file
                     doc_info = DocInfo.fromString(old_entry["info_str"])
                     )
-                # copy files... if exists
-                if self.hasFile():
-                    _addDocumentFile(trash_db, self.uuid, self.file_p)
-                if self.hasMisc():
-                    shutil.copytree(self._misc_dir, os.path.join(_backup_dir, self.uuid))
+                if _success:    # otherwise, maybe duplicate entry
+                    if self.hasFile():
+                        _addDocumentFile(trash_db, self.uuid, self.file_p)
+                    if self.hasMisc():
+                        shutil.copytree(self._misc_dir, os.path.join(_backup_dir, self.uuid))
             self.logger.debug("(fm) deleteEntry: {} (backup created)".format(self.uuid))
         
         if self.hasFile():
