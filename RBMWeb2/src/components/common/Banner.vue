@@ -1,35 +1,11 @@
 
 <script setup lang="ts">
 
-    import { ref, computed, onMounted, type Ref } from "vue";
-    import type {SearchStatus} from "../home/_interface"
-    import { checkCookieLogout, cookieLogout } from "../../core/auth";
+    import { ref, computed } from "vue";
+    import { cookieLogout } from "../../core/auth";
     import { ThemeMode } from "../../core/misc";
     import FloatingWindow from "./FloatingWindow.vue";
     import BannerIcon from "./BannerIcon.vue";
-
-    const props = withDefaults(defineProps<{
-        searchText: string,
-        showSearch: boolean,
-    }>(), {
-        "searchText": "",
-        "showSearch": true,
-    })
-    const searchTypesPool = ref(["general", "title", "feature"])
-
-    const emit = defineEmits<{
-        (e: "onSearchChange", status: SearchStatus):void
-    }>();
-    
-    const searchInput = ref(props.searchText)
-    const searchSelector: Ref<HTMLSelectElement | null> = ref(null)
-    function _onSearchChange(_: Event){
-        const status: SearchStatus = {
-            searchBy: searchSelector.value!.value,
-            content: searchInput.value
-        }
-        emit("onSearchChange", status);
-    }
 
     // logout related
     function logout(){
@@ -52,10 +28,6 @@
         _currentDarkTheme.value = !_currentDarkTheme.value;
     }
 
-    onMounted(() => {
-        searchSelector.value!.focus()
-    })
-
 </script>
 
 <template>
@@ -72,13 +44,7 @@
             <BannerIcon icon_src="../../assets/icons/explore.svg" label_text="Explore" @onClick="()=>{showNavigation = !showNavigation}"/>
             <BannerIcon icon_src="../../assets/icons/bulb_tips.svg" :label_text="themeLabel" @onClick="()=>toggleTheme()"/>
         </div>
-        <div v-if="!checkCookieLogout() && props.showSearch" class="searchbar">
-            <label for="searchbar"> Search: </label>
-            <select ref="searchSelector" name="search_type" id="searchType" @change="_onSearchChange">
-                <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
-            </select>
-            <input id="searchbar" type="text" v-model="searchInput" @input="_onSearchChange">
-        </div>
+        <slot> <!-- some additional components --> </slot>
     </div>
 </template>
 

@@ -114,7 +114,7 @@
 
 <template>
     <div id="main">
-        <Banner :showSearch="false"></Banner>
+        <Banner></Banner>
         <h1>Arxiv daily</h1>
         <div id="settings">
             <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">

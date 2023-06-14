@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { ref, computed, onMounted } from "vue";
+    import type { Ref } from "vue";
     import { FRONTENDURL } from "../config";
     import { ServerConn } from "../core/serverConn";
     import { getCookie } from "../libs/cookie";
@@ -31,11 +32,6 @@
         }
     );
 
-    function onSearchChanged(status: SearchStatus){
-        uiState.searchState = status;
-        uiState.updateShownData();
-    }
-
     // not show fileTag panel on small screen
     let windowWidth = ref(window.innerWidth);
     onMounted(() => {
@@ -53,11 +49,34 @@
         uiState.unfoldedTags = uiState.currentlySelectedTags.withParents().pop(uiState.currentlySelectedTags)
     }
 
+    // search refealated
+    const searchTypesPool = ["general", "title", "feature"];
+    const searchInput = ref("")
+    const searchSelector: Ref<HTMLSelectElement | null> = ref(null)
+    function onSearchChanged(){
+        const status: SearchStatus = {
+            searchBy: searchSelector.value!.value,
+            content: searchInput.value
+        }
+        uiState.searchState = status;
+        console.log(status);
+        uiState.updateShownData();
+    }
+
+
 </script>
 
 <template>
     <div id="main" class="gradIn">
-        <Banner :searchText="uiState.searchState['content']" @onSearchChange="onSearchChanged"></Banner>
+        <Banner>
+            <div class="searchbar">
+                <label for="searchbar"> Search: </label>
+                <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
+                    <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
+                </select>
+                <input id="searchbar" type="text" v-model="searchInput" @input="onSearchChanged">
+            </div>
+        </Banner>
         <div class="horizontal fullHeight">
             <FileTags v-if="showFileTags" @onCheck="() => uiState.updateShownData()"></FileTags>
             <FileSelector></FileSelector>
