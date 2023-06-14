@@ -6,6 +6,7 @@
     import { checkCookieLogout, cookieLogout } from "../../core/auth";
     import { ThemeMode } from "../../core/misc";
     import FloatingWindow from "./FloatingWindow.vue";
+    import BannerIcon from "./BannerIcon.vue";
 
     const props = withDefaults(defineProps<{
         searchText: string,
@@ -67,19 +68,9 @@
     
     <div class="main shadow">
         <div class="button">
-            <!-- <button @click="logout">Logout</button> -->
-            <span v-if="!checkCookieLogout()" class="hoverMaxout105 button" @click="logout">
-                <img id="logoutIcon" class="icon" src="../../assets/icons/logout.svg" alt="Logout">
-                <label for="logoutIcon" id="logoutIconLabel">Logout</label>
-            </span>
-            <span class="hoverMaxout105 button" @click="()=>{showNavigation = !showNavigation}">
-                <img id="exploreIcon" class="icon" src="../../assets/icons/explore.svg" alt="Navigation">
-                <label for="exploreIcon" id="exploreIconLabel">Explore</label>
-            </span>
-            <span class="hoverMaxout105 button" @click="(_)=>toggleTheme()">
-                <img id="themeIcon" class="icon" src="../../assets/icons/bulb_tips.svg" alt="ThemeMode">
-                <label for="themeIcon" id="themeIconLabel">{{ themeLabel }}</label>
-            </span>
+            <BannerIcon icon_src="../../assets/icons/logout.svg" label_text="Logout" @onClick="logout"/>
+            <BannerIcon icon_src="../../assets/icons/explore.svg" label_text="Explore" @onClick="()=>{showNavigation = !showNavigation}"/>
+            <BannerIcon icon_src="../../assets/icons/bulb_tips.svg" :label_text="themeLabel" @onClick="()=>toggleTheme()"/>
         </div>
         <div v-if="!checkCookieLogout() && props.showSearch" class="searchbar">
             <label for="searchbar"> Search: </label>
@@ -132,24 +123,5 @@
         display: flex;
         align-items: center;
         gap: 3px;
-    }
-    select.searchType{
-        font-size: smaller;
-    }
-    span.button{
-        padding: 3px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        font-size: smaller;
-    }
-    span.button:hover{
-        background-color: var(--theme-hover-highlight-color);
-        box-shadow: 0 1px 3px 2px var(--color-shadow);
-        transition: all 0.2s;
-    }
-    img.icon {
-        height: 20px;
-        filter: invert(0.5) opacity(0.75) drop-shadow(0 0 0 var(--color-border)) ;
     }
 </style>
