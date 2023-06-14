@@ -32,7 +32,7 @@ export const useUIStateStore = defineStore(
                 const dataStore = useDataStore();
                 const tagFilteredDataPoints = dataStore.database.getDataByTags(this.currentlySelectedTags);
                 DataSearcher.filter(tagFilteredDataPoints, this.searchState).then(
-                    (datapoints: DataPoint[]) => this.shownDataUIDs = datapoints.map((dp) => dp.info.uuid)
+                    (datapoints: DataPoint[]) => this.shownDataUIDs = datapoints.map((dp) => dp.summary.uuid)
                 )
             }
         }

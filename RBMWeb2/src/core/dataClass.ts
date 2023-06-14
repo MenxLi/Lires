@@ -131,66 +131,66 @@ export class TagRule {
 }
 
 export class DataPoint {
-    info: DataInfoT;
+    summary: DataInfoT;
     constructor(summary: DataInfoT) {
-        this.info = summary;
+        this.summary = summary;
     }
 
     requestAbstract(): Promise<string> {
-        return new ServerConn().reqAbstract(this.info.uuid);
+        return new ServerConn().reqAbstract(this.summary.uuid);
     }
 
     authorAbbr(): string {
         let end = "";
-        if (this.info.authors.length > 1) {
+        if (this.summary.authors.length > 1) {
             end = " et al.";
         }
-        return this.info.authors[0] + end;
+        return this.summary.authors[0] + end;
     }
 
     authorYear(): string{
-        return `${this.authorAbbr()} ${this.info.year}`
+        return `${this.authorAbbr()} ${this.summary.year}`
     }
 
     yearAuthor(hyphen=" "): string{
-        return `${this.info.year}${hyphen}${this.authorAbbr()}`
+        return `${this.summary.year}${hyphen}${this.authorAbbr()}`
     }
 
     getOpenDocURL(): string {
-        const uid = this.info.uuid;
-        if (this.info["has_file"] && this.info["file_type"] == ".pdf"){
+        const uid = this.summary.uuid;
+        if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             return `${getBackendURL()}/doc/${uid}`
         }
-        if (this.info["has_file"] && this.info["file_type"] == ".hpack"){
+        if (this.summary["has_file"] && this.summary["file_type"] == ".hpack"){
             return `${getBackendURL()}/hdoc/${uid}/`
         }
-        if (!this.info["has_file"] && this.info["url"]){
-            return this.info.url;
+        if (!this.summary["has_file"] && this.summary["url"]){
+            return this.summary.url;
         }
         return ""
     }
 
     getOpenNoteURL(): string {
-        const uid = this.info.uuid;
+        const uid = this.summary.uuid;
         return `${getBackendURL()}/comment/${uid}/`;
     }
 
     getOpenSummaryURL(): string {
-        const uid = this.info.uuid;
+        const uid = this.summary.uuid;
         return `${getBackendURL()}/summary?uuid=${uid}&key=${getCookie("encKey")}`;
     }
 
     docType(): "" | "pdf" | "url" | "hpack" | "unknown" {
-        if (this.info["has_file"] && this.info["file_type"] == ".pdf"){
+        if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             return "pdf";
         }
-        else if (this.info["has_file"] && this.info["file_type"] == ".hpack"){
+        else if (this.summary["has_file"] && this.summary["file_type"] == ".hpack"){
             return "hpack";
         }
-        else if (!this.info["has_file"] && this.info["url"]){
+        else if (!this.summary["has_file"] && this.summary["url"]){
             return "url";
         }
-        else if (!this.info["has_file"] && !this.info["url"]){
+        else if (!this.summary["has_file"] && !this.summary["url"]){
             return "";
         }
         else {
@@ -233,7 +233,7 @@ export class DataBase {
         // let all_tags: Set<string> = new Set(["hello", "world"]);
         let all_tags: Set<string> = new Set();
         for (const data of this){
-            _tags = data.info["tags"];;
+            _tags = data.summary["tags"];;
             for (const t of _tags){
                 all_tags.add(t);
             }
@@ -246,7 +246,7 @@ export class DataBase {
         const valid_data = [];
         for (const uid in this.data){
             const data = this.data[uid];
-            const data_tag = new DataTags(data.info["tags"]);
+            const data_tag = new DataTags(data.summary["tags"]);
             if (tags.issubset(data_tag.withParents())) {
                 valid_data.push(data)
             }
@@ -266,7 +266,7 @@ export class DataSearcher{
         }
         const valid_uids = new Set();
         for (const dp of datapoints){
-            valid_uids.add(dp.info.uuid);
+            valid_uids.add(dp.summary.uuid);
         }
 
         const dp_new: DataPoint[] = new Array();
@@ -277,9 +277,9 @@ export class DataSearcher{
             const res = await conn.search("searchFeature", {"pattern": searchStatus.content , "n_return": 999});
             const scores: number[] = new Array();
             for (const dp of datapoints){
-                if (res[dp.info.uuid]){
+                if (res[dp.summary.uuid]){
                     dp_new.push(dp);
-                    const score = (res[dp.info.uuid] as SearchResultant).score as number;   // score exists on feature search
+                    const score = (res[dp.summary.uuid] as SearchResultant).score as number;   // score exists on feature search
                     scores.push(score);
                 }
             }
@@ -290,14 +290,14 @@ export class DataSearcher{
         // local search
         if (searchStatus.searchBy.toLowerCase() === "title"){
             for (const dp of datapoints){
-                if (dp.info.title.toLowerCase().search(pattern) !== -1){
+                if (dp.summary.title.toLowerCase().search(pattern) !== -1){
                     dp_new.push(dp);
                 }
             }
         }
         else if (searchStatus["searchBy"].toLowerCase() === "general"){
             for (const dp of datapoints){
-                const toSearch = `${dp.info.title}|${dp.info.authors.join(", ")}|${dp.info.year}`.toLowerCase()
+                const toSearch = `${dp.summary.title}|${dp.summary.authors.join(", ")}|${dp.summary.year}`.toLowerCase()
                 if (toSearch.search(pattern) !== -1){ dp_new.push(dp); }
             }
         }
@@ -310,9 +310,9 @@ export class DataSearcher{
     // sort datapoints by default method, the later added, the first (descending order)
     static sortDefault(datapoints: DataPoint[], reverse = false): DataPoint[]{
         if (reverse){
-            return datapoints.sort((a, b) => a.info.time_added - b.info.time_added)
+            return datapoints.sort((a, b) => a.summary.time_added - b.summary.time_added)
         }
-        return datapoints.sort((b, a) => a.info.time_added - b.info.time_added)
+        return datapoints.sort((b, a) => a.summary.time_added - b.summary.time_added)
     }
 
     // return a list of datapoints that are sorted by scores

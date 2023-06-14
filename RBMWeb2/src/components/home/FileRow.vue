@@ -18,7 +18,7 @@
     // const showMore = ref(false);
     const uiState = useUIStateStore();
     const showMore = computed(() => {
-        return uiState.unfoldedDataUIDs.includes(props.datapoint.info.uuid);
+        return uiState.unfoldedDataUIDs.includes(props.datapoint.summary.uuid);
     })
     // record if mouse is hovering on authorYear div
     const isHoveringAuthorYear = ref(false);
@@ -40,11 +40,11 @@
         if (!isChildDOMElement(event.target as HTMLElement, moreDiv.value!)){
             // toggle show more
             if (showMore.value){
-                uiState.unfoldedDataUIDs = uiState.unfoldedDataUIDs.filter(uid => uid !== props.datapoint.info.uuid);
+                uiState.unfoldedDataUIDs = uiState.unfoldedDataUIDs.filter(uid => uid !== props.datapoint.summary.uuid);
             }
             else{
                 // uiState.unfoldedDataUIDs.push(props.datapoint.info.uuid);
-                uiState.unfoldedDataUIDs = [props.datapoint.info.uuid];
+                uiState.unfoldedDataUIDs = [props.datapoint.summary.uuid];
             }
         }
         else{
@@ -86,18 +86,18 @@
             <div id="titleStatus" class="row">
                 <div id="statusDiv">
                     <div class="status">
-                        <img v-if="datapoint.info.file_type == '.pdf'" src="../../assets/icons/pdf_fill.svg" alt="" class="icon">
-                        <img v-else-if="datapoint.info.url" src="../../assets/icons/cloud_fill.svg" alt="" class="icon">
+                        <img v-if="datapoint.summary.file_type == '.pdf'" src="../../assets/icons/pdf_fill.svg" alt="" class="icon">
+                        <img v-else-if="datapoint.summary.url" src="../../assets/icons/cloud_fill.svg" alt="" class="icon">
                         <img v-else src="../../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
                     </div>
 
                     <div class="status">
-                        <img v-if="datapoint.info.note_linecount>NOTE_FULLSHOW_THRESHOLD" src="../../assets/icons/note_fill.svg" alt="" class="icon">
-                        <img v-else-if="datapoint.info.note_linecount>NOTE_SHOW_THRESHOLD" src="../../assets/icons/note.svg" alt="" class="icon">
+                        <img v-if="datapoint.summary.note_linecount>NOTE_FULLSHOW_THRESHOLD" src="../../assets/icons/note_fill.svg" alt="" class="icon">
+                        <img v-else-if="datapoint.summary.note_linecount>NOTE_SHOW_THRESHOLD" src="../../assets/icons/note.svg" alt="" class="icon">
                         <img v-else src="../../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
                     </div>
                 </div>
-                <div id="title" class="text"><p>{{ datapoint.info.title }}</p></div>
+                <div id="title" class="text"><p>{{ datapoint.summary.title }}</p></div>
             </div>
         </div>
         <div id="more" v-show="showMore" ref="moreDiv">
