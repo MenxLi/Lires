@@ -27,7 +27,6 @@ export class ServerConn {
                 throw new Error(`Got response: ${response.status}`);
             }
     }
-
     
     async reqFileList( tags: string[] ): Promise<DataInfoT[]>{
         const concatTags = tags.join("&&");
@@ -44,6 +43,19 @@ export class ServerConn {
             throw new Error(`Got response: ${response.status}`)
         }
     };
+
+    async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
+        const url = new URL(`${getBackendURL()}/fileinfo/${uid}`);
+        const response = await fetch(url.toString());
+        if (response.ok){
+            const resObj = await response.json();
+            const DataInfo: DataInfoT = resObj;
+            return DataInfo;
+        }
+        else {
+            throw new Error(`Got response: ${response.status}`)
+        }
+    }
 
     async search(method: string, kwargs: any): Promise<SearchResult>{
         const params = new URLSearchParams();
@@ -129,6 +141,27 @@ export class ServerConn {
             return res
         }
         else{
+            throw new Error(`Got response: ${response.status}`);
+        }
+    }
+
+    // ============== Manipulate data ==============
+    async deleteData(uid: string): Promise<boolean>{
+        const url = new URL(`${getBackendURL()}/dataman/delete`);
+        url.searchParams.append("key", getCookie("encKey"));
+        url.searchParams.append("uuid", uid);
+
+        const response = await fetch(url.toString(),
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/x-www-form-urlencoded"
+                },
+            }
+        );
+        if (response.ok && response.status === 200) {
+            return true;
+        } else {
             throw new Error(`Got response: ${response.status}`);
         }
     }

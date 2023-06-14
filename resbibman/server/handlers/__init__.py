@@ -9,3 +9,5 @@ from .search import SearchHandler
 from .summary import SummaryHandler, SummaryPostHandler
 from .collect import CollectHandler
 from .iServerProxy import IServerProxyHandler
+
+from .dataMan import *

@@ -136,8 +136,26 @@ export class DataPoint {
         this.summary = summary;
     }
 
+    toString(){
+        return `${this.summary.title} - ${this.authorAbbr()} (${this.summary.year}) [uid: ${this.summary.uuid}]`
+    }
+
     requestAbstract(): Promise<string> {
         return new ServerConn().reqAbstract(this.summary.uuid);
+    }
+
+    update(): Promise<DataInfoT> {
+        const res = new ServerConn().reqDatapointSummary(this.summary.uuid);
+        res.then((data) => {
+            data['title'] = "Hello"
+            this.summary = data;
+        })
+        return res;
+    }
+
+    destory() {
+        // make this datapoint a zombie
+        this.summary = _dummyDataSummary;
     }
 
     authorAbbr(): string {
@@ -199,6 +217,23 @@ export class DataPoint {
     }
 }
 
+const _dummyDataSummary = {
+    has_file : false,
+    file_type: "",
+    year: "0000",
+    title: " ",
+    author: " ",
+    authors: [" "],
+    tags: [],
+    uuid: " ",
+    url: "#",
+    time_added: 0.,
+    time_modified: 0.,
+    bibtex: "",
+    doc_size: 0,
+    note_linecount: 0,
+}
+
 export class DataBase {
     data: Record<string, DataPoint>;
 
@@ -220,17 +255,36 @@ export class DataBase {
         }
     }
 
-    add(summary: DataInfoT): void {
+    add(summary: DataInfoT): DataPoint {
         this.data[summary.uuid] = new DataPoint(summary);
+        return this.data[summary.uuid];
+    }
+
+    delete(uuid: string): Promise<boolean>{
+        return new Promise((resolve) => {
+            new ServerConn().deleteData(uuid).then((res) => {
+                if (res){
+                    delete this.data[uuid];   
+                }
+                resolve(res);
+            });
+        })
     }
 
     get(uuid: string): DataPoint{
+        if (!(uuid in this.data)){
+            // return a dummy data point to avoid corrupted UI update on deletion of the data.
+            // A deletion may trigger UI update which refers to the deleted data via this function, and get undefined
+            // I found this is tricky, but works... 
+            // (The returned datapoint is temporary, after the entire UI update, the data point should be garbage collected)
+            // TODO: find a better way to handle this
+            return new DataPoint(_dummyDataSummary);    
+        }
         return this.data[uuid];
     }
 
     getAllTags() : DataTags {
         let _tags: string[];
-        // let all_tags: Set<string> = new Set(["hello", "world"]);
         let all_tags: Set<string> = new Set();
         for (const data of this){
             _tags = data.summary["tags"];;

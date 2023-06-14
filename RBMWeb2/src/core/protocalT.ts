@@ -14,7 +14,6 @@ export interface DataInfoT {
 
     bibtex: string;
     doc_size: number;
-    base_name: string;
 
     note_linecount: number;
 }

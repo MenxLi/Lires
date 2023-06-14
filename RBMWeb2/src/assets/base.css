@@ -56,6 +56,10 @@
 :root {
   --theme-color: rgb(80, 180, 200);
   --theme-hover-highlight-color: rgba(100, 250, 200, 0.2);
+  --color-red-tranparent: rgba(200, 50, 80, 0.3);
+  --color-red: rgb(200, 50, 80);
+  --color-danger: rgb(200, 50, 80);
+  --color-danger-hover: rgba(200, 50, 80, 0.2);
 }
 
 /* @media (prefers-color-scheme: dark) {

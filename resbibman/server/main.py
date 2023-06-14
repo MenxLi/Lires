@@ -37,6 +37,8 @@ class Application(tornado.web.Application):
             (r"/collect", CollectHandler),
 
             (r"/iserver/(.*)", IServerProxyHandler),
+
+            (r"/dataman/delete", DataDeleteHandler)
         ]
         super().__init__(handlers)
 

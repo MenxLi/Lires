@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { DataPoint } from '../../core/dataClass';
+import { useDataStore, useUIStateStore } from '../store';
 
 const props = defineProps<{
     datapoint: DataPoint
 }>()
+
+const dataStore = useDataStore();
+const uiState = useUIStateStore();
 
 const abstractParagraph = ref<HTMLParagraphElement|null>(null);
 
@@ -19,6 +23,13 @@ const setAbstract = async () => {
     }
     abstractParagraph.value!.innerHTML = abstract;
 }
+
+// functions to manage data
+function deleteThisDatapoint(){
+    if (window.confirm(`Delete? \n${props.datapoint.toString()}`)){
+        dataStore.database.delete(props.datapoint.summary.uuid).then(uiState.updateShownData)
+    }
+}
 </script>
 
 <template>
@@ -28,6 +39,7 @@ const setAbstract = async () => {
             <a :href="datapoint.getOpenDocURL()" target="_blank" rel="noopener noreferrer">Open</a>
             <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a>
             <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a>
+            <a href="#" rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger">Delete</a>
         </div>
         <div id="abstract">
             <details>
@@ -72,5 +84,12 @@ const setAbstract = async () => {
         font-weight: bold;
         cursor: pointer;
         text-align: center;
+    }
+
+    a.danger{
+        color: var(--color-danger);
+    }
+    a.danger:hover{
+        background-color: var(--color-danger-hover);
     }
 </style>
