@@ -79,6 +79,8 @@ def queryFeatureIndex(query: str, n_return: int = 16) -> FeatureQueryResult:
     else:
         raise FileNotFoundError("Feature index not found, please build the index storage first")
     query_vec = asyncio.run(featurize(query, dim_reduce=True)) # [d_feature]
+    if len(feature_dict) == 0:
+        raise ValueError("Feature index is empty, please build the index storage first")
 
     # collect uuid and features in to a large chunk for batch processing
     uuids = []
