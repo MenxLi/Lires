@@ -2,10 +2,10 @@
 <script setup lang="ts">
 
     import { ref, computed, onMounted, type Ref } from "vue";
-    import type {SearchStatus} from "./home/_interface"
-    import { checkCookieLogout, cookieLogout } from "../core/auth";
-    import { ThemeMode } from "../core/misc";
-    import FloatingWindow from "./common/FloatingWindow.vue";
+    import type {SearchStatus} from "../home/_interface"
+    import { checkCookieLogout, cookieLogout } from "../../core/auth";
+    import { ThemeMode } from "../../core/misc";
+    import FloatingWindow from "./FloatingWindow.vue";
 
     const props = withDefaults(defineProps<{
         searchText: string,
@@ -69,15 +69,15 @@
         <div class="button">
             <!-- <button @click="logout">Logout</button> -->
             <span v-if="!checkCookieLogout()" class="hoverMaxout105 button" @click="logout">
-                <img id="logoutIcon" class="icon" src="../assets/icons/logout.svg" alt="Logout">
+                <img id="logoutIcon" class="icon" src="../../assets/icons/logout.svg" alt="Logout">
                 <label for="logoutIcon" id="logoutIconLabel">Logout</label>
             </span>
             <span class="hoverMaxout105 button" @click="()=>{showNavigation = !showNavigation}">
-                <img id="exploreIcon" class="icon" src="../assets/icons/explore.svg" alt="Navigation">
+                <img id="exploreIcon" class="icon" src="../../assets/icons/explore.svg" alt="Navigation">
                 <label for="exploreIcon" id="exploreIconLabel">Explore</label>
             </span>
             <span class="hoverMaxout105 button" @click="(_)=>toggleTheme()">
-                <img id="themeIcon" class="icon" src="../assets/icons/bulb_tips.svg" alt="ThemeMode">
+                <img id="themeIcon" class="icon" src="../../assets/icons/bulb_tips.svg" alt="ThemeMode">
                 <label for="themeIcon" id="themeIconLabel">{{ themeLabel }}</label>
             </span>
         </div>

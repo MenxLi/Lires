@@ -8,7 +8,7 @@
     import { ServerConn } from '../core/serverConn';
     import { getCookie } from '../libs/cookie';
     import { FRONTENDURL } from '../config';
-    import Banner from './Banner.vue';
+    import Banner from './common/Banner.vue';
 
 
     export interface ArxivArticleWithFeatures extends ArxivArticle{

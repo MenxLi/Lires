@@ -7,7 +7,7 @@
     import { DataTags } from "../core/dataClass";
     import FileTags from "./home/FileTags.vue";
     import FileSelector from "./home/FileSelector.vue";
-    import Banner from "./Banner.vue";
+    import Banner from "./common/Banner.vue";
 
     import type { SearchStatus } from "./home/_interface";
 
