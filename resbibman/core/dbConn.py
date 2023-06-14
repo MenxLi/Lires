@@ -72,11 +72,11 @@ class DBConnection:
     to manage database connection
     """
     logger = G.logger_rbm
-    db_fname = "rbm.db"
     lock = threading.Lock()
 
-    def __init__(self, db_dir: str) -> None:
+    def __init__(self, db_dir: str, fname: str = "rbm.db") -> None:
         # create db if not exist
+        self.db_fname = fname
         db_path = os.path.join(db_dir, self.db_fname)
         if not os.path.exists(db_dir):
             self.logger.info("Created new database directory: {}".format(db_dir))
@@ -118,6 +118,12 @@ class DBConnection:
     
     def close(self):
         self.conn.close()
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
     
     @lock_required
     def __getitem__(self, uuid: str) -> Optional[DBFileInfo]:

@@ -405,10 +405,32 @@ class FileManipulator:
     def openBib(self):
         raise NotImplementedError("TODO: open bib")
 
-    def deleteEntry(self) -> bool:
+    def deleteEntry(self, create_backup = True) -> bool:
         """
         Will delete the entry from the database, and delete the file and misc folder if exist.
+        if create_backup is True, will create a backup of the document
         """
+        if create_backup:
+            _conn_dir = self.conn.db_dir
+            _backup_dir = os.path.join(_conn_dir, ".trash")
+            if not os.path.exists(_backup_dir):
+                os.mkdir(_backup_dir)
+            old_entry = self.conn[self.uuid]    # must be called in advance to prevent dead lock
+            with DBConnection(_backup_dir) as trash_db:
+                trash_db.addEntry(
+                    old_entry["bibtex"], 
+                    old_entry["abstract"], 
+                    old_entry["comments"], 
+                    doc_ext="",     # ignore the file
+                    doc_info = DocInfo.fromString(old_entry["info_str"])
+                    )
+                # copy files... if exists
+                if self.hasFile():
+                    _addDocumentFile(trash_db, self.uuid, self.file_p)
+                if self.hasMisc():
+                    shutil.copytree(self._misc_dir, os.path.join(_backup_dir, self.uuid))
+            self.logger.debug("(fm) deleteEntry: {} (backup created)".format(self.uuid))
+        
         if self.hasFile():
             self.deleteDocument()
         if os.path.exists(self._misc_dir):
