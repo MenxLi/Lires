@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import type { ArxivArticleWithFeatures } from './FeedPage.vue';
+    import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { ServerConn } from '../../core/serverConn';
 
     const props = defineProps<{

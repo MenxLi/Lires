@@ -1,15 +1,15 @@
 <script setup lang="ts">
     import { ref, computed, onMounted } from "vue";
-    import { FRONTENDURL } from "./config";
-    import { ServerConn } from "./core/serverConn";
-    import { getCookie } from "./libs/cookie";
-    import { useUIStateStore, useDataStore } from "./components/store";
-    import { DataTags } from "./core/dataClass";
-    import FileTags from "./components/home/FileTags.vue";
-    import FileSelector from "./components/home/FileSelector.vue";
-    import Banner from "./components/Banner.vue";
+    import { FRONTENDURL } from "../config";
+    import { ServerConn } from "../core/serverConn";
+    import { getCookie } from "../libs/cookie";
+    import { useUIStateStore, useDataStore } from "./store";
+    import { DataTags } from "../core/dataClass";
+    import FileTags from "./home/FileTags.vue";
+    import FileSelector from "./home/FileSelector.vue";
+    import Banner from "./Banner.vue";
 
-    import type { SearchStatus } from "./components/home/_interface";
+    import type { SearchStatus } from "./home/_interface";
 
     // check login
     const conn = new ServerConn();
