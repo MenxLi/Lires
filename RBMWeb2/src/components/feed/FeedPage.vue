@@ -4,10 +4,10 @@
     import { fetchArxivFeed } from './arxivUtils.ts';
     import { ArxivArticle } from './arxivUtils.ts';
 
-    import { ServerConn } from '../core/serverConn';
-    import { getCookie } from '../libs/cookie';
-    import { FRONTENDURL } from '../config';
-    import Banner from '../components/Banner.vue';
+    import { ServerConn } from '../../core/serverConn';
+    import { getCookie } from '../../libs/cookie';
+    import { FRONTENDURL } from '../../config';
+    import Banner from '../Banner.vue';
 
     import ArticleBlock from './ArticleBlock.vue';
 

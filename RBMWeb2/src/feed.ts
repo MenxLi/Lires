@@ -1,6 +1,6 @@
 
 import { createApp } from "vue";
-import FeedPage from "./feedComponents/FeedPage.vue";
+import FeedPage from "./components/feed/FeedPage.vue";
 
 import "./assets/main.css"
 
