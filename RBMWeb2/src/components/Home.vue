@@ -1,9 +1,6 @@
 <script setup lang="ts">
     import { ref, computed, onMounted } from "vue";
     import type { Ref } from "vue";
-    import { FRONTENDURL } from "../config";
-    import { ServerConn } from "../core/serverConn";
-    import { getCookie } from "../libs/cookie";
     import { useUIStateStore, useDataStore } from "./store";
     import { DataTags } from "../core/dataClass";
     import FileTags from "./home/FileTags.vue";
@@ -11,17 +8,6 @@
     import Banner from "./common/Banner.vue";
 
     import type { SearchStatus } from "./home/_interface";
-
-    // check login
-    const conn = new ServerConn();
-    conn.authUsr(getCookie("encKey") as string).then(
-        ()=>{},
-        function(){
-            const loginSearchParams = new URLSearchParams();
-            loginSearchParams.append("from", window.location.href);
-            window.location.href = `${FRONTENDURL}/login.html?${loginSearchParams.toString()}`
-        },
-    )
 
     // get data
     const dataStore = useDataStore()

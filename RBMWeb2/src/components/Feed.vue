@@ -6,8 +6,6 @@
     import ArticleBlock from './feed/ArticleBlock.vue';
 
     import { ServerConn } from '../core/serverConn';
-    import { getCookie } from '../libs/cookie';
-    import { FRONTENDURL } from '../config';
     import Banner from './common/Banner.vue';
 
 
@@ -15,16 +13,7 @@
         features: Ref<number[] | null>,
     }
 
-    // authentication
     const conn = new ServerConn();
-    conn.authUsr(getCookie("encKey") as string).then(
-        ()=>{},
-        function(){
-            const loginSearchParams = new URLSearchParams();
-            loginSearchParams.append("from", window.location.href);
-            window.location.href = `${FRONTENDURL}/login.html?${loginSearchParams.toString()}`
-        },
-    )
 
     // search and main data structure
     const fetchCategory = ref("cat:cs.CV");

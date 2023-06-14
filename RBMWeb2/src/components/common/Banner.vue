@@ -7,10 +7,25 @@
     import FloatingWindow from "./FloatingWindow.vue";
     import BannerIcon from "./BannerIcon.vue";
 
+    import { ServerConn } from "../../core/serverConn";
+    import { getCookie } from "../../libs/cookie";
+    import { FRONTENDURL } from "../../config";
+
     // https://vitejs.dev/guide/assets.html
     import logoutIcon from "../../assets/icons/logout.svg";
     import exploreIcon from "../../assets/icons/explore.svg";
     import bulbTipsIcon from "../../assets/icons/bulb_tips.svg";
+
+    // authentication on load
+    const conn = new ServerConn();
+    conn.authUsr(getCookie("encKey") as string).then(
+        ()=>{},
+        function(){
+            const loginSearchParams = new URLSearchParams();
+            loginSearchParams.append("from", window.location.href);
+            window.location.href = `${FRONTENDURL}/login.html?${loginSearchParams.toString()}`
+        },
+    )
 
     // logout related
     function logout(){
