@@ -75,15 +75,15 @@
             <div id="titleStatus" class="row">
                 <div id="statusDiv">
                     <div class="status">
-                        <img v-if="datapoint.info.file_type == '.pdf'" src="../assets/icons/pdf_fill.svg" alt="" class="icon">
-                        <img v-else-if="datapoint.info.url" src="../assets/icons/cloud_fill.svg" alt="" class="icon">
-                        <img v-else src="../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
+                        <img v-if="datapoint.info.file_type == '.pdf'" src="../../assets/icons/pdf_fill.svg" alt="" class="icon">
+                        <img v-else-if="datapoint.info.url" src="../../assets/icons/cloud_fill.svg" alt="" class="icon">
+                        <img v-else src="../../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
                     </div>
 
                     <div class="status">
-                        <img v-if="datapoint.info.note_linecount>NOTE_FULLSHOW_THRESHOLD" src="../assets/icons/note_fill.svg" alt="" class="icon">
-                        <img v-else-if="datapoint.info.note_linecount>NOTE_SHOW_THRESHOLD" src="../assets/icons/note.svg" alt="" class="icon">
-                        <img v-else src="../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
+                        <img v-if="datapoint.info.note_linecount>NOTE_FULLSHOW_THRESHOLD" src="../../assets/icons/note_fill.svg" alt="" class="icon">
+                        <img v-else-if="datapoint.info.note_linecount>NOTE_SHOW_THRESHOLD" src="../../assets/icons/note.svg" alt="" class="icon">
+                        <img v-else src="../../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
                     </div>
                 </div>
                 <div id="title" class="text"><p>{{ datapoint.info.title }}</p></div>
