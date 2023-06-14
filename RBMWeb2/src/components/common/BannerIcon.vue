@@ -1,10 +1,8 @@
 
 <script setup lang="ts">
-    import { computed } from "vue";
-
-    const props = defineProps<{
-        icon_src: string,
-        label_text: string,
+    defineProps<{
+        iconSrc: string,
+        labelText: string,
     }>()
 
     const emit = defineEmits<{
@@ -15,19 +13,12 @@
         emit("onClick");
     }
 
-    // Compute the resolved path using the current URL and the relative icon_src
-    const resolvedIconSrc = computed(() => {
-    const baseUrl = new URL(import.meta.url);
-    baseUrl.pathname = baseUrl.pathname.replace(/\/[^/]*$/, '/');
-    return new URL(props.icon_src, baseUrl).href;
-    });
-
 </script>
 
 <template>
     <span class="hoverMaxout105 button" @click="onClick">
-        <img id="icon" class="icon" :src="resolvedIconSrc" :alt="label_text.toUpperCase() + '_ICON'">
-        <label for="icon" class="iconLabel">{{ label_text }}</label>
+        <img id="icon" class="icon" :src="iconSrc" :alt="labelText.toUpperCase() + '_ICON'">
+        <label for="icon" class="iconLabel">{{ labelText }}</label>
     </span>
 </template>
 

@@ -7,6 +7,11 @@
     import FloatingWindow from "./FloatingWindow.vue";
     import BannerIcon from "./BannerIcon.vue";
 
+    // https://vitejs.dev/guide/assets.html
+    import logoutIcon from "../../assets/icons/logout.svg";
+    import exploreIcon from "../../assets/icons/explore.svg";
+    import bulbTipsIcon from "../../assets/icons/bulb_tips.svg";
+
     // logout related
     function logout(){
         cookieLogout();
@@ -40,9 +45,9 @@
     
     <div class="main shadow">
         <div class="button">
-            <BannerIcon icon_src="../../assets/icons/logout.svg" label_text="Logout" @onClick="logout"/>
-            <BannerIcon icon_src="../../assets/icons/explore.svg" label_text="Explore" @onClick="()=>{showNavigation = !showNavigation}"/>
-            <BannerIcon icon_src="../../assets/icons/bulb_tips.svg" :label_text="themeLabel" @onClick="()=>toggleTheme()"/>
+            <BannerIcon :iconSrc="logoutIcon" labelText="Logout" @onClick="logout"/>
+            <BannerIcon :iconSrc="exploreIcon" labelText="Explore" @onClick="()=>{showNavigation = !showNavigation}"/>
+            <BannerIcon :iconSrc="bulbTipsIcon" :labelText="themeLabel" @onClick="()=>toggleTheme()"/>
         </div>
         <slot> <!-- some additional components --> </slot>
     </div>
