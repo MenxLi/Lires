@@ -2,6 +2,7 @@
 <script setup lang="ts">
 
     import { ref, computed } from "vue";
+    import { useRouter } from "vue-router";
     import { cookieLogout } from "../../core/auth";
     import { ThemeMode } from "../../core/misc";
     import FloatingWindow from "./FloatingWindow.vue";
@@ -9,7 +10,6 @@
 
     import { ServerConn } from "../../core/serverConn";
     import { getCookie } from "../../libs/cookie";
-    import { FRONTENDURL } from "../../config";
 
     // https://vitejs.dev/guide/assets.html
     import logoutIcon from "../../assets/icons/logout.svg";
@@ -18,19 +18,24 @@
 
     // authentication on load
     const conn = new ServerConn();
+    const router = useRouter();
     conn.authUsr(getCookie("encKey") as string).then(
         ()=>{},
         function(){
-            const loginSearchParams = new URLSearchParams();
-            loginSearchParams.append("from", window.location.href);
-            window.location.href = `${FRONTENDURL}/login.html?${loginSearchParams.toString()}`
+            logout();
         },
     )
 
     // logout related
     function logout(){
         cookieLogout();
-        window.location.reload();
+        console.log("Logged out.", router.currentRoute.value.fullPath);
+        router.push({
+            path: "/login",
+            query: {
+                from: router.currentRoute.value.fullPath,
+            }
+        })
     }
 
     // Navigation related
@@ -53,8 +58,10 @@
 <template>
     <FloatingWindow v-if="showNavigation" @onClose="showNavigation=!showNavigation" title="Navigation">
         <div id="exploreContainer">
-            <a href="../index.html">Home</a>
-            <a href="../feed.html">Arxiv daily</a>
+            <!-- <a href="../index.html">Home</a> -->
+            <!-- <a href="../feed.html">Arxiv daily</a> -->
+            <router-link to="/">Home</router-link>
+            <router-link to="/feed">Arxiv daily</router-link>
         </div>
     </FloatingWindow>
     

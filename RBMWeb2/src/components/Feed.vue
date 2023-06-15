@@ -4,6 +4,7 @@
     import { fetchArxivFeed } from './feed/arxivUtils.ts';
     import { ArxivArticle } from './feed/arxivUtils.ts';
     import ArticleBlock from './feed/ArticleBlock.vue';
+    import { useRouter } from 'vue-router';
 
     import { ServerConn } from '../core/serverConn';
     import Banner from './common/Banner.vue';
@@ -21,14 +22,14 @@
     const searchFeature = ref(null as null | number[]);
     const arxivArticles = ref([] as ArxivArticleWithFeatures[]);
     const sortedArxivArticles = computed(function(){
-        const articleShallowCopy = [...arxivArticles.value];
+        const articleShallowCopy = [...arxivArticles.value] as unknown as ArxivArticleWithFeatures[];
         return articleShallowCopy.sort((a, b) => {
             if (searchFeature.value === null || !a.features || !b.features ){
                 return 0;
             }
             else{
-                const feat_a = a.features as number[];
-                const feat_b = b.features as number[];
+                const feat_a = a.features.value as number[];
+                const feat_b = b.features.value as number[];
                 const feat_search = searchFeature.value as number[];
 
                 // calculate which vector is closer to the search vector
@@ -60,16 +61,17 @@
         )
     }
 
-    const urlSearchParams = new URLSearchParams(window.location.search);    // get maxResults from url
-    let maxResults = parseInt(urlSearchParams.get("maxResults") as string) || 50;
+    const router = useRouter();
+    let maxResults = parseInt(router.currentRoute.value.query.maxResults as string) || 50;
     if (maxResults > 200){
         window.alert("maxResults cannot be larger than 200");
         maxResults = 200;
     }
-    let initSearchString = urlSearchParams.get("search") as string || "";
+    let initSearchString = router.currentRoute.value.query.search as string || "";
     if (initSearchString !== ""){
         searchText.value = initSearchString;
     }
+
     function runFetchArticles(){
         arxivArticles.value = [];
         fetchArxivFeed(

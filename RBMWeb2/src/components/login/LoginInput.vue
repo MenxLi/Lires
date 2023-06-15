@@ -3,7 +3,8 @@
 import { ref, computed } from 'vue';
 import { ServerConn } from '../../core/serverConn';
 import { sha256 } from '../../libs/sha256lib';
-import { STAY_LOGIN_DAYS, LOCATIONS } from '../../config';
+import { STAY_LOGIN_DAYS} from '../../config';
+import { useRouter } from 'vue-router';
 import { saveAuthentication } from '../../core/auth.js'
 import { setCookie } from '../../libs/cookie';
 
@@ -17,6 +18,8 @@ const showPassword = ref(false);
 const inputType = computed(() => showPassword.value?"text":"password");
 const loginText = ref("Login")
 
+const router = useRouter();
+
 function login(){
     setCookie("backendPort", port.value, STAY_LOGIN_DAYS);
     loginText.value = "Connecting..."
@@ -28,18 +31,13 @@ function login(){
             saveAuthentication(encKey as string, permission, stayLogin.value, STAY_LOGIN_DAYS);
             error.value = "";
             console.log("Logged in.")
-            // Redirect
-            const urlSearchString : string|undefined = window.location.href.split("?")[1];
-            console.log(urlSearchString);
-            if (urlSearchString === undefined){
-                window.location.href = LOCATIONS.main;
+            const urlFrom = router.currentRoute.value.query.from;
+            if (!urlFrom){
+                router.push("/");
             }
             else {
-                const params = new URLSearchParams(urlSearchString);
-                const from = params.get("from")
-                if (from){
-                    window.location.href = from;
-                }
+                console.log("Redirecting to", urlFrom);
+                router.push(urlFrom as string);
             }
             loginText.value = "Login"
         },

@@ -75,7 +75,7 @@
         <TagCollapsibleToggle v-for="(v, k) in children" 
             :identifier="String(k)" 
             :children="v" 
-            @onCheck="(is_checked: boolean, identifier: string) => emit('onCheck', is_checked, identifier)">
+            @onCheck="(is_checked: boolean, identifier: string | undefined) => emit('onCheck', is_checked, identifier)">
             {{ String(k).split(TAG_SEP).slice(-1)[0] }}
         </TagCollapsibleToggle>
     </div>

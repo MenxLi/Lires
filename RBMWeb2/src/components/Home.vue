@@ -2,6 +2,7 @@
     import { ref, computed, onMounted } from "vue";
     import type { Ref } from "vue";
     import { useUIStateStore, useDataStore } from "./store";
+    import { useRouter } from "vue-router";
     import { DataTags } from "../core/dataClass";
     import FileTags from "./home/FileTags.vue";
     import FileSelector from "./home/FileSelector.vue";
@@ -27,11 +28,10 @@
     });
     const showFileTags = computed(() => windowWidth.value > 600);
 
-    // maybe change tag from url search params
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const defaultTags = urlSearchParams.get("tags")?.split("&&");
+    const router = useRouter();
+    const defaultTags = router.currentRoute.value.query.tags as string | undefined;
     if (defaultTags != undefined){
-        uiState.currentlySelectedTags = new DataTags(defaultTags);
+        uiState.currentlySelectedTags = new DataTags(defaultTags.split("&&"));
         uiState.unfoldedTags = uiState.currentlySelectedTags.withParents().pop(uiState.currentlySelectedTags)
     }
 

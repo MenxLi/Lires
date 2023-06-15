@@ -28,11 +28,6 @@ function getBackendURL(){
 export {getBackendURL, FRONTENDURL};
 export const STAY_LOGIN_DAYS: number = 3;
 
-export const LOCATIONS = {
-    "main": FRONTENDURL,
-    "login": `${FRONTENDURL}/login.html`
-}
-
 export const MAINTAINER = {
     name: "Li, Mengxun",
     email: "mengxunli@whu.edu.cn"
