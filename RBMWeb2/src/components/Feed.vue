@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import { ref, computed, Ref} from 'vue';
+    import { ref, computed} from 'vue';
     import { fetchArxivFeed } from './feed/arxivUtils.ts';
     import { ArxivArticle } from './feed/arxivUtils.ts';
     import ArticleBlock from './feed/ArticleBlock.vue';
@@ -11,7 +11,7 @@
 
 
     export interface ArxivArticleWithFeatures extends ArxivArticle{
-        features: Ref<number[] | null>,
+        features: number[] | null,
     }
 
     const conn = new ServerConn();
@@ -22,14 +22,14 @@
     const searchFeature = ref(null as null | number[]);
     const arxivArticles = ref([] as ArxivArticleWithFeatures[]);
     const sortedArxivArticles = computed(function(){
-        const articleShallowCopy = [...arxivArticles.value] as unknown as ArxivArticleWithFeatures[];
+        const articleShallowCopy = [...arxivArticles.value] as ArxivArticleWithFeatures[];
         return articleShallowCopy.sort((a, b) => {
             if (searchFeature.value === null || !a.features || !b.features ){
                 return 0;
             }
             else{
-                const feat_a = a.features.value as number[];
-                const feat_b = b.features.value as number[];
+                const feat_a = a.features as number[];
+                const feat_b = b.features as number[];
                 const feat_search = searchFeature.value as number[];
 
                 // calculate which vector is closer to the search vector
