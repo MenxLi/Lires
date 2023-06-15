@@ -102,6 +102,7 @@
         transition: all 0.2s;
     }
     div.main{
+        width: 100%;
         display: flex;
         align-items: center;
         justify-content: space-between;

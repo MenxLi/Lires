@@ -174,8 +174,15 @@ export class DataPoint {
         return `${this.summary.year}${hyphen}${this.authorAbbr()}`
     }
 
+    isDummy(): boolean{
+        return this.summary.uuid === _dummyDataSummary.uuid;
+    }
+
     getOpenDocURL(): string {
         const uid = this.summary.uuid;
+        if (this.isDummy()){
+            return "About:blank"
+        }
         if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             return `${getBackendURL()}/doc/${uid}`
         }

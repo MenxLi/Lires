@@ -36,7 +36,7 @@ function deleteThisDatapoint(){
     <div id="moreMain">
         <hr>
         <div class="row" id="buttons">
-            <a :href="datapoint.getOpenDocURL()" target="_blank" rel="noopener noreferrer">Open</a>
+            <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
             <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a>
             <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a>
             <a href="#" rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger">Delete</a>
