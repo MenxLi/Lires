@@ -45,6 +45,11 @@ class Application(tornado.web.Application):
             # deal with images under misc folder of each datapoint
             (r"/img/(.*)", ImageGetHandler),
             (r"/img-upload/(.*)", ImageUploadHandler),
+
+            # additional information (supplementary data / resources) for each datapoint
+            (r"/fileinfo-supp/note/(.*)", NoteGetHandler),
+            (r"/fileinfo-supp/note-update/(.*)", NoteUpdateHandler),
+
         ]
         super().__init__(handlers)
 

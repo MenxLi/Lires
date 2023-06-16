@@ -8,12 +8,38 @@
     import { ThemeMode } from '../../core/misc';
     import 'md-editor-v3/lib/style.css';
 
-    defineProps<{
+    const prop = defineProps<{
         datapoint: DataPoint
     }>();
 
     const mdText = ref<string>('');
     const mdEditor = ref<typeof MdEditor | null>(null);
+
+    prop.datapoint.fetchNote().then(
+        (note) => {
+            console.log('Note fetched')
+            mdText.value = note;
+        },
+        (reason) => {
+            console.error(reason);
+        }
+    )
+
+    // event handlers
+    function onSaveNote() {
+        prop.datapoint.uploadNote(mdText.value).then(
+            () => {
+                console.log('Note saved');
+            },
+            (reason) => {
+                console.error(reason);
+            }
+        )
+    }
+
+    function uploadImage(){
+        window.alert('Not implemented yet');
+    }
 
 </script>
 
@@ -25,6 +51,31 @@
                 :preview="false" 
                 language="en-US"
                 :theme="ThemeMode.isDarkMode() ? 'dark' : 'light'"
+                @on-save="onSaveNote"
+                @on-upload-img="uploadImage"
+                :toolbars="[
+                    'bold',
+                    'underline',
+                    'italic',
+                    '-',
+                    'strikeThrough',
+                    'title',
+                    'quote',
+                    'unorderedList',
+                    'orderedList',
+                    'task', // ^2.4.0
+                    '-',
+                    'link',
+                    'image',
+                    // 'mermaid',
+                    '-',
+                    'revoke',
+                    'next',
+                    'save',
+                    '=',
+                    'preview',
+                    'catalog',
+                ]"
             />
         </div>
     </div>

@@ -1,6 +1,6 @@
 import type { DataInfoT, SearchResultant } from "./protocalT";
 import { ServerConn } from "./serverConn";
-import { getBackendURL } from "../config";
+import { FRONTENDURL, getBackendURL } from "../config";
 import type { SearchStatus } from "../components/home/_interface";
 import { getCookie } from "../libs/cookie";
 
@@ -132,16 +132,72 @@ export class TagRule {
 
 export class DataPoint {
     summary: DataInfoT;
+    supp: Record<'note' | 'abstract', string | null>;
+
     constructor(summary: DataInfoT) {
         this.summary = summary;
+        // supplimentary information for this datapoint,
+        // need to fetch from server
+        // it is designed to be a lazy fetch to save bandwidth
+        this.supp = {
+            note: null,
+            abstract: null,
+        }
     }
 
     toString(){
         return `${this.summary.title} - ${this.authorAbbr()} (${this.summary.year}) [uid: ${this.summary.uuid}]`
     }
 
+    // will update this.supp.abstract
+    fetchAbstract(): Promise<string> {
+        return new Promise((resolve, reject) => {
+            new ServerConn().reqDatapointAbstract(this.summary.uuid).then((data) => {
+                this.supp.abstract = data;
+                resolve(data);
+            }).catch((err) => {
+                reject(err);
+            })
+        })
+    }
+
+    // will update this.supp.note
+    fetchNote(): Promise<string> {
+        return new Promise((resolve, reject) => {
+            new ServerConn().reqDatapointNote(this.summary.uuid).then((data) => {
+                // parse the note, to replace ./misc/ with image url
+                data = data.replace(/\.\/misc\//g, `${getBackendURL()}/img/${this.summary.uuid}?fname=`);
+                this.supp.note = data;
+                resolve(data);
+            }).catch((err) => {
+                reject(err);
+            })
+        })
+    }
+
+    // will update this.supp.note and upload to server
+    uploadNote(note: string): Promise<boolean> {
+        if (note === null) {
+            return Promise.reject("Note is null");
+        }
+        // replace image url with ./misc/
+        note = note.replace(new RegExp(`${getBackendURL()}/img/${this.summary.uuid}\\?fname=`, 'g'), './misc/');
+        return new Promise((resolve, reject) => {
+            new ServerConn().reqDatapointNoteUpdate(
+                this.summary.uuid,
+                note as string
+            ).then((data) => {
+                this.supp.note = note;
+                resolve(data);
+            }).catch((err) => {
+                reject(err);
+            })
+        })
+    }
+
+    // ! to deprecate
     requestAbstract(): Promise<string> {
-        return new ServerConn().reqAbstract(this.summary.uuid);
+        return new ServerConn().reqDatapointAbstract(this.summary.uuid);
     }
 
     update(): Promise<DataInfoT> {

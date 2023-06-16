@@ -57,6 +57,54 @@ export class ServerConn {
         }
     }
 
+    async reqDatapointAbstract(uid: string): Promise<string>{
+        const params = new URLSearchParams();
+        params.set("key", getCookie("encKey"));
+        params.set("type", "abstract");
+        const response = await fetch(`${getBackendURL()}/fileinfo/${uid}?${params.toString()}`);
+        if (response.ok && response.status === 200) {
+            const res: string = await response.text();
+            return res
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`);
+        }
+    }
+
+
+    async reqDatapointNote( uid: string ): Promise<string>{
+        const url = new URL(`${getBackendURL()}/fileinfo-supp/note/${uid}`);
+        url.searchParams.append("key", getCookie("encKey"));
+        const response = await fetch(url.toString());
+        if (response.ok){
+            const resObj = await response.text();
+            return resObj;
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`)
+        }
+    }
+
+    async reqDatapointNoteUpdate( uid: string, content: string ): Promise<boolean>{
+        const url = new URL(`${getBackendURL()}/fileinfo-supp/note-update/${uid}`);
+        url.searchParams.append("key", getCookie("encKey"));
+        url.searchParams.append("content", content);
+        const response = await fetch(url.toString(),
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/x-www-form-urlencoded"
+                },
+            }
+        );
+        if (response.ok){
+            return true;
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`)
+        }
+    }
+
     async search(method: string, kwargs: any): Promise<SearchResult>{
         const params = new URLSearchParams();
 
@@ -79,20 +127,6 @@ export class ServerConn {
             throw new Error(`Got response: ${response.status}`);
         }
 
-    }
-
-    async reqAbstract(uid: string): Promise<string>{
-        const params = new URLSearchParams();
-        params.set("key", getCookie("encKey"));
-        params.set("type", "abstract");
-        const response = await fetch(`${getBackendURL()}/fileinfo/${uid}?${params.toString()}`);
-        if (response.ok && response.status === 200) {
-            const res: string = await response.text();
-            return res
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`);
-        }
     }
 
     async addArxivPaperByID( id: string,): Promise<DataInfoT>{

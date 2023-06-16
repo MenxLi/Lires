@@ -83,7 +83,8 @@ class RequestHandlerBase():
         self.enc_key = enc_key
         return res
     
-    def checkTagPermission(self, _tags: List[str] | DataTags, _mandatory_tags: List[str]):
+    @staticmethod
+    def checkTagPermission(_tags: List[str] | DataTags, _mandatory_tags: List[str]):
         """
         Check if tags are dominated by mandatory_tags
         """
