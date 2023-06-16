@@ -13,20 +13,31 @@
     const splitter = ref<HTMLElement | null>(null);
     const onMovingSplitter = ref<boolean>(false);
 
-    // resize event handlers
-    function onSplitterMouseDown(){
+    function onStartMovingSplitter(){
         onMovingSplitter.value = true;
     }
-    window.addEventListener('mouseup', () => {
+    function onStopMovingSplitter(){
         onMovingSplitter.value = false;
-    });
-    window.addEventListener('mousemove', (e) => {
-        if (onMovingSplitter.value){
-            const leftPaneWidth = e.clientX - leftPane.value!.getBoundingClientRect().left;
+    }
+    function onMoveSplitter(event: MouseEvent | TouchEvent) {
+        if (onMovingSplitter.value) {
+            const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+            const leftPaneWidth = clientX - leftPane.value!.getBoundingClientRect().left;
             leftPane.value!.style.width = `${leftPaneWidth}px`;
             rightPane.value!.style.width = `calc(100% - ${leftPaneWidth}px)`;
         }
-    })
+    }
+
+    // resize event handlers
+    // Event listeners for both mouse and touch events
+    window.addEventListener('mousedown', onStartMovingSplitter);
+    window.addEventListener('touchstart', onStartMovingSplitter);
+
+    window.addEventListener('mouseup', onStopMovingSplitter);
+    window.addEventListener('touchend', onStopMovingSplitter);
+
+    window.addEventListener('mousemove', onMoveSplitter);
+    window.addEventListener('touchmove', onMoveSplitter);
 
     // watch layoutType, reset the width of leftPane and rightPane
     function setLayout(layoutType: number){
@@ -63,7 +74,7 @@
                 :style="{'pointer-events': onMovingSplitter ? 'none' : 'auto'}"
             > </iframe>
         </div>
-        <div id="splitter" ref="splitter" @mousedown="onSplitterMouseDown" v-if="layoutType==2"> </div>
+        <div id="splitter" ref="splitter" @mousedown="onStartMovingSplitter" @touchstart="onStartMovingSplitter" v-if="layoutType==2"> </div>
         <div class="pane" id="rightPane" ref="rightPane">
             <NoteEditor :datapoint="datapoint"> </NoteEditor>
         </div>
@@ -89,6 +100,7 @@ iframe{
     border: 1px solid var(--color-border);
     border-radius: 10px;
     box-shadow: 0px 0px 5px var(--color-shadow);
+    overflow: scroll;
 }
 
 #splitter{
