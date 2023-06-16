@@ -10,8 +10,8 @@
 
 <template>
     <div id="body">
-        <iframe :src="datapoint.getOpenDocURL()" title="doc" v-if="layoutType!=1"></iframe>
-        <NoteEditor :datapoint="datapoint" v-if="layoutType!=0"></NoteEditor>
+        <iframe :src="datapoint.getOpenDocURL()" title="doc" v-show="layoutType!=1"></iframe>
+        <NoteEditor :datapoint="datapoint" v-show="layoutType!=0"></NoteEditor>
     </div>
 </template>
 

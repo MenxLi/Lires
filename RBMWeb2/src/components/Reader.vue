@@ -1,9 +1,12 @@
 <script setup lang="ts">
     import ReaderBody from './reader/ReaderBody.vue';
     import Banner from './common/Banner.vue';
+    import BannerIcon from './common/BannerIcon.vue';
     import { ref } from 'vue';
     import { useDataStore } from './store';
     import { useRoute } from 'vue-router';
+
+    import splitscreenIcon from '../assets/icons/splitscreen.svg';
 
     const dataStore = useDataStore();
     const route = useRoute();
@@ -16,13 +19,29 @@
     // 2: doc and note
     const layoutType = ref<number>(2);
 
+    // initialize layoutType according to screen size
+    if (window.innerWidth < 600){
+        layoutType.value = 0;
+    }
+    function changeLayout(){
+        if (window.innerWidth < 600){
+            layoutType.value = (layoutType.value + 1)%2
+        } else {
+            layoutType.value = (layoutType.value + 1)%3
+        }
+    }
+
 </script>
 
 <template>
     <div id="main">
         <div id="banner">
             <Banner>
-                <p>{{ datapoint.toString() }}</p>
+                <div id="bannerOps">
+                    <BannerIcon :iconSrc="splitscreenIcon" labelText="" @onClick="changeLayout"></BannerIcon>
+                    |
+                    <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
+                </div>
             </Banner>
         </div>
         <ReaderBody :datapoint="datapoint" :layoutType="layoutType"></ReaderBody>
@@ -43,5 +62,11 @@ div#main{
 div#banner{
     padding-bottom: 10px;
     width: 100%;
+}
+div#bannerOps{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 </style>
