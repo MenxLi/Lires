@@ -88,6 +88,7 @@ iframe{
     height: 100%;
     border: 1px solid var(--color-border);
     border-radius: 10px;
+    box-shadow: 0px 0px 5px var(--color-shadow);
 }
 
 #splitter{

@@ -195,6 +195,22 @@ export class DataPoint {
         })
     }
 
+    // return a list of image urls
+    uploadImages(images: File[]): Promise<string[]>{
+        return new Promise((resolve, reject) => {
+            new ServerConn().uploadImages(this.summary.uuid, images).then(
+                (data) => {
+                    resolve(
+                        data.map((fname) => `${getBackendURL()}/img/${this.summary.uuid}?fname=${fname}`)
+                    )
+                },
+                (err) => {
+                    reject(err);
+                }
+            )
+        })
+    }
+
     update(): Promise<DataInfoT> {
         const res = new ServerConn().reqDatapointSummary(this.summary.uuid);
         res.then((data) => {

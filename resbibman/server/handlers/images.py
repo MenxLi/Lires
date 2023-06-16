@@ -2,7 +2,8 @@
 To access and modify images under the misc folder of each datapoint
 """
 from ._base import *
-import os
+import os, uuid
+from tornado.httputil import HTTPFile
 
 
 class ImageGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
@@ -47,9 +48,36 @@ class ImageGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
 
             self.write(f.read())
 
+class ImageUploadHandler(RequestHandlerBase, tornado.web.RequestHandler):
+    async def post(self, uid: str):
+        self.setDefaultHeader()
+        file_info = self.request.files['file'][0]  # Get the file information
+        file_data = file_info['body']  # Get the file data
+        
+        # Here, you can perform any necessary operations with the file data,
+        # such as saving it to disk or processing it further.
+        # For this example, we'll just print the file name and size.
+        original_filename = file_info['filename']
+        file_size = len(file_data)
+        print(f"Received file: {original_filename} ({file_size} bytes)")
+
+        # Generate a unique filename for the uploaded file
+        filename = str(uuid.uuid4()) + os.path.splitext(original_filename)[1]
+
+        dp = self.db[uid]
+        fpath = os.path.join(dp.fm.getMiscDir(create=True), filename)
+        with open(fpath, "wb") as f:
+            f.write(file_data)
+        
+        # You can send a response back to the client if needed.
+        # self.write("File uploaded successfully")
+        self.write({
+            "status": "OK",
+            "file_name": filename,
+        })
 
 ## Not tested!
-class ImageUploadHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class ImageUploadHandlerOld(tornado.web.RequestHandler, RequestHandlerBase):
     """
     Upload image to misc folder
     """

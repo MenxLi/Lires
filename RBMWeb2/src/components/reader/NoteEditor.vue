@@ -8,14 +8,14 @@
     import { ThemeMode } from '../../core/misc';
     import 'md-editor-v3/lib/style.css';
 
-    const prop = defineProps<{
+    const props = defineProps<{
         datapoint: DataPoint
     }>();
 
     const mdText = ref<string>('');
     const mdEditor = ref<typeof MdEditor | null>(null);
 
-    prop.datapoint.fetchNote().then(
+    props.datapoint.fetchNote().then(
         (note) => {
             console.log('Note fetched')
             mdText.value = note;
@@ -27,7 +27,7 @@
 
     // event handlers
     function onSaveNote() {
-        prop.datapoint.uploadNote(mdText.value).then(
+        props.datapoint.uploadNote(mdText.value).then(
             () => {
                 console.log('Note saved');
             },
@@ -37,8 +37,17 @@
         )
     }
 
-    function uploadImage(){
-        window.alert('Not implemented yet');
+    const onUploadImg = async (files: File[]) => {
+        props.datapoint.uploadImages(files).then(
+            (urls) => {
+                console.log('Images uploaded');
+                mdText.value! += urls.map(url => `![image](${url})`).join('\n');
+                onSaveNote();   // save note after uploading images, to avoid un-referenced images on server
+            },
+            (reason) => {
+                console.error(reason);
+            }
+        )
     }
 
 </script>
@@ -52,7 +61,7 @@
                 language="en-US"
                 :theme="ThemeMode.isDarkMode() ? 'dark' : 'light'"
                 @on-save="onSaveNote"
-                @on-upload-img="uploadImage"
+                @on-upload-img="onUploadImg"
                 :toolbars="[
                     'bold',
                     'underline',
@@ -66,7 +75,7 @@
                     'task', // ^2.4.0
                     '-',
                     'link',
-                    'image',
+                    // 'image',
                     // 'mermaid',
                     '-',
                     'revoke',

@@ -104,6 +104,32 @@ export class ServerConn {
         }
     }
 
+    async uploadImages(uid: string, files: File[]): Promise<string[]>{
+        const res = await Promise.all(
+            files.map((file) => {
+                // file is an object of File class: https://developer.mozilla.org/en-US/docs/Web/API/File
+                return new Promise((resolve, reject) => {
+                    const form = new FormData();
+                    form.append('file', file);
+                    
+                    fetch(`${getBackendURL()}/img-upload/${uid}`, {
+                        method: 'POST',
+                        body: form,
+                    })
+                    .then((response) => {
+                        if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then((data) => resolve(data))
+                    .catch((error) => reject(error));
+                });
+            })
+        );
+        return res.map((r: any) => r.file_name);
+    }
+
     async search(method: string, kwargs: any): Promise<SearchResult>{
         const params = new URLSearchParams();
 
