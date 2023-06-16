@@ -16,6 +16,7 @@
 </script>
 
 <template>
+  <div id="blocker" @click="closeWindow"></div>
   <div class="floating-window">
     <div class="header">
       <label>{{ props.title }}</label>
@@ -41,6 +42,16 @@
         visibility: visible;
         transform: translate(-50%, -50%);
     }
+}
+
+div#blocker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
 }
 
 div.header {
