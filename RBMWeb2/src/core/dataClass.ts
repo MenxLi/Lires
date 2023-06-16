@@ -181,7 +181,7 @@ export class DataPoint {
     getOpenDocURL(): string {
         const uid = this.summary.uuid;
         if (this.isDummy()){
-            return "About:blank"
+            return "about:blank"
         }
         if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             return `${getBackendURL()}/doc/${uid}`
