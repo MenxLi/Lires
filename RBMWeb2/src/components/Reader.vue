@@ -57,7 +57,7 @@ div#main{
     align-items: center;
     justify-content: center;
     width: 98vw;
-    height: 98vh;
+    height: 96vh;
     background-color: var(--color-background);
 }
 div#banner{
