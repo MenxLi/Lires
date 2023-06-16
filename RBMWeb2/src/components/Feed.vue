@@ -105,7 +105,9 @@
 
 <template>
     <div id="main">
-        <Banner></Banner>
+        <div id="banner">
+            <Banner></Banner>
+        </div>
         <h1>Arxiv daily</h1>
         <div id="settings">
             <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">
@@ -130,5 +132,8 @@
         flex-direction: row;
         justify-content:center;
         align-items: center;
+    }
+    div#banner{
+        padding-top: 10px;
     }
 </style>

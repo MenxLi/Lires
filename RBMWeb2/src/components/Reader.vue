@@ -55,8 +55,8 @@ div#main{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 97vw;
-    height: 97vh;
+    width: 98vw;
+    height: 98vh;
     background-color: var(--color-background);
 }
 div#banner{
