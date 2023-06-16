@@ -20,11 +20,12 @@
     const layoutType = ref<number>(2);
 
     // initialize layoutType according to screen size
-    if (window.innerWidth < 600){
+    if (window.innerWidth < 800){
         layoutType.value = 0;
     }
     function changeLayout(){
-        if (window.innerWidth < 600){
+        if (window.innerWidth < 800){
+            // only two layouts for small screen
             layoutType.value = (layoutType.value + 1)%2
         } else {
             layoutType.value = (layoutType.value + 1)%3
