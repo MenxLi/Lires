@@ -15,7 +15,7 @@ class Application(tornado.web.Application):
         frontend_root = os.path.join(RBMWEB_SRC_ROOT, "frontend")
         frontend_root_old = os.path.join(RBMWEB_SRC_ROOT, "frontendV0")
         handlers = [
-            # Frontend
+            # Frontend, deprecated
             (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": frontend_root}),
             (r"/frontend/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
             (r"/main/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root_old, "default_filename" : "index.html"}),
@@ -36,9 +36,15 @@ class Application(tornado.web.Application):
             (r"/summary-post", SummaryPostHandler),
             (r"/collect", CollectHandler),
 
+            # iServer proxy
             (r"/iserver/(.*)", IServerProxyHandler),
 
-            (r"/dataman/delete", DataDeleteHandler)
+            # data management
+            (r"/dataman/delete", DataDeleteHandler),
+
+            # deal with images under misc folder of each datapoint
+            (r"/img/(.*)", ImageGetHandler),
+            (r"/img-upload/(.*)", ImageUploadHandler),
         ]
         super().__init__(handlers)
 
