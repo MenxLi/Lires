@@ -86,6 +86,7 @@ div#noteEditor {
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%;
 }
 div.editor {
     text-align: left;
