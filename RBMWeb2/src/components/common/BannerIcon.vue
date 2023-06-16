@@ -1,9 +1,12 @@
 
 <script setup lang="ts">
-    defineProps<{
+    withDefaults(defineProps<{
         iconSrc: string,
         labelText: string,
-    }>()
+        title?: string
+    }>(), {
+        title: ""
+    })
 
     const emit = defineEmits<{
         (e: "onClick"): void
@@ -16,7 +19,7 @@
 </script>
 
 <template>
-    <span class="hoverMaxout105 button" @click="onClick">
+    <span class="hoverMaxout105 button" @click="onClick" :title="title">
         <img id="icon" class="icon" :src="iconSrc" :alt="labelText.toUpperCase() + '_ICON'">
         <label for="icon" class="iconLabel">{{ labelText }}</label>
     </span>

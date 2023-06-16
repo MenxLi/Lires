@@ -67,9 +67,9 @@
     
     <div class="main shadow">
         <div class="button">
-            <BannerIcon :iconSrc="logoutIcon" labelText="Logout" @onClick="logout"/>
-            <BannerIcon :iconSrc="exploreIcon" labelText="Explore" @onClick="()=>{showNavigation = !showNavigation}"/>
-            <BannerIcon :iconSrc="bulbTipsIcon" :labelText="themeLabel" @onClick="()=>toggleTheme()"/>
+            <BannerIcon :iconSrc="logoutIcon" labelText="Logout" @onClick="logout" title="logout"/>
+            <BannerIcon :iconSrc="exploreIcon" labelText="Explore" @onClick="()=>{showNavigation = !showNavigation}" title="look around"/>
+            <BannerIcon :iconSrc="bulbTipsIcon" :labelText="themeLabel" @onClick="()=>toggleTheme()" title="change theme"/>
         </div>
         <slot> <!-- some additional components --> </slot>
     </div>

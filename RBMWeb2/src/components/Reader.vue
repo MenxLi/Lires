@@ -38,7 +38,7 @@
         <div id="banner">
             <Banner>
                 <div id="bannerOps">
-                    <BannerIcon :iconSrc="splitscreenIcon" labelText="" @onClick="changeLayout"></BannerIcon>
+                    <BannerIcon :iconSrc="splitscreenIcon" labelText="" @onClick="changeLayout" title="change layout"></BannerIcon>
                     |
                     <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
                 </div>
