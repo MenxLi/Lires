@@ -1,6 +1,6 @@
 import type { DataInfoT, SearchResultant } from "./protocalT";
 import { ServerConn } from "./serverConn";
-import { FRONTENDURL, getBackendURL } from "../config";
+import { getBackendURL } from "../config";
 import type { SearchStatus } from "../components/home/_interface";
 import { getCookie } from "../libs/cookie";
 
