@@ -17,7 +17,7 @@ let abstract: string|null = null;
 const setAbstract = async () => {
     const failedPrompt = "<label class='hint'>Not avaliable</label>";
     abstractParagraph.value!.innerHTML = "Loading...";
-    abstract = await props.datapoint.requestAbstract();
+    abstract = await props.datapoint.fetchAbstract();
     if (abstract.trim() === ""){
         abstract = failedPrompt;
     }

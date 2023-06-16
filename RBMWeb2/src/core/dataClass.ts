@@ -195,11 +195,6 @@ export class DataPoint {
         })
     }
 
-    // ! to deprecate
-    requestAbstract(): Promise<string> {
-        return new ServerConn().reqDatapointAbstract(this.summary.uuid);
-    }
-
     update(): Promise<DataInfoT> {
         const res = new ServerConn().reqDatapointSummary(this.summary.uuid);
         res.then((data) => {

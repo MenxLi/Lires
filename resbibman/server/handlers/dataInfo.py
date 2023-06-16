@@ -77,6 +77,7 @@ class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerBase):
             self.write(detail)
             return 
         elif cmd == "abstract":
+            raise DeprecationWarning("get abstract through this api is deprecated")
             abstract = dp.fm.readAbstract()
             self.write(abstract)
         else:

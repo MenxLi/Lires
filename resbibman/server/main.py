@@ -49,6 +49,7 @@ class Application(tornado.web.Application):
             # additional information (supplementary data / resources) for each datapoint
             (r"/fileinfo-supp/note/(.*)", NoteGetHandler),
             (r"/fileinfo-supp/note-update/(.*)", NoteUpdateHandler),
+            (r"/fileinfo-supp/abstract/(.*)", AbstractGetHandler),
 
         ]
         super().__init__(handlers)

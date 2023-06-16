@@ -39,3 +39,17 @@ class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerBase):
 
         dp.fm.writeComments(note)
         self.write("OK")
+
+class AbstractGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
+    """
+    Get abstract of a datapoint
+    """
+    def get(self, uid:str):
+        """
+        Args:
+            uid (str): uuid of the datapoint
+        """
+        self.setDefaultHeader()
+        dp = self.db[uid]
+        self.logger.debug("Get abstract of: {}".format(dp))
+        self.write(dp.fm.readAbstract())

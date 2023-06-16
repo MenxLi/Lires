@@ -60,8 +60,7 @@ export class ServerConn {
     async reqDatapointAbstract(uid: string): Promise<string>{
         const params = new URLSearchParams();
         params.set("key", getCookie("encKey"));
-        params.set("type", "abstract");
-        const response = await fetch(`${getBackendURL()}/fileinfo/${uid}?${params.toString()}`);
+        const response = await fetch(`${getBackendURL()}/fileinfo-supp/abstract/${uid}`);
         if (response.ok && response.status === 200) {
             const res: string = await response.text();
             return res
