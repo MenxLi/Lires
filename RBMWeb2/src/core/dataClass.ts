@@ -187,7 +187,12 @@ export class DataPoint {
                 this.summary.uuid,
                 note as string
             ).then((data) => {
+                // update local cache
                 this.supp.note = note;
+                this.summary.note_linecount = note.split('\n').map(
+                    (line: string) => line.trim() == '' ? 0 : 1
+                ).reduce((a: number, b: number) => a + b, 0);
+
                 resolve(data);
             }).catch((err) => {
                 reject(err);

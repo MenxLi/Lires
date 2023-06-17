@@ -26,7 +26,7 @@
     )
 
     // event handlers
-    function onSaveNote() {
+    function saveNote() {
         props.datapoint.uploadNote(mdText.value).then(
             () => {
                 console.log('Note saved');
@@ -36,13 +36,12 @@
             }
         )
     }
-
-    const onUploadImg = async (files: File[]) => {
+    const uploadImages = async (files: File[]) => {
         props.datapoint.uploadImages(files).then(
             (urls) => {
                 console.log('Images uploaded');
                 mdText.value! += urls.map(url => `![image](${url})`).join('\n');
-                onSaveNote();   // save note after uploading images, to avoid un-referenced images on server
+                saveNote();   // save note after uploading images, to avoid un-referenced images on server
             },
             (reason) => {
                 console.error(reason);
@@ -60,8 +59,8 @@
                 :preview="false" 
                 language="en-US"
                 :theme="ThemeMode.isDarkMode() ? 'dark' : 'light'"
-                @on-save="onSaveNote"
-                @on-upload-img="onUploadImg"
+                @on-save="saveNote"
+                @on-upload-img="uploadImages"
                 :toolbars="[
                     'bold',
                     'underline',
