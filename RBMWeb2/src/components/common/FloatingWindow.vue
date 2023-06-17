@@ -1,31 +1,43 @@
 <script setup lang="ts">
-  const emit = defineEmits<{
-    (e: "onClose"): void,
-  }>();
-
+  import {computed} from "vue";
   const props = withDefaults(defineProps<{
     "title": string,
+    "show": boolean,
   }>(), {
     title: "_",
   });
+  const emit = defineEmits<{
+    (e: "onClose"): void,
+    (e: 'update:show', value: boolean): void,
+  }>();
 
-  // use v-if to render the component
+  // two-way binding
+  const showWindow = computed({
+    get: () => props.show,
+    set: (value) => {
+      emit("update:show", value)
+    },
+  });
   function closeWindow() {
+    showWindow.value = false;
     emit("onClose");
   }
+
 </script>
 
 <template>
-  <div id="blocker" @click="closeWindow"></div>
-  <div class="floating-window">
-    <div class="header">
-      <label>{{ props.title }}</label>
-      <button class="close-button" @click="closeWindow">
-        <span class="close-icon">✕</span>
-      </button>
-    </div>
-    <div class="window-content">
-      <slot></slot>
+  <div id="window" v-if="showWindow">
+    <div id="blocker" @click="closeWindow"></div>
+    <div class="floating-window">
+      <div class="header">
+        <label>{{ props.title }}</label>
+        <button class="close-button" @click="closeWindow">
+          <span class="close-icon">✕</span>
+        </button>
+      </div>
+      <div class="window-content">
+        <slot></slot>
+      </div>
     </div>
   </div>
 </template>

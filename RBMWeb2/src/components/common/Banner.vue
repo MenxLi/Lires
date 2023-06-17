@@ -56,7 +56,7 @@
 </script>
 
 <template>
-    <FloatingWindow v-if="showNavigation" @onClose="showNavigation=!showNavigation" title="Navigation">
+    <FloatingWindow v-model:show="showNavigation" title="Navigation">
         <div id="exploreContainer">
             <!-- <a href="../index.html">Home</a> -->
             <!-- <a href="../feed.html">Arxiv daily</a> -->
