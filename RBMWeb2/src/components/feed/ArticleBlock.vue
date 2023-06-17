@@ -102,6 +102,11 @@
 </template>
 
 <style scoped>
+    #authorPapers{
+        width: 100%;
+        max-height: 80vh;
+        min-width: 360px;
+    }
     a:hover{
         cursor: pointer;
     }
