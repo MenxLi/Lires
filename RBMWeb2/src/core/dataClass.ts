@@ -416,7 +416,7 @@ export class DataSearcher{
                 }
             }
 
-            return this.sortByScore(dp_new, scores, false);
+            return this.sortByScore(dp_new, scores, false)[0];
         } 
 
         // local search
@@ -447,9 +447,9 @@ export class DataSearcher{
         return datapoints.sort((b, a) => a.summary.time_added - b.summary.time_added)
     }
 
-    // return a list of datapoints that are sorted by scores
+    // return a list of datapoints that are sorted by scores, and sorted scores
     // - reverse: if false, sort in descending order
-    static sortByScore<T>(arr: T[], scores: number[], reverse = false): T[]{
+    static sortByScore<T>(arr: T[], scores: number[], reverse = false): [T[], number[]]{
         if (arr.length !== scores.length){
             throw new Error("arr.length !== scores.length");
         }
@@ -468,10 +468,12 @@ export class DataSearcher{
         }
 
         const ret = new Array();
+        const ret2 = new Array();
         for (const item of arr_score_sorted){
             ret.push(item[0]);
+            ret2.push(item[1]);
         }
 
-        return ret;
+        return [ret, ret2];
     }
 }

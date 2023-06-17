@@ -41,7 +41,7 @@ export async function fetchArxivFeed(
 
   if (entries && Array.isArray(entries)) {
     const articles: ArxivArticle[] = entries.map((entry: any) => {
-      const id = entry.id.split('/').pop();
+      const id = entry.id.split('/').pop().split('v')[0];
       const link = entry.id;
       const title = entry.title;
       const abstract = entry.summary;

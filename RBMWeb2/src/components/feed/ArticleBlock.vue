@@ -3,7 +3,7 @@
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { ServerConn } from '../../core/serverConn';
     import { useDataStore, formatAuthorName } from '../store';
-    import { DataPoint } from '../../core/dataClass';
+    import { DataPoint, DataSearcher } from '../../core/dataClass';
     import FileRow from '../home/FileRow.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
     import { ref } from 'vue';
@@ -52,6 +52,7 @@
         // }
         return count;
     }
+
     const showAuthorPapers = ref(false);
     const authorPapers = ref([] as DataPoint[]);
     function onClickAuthorPubCount(author: string){
@@ -59,6 +60,30 @@
         console.log("check publication of author: ", author);
         authorPapers.value = dataStore.authorPublicationMap[author];
         showAuthorPapers.value = true;
+    }
+
+    // related articles
+    const relatedArticles = ref([] as DataPoint[]);
+    const relatedArticlesScores = ref([] as number[]);
+    function queryRelatedArticles(){
+        if (relatedArticles.value.length > 0){
+            return;
+        }
+        new ServerConn().search(
+            "searchFeature", { pattern: props.article.abstract, n_return: 8 }
+            ).then(
+                (res) => {
+                    const scores = new Array();
+                    const uuids = new Array();
+                    for (const uid of Object.keys(res)){
+                        scores.push(res[uid]?.score);
+                        uuids.push(uid);
+                    }
+                    const sortedDpSc = DataSearcher.sortByScore(uuids, scores);
+                    relatedArticles.value = sortedDpSc[0].map((uid) => dataStore.database.get(uid));
+                    relatedArticlesScores.value = sortedDpSc[1];
+                }
+            )
     }
 
 </script>
@@ -94,6 +119,16 @@
             <details>
                 <summary>Abstract</summary>
                 <p>{{ props.article.abstract }}</p>
+            </details>
+            <details>
+                <summary @click="queryRelatedArticles">Related articles</summary>
+                <div id="relatedArticles">
+                    <div class="relatedArticle" v-for="(dp, index) in relatedArticles">
+                        <FileRow :datapoint="dp">
+                            <label class="relatedArticleScore">{{relatedArticlesScores[index].toPrecision(3).slice(0, 4)}}</label>
+                        </FileRow>
+                    </div>
+                </div>
             </details>
         </div>
     </div>
@@ -160,13 +195,24 @@
         gap: 1em;
     }
 
-    /* div.sep{
-        margin-top: 5px;
-        margin-bottom: 5px;
+    div.relatedArticle{
+        display: flex;
+        flex-direction: row;
+        justify-content:space-between;
+        align-items: center;
+        gap: 0.5em;
+    }
+    div.relatedArticle>*{
         width: 100%;
-        justify-self: center;
-        height: 0.1em;
-        background-color: var(--color-border);
-    } */
+    }
+    label.relatedArticleScore{
+        border-radius: 5px;
+        padding-left: 5px;
+        padding-right: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--theme-hover-highlight-color);
+    }
 </style>
     

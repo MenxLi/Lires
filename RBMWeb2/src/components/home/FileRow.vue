@@ -98,6 +98,7 @@
                     </div>
                 </div>
                 <div id="title" class="text"><p>{{ datapoint.summary.title }}</p></div>
+                <slot></slot>
             </div>
         </div>
         <div id="more" v-show="showMore" ref="moreDiv">
