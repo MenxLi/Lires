@@ -7,6 +7,7 @@
     import { ThemeMode } from "../../core/misc";
     import FloatingWindow from "./FloatingWindow.vue";
     import BannerIcon from "./BannerIcon.vue";
+    import Popup from "./Popup.vue";
 
     import { ServerConn } from "../../core/serverConn";
     import { getCookie } from "../../libs/cookie";
@@ -53,6 +54,32 @@
         _currentDarkTheme.value = !_currentDarkTheme.value;
     }
 
+    // popup related
+    const popupValue = ref({
+        show: false,
+        style: "alert",
+        content: "",
+    })
+    function showPopup(
+        content: string, 
+        style: string = "info",
+        time: number = 2000     // in ms
+        ){
+        popupValue.value = {
+            show: true,
+            style: style,
+            content: content,
+        }
+        // hide after some time
+        setTimeout(() => {
+            popupValue.value.show = false;
+        }, time);
+    }
+    // // Expose showPopup method !!
+    defineExpose({
+        showPopup: showPopup,
+    })
+
 </script>
 
 <template>
@@ -64,6 +91,10 @@
             <router-link to="/feed">Arxiv daily</router-link>
         </div>
     </FloatingWindow>
+
+    <Popup v-model:show="popupValue.show" :style="(popupValue.style as any)">
+        {{ popupValue.content }}
+    </Popup>
     
     <div class="main shadow">
         <div class="button">

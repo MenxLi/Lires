@@ -1,10 +1,11 @@
 
 <script setup lang="ts">
-    import { ref, computed} from 'vue';
+    import { ref, computed, onMounted } from 'vue';
     import { fetchArxivFeed } from './feed/arxivUtils.ts';
     import { ArxivArticle } from './feed/arxivUtils.ts';
     import ArticleBlock from './feed/ArticleBlock.vue';
     import { useRouter } from 'vue-router';
+    import { useDataStore } from './store';
 
     import { ServerConn } from '../core/serverConn';
     import Banner from './common/Banner.vue';
@@ -101,12 +102,20 @@
 
     // MAIN: fetch arxiv feed
     runFetchArticles();
+    // empty database check 
+    const dataStore = useDataStore();
+    const banner = ref<null | typeof Banner>(null);
+    onMounted(() => {
+        if (Object.keys(dataStore.database.data).length === 0){
+            banner.value!.showPopup("Database not loaded or empty database.", "alert");
+        }
+    })
 </script>
 
 <template>
     <div id="main">
         <div id="banner">
-            <Banner></Banner>
+            <Banner ref="banner"></Banner>
         </div>
         <h1>Arxiv daily</h1>
         <div id="settings">

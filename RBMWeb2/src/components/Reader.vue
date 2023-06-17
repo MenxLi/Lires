@@ -2,7 +2,7 @@
     import ReaderBody from './reader/ReaderBody.vue';
     import Banner from './common/Banner.vue';
     import BannerIcon from './common/BannerIcon.vue';
-    import { ref } from 'vue';
+    import { ref, onMounted } from 'vue';
     import { useDataStore } from './store';
     import { useRoute } from 'vue-router';
 
@@ -32,12 +32,20 @@
         }
     }
 
+    // empty database check 
+    const banner = ref<null | typeof Banner>(null);
+    onMounted(() => {
+        if (Object.keys(dataStore.database.data).length === 0){
+            banner.value!.showPopup("Database not loaded or empty database.", "alert");
+        }
+    })
+
 </script>
 
 <template>
     <div id="main">
         <div id="banner">
-            <Banner>
+            <Banner ref="banner">
                 <div id="bannerOps">
                     <BannerIcon :iconSrc="splitscreenIcon" labelText="" @onClick="changeLayout" title="change layout"></BannerIcon>
                     |
