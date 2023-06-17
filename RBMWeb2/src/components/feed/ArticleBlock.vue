@@ -7,18 +7,29 @@
     const props = defineProps<{
         article: ArxivArticleWithFeatures,
     }>()
+    const dataStore = useDataStore();
 
     function addToRBM(){
         const arxivId = props.article.id;
         new ServerConn().addArxivPaperByID(
                 arxivId,
             ).then(
-            ()=>{window.alert(`success: ${arxivId}`)},
+            (dpSummary)=>{
+                const db = dataStore.database;
+                if (Object.keys(db).length == 0){
+                    // db is empty, may happen when database is not loaded
+                    // do nothing
+                }
+                else{
+                    // add to database
+                    db.add(dpSummary);
+                }
+                window.alert(`success: ${arxivId}`)
+            },
             ()=>{window.alert(`failed: ${arxivId}, check log for details`)},
         )
     }
 
-    const dataStore = useDataStore();
     function authorDatabasePublicationCount(author: string): null | number{
         const pubMap = dataStore.authorPublicationMap;
         author = formatAuthorName(author);

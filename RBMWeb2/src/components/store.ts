@@ -51,6 +51,7 @@ export const useDataStore = defineStore(
         getters: {
             authorPublicationMap(): Record<string, DataPoint[]> {
                 const ret: Record<string, DataPoint[]> = {};
+                console.log("Generating authorPublicationMap...") // debug
                 for (const data of this.database){
                     for (let author of data.summary.authors){
                         // // the author name may be in the form of <Given Name> <...> <Family Name>
