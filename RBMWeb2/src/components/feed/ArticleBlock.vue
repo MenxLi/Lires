@@ -3,6 +3,10 @@
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { ServerConn } from '../../core/serverConn';
     import { useDataStore, formatAuthorName } from '../store';
+    import { DataPoint } from '../../core/dataClass';
+    import FileRow from '../home/FileRow.vue';
+    import FloatingWindow from '../common/FloatingWindow.vue';
+    import { ref } from 'vue';
 
     const props = defineProps<{
         article: ArxivArticleWithFeatures,
@@ -48,16 +52,23 @@
         // }
         return count;
     }
+    const showAuthorPapers = ref(false);
+    const authorPapers = ref([] as DataPoint[]);
     function onClickAuthorPubCount(author: string){
         author = formatAuthorName(author);
-        console.log(author);
-        window.alert("not implemented");
+        console.log("check publication of author: ", author);
+        authorPapers.value = dataStore.authorPublicationMap[author];
+        showAuthorPapers.value = true;
     }
-
 
 </script>
 
 <template>
+    <FloatingWindow v-model:show="showAuthorPapers" title="Publications in the database" @onClose="authorPapers=[]">
+        <div id="authorPapers">
+            <FileRow v-for="dp in authorPapers" :datapoint="dp"></FileRow>
+        </div>
+    </FloatingWindow>
     <div id="main" class="gradInFast">
         <div class="articleBlock">
             <div class="titleBlock">
