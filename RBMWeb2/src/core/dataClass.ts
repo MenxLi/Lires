@@ -219,7 +219,6 @@ export class DataPoint {
     update(): Promise<DataInfoT> {
         const res = new ServerConn().reqDatapointSummary(this.summary.uuid);
         res.then((data) => {
-            data['title'] = "Hello"
             this.summary = data;
         })
         return res;
