@@ -46,8 +46,9 @@ def buildFeatureStorage(
         return summary
     
     for idx, (uid, dp) in enumerate(tqdm.tqdm(db.items())):
-        if not (dp.is_local and dp.has_file and dp.fm.file_extension == ".pdf"):
-            continue
+        if not dp.fm.readAbstract():
+            if not (dp.is_local and dp.has_file and dp.fm.file_extension == ".pdf"):
+                continue
         if uid in feature_dict:
             print(f"Skipping re-build feature index for {dp}")
             continue
@@ -55,12 +56,17 @@ def buildFeatureStorage(
 
         # load pdf
         doc_path = dp.file_path
-        pdf_text = getPDFText(doc_path, max_words_per_doc)
+
+        # fallback order: 1. abstract, 2. pdf text
+        if dp.fm.readAbstract():
+            src_text = dp.fm.readAbstract()
+        else:
+            src_text = getPDFText(doc_path, max_words_per_doc)
         
         if model_name != "":
-            summary = createSummaryWithLLM(pdf_text, dp)
+            summary = createSummaryWithLLM(src_text, dp)
         else:
-            summary = pdf_text
+            summary = src_text
             if summary == "":
                 print("Warning: empty pdf text, use title only: {}".format(dp.title))
                 summary = dp.title
