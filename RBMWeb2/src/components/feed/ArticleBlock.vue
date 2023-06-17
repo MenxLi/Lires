@@ -2,6 +2,7 @@
 <script setup lang="ts">
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { ServerConn } from '../../core/serverConn';
+    import { useDataStore, formatAuthorName } from '../store';
 
     const props = defineProps<{
         article: ArxivArticleWithFeatures,
@@ -17,6 +18,32 @@
         )
     }
 
+    const dataStore = useDataStore();
+    function authorDatabasePublicationCount(author: string): null | number{
+        const pubMap = dataStore.authorPublicationMap;
+        author = formatAuthorName(author);
+        if (!(author in pubMap)){
+            // the author is not in the database
+            return null;
+        }
+        let count = pubMap[author].length;
+        // check if current article is in the database
+        // const thisTitle = props.article.title.toLowerCase();
+        // if (pubMap[author].some((dp) => dp.summary.title.toLowerCase() === thisTitle)){
+        //     count -= 1;
+        // }
+        // if (count == 0){
+        //     return null;
+        // }
+        return count;
+    }
+    function onClickAuthorPubCount(author: string){
+        author = formatAuthorName(author);
+        console.log(author);
+        window.alert("not implemented");
+    }
+
+
 </script>
 
 <template>
@@ -30,13 +57,16 @@
                 <label>[Authors] </label>
                 <span v-for="(author, index) in props.article.authors" class="authorSpan">
                     <a :href="`https://arxiv.org/search/?query=${author}&searchtype=author`">{{ author }}</a>
+                    <a class="pubCount" v-if="authorDatabasePublicationCount(author)" @click="()=>onClickAuthorPubCount(author)">
+                        {{ ` (${authorDatabasePublicationCount(author)})` }}
+                    </a>
                     <span v-if="index < props.article.authors.length - 1">, </span>
                 </span>
             </div>
             <div class="actions">
                 <a :href="`https://arxiv.org/abs/${article.id}`">Arxiv</a> |
                 <a :href="`https://arxiv.org/pdf/${article.id}.pdf`">PDF</a> |
-                <a href="#" @click="addToRBM">Collect</a>
+                <a @click="addToRBM">Collect</a>
             </div>
             <p>Published: {{ props.article.publishedTime }}</p>
             <details>
@@ -50,6 +80,9 @@
 </template>
 
 <style scoped>
+    a:hover{
+        cursor: pointer;
+    }
     div#main{
         margin-top: 5px;
         margin-bottom: 5px;
@@ -83,6 +116,9 @@
         gap: 0.25em;
     }
     label.titleId{
+        color: rgba(26, 196, 208, 0.789);
+    }
+    .pubCount{
         color: rgba(26, 196, 208, 0.789);
     }
     span.authorSpan{

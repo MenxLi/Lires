@@ -304,7 +304,7 @@ const _dummyDataSummary = {
     authors: [" "],
     tags: [],
     uuid: " ",
-    url: "#",
+    url: "about:blank",
     time_added: 0.,
     time_modified: 0.,
     bibtex: "",
