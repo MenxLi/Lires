@@ -51,6 +51,9 @@ class Application(tornado.web.Application):
             (r"/fileinfo-supp/note-update/(.*)", NoteUpdateHandler),
             (r"/fileinfo-supp/abstract/(.*)", AbstractGetHandler),
 
+            # pdfjs
+            (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),
+
         ]
         super().__init__(handlers)
 

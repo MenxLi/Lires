@@ -251,19 +251,48 @@ export class DataPoint {
 
     getOpenDocURL(): string {
         const uid = this.summary.uuid;
+        const backendPdfjsviewer = `${getBackendURL()}/pdfjs/web/viewer.html`;
+        function getPdfViewerURL(fURL: string, pdfjs: string = backendPdfjsviewer){
+            const pdfjsviewerParams = new URLSearchParams();
+            if (pdfjs === backendPdfjsviewer){
+                // use backend pdfjs viewer, need to pass key
+                pdfjsviewerParams.append("key", getCookie("encKey"))
+            }
+            pdfjsviewerParams.append("file", `${fURL}`);
+            return `${pdfjs}?${pdfjsviewerParams.toString()}`;
+        }
+        let ret = "about:blank";
+
+        // Get the url of the document by its type
         if (this.isDummy()){
-            return "about:blank"
+            ret = "about:blank"
         }
         if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
-            return `${getBackendURL()}/doc/${uid}`
+            // view pdf via backend pdfjs viewer
+            const pdfURL = `${getBackendURL()}/doc/${uid}`;
+            ret = getPdfViewerURL(pdfURL);
         }
         if (this.summary["has_file"] && this.summary["file_type"] == ".hpack"){
-            return `${getBackendURL()}/hdoc/${uid}/`
+            ret = `${getBackendURL()}/hdoc/${uid}/`
         }
         if (!this.summary["has_file"] && this.summary["url"]){
-            return this.summary.url;
+            let fileURL = this.summary["url"];
+            // maybe view pdf via pdfjs viewer if the url is a pdf
+            console.log(fileURL.includes("arxiv.org/pdf/"))
+            if (
+                fileURL.endsWith(".pdf") || 
+                fileURL.includes("arxiv.org/pdf/")
+                ){
+                // to implement later...
+                // ret = getPdfViewerURL(fileURL);
+                ret = fileURL
+            }
+            else{
+                ret = this.summary.url;
+            }
         }
-        return ""
+        console.log("Open doc url: ", ret)
+        return ret;
     }
 
     getOpenNoteURL(): string {
