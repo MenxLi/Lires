@@ -3,7 +3,7 @@
     import Banner from './common/Banner.vue';
     import BannerIcon from './common/BannerIcon.vue';
     import { ref, onMounted } from 'vue';
-    import { useDataStore } from './store';
+    import { useDataStore, useUIStateStore } from './store';
     import { useRoute } from 'vue-router';
 
     import splitscreenIcon from '../assets/icons/splitscreen.svg';
@@ -33,10 +33,9 @@
     }
 
     // empty database check 
-    const banner = ref<null | typeof Banner>(null);
     onMounted(() => {
         if (Object.keys(dataStore.database.data).length === 0){
-            banner.value!.showPopup("Database not loaded or empty database.", "alert");
+            useUIStateStore().showPopup("Database not loaded or empty database.", "alert");
         }
     })
 
@@ -45,7 +44,7 @@
 <template>
     <div id="main">
         <div id="banner">
-            <Banner ref="banner">
+            <Banner>
                 <div id="bannerOps">
                     <BannerIcon :iconSrc="splitscreenIcon" labelText="" @onClick="changeLayout" title="change layout"></BannerIcon>
                     |

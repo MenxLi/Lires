@@ -5,7 +5,7 @@
     import { ArxivArticle } from './feed/arxivUtils.ts';
     import ArticleBlock from './feed/ArticleBlock.vue';
     import { useRouter } from 'vue-router';
-    import { useDataStore } from './store';
+    import { useDataStore, useUIStateStore } from './store';
 
     import { ServerConn } from '../core/serverConn';
     import Banner from './common/Banner.vue';
@@ -103,18 +103,16 @@
     // MAIN: fetch arxiv feed
     runFetchArticles();
     // empty database check 
-    const dataStore = useDataStore();
-    const banner = ref<null | typeof Banner>(null);
     onMounted(() => {
-        if (Object.keys(dataStore.database.data).length === 0){
-            banner.value!.showPopup("Database not loaded or empty database.", "alert");
+        if (Object.keys(useDataStore().database.data).length === 0){
+            useUIStateStore().showPopup("Database not loaded or empty database.", "alert");
         }
     })
 </script>
 
 <template>
     <div id="main">
-        <div id="banner">
+        <div>
             <Banner ref="banner"></Banner>
         </div>
         <h1>Arxiv daily</h1>

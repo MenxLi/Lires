@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
 import type { SearchStatus } from './home/_interface'
 import { formatAuthorName } from '../libs/misc'
+import Popup from './common/Popup.vue'
 export { formatAuthorName }
 
 export const useUIStateStore = defineStore(
@@ -17,6 +18,15 @@ export const useUIStateStore = defineStore(
                         "content": ""
                     } as SearchStatus,
                 unfoldedDataUIDs: [] as string[],
+
+                // global popup component, need to be initialized in App.vue
+                popupRef: null as null | typeof Popup,
+                popupValue : {
+                    show: false,
+                    style: "alert",
+                    content: "",
+                },
+
             }
         },
         getters: {
@@ -36,6 +46,21 @@ export const useUIStateStore = defineStore(
                 DataSearcher.filter(tagFilteredDataPoints, this.searchState).then(
                     (datapoints: DataPoint[]) => this.shownDataUIDs = datapoints.map((dp) => dp.summary.uuid)
                 )
+            },
+            showPopup(
+                content: string, 
+                style: string = "info",
+                time: number = 2000     // in ms
+                ){
+                this.popupValue = {
+                    show: true,
+                    style: style,
+                    content: content,
+                }
+                // hide after some time
+                setTimeout(() => {
+                    this.popupValue.show = false;
+                }, time);
             }
         }
     }
@@ -54,13 +79,6 @@ export const useDataStore = defineStore(
                 console.log("Generating authorPublicationMap...") // debug
                 for (const data of this.database){
                     for (let author of data.summary.authors){
-                        // // the author name may be in the form of <Given Name> <...> <Family Name>
-                        // // make sure formatted author is named as <Family Name>, <Given Name>
-                        // if (author.indexOf(',') === -1){
-                        //     const names = author.split(' ');
-                        //     author = names[names.length - 1] + ', ' + names.slice(0, names.length - 1).join(' ');
-                        //     author = author.trim().toLowerCase();
-                        // }
                         author = formatAuthorName(author);
                         if (!(author in ret)){
                             ret[author] = [];

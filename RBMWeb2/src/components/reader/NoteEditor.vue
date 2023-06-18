@@ -7,7 +7,7 @@
     import { MdEditor } from 'md-editor-v3';
     import { ThemeMode } from '../../core/misc';
     import 'md-editor-v3/lib/style.css';
-    import Popup from '../common/Popup.vue';
+    import { useUIStateStore } from '../store';
 
     const props = defineProps<{
         datapoint: DataPoint
@@ -26,38 +26,16 @@
         }
     )
 
-    // popup related
-    const popupValue = ref({
-        show: false,
-        style: "alert",
-        content: "",
-    })
-    function showPopup(
-        content: string, 
-        style: string = "info",
-        time: number = 2000     // in ms
-        ){
-        popupValue.value = {
-            show: true,
-            style: style,
-            content: content,
-        }
-        // hide after some time
-        setTimeout(() => {
-            popupValue.value.show = false;
-        }, time);
-    }
-
     // event handlers
     function saveNote() {
         props.datapoint.uploadNote(mdText.value).then(
             () => {
                 console.log('Note saved');
-                showPopup('Note saved', 'success')
+                useUIStateStore().showPopup('Note saved', 'success')
             },
             (reason) => {
                 console.error(reason);
-                showPopup('Failed to save', 'warning')
+                useUIStateStore().showPopup('Failed to save', 'warning')
             }
         )
     }
@@ -77,9 +55,6 @@
 </script>
 
 <template>
-    <Popup v-model:show="popupValue.show" :style="(popupValue.style as any)">
-        {{ popupValue.content }}
-    </Popup>
     <div id="noteEditor">
         <div class="editor">
             <MdEditor ref="mdEditor"

@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { ServerConn } from '../../core/serverConn';
-    import { useDataStore, formatAuthorName } from '../store';
+    import { useDataStore, formatAuthorName, useUIStateStore } from '../store';
     import { DataPoint, DataSearcher } from '../../core/dataClass';
     import FileRow from '../home/FileRow.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
@@ -28,9 +28,11 @@
                     // add to database
                     db.add(dpSummary);
                 }
-                window.alert(`success: ${arxivId}`)
+                useUIStateStore().showPopup(`collected: ${arxivId}`, "success")
             },
-            ()=>{window.alert(`failed: ${arxivId}, check log for details`)},
+            ()=>{
+                useUIStateStore().showPopup(`failed to collect: ${arxivId}, check log for details`, "warning")
+            },
         )
     }
 
