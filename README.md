@@ -53,6 +53,7 @@ cd RBMWeb2 && npm install && npm run build && cd ..
 pip install setuptools wheel pyyaml
 pip install packages/QFlowLayout packages/QCollapsibleCheckList
 pip install -e ".[full]"
+rbm-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in RBMWeb
 ```
 
 <!-- ### Docker deployment <span style="color:red">[outdated]</span>

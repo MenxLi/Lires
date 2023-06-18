@@ -272,3 +272,15 @@ version_history:
     - Update node packages
     - RBMServer collect handler and iserverproxy handler
     - GUI - Allow multiple delete, abstract in info panel
+  0.12.4:
+    - RBMWeb - popup & floating window
+    - RBMWeb - banner icon and slot
+    - RBMWeb - explore button
+    - RBMWeb - webui delete
+    - RBMWeb - reader
+    - RBMWeb - backend pdfjs viewer
+    - RBMWeb - unfold one data once a time
+    - RBMWeb Arxiv daily - collect & author papers & related works
+    - RBMServer - api update - img, fileinfo-supp, iserverproxy, dataman
+    - backup on deletion
+    - fixes - torch device on featurize
