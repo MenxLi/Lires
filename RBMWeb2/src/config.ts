@@ -7,7 +7,8 @@ let DOMAINURL: string, PORT: string;
 let FRONTENDURL: string;
 if (import.meta.env.DEV){
     // DOMAINURL = "http://limengxun.com";
-    DOMAINURL = "http://127.0.0.1";
+    // DOMAINURL = "http://127.0.0.1";
+    DOMAINURL = `http://${window.location.hostname}`
     PORT = "8080";
     FRONTENDURL = `http://${window.location.hostname}:${window.location.port}`; //
 }
