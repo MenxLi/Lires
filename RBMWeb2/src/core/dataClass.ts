@@ -278,7 +278,6 @@ export class DataPoint {
         if (!this.summary["has_file"] && this.summary["url"]){
             let fileURL = this.summary["url"];
             // maybe view pdf via pdfjs viewer if the url is a pdf
-            console.log(fileURL.includes("arxiv.org/pdf/"))
             if (
                 fileURL.endsWith(".pdf") || 
                 fileURL.includes("arxiv.org/pdf/")
