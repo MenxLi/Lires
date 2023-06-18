@@ -25,6 +25,8 @@ export const useUIStateStore = defineStore(
                     show: false,
                     style: "alert",
                     content: "",
+
+                    _scheduledHideTime: 0.,
                 },
 
             }
@@ -52,13 +54,16 @@ export const useUIStateStore = defineStore(
                 style: string = "info",
                 time: number = 2000     // in ms
                 ){
-                this.popupValue = {
-                    show: true,
-                    style: style,
-                    content: content,
-                }
-                // hide after some time
+                this.popupValue.show = true,
+                this.popupValue.style = style,
+                this.popupValue.content = content,
+                this.popupValue._scheduledHideTime = Date.now() + time - 100;
+
                 setTimeout(() => {
+                    if (Date.now() < this.popupValue._scheduledHideTime){
+                        // other popup is scheduled to show
+                        return
+                    }
                     this.popupValue.show = false;
                 }, time);
             }
