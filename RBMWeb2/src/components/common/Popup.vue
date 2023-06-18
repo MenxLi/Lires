@@ -27,8 +27,26 @@
         ()=>{
             if (props.style === "alert"){
                 return {
-                    backgroundColor: "rgba(255, 0, 0, 0.5)",
-                    color: "rgba(255, 255, 255, 0.8)"
+                    backgroundColor: "rgba(180, 0, 0, 0.8)",
+                    color: "rgba(255, 255, 255, 0.9)"
+                }
+            }
+            if (props.style === "warning"){
+                return {
+                    backgroundColor: "rgba(180, 180, 0, 0.8)",
+                    color: "rgba(0, 0, 0, 0.9)"
+                }
+            }
+            if (props.style === "info"){
+                return {
+                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                    color: "rgba(255, 255, 255, 0.9)"
+                }
+            }
+            if (props.style === "success"){
+                return {
+                    backgroundColor: "rgba(0, 180, 0, 0.8)",
+                    color: "rgba(255, 255, 255, 0.9)"
                 }
             }
             else{
@@ -77,6 +95,6 @@
         padding: 10px;
 
         /* animation */
-        animation: popupGradIn 0.5s ease-in-out;
+        animation: popupGradIn 0.25s ease-in-out;
     }
 </style>
