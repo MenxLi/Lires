@@ -43,11 +43,11 @@ function editThisDatapoint(){
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
             <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a>
             <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a>
-            <a href="#" rel="noopener noreferrer" @click="()=>showActions=!showActions">Actions</a>
+            <a rel="noopener noreferrer" @click="()=>showActions=!showActions">Actions</a>
         </div>
         <div class="row" id="actions" v-if="showActions">
-            <a href="#" rel="noopener noreferrer" @click="editThisDatapoint">Edit</a>
-            <a href="#" rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger">Delete</a>
+            <a rel="noopener noreferrer" @click="editThisDatapoint">Edit</a>
+            <a rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger">Delete</a>
         </div>
         <div id="abstract">
             <details>
@@ -94,6 +94,9 @@ function editThisDatapoint(){
         text-align: center;
     }
 
+    a:hover{
+        cursor: pointer;
+    }
     #actions{
         gap: 15px;
         background-color: var(--color-background-soft);
