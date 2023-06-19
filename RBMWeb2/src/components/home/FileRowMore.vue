@@ -24,11 +24,15 @@ const setAbstract = async () => {
     abstractParagraph.value!.innerHTML = abstract;
 }
 
-// functions to manage data
+// actions
+const showActions = ref(false);
 function deleteThisDatapoint(){
     if (window.confirm(`Delete? \n${props.datapoint.toString()}`)){
         dataStore.database.delete(props.datapoint.summary.uuid).then(uiState.updateShownData)
     }
+}
+function editThisDatapoint(){
+    uiState.showPopup("Not implemented yet", "warning");
 }
 </script>
 
@@ -39,6 +43,10 @@ function deleteThisDatapoint(){
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
             <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a>
             <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a>
+            <a href="#" rel="noopener noreferrer" @click="()=>showActions=!showActions">Actions</a>
+        </div>
+        <div class="row" id="actions" v-if="showActions">
+            <a href="#" rel="noopener noreferrer" @click="editThisDatapoint">Edit</a>
             <a href="#" rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger">Delete</a>
         </div>
         <div id="abstract">
@@ -84,6 +92,19 @@ function deleteThisDatapoint(){
         font-weight: bold;
         cursor: pointer;
         text-align: center;
+    }
+
+    #actions{
+        gap: 15px;
+        background-color: var(--color-background-soft);
+        width: 100%;
+        border-radius: 5px;
+        box-shadow: inset 0px 2px 3px 2px var(--color-shadow);
+        padding: 5px;
+    }
+    #actions > a{
+        text-decoration: underline;
+        text-underline-offset: 2px;
     }
 
     a.danger{
