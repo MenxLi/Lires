@@ -18,11 +18,11 @@
 </script>
 
 <template>
-    <div class="toggle">
-        <label for="chk" @click="_onCheck">
+    <div class="toggle" @click="_onCheck">
+        <label for="chk">
             <slot></slot>
         </label>
-        <div id="checkCircle" @click="_onCheck">
+        <div id="checkCircle">
             <div v-if="checked" id="checkStatus"></div>
         </div>
     </div>
