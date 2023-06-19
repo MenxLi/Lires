@@ -38,17 +38,18 @@ function editThisDatapoint(){
 
 <template>
     <div id="moreMain">
-        <hr>
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
             <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a>
             <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a>
             <a rel="noopener noreferrer" @click="()=>showActions=!showActions">Actions</a>
         </div>
-        <div class="row" id="actions" v-if="showActions">
-            <a rel="noopener noreferrer" @click="editThisDatapoint">Edit</a>
-            <a rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger">Delete</a>
-        </div>
+        <Transition name="actions">
+            <div class="row" id="actions" v-if="showActions">
+                <a rel="noopener noreferrer" @click="editThisDatapoint">Edit</a>
+                <a rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger">Delete</a>
+            </div>
+        </Transition>
         <div id="abstract">
             <details>
                 <summary @click="setAbstract">Abstract</summary>
@@ -73,6 +74,7 @@ function editThisDatapoint(){
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        margin-top: 8px;
         margin-bottom: 10px;
     }
     div#buttons{
@@ -115,5 +117,13 @@ function editThisDatapoint(){
     }
     a.danger:hover{
         background-color: var(--color-danger-hover);
+    }
+
+    .actions-enter-active, .actions-leave-active {
+        transition: all 0.2s;
+    }
+    .actions-enter-from, .actions-leave-to {
+        opacity: 0;
+        transform: translateY(-10px);
     }
 </style>

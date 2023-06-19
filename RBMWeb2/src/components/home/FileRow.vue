@@ -101,9 +101,11 @@
                 <slot></slot>
             </div>
         </div>
-        <div id="more" v-show="showMore" ref="moreDiv">
-            <FileRowMore :datapoint="datapoint"></FileRowMore>
-        </div>
+        <Transition name="more">
+            <div id="more" v-show="showMore" ref="moreDiv">
+                <FileRowMore :datapoint="datapoint"></FileRowMore>
+            </div>
+        </Transition>
     </div>
 </template>
 
@@ -182,5 +184,12 @@
     }
     img.placeholder{
         height: 8px
+    }
+
+    .more-enter-active, .more-leave-active {
+        transition: all 0.15s;
+    }
+    .more-enter-from, .more-leave-to {
+        opacity: 0;
     }
 </style>
