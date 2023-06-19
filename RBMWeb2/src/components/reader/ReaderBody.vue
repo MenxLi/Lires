@@ -13,8 +13,10 @@
     const splitter = ref<HTMLElement | null>(null);
     const onMovingSplitter = ref<boolean>(false);
 
-    function onStartMovingSplitter(){
-        onMovingSplitter.value = true;
+    function onStartMovingSplitter(event: MouseEvent | TouchEvent){
+        if (splitter.value && splitter.value.contains(event.target as Node)){
+            onMovingSplitter.value = true;
+        }
     }
     function onStopMovingSplitter(){
         onMovingSplitter.value = false;
