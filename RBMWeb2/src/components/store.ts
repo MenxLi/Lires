@@ -1,10 +1,9 @@
 
 import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
-import type { SearchStatus } from './home/_interface'
 import { formatAuthorName } from '../libs/misc'
 export { formatAuthorName }
-import type { PopupStyle } from '../components/home/_interface'
+import type { SearchStatus, PopupStyle } from './interface'
 
 interface PopupValue {
     content: string,

@@ -12,7 +12,7 @@
     const route = useRoute();
 
     const uid = route.params.id as string;
-    const datapoint = dataStore.database.get(uid);
+    const datapoint = ref(dataStore.database.get(uid));
 
     // 0: doc only
     // 1: note only
@@ -36,6 +36,15 @@
     onMounted(() => {
         if (Object.keys(dataStore.database.data).length === 0){
             useUIStateStore().showPopup("Database not loaded or empty database.", "alert");
+            // periodically tries to update datapoint...
+            const interval = setInterval(() => {
+                useUIStateStore().showPopup("Trying to update datapoint...", "warning", 2000);
+                if (Object.keys(dataStore.database.data).length !== 0){
+                    clearInterval(interval);
+                    datapoint.value = dataStore.database.get(uid);
+                    useUIStateStore().showPopup("Datapoint updated.", "success", 3000);
+                }
+            }, 750);
         }
     })
 

@@ -1,23 +1,17 @@
 <script setup lang="ts">
     import { ref, computed, onMounted } from "vue";
     import type { Ref } from "vue";
-    import { useUIStateStore, useDataStore } from "./store";
+    import { useUIStateStore } from "./store";
     import { useRouter } from "vue-router";
     import { DataTags } from "../core/dataClass";
     import FileTags from "./home/FileTags.vue";
     import FileSelector from "./home/FileSelector.vue";
     import Banner from "./common/Banner.vue";
 
-    import type { SearchStatus } from "./home/_interface";
+    import type { SearchStatus } from "./interface";
 
     // get data
-    const dataStore = useDataStore()
     const uiState = useUIStateStore();
-    dataStore.database.requestData().then(
-        (_) => {
-            uiState.updateShownData();
-        }
-    );
 
     // not show fileTag panel on small screen
     let windowWidth = ref(window.innerWidth);

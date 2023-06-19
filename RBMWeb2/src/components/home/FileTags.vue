@@ -3,7 +3,7 @@
     import { DataTags } from '../../core/dataClass';
     import TagSelector from './TagSelector.vue';
     import { useUIStateStore } from '../store';
-    import type { TagCheckStatus } from './_interface';
+    import type { TagCheckStatus } from '../interface';
 
     const emit = defineEmits<{
         (e: "onCheck", status: TagCheckStatus) : void

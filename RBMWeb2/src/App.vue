@@ -1,8 +1,18 @@
 
 <script setup lang="ts">
     import Popup from './components/common/Popup.vue';
-    import { useUIStateStore } from './components/store';
+    import { useUIStateStore, useDataStore } from './components/store';
     const uiState = useUIStateStore();
+    uiState.showPopup("Loading database...", "info");
+    useDataStore().database.requestData().then(
+        (_) => {
+            uiState.updateShownData();
+            uiState.showPopup("Database loaded", "success")
+        },
+        (_) => {
+            uiState.showPopup("Failed to load database", "alert")
+        }
+    );
 </script>
 
 <template>

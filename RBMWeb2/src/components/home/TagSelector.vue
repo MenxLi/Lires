@@ -5,7 +5,7 @@
     import { assert } from '@vue/compiler-core';
     import { useUIStateStore, useDataStore } from '../store';
 
-    import type { TagCheckStatus } from "./_interface"
+    import type { TagCheckStatus } from "../interface"
 
     const emit = defineEmits<{
         (e: "onCheck", status: TagCheckStatus) : void

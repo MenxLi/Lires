@@ -1,4 +1,5 @@
-// shoud be moved to a more general place
+// Type definitions across components
+
 export interface TagCheckStatus{
     identifier: string,
     isChecked: boolean,

@@ -3,7 +3,7 @@
     // a popup component at the top middle of the screen
 
     import { computed } from 'vue'
-    import { PopupStyle } from '../home/_interface';
+    import { PopupStyle } from '../interface';
     
     const props=withDefaults(defineProps<{
         styleType?: PopupStyle
