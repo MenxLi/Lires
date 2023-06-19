@@ -6,9 +6,14 @@
 </script>
 
 <template>
-    <Popup v-model:show="uiState.popupValue.show" :style="(uiState.popupValue.style as any)">
-        {{ uiState.popupValue.content }}
-    </Popup>
+    <div id="popups">
+        <Popup v-for="key, index in Object.keys(uiState.popupValues)" :key="index" :styleType="uiState.popupValues[key].styleType"
+        :style="{
+            transform: `translate(-50%, ${-50 + 110 * index}%) scale(0.9)`,
+        }">
+            {{ uiState.popupValues[key].content }}
+        </Popup>
+    </div>
     <div id="app">
         <router-view />
     </div>

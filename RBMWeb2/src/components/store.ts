@@ -3,8 +3,13 @@ import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
 import type { SearchStatus } from './home/_interface'
 import { formatAuthorName } from '../libs/misc'
-import Popup from './common/Popup.vue'
 export { formatAuthorName }
+import type { PopupStyle } from '../components/home/_interface'
+
+interface PopupValue {
+    content: string,
+    styleType: PopupStyle,
+}
 
 export const useUIStateStore = defineStore(
     "uiStatus", {
@@ -20,15 +25,26 @@ export const useUIStateStore = defineStore(
                 unfoldedDataUIDs: [] as string[],
 
                 // global popup component, need to be initialized in App.vue
-                popupRef: null as null | typeof Popup,
-                popupValue : {
-                    show: false,
-                    style: "alert",
-                    content: "",
-
-                    _scheduledHideTime: 0.,
-                },
-
+                popupValues : {} as Record<string, PopupValue>,
+                // TEST
+                // popupValues : {
+                //     "1": {
+                //         content: "This is an alert",
+                //         styleType: "alert",
+                //     },
+                //     "2": {
+                //         content: "This is a warning",
+                //         styleType: "warning",
+                //     },
+                //     "3": {
+                //         content: "This is a info",
+                //         styleType: "info",
+                //     },
+                //     "4": {
+                //         content: "This is a success",
+                //         styleType: "success",
+                //     },
+                // } as Record<string, PopupValue>,
             }
         },
         getters: {
@@ -52,20 +68,16 @@ export const useUIStateStore = defineStore(
             },
             showPopup(
                 content: string, 
-                style: string = "info",
-                time: number = 2000     // in ms
+                style: PopupStyle = "info",
+                time: number = 3000     // in ms
                 ){
-                this.popupValue.show = true,
-                this.popupValue.style = style,
-                this.popupValue.content = content,
-                this.popupValue._scheduledHideTime = Date.now() + time - 100;
-
+                const id = Math.random().toString();
+                this.popupValues[id] = {
+                    content: content,
+                    styleType: style,
+                };
                 setTimeout(() => {
-                    if (Date.now() < this.popupValue._scheduledHideTime){
-                        // other popup is scheduled to show
-                        return
-                    }
-                    this.popupValue.show = false;
+                    delete this.popupValues[id];
                 }, time);
             }
         }

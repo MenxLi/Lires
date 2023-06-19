@@ -1,52 +1,41 @@
 
 <script setup lang="ts">
-    import { computed } from 'vue'
     // a popup component at the top middle of the screen
+
+    import { computed } from 'vue'
+    import { PopupStyle } from '../home/_interface';
     
     const props=withDefaults(defineProps<{
-        // two-way binding
-        show?: boolean
-        style: "alert" | "warning" | "info" | "success"
+        styleType?: PopupStyle
     }>(),{
-        show: false
+        styleType: "info"
     })
-
-    const emits = defineEmits<{
-        // two-way binding
-        (e: 'update:show', value: boolean) : void
-    }>()
-
-    const showPopup = computed({
-        get: () => props.show,
-        set: (value) => {
-            emits('update:show', value)
-        }
-    });
 
     const stylePopup = computed(
         ()=>{
-            if (props.style === "alert"){
+            if (props.styleType === "alert"){
                 return {
-                    backgroundColor: "rgba(180, 0, 0, 0.8)",
-                    color: "rgba(255, 255, 255, 0.9)"
+                    backgroundColor: "rgba(180, 0, 20, 0.9)",
+                    color: "rgba(255, 255, 255, 1)"
                 }
             }
-            if (props.style === "warning"){
+            if (props.styleType === "warning"){
                 return {
-                    backgroundColor: "rgba(180, 180, 0, 0.8)",
-                    color: "rgba(0, 0, 0, 0.9)"
+                    backgroundColor: "rgba(210, 150, 0, 0.9)",
+                    // color: "rgba(0, 0, 0, 0.9)"
+                    color: "rgba(255, 255, 255, 1)"
                 }
             }
-            if (props.style === "info"){
+            if (props.styleType === "info"){
                 return {
-                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    color: "rgba(255, 255, 255, 0.9)"
+                    backgroundColor: "rgba(0, 0, 0, 0.75)",
+                    color: "rgba(255, 255, 255, 1)"
                 }
             }
-            if (props.style === "success"){
+            if (props.styleType === "success"){
                 return {
-                    backgroundColor: "rgba(0, 180, 0, 0.8)",
-                    color: "rgba(255, 255, 255, 0.9)"
+                    backgroundColor: "rgba(0, 180, 0, 0.9)",
+                    color: "rgba(255, 255, 255, 1)"
                 }
             }
             else{
@@ -61,7 +50,7 @@
 </script>
 
 <template>
-    <div id="popup" v-if="showPopup" :style="stylePopup">
+    <div id="popup" :style="stylePopup">
         <slot></slot>
     </div>
 </template>
@@ -70,12 +59,11 @@
     @keyframes popupGradIn {
         0% {
             visibility: hidden;
-            transform: translate(-50%, 0) scale(0.9);
+            /* scale: 0.9; */
             opacity: 0;
         }
         100% {
             visibility: visible;
-            transform: translate(-50%, 0);
         }
     }
     #popup{
@@ -90,7 +78,7 @@
         align-items: center;
         justify-content: center;
 
-        box-shadow: 0px 3px 5px 5px var(--color-shadow);
+        box-shadow: 0px 1px 3px 3px var(--color-shadow);
         border-radius: 10px;
         padding: 10px;
 
