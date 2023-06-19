@@ -102,10 +102,15 @@ function editThisDatapoint(){
     #actions{
         gap: 15px;
         background-color: var(--color-background-mute);
-        width: 98%;
-        border-radius: 5px;
-        box-shadow: inset 0px 1px 3px 2px var(--color-shadow);
+        /* background-color: var(--color-background-theme-thin); */
+        /* width: 98%; */
+        /* min-width: 50%; */
+        margin: 3px;
         padding: 5px;
+        padding-left: 50px;
+        padding-right: 50px;
+        border-radius: 20px;
+        /* box-shadow: inset 0px 1px 3px 2px var(--color-shadow); */
     }
     #actions > a{
         text-decoration: underline;
