@@ -27,6 +27,7 @@
                 else{
                     // add to database
                     db.add(dpSummary);
+                    useUIStateStore().updateShownData();
                 }
                 useUIStateStore().showPopup(`collected: ${arxivId}`, "success")
             },
