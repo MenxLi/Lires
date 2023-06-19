@@ -105,13 +105,13 @@
     .triangle-right {
 		width: var(--triangle-dim);
         height: var(--triangle-dim);
-        background-color: var(--theme-color);
+        background-color: var(--color-theme);
 		clip-path: polygon(0 0, 0% 100%, 100% 50%);
     }
     .triangle-down {
 		width: var(--triangle-dim);
         height: var(--triangle-dim);
-        background-color: var(--theme-color);
+        background-color: var(--color-theme);
 		clip-path: polygon(0 0, 100% 0%, 50% 100%);
     }
     div.children{

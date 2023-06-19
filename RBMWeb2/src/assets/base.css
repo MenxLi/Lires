@@ -54,8 +54,8 @@
 
 /* my colors */
 :root {
-  --theme-color: rgb(80, 180, 200);
-  --theme-hover-highlight-color: rgba(100, 250, 200, 0.2);
+  --color-theme: rgb(80, 180, 200);
+  --color-background-theme-highlight: rgba(100, 250, 200, 0.2);
   --color-red-tranparent: rgba(200, 50, 80, 0.3);
   --color-red: rgb(200, 50, 80);
   --color-danger: rgb(200, 50, 80);

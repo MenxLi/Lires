@@ -127,7 +127,7 @@
         margin-bottom: 3px;
     }
     div#fileRow:hover{
-        background-color: var(--theme-hover-highlight-color);
+        background-color: var(--color-background-theme-highlight);
         transition: background-color 0.2s;
     }
     #authorYear{

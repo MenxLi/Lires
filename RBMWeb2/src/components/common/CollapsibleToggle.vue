@@ -82,23 +82,23 @@
     .triangle-right {
 		width: var(--triangle-dim);
         height: var(--triangle-dim);
-        background-color: var(--theme-color);
+        background-color: var(--color-theme);
 		clip-path: polygon(0 0, 0% 100%, 100% 50%);
     }
     .triangle-down {
 		width: var(--triangle-dim);
         height: var(--triangle-dim);
-        background-color: var(--theme-color);
+        background-color: var(--color-theme);
 		clip-path: polygon(0 0, 100% 0%, 50% 100%);
     }
     /* .triangle-right {
-        border-left: calc(var(--button-dim)/2) solid var(--theme-color);
+        border-left: calc(var(--button-dim)/2) solid var(--color-theme);
         border-right: calc(var(--button-dim)/2) solid transparent;
         border-bottom: calc(var(--button-dim)/2) solid transparent;
         border-top: calc(var(--button-dim)/2) solid transparent;
     } */
     /* .triangle-down {
-        border-top: calc(var(--button-dim)/2) solid var(--theme-color);
+        border-top: calc(var(--button-dim)/2) solid var(--color-theme);
         border-right: calc(var(--button-dim)/2) solid transparent;
         border-bottom: calc(var(--button-dim)/2) solid transparent;
         border-left: calc(var(--button-dim)/2) solid transparent;

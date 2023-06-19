@@ -52,14 +52,14 @@
         height: var(--radius-inner);
         width: var(--radius-inner);
         border-radius: 50%;
-        background-color: var(--theme-color);
+        background-color: var(--color-theme);
     }
     #checkCircle:hover {
-        background-color: var(--theme-hover-highlight-color);
+        background-color: var(--color-background-theme-highlight);
         transition: all 0.2s;
     }
     label:hover + #checkCircle {
-        background-color: var(--theme-hover-highlight-color);
+        background-color: var(--color-background-theme-highlight);
         transition: all 0.2s;
     }
     label{

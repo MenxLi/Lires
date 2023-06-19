@@ -215,7 +215,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--theme-hover-highlight-color);
+        background-color: var(--color-background-theme-highlight);
     }
 </style>
     

@@ -34,7 +34,7 @@
         font-size: smaller;
     }
     span.button:hover{
-        background-color: var(--theme-hover-highlight-color);
+        background-color: var(--color-background-theme-highlight);
         box-shadow: 0 1px 3px 2px var(--color-shadow);
         transition: all 0.2s;
     }

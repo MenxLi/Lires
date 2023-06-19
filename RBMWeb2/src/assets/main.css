@@ -83,7 +83,7 @@ input[type="button"], button{
   color: var(--color-text);
 }
 input[type="button"]:hover, button:hover{
-  background-color: var(--theme-hover-highlight-color);
+  background-color: var(--color-background-theme-highlight);
   transition: all 0.15s;
 }
 select{
