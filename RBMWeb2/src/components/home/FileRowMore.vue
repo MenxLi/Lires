@@ -100,9 +100,9 @@ function editThisDatapoint(){
     #actions{
         gap: 15px;
         background-color: var(--color-background-mute);
-        width: 100%;
+        width: 98%;
         border-radius: 5px;
-        box-shadow: inset 0px 2px 3px 2px var(--color-shadow);
+        box-shadow: inset 0px 1px 3px 2px var(--color-shadow);
         padding: 5px;
     }
     #actions > a{

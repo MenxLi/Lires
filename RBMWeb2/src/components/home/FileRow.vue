@@ -78,7 +78,7 @@
 </script>
 
 <template>
-    <div id="fileRow" class="hoverMaxout101 gradInFast" @click="clickOnRow">
+    <div id="fileRow" class="gradInFast" @click="clickOnRow">
         <div id="init" class="row" ref="initDiv">
             <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
                 {{ authorYearText }}
