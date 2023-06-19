@@ -35,7 +35,7 @@
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-1);
 
-  --color-shadow: rgba(0, 0, 0, 0.15);
+  --color-shadow: rgba(0, 0, 0, 0.12);
 }
 
 :root.dark {
@@ -62,12 +62,14 @@
 
 :root, :root.light{
   --color-theme: rgb(98, 171, 200);
+  --color-background-ssoft: #fafafa;
   --color-background-theme-highlight: rgba(128, 198, 197, 0.2);
   --color-background-theme-thin: #e6e9ee;
 }
 
 :root.dark{
   --color-theme: rgb(80, 180, 200);
+  --color-background-ssoft: #1f1f1f;
   --color-background-theme-highlight: rgba(108, 186, 160, 0.2);
   --color-background-theme-thin: #2c2e31;
 }

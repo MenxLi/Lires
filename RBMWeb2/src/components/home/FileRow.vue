@@ -125,7 +125,8 @@
         border-radius: 5px;
         padding: 3px;
         padding-left: 5px;
-        background-color: var(--color-background-soft);
+        background-color: var(--color-background-ssoft);
+        box-shadow: 0px 1px 2px 0px var(--color-shadow);
     }
     div#fileRow:hover{
         background-color: var(--color-background-theme-highlight);
