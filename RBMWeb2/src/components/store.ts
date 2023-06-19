@@ -42,7 +42,8 @@ export const useUIStateStore = defineStore(
         },
         actions: {
             updateShownData(){
-                // update shownDataUIDs
+                // update shownDataUIDs, which is used to control the display of data cards
+                // Should call this function manually, because it involves async operation (searching)
                 const dataStore = useDataStore();
                 const tagFilteredDataPoints = dataStore.database.getDataByTags(this.currentlySelectedTags);
                 DataSearcher.filter(tagFilteredDataPoints, this.searchState).then(
