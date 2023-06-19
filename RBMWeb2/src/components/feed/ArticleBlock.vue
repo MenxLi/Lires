@@ -198,12 +198,17 @@
         gap: 1em;
     }
 
+    #relatedArticles{
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 5px;
+    }
     div.relatedArticle{
         display: flex;
         flex-direction: row;
         justify-content:space-between;
         align-items: center;
-        gap: 0.5em;
     }
     div.relatedArticle>*{
         width: 100%;

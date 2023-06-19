@@ -99,7 +99,7 @@ function editThisDatapoint(){
     }
     #actions{
         gap: 15px;
-        background-color: var(--color-background-soft);
+        background-color: var(--color-background-mute);
         width: 100%;
         border-radius: 5px;
         box-shadow: inset 0px 2px 3px 2px var(--color-shadow);

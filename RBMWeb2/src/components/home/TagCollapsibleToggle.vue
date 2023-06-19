@@ -64,12 +64,14 @@
         <div id="button" :class="buttonClass" ref="button" @click="onClickButton">
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
-        <Toggle 
-            :checked="isChecked" 
-            :identifier="props.identifier"
-            @onCheck="_onCheck">
-            <slot></slot>
-        </Toggle>
+        <div class="toggleText">
+            <Toggle 
+                :checked="isChecked" 
+                :identifier="props.identifier"
+                @onCheck="_onCheck">
+                <slot></slot>
+            </Toggle>
+        </div>
     </div>
     <div v-show="!collapsed" class="children gradInDown">
         <TagCollapsibleToggle v-for="(v, k) in children" 
@@ -101,6 +103,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    .toggleText{
+        flex-grow: 1;
+        margin-top: 2px;
+        margin-bottom: 2px;
+        border-radius: 5px;
+        transition: all 0.1s ease;
+    }
+    .toggleText:hover{
+        background-color: var(--color-background-theme-highlight);
     }
     .triangle-right {
 		width: var(--triangle-dim);

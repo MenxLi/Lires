@@ -78,7 +78,7 @@
 </script>
 
 <template>
-    <div id="fileRow" class="hoverMaxout101 gradIn2" @click="clickOnRow">
+    <div id="fileRow" class="hoverMaxout101 gradInFast" @click="clickOnRow">
         <div id="init" class="row" ref="initDiv">
             <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
                 {{ authorYearText }}
@@ -119,24 +119,22 @@
     }
     div#fileRow {
         flex-wrap: wrap;
-        border: 1px solid var(--color-border);
+        /* border: 1px solid var(--color-border); */
         border-radius: 5px;
         padding: 3px;
         padding-left: 5px;
-        margin-top: 3px;
-        margin-bottom: 3px;
+        background-color: var(--color-background-soft);
     }
     div#fileRow:hover{
         background-color: var(--color-background-theme-highlight);
-        transition: background-color 0.2s;
+        box-shadow: 1px 2px 5px 1px var(--color-shadow);
+        transition: all 0.2s;
     }
     #authorYear{
         width: 250px;
         white-space: nowrap;
-        background-color: var(--color-background-soft);
+        background-color: var(--color-background-theme-thin);
         border-radius: 10px;
-        /* margin-top: 3px;
-        margin-bottom: 3px; */
         padding: 10px;
         padding-top: 3px;
         padding-bottom: 3px;

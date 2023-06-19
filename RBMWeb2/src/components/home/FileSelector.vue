@@ -10,7 +10,7 @@
 </script>
 
 <template>
-    <div class="panel scrollable">
+    <div class="panel scrollable" id="selector">
         <FileRow v-for="uid in uiState.shownDataUIDs" :datapoint="dataStore.database.get(uid)"></FileRow>
     </div>
 </template>
@@ -19,5 +19,10 @@
     div.panel {
         border-radius: 10px;
         padding: 15px;
+    }
+    #selector{
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
     }
 </style>
