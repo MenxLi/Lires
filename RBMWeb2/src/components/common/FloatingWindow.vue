@@ -80,6 +80,9 @@ div.header {
   color: var(--color-text);
   opacity: 0.5;
 }
+.header label {
+  text-align: left;
+}
 
 .floating-window {
   position: fixed;
@@ -109,11 +112,13 @@ div.header {
 }
 
 .close-button {
-  align-self: flex-end;
-  background: none;
-  border: 1px solid var(--color-border);
+  min-width: 2.6em;
   width: 2.6em;
   height: 1.8em;
+
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--color-border);
   border-radius: 0.75em;
   cursor: pointer;
   padding: 0;
