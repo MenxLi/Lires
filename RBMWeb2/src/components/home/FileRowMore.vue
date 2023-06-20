@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { DataPoint } from '../../core/dataClass';
+import DataEditor from './DataEditor.vue';
 import { useDataStore, useUIStateStore } from '../store';
 
 const props = defineProps<{
@@ -26,17 +27,20 @@ const setAbstract = async () => {
 
 // actions
 const showActions = ref(false);
+const showEditor = ref(false);
 function deleteThisDatapoint(){
     if (window.confirm(`Delete? \n${props.datapoint.toString()}`)){
         dataStore.database.delete(props.datapoint.summary.uuid).then(uiState.updateShownData)
     }
 }
 function editThisDatapoint(){
-    uiState.showPopup("Not implemented yet", "warning");
+    // uiState.showPopup("Not implemented yet", "warning");
+    showEditor.value = true;
 }
 </script>
 
 <template>
+    <DataEditor v-model:show="showEditor" :uuid="datapoint.summary.uuid"></DataEditor>
     <div id="moreMain">
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
