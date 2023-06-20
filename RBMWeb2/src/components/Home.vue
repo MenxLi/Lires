@@ -66,7 +66,7 @@
 
 <style scoped>
     #main{
-        height: 96vh;
+        height: 98vh;
         width: 98vw;
         display: flex;
         flex-direction: column;
