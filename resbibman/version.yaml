@@ -284,3 +284,10 @@ version_history:
     - RBMServer - api update - img, fileinfo-supp, iserverproxy, dataman
     - backup on deletion
     - fixes - torch device on featurize
+  0.12.5:
+    - RBMWeb - add/edit data
+    - RBMWeb - better floating window
+    - RBMWeb - style change
+    - RBMWeb - load database on app loading
+    - RBMWeb - stacked multiple popups
+    - fixes - RBMWeb reader splitter; update database on collect
