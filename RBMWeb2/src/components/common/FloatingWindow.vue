@@ -3,8 +3,10 @@
   const props = withDefaults(defineProps<{
     "title"?: string,
     "show": boolean,
+    "closeKey"?: string,
   }>(), {
     title: "_",
+    closeKey: "Escape",
   });
   const emit = defineEmits<{
     (e: "onClose"): void,
@@ -22,6 +24,13 @@
     showWindow.value = false;
     emit("onClose");
   }
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === props.closeKey) {
+      closeWindow();
+      e.preventDefault()
+    }
+  });
 
 </script>
 

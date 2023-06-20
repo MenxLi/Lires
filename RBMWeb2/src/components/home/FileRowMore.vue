@@ -6,6 +6,7 @@ import { useDataStore, useUIStateStore } from '../store';
 
 const props = defineProps<{
     datapoint: DataPoint
+    show: boolean
 }>()
 
 const dataStore = useDataStore();
@@ -37,11 +38,20 @@ function editThisDatapoint(){
     // uiState.showPopup("Not implemented yet", "warning");
     showEditor.value = true;
 }
+
+// show editor by pressing space
+window.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && props.show){
+        editThisDatapoint();
+        // stop the space from scrolling the page
+        e.preventDefault();
+    }
+})
 </script>
 
 <template>
     <DataEditor v-model:show="showEditor" :datapoint="datapoint"></DataEditor>
-    <div id="moreMain">
+    <div id="moreMain" v-if="show">
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
             <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a>

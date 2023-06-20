@@ -81,7 +81,7 @@
 </script>
 
 <template>
-    <FloatingWindow v-model:show="show" :title="datapoint? datapoint.authorAbbr() : 'new'">
+    <FloatingWindow v-model:show="show" :title="datapoint?datapoint.authorAbbr():'new'">
         <div id="inputDiv">
             <div id="inputLeft">
                 <div id="bibtexArea">

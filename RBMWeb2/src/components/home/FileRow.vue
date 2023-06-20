@@ -107,8 +107,8 @@
             </div>
         </div>
         <Transition name="more">
-            <div id="more" v-show="showMore" ref="moreDiv">
-                <FileRowMore :datapoint="datapoint"></FileRowMore>
+            <div id="more" ref="moreDiv">
+                <FileRowMore :datapoint="datapoint" :show="showMore"></FileRowMore>
             </div>
         </Transition>
     </div>
