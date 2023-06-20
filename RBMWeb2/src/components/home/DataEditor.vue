@@ -66,7 +66,9 @@
         // init data on every showup!
         if (newShow){
             if (props.datapoint){ bibtex.value = props.datapoint.summary.bibtex; }
+            else { bibtex.value = "";}
             if (props.datapoint){ url.value = props.datapoint.summary.url; }
+            else { url.value = "";}
             tagStatus.value = {
                 all: new DataTags(uiState.tagStatus.all),
                 checked: props.datapoint? new DataTags(props.datapoint.summary.tags) : new DataTags(uiState.tagStatus.checked),

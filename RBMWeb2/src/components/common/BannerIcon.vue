@@ -31,7 +31,9 @@
         border-radius: 10px;
         display: flex;
         align-items: center;
+        justify-content: center;
         font-size: smaller;
+        gap: 2px;
     }
     span.button:hover{
         background-color: var(--color-background-theme-highlight);

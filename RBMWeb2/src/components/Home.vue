@@ -7,6 +7,9 @@
     import FileTags from "./home/FileTags.vue";
     import FileSelector from "./home/FileSelector.vue";
     import Banner from "./common/Banner.vue";
+    import BannerIcon from "./common/BannerIcon.vue";
+    import DataEditor from "./home/DataEditor.vue";
+    import addCircleIcon from "../assets/icons/add_circle.svg";
 
     import type { SearchStatus } from "./interface";
 
@@ -43,18 +46,24 @@
         uiState.updateShownData();
     }
 
+    // adding new data
+    const showAddingDataWindow = ref(false);
 
 </script>
 
 <template>
+    <DataEditor :datapoint="null" v-model:show="showAddingDataWindow"></DataEditor>
     <div id="main" class="gradIn">
         <Banner>
-            <div class="searchbar">
-                <label for="searchbar"> Search: </label>
-                <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
-                    <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
-                </select>
-                <input id="searchbar" type="text" v-model="searchInput" @input="onSearchChanged">
+            <div id="bannerAddons">
+                <BannerIcon :iconSrc="addCircleIcon" labelText="New" @click="showAddingDataWindow = true"></BannerIcon>
+                |
+                <div class="searchbar">
+                    <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
+                        <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
+                    </select>
+                    <input id="searchbar" type="text" v-model="searchInput" @input="onSearchChanged" placeholder="search">
+                </div>
             </div>
         </Banner>
         <div class="horizontal fullHeight">
@@ -80,6 +89,12 @@
     div.horizontal{
         display: flex;
         padding-top: 10px;
+        gap: 10px;
+    }
+    div#bannerAddons{
+        display: flex;
+        align-items: center;
+        justify-self: center;
         gap: 10px;
     }
 </style>
