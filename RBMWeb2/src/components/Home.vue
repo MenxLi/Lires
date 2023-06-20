@@ -25,8 +25,8 @@
     const router = useRouter();
     const defaultTags = router.currentRoute.value.query.tags as string | undefined;
     if (defaultTags != undefined){
-        uiState.currentlySelectedTags = new DataTags(defaultTags.split("&&"));
-        uiState.unfoldedTags = uiState.currentlySelectedTags.withParents().pop(uiState.currentlySelectedTags)
+        uiState.tagStatus.checked = new DataTags(defaultTags.split("&&"));
+        uiState.tagStatus.unfolded = uiState.tagStatus.checked.withParents().pop(uiState.tagStatus.checked)
     }
 
     // search refealated

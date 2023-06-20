@@ -1,40 +1,33 @@
 <script setup lang="ts">
     import { computed} from 'vue';
-    import { TagRule, TAG_SEP, type TagHierarchy } from '../../core/dataClass';
+    import { TagRule, TAG_SEP } from '../../core/dataClass';
     import TagCollapsibleToggle from './TagCollapsibleToggle.vue';
-    import { assert } from '@vue/compiler-core';
-    import { useUIStateStore, useDataStore } from '../store';
+    import { TagStatus } from '../interface';
 
-    import type { TagCheckStatus } from "../interface"
-
-    const emit = defineEmits<{
-        (e: "onCheck", status: TagCheckStatus) : void
+    const props = defineProps<{
+        tagStatus: TagStatus
     }>()
 
-    const dataStore = useDataStore()
-    const allTags = computed(() => dataStore.database.getAllTags());
-    const hierarchy = computed(() => TagRule.tagHierarchy(allTags.value!));
-    function sortedHierarchyKeys(hierarchy: TagHierarchy){
-        return Object.keys(hierarchy).sort();
-    }
+    const emit = defineEmits<{
+        (e: "update:tagStatus", status: TagStatus): void
+    }>()
+    
+    const hierarchy = computed(() => TagRule.tagHierarchy(props.tagStatus.all));
+    const sortedHierarchyKeys = computed(() => Object.keys(hierarchy.value).sort());
 
-    function _onCheck(is_checked: boolean, identifier: string|undefined) {
-        assert(typeof(allTags.value) != "undefined");
-        emit("onCheck", {
-            identifier: identifier as string,
-            isChecked: is_checked,
-            currentlySelected: Array.from(useUIStateStore().currentlySelectedTags)
-        });
-    }
+    const mutableTagStatus = computed({
+        get: () => props.tagStatus,
+        set: (newStatus: TagStatus) => emit("update:tagStatus", newStatus)
+    })
 
 </script>
 
 <template>
     <div id="tagSelector" class="scrollable">
-        <TagCollapsibleToggle v-for="k of sortedHierarchyKeys(hierarchy)"
+        <TagCollapsibleToggle v-for="k of sortedHierarchyKeys"
             :identifier="String(k)" 
             :children="hierarchy[k]" 
-            @onCheck="_onCheck">
+            v-model:tagStatus="mutableTagStatus">
             {{ String(k).split(TAG_SEP).slice(-1)[0] }}
         </TagCollapsibleToggle>
     </div>

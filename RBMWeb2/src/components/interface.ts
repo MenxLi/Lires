@@ -1,9 +1,11 @@
 // Type definitions across components
 
-export interface TagCheckStatus{
-    identifier: string,
-    isChecked: boolean,
-    currentlySelected: string[]
+import type { DataTags } from "../core/dataClass"
+
+export interface TagStatus{
+    checked: DataTags,
+    all: DataTags,
+    unfolded: DataTags
 }
 
 export interface SearchStatus{

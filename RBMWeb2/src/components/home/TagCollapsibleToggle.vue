@@ -6,12 +6,11 @@
     import Toggle from "../common/Toggle.vue";
     import TagCollapsibleToggle from "./TagCollapsibleToggle.vue"
     import { TAG_SEP } from '../../core/dataClass';
-    import { useUIStateStore } from "../store";
     import type { TagHierarchy } from "../../core/dataClass";
-
-    const uiState = useUIStateStore()
+    import type { TagStatus } from "../interface";
 
     const props = withDefaults(defineProps<{
+        tagStatus: TagStatus,
         identifier: string,
         children: TagHierarchy,
     }>(), {
@@ -20,42 +19,47 @@
 
     // emit from both itself and the following children
     const emit = defineEmits<{
-        (e: "onCheck", is_checked: boolean, identifier: string|undefined): void
+        (e: "update:tagStatus", status: TagStatus): void
     }>()
 
-    // if has child change style
-    const buttonClass = ref("collapseButton")
-    if (Object.keys(props.children).length !== 0) {
-        buttonClass.value += " collapsible"
-    }
+    const mutableTagStatus = computed({
+        get: () => props.tagStatus,
+        set: (newStatus: TagStatus) => emit("update:tagStatus", newStatus)
+    })
+
+    const buttonClass = computed(() => {
+        let buttonClass = "collapseButton"
+        if (Object.keys(props.children).length !== 0) {
+            buttonClass += " collapsible"
+        }
+        return buttonClass
+    })
 
     const button = ref(null);
-    const collapsed = computed(() => !uiState.unfoldedTags.has(props.identifier))
+    const collapsed = computed(() => !props.tagStatus.unfolded.has(props.identifier))
     const triangleClass = computed(() => collapsed.value?"triangle-right":"triangle-down rotate90in")
     function onClickButton(_: Event){
-        if (uiState.unfoldedTags.has(props.identifier)){
-            uiState.unfoldedTags.delete(props.identifier);
+        let unfoldedTags = mutableTagStatus.value.unfolded;
+        if (unfoldedTags.has(props.identifier)){
+            unfoldedTags.delete(props.identifier);
         }
         else{
-            uiState.unfoldedTags.add(props.identifier);
+            unfoldedTags.add(props.identifier);
         }
     }
 
     // change tag store and emit
-    const isChecked = computed(() => uiState.currentlySelectedTags.has(props.identifier))
+    const isChecked = computed(() => props.tagStatus.checked.has(props.identifier))
     function _onCheck(identifier: string|undefined){
         // change global state
         if (identifier === undefined){ return;}
-        let is_checked = false;
-        if (!uiState.currentlySelectedTags.has(identifier)){
-            uiState.currentlySelectedTags.add(identifier);
-            is_checked = true;
+        let currentlySelectedTags = mutableTagStatus.value.checked;
+        if (!currentlySelectedTags.has(identifier)){
+            currentlySelectedTags.add(identifier);
         }
         else{
-            uiState.currentlySelectedTags.delete(identifier)
+            currentlySelectedTags.delete(identifier)
         }
-        // emit
-        emit("onCheck", is_checked, identifier);
     }
 </script>
 
@@ -77,7 +81,7 @@
         <TagCollapsibleToggle v-for="(v, k) in children" 
             :identifier="String(k)" 
             :children="v" 
-            @onCheck="(is_checked: boolean, identifier: string | undefined) => emit('onCheck', is_checked, identifier)">
+            v-model:tag-status="mutableTagStatus">
             {{ String(k).split(TAG_SEP).slice(-1)[0] }}
         </TagCollapsibleToggle>
     </div>

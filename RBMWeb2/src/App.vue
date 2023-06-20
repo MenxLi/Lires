@@ -3,8 +3,9 @@
     import Popup from './components/common/Popup.vue';
     import { useUIStateStore, useDataStore } from './components/store';
     const uiState = useUIStateStore();
+    const dataStore = useDataStore()
     uiState.showPopup("Loading database...", "info");
-    useDataStore().database.requestData().then(
+    dataStore.database.requestData().then(
         (_) => {
             uiState.updateShownData();
             uiState.showPopup("Database loaded", "success")

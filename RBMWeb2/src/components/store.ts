@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
 import { formatAuthorName } from '../libs/misc'
 export { formatAuthorName }
-import type { SearchStatus, PopupStyle } from './interface'
+import type { SearchStatus, PopupStyle, TagStatus } from './interface'
 
 interface PopupValue {
     content: string,
@@ -14,8 +14,12 @@ export const useUIStateStore = defineStore(
     "uiStatus", {
         state: () => {
             return {
-                currentlySelectedTags: new DataTags(),
-                unfoldedTags: new DataTags(),
+                tagStatus: {
+                    checked: new DataTags(),
+                    all: new DataTags(),
+                    unfolded: new DataTags(),
+                } as TagStatus,
+
                 shownDataUIDs: [] as string[],
                 searchState: {
                         "searchBy": "",
@@ -60,7 +64,8 @@ export const useUIStateStore = defineStore(
                 // update shownDataUIDs, which is used to control the display of data cards
                 // Should call this function manually, because it involves async operation (searching)
                 const dataStore = useDataStore();
-                const tagFilteredDataPoints = dataStore.database.getDataByTags(this.currentlySelectedTags);
+                this.tagStatus.all = dataStore.allTags;
+                const tagFilteredDataPoints = dataStore.database.getDataByTags(this.tagStatus.checked);
                 DataSearcher.filter(tagFilteredDataPoints, this.searchState).then(
                     (datapoints: DataPoint[]) => this.shownDataUIDs = datapoints.map((dp) => dp.summary.uuid)
                 )
@@ -104,6 +109,9 @@ export const useDataStore = defineStore(
                     }
                 }
                 return ret;
+            },
+            allTags(): DataTags {
+                return this.database.getAllTags();
             }
         }
     }
