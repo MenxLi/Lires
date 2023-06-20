@@ -28,6 +28,10 @@
     const moreDiv = ref<HTMLElement | null>(null);
 
     function clickOnRow(event: Event){
+        // check if event target is fileRow div or not
+        if (!isChildDOMElement(event.target as HTMLElement, initDiv.value!)){
+            return;
+        }
         // check if event target is authorYear div or not
         if ((event.target as HTMLElement).id == "authorYear"){
             // Maybe open doc
