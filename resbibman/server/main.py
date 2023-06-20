@@ -41,6 +41,7 @@ class Application(tornado.web.Application):
 
             # data management
             (r"/dataman/delete", DataDeleteHandler),
+            (r"/dataman/update", DataUpdateHandler),
 
             # deal with images under misc folder of each datapoint
             (r"/img/(.*)", ImageGetHandler),

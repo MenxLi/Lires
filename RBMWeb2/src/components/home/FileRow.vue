@@ -24,12 +24,13 @@
     const isHoveringAuthorYear = ref(false);
 
     // template refs
+    const dataCard = ref<HTMLElement | null>(null);
     const initDiv = ref<HTMLElement | null>(null);
     const moreDiv = ref<HTMLElement | null>(null);
 
     function clickOnRow(event: Event){
         // check if event target is fileRow div or not
-        if (!isChildDOMElement(event.target as HTMLElement, initDiv.value!)){
+        if (!isChildDOMElement(event.target as HTMLElement, dataCard.value!)){
             return;
         }
         // check if event target is authorYear div or not
@@ -82,7 +83,7 @@
 </script>
 
 <template>
-    <div id="fileRow" class="gradInFast" @click="clickOnRow">
+    <div id="fileRow" class="gradInFast" @click="clickOnRow" ref="dataCard">
         <div id="init" class="row" ref="initDiv">
             <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
                 {{ authorYearText }}

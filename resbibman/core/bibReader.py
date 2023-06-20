@@ -7,6 +7,17 @@ import warnings, logging
 import nbib
 from pybtex.database import BibliographyData, Entry
 
+def checkBibtexValidity(bib_str: str) -> bool:
+    """
+    Check if the bib string is valid
+    """
+    try:
+        bib_parser = BibParser()
+        _ = bib_parser(bib_str)[0]
+        return True
+    except:
+        return False
+
 class BibParser:
     logger = logging.getLogger("rbm")
     def __init__(self, mode = "single"):

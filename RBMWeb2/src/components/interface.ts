@@ -13,4 +13,4 @@ export interface SearchStatus{
     content: string
 }
 
-export type PopupStyle = "alert" | "warning" | "info" | "success"
+export type PopupStyle = "alert" | "error" | "warning" | "info" | "success"

@@ -104,6 +104,7 @@ export class ServerConn {
         }
     }
 
+    /* upload images to the misc folder and return the file names */
     async uploadImages(uid: string, files: File[]): Promise<string[]>{
         const res = await Promise.all(
             files.map((file) => {
@@ -128,6 +129,32 @@ export class ServerConn {
             })
         );
         return res.map((r: any) => r.file_name);
+    }
+
+    async editData(uid: string | null, bibtex: string, tags: string[] = [], url: string = ""): Promise<DataInfoT>{
+        const params = new URLSearchParams();
+        if (!uid){ uid = null; }
+        params.set("key", getCookie("encKey"));
+        params.set("uuid", JSON.stringify(uid))
+        params.set("bibtex", bibtex);
+        params.set("tags", JSON.stringify(tags));
+        params.set("url", url);
+        const response = await fetch(`${getBackendURL()}/dataman/update`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":"application/x-www-form-urlencoded"
+                },
+                body: params.toString(),
+            }
+        );
+        if (response.ok && response.status === 200) {
+            const res: DataInfoT = JSON.parse(await response.text());
+            return res
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`);
+        }
     }
 
     async search(method: string, kwargs: any): Promise<SearchResult>{

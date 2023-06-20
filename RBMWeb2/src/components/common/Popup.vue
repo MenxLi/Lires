@@ -13,7 +13,7 @@
 
     const stylePopup = computed(
         ()=>{
-            if (props.styleType === "alert"){
+            if (props.styleType === "alert" || props.styleType === "error"){
                 return {
                     backgroundColor: "rgba(180, 0, 20, 0.9)",
                     color: "rgba(255, 255, 255, 1)"

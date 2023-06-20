@@ -40,7 +40,7 @@ function editThisDatapoint(){
 </script>
 
 <template>
-    <DataEditor v-model:show="showEditor" :uuid="datapoint.summary.uuid"></DataEditor>
+    <DataEditor v-model:show="showEditor" :datapoint="datapoint"></DataEditor>
     <div id="moreMain">
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>

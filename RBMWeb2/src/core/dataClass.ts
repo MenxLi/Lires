@@ -39,6 +39,12 @@ export class DataTags extends Set<string>{
         tagPool.forEach((tag) => ret.union_(TagRule.allChildsOf(tag, tagPool)));
         return ret;
     }
+    /* return all parents that has child in this */
+    allParents(): DataTags{
+        const ret = new DataTags()
+        this.forEach(tag => ret.union_(TagRule.allParentsOf(tag)));
+        return ret;
+    }
 }
 
 export class TagRule {
@@ -216,7 +222,12 @@ export class DataPoint {
         })
     }
 
-    update(): Promise<DataInfoT> {
+    update(summary: null | DataInfoT = null): Promise<DataInfoT> {
+        if (summary !== null) {
+            this.summary = summary;
+            return Promise.resolve(summary);
+        }
+
         const res = new ServerConn().reqDatapointSummary(this.summary.uuid);
         res.then((data) => {
             this.summary = data;
