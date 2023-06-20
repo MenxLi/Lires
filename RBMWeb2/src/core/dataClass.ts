@@ -8,6 +8,26 @@ export interface TagHierarchy extends Record<string, TagHierarchy>{};
 export const TAG_SEP = "->";
 
 export class DataTags extends Set<string>{
+    static removeSpaces(tag: string): string{
+        const splitTag = tag.split(TAG_SEP);
+        for (let i = 0; i < splitTag.length; i++){
+            splitTag[i] = splitTag[i].trim();
+        }
+        tag = splitTag.join(TAG_SEP);
+        return tag;
+    }
+    constructor(tags: string[] | DataTags | Set<string> | null = null ){
+        if (tags === null){
+            tags = [];
+        }
+        // remove spaces between words
+        const _tags = tags instanceof Set ? tags : new Set(tags);
+        _tags.forEach((tag) => { return DataTags.removeSpaces(tag); })
+        super(_tags);
+    }
+    add(tag: string){
+        return super.add(DataTags.removeSpaces(tag));
+    }
     union( tags: DataTags){
         const ret = new DataTags(this)
         ret.union_(tags);

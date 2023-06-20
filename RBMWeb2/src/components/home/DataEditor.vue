@@ -4,7 +4,7 @@
     import FloatingWindow from '../common/FloatingWindow.vue';
     import TagSelector from './TagSelector.vue';
     import { useUIStateStore, useDataStore } from '../store';
-    import { DataTags } from '../../core/dataClass';
+    import { DataTags, TagRule } from '../../core/dataClass';
     import { ServerConn } from '../../core/serverConn';
     import type { DataPoint } from '../../core/dataClass';
     import type { TagStatus } from '../interface';
@@ -53,6 +53,14 @@
             () => uiState.showPopup("Failed to save", "error")
         )
     }
+    const newTagInput = ref("");
+    function addNewTag(){
+        const tag = newTagInput.value.trim();
+        if (tag === ""){ return; }
+        tagStatus.value.checked.add(tag);
+        tagStatus.value.all.add(tag);
+        tagStatus.value.unfolded.union_(TagRule.allParentsOf(tag));
+    }
 
     watch(show, (newShow) => {
         // init data on every showup!
@@ -66,6 +74,7 @@
                         new DataTags(props.datapoint.summary.tags).allParents():
                         new DataTags(uiState.tagStatus.unfolded)
             };
+            newTagInput.value = "";
         }
     })
 
@@ -93,8 +102,8 @@
                 </div>
                 <div id="newTagArea">
                     <label for="newTag">Add: </label>
-                    <input id="newTag" placeholder="new tag" type="text">
-                    <button id="addNewTag">Add</button>
+                    <input id="newTag" placeholder="new tag" type="text" v-model="newTagInput">
+                    <button id="addNewTag" @click="addNewTag">Add</button>
                 </div>
             </div>
         </div>
