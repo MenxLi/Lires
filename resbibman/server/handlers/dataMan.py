@@ -45,13 +45,14 @@ class DataUpdateHandler(RequestHandlerBase, tornado.web.RequestHandler):
         if not checkBibtexValidity(bibtex):
             raise tornado.web.HTTPError(400)
         
-        if uuid is None:
-            # if the uuid is not provided, check tag validity using new tags
-            self.checkTagPermission(tags, permission["mandatory_tags"])
-        else:
-            # if the uuid is provided, check tag validity using old tags
-            old_tags = self.db[uuid].tags
-            self.checkTagPermission(old_tags, permission["mandatory_tags"])
+        if not permission["is_admin"]:
+            if uuid is None:
+                # if the uuid is not provided, check tag validity using new tags
+                self.checkTagPermission(tags, permission["mandatory_tags"])
+            else:
+                # if the uuid is provided, check tag validity using old tags
+                old_tags = self.db[uuid].tags
+                self.checkTagPermission(old_tags, permission["mandatory_tags"])
         
         if uuid is None:
             uuid = addDocument(self.db.conn, bibtex, check_duplicate=True)
