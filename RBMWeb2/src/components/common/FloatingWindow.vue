@@ -117,7 +117,7 @@ div.header {
 
 .window-content {
   margin: 15px;
-  /* margin-top: 20px; */
+  margin-top: 10px;
 }
 
 .close-button {

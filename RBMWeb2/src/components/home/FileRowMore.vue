@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { DataPoint } from '../../core/dataClass';
 import DataEditor from './DataEditor.vue';
 import { useDataStore, useUIStateStore } from '../store';
+import FloatingWindow from '../common/FloatingWindow.vue';
 
 const props = defineProps<{
     datapoint: DataPoint
@@ -47,15 +48,39 @@ window.addEventListener("keydown", (e) => {
         e.preventDefault();
     }
 })
+
+const showCopyCitation = ref(false);
+function copy2clip(text: string){
+    navigator.clipboard.writeText(text).then(
+        () => uiState.showPopup("Copied to clipboard.", "info"),
+        () => uiState.showPopup("Failed to copy", "error")
+    )
+}
 </script>
 
+
 <template>
+    <FloatingWindow v-model:show="showCopyCitation" title="Citations">
+        <div id="citations" :style="{
+            textAlign: 'left',
+        }" v-for=" (text, index) in 
+        [ 
+            `${datapoint.authorAbbr()} (${datapoint.summary.year})`,
+            `${datapoint.summary.title}`,
+            `${datapoint.summary.title}. ${datapoint.authorAbbr()} (${datapoint.summary.year})`,
+            `${datapoint.summary.bibtex}`,
+        ] ">
+            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}">{{ text }}</p>
+            <hr v-if="index !== 3">
+        </div>
+    </FloatingWindow>
     <DataEditor v-model:show="showEditor" :datapoint="datapoint"></DataEditor>
     <div id="moreMain" v-if="show">
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
-            <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a>
+            <!-- <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a> -->
             <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a>
+            <a rel="noopener noreferrer" @click="()=>showCopyCitation=!showCopyCitation">Cite</a>
             <a rel="noopener noreferrer" @click="()=>showActions=!showActions">Actions</a>
         </div>
         <Transition name="actions">
