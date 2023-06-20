@@ -110,7 +110,7 @@ function editThisDatapoint(){
         padding-left: 50px;
         padding-right: 50px;
         border-radius: 20px;
-        /* box-shadow: inset 0px 1px 3px 2px var(--color-shadow); */
+        box-shadow: inset 0px 1px 2px 0px var(--color-shadow);
     }
     #actions > a{
         text-decoration: underline;
