@@ -37,6 +37,6 @@
     #dataCardContainer{
         display: flex;
         flex-direction: column;
-        gap: 3.5px;
+        gap: 5px;
     }
 </style>
