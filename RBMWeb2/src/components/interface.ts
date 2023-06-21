@@ -15,7 +15,7 @@ export interface SearchStatus{
 
 export interface DataCardsStatus{
     datapoints: DataPoint[],
-    unfoldedIds: string[]
+    unfoldedIds?: string[]
 }
 
 export type PopupStyle = "alert" | "error" | "warning" | "info" | "success"

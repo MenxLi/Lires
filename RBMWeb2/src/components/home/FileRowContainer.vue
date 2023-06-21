@@ -5,7 +5,7 @@
     import { type DataCardsStatus } from '../interface';
     import { type DataPoint } from '../../core/dataClass';
 
-    // v-model
+    // MUST USE V_MODEL TO PASS unfoldedIds !!
     const props = withDefaults(defineProps<DataCardsStatus>(), {
         unfoldedIds: ()=>[],
     })
@@ -14,7 +14,6 @@
         (e: "update:datapoints", v: DataPoint[]): void
         (e: "update:unfoldedIds", v: string[]): void
     }>();
-
 
     // pass props
     const unfoldedIds = computed({

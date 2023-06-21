@@ -4,7 +4,7 @@
     import { ServerConn } from '../../core/serverConn';
     import { useDataStore, formatAuthorName, useUIStateStore } from '../store';
     import { DataPoint, DataSearcher } from '../../core/dataClass';
-    import FileRow from '../home/FileRow.vue';
+    import FileRowContainer from '../home/FileRowContainer.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
     import { ref } from 'vue';
 
@@ -89,12 +89,14 @@
             )
     }
 
+    const _unfoldedIds = ref([] as string[]);   // a local shared state to enable unfolding of datacards
+
 </script>
 
 <template>
     <FloatingWindow v-model:show="showAuthorPapers" title="Publications in the database" @onClose="authorPapers=[]">
         <div id="authorPapers">
-            <FileRow v-for="dp in authorPapers" :datapoint="dp"></FileRow>
+            <FileRowContainer :datapoints="authorPapers" v-model:unfoldedIds="_unfoldedIds"></FileRowContainer>
         </div>
     </FloatingWindow>
     <div id="main" class="gradInFast">
@@ -126,11 +128,7 @@
             <details>
                 <summary @click="queryRelatedArticles">Related articles</summary>
                 <div id="relatedArticles">
-                    <div class="relatedArticle" v-for="(dp, index) in relatedArticles">
-                        <FileRow :datapoint="dp">
-                            <label class="relatedArticleScore">{{relatedArticlesScores[index].toPrecision(3).slice(0, 4)}}</label>
-                        </FileRow>
-                    </div>
+                    <FileRowContainer :datapoints="relatedArticles" v-model:unfoldedIds="_unfoldedIds"/>
                 </div>
             </details>
         </div>
@@ -200,17 +198,9 @@
 
     #relatedArticles{
         display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        gap: 5px;
-    }
-    div.relatedArticle{
-        display: flex;
         flex-direction: row;
         justify-content:space-between;
         align-items: center;
-    }
-    div.relatedArticle>*{
         width: 100%;
     }
     label.relatedArticleScore{

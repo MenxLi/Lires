@@ -1,11 +1,11 @@
 <script setup lang="ts">
     import { ref, computed, onMounted } from "vue";
     import type { Ref } from "vue";
-    import { useUIStateStore } from "./store";
+    import { useUIStateStore, useDataStore } from "./store";
     import { useRouter } from "vue-router";
     import { DataTags } from "../core/dataClass";
     import FileTags from "./home/FileTags.vue";
-    import FileSelector from "./home/FileSelector.vue";
+    import FileRowContainer from "./home/FileRowContainer.vue";
     import Banner from "./common/Banner.vue";
     import BannerIcon from "./common/BannerIcon.vue";
     import DataEditor from "./home/DataEditor.vue";
@@ -15,6 +15,7 @@
 
     // get data
     const uiState = useUIStateStore();
+    const dataStore = useDataStore();
 
     // not show fileTag panel on small screen
     let windowWidth = ref(window.innerWidth);
@@ -68,7 +69,9 @@
         </Banner>
         <div class="horizontal fullHeight">
             <FileTags v-if="showFileTags" @onCheck="() => uiState.updateShownData()"></FileTags>
-            <FileSelector></FileSelector>
+            <div class="panel scrollable" id="fileSelector">
+                <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"></FileRowContainer>
+            </div>
         </div>
     </div>
 </template>
@@ -96,5 +99,8 @@
         align-items: center;
         justify-self: center;
         gap: 10px;
+    }
+    #fileSelector{
+        padding: 5px;
     }
 </style>
