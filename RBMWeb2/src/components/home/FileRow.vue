@@ -5,20 +5,29 @@
     import FileRowMore from './FileRowMore.vue';
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
-    import { useUIStateStore } from '../store';
 
     const NOTE_FULLSHOW_THRESHOLD = 12;
     const NOTE_SHOW_THRESHOLD = 1;
 
     const props = defineProps<{
         datapoint: DataPoint
+        unfoldedIds: string[]     // global unfoldedIds from DataCardContainer
     }>()
+
+    const emits = defineEmits<
+        (e: "update:unfoldedIds", v: string[]) => void
+    >()
+
+    // mutable unfoldedIds
+    const g_unfoldedIds = computed({
+        get: ()=>props.unfoldedIds,
+        set: (v)=>emits("update:unfoldedIds", v)}
+    );
 
     // record if show more is toggled
     // const showMore = ref(false);
-    const uiState = useUIStateStore();
     const showMore = computed(() => {
-        return uiState.unfoldedDataUIDs.includes(props.datapoint.summary.uuid);
+        return g_unfoldedIds.value.includes(props.datapoint.summary.uuid);
     })
     // record if mouse is hovering on authorYear div
     const isHoveringAuthorYear = ref(false);
@@ -45,11 +54,10 @@
         if (!isChildDOMElement(event.target as HTMLElement, moreDiv.value!)){
             // toggle show more
             if (showMore.value){
-                uiState.unfoldedDataUIDs = uiState.unfoldedDataUIDs.filter(uid => uid !== props.datapoint.summary.uuid);
+                g_unfoldedIds.value = g_unfoldedIds.value.filter(uid => uid !== props.datapoint.summary.uuid);
             }
             else{
-                // uiState.unfoldedDataUIDs.push(props.datapoint.info.uuid);
-                uiState.unfoldedDataUIDs = [props.datapoint.summary.uuid];
+                g_unfoldedIds.value = [props.datapoint.summary.uuid];
             }
         }
         else{

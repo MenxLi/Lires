@@ -1,8 +1,8 @@
 
 
 <script setup lang="ts">
-    import FileRow from './FileRow.vue';
     import {useUIStateStore, useDataStore } from '../store';
+    import FileRowContainer from './FileRowContainer.vue';
 
     const uiState = useUIStateStore();
     const dataStore = useDataStore();
@@ -10,8 +10,8 @@
 </script>
 
 <template>
-    <div class="panel scrollable" id="selector">
-        <FileRow v-for="uid in uiState.shownDataUIDs" :datapoint="dataStore.database.get(uid)"></FileRow>
+    <div class="panel scrollable">
+        <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"></FileRowContainer>
     </div>
 </template>
 
@@ -19,10 +19,5 @@
     div.panel {
         border-radius: 10px;
         padding: 15px;
-    }
-    #selector{
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
     }
 </style>

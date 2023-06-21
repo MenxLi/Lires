@@ -427,6 +427,14 @@ export class DataBase {
         return this.data[uuid];
     }
 
+    getMany(uuids: string[]): DataPoint[]{
+        const ret = [];
+        for (const uid of uuids){
+            ret.push(this.get(uid));
+        }
+        return ret;
+    }
+
     getAllTags() : DataTags {
         let _tags: string[];
         let all_tags: Set<string> = new Set();
