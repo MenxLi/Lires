@@ -25,8 +25,11 @@ export async function fetchArxivFeed(
   const parser = new XMLParser();
   const parsedData = parser.parse(xmlData);
 
-  const entries = parsedData.feed.entry;
-  console.log(parsedData)
+  let entries = parsedData.feed.entry;
+  if (!Array.isArray(entries)) {
+    // only one entry, so make it an array
+    entries = [entries];
+  }
 
   // some entries have multiple authors, some have one, (some have none??)
   function getAuthors(entry: any): string[] {
