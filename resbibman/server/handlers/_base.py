@@ -90,6 +90,7 @@ class RequestHandlerBase():
         """
         tags = DataTags(_tags)
         mandatory_tags = DataTags(_mandatory_tags)
+        RequestHandlerBase.logger.debug(f"check tags: {tags} vs {mandatory_tags}")
         if not mandatory_tags.issubset(tags.withParents()):
             raise tornado.web.HTTPError(402) 
 

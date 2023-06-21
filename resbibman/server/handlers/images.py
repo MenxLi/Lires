@@ -50,6 +50,12 @@ class ImageGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
 
 class ImageUploadHandler(RequestHandlerBase, tornado.web.RequestHandler):
     async def post(self, uid: str):
+        # permission check
+        permission = self.checkKey()
+        dp = self.db[uid]
+        if not permission["is_admin"]:
+            self.checkTagPermission(dp.tags, permission["mandatory_tags"])
+
         self.setDefaultHeader()
         file_info = self.request.files['file'][0]  # Get the file information
         file_data = file_info['body']  # Get the file data
@@ -75,32 +81,3 @@ class ImageUploadHandler(RequestHandlerBase, tornado.web.RequestHandler):
             "status": "OK",
             "file_name": filename,
         })
-
-## Not tested!
-class ImageUploadHandlerOld(tornado.web.RequestHandler, RequestHandlerBase):
-    """
-    Upload image to misc folder
-    """
-    def post(self, uid:str):
-        """
-        Args:
-            uid (str): uuid of the datapoint
-        """
-        # self.setDefaultHeader()
-        fname = self.get_argument("fname")
-        self.uploadImage(uid, fname)
-
-    def uploadImage(self, uid: str, fname: str):
-        """
-        Args:
-            uid (str): uuid of the datapoint
-            fname (str): filename of the image
-        """
-        dp = self.db[uid]
-        misc_dir = dp.fm.getMiscDir(create=True)
-        fpath = os.path.join(misc_dir, fname)
-        if os.path.exists(fpath):
-            raise tornado.web.HTTPError(409)
-
-        with open(fpath, "wb") as f:
-            f.write(self.request.body)

@@ -112,6 +112,7 @@ export class ServerConn {
                 return new Promise((resolve, reject) => {
                     const form = new FormData();
                     form.append('file', file);
+                    form.append('key', getCookie("encKey"))
                     
                     fetch(`${getBackendURL()}/img-upload/${uid}`, {
                         method: 'POST',
@@ -129,6 +130,43 @@ export class ServerConn {
             })
         );
         return res.map((r: any) => r.file_name);
+    }
+
+    /* upload document and return the new datapoint summary */
+    async uploadDocument(uid: string, file: File): Promise<DataInfoT>{
+        const form = new FormData();
+        form.append('file', file);
+        form.append('key', getCookie("encKey"))
+        const res = await fetch(`${getBackendURL()}/dataman/doc-upload/${uid}`, {
+            method: 'POST',
+            body: form,
+        })
+        if (res.ok){
+            const resObj = await res.json();
+            const DataInfo: DataInfoT = resObj;
+            return DataInfo;
+        }
+        else{
+            throw new Error(`Got response: ${res.status}`)
+        }
+    }
+
+    /* free document and return the new datapoint summary */
+    async freeDocument(uid: string): Promise<DataInfoT>{
+        const form = new FormData();
+        form.append('key', getCookie("encKey"))
+        const res = await fetch(`${getBackendURL()}/dataman/doc-free/${uid}`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){
+            const resObj = await res.json();
+            const DataInfo: DataInfoT = resObj;
+            return DataInfo;
+        }
+        else{
+            throw new Error(`Got response: ${res.status}`)
+        }
     }
 
     async editData(uid: string | null, bibtex: string, tags: string[] = [], url: string = ""): Promise<DataInfoT>{

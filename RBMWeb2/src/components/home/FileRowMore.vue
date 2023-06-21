@@ -4,6 +4,7 @@ import { DataPoint } from '../../core/dataClass';
 import DataEditor from './DataEditor.vue';
 import { useDataStore, useUIStateStore } from '../store';
 import FloatingWindow from '../common/FloatingWindow.vue';
+import {FileSelectButton} from '../common/fragments.tsx'
 
 const props = defineProps<{
     datapoint: DataPoint
@@ -27,19 +28,46 @@ const setAbstract = async () => {
     abstractParagraph.value!.innerHTML = abstract;
 }
 
+const showCopyCitation = ref(false);
+function copy2clip(text: string){
+    navigator.clipboard.writeText(text).then(
+        () => uiState.showPopup("Copied to clipboard.", "info"),
+        () => uiState.showPopup("Failed to copy", "error")
+    )
+}
+
 // actions
 const showActions = ref(false);
-const showEditor = ref(false);
+function uploadDocument(f: File){
+    uiState.showPopup('uploading...');
+    props.datapoint.uploadDocument(f).then(
+        (summary)=>{props.datapoint.update(summary); uiState.showPopup('Document uploaded', 'success')},
+        ()=>uiState.showPopup('Failed to upload document', 'error')
+    )
+}
+
+function freeDocument(){
+    if (!window.confirm(`Free document? \n${props.datapoint.toString()}`)){
+        return;
+    }
+    props.datapoint.freeDocument().then(
+        (summary)=>{props.datapoint.update(summary); uiState.showPopup('Document deleted', 'info')},
+        ()=>uiState.showPopup('Failed to free document', 'error')
+    )
+}
+
 function deleteThisDatapoint(){
-    if (window.confirm(`Delete? \n${props.datapoint.toString()}`)){
+    if (window.confirm(`[IMPORTANT] Delete? \n${props.datapoint.toString()}`)){
         dataStore.database.delete(props.datapoint.summary.uuid).then(uiState.updateShownData)
     }
 }
+
+// editor
+const showEditor = ref(false);
 function editThisDatapoint(){
     // uiState.showPopup("Not implemented yet", "warning");
     showEditor.value = true;
 }
-
 // show editor by pressing space
 window.addEventListener("keydown", (e) => {
     if (e.code === "Space" && props.show){
@@ -48,14 +76,6 @@ window.addEventListener("keydown", (e) => {
         e.preventDefault();
     }
 })
-
-const showCopyCitation = ref(false);
-function copy2clip(text: string){
-    navigator.clipboard.writeText(text).then(
-        () => uiState.showPopup("Copied to clipboard.", "info"),
-        () => uiState.showPopup("Failed to copy", "error")
-    )
-}
 </script>
 
 
@@ -86,6 +106,10 @@ function copy2clip(text: string){
         <Transition name="actions">
             <div class="row" id="actions" v-if="showActions">
                 <a rel="noopener noreferrer" @click="editThisDatapoint">Edit</a>
+                <FileSelectButton v-if="!datapoint.summary.has_file"
+                    :action="(f: File) => uploadDocument(f)" 
+                    text="Upload document" :as-link="true"></FileSelectButton>
+                <a v-else rel="noopener noreferrer" @click="freeDocument" class="danger">Free document</a>
                 <a rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger">Delete</a>
             </div>
         </Transition>
@@ -151,9 +175,15 @@ function copy2clip(text: string){
         border-radius: 20px;
         box-shadow: inset 0px 1px 2px 0px var(--color-shadow);
     }
-    #actions > a{
+    #actions a {
         text-decoration: underline;
         text-underline-offset: 2px;
+    }
+    #actions {
+        /deep/ a{
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
     }
 
     a.danger{
@@ -170,4 +200,4 @@ function copy2clip(text: string){
         opacity: 0;
         transform: translateY(-10px);
     }
-</style>
+</style>../common/fragments.tsx

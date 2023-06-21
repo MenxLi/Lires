@@ -12,7 +12,7 @@ export const FileSelectButton = defineComponent({
             default: 'Upload'
         },
         action: {
-            // callable that takes a file and returns a promise
+            // callable that takes a file and returns void
             type: Function,
             required: true
         },
@@ -20,7 +20,6 @@ export const FileSelectButton = defineComponent({
     setup(props, {}) {
         const inputButton = ref<HTMLInputElement | null>(null);
         const handleFile = (e: Event) => {
-            console.log('handleFile');
             const input = e.target as HTMLInputElement;
             if (input.files && input.files.length > 0) {
               const file = input.files[0];

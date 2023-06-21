@@ -242,6 +242,13 @@ export class DataPoint {
         })
     }
 
+    uploadDocument(doc: File): Promise<DataInfoT>{
+        return new ServerConn().uploadDocument(this.summary.uuid, doc);
+    }
+    freeDocument(): Promise<DataInfoT>{
+        return new ServerConn().freeDocument(this.summary.uuid);
+    }
+
     update(summary: null | DataInfoT = null): Promise<DataInfoT> {
         if (summary !== null) {
             this.summary = summary;
