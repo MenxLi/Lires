@@ -5,6 +5,7 @@ import DataEditor from './DataEditor.vue';
 import { useDataStore, useUIStateStore } from '../store';
 import FloatingWindow from '../common/FloatingWindow.vue';
 import {FileSelectButton} from '../common/fragments.tsx'
+import {isVisiable} from '../../libs/misc.ts'
 
 const props = defineProps<{
     datapoint: DataPoint
@@ -69,8 +70,10 @@ function editThisDatapoint(){
     showEditor.value = true;
 }
 // show editor by pressing space
+const moreDiv = ref(null as HTMLDivElement|null);
 window.addEventListener("keydown", (e) => {
-    if (e.code === "Space" && props.show){
+    // may prevent input space, may need to be fixed in the future
+    if (e.code === "Space" && props.show && isVisiable(moreDiv.value!) && !showEditor.value){
         editThisDatapoint();
         // stop the space from scrolling the page
         e.preventDefault();
@@ -95,7 +98,7 @@ window.addEventListener("keydown", (e) => {
         </div>
     </FloatingWindow>
     <DataEditor v-model:show="showEditor" :datapoint="datapoint"></DataEditor>
-    <div id="moreMain" v-if="show">
+    <div id="moreMain" v-if="show" ref="moreDiv">
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
             <!-- <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a> -->

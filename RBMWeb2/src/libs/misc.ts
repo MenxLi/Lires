@@ -34,3 +34,33 @@ export function formatAuthorName(author: string): string{
 
     return formattedAuthor;
 }
+
+/* detect if an element is visible in the viewport */
+export function isVisiable(el: HTMLElement): boolean{
+    if (!el){
+        // console.log("no element");
+        return false;
+    }
+    if (el.style.display === "none"){
+        // console.log("display none");
+        return false;
+    }
+    if (el.style.visibility === "hidden"){
+        // console.log("visibility hidden");
+        return false;
+    }
+    if (el.style.opacity === "0"){
+        // console.log("opacity 0");
+        return false;
+    }
+
+    const rect = el.getBoundingClientRect();
+    // console.log(rect.top, rect.bottom, window.innerHeight)
+    if (rect.top < 0){
+        return false;
+    }
+    if (rect.bottom > window.innerHeight){
+        return false;
+    }
+    return true;
+}
