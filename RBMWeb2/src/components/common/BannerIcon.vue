@@ -21,7 +21,7 @@
 <template>
     <span class="hoverMaxout105 button" @click="onClick" :title="title">
         <img id="icon" class="icon" :src="iconSrc" :alt="labelText.toUpperCase() + '_ICON'">
-        <label for="icon" class="iconLabel">{{ labelText }}</label>
+        <label for="icon" class="iconLabel non-selectable">{{ labelText }}</label>
     </span>
 </template>
 
