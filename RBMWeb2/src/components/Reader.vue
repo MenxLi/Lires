@@ -64,7 +64,7 @@
     const previewBtnText = computed(()=>_previewState.value?"edit":"preview");
     function toggleMarkdownPreview(){
         _previewState.value = !_previewState.value;
-        readerBody.value!.togglePreview(_previewState.value);
+        readerBody.value!.noteEditor.togglePreview(_previewState.value);
     }
 
     onMounted(() => {

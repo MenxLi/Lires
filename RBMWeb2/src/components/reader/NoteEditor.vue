@@ -2,8 +2,8 @@
 
 <script setup lang="ts">
     // https://github.com/imzbf/md-editor-v3
-    import { ref } from 'vue';
-    import type { DataPoint } from '../../core/dataClass';
+    import { ref, watch } from 'vue';
+    import { DataPoint } from '../../core/dataClass';
     import { MdEditor, MdPreview } from 'md-editor-v3';
     import { ThemeMode } from '../../core/misc';
     import 'md-editor-v3/lib/style.css';
@@ -16,15 +16,19 @@
     const mdText = ref<string>('');
     const mdEditor = ref<typeof MdEditor | null>(null);
 
-    props.datapoint.fetchNote().then(
-        (note) => {
-            console.log('Note fetched')
-            mdText.value = note;
-        },
-        (reason) => {
-            console.error(reason);
-        }
-    )
+    function fetchNote(){
+        props.datapoint.fetchNote().then(
+            (note) => {
+                console.log('Note fetched')
+                mdText.value = note;
+            },
+            (reason) => {
+                console.error(reason);
+            }
+        )
+    }
+    fetchNote();
+    watch(() => props.datapoint, () => {fetchNote(); console.log('datapoint changed, fetching note')})
 
     // event handlers
     function saveNote() {
@@ -56,8 +60,10 @@
     function togglePreview(state: boolean){
         preview.value = state;
     }
+
     defineExpose({
-        togglePreview
+        togglePreview,
+        fetchNote
     })
 
 </script>

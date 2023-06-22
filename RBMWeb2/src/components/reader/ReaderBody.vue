@@ -13,9 +13,9 @@
     const splitter = ref<HTMLElement | null>(null);
     const onMovingSplitter = ref<boolean>(false);
     const noteEditor = ref<typeof NoteEditor | null>(null);
-    const togglePreview = (state: boolean)=>{ noteEditor.value!.togglePreview(state);}
+    // const togglePreview = (state: boolean)=>{ noteEditor.value!.togglePreview(state);}
     defineExpose({
-        togglePreview
+        noteEditor,
     });
 
     function onStartMovingSplitter(event: MouseEvent | TouchEvent){
