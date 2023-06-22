@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { DataPoint } from '../../core/dataClass';
 import DataEditor from './DataEditor.vue';
 import { useDataStore, useUIStateStore } from '../store';
 import FloatingWindow from '../common/FloatingWindow.vue';
 import {FileSelectButton} from '../common/fragments.tsx'
-import { isVisiable, copyToClipboard } from '../../libs/misc.ts'
+import { copyToClipboard } from '../../libs/misc.ts'
 
 const props = defineProps<{
     datapoint: DataPoint
@@ -73,13 +73,17 @@ function editThisDatapoint(){
 }
 // show editor by pressing space
 const moreDiv = ref(null as HTMLDivElement|null);
-window.addEventListener("keydown", (e) => {
-    // may prevent input space, may need to be fixed in the future
-    if (e.code === "Space" && props.show && isVisiable(moreDiv.value!) && !showEditor.value){
+const shortcutEdit = (e: KeyboardEvent) => {
+    if (e.code === "Space" && props.show && !showEditor.value){
         editThisDatapoint();
-        // stop the space from scrolling the page
         e.preventDefault();
     }
+}
+onMounted(()=>{
+    window.addEventListener("keydown", shortcutEdit);
+})
+onUnmounted(()=>{
+    window.removeEventListener("keydown", shortcutEdit);
 })
 </script>
 
