@@ -21,12 +21,16 @@
     function onStopMovingSplitter(){
         onMovingSplitter.value = false;
     }
+    const leftPaneWidthRatio = ref(0.5);
     function onMoveSplitter(event: MouseEvent | TouchEvent) {
         if (onMovingSplitter.value && leftPane.value && rightPane.value && splitter.value) {
             const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
             const leftPaneWidth = clientX - leftPane.value!.getBoundingClientRect().left;
             leftPane.value!.style.width = `${leftPaneWidth}px`;
             rightPane.value!.style.width = `calc(100% - ${leftPaneWidth}px)`;
+            // record the width ratio for next time switching layout
+            leftPaneWidthRatio.value = leftPaneWidth / (leftPaneWidth + rightPane.value!.getBoundingClientRect().width);
+            leftPaneWidthRatio.value = Math.max(0.1, Math.min(0.9, leftPaneWidthRatio.value));
         }
     }
 
@@ -52,8 +56,10 @@
             rightPane.value!.style.width = '100%';
         }
         else if (layoutType == 2){
-            leftPane.value!.style.width = '50%';
-            rightPane.value!.style.width = '50%';
+            // leftPane.value!.style.width = '50%';
+            // rightPane.value!.style.width = '50%';
+            leftPane.value!.style.width = `${leftPaneWidthRatio.value * 100}%`;
+            rightPane.value!.style.width = `${(1 - leftPaneWidthRatio.value) * 100}%`;
         }
     }
     watch(() => props.layoutType, (newLayoutType, oldLayoutType) => {
