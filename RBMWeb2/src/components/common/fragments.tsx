@@ -1,4 +1,4 @@
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, type SetupContext } from "vue";
 
 export const FileSelectButton = defineComponent({
     name: 'file-select-button',
@@ -17,7 +17,7 @@ export const FileSelectButton = defineComponent({
             required: true
         },
     },
-    setup(props, {}) {
+    setup(props, context: SetupContext) {
         const inputButton = ref<HTMLInputElement | null>(null);
         const handleFile = (e: Event) => {
             const input = e.target as HTMLInputElement;
@@ -26,6 +26,8 @@ export const FileSelectButton = defineComponent({
               props.action(file);
             }
           }
+        function click() { inputButton.value!.click() };
+        context.expose({ click });
         return () => (
             <div class="upload-button">
                 <input type="file" id="upload-file" onChange={handleFile}
