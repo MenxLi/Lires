@@ -1,25 +1,58 @@
 
 <script setup lang="ts">
-    withDefaults(defineProps<{
+    import { onMounted, onUnmounted, computed } from 'vue';
+
+    const props = withDefaults(defineProps<{
         iconSrc: string,
         labelText: string,
-        title?: string
+        title?: string,
+        shortcut?: string | null
     }>(), {
-        title: ""
+        title: "",
+        shortcut: null
     })
+
+    const title = computed(() => props.title + (props.shortcut === null ? "" : ` (${props.shortcut})`));
 
     const emit = defineEmits<{
         (e: "onClick"): void
+        (e: "click"): void
     }>();
 
     function onClick(){
         emit("onClick");
+        emit("click");
     }
+
+    function evalShortcut(shortcut: string | null) : ((e: KeyboardEvent) => void) | null{
+        if (shortcut === null) return null;
+        const keys = shortcut.toLowerCase().split("+");
+        return (e) => {
+            if (keys.includes("ctrl") && !e.ctrlKey) return;
+            if (keys.includes("alt") && !e.altKey) return;
+            if (keys.includes("shift") && !e.shiftKey) return;
+            if (keys.includes("meta") && !e.metaKey) return;
+            if (!keys.includes(e.key.toLowerCase())) return;
+            console.log("shortcut triggered: " + shortcut + " | " + props.labelText);
+            onClick();
+            e.preventDefault();
+        }
+    }
+
+    const shortcutHandler = evalShortcut(props.shortcut);
+
+    onMounted(() => {
+        if (shortcutHandler !== null) window.addEventListener("keydown", shortcutHandler);
+    });
+
+    onUnmounted(() => {
+        if (shortcutHandler !== null) window.removeEventListener("keydown", shortcutHandler);
+    });
 
 </script>
 
 <template>
-    <span class="hoverMaxout105 button" @click="onClick" :title="title">
+    <span class="hoverMaxout105 button" @click="onClick" :title="`${title}`">
         <img id="icon" class="icon" :src="iconSrc" :alt="labelText.toUpperCase() + '_ICON'">
         <label for="icon" class="iconLabel non-selectable">{{ labelText }}</label>
     </span>

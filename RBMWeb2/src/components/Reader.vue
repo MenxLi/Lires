@@ -95,9 +95,12 @@
         <div id="banner">
             <Banner>
                 <div id="bannerOps">
-                    <BannerIcon :iconSrc="splitscreenIcon" labelText="layout" @onClick="changeLayout" title="change layout"></BannerIcon>
-                    <BannerIcon :iconSrc="uploadIcon" labelText="upload" @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></BannerIcon>
-                    <BannerIcon :iconSrc="eyeIcon" :labelText="previewBtnText" @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></BannerIcon>
+                    <BannerIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
+                        @onClick="changeLayout" title="change layout"></BannerIcon>
+                    <BannerIcon :iconSrc="uploadIcon" labelText="upload" shortcut="ctrl+u"
+                        @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></BannerIcon>
+                    <BannerIcon :iconSrc="eyeIcon" :labelText="previewBtnText" shortcut="ctrl+p"
+                        @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></BannerIcon>
                     |
                     <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
                 </div>
