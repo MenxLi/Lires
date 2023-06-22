@@ -59,12 +59,15 @@
         }
     }
 
+    // preview
     const readerBody = ref<typeof ReaderBody | null>(null);
-    const _previewState = ref<boolean>(false);
-    const previewBtnText = computed(()=>_previewState.value?"edit":"preview");
+    const previewState = computed(()=>{
+        try{ return readerBody.value!.noteEditor.preview} 
+        catch(e){ return false; }} // not mounted
+    );
+    const previewBtnText = computed(()=>previewState.value?"edit":"preview");
     function toggleMarkdownPreview(){
-        _previewState.value = !_previewState.value;
-        readerBody.value!.noteEditor.togglePreview(_previewState.value);
+        readerBody.value!.noteEditor.preview = !readerBody.value!.noteEditor.preview;
     }
 
     onMounted(() => {

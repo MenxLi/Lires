@@ -21,6 +21,10 @@
             (note) => {
                 console.log('Note fetched')
                 mdText.value = note;
+                // toggle preview if note is not empty
+                if (note.trim().length > 0){
+                    preview.value = true;
+                }
             },
             (reason) => {
                 console.error(reason);
@@ -57,12 +61,12 @@
     }
 
     const preview = ref<boolean>(false);
-    function togglePreview(state: boolean){
-        preview.value = state;
-    }
+    // function togglePreview(state: boolean){
+    //     preview.value = state;
+    // }
 
     defineExpose({
-        togglePreview,
+        preview,
         fetchNote
     })
 
@@ -70,7 +74,7 @@
 
 <template>
     <div id="noteEditor">
-        <div class="editor">
+        <div class="editor" @dblclick="preview=false">
             <MdEditor v-if="!preview" ref="mdEditor"
                 v-model="mdText" 
                 :preview="false" 
@@ -102,9 +106,9 @@
                     'catalog',
                 ]"
             />
-        <MdPreview v-else :model-value="mdText" 
-            :theme="ThemeMode.isDarkMode()? 'dark':'light'"
-        />
+            <MdPreview v-else :model-value="mdText"
+                :theme="ThemeMode.isDarkMode()? 'dark':'light'"
+            />
         </div>
     </div>
 </template>
