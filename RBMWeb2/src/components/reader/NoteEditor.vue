@@ -4,7 +4,7 @@
     // https://github.com/imzbf/md-editor-v3
     import { ref } from 'vue';
     import type { DataPoint } from '../../core/dataClass';
-    import { MdEditor } from 'md-editor-v3';
+    import { MdEditor, MdPreview } from 'md-editor-v3';
     import { ThemeMode } from '../../core/misc';
     import 'md-editor-v3/lib/style.css';
     import { useUIStateStore } from '../store';
@@ -52,12 +52,20 @@
         )
     }
 
+    const preview = ref<boolean>(false);
+    function togglePreview(state: boolean){
+        preview.value = state;
+    }
+    defineExpose({
+        togglePreview
+    })
+
 </script>
 
 <template>
     <div id="noteEditor">
         <div class="editor">
-            <MdEditor ref="mdEditor"
+            <MdEditor v-if="!preview" ref="mdEditor"
                 v-model="mdText" 
                 :preview="false" 
                 language="en-US"
@@ -84,10 +92,13 @@
                     'next',
                     'save',
                     '=',
-                    'preview',
+                    // 'preview',
                     'catalog',
                 ]"
             />
+        <MdPreview v-else :model-value="mdText" 
+            :theme="ThemeMode.isDarkMode()? 'dark':'light'"
+        />
         </div>
     </div>
 </template>

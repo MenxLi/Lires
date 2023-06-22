@@ -2,19 +2,21 @@
     import ReaderBody from './reader/ReaderBody.vue';
     import Banner from './common/Banner.vue';
     import BannerIcon from './common/BannerIcon.vue';
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, computed } from 'vue';
     import { useDataStore, useUIStateStore } from './store';
     import { useRoute } from 'vue-router';
     import {FileSelectButton} from './common/fragments.tsx'
 
     import splitscreenIcon from '../assets/icons/splitscreen.svg';
     import uploadIcon from '../assets/icons/upload.svg';
+    import eyeIcon from '../assets/icons/eye.svg';
 
     const dataStore = useDataStore();
     const route = useRoute();
 
     const uid = route.params.id as string;
     const datapoint = ref(dataStore.database.get(uid));
+
 
     // 0: doc only
     // 1: note only
@@ -57,8 +59,16 @@
         }
     }
 
-    // empty database check 
+    const readerBody = ref<typeof ReaderBody | null>(null);
+    const _previewState = ref<boolean>(false);
+    const previewBtnText = computed(()=>_previewState.value?"edit":"preview");
+    function toggleMarkdownPreview(){
+        _previewState.value = !_previewState.value;
+        readerBody.value!.togglePreview(_previewState.value);
+    }
+
     onMounted(() => {
+        // empty database check 
         if (Object.keys(dataStore.database.data).length === 0){
             useUIStateStore().showPopup("Database not loaded or empty database.", "alert");
             // periodically tries to update datapoint...
@@ -82,14 +92,15 @@
         <div id="banner">
             <Banner>
                 <div id="bannerOps">
-                    <BannerIcon :iconSrc="splitscreenIcon" labelText="change layout" @onClick="changeLayout" title="change layout"></BannerIcon>
-                    <BannerIcon :iconSrc="uploadIcon" labelText="upload document" @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></BannerIcon>
+                    <BannerIcon :iconSrc="splitscreenIcon" labelText="layout" @onClick="changeLayout" title="change layout"></BannerIcon>
+                    <BannerIcon :iconSrc="uploadIcon" labelText="upload" @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></BannerIcon>
+                    <BannerIcon :iconSrc="eyeIcon" :labelText="previewBtnText" @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></BannerIcon>
                     |
                     <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
                 </div>
             </Banner>
         </div>
-        <ReaderBody :datapoint="datapoint" :layoutType="layoutType"></ReaderBody>
+        <ReaderBody :datapoint="datapoint" :layoutType="layoutType" ref="readerBody"></ReaderBody>
     </div>
 </template>
 

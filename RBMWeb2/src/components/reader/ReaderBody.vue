@@ -12,6 +12,11 @@
     const rightPane = ref<HTMLElement | null>(null);
     const splitter = ref<HTMLElement | null>(null);
     const onMovingSplitter = ref<boolean>(false);
+    const noteEditor = ref<typeof NoteEditor | null>(null);
+    const togglePreview = (state: boolean)=>{ noteEditor.value!.togglePreview(state);}
+    defineExpose({
+        togglePreview
+    });
 
     function onStartMovingSplitter(event: MouseEvent | TouchEvent){
         if (splitter.value && splitter.value.contains(event.target as Node)){
@@ -84,7 +89,7 @@
         </div>
         <div id="splitter" ref="splitter" @mousedown="onStartMovingSplitter" @touchstart="onStartMovingSplitter" v-if="layoutType==2"> </div>
         <div class="pane" id="rightPane" ref="rightPane">
-            <NoteEditor :datapoint="datapoint"> </NoteEditor>
+            <NoteEditor :datapoint="datapoint" ref="noteEditor"> </NoteEditor>
         </div>
     </div>
 </template>
