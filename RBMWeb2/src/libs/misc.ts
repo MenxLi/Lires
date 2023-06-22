@@ -64,3 +64,34 @@ export function isVisiable(el: HTMLElement): boolean{
     }
     return true;
 }
+
+// from internet
+export async function copyToClipboard(textToCopy: string): Promise<boolean> {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(textToCopy);
+      return true;
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = textToCopy;
+  
+      // Move the textarea outside the viewport to make it invisible
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-99999999px';
+  
+      document.body.prepend(textarea);
+  
+      // highlight the content of the textarea element
+      textarea.select();
+  
+      let _error = false;
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.log(err);
+        _error = true;
+      } finally {
+        textarea.remove();
+      }
+      return !_error;
+    }
+  }

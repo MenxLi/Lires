@@ -5,7 +5,7 @@ import DataEditor from './DataEditor.vue';
 import { useDataStore, useUIStateStore } from '../store';
 import FloatingWindow from '../common/FloatingWindow.vue';
 import {FileSelectButton} from '../common/fragments.tsx'
-import {isVisiable} from '../../libs/misc.ts'
+import { isVisiable, copyToClipboard } from '../../libs/misc.ts'
 
 const props = defineProps<{
     datapoint: DataPoint
@@ -31,9 +31,11 @@ const setAbstract = async () => {
 
 const showCopyCitation = ref(false);
 function copy2clip(text: string){
-    navigator.clipboard.writeText(text).then(
-        () => uiState.showPopup("Copied to clipboard.", "info"),
-        () => uiState.showPopup("Failed to copy", "error")
+    copyToClipboard(text).then(
+        (success: boolean) => {
+            if (!success){ uiState.showPopup("Failed to copy to clipboard.", "error") }
+            else{ uiState.showPopup("Copied to clipboard.", "info") }
+        },
     )
 }
 
@@ -93,7 +95,9 @@ window.addEventListener("keydown", (e) => {
             `${datapoint.summary.title}. ${datapoint.authorAbbr()} (${datapoint.summary.year})`,
             `${datapoint.summary.bibtex}`,
         ] ">
-            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}">{{ text }}</p>
+            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}">{{
+                index === 3 ? `[bibtex] ${text.slice(0, 50)}...` : text
+            }}</p>
             <hr v-if="index !== 3">
         </div>
     </FloatingWindow>
@@ -186,6 +190,7 @@ window.addEventListener("keydown", (e) => {
         /deep/ a{
             text-decoration: underline;
             text-underline-offset: 2px;
+            cursor: pointer;
         }
     }
 
