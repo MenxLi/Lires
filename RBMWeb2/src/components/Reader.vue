@@ -5,8 +5,10 @@
     import { ref, onMounted } from 'vue';
     import { useDataStore, useUIStateStore } from './store';
     import { useRoute } from 'vue-router';
+    import {FileSelectButton} from './common/fragments.tsx'
 
     import splitscreenIcon from '../assets/icons/splitscreen.svg';
+    import uploadIcon from '../assets/icons/upload.svg';
 
     const dataStore = useDataStore();
     const route = useRoute();
@@ -32,6 +34,29 @@
         }
     }
 
+    // upload new document
+    const fileSelectionBtn = ref<typeof FileSelectButton|null>(null);
+    function onUploadNewDocument(f: File){
+        function uploadDocument(){
+            datapoint.value!.uploadDocument(f).then(
+                (summary)=>{
+                    datapoint.value!.update(summary); 
+                    useUIStateStore().showPopup('Document uploaded', 'success');
+                },
+                ()=>useUIStateStore().showPopup('Failed to upload document', 'error')
+            )
+        }
+        if (datapoint.value!.summary.has_file){
+            datapoint.value!.freeDocument().then(
+                (summary)=>{datapoint.value!.update(summary); uploadDocument()},
+                ()=>useUIStateStore().showPopup('Failed to free document', 'error')
+            )
+        }
+        else{
+            uploadDocument();
+        }
+    }
+
     // empty database check 
     onMounted(() => {
         if (Object.keys(dataStore.database.data).length === 0){
@@ -51,11 +76,14 @@
 </script>
 
 <template>
+    <!-- a tricky way to use FileSelectButton as select-upload agent -->
+    <FileSelectButton :action="onUploadNewDocument" ref="fileSelectionBtn" :style="{display: 'none'}"> </FileSelectButton>
     <div id="main">
         <div id="banner">
             <Banner>
                 <div id="bannerOps">
-                    <BannerIcon :iconSrc="splitscreenIcon" labelText="" @onClick="changeLayout" title="change layout"></BannerIcon>
+                    <BannerIcon :iconSrc="splitscreenIcon" labelText="change layout" @onClick="changeLayout" title="change layout"></BannerIcon>
+                    <BannerIcon :iconSrc="uploadIcon" labelText="upload document" @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></BannerIcon>
                     |
                     <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
                 </div>
