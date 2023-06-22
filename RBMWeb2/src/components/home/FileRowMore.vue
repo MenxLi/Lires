@@ -112,12 +112,12 @@ window.addEventListener("keydown", (e) => {
         </div>
         <Transition name="actions">
             <div class="row" id="actions" v-if="showActions">
-                <a rel="noopener noreferrer" @click="editThisDatapoint">Edit</a>
+                <a rel="noopener noreferrer" class="btn" @click="editThisDatapoint">Edit</a>
                 <FileSelectButton v-if="!datapoint.summary.has_file"
                     :action="(f: File) => uploadDocument(f)" 
                     text="Upload document" :as-link="true"></FileSelectButton>
-                <a v-else rel="noopener noreferrer" @click="freeDocument" class="danger">Free document</a>
-                <a rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger">Delete</a>
+                <a v-else rel="noopener noreferrer" @click="freeDocument" class="danger btn">Free document</a>
+                <a rel="noopener noreferrer" @click="deleteThisDatapoint" class="danger btn">Delete</a>
             </div>
         </Transition>
         <div id="abstract">
@@ -166,9 +166,6 @@ window.addEventListener("keydown", (e) => {
         text-align: center;
     }
 
-    a:hover{
-        cursor: pointer;
-    }
     #actions{
         gap: 15px;
         background-color: var(--color-background-mute);
@@ -182,16 +179,14 @@ window.addEventListener("keydown", (e) => {
         border-radius: 20px;
         box-shadow: inset 0px 1px 2px 0px var(--color-shadow);
     }
-    #actions a {
+
+    :deep(a){
+        cursor: pointer;
+    }
+    :deep(a.btn){
         text-decoration: underline;
         text-underline-offset: 2px;
-    }
-    #actions {
-        /deep/ a{
-            text-decoration: underline;
-            text-underline-offset: 2px;
-            cursor: pointer;
-        }
+        cursor: pointer;
     }
 
     a.danger{

@@ -32,9 +32,9 @@ export const FileSelectButton = defineComponent({
                     ref={inputButton} style={{display: 'none'}} />
                 {
                     props.asLink ?
-                    <a rel="noopener noreferrer" onClick={() => inputButton.value!.click()}>{props.text}</a>
+                    <a class="btn upload-btn" rel="noopener noreferrer" onClick={() => inputButton.value!.click()}>{props.text}</a>
                     :
-                    <button type="button" class="btn btn-primary" onClick={() => inputButton.value!.click()}>{props.text}</button>
+                    <button type="button" class="btn upload-btn" onClick={() => inputButton.value!.click()}>{props.text}</button>
                 }
             </div>
         )
