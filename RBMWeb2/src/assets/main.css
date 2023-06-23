@@ -83,6 +83,13 @@ input[type="text"],input[type="password"]{
   background-color: var(--color-background-soft);
   background-color: transparent;
 }
+
+textarea{
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
 input[type="button"], button{
   border-radius: 5px;
   border: 1px solid var(--color-border);

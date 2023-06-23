@@ -9,7 +9,8 @@
     closeKey: "Escape",
   });
   const emit = defineEmits<{
-    (e: "onClose"): void,
+    (e: "close"): void,
+    (e: "onClose"): void,   // equivalent to (e: "close")
     (e: 'update:show', value: boolean): void,
   }>();
 
@@ -23,6 +24,7 @@
   function closeWindow() {
     showWindow.value = false;
     emit("onClose");
+    emit("close")
   }
 
   window.addEventListener("keydown", (e) => {

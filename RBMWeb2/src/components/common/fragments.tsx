@@ -1,4 +1,8 @@
-import { defineComponent, ref, type SetupContext } from "vue";
+// Simple components that don't need their own file
+// don't need scoped styles, or just inline styles
+
+import { defineComponent, ref, computed, type SetupContext } from "vue";
+import FloatingWindowVue from "./FloatingWindow.vue";
 
 export const FileSelectButton = defineComponent({
     name: 'file-select-button',
@@ -39,6 +43,74 @@ export const FileSelectButton = defineComponent({
                     <button type="button" class="btn upload-btn" onClick={() => inputButton.value!.click()}>{props.text}</button>
                 }
             </div>
+        )
+    }
+})
+
+export const TextInputWindow = defineComponent({
+    name: 'text-input-window',
+    props: {
+        action: {
+            // callable that takes a string and returns void
+            type: Function,
+            required: true
+        },
+        show: {
+            type: Boolean,
+            required: true
+        },
+        title: {
+            type: String,
+            default: 'Input'
+        },
+        text: {
+            type: String,
+            default: ''
+        },
+        placeholder: {
+            type: String,
+            default: ''
+        },
+        buttonText: {
+            type: String,
+            default: 'OK'
+        },
+    },
+    emits: ["update:show"],
+    setup(props, context: SetupContext) {
+        const inputText = ref(props.text);
+        const handleInput = (e: Event) => {
+            const input = e.target as HTMLInputElement;
+            inputText.value = input.value;
+        }
+        function submit() {
+            props.action(inputText.value);
+            showWindow.value = false;
+        }
+        const showWindow = computed({
+            get() { return props.show },
+            set(value: boolean) { console.log("Emit!"); context.emit('update:show', value) }
+        })
+        return () => (
+            <FloatingWindowVue title={props.title} show={showWindow.value} onUpdate:show={()=>showWindow.value=false}>
+                <div class="input-window" style={
+                    {
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '1em',
+                    }
+                }>
+                    {/* <input type="text" class="form-control" value={inputText.value} onInput={handleInput}
+                        placeholder={props.placeholder} /> */}
+                    <textarea class="form-control" value={inputText.value} onInput={handleInput} placeholder={props.placeholder} 
+                        style={{
+                            width: '100%',
+                        }}/>
+                    <button type="button" class="btn" onClick={submit}>{props.buttonText}</button>
+                </div>
+            </FloatingWindowVue>
         )
     }
 })
