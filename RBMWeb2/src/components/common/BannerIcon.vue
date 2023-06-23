@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import { onMounted, onUnmounted, computed } from 'vue';
+    import { onMounted, onUnmounted, computed, ref } from 'vue';
 
     const props = withDefaults(defineProps<{
         iconSrc: string,
@@ -18,6 +18,10 @@
         (e: "onClick"): void
         (e: "click"): void
     }>();
+
+    const button = ref(null as HTMLButtonElement | null);
+    const getBoundingClientRect = () => button.value?.getBoundingClientRect();
+    defineExpose({getBoundingClientRect})
 
     function onClick(){
         emit("onClick");
@@ -52,7 +56,7 @@
 </script>
 
 <template>
-    <span class="hoverMaxout105 button" @click="onClick" :title="`${title}`">
+    <span class="hoverMaxout105 button non-selecable" @click="onClick" :title="`${title}`" ref="button">
         <img id="icon" class="icon" :src="iconSrc" :alt="labelText.toUpperCase() + '_ICON'">
         <label for="icon" class="iconLabel non-selectable">{{ labelText }}</label>
     </span>

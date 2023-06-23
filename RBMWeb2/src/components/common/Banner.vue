@@ -5,8 +5,8 @@
     import { useRouter } from "vue-router";
     import { cookieLogout } from "../../core/auth";
     import { ThemeMode } from "../../core/misc";
-    import FloatingWindow from "./FloatingWindow.vue";
     import BannerIcon from "./BannerIcon.vue";
+    import Menu from "./Menu.vue";
 
     import { ServerConn } from "../../core/serverConn";
     import { getCookie } from "../../libs/cookie";
@@ -39,7 +39,27 @@
     }
 
     // Navigation related
+    const exploreBtn = ref(null as typeof BannerIcon | null);
     const showNavigation = ref(false);
+    const navigationMenuPosition = computed(function(){
+        if (showNavigation.value){
+            // this is tricky, because the button is not rendered yet on the first time
+            // showNavigation is set to false by default, so it is safe to use !.
+            // use other methods to get the position of the button, such as coditioned value, 
+            // will cause the menu to be rendered at the wrong position somehow... may need to fix this later
+            // exploreBtn.value is a BannerIcon component, the getBoundingClientRect() method is an exposed method
+            return {
+                left: exploreBtn.value!.getBoundingClientRect().left + exploreBtn.value!.getBoundingClientRect().width / 2,
+                top: exploreBtn.value!.getBoundingClientRect().bottom + 5,
+            }
+        }
+        else {
+            return {
+                left: 0,
+                top: 0,
+            }
+        }
+    })
 
     // theme related
     ThemeMode.setDefaultDarkMode();
@@ -56,20 +76,16 @@
 </script>
 
 <template>
-    <FloatingWindow v-model:show="showNavigation" title="Navigation">
-        <div id="exploreContainer">
-            <!-- <a href="../index.html">Home</a> -->
-            <!-- <a href="../feed.html">Arxiv daily</a> -->
-            <router-link to="/">Home</router-link>
-            <router-link to="/feed">Arxiv daily</router-link>
-        </div>
-    </FloatingWindow>
+    <Menu v-model:show="showNavigation" :menuItems="[
+        {name:'Home', action:()=>{router.push('/')}},
+        {name:'Arxiv daily', action:()=>{router.push('/feed')}}
+        ]" :position="navigationMenuPosition" :middleTop="true" :arrow="true"></Menu>
 
     <div class="main shadow">
         <div class="button">
             <BannerIcon :iconSrc="logoutIcon" labelText="Logout" shortcut="ctrl+q"
                 @onClick="logout" title="logout"/>
-            <BannerIcon :iconSrc="exploreIcon" labelText="Explore" shortcut="ctrl+e"
+            <BannerIcon :iconSrc="exploreIcon" labelText="Explore" shortcut="ctrl+e" ref="exploreBtn"
                 @onClick="()=>{showNavigation = !showNavigation}" title="look around"/>
             <BannerIcon :iconSrc="bulbTipsIcon" :labelText="themeLabel" shortcut="ctrl+t"
                 @onClick="()=>toggleTheme()" title="change theme"/>
@@ -79,7 +95,7 @@
 </template>
 
 <style scoped>
-    div#exploreContainer{
+    /* div#exploreContainer{
         display: flex;
         flex-direction: column;
         min-width: 100px;
@@ -103,7 +119,7 @@
         background-color: var(--color-background-theme-highlight);
         box-shadow: 0 1px 3px 2px var(--color-shadow);
         transition: all 0.2s;
-    }
+    } */
     div.main{
         width: 100%;
         display: flex;
