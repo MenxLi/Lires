@@ -7,8 +7,8 @@
             "action": () => void,
         }[],
         "position": {
-            "left": number,
-            "top": number,
+            "x": number,
+            "y": number,
         },
         "blocker"?: boolean,
         // middleTop: if true, the menu will be displayed with transition x = x - width/2
@@ -44,8 +44,8 @@
         :style="{ zIndex: props.zIndex - 1, }"
     ></div>
     <div id="floatingMenu" :style="{
-        left: props.position.left + 'px',
-        top: props.position.top + 'px',
+        left: props.position.x + 'px',
+        top: props.position.y + 'px',
         visibility: showMenu ? 'visible' : 'hidden',
         transform: props.middleTop ? 'translate(-50%, 0)' : '',
         zIndex: props.zIndex,

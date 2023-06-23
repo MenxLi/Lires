@@ -1,8 +1,9 @@
 // Simple components that don't need their own file
 // don't need scoped styles, or just inline styles
 
-import { defineComponent, ref, computed, type SetupContext } from "vue";
+import { defineComponent, ref, computed, watch, type SetupContext } from "vue";
 import FloatingWindowVue from "./FloatingWindow.vue";
+import MenuVue from "./Menu.vue";
 
 export const FileSelectButton = defineComponent({
     name: 'file-select-button',
@@ -181,5 +182,63 @@ export const EditableParagraph = defineComponent({
                 {context.slots.default && context.slots.default()}
             </p>
         )
+    }
+})
+
+interface _MenuItemsT {
+    name: string,
+    action: () => void
+}
+export const MenuAttached = defineComponent({
+    name: 'menu-attached',
+    props: {
+        menuItems: {
+            // array of {name: string, action: () => void}
+            type: Array,
+            required: true
+        },
+    },
+    setup(props, context: SetupContext) {
+        const showMenu = ref(false);
+        const div = ref<HTMLDivElement | null>(null);
+        const menuXY = ref({x: 0, y: 0});
+        watch(showMenu, (value) => {
+            if (value) {
+                const rect = div.value!.getBoundingClientRect();
+                menuXY.value = {
+                    x: rect.left + rect.width / 2, 
+                    y: rect.bottom + 5
+                };
+            }
+            else{
+                menuXY.value = {x: 0, y: 0};
+            }
+        });
+
+        // somehow will render in wrong position??
+        // const menuXY = computed(() => {
+        //     if (div.value) {
+        //         const rect = div.value.getBoundingClientRect();
+        //         console.log(rect);
+        //         return {x: rect.left, y: rect.bottom};
+        //     } else {
+        //         return {x: 0, y: 0};
+        //     }
+        // });
+        return () => (
+            <div>
+                <MenuVue
+                    show={showMenu.value}
+                    onUpdate:show={(value: boolean) => showMenu.value = value}
+                    menuItems={props.menuItems as unknown as _MenuItemsT[]}
+                    position={menuXY.value}
+                    middleTop={true}
+                    arrow={true}
+                />
+                <div ref={div} onClick={()=>showMenu.value = !showMenu.value}>
+                    {context.slots.default && context.slots.default()}
+                </div>
+            </div>
+        );
     }
 })
