@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
 
-    import {ref, computed} from "vue";
+    import {ref, computed, onMounted, onUnmounted} from "vue";
     import Toggle from "../common/Toggle.vue";
     import TagCollapsibleToggle from "./TagCollapsibleToggle.vue"
     import { TAG_SEP } from '../../core/dataClass';
@@ -61,10 +61,26 @@
             currentlySelectedTags.delete(identifier)
         }
     }
+
+    // right click to unfold
+    const rowDiv = ref(null as null | HTMLDivElement);
+    const onRightClick = (e: MouseEvent) => {
+        if (e.button === 2){
+            onClickButton(e);
+            e.preventDefault()
+        }
+    }
+    onMounted(() => {
+        rowDiv.value?.addEventListener("contextmenu", onRightClick)
+    })
+    onUnmounted(() => {
+        rowDiv.value?.removeEventListener("contextmenu", onRightClick)
+    })
+
 </script>
 
 <template>
-    <div class="row">
+    <div class="row" ref="rowDiv">
         <div id="button" :class="buttonClass" ref="button" @click="onClickButton">
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
