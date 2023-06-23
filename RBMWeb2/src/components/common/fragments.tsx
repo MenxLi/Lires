@@ -124,7 +124,6 @@ export const EditableParagraph = defineComponent({
         }
     },
     emits: ["finish", "change"],
-    // expose: ['setText', 'setEditable', 'contains', 'innerText'],
     setup(props, context: SetupContext) {
         const p = ref<HTMLParagraphElement | null>(null);
         const setText = (value: string) => {
@@ -150,11 +149,35 @@ export const EditableParagraph = defineComponent({
         const handleBlur = () => {
             context.emit('finish', p.value!.innerText);
         }
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Check if Enter key is pressed
+            if (event.key === "Enter") {
+                // Check if Ctrl key is also pressed
+                if (event.ctrlKey || event.metaKey) {
+                    event.preventDefault()
+                    // Insert a new line at the current caret position
+                    const selection = window.getSelection();
+                    const range = selection?.getRangeAt(0);
+                    if (range) {
+                        const br = document.createElement('br');
+                        range.insertNode(br);
+                        range.setStartAfter(br);
+                        range.setEndAfter(br);
+                        selection?.removeAllRanges();
+                        selection?.addRange(range);
+                    }
+                } else {
+                    // Finish editing and blur the paragraph
+                    p.value!.blur();
+                }
+            }
+          };
+
         // checks if there is a default slot defined within the component's context (context.slots.default) and 
         // if so, it calls the slot function (context.slots.default()).
         return () => (
             <p class="editable-paragraph" contenteditable="true" ref={p}
-                onInput={handleInput} onBlur={handleBlur} style={props.style}>
+                onInput={handleInput} onBlur={handleBlur} onKeydown={handleKeyDown} style={props.style}>
                 {context.slots.default && context.slots.default()}
             </p>
         )

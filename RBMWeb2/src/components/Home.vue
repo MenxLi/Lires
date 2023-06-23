@@ -58,7 +58,7 @@
         <Banner>
             <div id="bannerAddons">
                 <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
-                    @click="showAddingDataWindow = true" shortcut="ctrl+a"></BannerIcon>
+                    @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>
                 |
                 <div class="searchbar">
                     <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">

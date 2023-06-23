@@ -70,6 +70,21 @@ export class ServerConn {
         }
     }
 
+    async reqDatapointAbstractUpdate(uid: string, content: string): Promise<boolean>{
+        const form = new FormData();
+        form.append('key', getCookie("encKey"))
+        form.append('content', content)
+        const res = await fetch(`${getBackendURL()}/fileinfo-supp/abstract-update/${uid}`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){
+            return true;
+        }
+        else{
+            throw new Error(`Got response: ${res.status}`)
+        }
+    }
 
     async reqDatapointNote( uid: string ): Promise<string>{
         const url = new URL(`${getBackendURL()}/fileinfo-supp/note/${uid}`);

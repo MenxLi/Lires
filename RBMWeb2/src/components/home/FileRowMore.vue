@@ -22,7 +22,7 @@ const abstractParagraph = ref<typeof EditableParagraph|null>(null);
 let abstract: string|null = null;
 const setAbstract = async () => {
     abstractParagraph.value!.setEditable(false);
-    abstractParagraph.value!.innerText = "Loading...";
+    // abstractParagraph.value!.innerText = "Loading...";
     abstract = await props.datapoint.fetchAbstract();
     abstractParagraph.value!.setEditable(true);
     abstractParagraph.value!.innerText = abstract;
@@ -127,7 +127,7 @@ onUnmounted(()=>{
             <details>
                 <summary @click="setAbstract">Abstract</summary>
                 <EditableParagraph id="abstractParagraph"  ref="abstractParagraph"
-                    @finish="(t: string)=>console.log(t)">Hello</EditableParagraph>
+                    @finish="(t: string)=>datapoint.uploadAbstract(t)"></EditableParagraph>
             </details>
         </div>
     </div>

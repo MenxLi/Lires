@@ -187,6 +187,22 @@ export class DataPoint {
         })
     }
 
+    // will update this.supp.abstract and upload to server
+    uploadAbstract(abstract: string): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            if (abstract === this.supp.abstract || abstract === null) {
+                resolve(true);
+                return;
+            }
+            new ServerConn().reqDatapointAbstractUpdate(this.summary.uuid, abstract).then((data) => {
+                this.supp.abstract = abstract;
+                resolve(data);
+            }).catch((err) => {
+                reject(err);
+            })
+        })
+    }
+
     // will update this.supp.note
     fetchNote(): Promise<string> {
         return new Promise((resolve, reject) => {
