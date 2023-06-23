@@ -114,3 +114,49 @@ export const TextInputWindow = defineComponent({
         )
     }
 })
+
+export const EditableParagraph = defineComponent({
+    name: 'editable-paragraph',
+    props: {
+        style: {
+            type: Object,
+            default: () => ({})
+        }
+    },
+    emits: ["finish", "change"],
+    // expose: ['setText', 'setEditable', 'contains', 'innerText'],
+    setup(props, context: SetupContext) {
+        const p = ref<HTMLParagraphElement | null>(null);
+        const setText = (value: string) => {
+            p.value!.innerText = value;
+        };
+        const setEditable = (value: boolean) => {
+            p.value!.contentEditable = value.toString();
+        };
+        // Emulates native paragraph element properties
+        const contains = (value: Node) => {
+            return p.value!.contains(value);
+        }
+        const innerText = computed({
+            get() { return p.value!.innerText },
+            set(value: string) { p.value!.innerText = value }
+        });
+
+        context.expose({ setText, setEditable, contains, innerText });
+
+        const handleInput = () => {
+            context.emit('change', p.value!.innerText);
+        }
+        const handleBlur = () => {
+            context.emit('finish', p.value!.innerText);
+        }
+        // checks if there is a default slot defined within the component's context (context.slots.default) and 
+        // if so, it calls the slot function (context.slots.default()).
+        return () => (
+            <p class="editable-paragraph" contenteditable="true" ref={p}
+                onInput={handleInput} onBlur={handleBlur} style={props.style}>
+                {context.slots.default && context.slots.default()}
+            </p>
+        )
+    }
+})

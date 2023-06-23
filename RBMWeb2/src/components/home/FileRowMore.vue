@@ -6,6 +6,7 @@ import { useDataStore, useUIStateStore } from '../store';
 import FloatingWindow from '../common/FloatingWindow.vue';
 import {FileSelectButton} from '../common/fragments.tsx'
 import { copyToClipboard } from '../../libs/misc.ts'
+import { EditableParagraph } from '../common/fragments.tsx'
 
 const props = defineProps<{
     datapoint: DataPoint
@@ -15,18 +16,16 @@ const props = defineProps<{
 const dataStore = useDataStore();
 const uiState = useUIStateStore();
 
-const abstractParagraph = ref<HTMLParagraphElement|null>(null);
+const abstractParagraph = ref<typeof EditableParagraph|null>(null);
 
 // a function to get the abstract of the datapoint
 let abstract: string|null = null;
 const setAbstract = async () => {
-    const failedPrompt = "<label class='hint'>Not avaliable</label>";
-    abstractParagraph.value!.innerHTML = "Loading...";
+    abstractParagraph.value!.setEditable(false);
+    abstractParagraph.value!.innerText = "Loading...";
     abstract = await props.datapoint.fetchAbstract();
-    if (abstract.trim() === ""){
-        abstract = failedPrompt;
-    }
-    abstractParagraph.value!.innerHTML = abstract;
+    abstractParagraph.value!.setEditable(true);
+    abstractParagraph.value!.innerText = abstract;
 }
 
 const showCopyCitation = ref(false);
@@ -74,7 +73,7 @@ function editThisDatapoint(){
 // show editor by pressing space
 const moreDiv = ref(null as HTMLDivElement|null);
 const shortcutEdit = (e: KeyboardEvent) => {
-    if (e.code === "Space" && props.show && !showEditor.value){
+    if (e.code === "Space" && props.show && !showEditor.value && !abstractParagraph.value?.contains(e.target as Node)){
         editThisDatapoint();
         e.preventDefault();
     }
@@ -127,7 +126,8 @@ onUnmounted(()=>{
         <div id="abstract">
             <details>
                 <summary @click="setAbstract">Abstract</summary>
-                <p ref="abstractParagraph" id="abstractParagraph"></p>
+                <EditableParagraph id="abstractParagraph"  ref="abstractParagraph"
+                    @finish="(t: string)=>console.log(t)">Hello</EditableParagraph>
             </details>
         </div>
     </div>
