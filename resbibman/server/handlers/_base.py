@@ -92,7 +92,7 @@ class RequestHandlerBase():
         mandatory_tags = DataTags(_mandatory_tags)
         RequestHandlerBase.logger.debug(f"check tags: {tags} vs {mandatory_tags}")
         if not mandatory_tags.issubset(tags.withParents()):
-            raise tornado.web.HTTPError(402) 
+            raise tornado.web.HTTPError(403) 
 
     def setDefaultHeader(self):
         self.set_header("Access-Control-Allow-Origin", "*")
