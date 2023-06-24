@@ -266,13 +266,13 @@ version_history:
     - Fix - rbm-reserconf dependency chicken and egg problem
     - update_src.py update
     - Some refactors
-  0.12.3:
+  0.13.0:
     - Arxiv daily
     - RBMWeb updates - explore, theme settings for session, file row update
     - Update node packages
     - RBMServer collect handler and iserverproxy handler
     - GUI - Allow multiple delete, abstract in info panel
-  0.12.4:
+  0.13.1:
     - RBMWeb - popup & floating window
     - RBMWeb - banner icon and slot
     - RBMWeb - explore button
@@ -284,10 +284,24 @@ version_history:
     - RBMServer - api update - img, fileinfo-supp, iserverproxy, dataman
     - backup on deletion
     - fixes - torch device on featurize
-  0.12.5:
+  0.13.2:
     - RBMWeb - add/edit data
     - RBMWeb - better floating window
     - RBMWeb - style change
     - RBMWeb - load database on app loading
     - RBMWeb - stacked multiple popups
     - fixes - RBMWeb reader splitter; update database on collect
+  0.13.3:
+    - RBMWeb features ⬇️
+    - Explore menu
+    - Edit abstract
+    - Upload document
+    - Right click on tag to unfold
+    - Banner action shortcuts
+    - Note preview
+    - Default to preview non-empty note
+    - Reader upload button
+    - Cite
+    - Fix - disable space shortcut on other widgets than datacard more div
+    - Fix - update note when reload database on reader
+    - Refactor - use datacard container
