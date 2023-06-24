@@ -51,7 +51,7 @@
         zIndex: props.zIndex,
     }">
         <div id="arrow" v-if="props.arrow"></div>
-        <div :class="`floatingMenuItem${index!==props.menuItems.length-1?'':' floatingMenuItemLast'}`" 
+        <div :class="`non-selectable floatingMenuItem${index!==props.menuItems.length-1?'':' floatingMenuItemLast'}`" 
             v-for="(item, index) in props.menuItems" @click="item.action(); closeMenu()">
             {{ item.name }}
         </div>
