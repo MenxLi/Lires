@@ -17,3 +17,6 @@ tqdm
 darkdetect
 bs4
 deprecated
+
+numpy
+torch
