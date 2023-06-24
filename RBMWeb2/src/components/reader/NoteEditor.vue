@@ -51,7 +51,15 @@
         props.datapoint.uploadImages(files).then(
             (urls) => {
                 console.log('Images uploaded');
-                mdText.value! += urls.map(url => `![image](${url})`).join('\n');
+                urls.map( url => mdEditor.value!.insert(()=>{
+                        return {
+                            targetValue: `![image](${url})`,
+                            select: false,
+                            deviationStart: 0,
+                            deviationEnd: 0
+                        }
+                    })
+                );
                 saveNote();   // save note after uploading images, to avoid un-referenced images on server
             },
             (reason) => {
