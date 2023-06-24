@@ -151,8 +151,8 @@ def queryFeatureIndex(query: str, n_return: int = 16) -> FeatureQueryResult:
     if g_feature_dict is None:
         if os.path.exists(DOC_FEATURE_PATH):
             g_feature_dict = torch.load(DOC_FEATURE_PATH)
-    else:
-        raise FileNotFoundError("Feature index not found, please build the index storage first")
+        else:
+            raise FileNotFoundError("Feature index not found, please build the index storage first")
 
     assert g_feature_dict
     feature_dict: FeatureDict = g_feature_dict
