@@ -6,7 +6,7 @@
     import { DataPoint, DataSearcher } from '../../core/dataClass';
     import FileRowContainer from '../home/FileRowContainer.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
-    import { ref } from 'vue';
+    import { computed, ref } from 'vue';
 
     const props = defineProps<{
         article: ArxivArticleWithFeatures,
@@ -68,6 +68,13 @@
     // related articles
     const relatedArticles = ref([] as DataPoint[]);
     const relatedArticlesScores = ref([] as number[]);
+    const relatedArticlesScoresByUid = computed(() => {
+        const res = {} as {[uid: string]: number|string};
+        for (let i = 0; i < relatedArticles.value.length; i++){
+            res[relatedArticles.value[i].summary.uuid] = relatedArticlesScores.value[i].toPrecision(4);
+        }
+        return res;
+    })
     function queryRelatedArticles(){
         if (relatedArticles.value.length > 0){
             return;
@@ -128,7 +135,8 @@
             <details>
                 <summary @click="queryRelatedArticles">Related articles</summary>
                 <div id="relatedArticles">
-                    <FileRowContainer :datapoints="relatedArticles" v-model:unfoldedIds="_unfoldedIds"/>
+                    <FileRowContainer :datapoints="relatedArticles" :scores="relatedArticlesScoresByUid"
+                        v-model:unfoldedIds="_unfoldedIds"/>
                 </div>
             </details>
         </div>
