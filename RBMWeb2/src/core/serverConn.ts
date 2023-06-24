@@ -304,4 +304,24 @@ export class ServerConn {
             throw new Error(`Got response: ${response.status}`);
         }
     }
+
+    // ---- info ----
+    async changelog(): Promise<Record<string, string[]>>{
+        const url = new URL(`${getBackendURL()}/info/changelog`);
+        url.searchParams.append("key", getCookie("encKey"));
+        const response = await fetch(url.toString(),
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type":"application/x-www-form-urlencoded"
+                },
+            }
+        );
+        if (response.ok && response.status === 200) {
+            const res = JSON.parse(await response.text());
+            return res;
+        } else {
+            throw new Error(`Got response: ${response.status}`);
+        }
+    }
 }

@@ -58,6 +58,9 @@ class Application(tornado.web.Application):
             # pdfjs
             (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),
 
+            # info
+            (r"/info/changelog", ChangelogHandler),
+
         ]
         super().__init__(handlers)
 

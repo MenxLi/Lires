@@ -11,12 +11,15 @@ import Home from './components/Home.vue';
 import Feed from './components/Feed.vue';
 import Login from './components/Login.vue';
 import Reader from './components/Reader.vue';
+import Info from './components/Info.vue';
 
 const routes = [
   { path: '/', component: Home },
   { path: '/feed', component: Feed },
   { path: '/login', component: Login },
   { path: '/reader/:id', component: Reader },
+
+  { path: '/info', component: Info }
 ]
 const router = createRouter({
   history: createWebHashHistory(),

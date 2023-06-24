@@ -59,7 +59,8 @@
                 @onClick="logout" title="logout"/>
             <MenuAttached :menuItems="[
                 {name:'Home', action:()=>{router.push('/')}},
-                {name:'Arxiv daily', action:()=>{router.push('/feed')}}
+                {name:'Arxiv daily', action:()=>{router.push('/feed')}},
+                {name:'Info', action:()=>{router.push('/info')}},
             ]">
                 <BannerIcon :iconSrc="exploreIcon" labelText="Explore" shortcut="ctrl+e" title="look around"/>
             </MenuAttached>
