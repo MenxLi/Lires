@@ -1,6 +1,7 @@
 from ._base import *
-import string, os, time
+import os
 from resbibman.core.serverConn import IServerConn
+from resbibman.core.textUtils import queryFeatureIndex
 from resbibman.core.pdfTools import getPDFText
 from resbibman.confReader import ASSETS_PATH, DOC_SUMMARY_DIR
 
@@ -49,7 +50,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
         def generateSimilar(summary_txt, except_uuid=""):
             # find similar papers
             self.write("\n<hr>")
-            similar = iconn.queryFeatureIndex(summary_txt, n_return=9)
+            similar = queryFeatureIndex(summary_txt, n_return=9)
             if similar is None:
                 self.write("ERROR: iRBM server error while finding similar papers.")
                 return
