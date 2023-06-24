@@ -1,7 +1,8 @@
 <script setup lang="ts">
-    import { onMounted, ref, watch } from 'vue';
+    import { onMounted, ref, watch, computed } from 'vue';
     import { DataPoint } from '../../core/dataClass';
     import NoteEditor from './NoteEditor.vue';
+    import { useUIStateStore } from '../store';
 
     const props = defineProps<{
         datapoint: DataPoint,
@@ -26,7 +27,11 @@
     function onStopMovingSplitter(){
         onMovingSplitter.value = false;
     }
-    const leftPaneWidthRatio = ref(0.5);
+    const leftPaneWidthRatio = computed({
+        // a proxy to uiState.preferedReaderLeftPanelWidthPerc, for convenience
+        get: () => useUIStateStore().preferredReaderLeftPanelWidthPerc,
+        set: (val) => {useUIStateStore().preferredReaderLeftPanelWidthPerc = val}
+    });
     function onMoveSplitter(event: MouseEvent | TouchEvent) {
         if (onMovingSplitter.value && leftPane.value && rightPane.value && splitter.value) {
             const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
