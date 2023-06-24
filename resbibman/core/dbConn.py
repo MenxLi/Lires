@@ -1,6 +1,7 @@
 """
 Sqlite connection interface
 """
+from __future__ import annotations
 import json, os, threading, sqlite3, uuid
 import typing
 from typing import TypedDict, Optional
