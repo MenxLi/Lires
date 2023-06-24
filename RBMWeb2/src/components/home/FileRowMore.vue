@@ -73,7 +73,10 @@ function editThisDatapoint(){
 // show editor by pressing space
 const moreDiv = ref(null as HTMLDivElement|null);
 const shortcutEdit = (e: KeyboardEvent) => {
-    if (e.code === "Space" && props.show && !showEditor.value && !abstractParagraph.value?.contains(e.target as Node)){
+    if (e.code === "Space" && props.show && !showEditor.value 
+        && !abstractParagraph.value?.contains(e.target as Node)
+        && moreDiv.value?.matches(":hover")
+    ){
         editThisDatapoint();
         e.preventDefault();
     }
