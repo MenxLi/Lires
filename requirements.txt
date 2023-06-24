@@ -16,3 +16,4 @@ typing_extensions
 tqdm
 darkdetect
 bs4
+deprecated

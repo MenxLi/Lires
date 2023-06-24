@@ -51,7 +51,7 @@ setup(
             "rbm-share=resbibman.cmd.rbmShare:main",
             "rbm-keyman=resbibman.cmd.manageKey:run",
             "rbm-discuss=resbibman.cmd.rbmDiscuss:main",
-            "rbm-index=iRBM.cmd.index:main",
+            "rbm-index=resbibman.cmd.index:main",
         ]
     }
 )

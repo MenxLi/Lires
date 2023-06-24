@@ -2,25 +2,20 @@
 Build search index for the database
 """
 import argparse
-import deprecated
 
 from resbibman.confReader import DOC_FEATURE_PATH, getConf
 from resbibman.core.dataClass import DataBase
+from resbibman.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
+from resbibman.core.utils import MuteEverything
 
-from ..textFeature import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
-from ..utils import MuteEverything
 
-
-@deprecated.deprecated(version="0.14.0", reason="use resbibman.cmd.index instead")
 def parseArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build search index for the database")
     subparsers = parser.add_subparsers(dest="subparser", help="sub-command help")
 
     sp_feat = subparsers.add_parser("build", help="build the index")
     sp_feat.add_argument("--force", action="store_true", help="force-rebuild")
-    sp_feat.add_argument("--model", action="store", help="model name, can be empty('') or StreamIterType. defaults to empty, will extract feature from pdf text. "\
-                        "otherwise use LLM to summarize the pdf text, use the summary for feature extraction", default="")
-    sp_feat.add_argument("--max-words", action="store", type=int, default=4096, help="max words per document used for summarization, more words will be truncated")
+    sp_feat.add_argument("--max-words", action="store", type=int, default=2048, help="max words per document used for summarization, more words will be truncated")
 
     sp_query = subparsers.add_parser("query", help="query the index")
     sp_query.add_argument("aim", action="store", type=str, help="query string")
@@ -41,7 +36,7 @@ def main():
         db = DataBase().init(db_path, force_offline=True)
 
     if args.subparser == "build":
-        buildFeatureStorage(db, force=args.force, max_words_per_doc=args.max_words, model_name=args.model)
+        buildFeatureStorage(db, force=args.force, max_words_per_doc=args.max_words)
 
     elif args.subparser == "query":
         if args.input_uid:

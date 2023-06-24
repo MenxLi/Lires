@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 
 import logging
 from pydantic import BaseModel
+import deprecated
 
 from . import initLogger
 from .utils import autoTorchDevice
@@ -48,6 +49,7 @@ class QueryFeatureIndexRequest(BaseModel):
     text: str
     n_return: int = 16
 @app.post("/queryFeatureIndex")
+@deprecated.deprecated(version = "0.14.0", reason = "feature index should be stored via core module instead of iserver")
 def queryFeatureIndex(req: QueryFeatureIndexRequest):
     res = tfQueryFeatureIndex(req.text, req.n_return)
     return{

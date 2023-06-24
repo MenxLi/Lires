@@ -5,7 +5,7 @@ refer to resbibman.server for more information
 
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, List, Literal, TypedDict
-import asyncio
+import deprecated
 import requests, json, os
 from . import globalVar as G
 from .encryptClient import generateHexHash
@@ -271,6 +271,7 @@ class IServerConn(ConnectionBase):
             return None
     
     _qFeatIndexT = TypedDict("_qFeatIndexT", {"uids": List[str], "scores": List[float]})
+    @deprecated.deprecated(version = "0.14.0", reason = "feature index should be stored via core module instead of iserver")
     def queryFeatureIndex(self, text: str, n_return: int = 10) -> Optional[_qFeatIndexT]:
         post_url = self.url + "/queryFeatureIndex"
         post_args = {

@@ -1,4 +1,7 @@
 
+"""
+Depreciated, use resbibman.core.textUtils instead
+"""
 import os
 import asyncio
 import tqdm

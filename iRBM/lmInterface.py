@@ -130,9 +130,9 @@ class OpenAIStreamIter(StreamIter):
             yield data
         self.conversations.add(role = "assistant", content = text)
 
-StreamIterType = Literal["gpt-3.5-turbo", "vicuna-13b", "gpt-4", "gpt-4-32k"]
+StreamIterType = Literal["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k"]
 def getStreamIter(itype: StreamIterType = "gpt-3.5-turbo") -> StreamIter:
-    if itype in ["gpt-3.5-turbo", "vicuna-13b", "gpt-4", "gpt-4-32k"]:
+    if itype in ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k"]:
         return OpenAIStreamIter(model=itype)
     else:
         raise ValueError("Unknown interface type: {}".format(itype))
