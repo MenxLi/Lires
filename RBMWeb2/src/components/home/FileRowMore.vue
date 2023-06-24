@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onActivated, onDeactivated } from 'vue';
 import { DataPoint } from '../../core/dataClass';
 import DataEditor from './DataEditor.vue';
 import { useDataStore, useUIStateStore } from '../store';
@@ -81,10 +81,10 @@ const shortcutEdit = (e: KeyboardEvent) => {
         e.preventDefault();
     }
 }
-onMounted(()=>{
+onActivated(()=>{
     window.addEventListener("keydown", shortcutEdit);
 })
-onUnmounted(()=>{
+onDeactivated(()=>{
     window.removeEventListener("keydown", shortcutEdit);
 })
 </script>

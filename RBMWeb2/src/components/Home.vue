@@ -1,3 +1,11 @@
+<script lang="ts">
+// https://github.com/vuejs/rfcs/blob/master/active-rfcs/0040-script-setup.md#automatic-name-inference
+export default {
+    name: 'Home',
+    inheritAttrs: false,
+    customOptions: {}
+}
+</script>
 <script setup lang="ts">
     import { ref, computed, onMounted } from "vue";
     import type { Ref } from "vue";

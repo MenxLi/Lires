@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
 
-    import {ref, computed, onMounted, onUnmounted} from "vue";
+    import {ref, computed, onActivated, onDeactivated} from "vue";
     import Toggle from "../common/Toggle.vue";
     import TagCollapsibleToggle from "./TagCollapsibleToggle.vue"
     import { TAG_SEP } from '../../core/dataClass';
@@ -70,10 +70,10 @@
             e.preventDefault()
         }
     }
-    onMounted(() => {
+    onActivated(() => {
         rowDiv.value?.addEventListener("contextmenu", onRightClick)
     })
-    onUnmounted(() => {
+    onDeactivated(() => {
         rowDiv.value?.removeEventListener("contextmenu", onRightClick)
     })
 

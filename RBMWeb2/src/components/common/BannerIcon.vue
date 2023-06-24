@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import { onMounted, onUnmounted, computed, ref } from 'vue';
+    import { onActivated, onDeactivated, computed, ref } from 'vue';
 
     const props = withDefaults(defineProps<{
         iconSrc: string,
@@ -45,11 +45,11 @@
 
     const shortcutHandler = evalShortcut(props.shortcut);
 
-    onMounted(() => {
+    onActivated(() => {
         if (shortcutHandler !== null) window.addEventListener("keydown", shortcutHandler);
     });
 
-    onUnmounted(() => {
+    onDeactivated(() => {
         if (shortcutHandler !== null) window.removeEventListener("keydown", shortcutHandler);
     });
 

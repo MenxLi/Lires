@@ -26,7 +26,12 @@
         </Popup>
     </div>
     <div id="app">
-        <router-view />
+        <!-- https://stackoverflow.com/a/65619387/6775765 -->
+        <router-view v-slot="{Component}">
+            <KeepAlive exclude="Reader">
+                <component :is="Component"></component>
+            </KeepAlive>
+        </router-view>
     </div>
 </template>
 
