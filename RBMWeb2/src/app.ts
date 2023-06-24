@@ -11,7 +11,7 @@ import Home from './components/Home.vue';
 import Feed from './components/Feed.vue';
 import Login from './components/Login.vue';
 import Reader from './components/Reader.vue';
-import Info from './components/Info.vue';
+import About from './components/About.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -19,7 +19,7 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/reader/:id', component: Reader },
 
-  { path: '/info', component: Info }
+  { path: '/about', component: About }
 ]
 const router = createRouter({
   history: createWebHashHistory(),

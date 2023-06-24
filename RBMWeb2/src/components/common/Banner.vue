@@ -60,7 +60,7 @@
             <MenuAttached :menuItems="[
                 {name:'Home', action:()=>{router.push('/')}},
                 {name:'Arxiv daily', action:()=>{router.push('/feed')}},
-                {name:'Info', action:()=>{router.push('/info')}},
+                {name:'About', action:()=>{router.push('/about')}},
             ]">
                 <BannerIcon :iconSrc="exploreIcon" labelText="Explore" shortcut="ctrl+e" title="look around"/>
             </MenuAttached>

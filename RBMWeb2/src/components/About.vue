@@ -8,7 +8,6 @@
     const updateChangelog = () => {
         new ServerConn().changelog().then(
             (data) => {
-                console.log(data);
                 changelog.value = data;
             },
             (err) => {
@@ -37,8 +36,8 @@
             <Banner/>
         </div>
 
-        <h1>VERSION HISTORY</h1>
-        <div id="versionHistory">
+        <h1>Change log</h1>
+        <div id="versionHistory" class="content">
             <div class="block" v-for="(changes, version) in reversedChangelog">
                 <h2>{{version.toString()}}</h2>
                 <ul>
@@ -55,6 +54,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        max-width: 800px;
         margin-top: 15px;
     }
     div.banner{
@@ -63,12 +63,13 @@
         width: 95vw;
         margin-bottom: 10px;
     }
+    div.content{
+        text-align: left;
+    }
     div#versionHistory{
         padding: 20px;
         display: flex;
         flex-direction: column;
-        text-align: left;
-        max-width: 800px;
         gap: 20px
     }
     div#block{
