@@ -126,7 +126,7 @@ onUnmounted(()=>{
         <div id="abstract">
             <details>
                 <summary @click="setAbstract">Abstract</summary>
-                <EditableParagraph id="abstractParagraph"  ref="abstractParagraph"
+                <EditableParagraph id="abstractParagraph"  ref="abstractParagraph" :style="{minHeight: '20px'}"
                     @finish="(t: string)=>datapoint.uploadAbstract(t)"></EditableParagraph>
             </details>
         </div>
