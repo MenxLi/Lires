@@ -7,7 +7,7 @@ export default {
 }
 </script>
 <script setup lang="ts">
-    import { ref, computed, onMounted } from "vue";
+    import { ref } from "vue";
     import type { Ref } from "vue";
     import { useUIStateStore, useDataStore } from "./store";
     import { useRouter } from "vue-router";
@@ -18,6 +18,8 @@ export default {
     import BannerIcon from "./common/BannerIcon.vue";
     import DataEditor from "./home/DataEditor.vue";
     import addCircleIcon from "../assets/icons/add_circle.svg";
+    import { MenuAttached } from "./common/fragments";
+    import sellIcon from "../assets/icons/sell.svg";
 
     import type { SearchStatus } from "./interface";
 
@@ -25,14 +27,8 @@ export default {
     const uiState = useUIStateStore();
     const dataStore = useDataStore();
 
-    // not show fileTag panel on small screen
-    let windowWidth = ref(window.innerWidth);
-    onMounted(() => {
-        window.onresize = () => {
-                windowWidth.value = window.innerWidth
-            }
-    });
-    const showFileTags = computed(() => windowWidth.value > 600);
+    // not show fileTag panel on small screen, by default
+    const showFileTags = ref(window.innerWidth > 800);
 
     const router = useRouter();
     const defaultTags = router.currentRoute.value.query.tags as string | undefined;
@@ -67,6 +63,13 @@ export default {
             <div id="bannerAddons">
                 <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
                     @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>
+                <MenuAttached :menu-items="[
+                    {name: `Display: ${showFileTags?'hide':'show'}`, action: () => showFileTags = !showFileTags},
+                    {name: 'Rename' , action: () => uiState.showPopup('Not implemented yet', 'warning')},
+                    {name: 'Delete' , action: () => uiState.showPopup('Not implemented yet', 'warning')},
+                ]">
+                    <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"></BannerIcon>
+                </MenuAttached>
                 |
                 <div class="searchbar">
                     <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
