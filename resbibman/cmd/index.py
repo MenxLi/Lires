@@ -7,10 +7,13 @@ from resbibman.confReader import DOC_FEATURE_PATH, getConf
 from resbibman.core.dataClass import DataBase
 from resbibman.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
 from resbibman.core.utils import MuteEverything
+from resbibman.core import globalVar as G
 
 
 def parseArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build search index for the database")
+    parser.add_argument("--iserver-host", action="store", type=str, default="127.0.0.1", help="iserver host")
+    parser.add_argument("--iserver-port", action="store", type=int, default=8731, help="iserver port")
     subparsers = parser.add_subparsers(dest="subparser", help="sub-command help")
 
     sp_feat = subparsers.add_parser("build", help="build the index")
@@ -34,6 +37,11 @@ def main():
     with MuteEverything():
         db_path = getConf()['database']
         db = DataBase().init(db_path, force_offline=True)
+
+    # set global variables of iServer
+    # so that when initializing iServerConn, it can get the correct host and port
+    G.iserver_host = args.iserver_host
+    G.iserver_port = args.iserver_port
 
     if args.subparser == "build":
         buildFeatureStorage(db, force=args.force, max_words_per_doc=args.max_words)
