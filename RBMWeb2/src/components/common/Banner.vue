@@ -83,6 +83,7 @@
         padding-left: 10px;
         padding-right: 10px;
         font-size: small;
+        height: 25px;
     }
     div.button{
         display: flex;

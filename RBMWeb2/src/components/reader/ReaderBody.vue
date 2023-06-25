@@ -104,23 +104,24 @@ div#body{
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 25px - 10px);
+    /* 100% - bannerheight - banner padding bottom */
 }
 
 div.pane{
     width: 100%;
     height: 100%;
+    flex-grow: 1;
 }
 
 iframe{
-    display: block;
     width: 100%;
     height: 100%;
     border: 1px solid var(--color-border);
     border-radius: 10px;
     box-shadow: 0px 0px 5px var(--color-shadow);
-    /* -webkit-overflow-scrolling: touch;
-    overflow: scroll; */
+    /* -webkit-overflow-scrolling: touch; */
+    /* overflow: scroll; */
 }
 
 #splitter{

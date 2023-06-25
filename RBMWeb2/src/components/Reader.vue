@@ -155,7 +155,8 @@ div#main{
     align-items: center;
     justify-content: center;
     width: 98vw;
-    height: 99vh;
+    height: 98vh;
+    max-height: 98vh;
     background-color: var(--color-background);
 }
 div#banner{

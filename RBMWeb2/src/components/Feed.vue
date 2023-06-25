@@ -107,7 +107,7 @@
 
 <template>
     <div id="main">
-        <div>
+        <div id="banner">
             <Banner ref="banner"></Banner>
         </div>
         <h1>Arxiv daily</h1>
