@@ -10,20 +10,57 @@ export default {
     import ReaderBody from './reader/ReaderBody.vue';
     import Banner from './common/Banner.vue';
     import BannerIcon from './common/BannerIcon.vue';
-    import { ref, onMounted, computed } from 'vue';
+    import { ref, onMounted, computed, watch } from 'vue';
     import { useDataStore, useUIStateStore } from './store';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import {FileSelectButton} from './common/fragments.tsx'
+    import { MenuAttached } from './common/fragments.tsx';
 
     import splitscreenIcon from '../assets/icons/splitscreen.svg';
     import uploadIcon from '../assets/icons/upload.svg';
     import eyeIcon from '../assets/icons/eye.svg';
 
     const dataStore = useDataStore();
+    const uiStateStore = useUIStateStore();
     const route = useRoute();
+    const router = useRouter();
+    const uid = computed(() => route.params.id as string)
+    const datapoint = ref(dataStore.database.get(uid.value));
 
-    const uid = route.params.id as string;
-    const datapoint = ref(dataStore.database.get(uid));
+    watch(()=>route.params.id, ()=>{
+        datapoint.value = dataStore.database.get(route.params.id as string);
+        initPage();
+    })
+
+    function initPage(){
+        // some actions that should be reload when datapoint changes
+        // record recent datapoint
+        if (!uiStateStore.recentlyReadDataUIDs.includes(uid.value)){
+            uiStateStore.recentlyReadDataUIDs.push(uid.value);
+            if (uiStateStore.recentlyReadDataUIDs.length > 5){
+                uiStateStore.recentlyReadDataUIDs.shift();
+            }
+        }
+        else{
+            uiStateStore.recentlyReadDataUIDs.splice(uiStateStore.recentlyReadDataUIDs.indexOf(uid.value), 1);
+            uiStateStore.recentlyReadDataUIDs.push(uid.value);
+        }
+    }
+    initPage();
+
+    const recentReadMenuItems = computed(()=>{
+        const ret = [];
+        for (const uid of uiStateStore.recentlyReadDataUIDs){
+            const datapoint = dataStore.database.get(uid);
+            ret.push({
+                name: datapoint.authorYear(),
+                action: ()=>{
+                    router.push('/reader/' + uid)
+                }
+            })
+        }
+        return ret;
+    })
 
 
     // 0: doc only
@@ -51,15 +88,15 @@ export default {
             datapoint.value!.uploadDocument(f).then(
                 (summary)=>{
                     datapoint.value!.update(summary); 
-                    useUIStateStore().showPopup('Document uploaded', 'success');
+                    uiStateStore.showPopup('Document uploaded', 'success');
                 },
-                ()=>useUIStateStore().showPopup('Failed to upload document', 'error')
+                ()=>uiStateStore.showPopup('Failed to upload document', 'error')
             )
         }
         if (datapoint.value!.summary.has_file){
             datapoint.value!.freeDocument().then(
                 (summary)=>{datapoint.value!.update(summary); uploadDocument()},
-                ()=>useUIStateStore().showPopup('Failed to free document', 'error')
+                ()=>uiStateStore.showPopup('Failed to free document', 'error')
             )
         }
         else{
@@ -87,7 +124,7 @@ export default {
                 useUIStateStore().showPopup("Trying to update datapoint...", "warning", 2000);
                 if (Object.keys(dataStore.database.data).length !== 0){
                     clearInterval(interval);
-                    datapoint.value = dataStore.database.get(uid);
+                    datapoint.value = dataStore.database.get(uid.value);
                     useUIStateStore().showPopup("Datapoint updated.", "success", 3000);
                 }
             }, 750);
@@ -110,7 +147,9 @@ export default {
                     <BannerIcon :iconSrc="eyeIcon" :labelText="previewBtnText" shortcut="ctrl+p"
                         @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></BannerIcon>
                     |
-                    <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
+                    <MenuAttached :menu-items="recentReadMenuItems">
+                        <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
+                    </MenuAttached>
                 </div>
             </Banner>
         </div>

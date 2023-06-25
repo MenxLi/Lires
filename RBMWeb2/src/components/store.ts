@@ -26,6 +26,9 @@ export const useUIStateStore = defineStore(
                         "content": ""
                     } as SearchStatus,
                 unfoldedDataUIDs: [] as string[],
+
+                // reader component
+                recentlyReadDataUIDs: [] as string[],
                 preferredReaderLeftPanelWidthPerc: 0.5,
 
                 // global popup component, need to be initialized in App.vue
