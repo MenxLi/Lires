@@ -74,6 +74,18 @@ export const useUIStateStore = defineStore(
                     (datapoints: DataPoint[]) => this.shownDataUIDs = datapoints.map((dp) => dp.summary.uuid)
                 )
             },
+            addRecentlyReadDataUID(uid: string){
+                if (useDataStore().database.get(uid).isDummy()){
+                    return;
+                }
+                if (this.recentlyReadDataUIDs.includes(uid)){
+                    this.recentlyReadDataUIDs.splice(this.recentlyReadDataUIDs.indexOf(uid), 1);
+                }
+                this.recentlyReadDataUIDs.unshift(uid);
+                if (this.recentlyReadDataUIDs.length > 5){
+                    this.recentlyReadDataUIDs.pop();
+                }
+            },
             showPopup(
                 content: string, 
                 style: PopupStyle = "info",

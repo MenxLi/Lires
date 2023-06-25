@@ -34,17 +34,7 @@ export default {
 
     function initPage(){
         // some actions that should be reload when datapoint changes
-        // record recent datapoint
-        if (!uiStateStore.recentlyReadDataUIDs.includes(uid.value)){
-            uiStateStore.recentlyReadDataUIDs.push(uid.value);
-            if (uiStateStore.recentlyReadDataUIDs.length > 5){
-                uiStateStore.recentlyReadDataUIDs.shift();
-            }
-        }
-        else{
-            uiStateStore.recentlyReadDataUIDs.splice(uiStateStore.recentlyReadDataUIDs.indexOf(uid.value), 1);
-            uiStateStore.recentlyReadDataUIDs.push(uid.value);
-        }
+        uiStateStore.addRecentlyReadDataUID(uid.value);
     }
     initPage();
 
