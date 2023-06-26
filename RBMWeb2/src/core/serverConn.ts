@@ -171,6 +171,51 @@ export class ServerConn {
         }
     }
 
+    reqAISummary(
+        uid: string, 
+        onStreamComing: (txt: string)=>void, 
+        onDone: ()=>void = ()=>{},
+        force: boolean = true,
+        model = "gpt-3.5-turbo"
+        ): void{
+        const form = new FormData();
+        form.append('key', getCookie("encKey"))
+        form.append('force', force.toString())
+        form.append('uuid', uid)
+        form.append('model', model)
+        const res = fetch(`${getBackendURL()}/summary-post`, {
+            method: 'POST',
+            body: form,
+        })
+        res.then(response => {
+            if (!response.ok) {
+                onStreamComing("(Error: " + response.status + ")");
+                throw new Error("HTTP error " + response.status);
+            }
+
+            const reader = response.body!.getReader();
+            const processTextData = ({ value, done } : {value: Uint8Array, done: boolean}) => {
+                // Check if there is more data to process
+                if (done) {
+                    // All data has been processed
+                    onDone();
+                    return;
+                }
+                // Convert the received chunk (Uint8Array) to text
+                let chunkText = new TextDecoder().decode(value);
+                // appropriately treat the new-line characters
+                // chunkText = chunkText.replace(/\n/g, "<br>");
+                // Append the text to the content in the web page
+                onStreamComing(chunkText);
+                // Continue reading the next chunk
+                return reader.read().then(processTextData as any);
+            };
+            return reader.read().then(processTextData as any);
+        }).catch(error => {
+            console.error(error);
+        })
+    }
+
     // =============================================
     //                Manipulate data               
     // =============================================

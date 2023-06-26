@@ -7,6 +7,7 @@ import FloatingWindow from '../common/FloatingWindow.vue';
 import {FileSelectButton} from '../common/fragments.tsx'
 import { copyToClipboard } from '../../libs/misc.ts'
 import { EditableParagraph } from '../common/fragments.tsx'
+import DataSummary from './DataSummary.vue';
 
 const props = defineProps<{
     datapoint: DataPoint
@@ -81,6 +82,10 @@ const shortcutEdit = (e: KeyboardEvent) => {
         e.preventDefault();
     }
 }
+
+// summary
+const showSummary = ref(false);
+
 onActivated(()=>{
     window.addEventListener("keydown", shortcutEdit);
 })
@@ -91,6 +96,9 @@ onDeactivated(()=>{
 
 
 <template>
+    <FloatingWindow v-model:show="showSummary" title="Summary">
+        <DataSummary :datapoint="datapoint"></DataSummary>
+    </FloatingWindow>
     <FloatingWindow v-model:show="showCopyCitation" title="Citations">
         <div id="citations" :style="{
             textAlign: 'left',
@@ -112,7 +120,8 @@ onDeactivated(()=>{
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
             <!-- <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a> -->
-            <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a>
+            <!-- <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a> -->
+            <a rel="noopener noreferrer" @click="()=>showSummary=!showSummary">Summary</a>
             <a rel="noopener noreferrer" @click="()=>showCopyCitation=!showCopyCitation">Cite</a>
             <a rel="noopener noreferrer" @click="()=>showActions=!showActions">Actions</a>
         </div>
