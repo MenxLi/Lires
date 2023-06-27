@@ -520,7 +520,7 @@ export class DataSearcher{
         }
         else if (searchStatus.searchBy.toLowerCase() === "publication"){
             for (const dp of datapoints){
-                if (dp.summary.publication?.toLowerCase().search(pattern) !== -1){
+                if (dp.summary.publication && dp.summary.publication.toLowerCase().search(pattern) !== -1){
                     dp_new.push(dp);
                 }
             }
