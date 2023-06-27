@@ -6,6 +6,7 @@ export interface DataInfoT {
     title: string;
     author: string;
     authors: string[];
+    publication: string|null;
     tags: string[];
     uuid: string;
     url: string;

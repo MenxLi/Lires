@@ -384,6 +384,7 @@ const _dummyDataSummary = {
     title: " ",
     author: " ",
     authors: [" "],
+    publication: null,
     tags: [],
     uuid: " ",
     url: "about:blank",
@@ -513,6 +514,13 @@ export class DataSearcher{
         if (searchStatus.searchBy.toLowerCase() === "title"){
             for (const dp of datapoints){
                 if (dp.summary.title.toLowerCase().search(pattern) !== -1){
+                    dp_new.push(dp);
+                }
+            }
+        }
+        else if (searchStatus.searchBy.toLowerCase() === "publication"){
+            for (const dp of datapoints){
+                if (dp.summary.publication?.toLowerCase().search(pattern) !== -1){
                     dp_new.push(dp);
                 }
             }

@@ -1,4 +1,4 @@
-from typing import TypedDict, Any, List
+from typing import TypedDict, Any, List, Optional
 
 class DataPointSummary(TypedDict):
     has_file: bool
@@ -7,6 +7,7 @@ class DataPointSummary(TypedDict):
     title: str
     author: str
     authors: List[str]
+    publication: Optional[str]
     tags: List[str]
     uuid: str
     url: str
@@ -16,5 +17,3 @@ class DataPointSummary(TypedDict):
     doc_size: float # in M.
 
     note_linecount: int
-
-    # base_name: str  # for directory name, deprecated.

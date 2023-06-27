@@ -206,6 +206,7 @@ class DataPoint(DataCore):
             "title":self.title,
             "author":self.getAuthorsAbbr(),
             "authors": self.authors,
+            "publication": self.publication,
             "tags":list(self.tags),
             "uuid":self.uuid,
             "url":self.fm.getWebUrl(),
@@ -292,6 +293,9 @@ class DataPoint(DataCore):
         self.loadInfo()
 
     def loadInfo(self):
+        """
+        Parse bibtex and other info into the memory
+        """
         self.has_file = self.fm.hasFile()
         self.bib = BibParser()(self.fm.readBib())[0]
         self.uuid = self.fm.uuid
@@ -301,6 +305,15 @@ class DataPoint(DataCore):
         self.year = self.bib["year"]
         self.time_added = self.fm.getTimeAdded()
         self.time_modified = self.fm.getTimeModified()
+
+        self.publication: Optional[str] = None
+        for k in ["journal", "booktitle"]:
+            if k in self.bib:
+                pub = self.bib[k]
+                if isinstance(pub, str):
+                    self.publication = pub
+                elif isinstance(pub, tuple) or isinstance(pub, list):
+                    self.publication = pub[0]
 
     def changeBib(self, bib_str: str) -> bool:
         """

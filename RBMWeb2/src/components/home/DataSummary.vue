@@ -106,6 +106,10 @@
                         <td>{{ datapoint.summary.authors.toString() }}</td>
                     </tr>
                     <tr>
+                        <td><b>Publication</b></td>
+                        <td>{{ datapoint.summary.publication }}</td>
+                    </tr>
+                    <tr>
                         <td><b>Year</b></td>
                         <td>{{ datapoint.summary.year }}</td>
                     </tr>
