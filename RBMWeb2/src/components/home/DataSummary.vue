@@ -136,8 +136,6 @@
 <style scoped>
     #main{
         min-width: 800px;
-        max-height: 90vh;
-        overflow: hidden;
     }
     .layout{
         display: flex;

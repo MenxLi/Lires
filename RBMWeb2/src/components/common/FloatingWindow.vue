@@ -119,7 +119,10 @@ div.header {
 
 .window-content {
   margin: 15px;
-  margin-top: 10px;
+  margin-top: 5px;
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow: auto;
 }
 
 .close-button {
