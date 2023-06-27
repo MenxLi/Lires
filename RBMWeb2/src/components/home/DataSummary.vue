@@ -91,7 +91,7 @@
     });
 
     const _unfoldedIds = ref<string[]>([]);
-    const minWidth = computed(()=>Math.min(1200, window.innerWidth-50));
+    const minWidth = computed(()=>Math.min(1200, window.innerWidth-20));
 
 </script>
 
