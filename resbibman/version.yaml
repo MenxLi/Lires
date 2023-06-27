@@ -305,3 +305,15 @@ version_history:
     - Fix - disable space shortcut on other widgets than datacard more div
     - Fix - update note when reload database on reader
     - Refactor - use datacard container
+  0.13.4:
+    - RBMWeb features ⬇️
+    - Toggle tag display
+    - Keep components alive when routing
+    - Record recently read documents on reader
+    - Shared preferred reader panel with ratio
+    - New summary widget
+    - Fix - md editor paste image into the cursor position
+    - Style - banner fixed height and improved reader and feed page height calulation
+    - Resbibman core ⬇️
+    - rbm-index update
+    - Refactor - move featurize text to resbibman server
