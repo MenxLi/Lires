@@ -47,13 +47,15 @@
 
     async function updateRelatedArticles(){
 
-        let fromContent = null;
-        props.datapoint.fetchAbstract().then((abstract)=>{
-            if (abstract){
-                fromContent = abstract;
-            }
-        })
-        if (fromContent == null){
+        let fromContent: string | null = null;
+        if (props.datapoint.supp.abstract){
+            fromContent = props.datapoint.supp.abstract;
+        }
+        else{
+            fromContent = await props.datapoint.fetchAbstract()
+        }
+
+        if (!fromContent){
             if (aiSummary.value && !aiSummary.value.startsWith("Error") && !aiSummary.value.startsWith("Loading")){
                 fromContent = aiSummary.value;
             }
@@ -64,7 +66,7 @@
 
         if (fromContent == '') return;
         const conn = new ServerConn();
-        const res = await conn.search("searchFeature", {"pattern": fromContent , "n_return": 6});
+        const res = await conn.search("searchFeature", {"pattern": fromContent , "n_return": 9});
         const dps: DataPoint[] = new Array();
         const scores: number[] = new Array();
         for (const dp of dataStore.database.getDataByTags([])){
@@ -89,11 +91,12 @@
     });
 
     const _unfoldedIds = ref<string[]>([]);
+    const minWidth = computed(()=>Math.min(1200, window.innerWidth-50));
 
 </script>
 
 <template>
-    <div id="main">
+    <div id="main" :style="{minWidth: minWidth}">
         <h2>{{ datapoint.summary.title }}</h2>
         <div class="layout">
             <div id="info">
@@ -123,20 +126,20 @@
             </div>
             <div id="shortSummary">
                 <div id="shortSummaryTitle">
-                    <b>Summary</b>
+                    <b>AI Summary</b>
                     <div class="button" @click="requestAISummary(true)">&#8635;</div>
                 </div>
                 <p id="aiSummary" ref="aiSummaryParagraph">{{ aiSummary }}</p>
             </div>
-            <FileRowContainer :datapoints="relatedDatapoints" :scores="relatedDatapointsScoresDict" v-model:unfolded-ids="_unfoldedIds"></FileRowContainer>
+            <details>
+                <summary><b>Related Articles</b></summary>
+                <FileRowContainer :datapoints="relatedDatapoints" :scores="relatedDatapointsScoresDict" v-model:unfolded-ids="_unfoldedIds"></FileRowContainer>
+            </details>
         </div>
     </div>
 </template>
 
 <style scoped>
-    #main{
-        min-width: 800px;
-    }
     .layout{
         display: flex;
         flex-direction: column;
@@ -145,6 +148,7 @@
         gap: 20px;
     }
     #info{
+        width: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -153,6 +157,11 @@
     }
     b{
         font-weight: bold;
+    }
+    td{
+        vertical-align: top;
+        padding-left: 5px;
+        padding-right: 5px;
     }
     #shortSummary{
         display: flex;
@@ -174,5 +183,8 @@
     }
     .button:hover{
         background-color: var(--color-background-theme-highlight);
+    }
+    details{
+        width: 100%;
     }
 </style>
