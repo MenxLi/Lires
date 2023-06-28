@@ -99,7 +99,7 @@ class OpenAIStreamIter(StreamIter):
         super().__init__()
         self.model = model
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
-        if model in ["vicuna-13b"]:
+        if "vicunna" in model:
             assert config.fastchat_api_base, "fastchat_api_base is not set"
     
     def generateMessages(self, prompt: str):
@@ -108,7 +108,7 @@ class OpenAIStreamIter(StreamIter):
     
     @property
     def openai_base(self):
-        if self.model in ["vicuna-13b"]:
+        if "vicuna" in self.model:
             return config.fastchat_api_base
         else:
             return config.openai_api_base
@@ -130,9 +130,9 @@ class OpenAIStreamIter(StreamIter):
             yield data
         self.conversations.add(role = "assistant", content = text)
 
-StreamIterType = Literal["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k"]
+StreamIterType = Literal["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit"]
 def getStreamIter(itype: StreamIterType = "gpt-3.5-turbo") -> StreamIter:
-    if itype in ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k"]:
+    if itype in ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit"]:
         return OpenAIStreamIter(model=itype)
     else:
         raise ValueError("Unknown interface type: {}".format(itype))
