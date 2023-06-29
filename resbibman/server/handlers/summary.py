@@ -86,6 +86,9 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
         else:
             __max_words = 768
         pdf_txt = getPDFText(dp.file_path, __max_words)
+        if len(pdf_txt) < 100:
+            self.write("ERROR: Not enough content in the paper.")
+            return
 
         summary_txt = ""
         res = iconn.chat(
