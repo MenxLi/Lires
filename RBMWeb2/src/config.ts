@@ -10,38 +10,37 @@ export function platformType(){
     }
 }
 
-let DOMAINURL: string, PORT: string;
+// get protocal from the current page
+let FRONTEND_PROTOCAL: 'http:' | 'https:' = window.location.protocol as 'http:' | 'https:';
+
 let FRONTENDURL: string;
+FRONTENDURL = `${FRONTEND_PROTOCAL}//${window.location.hostname}:${window.location.port}`; //
 if (import.meta.env.DEV){
-    DOMAINURL = `http://${window.location.hostname}`
-    PORT = "8080";
-    FRONTENDURL = `http://${window.location.hostname}:${window.location.port}`; //
+    console.log("DEV mode");
 }
 else{
     // production code
-    DOMAINURL = "http://" + window.location.hostname;
-    PORT = window.location.port;
-    FRONTENDURL = `${DOMAINURL}:${PORT}`; //
+    console.log("production mode")
 }
 function getBackendURL(){
+    let BACKEND_PROTOCAL: 'http:' | 'https:' = window.location.protocol as 'http:' | 'https:';
     let BACKEND_PORT = "8080"
+    let HOSTNAME = window.location.hostname;
     let BACKENDURL: string;
     if (getCookie("backendPort")){
         BACKEND_PORT = getCookie("backendPort");
     }
-    if (platformType() !== "tauri"){
-        BACKENDURL = `${DOMAINURL}:${BACKEND_PORT}`;
+    if (platformType() === "tauri"){
+        // BACKEND_PROTOCAL = "https:";     // assume the backend is https
+        // HOSTNAME = "limengxun.com";
+        console.log("tauri mode!")
     }
-    else{
-        // Tauri app
-        // Will be changed to the real backend URL in the future
-        BACKENDURL = `http://limengxun.com:${BACKEND_PORT}`;
-    }
+    BACKENDURL = `${BACKEND_PROTOCAL}//${HOSTNAME}:${BACKEND_PORT}`;
     return BACKENDURL;
 }
+
 export {getBackendURL, FRONTENDURL};
 export const STAY_LOGIN_DAYS: number = 3;
-
 export const MAINTAINER = {
     name: "Li, Mengxun",
     email: "mengxunli@whu.edu.cn"
