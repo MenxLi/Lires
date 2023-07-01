@@ -6,6 +6,9 @@ import {getBackendURL} from "../config.js";
 import type { DataInfoT, AccountPermission, SearchResult} from "./protocalT.js";
 
 export class ServerConn {
+    apiURL(){
+        return getBackendURL();
+    }
     async authUsr( encKey: string ): Promise<AccountPermission>{
 
             const params = new URLSearchParams();

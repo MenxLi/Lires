@@ -7,12 +7,15 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "resbibman",
-    "version": "0.0.0"
+    "productName": "RBMWeb",
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
-      "all": false,
+      "all": true,
+      "http": {
+        "scope":[ "http://**", "https://**" ]
+      },
       "shell": {
         "all": false,
         "open": true
@@ -21,7 +24,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "com.limengxun.rbmweb",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -37,7 +40,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "Resbibman",
+        "title": "RBMWeb",
         "width": 1350,
         "height": 900
       }

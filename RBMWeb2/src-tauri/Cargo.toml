@@ -13,7 +13,7 @@ edition = "2021"
 tauri-build = { version = "1.4", features = [] }
 
 [dependencies]
-tauri = { version = "1.4", features = ["shell-open"] }
+tauri = { version = "1.4", features = [ "api-all"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
@@ -21,3 +21,9 @@ serde_json = "1.0"
 # this feature is used for production builds or when `devPath` points to the filesystem
 # DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release.package.wry]
+# Enable release inspect, for debugging purpose
+# https://github.com/tauri-apps/tauri/discussions/3059#discussioncomment-1793205
+debug = true
+debug-assertions = true

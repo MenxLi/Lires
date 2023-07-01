@@ -2,6 +2,7 @@
 <script setup lang="ts">
     import Popup from './components/common/Popup.vue';
     import { useUIStateStore, useDataStore } from './components/store';
+    import { ServerConn } from './core/serverConn';
     const uiState = useUIStateStore();
     const dataStore = useDataStore()
     uiState.showPopup("Loading database...", "info");
@@ -11,7 +12,7 @@
             uiState.showPopup("Database loaded", "success")
         },
         (_) => {
-            uiState.showPopup("Failed to load database", "alert")
+            uiState.showPopup(`Failed to load database from: ${new ServerConn().apiURL()}`, "alert")
         }
     );
 </script>
