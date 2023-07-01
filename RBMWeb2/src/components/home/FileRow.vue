@@ -5,7 +5,7 @@
     import FileRowMore from './FileRowMore.vue';
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
-    import { openURL } from '../../libs/misc';
+    import { openURLExternal } from '../../libs/misc';
 
     const NOTE_FULLSHOW_THRESHOLD = 12;
     const NOTE_SHOW_THRESHOLD = 1;
@@ -48,7 +48,7 @@
             // Maybe open doc
             const url = props.datapoint.getOpenDocURL()
             if (url !== ""){
-                openURL(url);
+                openURLExternal(url);
             }
             event.stopPropagation();    // prevent show more
         }

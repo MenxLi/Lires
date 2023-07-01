@@ -7,6 +7,7 @@
     import FileRowContainer from '../home/FileRowContainer.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
     import { computed, ref } from 'vue';
+    import { openURLExternal } from '../../libs/misc';
 
     const props = defineProps<{
         article: ArxivArticleWithFeatures,
@@ -115,7 +116,7 @@
             <div class="authors">
                 <label>[Authors] </label>
                 <span v-for="(author, index) in props.article.authors" class="authorSpan">
-                    <a :href="`https://arxiv.org/search/?query=${author}&searchtype=author`">{{ author }}</a>
+                    <a @click="()=>openURLExternal(`https://arxiv.org/search/?query=${author}&searchtype=author`)">{{ author }}</a>
                     <a class="pubCount" v-if="authorDatabasePublicationCount(author)" @click="()=>onClickAuthorPubCount(author)">
                         {{ ` (${authorDatabasePublicationCount(author)})` }}
                     </a>
@@ -123,8 +124,8 @@
                 </span>
             </div>
             <div class="actions">
-                <a :href="`https://arxiv.org/abs/${article.id}`">Arxiv</a> |
-                <a :href="`https://arxiv.org/pdf/${article.id}.pdf`">PDF</a> |
+                <a @click="()=>openURLExternal(`https://arxiv.org/abs/${article.id}`)">Arxiv</a> |
+                <a @click="()=>openURLExternal(`https://arxiv.org/pdf/${article.id}.pdf`)">PDF</a> |
                 <a @click="addToRBM">Collect</a>
             </div>
             <p>Published: {{ props.article.publishedTime }}</p>

@@ -98,7 +98,7 @@ export async function copyToClipboard(textToCopy: string): Promise<boolean> {
     }
   }
 
-export function openURL(url: string){
+export function openURLExternal(url: string){
     if (platformType() == "tauri"){
         tauriOpen(url);
     }
