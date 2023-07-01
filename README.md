@@ -15,7 +15,6 @@ It also has server modules: resbibman-server (RBM server) with a web viewer (RBM
 - [Resbibman](#resbibman)
   - [Features](#features)
 - [Installation \& Usage](#installation--usage)
-  - [Installation](#installation)
   - [Usage:](#usage)
     - [Configure](#configure)
 - [Manuals and documentations](#manuals-and-documentations)
@@ -27,34 +26,16 @@ It also has server modules: resbibman-server (RBM server) with a web viewer (RBM
 
 
 ## Features
+* Host a server to view, share and discuss online
 * Cross-platform
 * Cascading tags  
 * Markdown notes, with LaTeX equation support
-* Online mode (remote storage)
-* Host a server to view, share and discuss online
 * Multi-user permission management
 * AI-powered features (iRBM)
+<!-- * Online mode (remote storage) -->
 
 # Installation & Usage
-## Installation
-installation for client-side GUI only:
-> **Prerequisites:**  Python 3.8+
-```bash
-pip install setuptools wheel pyyaml
-pip install packages/QFlowLayout packages/QCollapsibleCheckList
-pip install .
-rbm-utils download_pdfjs                # [optional] download pdf.js viewer to view pdf inside resbibman
-# pip install ".[ai]"                   # [optional] to install with AI dependencies
-```
-installation for server and development
-> **Prerequisites:**  Python 3.8+, Node.js, TypeScript
-```bash
-cd RBMWeb2 && npm install && npm run build && cd ..
-pip install setuptools wheel pyyaml
-pip install packages/QFlowLayout packages/QCollapsibleCheckList
-pip install -e ".[full]"
-rbm-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in RBMWeb
-```
+Installation refer to - [Getting Started](resbibman/docs/gettingStarted.md##server-startup)
 
 <!-- ### Docker deployment <span style="color:red">[outdated]</span>
 <span style="color:blue">To be revised...</span>   
@@ -73,12 +54,6 @@ docker exec resbibman rbm-keyman ...
 ``` -->
 
 ## Usage:
-**To start the client GUI program:**
-```bash
-resbibman client
-```
-The client is a GUI written in PyQt6, it can be used to manage local database, or to connect to the RBM server and work in online mode.
-
 **To start the RBM server and RBMWeb server:**
 ```bash
 resbibman server
@@ -102,6 +77,7 @@ The iRBM server is written with FastAPI, it provides additional AI features and 
 
 For CLI help, see `resbibman -h`  
 
+For detailed server settings, please refer to [Getting Started](resbibman/docs/gettingStarted.md)
 
 ### Configure
 `$RBM_HOME` directory is used for application data storage, by default it is set to `~/.RBM`.  
