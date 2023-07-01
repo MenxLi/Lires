@@ -1,5 +1,6 @@
 
-import { getCookie } from "./libs/cookie";
+// import { getCookie } from "./libs/cookie";
+import { useSettingsStore } from "./components/store";
 
 export function platformType(){
     if ((window as any).__TAURI__){
@@ -27,8 +28,8 @@ function getBackendURL(){
     let BACKEND_PORT = "8080"
     let HOSTNAME = window.location.hostname;
     let BACKENDURL: string;
-    if (getCookie("backendPort")){
-        BACKEND_PORT = getCookie("backendPort");
+    if (useSettingsStore().backendPort){
+        BACKEND_PORT = useSettingsStore().backendPort;
     }
     if (platformType() === "tauri"){
         if (!import.meta.env.DEV){
@@ -46,7 +47,6 @@ function getBackendURL(){
 }
 
 export {getBackendURL, FRONTENDURL};
-export const STAY_LOGIN_DAYS: number = 3;
 export const MAINTAINER = {
     name: "Li, Mengxun",
     email: "mengxunli@whu.edu.cn"

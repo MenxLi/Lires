@@ -3,23 +3,25 @@
 
     import { ref, computed } from "vue";
     import { useRouter } from "vue-router";
-    import { cookieLogout } from "../../core/auth";
+    import { settingsLogout } from "../../core/auth";
     import { ThemeMode } from "../../core/misc";
     import BannerIcon from "./BannerIcon.vue";
     import { MenuAttached } from './fragments.tsx'
 
     import { ServerConn } from "../../core/serverConn";
-    import { getCookie } from "../../libs/cookie";
+    import { useSettingsStore } from "../store";
 
     // https://vitejs.dev/guide/assets.html
     import logoutIcon from "../../assets/icons/logout.svg";
     import exploreIcon from "../../assets/icons/explore.svg";
     import bulbTipsIcon from "../../assets/icons/bulb_tips.svg";
 
+    const settingsStore = useSettingsStore();
+
     // authentication on load
     const conn = new ServerConn();
     const router = useRouter();
-    conn.authUsr(getCookie("encKey") as string).then(
+    conn.authUsr(settingsStore.encKey as string).then(
         ()=>{},
         function(){
             logout();
@@ -28,7 +30,7 @@
 
     // logout related
     function logout(){
-        cookieLogout();
+        settingsLogout();
         console.log("Logged out.", router.currentRoute.value.fullPath);
         router.push({
             path: "/login",

@@ -4,6 +4,7 @@ import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
 import { formatAuthorName } from '../libs/misc'
 export { formatAuthorName }
 import type { SearchStatus, PopupStyle, TagStatus } from './interface'
+import type { AccountPermission } from '../core/protocalT'
 
 interface PopupValue {
     content: string,
@@ -130,5 +131,25 @@ export const useDataStore = defineStore(
                 return this.database.getAllTags();
             }
         }
+    }
+)
+
+export const useSettingsStore = defineStore(
+    "settings", {
+        state: () => {
+            return {
+                encKey: localStorage.getItem("encKey") || "",
+                accountPermission: null as AccountPermission | null,
+                backendPort: "8080",
+            }
+        },
+        "actions": {
+            setEncKey(key: string, keep: boolean){
+                this.encKey = key;
+                if (keep){
+                    localStorage.setItem("encKey", key);
+                }
+            }
+        },
     }
 )

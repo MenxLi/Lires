@@ -2,7 +2,7 @@ import type { DataInfoT, SearchResultant } from "./protocalT";
 import { ServerConn } from "./serverConn";
 import { getBackendURL } from "../config";
 import type { SearchStatus } from "../components/interface";
-import { getCookie } from "../libs/cookie";
+import { useSettingsStore } from "../components/store";
 
 export interface TagHierarchy extends Record<string, TagHierarchy>{};
 export const TAG_SEP = "->";
@@ -310,7 +310,7 @@ export class DataPoint {
             const pdfjsviewerParams = new URLSearchParams();
             if (pdfjs === backendPdfjsviewer){
                 // use backend pdfjs viewer, need to pass key
-                pdfjsviewerParams.append("key", getCookie("encKey"))
+                pdfjsviewerParams.append("key", useSettingsStore().encKey)
             }
             pdfjsviewerParams.append("file", `${fURL}`);
             return `${pdfjs}?${pdfjsviewerParams.toString()}`;
@@ -355,7 +355,7 @@ export class DataPoint {
 
     getOpenSummaryURL(): string {
         const uid = this.summary.uuid;
-        return `${getBackendURL()}/summary?uuid=${uid}&key=${getCookie("encKey")}`;
+        return `${getBackendURL()}/summary?uuid=${uid}&key=${useSettingsStore().encKey}`;
     }
 
     docType(): "" | "pdf" | "url" | "hpack" | "unknown" {

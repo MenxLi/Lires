@@ -1,15 +1,21 @@
 
 // Server connection
 
-import { getCookie } from "../libs/cookie.js";
 import {getBackendURL} from "../config.js";
+import { useSettingsStore } from "../components/store.js";
 import type { DataInfoT, AccountPermission, SearchResult} from "./protocalT.js";
 
 export class ServerConn {
+    settings: any
+    constructor(){
+        console.log("ServerConn constructor")
+        this.settings = useSettingsStore();
+    }
     apiURL(){
         return getBackendURL();
     }
     async authUsr( encKey: string ): Promise<AccountPermission>{
+            console.log(encKey)
 
             const params = new URLSearchParams();
             params.set("key", encKey);
@@ -62,7 +68,7 @@ export class ServerConn {
 
     async reqDatapointAbstract(uid: string): Promise<string>{
         const params = new URLSearchParams();
-        params.set("key", getCookie("encKey"));
+        params.set("key", this.settings.encKey);
         const response = await fetch(`${getBackendURL()}/fileinfo-supp/abstract/${uid}`);
         if (response.ok && response.status === 200) {
             const res: string = await response.text();
@@ -75,7 +81,7 @@ export class ServerConn {
 
     async reqDatapointAbstractUpdate(uid: string, content: string): Promise<boolean>{
         const form = new FormData();
-        form.append('key', getCookie("encKey"))
+        form.append('key', this.settings.encKey)
         form.append('content', content)
         const res = await fetch(`${getBackendURL()}/fileinfo-supp/abstract-update/${uid}`, {
             method: 'POST',
@@ -91,7 +97,7 @@ export class ServerConn {
 
     async reqDatapointNote( uid: string ): Promise<string>{
         const url = new URL(`${getBackendURL()}/fileinfo-supp/note/${uid}`);
-        url.searchParams.append("key", getCookie("encKey"));
+        url.searchParams.append("key", this.settings.encKey);
         const response = await fetch(url.toString());
         if (response.ok){
             const resObj = await response.text();
@@ -104,7 +110,7 @@ export class ServerConn {
 
     async reqDatapointNoteUpdate( uid: string, content: string ): Promise<boolean>{
         const url = new URL(`${getBackendURL()}/fileinfo-supp/note-update/${uid}`);
-        url.searchParams.append("key", getCookie("encKey"));
+        url.searchParams.append("key", this.settings.encKey);
         url.searchParams.append("content", content);
         const response = await fetch(url.toString(),
             {
@@ -125,7 +131,7 @@ export class ServerConn {
     async search(method: string, kwargs: any): Promise<SearchResult>{
         const params = new URLSearchParams();
 
-        params.set("key", getCookie("encKey"));
+        params.set("key", this.settings.encKey);
         params.set("method", method);
         params.set("kwargs", JSON.stringify(kwargs));
         const response = await fetch(`${getBackendURL()}/search`, 
@@ -152,7 +158,7 @@ export class ServerConn {
 
     async featurize(text: string): Promise<number[]>{
         const params = new URLSearchParams();
-        params.set("key", getCookie("encKey"));
+        params.set("key", this.settings.encKey);
         params.set("text", text);
 
         const response = await fetch(`${getBackendURL()}/iserver/textFeature?${params.toString()}`,
@@ -182,7 +188,7 @@ export class ServerConn {
         model = "gpt-3.5-turbo"
         ): void{
         const form = new FormData();
-        form.append('key', getCookie("encKey"))
+        form.append('key', this.settings.encKey)
         form.append('force', force.toString())
         form.append('uuid', uid)
         form.append('model', model)
@@ -228,7 +234,7 @@ export class ServerConn {
             id = "arxiv:" + id;
         }
         const params = new URLSearchParams();
-        params.set("key", getCookie("encKey"));
+        params.set("key", this.settings.encKey);
         params.set("retrive", id);
         params.set("tags", JSON.stringify(["arxiv_feed"]))
 
@@ -252,7 +258,7 @@ export class ServerConn {
 
     async deleteData(uid: string): Promise<boolean>{
         const url = new URL(`${getBackendURL()}/dataman/delete`);
-        url.searchParams.append("key", getCookie("encKey"));
+        url.searchParams.append("key", this.settings.encKey);
         url.searchParams.append("uuid", uid);
 
         const response = await fetch(url.toString(),
@@ -273,7 +279,7 @@ export class ServerConn {
     async editData(uid: string | null, bibtex: string, tags: string[] = [], url: string = ""): Promise<DataInfoT>{
         const params = new URLSearchParams();
         if (!uid){ uid = null; }
-        params.set("key", getCookie("encKey"));
+        params.set("key", this.settings.encKey);
         params.set("uuid", JSON.stringify(uid))
         params.set("bibtex", bibtex);
         params.set("tags", JSON.stringify(tags));
@@ -304,7 +310,7 @@ export class ServerConn {
                 return new Promise((resolve, reject) => {
                     const form = new FormData();
                     form.append('file', file);
-                    form.append('key', getCookie("encKey"))
+                    form.append('key', this.settings.encKey)
                     
                     fetch(`${getBackendURL()}/img-upload/${uid}`, {
                         method: 'POST',
@@ -328,7 +334,7 @@ export class ServerConn {
     async uploadDocument(uid: string, file: File): Promise<DataInfoT>{
         const form = new FormData();
         form.append('file', file);
-        form.append('key', getCookie("encKey"))
+        form.append('key', this.settings.encKey)
         const res = await fetch(`${getBackendURL()}/dataman/doc-upload/${uid}`, {
             method: 'POST',
             body: form,
@@ -346,7 +352,7 @@ export class ServerConn {
     /* free document and return the new datapoint summary */
     async freeDocument(uid: string): Promise<DataInfoT>{
         const form = new FormData();
-        form.append('key', getCookie("encKey"))
+        form.append('key', this.settings.encKey)
         const res = await fetch(`${getBackendURL()}/dataman/doc-free/${uid}`, {
             method: 'POST',
             body: form,
@@ -365,7 +371,7 @@ export class ServerConn {
     // ---- info ----
     async changelog(): Promise<Record<string, string[]>>{
         const url = new URL(`${getBackendURL()}/info/changelog`);
-        url.searchParams.append("key", getCookie("encKey"));
+        url.searchParams.append("key", this.settings.encKey);
         const response = await fetch(url.toString(),
             {
                 method: "GET",

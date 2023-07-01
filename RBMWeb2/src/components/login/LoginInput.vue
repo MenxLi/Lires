@@ -3,10 +3,9 @@
 import { ref, computed } from 'vue';
 import { ServerConn } from '../../core/serverConn';
 import { sha256 } from '../../libs/sha256lib';
-import { STAY_LOGIN_DAYS} from '../../config';
 import { useRouter } from 'vue-router';
 import { saveAuthentication } from '../../core/auth.js'
-import { setCookie } from '../../libs/cookie';
+import { useSettingsStore } from '../store';
 
 import Toggle from '../common/Toggle.vue'
 
@@ -21,14 +20,15 @@ const loginText = ref("Login")
 const router = useRouter();
 
 function login(){
-    setCookie("backendPort", port.value, STAY_LOGIN_DAYS);
+    // setCookie("backendPort", port.value, STAY_LOGIN_DAYS);
+    useSettingsStore().backendPort = port.value;
     loginText.value = "Connecting..."
 
     const encKey = sha256(accessKey.value);
     const conn = new ServerConn();
     conn.authUsr(encKey as string).then(
         (permission) => {
-            saveAuthentication(encKey as string, permission, stayLogin.value, STAY_LOGIN_DAYS);
+            saveAuthentication(encKey as string, permission, stayLogin.value);
             error.value = "";
             console.log("Logged in.")
             const urlFrom = router.currentRoute.value.query.from;
