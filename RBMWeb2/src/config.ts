@@ -31,9 +31,15 @@ function getBackendURL(){
         BACKEND_PORT = getCookie("backendPort");
     }
     if (platformType() === "tauri"){
-        // BACKEND_PROTOCAL = "https:";     // assume the backend is https
-        // HOSTNAME = "limengxun.com";
-        console.log("tauri mode!")
+        if (!import.meta.env.DEV){
+            // assume the backend is https in tauri production mode, 
+            // because we've used broswer fetch api for api requests
+            // however tauri use native webview, which can not access http backend
+            // the backend should be deployed on the server with ssl certificate
+            BACKEND_PROTOCAL = "https:";     
+            // set fixed host, may be changed in the future
+            HOSTNAME = "limengxun.com";
+        }
     }
     BACKENDURL = `${BACKEND_PROTOCAL}//${HOSTNAME}:${BACKEND_PORT}`;
     return BACKENDURL;
