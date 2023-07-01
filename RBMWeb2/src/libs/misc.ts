@@ -1,3 +1,5 @@
+import { open as tauriOpen } from '@tauri-apps/api/shell';
+import { platformType } from '../config';
 
 // not used for now, a backup for the future
 export function resolveAbsoluteURL(url: string){
@@ -95,3 +97,12 @@ export async function copyToClipboard(textToCopy: string): Promise<boolean> {
       return !_error;
     }
   }
+
+export function openURL(url: string){
+    if (platformType() == "tauri"){
+        tauriOpen(url);
+    }
+    else{
+        window.open(url, "_blank");
+    }
+}
