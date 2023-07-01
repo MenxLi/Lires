@@ -1,14 +1,27 @@
 import os, multiprocessing, logging
-from typing import Union
+from typing import Union, TypedDict
 from RBMWeb import RBMWEB_SRC_ROOT
+from RBMWeb2 import RBMWEB2_SRC_ROOT
+from functools import partial
 from resbibman.core import globalVar as G
 
 import tornado
 import tornado.ioloop
 import tornado.web
 import tornado.autoreload
+from tornado.httpserver import HTTPServer
+
+import ssl
 
 from .handlers import *
+
+class FrontendApplication(tornado.web.Application):
+    def __init__(self) -> None:
+        handlers = [
+            # Frontend
+            (r'/(.*)', tornado.web.StaticFileHandler, {"path": RBMWEB2_SRC_ROOT, "default_filename": "index.html"}),
+        ]
+        super().__init__(handlers)      # type: ignore
 
 class Application(tornado.web.Application):
     def __init__(self) -> None:
@@ -64,7 +77,9 @@ class Application(tornado.web.Application):
         ]
         super().__init__(handlers)
 
-def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[int, str]):
+
+_SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
+def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[int, str], ssl_config : _SSL_CONFIGT | None = None):
 
     # initialize G.logger_rbm_server to print to stdout
     G.logger_rbm_server.setLevel(logging.DEBUG)
@@ -80,16 +95,57 @@ def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[in
 
     app = Application()
     print("Starting server at port: ", port)
-    app.listen(int(port))
+
+    ssl_ctx = None
+    if ssl_config is not None:
+        ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        ssl_ctx.load_cert_chain(certfile=ssl_config["certfile"], keyfile=ssl_config["keyfile"])
+    server = HTTPServer(app, ssl_options=ssl_ctx)
+    server.listen(int(port))
+
     tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
     tornado.autoreload.start()
     tornado.ioloop.IOLoop.current().start()
 
+def startFrontendServer(port: Union[int, str] = 8081, ssl_config : _SSL_CONFIGT | None = None):
+    app = FrontendApplication()
+    ssl_ctx = None
+    if ssl_config is not None:
+        ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        ssl_ctx.load_cert_chain(certfile=ssl_config["certfile"], keyfile=ssl_config["keyfile"])
+    server = HTTPServer(app, ssl_options=ssl_ctx)
+    print("Starting RBMWeb server at port: ", port)
+    server.listen(int(port))
+
+    tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
+    tornado.autoreload.start()
+    tornado.ioloop.IOLoop.current().start()
+
+
+# SSL config
+_ENV_CERTFILE = os.environ.get("RBM_SSL_CERTFILE")
+_ENV_KEYFILE = os.environ.get("RBM_SSL_KEYFILE")
+SSL_CONFIG: _SSL_CONFIGT | None
+if bool(_ENV_CERTFILE) != bool(_ENV_KEYFILE):
+    # if only one of them is set
+    raise ValueError("RBM_SSL_CERTFILE and RBM_SSL_KEYFILE must be both set or both not set")
+if _ENV_CERTFILE is not None:
+    SSL_CONFIG = {"certfile": _ENV_CERTFILE, "keyfile": _ENV_KEYFILE} # type: ignore
+else:
+    SSL_CONFIG = None
+
 def startServerProcess(*args) -> multiprocessing.Process:
-    p = multiprocessing.Process(target=startServer, args=args)
+    # add ssl config
+    _startServer = partial(startServer, ssl_config=SSL_CONFIG)
+    p = multiprocessing.Process(target=_startServer, args=args)
     p.start()
     return p
 
+def startFrontendServerProcess(*args) -> multiprocessing.Process:
+    _startFrontendServer = partial(startFrontendServer, ssl_config=SSL_CONFIG)
+    p = multiprocessing.Process(target=_startFrontendServer, args=args)
+    p.start()
+    return p
 
 if __name__ == "__main__":
     startServer(8080, "127.0.0.1", "8731")
