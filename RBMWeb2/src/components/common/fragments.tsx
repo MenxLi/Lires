@@ -137,12 +137,15 @@ export const EditableParagraph = defineComponent({
         const contains = (value: Node) => {
             return p.value!.contains(value);
         }
+        const hasFocus = function() {
+            return document.activeElement === p.value;
+        }
         const innerText = computed({
             get() { return p.value!.innerText },
             set(value: string) { p.value!.innerText = value }
         });
 
-        context.expose({ setText, setEditable, contains, innerText });
+        context.expose({ setText, setEditable, contains, innerText, hasFocus });
 
         const handleInput = () => {
             context.emit('change', p.value!.innerText);

@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 
-    import { ref, computed } from 'vue';
+    import { ref, computed, onActivated, onDeactivated } from 'vue';
     import FileRowMore from './FileRowMore.vue';
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
@@ -37,6 +37,7 @@
     const dataCard = ref<HTMLElement | null>(null);
     const initDiv = ref<HTMLElement | null>(null);
     const moreDiv = ref<HTMLElement | null>(null);
+    const moreComponent = ref<typeof FileRowMore | null>(null);
 
     function clickOnRow(event: Event){
         // check if event target is fileRow div or not
@@ -89,6 +90,21 @@
         }
     })
 
+    // shortcut to edit datapoint information
+    function shortcutEdit(event: KeyboardEvent){
+        console.log(event.code)
+        if (event.code === "Space" && g_unfoldedIds.value.includes(props.datapoint.summary.uuid) && moreComponent.value?.shouldEnableEditDatapoint){
+            // not working sometimes ... ?
+            moreComponent.value?.editThisDatapoint();
+            event.preventDefault();
+        }
+    }
+    onActivated(()=>{
+        window.addEventListener("keydown", shortcutEdit);
+    })
+    onDeactivated(()=>{
+        window.removeEventListener("keydown", shortcutEdit);
+    })
 </script>
 
 <template>
@@ -117,7 +133,7 @@
         </div>
         <Transition name="more">
             <div id="more" ref="moreDiv">
-                <FileRowMore :datapoint="datapoint" :show="showMore"></FileRowMore>
+                <FileRowMore :datapoint="datapoint" :show="showMore" ref="moreComponent"></FileRowMore>
             </div>
         </Transition>
     </div>

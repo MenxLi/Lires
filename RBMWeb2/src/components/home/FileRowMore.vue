@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onActivated, onDeactivated } from 'vue';
+import { ref, computed } from 'vue';
 import { DataPoint } from '../../core/dataClass';
 import DataEditor from './DataEditor.vue';
 import { useDataStore, useUIStateStore } from '../store';
@@ -71,27 +71,20 @@ function editThisDatapoint(){
     // uiState.showPopup("Not implemented yet", "warning");
     showEditor.value = true;
 }
-// show editor by pressing space
-const moreDiv = ref(null as HTMLDivElement|null);
-const shortcutEdit = (e: KeyboardEvent) => {
-    if (e.code === "Space" && props.show && !showEditor.value 
-        && !abstractParagraph.value?.contains(e.target as Node)
-        && moreDiv.value?.matches(":hover")
-    ){
-        editThisDatapoint();
-        e.preventDefault();
+// a trigger to enable edit datapoint via shortcut, can be called by parent component
+// not enable edit shortcut when editor is shown or abstract paragraph is focused
+const shouldEnableEditDatapoint = computed(()=> {
+    if (abstractParagraph.value === null){
+        return !showEditor.value;
     }
-}
-
+    return (!showEditor.value) && (!abstractParagraph.value.hasFocus())
+});
+defineExpose({
+    editThisDatapoint,
+    shouldEnableEditDatapoint
+})
 // summary
 const showSummary = ref(false);
-
-onActivated(()=>{
-    window.addEventListener("keydown", shortcutEdit);
-})
-onDeactivated(()=>{
-    window.removeEventListener("keydown", shortcutEdit);
-})
 </script>
 
 
@@ -116,7 +109,7 @@ onDeactivated(()=>{
         </div>
     </FloatingWindow>
     <DataEditor v-model:show="showEditor" :datapoint="datapoint"></DataEditor>
-    <div id="moreMain" v-if="show" ref="moreDiv">
+    <div id="moreMain" v-if="show">
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
             <!-- <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a> -->
