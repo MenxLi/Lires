@@ -92,7 +92,6 @@
 
     // shortcut to edit datapoint information
     function shortcutEdit(event: KeyboardEvent){
-        console.log(event.code)
         if (event.code === "Space" && g_unfoldedIds.value.includes(props.datapoint.summary.uuid) && moreComponent.value?.shouldEnableEditDatapoint){
             // not working sometimes ... ?
             moreComponent.value?.editThisDatapoint();

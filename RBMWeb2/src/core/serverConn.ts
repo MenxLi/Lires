@@ -8,15 +8,12 @@ import type { DataInfoT, AccountPermission, SearchResult} from "./protocalT.js";
 export class ServerConn {
     settings: any
     constructor(){
-        console.log("ServerConn constructor")
         this.settings = useSettingsStore();
     }
     apiURL(){
         return getBackendURL();
     }
     async authUsr( encKey: string ): Promise<AccountPermission>{
-            console.log(encKey)
-
             const params = new URLSearchParams();
             params.set("key", encKey);
             params.set("require_permission", "true");
