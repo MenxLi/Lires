@@ -65,6 +65,7 @@
   --color-background-ssoft: #fafafa;
   --color-background-theme-highlight: rgba(128, 198, 197, 0.2);
   --color-background-theme-thin: #e6e9ee;
+  --color-background-theme: rgba(228, 247, 254, 1);
 }
 
 :root.dark{
@@ -72,6 +73,7 @@
   --color-background-ssoft: #1f1f1f;
   --color-background-theme-highlight: rgba(108, 186, 160, 0.2);
   --color-background-theme-thin: #2c2e31;
+  --color-background-theme: rgba(26, 34, 37, 1);
 }
 
 /* @media (prefers-color-scheme: dark) {

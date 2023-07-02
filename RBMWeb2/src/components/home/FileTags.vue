@@ -37,6 +37,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        box-shadow: 0 0 10px var(--color-shadow);
     }
     #btnClear{
         padding: 5px;

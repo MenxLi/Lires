@@ -30,12 +30,13 @@ a,
 }
 
 div.panel{
+    /* will deprecate */
     height: 100%;
     width: 100%;
     align-self: center;
     margin: 0em;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
+    /* border: 1px solid var(--color-border); */
+    border-radius: 12px;
 }
 
 .shadow{

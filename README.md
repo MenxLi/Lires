@@ -4,6 +4,7 @@ Resbibman: a **Res**earch **bib**liograpy **man**ager
 <!--![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)-->
 <!--![ResBibMan](./resbibman/docs/imgs/mainWindow.png)-->
 ![ResBibMan](http://limengxun.com/files/imgs/resbibman.png)
+![RBMWeb-GUI](http://limengxun.com/files/imgs/resbibman2.png)
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for notes.
 
