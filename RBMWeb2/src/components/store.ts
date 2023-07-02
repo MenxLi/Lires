@@ -138,14 +138,19 @@ export const useSettingsStore = defineStore(
     "settings", {
         state: () => {
             return {
-                encKey: localStorage.getItem("encKey") || "",
+                __encKey: localStorage.getItem("encKey") || "",
                 accountPermission: null as AccountPermission | null,
                 backendPort: "8080",
             }
         },
+        "getters":{
+            encKey(): string{
+                return this.__encKey;
+            }
+        },
         "actions": {
             setEncKey(key: string, keep: boolean){
-                this.encKey = key;
+                this.__encKey = key;
                 if (keep){
                     localStorage.setItem("encKey", key);
                 }
