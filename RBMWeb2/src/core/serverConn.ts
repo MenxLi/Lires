@@ -6,9 +6,11 @@ import { useSettingsStore } from "../components/store.js";
 import type { DataInfoT, AccountPermission, SearchResult} from "./protocalT.js";
 
 export class ServerConn {
-    settings: any
     constructor(){
-        this.settings = useSettingsStore();
+        // this.settings = useSettingsStore();
+    }
+    get settings(){
+        return useSettingsStore();
     }
     apiURL(){
         return getBackendURL();
@@ -364,6 +366,32 @@ export class ServerConn {
         }
     }
 
+    async renameTag(oldTag: string, newTag: string): Promise<boolean>{
+        const form = new FormData();
+        form.append('key', this.settings.encKey)
+        form.append('oldTag', oldTag)
+        form.append('newTag', newTag)
+
+        const res = await fetch(`${getBackendURL()}/dataman/tag-rename`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){ return true; }
+        else{ throw new Error(`Got response: ${res.status}`) }
+    }
+
+    async deleteTag(tag: string): Promise<boolean>{
+        const form = new FormData();
+        form.append('key', this.settings.encKey)
+        form.append('tag', tag)
+
+        const res = await fetch(`${getBackendURL()}/dataman/tag-delete`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){ return true; }
+        else{ throw new Error(`Got response: ${res.status}`) }
+    }
 
     // ---- info ----
     async changelog(): Promise<Record<string, string[]>>{

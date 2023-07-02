@@ -54,6 +54,48 @@ export default {
     // adding new data
     const showAddingDataWindow = ref(false);
 
+    // rename and delete tags
+    function queryRenameTag(){
+        const oldTag = prompt("Old tag");
+        // check if oldTag is valid
+        if (oldTag && dataStore.database.getAllTags().has(oldTag)){
+            const newTag = prompt("New tag");
+            if (newTag){
+                dataStore.database.renameTag(oldTag, newTag).then(
+                    () => {
+                        uiState.showPopup("Tag renamed", "success");
+                        uiState.updateShownData()
+                    },
+                    () => {
+                        uiState.showPopup("Failed to rename tag", "error")
+                        uiState.updateShownData()
+                    },
+                )
+            }
+        }
+        else{
+            uiState.showPopup("Invalid tag", "warning");
+        }
+    }
+    function queryDeleteTag(){
+        const tag = prompt("Tag to delete");
+        if (tag && dataStore.database.getAllTags().has(tag)){
+            dataStore.database.deleteTag(tag).then(
+                () => {
+                    uiState.showPopup("Tag deleted", "success");
+                    uiState.updateShownData()
+                },
+                () => {
+                    uiState.showPopup("Failed to delete tag", "error")
+                    uiState.updateShownData()
+                },
+            )
+        }
+        else{
+            uiState.showPopup("Invalid tag", "warning");
+        }
+    }
+
 </script>
 
 <template>
@@ -65,8 +107,8 @@ export default {
                     @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>
                 <MenuAttached :menu-items="[
                     {name: `Display: ${showFileTags?'hide':'show'}`, action: () => showFileTags = !showFileTags},
-                    {name: 'Rename' , action: () => uiState.showPopup('Not implemented yet', 'warning')},
-                    {name: 'Delete' , action: () => uiState.showPopup('Not implemented yet', 'warning')},
+                    {name: 'Rename' , action: queryRenameTag},
+                    {name: 'Delete' , action: queryDeleteTag},
                 ]">
                     <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"></BannerIcon>
                 </MenuAttached>

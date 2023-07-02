@@ -8,6 +8,7 @@ export interface TagHierarchy extends Record<string, TagHierarchy>{};
 export const TAG_SEP = "->";
 
 export class DataTags extends Set<string>{
+    /* Remove spaces between words in a tag */
     static removeSpaces(tag: string): string{
         const splitTag = tag.split(TAG_SEP);
         for (let i = 0; i < splitTag.length; i++){
@@ -27,6 +28,9 @@ export class DataTags extends Set<string>{
     }
     add(tag: string){
         return super.add(DataTags.removeSpaces(tag));
+    }
+    has(tag: string){
+        return super.has(DataTags.removeSpaces(tag));
     }
     union( tags: DataTags){
         const ret = new DataTags(this)
@@ -476,6 +480,35 @@ export class DataBase {
         }
         return valid_data;
     }
+
+    async renameTag(oldTag: string, newTag: string): Promise<boolean>{
+        oldTag = DataTags.removeSpaces(oldTag);
+        newTag = DataTags.removeSpaces(newTag);
+        const conn = new ServerConn();
+        const res = await conn.renameTag(oldTag, newTag);
+        if (res){
+            const needUpdate = this.getDataByTags([oldTag]);
+            const updateRes = await Promise.all(needUpdate.map((data) => {
+                return data.update();
+            }));
+            return updateRes.every((x) => x);
+        }
+        else { return false; }
+    }
+
+    async deleteTag(tag: string): Promise<boolean>{
+        tag = DataTags.removeSpaces(tag);
+        const conn = new ServerConn();
+        const res = await conn.deleteTag(tag);
+        if (res){
+            const needUpdate = this.getDataByTags([tag]);
+            const updateRes = await Promise.all(needUpdate.map((data) => {
+                return data.update();
+            }));
+            return updateRes.every((x) => x);
+        }
+        else { return false; }
+    }   
 }
 
 

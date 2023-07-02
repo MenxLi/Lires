@@ -57,6 +57,8 @@ class Application(tornado.web.Application):
             (r"/dataman/update", DataUpdateHandler),
             (r"/dataman/doc-upload/(.*)", DocumentUploadHandler),
             (r"/dataman/doc-free/(.*)", DocumentFreeHandler),
+            (r"/dataman/tag-rename", TagRenameHandler),
+            (r"/dataman/tag-delete", TagDeleteHandler),
 
             # deal with images under misc folder of each datapoint
             (r"/img/(.*)", ImageGetHandler),

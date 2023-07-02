@@ -141,3 +141,34 @@ class DocumentFreeHandler(RequestHandlerBase, tornado.web.RequestHandler):
         self.logger.info(f"Document {uid} freed")
         dp.loadInfo()
         self.write(json.dumps(dp.summary))
+
+class TagRenameHandler(RequestHandlerBase, tornado.web.RequestHandler):
+    def post(self):
+        """
+        Rename a tag
+        """
+        self.setDefaultHeader()
+        permission = self.checkKey()
+        old_tag = self.get_argument("oldTag")
+        new_tag = self.get_argument("newTag")
+        if not permission["is_admin"]:
+            # only admin can rename tags
+            raise tornado.web.HTTPError(403)
+        self.db.renameTag(old_tag, new_tag)
+        self.logger.info(f"Tag {old_tag} renamed to {new_tag}")
+        self.write("OK")
+
+class TagDeleteHandler(RequestHandlerBase, tornado.web.RequestHandler):
+    def post(self):
+        """
+        Delete a tag
+        """
+        self.setDefaultHeader()
+        permission = self.checkKey()
+        tag = self.get_argument("tag")
+        if not permission["is_admin"]:
+            # only admin can delete tags
+            raise tornado.web.HTTPError(403)
+        self.db.deleteTag(tag)
+        self.logger.info(f"Tag {tag} deleted")
+        self.write("OK")
