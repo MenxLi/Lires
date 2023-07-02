@@ -317,3 +317,12 @@ version_history:
     - Resbibman core ⬇️
     - rbm-index update
     - Refactor - move featurize text to resbibman server
+  0.14.0:
+    - Fully functional RBMWeb
+    - Tauri GUI
+    - Rename and delete tag via web
+    - Use localstorage to store encrypted user key
+    - Default to stay login
+    - Server HTTPS support
+    - Web search publication
+    - Fix - reject short PDF summary
