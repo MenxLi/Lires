@@ -12,7 +12,7 @@ import Toggle from '../common/Toggle.vue'
 const accessKey = ref("");
 const port = ref("8080");
 const error = ref("");
-const stayLogin = ref(false);
+const stayLogin = ref(true);
 const showPassword = ref(false);
 const inputType = computed(() => showPassword.value?"text":"password");
 const loginText = ref("Login")
