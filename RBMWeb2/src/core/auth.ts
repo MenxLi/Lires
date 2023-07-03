@@ -6,7 +6,7 @@ import type { AccountPermission } from "./protocalT";
 export function saveAuthentication(
     encKey: string, 
     permission: AccountPermission|null, 
-    stayLogin: boolean,
+    stayLogin: boolean | null,
     ){
         useSettingsStore().setEncKey(encKey, stayLogin);
         if (permission){ useSettingsStore().accountPermission = permission; }
@@ -29,7 +29,7 @@ export async function settingsAuthentication(): Promise<AccountPermission> {
     permission.then(
         (accountPermission) => {
             saveAuthentication(
-                usrEncKey, accountPermission, false,
+                usrEncKey, accountPermission, null,
             );
         }
     )

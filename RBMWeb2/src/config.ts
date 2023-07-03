@@ -25,12 +25,9 @@ else{
 }
 function getBackendURL(){
     let BACKEND_PROTOCAL: 'http:' | 'https:' = window.location.protocol as 'http:' | 'https:';
-    let BACKEND_PORT = "8080"
     let HOSTNAME = window.location.hostname;
     let BACKENDURL: string;
-    if (useSettingsStore().backendPort){
-        BACKEND_PORT = useSettingsStore().backendPort;
-    }
+    const BACKEND_PORT = useSettingsStore().backendPort;
     if (platformType() === "tauri"){
         if (!import.meta.env.DEV){
             // assume the backend is https in tauri production mode, 

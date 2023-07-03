@@ -10,7 +10,7 @@ import { useSettingsStore } from '../store';
 import Toggle from '../common/Toggle.vue'
 
 const accessKey = ref("");
-const port = ref("8080");
+const port = ref(useSettingsStore().backendPort);
 const error = ref("");
 const stayLogin = ref(true);
 const showPassword = ref(false);
@@ -20,8 +20,9 @@ const loginText = ref("Login")
 const router = useRouter();
 
 function login(){
-    // setCookie("backendPort", port.value, STAY_LOGIN_DAYS);
-    useSettingsStore().backendPort = port.value;
+    useSettingsStore().setBackendPort(port.value);
+    console.log(useSettingsStore().backendPort)
+
     loginText.value = "Connecting..."
 
     const encKey = sha256(accessKey.value);
