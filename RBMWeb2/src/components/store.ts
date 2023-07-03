@@ -15,6 +15,7 @@ export const useUIStateStore = defineStore(
     "uiStatus", {
         state: () => {
             return {
+                // home component
                 tagStatus: {
                     checked: new DataTags(),
                     all: new DataTags(),
@@ -34,25 +35,6 @@ export const useUIStateStore = defineStore(
 
                 // global popup component, need to be initialized in App.vue
                 popupValues : {} as Record<string, PopupValue>,
-                // TEST
-                // popupValues : {
-                //     "1": {
-                //         content: "This is an alert",
-                //         styleType: "alert",
-                //     },
-                //     "2": {
-                //         content: "This is a warning",
-                //         styleType: "warning",
-                //     },
-                //     "3": {
-                //         content: "This is a info",
-                //         styleType: "info",
-                //     },
-                //     "4": {
-                //         content: "This is a success",
-                //         styleType: "success",
-                //     },
-                // } as Record<string, PopupValue>,
             }
         },
         getters: {
@@ -140,6 +122,7 @@ export const useSettingsStore = defineStore(
             return {
                 __encKey: localStorage.getItem("encKey") || "",
                 __backendPort: localStorage.getItem("backendPort") || "8080",
+                loggedIn: false,    // will be watched by App.vue to reload the database
                 accountPermission: null as AccountPermission | null,
             }
         },

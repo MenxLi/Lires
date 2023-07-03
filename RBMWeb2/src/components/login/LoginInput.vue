@@ -21,7 +21,6 @@ const router = useRouter();
 
 function login(){
     useSettingsStore().setBackendPort(port.value);
-    console.log(useSettingsStore().backendPort)
 
     loginText.value = "Connecting..."
 
@@ -31,7 +30,6 @@ function login(){
         (permission) => {
             saveAuthentication(encKey as string, permission, stayLogin.value);
             error.value = "";
-            console.log("Logged in.")
             const urlFrom = router.currentRoute.value.query.from;
             if (!urlFrom){
                 router.push("/");

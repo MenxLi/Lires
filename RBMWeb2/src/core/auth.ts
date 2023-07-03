@@ -9,7 +9,14 @@ export function saveAuthentication(
     stayLogin: boolean | null,
     ){
         useSettingsStore().setEncKey(encKey, stayLogin);
-        if (permission){ useSettingsStore().accountPermission = permission; }
+        useSettingsStore().accountPermission = permission;
+        if (permission){
+            useSettingsStore().loggedIn = true;
+        }
+        else{
+            // null indicates logout
+            useSettingsStore().loggedIn = false;
+        }
     }
 
 // Check if logged out using cookies, no server authentication
@@ -21,17 +28,18 @@ export function settingsLogout(){
     saveAuthentication("", null, true);
 }
 
-// Use cookie to authenticate again and refresh stay-login time
-export async function settingsAuthentication(): Promise<AccountPermission> {
+// Use current settings to authenticate again
+// Will be called when the page is loaded or on navigation
+export async function settingsAuthentication(): Promise<AccountPermission|null> {
     const conn = new ServerConn();
     const usrEncKey = useSettingsStore().encKey;
-    const permission = conn.authUsr(usrEncKey);
-    permission.then(
-        (accountPermission) => {
-            saveAuthentication(
-                usrEncKey, accountPermission, null,
-            );
-        }
-    )
-    return permission;
+    try{
+        const permission = await conn.authUsr(usrEncKey);
+        saveAuthentication( usrEncKey, permission, null);
+        return permission;
+    } catch (e){
+        console.log("settingsAuthentication failed: ", e);
+        saveAuthentication("", null, true);
+        return null;
+    }
 }
