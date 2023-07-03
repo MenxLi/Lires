@@ -223,6 +223,7 @@ class RBMRetriver:
         dp = database.add(uid)
         dp.fm.setWebUrl(collector.url())
         dp.fm.writeTags(tags)
+        dp.loadInfo()   # reload info because tags are changed
         self.logger.debug("File generated: {}".format(dp.uuid))
 
         ret = dp.uuid
