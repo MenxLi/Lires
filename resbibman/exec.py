@@ -146,7 +146,8 @@ def run():
         from .server.main import startServerProcess, startFrontendServerProcess
         # from RBMWeb2.main import startServerProcess as startRBMWeb2ServerProcess
         procs.append(startServerProcess(args.port, args.iserver_host, args.iserver_port))
-        procs.append(startFrontendServerProcess(args.rbmweb_port))
+        if args.rbmweb_port != "0" and args.rbmweb_port.lower() != "none" and args.rbmweb_port:
+            procs.append(startFrontendServerProcess(args.rbmweb_port))
     
     if args.subparser == "iserver":
         import subprocess

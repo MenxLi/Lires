@@ -24,7 +24,7 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
 
     parser_server = sp.add_parser("server", help = "Start resbibman server")
     parser_server.add_argument("-p", "--port", action = "store", default = "8080", help = "port, default to 8080")
-    parser_server.add_argument("--rbmweb_port", action = "store", default = "8081", help = "port, default to 8081")
+    parser_server.add_argument("--rbmweb_port", action = "store", default = "8081", help = "port, default to 8081, set to 0 to disable RBMWeb")
     parser_server.add_argument("--iserver_host", action = "store", default = "127.0.0.1", help = "host, default to 127.0.0.1")
     parser_server.add_argument("--iserver_port", action = "store", default = "8731", help = "port, default to 8731")
 
