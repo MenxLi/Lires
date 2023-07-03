@@ -415,6 +415,7 @@ export class DataBase {
     async requestData(){
         const conn = new ServerConn();
         const allData = await conn.reqFileList([]);
+        this.clear();
         for ( let summary of allData ){
             this.add(summary);
         }
@@ -423,6 +424,10 @@ export class DataBase {
     add(summary: DataInfoT): DataPoint {
         this.data[summary.uuid] = new DataPoint(summary);
         return this.data[summary.uuid];
+    }
+
+    clear(){
+        this.data = {};
     }
 
     delete(uuid: string): Promise<boolean>{
