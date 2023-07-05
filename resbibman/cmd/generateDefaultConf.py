@@ -17,8 +17,8 @@ def generateDefaultConf():
 
 		# List of dictionary with key ["host", "port", "access_key"], preset server settings
 		server_preset = [{
-			"host": "",
-			"port": "",
+			"host": "http://localhost",
+			"port": "8080",
 			"access_key": ""
 		}],
 		host = "",

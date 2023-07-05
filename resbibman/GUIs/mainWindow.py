@@ -727,7 +727,8 @@ class MainWindow(MainWindowGUI):
                 ServerConn().reloadDB()
                 # loadData
                 self.loadData_async(TMP_DB, sync_after=True)    # (This will not raise an ConnectionError)
-            except requests.exceptions.ConnectionError:
+            except requests.exceptions.ConnectionError as e:
+                self.logger.debug("Connection error: " + str(e))
                 self.statusBarInfo("Connection error", 5, bg_color = "red")
                 self.logger.warning("Server is down, not reload server.")
                 self.logger.debug("May fall into offline mode.")

@@ -13,7 +13,7 @@ from resbibman.core.bibReader import BibParser
 from resbibman.core.fileTools import addDocument, DBConnection
 from resbibman.core.fileToolsV import FileManipulatorVirtual
 from resbibman.core.dataClass import DataPoint, DataBase
-from resbibman.confReader import TMP_DIR, getConfV
+from resbibman.confReader import TMP_DIR, getConfV, getServerURL
 from resbibman.core.utils import sssUUID
 from resbibman.core import globalVar as G
 
@@ -289,7 +289,7 @@ def main():
             "download_doc": "true" if args.download else "false",
             # "uuid": args.retrive,
         }
-        addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
+        addr = getServerURL()
         post_addr = "{}/collect".format(addr) 
         res = requests.post(post_addr, params = post_args)
         if not res.ok:

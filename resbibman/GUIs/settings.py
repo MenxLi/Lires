@@ -147,6 +147,9 @@ class SetDatabase(SubSettingsBase):
 			RELOAD = True
 		
 		if not host == getConf()["host"] or not port == getConf()["port"]:
+			if not (host == "" or host.startswith("http://") or host.startswith("https://")):
+				self.warnDialog("Invalid host address, please check.")
+				return
 			saveToConf(host = host, port = port)
 			self.logger.debug("RBMWeb host set to: {}:{}".format(host, port))
 			self.logger.info("Server settings changed, deleting previous local temporary files")

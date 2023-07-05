@@ -132,7 +132,7 @@ def getServerURL() -> str:
     if not host:
         return ""
     else:
-        return f"http://{host}:{port}"
+        return f"{host}:{port}"
 
 def saveToConf(**kwargs):
     try:

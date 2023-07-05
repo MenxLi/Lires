@@ -70,7 +70,7 @@ class ServerPresetChoice(QDialog):
 			port = server["port"]
 			access_key = server["access_key"]
 
-			show_str = "http://{}:{}".format(host, port)
+			show_str = "{}:{}".format(host, port)
 			self.cb.addItem(show_str, userData=server)
 		self.vlayout.addWidget(self.cb)
 		hlayout = QHBoxLayout()

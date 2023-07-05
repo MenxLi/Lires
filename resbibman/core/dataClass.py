@@ -1,7 +1,7 @@
 from __future__ import annotations
 import urllib.parse
 import shutil, requests, json
-from ..confReader import getConfV, ASSETS_PATH, getDatabase
+from ..confReader import getConfV, getServerURL
 import re, os, asyncio
 from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar
 import difflib
@@ -437,7 +437,7 @@ class DataPoint(DataCore):
             else: return ""
         else:
             if with_base:
-                base_addr = "http://{}:{}".format(getConfV("host"), getConfV("port"))
+                base_addr = getServerURL()
             else:
                 base_addr = ""
             if ftype == ".pdf":
@@ -657,7 +657,8 @@ class DataBase(Dict[str, DataPoint], DataCore):
             flist = ServerConn().summaries([])
             self.__account_permission = ServerConn().permission()
             G.account_permission = self.account_permission
-        except requests.exceptions.ConnectionError:
+        except requests.exceptions.ConnectionError as e:
+            self.logger.debug("Error: {}".format(e))
             self.logger.warning("Server is down, abort fetching remote data.")
             return None
         
