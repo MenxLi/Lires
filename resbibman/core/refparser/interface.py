@@ -2,10 +2,10 @@ from __future__ import annotations
 import sys
 from abc import ABC, abstractmethod
 from typing import Union, Optional
-if sys.version_info.minor >= 11:
-    from typing import TypedDict, NotReqired
-else:
-    from typing_extensions import NotRequired, TypedDict  # for Python <3.11 with (Not)Required
+# if sys.version_info.minor >= 11:
+#     from typing import TypedDict, NotReqired
+# else:
+from typing_extensions import NotRequired, TypedDict  # for Python <3.11 with (Not)Required
 
 from pybtex.database import BibliographyData, Entry
 from ..utils import randomAlphaNumeric
