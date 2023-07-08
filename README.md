@@ -137,7 +137,7 @@ In query widget while importing articles:
 - [x] Add copy from template button
 - [x] Other bibtex template
 - [x] Other format convert to bibtex
-- [ ] Format check
+- [x] Format check
 
 In file selector:
 
@@ -159,7 +159,7 @@ Refractor:
 - [ ] Move more methods into core classes
 
 rbm-collect:
-- [ ] web
+- [x] web
 - [ ] medRxiv
 - [ ] bioRxiv
 - [ ] PMID
