@@ -51,7 +51,7 @@ class ParserBase(ABC):
         data = self.parseEntry(entry)
         if data['type'].lower() == "journal article":
             doc_type = "article"
-        if data['type'].lower() == "thesis":
+        elif data['type'].lower() == "thesis":
             doc_type = "phdthesis"
         else:
             raise RBMDocTypeNotSupportedError("Not supported document type {}".format(data['type']))
