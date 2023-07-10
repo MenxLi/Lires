@@ -10,10 +10,13 @@
     const NOTE_FULLSHOW_THRESHOLD = 12;
     const NOTE_SHOW_THRESHOLD = 1;
 
-    const props = defineProps<{
+    const props = withDefaults(defineProps<{
         datapoint: DataPoint
         unfoldedIds: string[]     // global unfoldedIds from DataCardContainer
-    }>()
+        line_number: number
+    }>(), {
+        line_number: 0,
+    })
 
     const emits = defineEmits<
         (e: "update:unfoldedIds", v: string[]) => void
@@ -90,6 +93,25 @@
         }
     })
 
+    // fileRow Style
+    const isDataCardHover = ref(false);
+    const datacardBackgroundColor = computed(() => {
+        // if is hover
+        if (isDataCardHover.value){
+            return "var(--color-background-theme-highlight)";
+        }
+        //if is unfolded
+        if (g_unfoldedIds.value.includes(props.datapoint.summary.uuid)){
+            return "var(--color-background-theme)";
+        }
+        if (props.line_number % 2 == 0){
+            return "var(--color-background-ssoft)";
+        }
+        else{
+            return "var(--color-background)";
+        }
+    })
+
     // shortcut to edit datapoint information
     function shortcutEdit(event: KeyboardEvent){
         if (event.code === "Space" && g_unfoldedIds.value.includes(props.datapoint.summary.uuid) && moreComponent.value?.shouldEnableEditDatapoint){
@@ -107,7 +129,8 @@
 </script>
 
 <template>
-    <div id="fileRow" class="gradInFast" @click="clickOnRow" ref="dataCard">
+    <div id="fileRow" class="gradInFast" @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false" 
+        ref="dataCard" :style="{backgroundColor: datacardBackgroundColor}">
         <div id="init" class="row" ref="initDiv">
             <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
                 {{ authorYearText }}
@@ -154,11 +177,11 @@
         border-radius: 5px;
         padding: 3px;
         padding-left: 5px;
-        background-color: var(--color-background-ssoft);
+        /* background-color: var(--color-background-ssoft); */
         box-shadow: 0px 1px 2px 0px var(--color-shadow);
     }
     div#fileRow:hover{
-        background-color: var(--color-background-theme-highlight);
+        /* background-color: var(--color-background-theme-highlight); */
         box-shadow: 1px 2px 5px 1px var(--color-shadow);
         transition: all 0.2s;
     }

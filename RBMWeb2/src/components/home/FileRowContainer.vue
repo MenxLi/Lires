@@ -35,7 +35,8 @@
 
 <template>
     <div id="dataCardContainer">
-        <FileRow v-for="dp in datapoints" :datapoint="dp" v-model:unfolded-ids="unfoldedIds">
+        <FileRow v-for="dp, idx in datapoints" :datapoint="dp" v-model:unfolded-ids="unfoldedIds" :line_number="idx">
+    <!-- <FileRow v-for="dp, idx in datapoints" :datapoint="dp" v-model:unfolded-ids="unfoldedIds" :line_number="idx"> -->
             <label class="relatedArticleScore" v-if="props.scores != null && props.scores[dp.summary.uuid] != null">
                 {{ props.scores[dp.summary.uuid] }}
             </label>
