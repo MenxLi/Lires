@@ -49,7 +49,7 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        gap: 5px;
+        /* gap: 5px; */
     }
     label.relatedArticleScore{
         border-radius: 5px;
