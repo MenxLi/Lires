@@ -6,14 +6,16 @@
 
     interface DataCardsStatus{
         datapoints: DataPoint[],
-        unfoldedIds?: string[]
-        scores?: Record<string, number|string> | null
+        unfoldedIds?: string[],
+        scores?: Record<string, number|string> | null,
+        compact?: boolean,
     }
 
     // MUST USE V_MODEL TO PASS unfoldedIds !!
     const props = withDefaults(defineProps<DataCardsStatus>(), {
         unfoldedIds: ()=>[],
         scores: null,
+        compact: true,
     })
 
     const emits = defineEmits<{
@@ -34,9 +36,8 @@
 </script>
 
 <template>
-    <div id="dataCardContainer">
-        <FileRow v-for="dp, idx in datapoints" :datapoint="dp" v-model:unfolded-ids="unfoldedIds" :line_number="idx">
-    <!-- <FileRow v-for="dp, idx in datapoints" :datapoint="dp" v-model:unfolded-ids="unfoldedIds" :line_number="idx"> -->
+    <div id="dataCardContainer" :style="{gap: compact?'0px':'5px'}">
+        <FileRow v-for="dp, idx in datapoints" :datapoint="dp" v-model:unfolded-ids="unfoldedIds" :line_number="idx" :compact="compact">
             <label class="relatedArticleScore" v-if="props.scores != null && props.scores[dp.summary.uuid] != null">
                 {{ props.scores[dp.summary.uuid] }}
             </label>
@@ -49,7 +50,7 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        /* gap: 5px; */
+        overflow-x: hidden;
     }
     label.relatedArticleScore{
         border-radius: 5px;

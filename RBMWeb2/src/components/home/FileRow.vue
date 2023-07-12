@@ -13,9 +13,11 @@
     const props = withDefaults(defineProps<{
         datapoint: DataPoint
         unfoldedIds: string[]     // global unfoldedIds from DataCardContainer
-        line_number: number
+        line_number?: number
+        compact?: boolean
     }>(), {
         line_number: 0,
+        compact: false,
     })
 
     const emits = defineEmits<
@@ -41,6 +43,7 @@
     const initDiv = ref<HTMLElement | null>(null);
     const moreDiv = ref<HTMLElement | null>(null);
     const moreComponent = ref<typeof FileRowMore | null>(null);
+    const titleStatus = ref<HTMLElement | null>(null);
 
     function clickOnRow(event: Event){
         // check if event target is fileRow div or not
@@ -104,6 +107,11 @@
         if (g_unfoldedIds.value.includes(props.datapoint.summary.uuid)){
             return "var(--color-background-theme)";
         }
+        // only apply alternate color when compact
+        if (!props.compact){
+            return "var(--color-background-ssoft)";
+        }
+
         if (props.line_number % 2 == 0){
             return "var(--color-background-ssoft)";
         }
@@ -111,6 +119,12 @@
             return "var(--color-background)";
         }
     })
+    // const titleMaxWidth = computed(() => {
+    //     if (!titleStatus.value){
+    //         return 1000;
+    //     }
+    //     return titleStatus.value.offsetWidth - 500;
+    // })
 
     // shortcut to edit datapoint information
     function shortcutEdit(event: KeyboardEvent){
@@ -129,13 +143,13 @@
 </script>
 
 <template>
-    <div id="fileRow" class="gradInFast" @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false" 
+    <div id="fileRow" :class="`gradInFast${(props.compact && !showMore)?' compact':''}`" @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false" 
         ref="dataCard" :style="{backgroundColor: datacardBackgroundColor}">
         <div id="init" class="row" ref="initDiv">
             <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
                 {{ authorYearText }}
             </div>
-            <div id="titleStatus" class="row">
+            <div id="titleStatus" class="row" ref="titleStatus">
                 <div id="statusDiv">
                     <div class="status">
                         <img v-if="datapoint.summary.file_type == '.pdf'" src="../../assets/icons/pdf_fill.svg" alt="" class="icon">
@@ -149,7 +163,7 @@
                         <img v-else src="../../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
                     </div>
                 </div>
-                <div id="title" class="text"><p>{{ datapoint.summary.title }}</p></div>
+                <div id="title" class="text">{{ datapoint.summary.title }}</div>
                 <slot></slot>
             </div>
         </div>
@@ -187,6 +201,7 @@
     }
     #authorYear{
         width: 250px;
+        min-width: 250px;
         white-space: nowrap;
         background-color: var(--color-background-theme-thin);
         border-radius: 10px;
@@ -202,6 +217,10 @@
     }
     #titleStatus{
         column-gap: 8px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
     }
     div.text{
         padding: 0px;
@@ -210,17 +229,18 @@
         text-overflow: ellipsis;
         overflow: hidden;
     }
-    @media (max-width: 1500px){
+    @media (max-width: 750px){
         div#fileRow{
             flex-direction: column;
             align-items:flex-start;
         }
     }
-    @media (max-width: 750px){
+    /* @media (max-width: 750px){
         #authorYear{
             width: 180px;
+            min-width: 180px;
         }
-    }
+    } */
     div#statusDiv, div#title, div.status{
         display: flex;
         flex-direction: row;
@@ -244,5 +264,26 @@
     }
     .more-enter-from, .more-leave-to {
         opacity: 0;
+    }
+
+    /* Compact layout */
+    #fileRow.compact #init{
+        flex-wrap: nowrap;
+    }
+    #fileRow.compact #titleStatus{
+        max-width: 100%;
+    }
+    #fileRow.compact #title{
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        /* text-overflow: ellipsis; */
+        /* width: v-bind("`$(titleMaxWidth)px`"); */
+        /* https://stackoverflow.com/a/69078238/6775765 */
+    }
+    @media (max-width: 750px){
+        #fileRow.compact #init{
+            flex-wrap: wrap;
+        }
     }
 </style>
