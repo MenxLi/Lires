@@ -106,7 +106,7 @@ def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[in
     G.iserver_port = iserver_port
 
     app = Application()
-    print("Starting server at port: ", port)
+    G.logger_rbm_server.info("Starting server at port: {}".format(port))
 
     ssl_ctx = None
     if ssl_config is not None:

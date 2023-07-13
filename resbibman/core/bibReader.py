@@ -106,6 +106,8 @@ def parseBibtex(bib_single: str) -> ParsedRef:
     }
 def parallelParseBibtex(bib_strs: list[str]) -> list[ParsedRef]:
     N_PROC = mp.cpu_count()-1
+    if N_PROC > 8:
+        N_PROC = 8
     with mp.Pool(N_PROC) as p:
         return p.map(parseBibtex, bib_strs)
 
