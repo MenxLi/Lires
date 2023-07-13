@@ -59,7 +59,7 @@ def deleteGlobalAttr(key):
 
 def hasGlobalAttr(key):
     global __global_dict
-    return hasattr(__global_dict, key)
+    return key in __global_dict.keys()
 
 def clearTempDirs():
     global tmpdirs

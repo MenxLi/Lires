@@ -31,7 +31,7 @@ class RequestHandlerBase():
     logger = G.logger_rbm_server
 
     def initdb(self):
-        self.logger.debug("initdb")
+        self.logger.debug("Initializing server global database object")
         if G.hasGlobalAttr("server_db"):
             db: DataBase = G.getGlobalAttr("server_db")
             db.watchFileChange([])
