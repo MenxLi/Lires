@@ -326,3 +326,10 @@ version_history:
     - Server HTTPS support
     - Web search publication
     - Fix - reject short PDF summary
+  0.14.1:
+    - Compact webui layout
+    - Handle bibtex encoding correctly
+    - Make some of the webui settings persistant
+    - Https support on CLI and PyQt GUI
+    - Fix - reload info on rbmcollect to allow changing total tag poll
+    - Fix - Data reloading on webui when changing database
