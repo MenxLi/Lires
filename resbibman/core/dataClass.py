@@ -1,14 +1,14 @@
 from __future__ import annotations
-import urllib.parse
 import shutil, requests, json
 from ..confReader import getConfV, getServerURL
-import re, os, asyncio
+import os, asyncio
 from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar
 import difflib
 import markdown
-from .utils import formatMarkdownHTML, TimeUtils
+from .utils import formatMarkdownHTML, TimeUtils, Timer
 from .clInteractions import ChoicePromptAbstract
 from ..perf.asynciolib import asyncioLoopRun
+from pylatexenc import latex2text
 try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable
@@ -300,8 +300,8 @@ class DataPoint(DataCore):
         self.bib = BibParser()(self.fm.readBib())[0]
         self.uuid = self.fm.uuid
         self.tags = DataTags(self.fm.getTags())
-        self.title = self.bib["title"]
-        self.authors = self.bib["authors"]
+        self.title: str = latex2text.latex2text(self.bib["title"])
+        self.authors: list[str] = [latex2text.latex2text(au) for au in self.bib["authors"]]
         self.year = self.bib["year"]
         self.time_added = self.fm.getTimeAdded()
         self.time_modified = self.fm.getTimeModified()
@@ -623,7 +623,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
          - force_offline: use when called by server side
                          or when server is down
         """
-        async def _getDataPoint(v_, force_offline_: bool) -> Union[DataPoint, None]:
+        async def _getDataPoint(v_, force_offline_: bool) -> DataPoint:
             fm = FileManipulatorVirtual(v_, db_local=self.conn)
             data = DataPoint(fm)
             if force_offline_:
@@ -634,7 +634,8 @@ class DataBase(Dict[str, DataPoint], DataCore):
         async_tasks = []
         for v in vs:
             async_tasks.append(_getDataPoint(v, force_offline))
-        all_data = await asyncio.gather(*async_tasks)
+        with Timer("Constructing database", self.logger.info):
+            all_data: list[DataPoint] = await asyncio.gather(*async_tasks)
         # add to database
         for d_ in all_data:
             if d_ is not None:
