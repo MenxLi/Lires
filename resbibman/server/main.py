@@ -4,6 +4,7 @@ from RBMWeb import RBMWEB_SRC_ROOT
 from RBMWeb2 import RBMWEB2_SRC_ROOT
 from functools import partial
 from resbibman.core import globalVar as G
+from resbibman.core.utils import BCOLORS
 
 import tornado
 import tornado.ioloop
@@ -87,14 +88,16 @@ def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[in
     G.logger_rbm_server.setLevel(logging.DEBUG)
     _ch = logging.StreamHandler()
     _ch.setLevel(logging.DEBUG)
-    _ch.setFormatter(logging.Formatter('[server] %(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    _ch.setFormatter(logging.Formatter(BCOLORS.OKBLUE+'[server]'+BCOLORS.OKCYAN + \
+                                       ' %(asctime)s - %(levelname)s - ' + BCOLORS.ENDC + ' %(message)s'))
     G.logger_rbm_server.addHandler(_ch)
 
     # initialize G.logger_rbm to print to stdout
     G.logger_rbm.setLevel(logging.INFO)
     _ch = logging.StreamHandler()
     _ch.setLevel(logging.INFO)
-    _ch.setFormatter(logging.Formatter('[core] %(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    _ch.setFormatter(logging.Formatter(BCOLORS.OKGREEN+'[ core ]'+ BCOLORS.OKCYAN + \
+                                       ' %(asctime)s - %(levelname)s - ' + BCOLORS.ENDC + ' %(message)s'))
     G.logger_rbm.addHandler(_ch)
 
     # set global variables of iServer
