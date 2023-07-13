@@ -16,7 +16,7 @@ try:
     from .dbConn import DBFileInfo
 except (FileNotFoundError, KeyError):
     pass
-from .bibReader import BibParser
+from .bibReader import parseBibtex, parallelParseBibtex
 #  from .utils import HTML_TEMPLATE_RAW
 from ..types.dataT import DataPointSummary
 from .serverConn import ServerConn
@@ -178,15 +178,17 @@ DataTagT_G = TypeVar('DataTagT_G', bound=DataTagT)
 
 class DataPoint(DataCore):
     MAX_AUTHOR_ABBR = 36
-    def __init__(self, fm: FileManipulatorVirtual):
+    def __init__(self, fm: FileManipulatorVirtual, parse_bibtex: bool = True):
         """
         The basic data structure that holds single data
         fm - FileManipulator, data completeness should be confirmed ahead (use fm.screen())
+        parse_bibtex - whether to parse bibtex file on initialization, 
+            if False, the bibtex should be parsed manually later, maybe with parallel processing
         """
         self.fm = fm
         self.__parent_db: DataBase
         self.__force_offline = False
-        self.loadInfo()
+        self.loadInfo(parse_bibtex=parse_bibtex)
     
     def __del__(self):
         """
@@ -292,28 +294,27 @@ class DataPoint(DataCore):
             self.fm.setWatch(True)
         self.loadInfo()
 
-    def loadInfo(self):
+    def loadInfo(self, parse_bibtex=True):
         """
         Parse bibtex and other info into the memory
         """
         self.has_file = self.fm.hasFile()
-        self.bib = BibParser()(self.fm.readBib())[0]
         self.uuid = self.fm.uuid
         self.tags = DataTags(self.fm.getTags())
-        self.title: str = latex2text.latex2text(self.bib["title"])
-        self.authors: list[str] = [latex2text.latex2text(au) for au in self.bib["authors"]]
-        self.year = self.bib["year"]
+
         self.time_added = self.fm.getTimeAdded()
         self.time_modified = self.fm.getTimeModified()
 
-        self.publication: Optional[str] = None
-        for k in ["journal", "booktitle"]:
-            if k in self.bib:
-                pub = self.bib[k]
-                if isinstance(pub, str):
-                    self.publication = pub
-                elif isinstance(pub, tuple) or isinstance(pub, list):
-                    self.publication = pub[0]
+        if parse_bibtex:
+            self.loadParsedBibtex_(parseBibtex(self.fm.readBib()))
+    
+    def loadParsedBibtex_(self, parsed_bibtex):
+        self.bib = parsed_bibtex["bib"]
+        self.title = parsed_bibtex["title"]
+        self.year = parsed_bibtex["year"]
+        self.authors = parsed_bibtex["authors"]
+        self.publication = parsed_bibtex["publication"]
+
 
     def changeBib(self, bib_str: str) -> bool:
         """
@@ -625,7 +626,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         async def _getDataPoint(v_, force_offline_: bool) -> DataPoint:
             fm = FileManipulatorVirtual(v_, db_local=self.conn)
-            data = DataPoint(fm)
+            data = DataPoint(fm, parse_bibtex=False)    # set parse_bibtex to False, will be parsed later
             if force_offline_:
                 data._forceOffline()
             return data
@@ -636,6 +637,11 @@ class DataBase(Dict[str, DataPoint], DataCore):
             async_tasks.append(_getDataPoint(v, force_offline))
         with Timer("Constructing database", self.logger.info):
             all_data: list[DataPoint] = await asyncio.gather(*async_tasks)
+            _all_bibtex = [d.fm.readBib() for d in all_data]
+            with Timer("Parsing bibtex", self.logger.debug):
+                _all_parsed_bibtex = parallelParseBibtex(_all_bibtex)
+            for d, parsed_bib in zip(all_data, _all_parsed_bibtex):
+                d.loadParsedBibtex_(parsed_bib)
         # add to database
         for d_ in all_data:
             if d_ is not None:
@@ -800,12 +806,10 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         Check if similar file already exists.
         """
-        parser = BibParser(mode = "single")
-        bib = parser(bib_str)[0]
         # Check if the file already exists
-        for k, v in self.items():
-            t1 = v.bib["title"].lower()
-            t2 = bib["title"].lower()
+        t2 = parseBibtex(bib_str)["title"]
+        for _, v in self.items():
+            t1 = v.title
             similarity = difflib.SequenceMatcher(a = t1, b = t2).ratio()
             if similarity > 0.8:
                 return v

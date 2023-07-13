@@ -1,11 +1,14 @@
 import pybtex.database
 from datetime import date
+from typing import TypedDict, Optional
 from . import refparser
 from .utils import randomAlphaNumeric
 from .customError import RBMDocTypeNotSupportedError
 import warnings, logging
 import nbib
 from pybtex.database import BibliographyData, Entry
+from pylatexenc import latex2text
+import multiprocessing as mp
 
 def checkBibtexValidity(bib_str: str) -> bool:
     """
@@ -71,6 +74,40 @@ class BibParser:
                     data[bib_entry] = _d.fields[bib_entry],
             bibs.append(data)
         return bibs
+
+
+class ParsedRef(TypedDict):
+    bib: dict
+    title: str
+    year: str
+    authors: list[str]
+    publication: Optional[str]
+def parseBibtex(bib_single: str) -> ParsedRef:
+    """
+    parse bibtex and extract useful entries
+    """
+    parsed = BibParser()(bib_single)[0]
+    publication = None
+    for k in ["journal", "booktitle"]:
+        if k in parsed:
+            pub = parsed[k]
+            if isinstance(pub, str):
+                publication = pub
+            elif isinstance(pub, tuple) or isinstance(pub, list):
+                publication = pub[0]
+            else:
+                pass
+    return {
+        "bib": parsed,
+        "title": latex2text.latex2text(parsed["title"]),
+        "year": parsed["year"],
+        "authors": [ latex2text.latex2text(au) for au in parsed["authors"] ],
+        "publication": publication
+    }
+def parallelParseBibtex(bib_strs: list[str]) -> list[ParsedRef]:
+    N_PROC = mp.cpu_count()-1
+    with mp.Pool(N_PROC) as p:
+        return p.map(parseBibtex, bib_strs)
 
 
 class BibConverter:

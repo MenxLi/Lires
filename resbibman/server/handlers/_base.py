@@ -31,16 +31,19 @@ class RequestHandlerBase():
     logger = G.logger_rbm_server
 
     def initdb(self):
+        self.logger.debug("initdb")
         if G.hasGlobalAttr("server_db"):
             db: DataBase = G.getGlobalAttr("server_db")
             db.watchFileChange([])
         G.setGlobalAttr("server_db", loadDataBase(getLocalDatabasePath()))
         G.setGlobalAttr("server_discussion_db", DiscussDatabase())
     
-    initdb(None)    # type: ignore
+    # initdb(None)    # type: ignore
     
     @property
     def db(self) -> DataBase:
+        if not G.hasGlobalAttr("server_db"):
+            self.initdb()
         return G.getGlobalAttr("server_db")
     
     @property
