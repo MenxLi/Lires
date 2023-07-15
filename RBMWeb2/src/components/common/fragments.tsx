@@ -230,6 +230,14 @@ export const MenuAttached = defineComponent({
         // });
         return () => (
             <div>
+                <div ref={div} onClick={()=>showMenu.value = !showMenu.value} onKeydown={(event)=>{
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        showMenu.value = !showMenu.value;
+                    }
+                }}>
+                    {context.slots.default && context.slots.default()}
+                </div>
                 <MenuVue
                     show={showMenu.value}
                     onUpdate:show={(value: boolean) => showMenu.value = value}
@@ -238,9 +246,6 @@ export const MenuAttached = defineComponent({
                     middleTop={true}
                     arrow={true}
                 />
-                <div ref={div} onClick={()=>showMenu.value = !showMenu.value}>
-                    {context.slots.default && context.slots.default()}
-                </div>
             </div>
         );
     }

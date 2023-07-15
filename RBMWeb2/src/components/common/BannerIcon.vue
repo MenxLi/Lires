@@ -56,7 +56,8 @@
 </script>
 
 <template>
-    <span class="hoverMaxout105 button non-selecable" @click="onClick" :title="`${title}`" ref="button">
+    <span class="hoverMaxout105 button non-selecable" @click="onClick" @keydown.enter="onClick" :tabindex="0" 
+        :title="`${title}`" ref="button">
         <img id="icon" class="icon" :src="iconSrc" :alt="labelText.toUpperCase() + '_ICON'">
         <label for="icon" class="iconLabel non-selectable">{{ labelText }}</label>
     </span>
