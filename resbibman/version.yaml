@@ -330,6 +330,14 @@ version_history:
     - Compact webui layout
     - Handle bibtex encoding correctly
     - Make some of the webui settings persistant
-    - Https support on CLI and PyQt GUI
+    - Https support on CLI and pyqt GUI
     - Fix - reload info on rbmcollect to allow changing total tag poll
     - Fix - webui reload data when changing database
+  0.14.2:
+    - Persistent tag panel visibility
+    - Use tab to select custom buttons
+    - Slightly improved light theme color
+    - Server group bibtex parsing with multiprocessing
+    - Server terminal color
+    - Drop pyqt requirement by default
+    - Refactor - remove resbibman.perf
