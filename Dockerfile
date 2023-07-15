@@ -25,7 +25,7 @@ nvm use --lts && cd /ResBibManager/RBMWeb2 && npm install && npm run build
 WORKDIR /
 RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN python3 -m pip install --upgrade pip
-RUN pip install -e /ResBibManager
+RUN pip install -e /ResBibManager[ai]
 
 RUN rbm-resetconf
 
