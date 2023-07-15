@@ -19,13 +19,10 @@ def compileMain(addtional_flags: list):
     ( "resbibman/assets/*", "./resbibman/assets" ),
 
     ( "resbibman/docs/*.md", "./resbibman/docs" ),
-    ( "resbibman/docs/bibtexTemplates/*", "./resbibman/docs/bibtexTemplates" ),
     ( "resbibman/docs/imgs/*", "./resbibman/docs/imgs" ),
 
     ( "resbibman/stylesheets/*.qss", "./resbibman/stylesheets" ),
     ( "resbibman/stylesheets/Breeze", "./resbibman/stylesheets/Breeze" ),
-
-    ( "RBMWeb/frontend/*", "./RBMWeb/frontend" ),
 
     ( "packages/QCollapsibleCheckList/QCollapsibleCheckList/icons/*", \
         "./QCollapsibleCheckList/icons" ),

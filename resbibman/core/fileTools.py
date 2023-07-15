@@ -15,8 +15,8 @@ from ..confReader import getConf, getDatabase
 from ..version import VERSION
 from .htmlTools import openTmp_hpack
 
-from watchdog.observers import Observer
-from watchdog.events import PatternMatchingEventHandler
+# from watchdog.observers import Observer
+# from watchdog.events import PatternMatchingEventHandler
 
 if TYPE_CHECKING:
     from .dataClass import DataTags
@@ -223,12 +223,14 @@ class FileManipulator:
         # event_handler.on_deleted = _onDeleted
         # event_handler.on_modified = _onModified
         # event_handler.on_moved = _onMoved
-        observer = Observer()
+        # observer = Observer()
         # TO IMPLEMENT LATER!!
-        print("TODO: implement file observer")
         # observer.schedule(event_handler, self.path, recursive=True)
         # self.logger.debug(f"_createFileOB (fm): Created file observer for: {self.uuid}")
-        return observer
+        # return observer
+
+        print("TODO: maybe implement file observer")
+        return None
 
     def openFile(self) -> bool:
         # import pdb; pdb.set_trace()

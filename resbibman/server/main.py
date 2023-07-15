@@ -1,6 +1,5 @@
 import os, multiprocessing, logging
 from typing import Union, TypedDict
-from RBMWeb import RBMWEB_SRC_ROOT
 from RBMWeb2 import RBMWEB2_SRC_ROOT
 from functools import partial
 from resbibman.core import globalVar as G
@@ -26,13 +25,7 @@ class FrontendApplication(tornado.web.Application):
 
 class Application(tornado.web.Application):
     def __init__(self) -> None:
-        frontend_root = os.path.join(RBMWEB_SRC_ROOT, "frontend")
-        frontend_root_old = os.path.join(RBMWEB_SRC_ROOT, "frontendV0")
         handlers = [
-            # Frontend, deprecated
-            (r'/(favicon.ico)', tornado.web.StaticFileHandler, {"path": frontend_root}),
-            (r"/frontend/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root, "default_filename" : "index.html"}),
-            (r"/main/(.*)", tornado.web.StaticFileHandler, {"path": frontend_root_old, "default_filename" : "index.html"}),
             # # Backend
             (r"/doc/(.*)", DocHandler),
             (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),

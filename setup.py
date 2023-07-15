@@ -1,57 +1,24 @@
-import os, platform
+from __future__ import annotations
 from setuptools import setup, find_packages
-from resbibman.version import VERSION
+import yaml, os
 
-with open(os.path.join(os.path.dirname(__file__), "requirements.txt")) as fp:
-    install_requires = [pkg for pkg in fp.read().split("\n") if pkg]
+__this_dir = os.path.dirname(__file__)
 
-with open(os.path.join(os.path.dirname(__file__), "iRBM", "requirements.txt")) as fp:
-    ai_requires = [pkg for pkg in fp.read().split("\n") if pkg]
+_yaml_version_file = os.path.join(__this_dir, "resbibman", "version.yaml")
+with open(_yaml_version_file, "r", encoding='utf-8') as fp:
+    version_histories: dict[str, list[str]] = yaml.safe_load(fp)["version_history"]
+_VERSION_HISTORIES = []
+for v, h in version_histories.items():
+    _VERSION_HISTORIES.append((v, "; ".join(h)))
+VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
 
-with open(os.path.join(os.path.dirname(__file__), "requirements-dev.txt")) as fp:
-    dev_requires = [pkg for pkg in fp.read().split("\n") if pkg]
+_license_file = os.path.join(__this_dir, "LICENSE")
+with open(_license_file, "r", encoding='utf-8') as fp:
+    LICENSE = fp.read()
 
 setup(
-    name="ResBibMan",
     version=VERSION,
-    author="Mengxun Li",
-    author_email="mengxunli@whu.edu.cn",
-    description="A research paper manager.",
-
-    # 项目主页
-    url="https://github.com/MenxLi/ResBibManager", 
-
     packages=find_packages(),
-
-    classifiers = [
-        #   Development Status
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        "Development Status :: 4",
-        "Programming Language :: Python :: 3",
-        "Operating System :: OS Independent"
-    ],
-    python_requires=">=3.8.0",      # TypedDict was introduced after 3.8
-
     include_package_data = True,
-
-    install_requires = install_requires,
-    extras_require= {
-        "ai": ai_requires,
-        "full": ai_requires + dev_requires
-    },
-
-    entry_points = {
-        "console_scripts":[
-            "resbibman=resbibman.exec:run",
-            "rbm-resetconf=resbibman.cmd.generateDefaultConf:run",
-            "rbm-collect=resbibman.cmd.rbmCollect:main",
-            "rbm-utils=resbibman.cmd.miscUtils:main",
-            "rbm-share=resbibman.cmd.rbmShare:main",
-            "rbm-keyman=resbibman.cmd.manageKey:run",
-            "rbm-discuss=resbibman.cmd.rbmDiscuss:main",
-            "rbm-index=resbibman.cmd.index:main",
-        ]
-    }
+    license=LICENSE,
 )

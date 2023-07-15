@@ -1,5 +1,0 @@
-
-const SERVER_ADDR = "192.168.124.9"
-const SERVER_PORT = "8081" 
-
-export {SERVER_ADDR, SERVER_PORT}

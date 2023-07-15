@@ -1,5 +1,0 @@
-numpy
-torch
-openai
-transformers
-fastapi[all]

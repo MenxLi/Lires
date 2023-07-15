@@ -4,5 +4,4 @@ recursive-include resbibman/docs *
 recursive-include resbibman/icons *
 recursive-include resbibman/assets *
 recursive-include resbibman/stylesheets *
-recursive-include RBMWeb/frontend *
 recursive-include RBMWeb2/dist *
