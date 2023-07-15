@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QWidget, QMessageBox, QApplication
 from PyQt6.QtCore import QThreadPool, pyqtSignal, Qt, QTimer
 
 from abc import abstractmethod
-from ..perf.qtThreading import SleepWorker
+from .qtThreading import SleepWorker
 
 if TYPE_CHECKING:
     from .mainWindow import MainWindow

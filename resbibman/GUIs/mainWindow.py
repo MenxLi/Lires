@@ -28,7 +28,7 @@ from ..core.dataClass import DataTags, DataBase, DataPoint
 from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf, saveToConf_guiStatus
 from ..confReader import TMP_DB, TMP_WEB, TMP_COVER, getStyleSheets
 from ..version import VERSION
-from ..perf.qtThreading import SyncWorker, InitDBWorker
+from .qtThreading import SyncWorker, InitDBWorker
 import os, typing, requests, functools, time, shutil, traceback, webbrowser
 
 class MainTabWidget(QTabWidget, RefWidgetBase):

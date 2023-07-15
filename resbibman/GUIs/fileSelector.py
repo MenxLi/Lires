@@ -10,7 +10,7 @@ from .bibQuery import BibQuery
 from .widgets import  MainWidgetBase, LazyResizeMixin
 from .searchBar import SearchBar
 from .bibtexEditor import BibEditorWithOK
-from ..perf.qtThreading import SearchWorker
+from .qtThreading import SearchWorker
 from ..core import globalVar as G
 from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from ..core.dataSearcher import StringSearchT, DataSearcher
