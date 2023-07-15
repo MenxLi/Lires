@@ -3,7 +3,6 @@ Resbibman: a **Res**earch **bib**liograpy **man**ager
 
 <!--![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)-->
 <!--![ResBibMan](./resbibman/docs/imgs/mainWindow.png)-->
-![ResBibMan](http://limengxun.com/files/imgs/resbibman.png)
 ![RBMWeb-GUI](http://limengxun.com/files/imgs/resbibman2.png)
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for notes.
@@ -53,19 +52,19 @@ docker exec resbibman rbm-keyman ...
 ``` -->
 
 ## Usage:
-**To start the RBM server and RBMWeb server:**
+**To start the RBM and RBMWeb servers:**
 ```bash
 resbibman server
 ```
-The RBM and RBMWeb server are Tornado servers,   
-- RBM server provides API for the client (GUI & WebUI & CLI) to communicate with.
-- RBMWeb server is a frontend server for RBMWeb(2) frontend.
+The RBM and RBMWeb are Tornado servers,   
+- RBM provides API for the client (GUI & WebUI & CLI) to communicate with.
+- RBMWeb is a Web-UI frontend server.
 
 **To start the iRBM server:**
 ```bash
 resbibman iserver
 ```
-The iRBM server is written with FastAPI, it provides additional AI features and is designed to be connected by the RBM server, so that the server can provide AI features to the client.  
+The iRBM server is written with FastAPI, it provides additional AI features and is designed to be connected by the RBM server, so that the latter can provide AI features to the client.  
 
 > <details> 
 > <summary>The reason to separate iRBM server from RBM server</summary>  

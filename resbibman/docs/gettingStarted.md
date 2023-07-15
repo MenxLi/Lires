@@ -3,22 +3,22 @@
 
 ## Installation
 
-installation for server
-> **Prerequisites:**  Python 3.8+
-```bash
-pip install setuptools wheel pyyaml
-pip install packages/QFlowLayout packages/QCollapsibleCheckList
-pip install -e ".[full]"
-rbm-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in RBMWeb
-```
-Compile the frontend
+**Server-side installation:**
+Compile frontend files
 > **Prerequisites:**  Node.js, TypeScript
 ```bash
 cd RBMWeb2
 npm install
 npm run build
+cd ..
 ```
-Compile the tauri GUI
+Install the server
+> **Prerequisites:**  Python 3.8+
+```bash
+pip install ".[ai]"
+rbm-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in RBMWeb
+```
+**[Optional]** Compile tauri GUI
 > **Prerequisites:**  Node.js, TypeScript, Rust
 ```bash
 cd RBMWeb2
@@ -26,6 +26,7 @@ npm install
 npm run app:build
 ```
 
+---
 ## Server startup
 ```bash
 resbibman server
@@ -48,18 +49,17 @@ RBM_HOME="your/path/here" RBM_SSL_CERTFILE="your/cert/file" RBM_SSL_KEYFILE="you
 
 ## Optional - PyQt6 GUI
 There is a PyQt6 GUI as well, it can be installed on the server for GUI management in offline mode, or on the client for online mode.  
-(There will be less mantainance for this GUI in the future.)
+**(PyQt GUI are legacy codes, it is not recommended to use it.  There will be less mantainance for it in the future.)**
 
-<!-- > **Prerequisites:**  Python 3.8+
-```bash
-pip install setuptools wheel pyyaml
+Installation:
+```sh
 pip install packages/QFlowLayout packages/QCollapsibleCheckList
-pip install .
-rbm-utils download_pdfjs                # [optional] download pdf.js viewer to view pdf inside resbibman
-# pip install ".[ai]"                   # [optional] to install with AI dependencies
-``` -->
+pip install .[gui]
+```
+
 **To start the client GUI program:**
 ```bash
 resbibman client
 ```
 The client is a GUI written in PyQt6, it can be used to manage local database, or to connect to the RBM server and work in online mode.
+![ResBibMan](http://limengxun.com/files/imgs/resbibman.png)
