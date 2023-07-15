@@ -7,20 +7,8 @@ Resbibman: a **Res**earch **bib**liograpy **man**ager
 A research literature manager that utilize Bibtex file to record paper information, 
 it relies on tags to differentiate papers, and use markdown for notes.
 
-It also has server modules: resbibman-server (RBM server) with a web viewer (RBMWeb) so that it can be deployed onto a server to share literatures or work in online mode.
-
-**Table of content**
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-- [Resbibman](#resbibman)
-  - [Features](#features)
-- [Installation \& Usage](#installation--usage)
-  - [Usage:](#usage)
-    - [Configure](#configure)
-- [Manuals and documentations](#manuals-and-documentations)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
+It mainly consists of two server modules: resbibman-server (RBM server) with a web viewer (RBMWeb), and iRBM. 
+It is designed to be deployed onto a server to share literatures or work in online mode.
 
 ## Features
 * Host a server to view, share and discuss online
@@ -29,75 +17,28 @@ It also has server modules: resbibman-server (RBM server) with a web viewer (RBM
 * Markdown notes
 * Multi-user permission management
 * AI-powered features (iRBM)
-<!-- * Online mode (remote storage) -->
 
-# Installation & Usage
-Installation refer to - [Getting Started](resbibman/docs/gettingStarted.md##server-startup)
+# Getting started
+**Docker deployment**
+```sh
+# build docker image
+docker build -t resbibman .
 
-<!-- ### Docker deployment <span style="color:red">[outdated]</span>
-<span style="color:blue">To be revised...</span>   
-Instead of manual installation, The the RBMWeb server can be deployed via docker,   
+# create a conainer and start the servers
+docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --name rbm resbibman
+# start the iRBM server for AI features (optional)
+docker exec -d rbm resbibman iserver
 
-You need to edit `docker-compose.yml` to change port and mount point mapping, then execute the following commands to start:
-```bash
-# update docker container if it's not been built
-docker-compose build
-# run
-docker-compose up
+# register a user and download pdf.js viewer on the first run 
+# (no need to run again if the container is re-created)
+docker exec rbm rbm-keyman register <your_key_here> --admin
+docker exec rbm rbm-utils download_pdfjs
 ```
-To manage access key (for usage see: `rbm-keyman -h`):
-```bash
-docker exec resbibman rbm-keyman ...
-``` -->
+Now open the browser and visit `http://localhost:8081` to view the web viewer.
 
-## Usage:
-**To start the RBM and RBMWeb servers:**
-```bash
-resbibman server
-```
-The RBM and RBMWeb are Tornado servers,   
-- RBM provides API for the client (GUI & WebUI & CLI) to communicate with.
-- RBMWeb is a Web-UI frontend server.
-
-**To start the iRBM server:**
-```bash
-resbibman iserver
-```
-The iRBM server is written with FastAPI, it provides additional AI features and is designed to be connected by the RBM server, so that the latter can provide AI features to the client.  
-
-> <details> 
-> <summary>The reason to separate iRBM server from RBM server</summary>  
-> - AI features may require more resources, so that the iserver can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the iserver and install the heavy AI dependencies.  <br>
-> - Allocating resources to the iserver and RBM server separately can be more flexible. For example, the iserver may need more GPU memory, we can launch multiple RBM servers pointing to different `$RBM_HOME`, while sharing the same iserver. <br>
-> -  It is also possible that the iserver needs a proxy to access the internet, while the RBM server does not.   
-</details>
-
-For CLI help, see `resbibman -h`  
-
-For detailed server settings, please refer to [Getting Started](resbibman/docs/gettingStarted.md)
-
-### Configure
-`$RBM_HOME` directory is used for application data storage, by default it is set to `~/.RBM`.  
-The data directory contains the configuration file, log files, default database, RBMWeb backend data, cache files...  
-
-To start the application with arbitrary data directory, you can run: 
-```bash
-RBM_HOME="your/path/here" resbibman ...
-```
-
-Other management tools include: 
-
-```bash
-rbm-keyman      # Manage access key
-rbm-discuss     # Manage online discussions
-rbm-collect     # Automatic add entry to database with retriving string
-rbm-resetconf   # To reset default configuration
-rbm-share       # To generate share url
-rbm-index       # To build and query feature of the database, for fuzzy search
-rbm-utils       # Miscellaneous utilities
-```
+Please refer to the documents for more details on [getting started](resbibman/docs/gettingStarted.md).
 
 # Manuals and documentations
-- [Getting Started](resbibman/docs/gettingStarted.md)
-- [api-usage](resbibman/docs/api.md)
-- [development](resbibman/docs/devGuide.md)
+- [Getting started](resbibman/docs/gettingStarted.md)
+- [API-usage](resbibman/docs/api.md)
+- [Development](resbibman/docs/devGuide.md)
