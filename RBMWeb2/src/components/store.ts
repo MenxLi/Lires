@@ -122,6 +122,7 @@ export const useSettingsStore = defineStore(
             return {
                 __encKey: localStorage.getItem("encKey") || "",
                 __backendPort: localStorage.getItem("backendPort") || "8080",
+                __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 loggedIn: false,    // will be watched by App.vue to reload the database
                 accountPermission: null as AccountPermission | null,
             }
@@ -132,6 +133,9 @@ export const useSettingsStore = defineStore(
             },
             backendPort(): string{
                 return this.__backendPort;
+            },
+            showTagPanel(): boolean{
+                return this.__showTagPanel;
             }
         },
         "actions": {
@@ -147,6 +151,10 @@ export const useSettingsStore = defineStore(
             setBackendPort(port: string){
                 this.__backendPort = port;
                 localStorage.setItem("backendPort", port);
+            },
+            setShowTagPanel(show: boolean){
+                this.__showTagPanel = show;
+                localStorage.setItem("showTagPanel", show.toString());
             }
         },
     }

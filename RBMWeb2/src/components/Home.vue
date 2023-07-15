@@ -9,7 +9,7 @@ export default {
 <script setup lang="ts">
     import { ref } from "vue";
     import type { Ref } from "vue";
-    import { useUIStateStore, useDataStore } from "./store";
+    import { useUIStateStore, useDataStore, useSettingsStore } from "./store";
     import { useRouter } from "vue-router";
     import { DataTags } from "../core/dataClass";
     import FileTags from "./home/FileTags.vue";
@@ -26,9 +26,12 @@ export default {
     // get data
     const uiState = useUIStateStore();
     const dataStore = useDataStore();
+    const settingsStore = useSettingsStore();
 
     // not show fileTag panel on small screen, by default
-    const showFileTags = ref(window.innerWidth > 800);
+    if (window.innerWidth < 768){
+        settingsStore.setShowTagPanel(false);
+    }
 
     const router = useRouter();
     const defaultTags = router.currentRoute.value.query.tags as string | undefined;
@@ -106,7 +109,7 @@ export default {
                 <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
                     @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>
                 <MenuAttached :menu-items="[
-                    {name: `Display: ${showFileTags?'hide':'show'}`, action: () => showFileTags = !showFileTags},
+                    {name: `Display: ${settingsStore.showTagPanel?'hide':'show'}`, action: () => settingsStore.setShowTagPanel(!settingsStore.showTagPanel)},
                     {name: 'Rename' , action: queryRenameTag},
                     {name: 'Delete' , action: queryDeleteTag},
                 ]">
@@ -122,7 +125,7 @@ export default {
             </div>
         </Banner>
         <div class="horizontal fullHeight">
-            <FileTags v-if="showFileTags" @onCheck="() => uiState.updateShownData()"></FileTags>
+            <FileTags v-if="settingsStore.showTagPanel" @onCheck="() => uiState.updateShownData()"></FileTags>
             <div class="panel scrollable" id="fileSelector">
                 <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"></FileRowContainer>
             </div>
