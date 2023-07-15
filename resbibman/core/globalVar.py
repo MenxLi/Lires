@@ -12,6 +12,7 @@ last_status_code: int   # a register for last connection status code
 tmpdirs: List[str]      # temporary directories, will be cleared on resbibman GUI exit
 
 prog_args: Optional[argparse.Namespace]     # set by resbibman.exec
+prog_parser: Optional[argparse.ArgumentParser]     # set by resbibman.exec
 config:  ResbibmanConfT           # configuration, set by resbibman.confReader
 account_permission: Optional[AccountPermission]     # account permission, set by Database.fetch
 
@@ -26,7 +27,7 @@ def init():
     global logger_rbm_server
     global __initialized
     global last_status_code
-    global prog_args
+    global prog_args, prog_parser
     global __global_dict
     global account_permission
 
@@ -42,6 +43,7 @@ def init():
     logger_rbm_server = logging.getLogger("rbm_server")
     last_status_code = 200
     prog_args = None
+    prog_parser = None
     account_permission = None
     __global_dict = dict()
 

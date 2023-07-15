@@ -51,12 +51,14 @@ def run():
             os.remove(LOG_FILE)
             print("log cleared")
         else: print("Log file not exits, run the program to create the log file")
+        NOT_RUN = True
 
     if args.print_log:
         if os.path.exists(LOG_FILE):
             with open(LOG_FILE, "r", encoding="utf-8") as log_file:
                 print(log_file.read())
         else: print("Log file not exits, run the program to create the log file")
+        print("=======================Above is the log=======================")
         NOT_RUN = True
 
     if args.show_home:
@@ -83,8 +85,9 @@ def run():
     # ======== Parse subcommands ========
 
     if args.subparser is None:
-        # Set default to run client GUI
-        args.subparser = "client"
+        # show help
+        assert G.prog_parser is not None
+        G.prog_parser.print_help()
 
     if args.subparser == "server":
         from .server.main import startServerProcess, startFrontendServerProcess
