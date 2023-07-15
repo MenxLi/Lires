@@ -341,3 +341,8 @@ version_history:
     - Server terminal color
     - Drop pyqt requirement by default
     - Refactor - remove resbibman.perf
+  0.15.0:
+    - Use pyproject.toml to manage python dependencies
+    - Program entry argument change, remove default subparser
+    - Drop support for old RBMWeb and pyinstaller build
+    - Update docker build
