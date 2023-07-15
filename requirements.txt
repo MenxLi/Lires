@@ -1,7 +1,7 @@
 pybtex
 pylatexenc
-PyQt6
-PyQt6-WebEngine
+# PyQt6
+# PyQt6-WebEngine
 tornado
 pyperclip
 PyMuPDF

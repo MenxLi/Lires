@@ -1,7 +1,6 @@
 import fitz     # PyMuPDF
 from typing import Optional
 import os
-from PyQt6 import QtGui
 import logging
 import requests, os, zipfile
 from tqdm import tqdm
@@ -11,6 +10,7 @@ from ..confReader import ICON_PATH, DEFAULT_PDF_VIEWER_DIR, TMP_DIR
 DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v3.7.107/pdfjs-3.7.107-dist.zip"
 
 def render_pdf_page(page_data, for_cover=False):
+    from PyQt6 import QtGui
     zoom_matrix = fitz.Matrix(4, 4)
     if for_cover:
         zoom_matrix = fitz.Matrix(1, 1)
@@ -31,6 +31,8 @@ def render_pdf_page(page_data, for_cover=False):
     return pixmap
 
 def getPDFCoverAsQPixelmap(f_path: str):
+    from PyQt6 import QtGui
+    cover: QtGui.QPixmap
     try:
         with PDFAnalyser(f_path) as doc:
             cover = doc.getCoverIcon()
@@ -93,7 +95,7 @@ class PDFAnalyser:
     def __exit__(self, exc_type, exc_value, traceback):
         self.doc.close()
 
-    def getCoverIcon(self) -> QtGui.QPixmap:
+    def getCoverIcon(self):
         page = self.doc.load_page(0)
         cover = render_pdf_page(page)
         return cover
