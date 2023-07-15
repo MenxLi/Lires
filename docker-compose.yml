@@ -4,8 +4,10 @@ services:
     image: "resbibman:latest"
     container_name: resbibman
     ports:
-      # change the first port to your choice
-      - "8000:8080"
+      # change the first ports to your choice
+      - "8080:8080"
+      - "8081:8081"
+      - "8731:8731"
     volumes:
       # change the first path to your choice
       # it's suggested to set a blank directory
