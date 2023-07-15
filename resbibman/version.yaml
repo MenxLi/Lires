@@ -332,4 +332,4 @@ version_history:
     - Make some of the webui settings persistant
     - Https support on CLI and PyQt GUI
     - Fix - reload info on rbmcollect to allow changing total tag poll
-    - Fix - Data reloading on webui when changing database
+    - Fix - webui reload data when changing database
