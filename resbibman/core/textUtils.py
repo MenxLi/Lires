@@ -12,7 +12,7 @@ from resbibman.confReader import DOC_FEATURE_PATH, DOC_SUMMARY_DIR
 from resbibman.core.dataClass import DataBase, DataPoint
 from resbibman.core.pdfTools import getPDFText
 from resbibman.core.serverConn import IServerConn
-from resbibman.perf.asynciolib import asyncioLoopRun
+from resbibman.core.asynciolib import asyncioLoopRun
 
 if sys.version_info < (3, 9):
     from typing import Iterator

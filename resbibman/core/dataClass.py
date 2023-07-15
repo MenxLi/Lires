@@ -7,7 +7,7 @@ import difflib
 import markdown
 from .utils import formatMarkdownHTML, TimeUtils, Timer
 from .clInteractions import ChoicePromptAbstract
-from ..perf.asynciolib import asyncioLoopRun
+from .asynciolib import asyncioLoopRun
 from pylatexenc import latex2text
 try:
     # may crash when generating config file withouot config file...

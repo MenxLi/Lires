@@ -7,7 +7,7 @@ import asyncio
 from . import globalVar as G
 from typing import Dict, Optional, TypedDict
 from .dataClass import DataCore, DataBase, DataPoint
-from ..perf.asynciolib import asyncioLoopRun
+from .asynciolib import asyncioLoopRun
 from .serverConn import ServerConn
 from .textUtils import queryFeatureIndex
 
