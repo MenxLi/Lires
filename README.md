@@ -18,7 +18,6 @@ It also has server modules: resbibman-server (RBM server) with a web viewer (RBM
   - [Usage:](#usage)
     - [Configure](#configure)
 - [Manuals and documentations](#manuals-and-documentations)
-  - [Known issues](#known-issues)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -27,7 +26,7 @@ It also has server modules: resbibman-server (RBM server) with a web viewer (RBM
 * Host a server to view, share and discuss online
 * Cross-platform
 * Cascading tags  
-* Markdown notes, with LaTeX equation support
+* Markdown notes
 * Multi-user permission management
 * AI-powered features (iRBM)
 <!-- * Online mode (remote storage) -->
@@ -99,20 +98,6 @@ rbm-utils       # Miscellaneous utilities
 ```
 
 # Manuals and documentations
+- [Getting Started](resbibman/docs/gettingStarted.md)
 - [api-usage](resbibman/docs/api.md)
 - [development](resbibman/docs/devGuide.md)
-
-## Known issues
-
-<!-- * May crash when changing selection (caused by auto saving) -->
-* Markdown horizontal line highlighter not working somehow
-* Adding file may encounter permission error for FAT32 format destination in Linux machine (refer to: [stackoverflow-25716333](https://stackoverflow.com/questions/25716333/))
-* Add data without tag permission on non-admin account, then delete local will raise exception
-* Full-screen GUI in macOS may somehow crash
-* ~~QWebEngineView may not show html(not work on opensuse and ubuntu22.04?)~~(Resolved with PyQt6)
-* ~~PDFReader based on QWebEngineView may not show PDF (For PyQt6 under Windows, refer to: [stachoverflow-73350761](https://stackoverflow.com/questions/73350761/))~~(Resolved using PDF.js)
-
-<!-- ## Credits:
-https://github.com/google/material-design-icons   
-https://mozilla.github.io/pdf.js/   -->
-<!-- https://github.com/MathJax/MathJax   -->

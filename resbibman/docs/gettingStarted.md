@@ -3,7 +3,7 @@
 
 ## Installation
 
-**Server-side installation:**
+### Server-side installation
 Compile frontend files
 > **Prerequisites:**  Node.js, TypeScript
 ```bash
@@ -26,9 +26,16 @@ npm install
 npm run app:build
 ```
 
+### User management
+After installation, user access keys should be generated with `rbm-keyman` command.
+```sh
+rbm-keyman -r your_key --admin
+```
+for more information, see `rbm-keyman -h`.
+
 ---
 ## Server startup
-```bash
+```sh
 resbibman server
 ```
 The RBM and RBMWeb server are Tornado servers,   
@@ -41,14 +48,18 @@ Additionally, SSL certificates can be configured using `$RBM_SSL_CERTFILE` and `
 Meanwhile, these servers can share the same 'iServer' for AI features, possibly on a different machine.  
 
 Thus a more general command to start the server is:
-```bash
+```sh
 RBM_HOME="your/path/here" RBM_SSL_CERTFILE="your/cert/file" RBM_SSL_KEYFILE="your/key/file" resbibman server \
     --iserver_host "your/iserver/host" --iserver_port "youriserverport" --port "yourport"
 ```
 
+In addition, iRBM server should be started to provide AI services.  
+```sh
+resbibman iserver
+```
 
 ## Optional - PyQt6 GUI
-There is a PyQt6 GUI as well, it can be installed on the server for GUI management in offline mode, or on the client for online mode.  
+There is a PyQt6 GUI, which can be installed on the server for GUI management in offline mode, or on the client as a secondary native GUI.
 **(PyQt GUI are legacy codes, it is not recommended to use it.  There will be less mantainance for it in the future.)**
 
 Installation:
@@ -61,5 +72,3 @@ pip install .[gui]
 ```bash
 resbibman client
 ```
-The client is a GUI written in PyQt6, it can be used to manage local database, or to connect to the RBM server and work in online mode.
-![ResBibMan](http://limengxun.com/files/imgs/resbibman.png)
