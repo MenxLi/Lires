@@ -107,7 +107,7 @@ def run():
         subprocess.check_call(call_args)
 
     if args.subparser == "client":
-        from resbibman.GUIs.main import execProg
+        from resbibman.gui.main import execProg
         execProg()
 
     for proc in procs:

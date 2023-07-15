@@ -1,5 +1,5 @@
 
-from resbibman.GUIs.tagSelector import TagDataModel
+from resbibman.gui.tagSelector import TagDataModel
 from resbibman.core.dataClass import TagRule
 
 t = "a->b->c"
