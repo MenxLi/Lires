@@ -30,11 +30,11 @@ docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --
 docker exec -d rbm resbibman iserver
 
 # register a user and download pdf.js viewer on the first run 
-# (no need to run again if the container is re-created)
+# (no need to run again if the container is re-created / re-started)
 docker exec rbm rbm-keyman register <your_key_here> --admin
 docker exec rbm rbm-utils download_pdfjs
 ```
-Now open the browser and visit `http://localhost:8081` to view the web viewer.
+Now open the browser and visit the WebUI on `http://localhost:8081`.
 
 Please refer to the documents for more details on [getting started](resbibman/docs/gettingStarted.md).
 

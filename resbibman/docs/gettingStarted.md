@@ -76,35 +76,45 @@ To start the application with arbitrary data directory, you can run:
 RBM_HOME="your/path/here" resbibman ...
 ```
 Typically, the ResBibMan server can be started by binding a different port to each database and providing services to different users. Which can be achieved by setting the `$RBM_HOME` variable.  
+
 Additionally, SSL certificates can be configured using `$RBM_SSL_CERTFILE` and `$RBM_SSL_KEYFILE` to enable HTTPS 
 (we must serve in HTTPS for tauri GUI to connect - [reason](https://github.com/tauri-apps/tauri/issues/2002)).  
-Meanwhile, these servers can share the same 'iServer' for AI features, possibly on a different machine.  
+
+Lastly, these servers can share the same 'iServer' for AI features, possibly on a different machine.  
 
 Thus a more general command to start the server is:
 ```sh
 RBM_HOME="your/path/here" RBM_SSL_CERTFILE="your/cert/file" RBM_SSL_KEYFILE="your/key/file" resbibman server \
     --iserver_host "your/iserver/host" --iserver_port "youriserverport" --port "yourport"
 ```
+
+The iRBM server is usually started with OPENAI API keys, which can be set with environment variable:
+```sh
+OPENAI_API_KEY="sk-xxxx" resbibman iserver --openai-api-base "https://api.openai.com/v1"
+```
+Note that openai api base must be set via command line argument (or leave it to default), because it is not a constant in current implementation in order to support custom models such as that from [lmsys](https://github.com/lm-sys/FastChat).
+
 ---
 
 ## Management
 ### User management
 After installation, user access keys should be generated with `rbm-keyman` command.
 ```sh
-rbm-keyman register your_key --admin
+rbm-keyman register <your_key> --admin
 ```
 for more information, see `rbm-keyman -h`.  
 
 ### Build search index
 The search index is used for **fuzzy search** and querying **related works**,
-It is currently implemented as build feature vectors for each entry, and use cosine similarity to measure the distance between vectors.
+It is currently implemented as building feature vectors for each entry (thanks to [huggingface transformers](https://huggingface.co/docs/transformers/index)), 
+and use cosine similarity to measure the distance between vectors.
 
-To build the index, run:
+To build the index, run:  
 **This requires iRBM server to be running.**
 ```sh
 rbm-index build
 ```
-*The priority for indexing resources: Abstract > AI summerization > PDF full text*
+*The priority for indexing sources: Abstract > AI summerization > PDF full text*
 
 ### All management tools
 
@@ -133,8 +143,8 @@ docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --
 
 ```
 
-The container only has the RBM and RBMWeb servers, the iRBM server should be started separately, if desired.   
-(otherwise we can map the port 8731 to the shared iRBM server, maybe on the host machine)  
+The container's default entry only starts the RBM and RBMWeb servers, the iRBM server should be started separately, if desired.   
+(otherwise we can map the port 8731 to the shared iRBM server, maybe on the host machine / another machine with GPU, or on another container)  
 ```sh
 docker exec -d rbm resbibman iserver
 ```
