@@ -50,7 +50,6 @@ function login(){
 
 <template>
     <div class="main">
-        <!-- RBMWeb2 login -->
         <div id="login" class="gradIn">
         <form>
             <div class="loginLine">

@@ -1,6 +1,6 @@
 import os, multiprocessing, logging
 from typing import Union, TypedDict
-from RBMWeb2 import RBMWEB2_SRC_ROOT
+from RBMWeb import RBMWEB_SRC_ROOT
 from functools import partial
 from resbibman.core import globalVar as G
 from resbibman.core.utils import BCOLORS
@@ -19,7 +19,7 @@ class FrontendApplication(tornado.web.Application):
     def __init__(self) -> None:
         handlers = [
             # Frontend
-            (r'/(.*)', tornado.web.StaticFileHandler, {"path": RBMWEB2_SRC_ROOT, "default_filename": "index.html"}),
+            (r'/(.*)', tornado.web.StaticFileHandler, {"path": RBMWEB_SRC_ROOT, "default_filename": "index.html"}),
         ]
         super().__init__(handlers)      # type: ignore
 

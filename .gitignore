@@ -21,10 +21,6 @@ venv
 *.psd
 
 resbibman/conf.json
-RBMWeb/backend/key.txt
-RBMWeb/backend/data
-RBMWeb/frontend/scripts/*
-!RBMWeb/frontend/scripts/.gitkeep
 
 # Logs
 logs
