@@ -4,10 +4,13 @@ Resbibman: a **Res**earch **bib**liograpy **man**ager
 <!--![ResBibMan](./resbibman/docs/imgs/ResBibMan.png)-->
 <!--![ResBibMan](./resbibman/docs/imgs/mainWindow.png)-->
 ![RBMWeb-GUI](http://limengxun.com/files/imgs/resbibman2.png)
-A research literature manager that utilize Bibtex file to record paper information, 
+A research literature manager, 
 it relies on tags to differentiate papers, and use markdown for notes.
 
-It mainly consists of two server modules: resbibman-server (RBM server) with a web viewer (RBMWeb), and iRBM. 
+It mainly consists of two server modules: 
+1. resbibman-server (RBM server) with a web viewer (RBMWeb)
+2. iRBM server for computational intelligence features
+
 It is designed to be deployed onto a server to share literatures or work in online mode.
 
 ## Features
@@ -22,12 +25,10 @@ It is designed to be deployed onto a server to share literatures or work in onli
 **Docker deployment**
 ```sh
 # build docker image
-docker build -t resbibman .
+docker build -t resbibman:latest .
 
 # create a conainer and start the servers
-docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --name rbm resbibman
-# start the iRBM server for AI features (optional)
-docker exec -d rbm resbibman iserver
+docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --name rbm resbibman:latest
 
 # register a user and download pdf.js viewer on the first run 
 # (no need to run again if the container is re-created / re-started)
