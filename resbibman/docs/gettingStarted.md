@@ -139,15 +139,21 @@ docker build -t resbibman:latest .
 
 # create the container named 'rbm', 
 # please change the port mapping and volume mapping as needed
+# depending on your need, you may want to expose only a subset of the ports
 docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --name rbm resbibman:latest
 ```
 
 The container's default entry only starts the RBM and RBMWeb servers, the iRBM server should be started separately, if desired.   
-(otherwise we can map the port 8731 to the shared iRBM server, maybe on the host machine / another machine with GPU, or on another container)  
 ```sh
 docker exec -d rbm resbibman iserver
 # or running with interactive tty
 # docker exec -it rbm resbibman iserver
+```
+
+Otherwise, we can set the iserver settings pointing the shared iRBM server, maybe on the host machine / another machine with GPU, or on another container  
+For an example, to setup the iserver to local machine of ip address `192.168.3.6` on creating the container, run:
+```sh
+docker run <... your settings ...> resbibman:latest --iserver_host '192.168.3.6' --iserver_port <...>
 ```
 
 **On the first run** you need to generate the user key, which can be done by running the `rbm-keyman` command in the container.

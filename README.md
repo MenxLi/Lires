@@ -28,7 +28,7 @@ It is designed to be deployed onto a server to share literatures or work in onli
 docker build -t resbibman:latest .
 
 # create a conainer and start the servers
-docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --name rbm resbibman:latest
+docker run -d -p 8080:8080 -p 8081:8081 -v $HOME/.RBM:/root/.RBM --name rbm resbibman:latest
 
 # register a user and download pdf.js viewer on the first run 
 # (no need to run again if the container is re-created / re-started)
