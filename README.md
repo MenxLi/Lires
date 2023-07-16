@@ -37,9 +37,9 @@ docker exec rbm rbm-utils download_pdfjs
 ```
 Now open the browser and visit the WebUI on `http://localhost:8081`.
 
-Please refer to the documents for more details on [getting started](resbibman/docs/gettingStarted.md).
+Please refer to the documents for more details on [getting started](docs/gettingStarted.md).
 
 # Manuals and documentations
-- [Getting started](resbibman/docs/gettingStarted.md)
-- [API-usage](resbibman/docs/api.md)
-- [Development](resbibman/docs/devGuide.md)
+- [Getting started](docs/gettingStarted.md)
+- [API-usage](docs/api.md)
+- [Development](docs/devGuide.md)
