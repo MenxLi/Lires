@@ -346,3 +346,9 @@ version_history:
     - Program entry argument change, remove default subparser
     - Drop support for old RBMWeb and pyinstaller build
     - Update docker build
+  0.15.1:
+    - Blank placeholder on home page
+    - Better docker deployment
+    - Improve documentation
+    - Rename RBMWeb2 -> RBMWeb
+    - Further isolate PyQt GUI
