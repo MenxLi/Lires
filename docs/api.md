@@ -20,4 +20,4 @@ from resbibman.api import ServerConn
 summaries = ServerConn().summaries()
 ```
 
-More examples can be found in the [api_examples](../../api_examples) folder.
+More examples can be found in the [api_examples](../api_examples) folder.
