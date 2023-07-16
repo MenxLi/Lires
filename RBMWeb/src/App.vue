@@ -8,11 +8,9 @@
     const dataStore = useDataStore();
     const settingStore = useSettingsStore();
     function reloadDatabase(){
-        uiState.showPopup("Loading database...", "info");
         dataStore.database.requestData().then(
             (_) => {
                 uiState.updateShownData();
-                uiState.showPopup("Database loaded", "success")
             },
             (_) => {
                 uiState.showPopup(`Failed to load database from: ${new ServerConn().apiURL()}`, "alert")

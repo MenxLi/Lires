@@ -127,7 +127,12 @@ export default {
         <div class="horizontal fullHeight">
             <FileTags v-if="settingsStore.showTagPanel" @onCheck="() => uiState.updateShownData()"></FileTags>
             <div class="panel scrollable" id="fileSelector">
-                <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"></FileRowContainer>
+                <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
+                    v-if="uiState.shownDataUIDs.length > 0"
+                ></FileRowContainer>
+                <div id="blankPlaceholder" v-else><p>{{ 
+                    dataStore.database.initialized?"Nothing to show":"Loading..."
+                }}</p></div>
             </div>
         </div>
     </div>
@@ -139,6 +144,21 @@ export default {
         width: 98vw;
         display: flex;
         flex-direction: column;
+    }
+    #blankPlaceholder{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    #blankPlaceholder p{
+        color: var(--color-border);
+        font-size: xx-large;
+        font-weight: bold;
+        text-align: center;
+        margin: 10px;
+        user-select: none;
     }
     .fullHeight{
         height: calc(100% - 30px);

@@ -401,9 +401,15 @@ const _dummyDataSummary = {
 
 export class DataBase {
     data: Record<string, DataPoint>;
+    _initliazed: boolean;
 
     constructor(){
         this.data = {}
+        this._initliazed = false;
+    }
+
+    get initialized(): boolean{
+        return this._initliazed;
     }
 
     *[Symbol.iterator](): Iterator<DataPoint>{
@@ -418,7 +424,8 @@ export class DataBase {
         this.clear();
         for ( let summary of allData ){
             this.add(summary);
-        }
+        };
+        this._initliazed = true;
     }
 
     add(summary: DataInfoT): DataPoint {
@@ -428,6 +435,7 @@ export class DataBase {
 
     clear(){
         this.data = {};
+        this._initliazed = false;
     }
 
     delete(uuid: string): Promise<boolean>{
