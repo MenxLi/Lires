@@ -12,20 +12,22 @@ def generateDefaultConf():
 	"database" points to local database, used by RBMWeb,
 	"""
 	saveToConf(
+		## CORE SETTINGS ##
 		accepted_extensions = [".pdf", ".caj", ".html", ".hpack", ".md", ".pptx", ".ppt"],
 		database = DEFAULT_DATA_PATH,
 
-		# List of dictionary with key ["host", "port", "access_key"], preset server settings
-		server_preset = [{
-			"host": "http://localhost",
-			"port": "8080",
-			"access_key": ""
-		}],
 		host = "",
 		port = "8080",
 		access_key = "",
 
 		pdfjs_viewer_path = os.path.join(DEFAULT_PDF_VIEWER_DIR, "web", "viewer.html"),
+
+		## GUI SETTINGS ##
+		server_preset = [{
+			"host": "http://localhost",
+			"port": "8080",
+			"access_key": ""
+		}],
 
 		default_tags = [],
 		table_headers = [ 

@@ -29,18 +29,20 @@ class ResbibmanConfT(TypedDict):
     Refer to rbm-resetconf 
     for the generation of default configuration file
     """
+    """CORE SETTINGS"""
     accepted_extensions: List[str]
     database: str
     # Server settings
-    server_preset: List[_ConfServerPresetT]
     host: str
     port: str
     access_key: str
 
-    # PDFjs viewer for pdf render in qwebengine
+    # PDFjs viewer for pdf render in qwebengine and webui
     # the path is suppose to be the viewer.html
     pdfjs_viewer_path: str
 
+    """GUI SETTINGS"""
+    server_preset: List[_ConfServerPresetT]
     # Tag settings
     default_tags: List[str]
     table_headers: List[str]
