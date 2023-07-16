@@ -41,9 +41,10 @@ else:
 
 
 
-ICON_PATH = join(CURR_PATH, "icons")
-STYLESHEET_PATH = join(CURR_PATH, "stylesheets")
+ICON_PATH = join(CURR_PATH, "gui", "icons")
+STYLESHEET_PATH = join(CURR_PATH, "gui", "stylesheets")
 DOC_PATH = join(CURR_PATH, "gui", "docs")
+
 ASSETS_PATH = join(CURR_PATH, "assets")
 BIB_TEMPLATE_PATH = join(ASSETS_PATH, "bibtexTemplates")
 
