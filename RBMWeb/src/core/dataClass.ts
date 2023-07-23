@@ -59,8 +59,8 @@ export class DataTags extends Set<string>{
         return ret;
     }
     withChildsFrom(tagPool: DataTags): DataTags{
-        const ret = new DataTags(this)
-        tagPool.forEach((tag) => ret.union_(TagRule.allChildsOf(tag, tagPool)));
+        const ret = new DataTags(this);
+        this.forEach((tag) => ret.union_(TagRule.allChildsOf(tag, tagPool)));
         return ret;
     }
     /* return all parents that has child in this */
@@ -96,7 +96,7 @@ export class TagRule {
         const ret = new DataTags();
         for (const t of tag_pool) {
           if (t.startsWith(tag) && t.length > tag.length + TAG_SEP.length) {
-            if (t.substring(tag.length, tag.length + 1 + TAG_SEP.length) === `${TAG_SEP}`) {
+            if (t.substring(tag.length, tag.length  + TAG_SEP.length) === `${TAG_SEP}`) {
               ret.add(t);
             }
           }
@@ -173,6 +173,10 @@ export class DataPoint {
             note: null,
             abstract: null,
         }
+    }
+
+    get tags(): DataTags{
+        return new DataTags(this.summary.tags);
     }
 
     toString(){
