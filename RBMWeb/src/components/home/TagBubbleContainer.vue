@@ -15,7 +15,8 @@
 </script>
 
 <template>
-    <div id="bubbleContainer" :style="{maxWidth: `${(props.maxWidth?props.maxWidth:999)-10}px`}">
+    <div id="bubbleContainer" class="scrollable" 
+        :style="{maxWidth: `${(props.maxWidth?props.maxWidth:999)-10}px`}">
         <TagBubble v-for="tag in props.tags" :tag="tag" :highlight="props.highlightTags? props.highlightTags.has(tag) : false"></TagBubble>
     </div>
 </template>

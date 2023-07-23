@@ -98,7 +98,7 @@
             <div id="inputRight">
                 <div id="tagArea">
                     <label for="tagSelector">Tags</label>
-                    <div id="tagSelector">
+                    <div id="tagSelector" class="scrollable">
                         <TagSelector v-model:tag-status="tagStatus"></TagSelector>
                     </div>
                 </div>
