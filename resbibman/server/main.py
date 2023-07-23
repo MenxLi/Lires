@@ -70,6 +70,9 @@ class Application(tornado.web.Application):
             # info
             (r"/info/changelog", ChangelogHandler),
 
+            # # Frontend (Static file, non-rbmweb)
+            (r"/static/(.*)", StaticHandler),
+
         ]
         super().__init__(handlers)
 

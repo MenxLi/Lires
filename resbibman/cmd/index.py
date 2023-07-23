@@ -1,7 +1,7 @@
 """
 Build search index for the database
 """
-import argparse
+import argparse, subprocess
 
 from resbibman.confReader import DOC_FEATURE_PATH, getConf
 from resbibman.core.dataClass import DataBase
@@ -45,6 +45,9 @@ def main():
 
     if args.subparser == "build":
         buildFeatureStorage(db, force=args.force, max_words_per_doc=args.max_words)
+        ret = subprocess.run(["python", "-m", "resbibman.cmd.visFeat"])
+        if ret.returncode != 0:
+            print("Failed to visualize the features, please run `python -m resbibman.cmd.visFeat` manually")
 
     elif args.subparser == "query":
         if args.input_uid:

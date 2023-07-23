@@ -15,3 +15,5 @@ from .images import *
 from .fileinfo_supp import *
 from .info import *
 from .pdfjs import *
+
+from .static import *
