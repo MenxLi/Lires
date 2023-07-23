@@ -230,6 +230,10 @@
         overflow: hidden;
     }
     @media (max-width: 750px){
+        div#authorYear{
+            width:auto;
+            min-width: 10px;
+        }
         div#fileRow{
             flex-direction: column;
             align-items:flex-start;
