@@ -24,23 +24,9 @@ else{
     console.log("production mode")
 }
 function getBackendURL(){
-    let BACKEND_PROTOCAL: 'http:' | 'https:' = window.location.protocol as 'http:' | 'https:';
-    let HOSTNAME = window.location.hostname;
-    let BACKENDURL: string;
     const BACKEND_PORT = useSettingsStore().backendPort;
-    if (platformType() === "tauri"){
-        if (!import.meta.env.DEV){
-            // assume the backend is https in tauri production mode, 
-            // because we've used broswer fetch api for api requests
-            // however tauri use native webview, which can not access http backend
-            // the backend should be deployed on the server with ssl certificate
-            BACKEND_PROTOCAL = "https:";     
-            // set fixed host, may be changed in the future
-            HOSTNAME = "limengxun.com";
-        }
-    }
-    BACKENDURL = `${BACKEND_PROTOCAL}//${HOSTNAME}:${BACKEND_PORT}`;
-    return BACKENDURL;
+    const BACKEND_HOST = useSettingsStore().backendUrl;
+    return `${BACKEND_HOST}:${BACKEND_PORT}`;
 }
 
 export {getBackendURL, FRONTENDURL};

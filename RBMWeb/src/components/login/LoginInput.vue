@@ -10,16 +10,18 @@ import { useSettingsStore } from '../store';
 import Toggle from '../common/Toggle.vue'
 
 const accessKey = ref("");
-const port = ref(useSettingsStore().backendPort);
 const error = ref("");
 const stayLogin = ref(true);
 const showPassword = ref(false);
 const inputType = computed(() => showPassword.value?"text":"password");
 const loginText = ref("Login")
 
+const backendUrl = ref(useSettingsStore().backendUrl);
+const port = ref(useSettingsStore().backendPort);
 const router = useRouter();
 
 function login(){
+    useSettingsStore().setBackendUrl(backendUrl.value);
     useSettingsStore().setBackendPort(port.value);
 
     loginText.value = "Connecting..."
@@ -55,14 +57,20 @@ function login(){
             <div class="loginLine">
                 <label for="access-key">Access Key </label>
                 <input :type="inputType" id="access-key" v-model="accessKey" />
-                ::
-                <label for="port">Port </label>
-                <input type="text" id="port" v-model="port" />
             </div>
-            <div class="options">
-                <Toggle :checked="stayLogin" @onCheck="() => {stayLogin=!stayLogin}">Stay login</Toggle>
-                <Toggle :checked="showPassword" @onCheck="() => {showPassword=!showPassword}">Show key</Toggle>
-            </div>
+            <details>
+                <summary>Settings</summary>
+                <div id="settings">
+                    <label for="backendUrl">Backend </label>
+                    <input type="text" id="backendUrl" v-model="backendUrl" />
+                    ::
+                    <input type="text" id="port" v-model="port" />
+                    <div class="options">
+                        <Toggle :checked="stayLogin" @onCheck="() => {stayLogin=!stayLogin}">Stay login</Toggle>
+                        <Toggle :checked="showPassword" @onCheck="() => {showPassword=!showPassword}">Show key</Toggle>
+                    </div>
+                </div>
+            </details>
             <button type="submit" @click.prevent="login">{{ loginText }}</button>
         </form>
         <p v-if="error" class="error">{{ error }}</p>
@@ -98,9 +106,25 @@ button{
     width: 200px
 }
 #access-key{
-    width: 150px
+    width: 200px
+}
+
+details{
+    padding: 5px;
+}
+div#settings{
+    border-radius: 5px;
+    background-color: var(--color-background-soft);
+    padding: 5px;
+}
+details summary{
+    text-align: left;
+}
+details input{
+    width: 120px;
 }
 #port {
+    display: inline-block;
     width: 50px
 }
 

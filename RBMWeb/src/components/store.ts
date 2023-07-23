@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
 import { formatAuthorName } from '../libs/misc'
 export { formatAuthorName }
+import { platformType } from '../config'
 import type { SearchStatus, PopupStyle, TagStatus } from './interface'
 import type { AccountPermission } from '../core/protocalT'
 
@@ -121,6 +122,7 @@ export const useSettingsStore = defineStore(
         state: () => {
             return {
                 __encKey: localStorage.getItem("encKey") || "",
+                __backendUrl: localStorage.getItem("backendUrl") || defaultBackendHost(),
                 __backendPort: localStorage.getItem("backendPort") || "8080",
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 loggedIn: false,    // will be watched by App.vue to reload the database
@@ -130,6 +132,9 @@ export const useSettingsStore = defineStore(
         "getters":{
             encKey(): string{
                 return this.__encKey;
+            },
+            backendUrl(): string{
+                return this.__backendUrl;
             },
             backendPort(): string{
                 return this.__backendPort;
@@ -148,6 +153,10 @@ export const useSettingsStore = defineStore(
                     localStorage.removeItem("encKey");
                 }
             },
+            setBackendUrl(url: string){
+                this.__backendUrl = url;
+                localStorage.setItem("backendUrl", url);
+            },
             setBackendPort(port: string){
                 this.__backendPort = port;
                 localStorage.setItem("backendPort", port);
@@ -159,3 +168,20 @@ export const useSettingsStore = defineStore(
         },
     }
 )
+
+function defaultBackendHost(){
+    let BACKEND_PROTOCAL: 'http:' | 'https:' = window.location.protocol as 'http:' | 'https:';
+    let HOSTNAME = window.location.hostname;
+    if (platformType() === "tauri"){
+        if (!import.meta.env.DEV){
+            // assume the backend is https in tauri production mode, 
+            // because we've used broswer fetch api for api requests
+            // however tauri use native webview, which can not access http backend
+            // the backend should be deployed on the server with ssl certificate
+            BACKEND_PROTOCAL = "https:";     
+            // set fixed host, may be changed in the future
+            HOSTNAME = "limengxun.com";
+        }
+    }
+    return `${BACKEND_PROTOCAL}//${HOSTNAME}`;
+}
