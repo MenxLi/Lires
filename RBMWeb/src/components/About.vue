@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { ServerConn } from '../core/serverConn';
     import { ref, computed } from 'vue';
+    import { getBackendURL } from '../config';
     import Banner from './common/Banner.vue';
 
     const changelog = ref<Record<string, string[]>>({});
@@ -36,7 +37,16 @@
             <Banner/>
         </div>
 
-        <h1>Change log</h1>
+        <h2>Document distribution</h2>
+        <p>
+            Visualize the distribution of documents using transformer encoder and tSNE.
+            <a :href="`${getBackendURL()}/static/visfeat`">Open externally</a>
+        </p> 
+        <iframe :src="`${getBackendURL()}/static/visfeat`" frameborder="0" id="visfeat"></iframe>
+
+        <hr/>
+
+        <h2>Change log</h2>
         <div id="versionHistory" class="content">
             <div class="block" v-for="(changes, version) in reversedChangelog">
                 <h2>{{version.toString()}}</h2>
@@ -54,7 +64,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        max-width: 800px;
+        max-width: 900px;
         margin-top: 15px;
     }
     div.banner{
@@ -62,6 +72,10 @@
         justify-content: center;
         width: 95vw;
         margin-bottom: 10px;
+    }
+    iframe#visfeat{
+        width: 100%;
+        height: 850px;
     }
     div.content{
         text-align: left;
