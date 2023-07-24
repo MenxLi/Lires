@@ -173,7 +173,10 @@ docker exec rbm rbm-...
 
 ## Optional - PyQt6 GUI
 There is a PyQt6 GUI, which can be installed on the server for GUI management in offline mode, or on the client as a secondary native GUI.
-**(PyQt GUI are legacy codes, it is not recommended to use it.  There will be less mantainance for it in the future.)**
+
+![rbmgui](http://limengxun.com/files/imgs/rbmgui.png)
+
+**(PyQt GUI are legacy codes.  There will be less mantainance for it in the future.)**
 
 Installation:
 ```sh
