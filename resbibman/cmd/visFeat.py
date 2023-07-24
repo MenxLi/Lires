@@ -8,6 +8,10 @@ from typing import TypedDict
 import os
 
 from sklearn.manifold import TSNE
+from bokeh.plotting import figure
+from bokeh.models import HoverTool, ColumnDataSource, Toolbar
+from bokeh.embed import components
+from bokeh.resources import CDN
 
 class FeatDictItemWthTSNE(TypedDict):
     uid: str
@@ -42,12 +46,6 @@ for i, uid in enumerate(feat_dict.keys()):
 
 # Visualize with html
 print("Visualizing...")
-from bokeh.plotting import figure, show, output_file
-from bokeh.models import HoverTool, ColumnDataSource
-from bokeh.embed import components
-from bokeh.resources import CDN
-
-from bokeh.models import Toolbar, PanTool, WheelZoomTool, BoxZoomTool, ResetTool
 
 # Convert your data to a ColumnDataSource
 print("Converting data to ColumnDataSource...")

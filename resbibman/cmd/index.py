@@ -48,6 +48,9 @@ def main():
         ret = subprocess.run(["python", "-m", "resbibman.cmd.visFeat"])
         if ret.returncode != 0:
             print("Failed to visualize the features, please run `python -m resbibman.cmd.visFeat` manually")
+        ret = subprocess.run(["python", "-m", "resbibman.cmd.visFeat3d"])
+        if ret.returncode != 0:
+            print("Failed to visualize the features 3d, please run `python -m resbibman.cmd.visFeat3d` manually")
 
     elif args.subparser == "query":
         if args.input_uid:

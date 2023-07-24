@@ -40,7 +40,8 @@
         <h2>Document distribution</h2>
         <p>
             Visualize the distribution of documents using transformer encoder and tSNE.
-            <a :href="`${getBackendURL()}/static/visfeat`">Open externally</a>
+            (<a :href="`${getBackendURL()}/static/visfeat`" target="_blank">Open externally</a>, 
+            <a :href="`${getBackendURL()}/static/visfeat3d`" target="_blank"> 3D</a>)
         </p> 
         <iframe :src="`${getBackendURL()}/static/visfeat`" frameborder="0" id="visfeat"></iframe>
 
@@ -91,5 +92,10 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
+    }
+    hr{
+        width: 100%;
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
 </style>
