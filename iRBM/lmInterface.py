@@ -94,7 +94,9 @@ class StreamIter(ABC):
         return self.call(prompt, self.temperature, self.max_response_length)
 
 class OpenAIStreamIter(StreamIter):
-
+    """
+    Connect to OpenAI API interface
+    """
     def __init__(self, model: str = "gpt-3.5-turbo") -> None:
         super().__init__()
         self.model = model
@@ -129,6 +131,11 @@ class OpenAIStreamIter(StreamIter):
             }
             yield data
         self.conversations.add(role = "assistant", content = text)
+
+class OfflineStreamIter(StreamIter):
+    """Offline models, maybe from huggingface"""
+    ...
+
 
 StreamIterType = Literal["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit"]
 def getStreamIter(itype: StreamIterType = "gpt-3.5-turbo") -> StreamIter:
