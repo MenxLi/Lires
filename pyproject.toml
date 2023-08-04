@@ -50,8 +50,7 @@ dependencies = [
     "darkdetect",
     "bs4",
     "deprecated",
-    # "numpy",
-    # "torch",
+    "numpy",
     "pybind11",
     "ninja",
 ]
@@ -65,6 +64,7 @@ gui = [
     "PyQt6-WebEngine",
 ]
 ai = [
+    "torch",
     "openai",
     "transformers",
     "fastapi[all]",

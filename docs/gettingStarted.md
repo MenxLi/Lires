@@ -34,6 +34,8 @@ cd ..
 Install the server
 > **Prerequisites:**  Python 3.8+
 ```bash
+git submodule update --init --recursive
+pip install ./packages/tiny_vectordb
 pip install ".[ai]"
 rbm-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in RBMWeb
 ```

@@ -20,6 +20,11 @@ It is designed to be deployed onto a server to share literatures or work in onli
 * AI-powered features (iRBM)
 
 # Getting started
+**Fetch all submodules**
+```sh
+git submodule update --init --recursive
+```
+
 **Docker deployment**
 ```sh
 # build docker image
