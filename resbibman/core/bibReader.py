@@ -7,8 +7,11 @@ from .customError import RBMDocTypeNotSupportedError
 import warnings, logging
 import nbib
 from pybtex.database import BibliographyData, Entry
+import pybtex.scanner
 from pylatexenc import latex2text
 import multiprocessing as mp
+
+from . import globalVar as G
 
 def checkBibtexValidity(bib_str: str) -> bool:
     """
@@ -18,7 +21,17 @@ def checkBibtexValidity(bib_str: str) -> bool:
         bib_parser = BibParser()
         _ = bib_parser(bib_str)[0]
         return True
-    except:
+    except IndexError as e:
+        G.logger_rbm.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
+        return False
+    except pybtex.scanner.PrematureEOF:
+        G.logger_rbm.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
+        return False
+    except KeyError:
+        G.logger_rbm.warning(f"KeyError. (Author year and title must be provided)")
+        return False
+    except Exception as e:
+        G.logger_rbm.error("Error when parsing bib string: {}".format(e))
         return False
 
 class BibParser:
