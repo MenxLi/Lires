@@ -50,8 +50,10 @@ dependencies = [
     "darkdetect",
     "bs4",
     "deprecated",
-    "numpy",
-    "torch",
+    # "numpy",
+    # "torch",
+    "pybind11",
+    "ninja",
 ]
 
 [project.optional-dependencies]

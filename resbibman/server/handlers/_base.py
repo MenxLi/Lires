@@ -8,7 +8,8 @@ from ..auth.encryptServer import queryAccount
 from ..discussUtils import DiscussDatabase
 from resbibman.core import globalVar as G
 from resbibman.core.dataClass import DataBase, TagRule, DataTags
-from resbibman.confReader import getConf
+from resbibman.confReader import getConf, VECTOR_DB_PATH
+from tiny_vectordb import VectorDatabase
 
 G.init()
 def getLocalDatabasePath():
@@ -31,12 +32,24 @@ class RequestHandlerBase():
     logger = G.logger_rbm_server
 
     def initdb(self):
-        self.logger.debug("Initializing server global database object")
+        self.logger.debug("Initializing server global database objects")
         if G.hasGlobalAttr("server_db"):
             db: DataBase = G.getGlobalAttr("server_db")
             db.watchFileChange([])
         G.setGlobalAttr("server_db", loadDataBase(getLocalDatabasePath()))
         G.setGlobalAttr("server_discussion_db", DiscussDatabase())
+        if G.hasGlobalAttr("vec_db"):
+            vec_db: VectorDatabase = G.getGlobalAttr("vec_db")
+            vec_db.flush()
+            vec_db.commit()
+        G.setGlobalAttr(
+            "vec_db", 
+            VectorDatabase(VECTOR_DB_PATH, [
+                {
+                    "name": "doc_feature",
+                    "dimension": 768
+                },
+            ]))
     
     # initdb(None)    # type: ignore
     
@@ -45,6 +58,12 @@ class RequestHandlerBase():
         if not G.hasGlobalAttr("server_db"):
             self.initdb()
         return G.getGlobalAttr("server_db")
+    
+    @property
+    def vec_db(self) -> VectorDatabase:
+        if not G.hasGlobalAttr("vec_db"):
+            self.initdb()
+        return G.getGlobalAttr("vec_db")
     
     @property
     def discussion_db(self) -> DiscussDatabase:

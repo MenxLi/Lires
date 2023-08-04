@@ -3,7 +3,7 @@ Build search index for the database
 """
 import argparse, subprocess
 
-from resbibman.confReader import DOC_FEATURE_PATH, getConf
+from resbibman.confReader import getConf
 from resbibman.core.dataClass import DataBase
 from resbibman.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
 from resbibman.core.utils import MuteEverything

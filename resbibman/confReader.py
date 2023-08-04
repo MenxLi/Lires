@@ -21,6 +21,7 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # │   ├── notes_webpage [TMP_WEB_NOTES]
 # │   ├── index [TMP_INDEX]
 # │   │   ├── feature.pt [DOC_FEATURE_PATH]
+# │   │   ├── vector.db [FEATURE_PATH]
 # │   │   └── summary [DOC_SUMMARY_DIR]
 
 __this_file_path = os.path.abspath(__file__)
@@ -61,7 +62,8 @@ TMP_WEB_NOTES = os.path.join(TMP_DIR, "notes_webpage")  # For notes as webpages
 TMP_INDEX = os.path.join(TMP_DIR, "index")      # For index cache
 
 # indexing related
-DOC_FEATURE_PATH = os.path.join(TMP_INDEX, "feature.pt")
+DOC_FEATURE_PATH = os.path.join(TMP_INDEX, "feature.pt")    # will deprecate!!
+VECTOR_DB_PATH = os.path.join(TMP_INDEX, "vector.db")
 DOC_SUMMARY_DIR = os.path.join(TMP_INDEX, "summary")
 
 # Create directories if they don't exist

@@ -11,6 +11,8 @@ class SearchHandler(tornado.web.RequestHandler, RequestHandlerBase):
         kwargs = json.loads(self.get_argument("kwargs"))
 
         searcher = DataSearcher(self.db)
+        if method == "searchFeature":
+            kwargs["vec_db"] = self.vec_db
         searcher.setRunConfig(method, kwargs)
         res = searcher.run()
         for k in res.keys():

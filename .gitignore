@@ -19,6 +19,7 @@ venv
 
 *.pptx
 *.psd
+*.db
 
 resbibman/conf.json
 
@@ -47,3 +48,4 @@ logs
 *.sw?
 
 */package-lock.json
+compile_commands.json

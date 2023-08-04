@@ -18,7 +18,6 @@ from .lmTools import EncoderT, _default_encoder
 from .lmTools import featurize as lmFeaturize
 from .lmTools import structuredSummerize as lmStructuredSummerize
 from .lmInterface import StreamIterType, getStreamIter
-from .textFeature import queryFeatureIndex as tfQueryFeatureIndex
 
 from . import globalConfig as config
 
@@ -43,18 +42,6 @@ def featurize(req: FeaturizeRequest):
     feat = asyncio.run(lmFeaturize(req.text, req.word_chunk, req.model_name, req.dim_reduce))
     return {
         "feature": feat.tolist(),
-    }
-
-class QueryFeatureIndexRequest(BaseModel):
-    text: str
-    n_return: int = 16
-@app.post("/queryFeatureIndex")
-@deprecated.deprecated(version = "0.14.0", reason = "feature index should be stored via core module instead of iserver")
-def queryFeatureIndex(req: QueryFeatureIndexRequest):
-    res = tfQueryFeatureIndex(req.text, req.n_return)
-    return{
-        "uids": res["uids"],
-        "scores": res["scores"],
     }
 
 class ChatBotRequest(BaseModel):

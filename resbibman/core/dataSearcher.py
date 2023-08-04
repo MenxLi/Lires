@@ -10,6 +10,7 @@ from .dataClass import DataCore, DataBase, DataPoint
 from .asynciolib import asyncioLoopRun
 from .serverConn import ServerConn
 from .textUtils import queryFeatureIndex
+from tiny_vectordb import VectorDatabase
 
 class _searchResult(TypedDict):
     score: Optional[float]  # sort by score, the higher the better match
@@ -116,11 +117,15 @@ class DataSearcher(DataCore):
             else:
                 return res
     
-    def searchFeature(self, pattern: str, n_return = 999) -> StringSearchT:
+    def searchFeature(self, pattern: str, n_return = 999, vec_db:Optional[ VectorDatabase ] = None) -> StringSearchT:
         if self.db.offline:
             if pattern.strip() == "":
                 return {uid: None for uid in self.db.keys()}
-            search_res = queryFeatureIndex(pattern, n_return=n_return)
+            if vec_db:
+                search_res = queryFeatureIndex(pattern, n_return=n_return, vector_collection=vec_db.getCollection("doc_feature"))
+            else:
+                search_res = queryFeatureIndex(pattern, n_return=n_return)
+
             if search_res is None:
                 self.logger.error("Error connecting to iserver, return empty result")
                 return {uid: None for uid in self.db.keys()}
