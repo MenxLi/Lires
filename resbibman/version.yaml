@@ -352,3 +352,10 @@ version_history:
     - Improve documentation
     - Rename RBMWeb2 -> RBMWeb
     - Further isolate PyQt GUI
+  0.16.0:
+    - Use tiny_vectordb for feature storage
+    - Feature visualization
+    - Tag bubble
+    - Able to set backend url at login page
+    - UI updates
+    - Fix - rbm-share
