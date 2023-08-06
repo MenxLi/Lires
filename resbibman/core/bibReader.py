@@ -17,21 +17,22 @@ def checkBibtexValidity(bib_str: str) -> bool:
     """
     Check if the bib string is valid
     """
+    logger = G.logger_rbm
     try:
         bib_parser = BibParser()
         _ = bib_parser(bib_str)[0]
         return True
     except IndexError as e:
-        G.logger_rbm.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
+        logger.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
         return False
     except pybtex.scanner.PrematureEOF:
-        G.logger_rbm.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
+        logger.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
         return False
     except KeyError:
-        G.logger_rbm.warning(f"KeyError. (Author year and title must be provided)")
+        logger.warning(f"KeyError. (Author year and title must be provided)")
         return False
     except Exception as e:
-        G.logger_rbm.error("Error when parsing bib string: {}".format(e))
+        logger.error("Error when parsing bib string: {}".format(e))
         return False
 
 class BibParser:

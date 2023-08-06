@@ -2,7 +2,7 @@
 
 import os
 from pprint import pprint
-from resbibman.initLogger import initLogger; initLogger()
+from resbibman.initLogger import initDefaultLogger; initDefaultLogger()
 from resbibman.confReader import RBM_HOME, getDatabase
 from resbibman.core.fileTools import addDocument, DBConnection, FileManipulator
 from resbibman.core.fileToolsV import FileManipulatorVirtual

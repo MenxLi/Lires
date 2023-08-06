@@ -4,6 +4,8 @@ from RBMWeb import RBMWEB_SRC_ROOT
 from functools import partial
 from resbibman.core import globalVar as G
 from resbibman.core.utils import BCOLORS
+from resbibman.initLogger import setupLogger
+from resbibman.confReader import RBM_HOME
 
 import tornado
 import tornado.ioloop
@@ -78,23 +80,25 @@ class Application(tornado.web.Application):
 
 
 _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
-def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[int, str], ssl_config : _SSL_CONFIGT | None = None):
+def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[int, str], ssl_config : _SSL_CONFIGT | None = None):
 
-    # initialize G.logger_rbm_server to print to stdout
-    G.logger_rbm_server.setLevel(logging.DEBUG)
-    _ch = logging.StreamHandler()
-    _ch.setLevel(logging.DEBUG)
-    _ch.setFormatter(logging.Formatter(BCOLORS.OKBLUE+'[server]'+BCOLORS.OKCYAN + \
-                                       ' %(asctime)s - %(levelname)s - ' + BCOLORS.ENDC + ' %(message)s'))
-    G.logger_rbm_server.addHandler(_ch)
-
-    # initialize G.logger_rbm to print to stdout
-    G.logger_rbm.setLevel(logging.INFO)
-    _ch = logging.StreamHandler()
-    _ch.setLevel(logging.INFO)
-    _ch.setFormatter(logging.Formatter(BCOLORS.OKGREEN+'[ core ]'+ BCOLORS.OKCYAN + \
-                                       ' %(asctime)s - %(levelname)s - ' + BCOLORS.ENDC + ' %(message)s'))
-    G.logger_rbm.addHandler(_ch)
+    # init loggers
+    setupLogger(
+        G.logger_rbm_server,
+        term_id="server",
+        term_id_color=BCOLORS.OKBLUE,
+        term_log_level="DEBUG",
+        file_path = os.path.join(RBM_HOME, "server.log"),
+        file_log_leve="INFO",
+    )
+    setupLogger(
+        G.logger_rbm,
+        term_id="core",
+        term_id_color=BCOLORS.OKGREEN,
+        term_log_level="DEBUG",
+        file_path = os.path.join(RBM_HOME, "core.log"),
+        file_log_leve="INFO",
+    )
 
     # set global variables of iServer
     # so that when initializing iServerConn, it can get the correct host and port
@@ -115,14 +119,15 @@ def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[in
     tornado.autoreload.start()
     tornado.ioloop.IOLoop.current().start()
 
-def startFrontendServer(port: Union[int, str] = 8081, ssl_config : _SSL_CONFIGT | None = None):
+def __startFrontendServer(port: Union[int, str] = 8081, ssl_config : _SSL_CONFIGT | None = None):
     app = FrontendApplication()
     ssl_ctx = None
+    logger = setupLogger("frontend")
     if ssl_config is not None:
         ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         ssl_ctx.load_cert_chain(certfile=ssl_config["certfile"], keyfile=ssl_config["keyfile"])
     server = HTTPServer(app, ssl_options=ssl_ctx)
-    print("Starting RBMWeb server at port: ", port)
+    logger.info(f"Starting RBMWeb server at port: {port}")
     server.listen(int(port))
 
     tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
@@ -144,16 +149,16 @@ else:
 
 def startServerProcess(*args) -> multiprocessing.Process:
     # add ssl config
-    _startServer = partial(startServer, ssl_config=SSL_CONFIG)
-    p = multiprocessing.Process(target=_startServer, args=args)
+    p_startServer = partial(__startServer, ssl_config=SSL_CONFIG)
+    p = multiprocessing.Process(target=p_startServer, args=args)
     p.start()
     return p
 
 def startFrontendServerProcess(*args) -> multiprocessing.Process:
-    _startFrontendServer = partial(startFrontendServer, ssl_config=SSL_CONFIG)
-    p = multiprocessing.Process(target=_startFrontendServer, args=args)
+    p_startFrontendServer = partial(__startFrontendServer, ssl_config=SSL_CONFIG)
+    p = multiprocessing.Process(target=p_startFrontendServer, args=args)
     p.start()
     return p
 
 if __name__ == "__main__":
-    startServer(8080, "127.0.0.1", "8731")
+    __startServer(8080, "127.0.0.1", "8731")

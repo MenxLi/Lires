@@ -18,7 +18,7 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerBase):
             tags (str): tags should be "%" or split by "&&"
         """
 
-        print("receiving file list request")
+        self.logger.debug("receiving file list request")
         # self.checkKey()
 
         self.setDefaultHeader()

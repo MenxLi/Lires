@@ -33,7 +33,7 @@ def init():
 
     thismodule = sys.modules[__name__]
     if hasattr(thismodule, "__initialized") and __initialized:
-        logger_rbm.warn("Skipping re-initialization of globalVar")
+        logger_rbm.debug("Skipping re-initialization of globalVar")
         return
     else:
         __initialized = True

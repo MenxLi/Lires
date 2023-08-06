@@ -16,10 +16,9 @@ def getLocalDatabasePath():
     return getConf()['database']
 
 def loadDataBase(db_path: str):
-    print("Loading database: {}".format(db_path))
+    G.logger_rbm_server.info("Loading database: {}".format(db_path))
     db = DataBase()
     db.init(db_path, force_offline=True)
-    print("Finish.")
     return db
 
 

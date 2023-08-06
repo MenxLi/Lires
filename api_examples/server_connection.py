@@ -5,9 +5,9 @@ This script shows how to build a online database and syncronize data to the serv
 from pprint import pprint
 from resbibman.api import DataBase
 from resbibman.confReader import getDatabase
-from resbibman.initLogger import initLogger
+from resbibman.initLogger import initDefaultLogger
 
-logger = initLogger("DEBUG")
+logger = initDefaultLogger("DEBUG")
 
 # the data will be stored in a separate database when online mode is used
 # you can use any database path you want
