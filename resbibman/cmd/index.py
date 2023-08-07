@@ -3,7 +3,7 @@ Build search index for the database
 """
 import argparse, subprocess
 
-from resbibman.confReader import getConf
+from resbibman.confReader import getDatabasePath_withFallback
 from resbibman.core.dataClass import DataBase
 from resbibman.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
 from resbibman.core.utils import MuteEverything
@@ -35,7 +35,7 @@ def parseArgs() -> argparse.Namespace:
 def main():
     args = parseArgs()
     with MuteEverything():
-        db_path = getConf()['database']
+        db_path = getDatabasePath_withFallback(offline=True)
         db = DataBase().init(db_path, force_offline=True)
 
     # set global variables of iServer

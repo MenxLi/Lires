@@ -105,7 +105,7 @@ def getConf() -> ResbibmanConfT:
     conf["database"] = os.path.realpath(conf["database"])
     return conf
 
-def getDatabase(offline: Optional[bool] = None):
+def getDatabase(offline: Optional[bool] = None) -> str:
     if offline is None:
         if getConf()["host"]:
             return TMP_DB
@@ -118,6 +118,17 @@ def getDatabase(offline: Optional[bool] = None):
             return TMP_DB
     else:
         raise TypeError("offline should be bool or None")
+
+def getDatabasePath_withFallback(offline: Optional[bool] = None, fallback: str = os.path.join(RBM_HOME, "Database")) -> str:
+    """
+    get the path to the database,
+    if it not exists, return the default path
+    """
+    tempt = getDatabase(offline)
+    if os.path.exists(tempt):
+        return tempt
+    else:
+        return fallback
 
 def getConfV(key : str):
     try:

@@ -51,6 +51,7 @@ dependencies = [
     "bs4",
     "deprecated",
     "numpy",
+    "scikit-learn",
     "pybind11",
     "ninja",
 ]

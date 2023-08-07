@@ -4,9 +4,8 @@ AI method shoud go through IServerConn interface.
 """
 import os, sys, hashlib
 import asyncio
-from asyncio import Future
-import tqdm, requests
-from typing import TypedDict, TYPE_CHECKING, Optional
+import requests
+from typing import TypedDict, TYPE_CHECKING, Optional, Callable, Literal
 from resbibman.confReader import DOC_SUMMARY_DIR, VECTOR_DB_PATH
 from resbibman.core.dataClass import DataBase, DataPoint
 from resbibman.core.pdfTools import getPDFText
@@ -52,6 +51,52 @@ def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -
 
 FeatureQueryResult = TypedDict("FeatureQueryResult", {"uids": list[str], "scores": list[float]})
 
+def getFeatureTextSource(
+        iconn: IServerConn, 
+        dp: DataPoint, 
+        max_words_per_doc: Optional[int] = None, 
+        print_fn: Callable[[str], None] = lambda x: None
+        ) -> tuple[str, Literal["abstract", "summary", "fulltext", "title"]]:
+    """
+    Extract text source from a document for feature extraction.
+    return text_source, source_type
+    """
+    abstract = dp.fm.readAbstract()
+    uid = dp.uuid
+    title_text: str = "Title: " + dp.title + "\n"
+    if abstract:
+        # if abstract is available, use it as the text source
+        print_fn(f"- use abstract")
+        return title_text + abstract, "abstract"
+    elif dp.fm.hasFile() and dp.fm.file_extension == ".pdf":
+        # if has pdf, try to create a summary
+        pdf_path = dp.fm.file_p; assert pdf_path
+        pdf_text = getPDFText(pdf_path, max_words_per_doc)
+
+        _summary_cache_path = os.path.join(DOC_SUMMARY_DIR, uid + ".txt")
+        if os.path.exists(_summary_cache_path):
+            # check if summary is already created
+            summary = open(_summary_cache_path, "r").read()
+            print_fn(f"- use cached summary")
+        else:
+            summary = createSummaryWithLLM(iconn, pdf_text)
+            with open(_summary_cache_path, "w") as f:
+                f.write(summary)
+            if summary:
+                print_fn(f"- use LLM summary")
+
+        if summary:
+            # if summary is created, use it as the text source
+            return title_text + summary, "summary"
+        else:
+            # otherwise, use the full text
+            print_fn(f"- use full text")
+            return pdf_text, "fulltext"
+    else:
+        # otherwise, use title
+        print_fn(f"- use title")
+        return title_text.strip(), "title"
+
 def buildFeatureStorage(
         db: DataBase, 
         max_words_per_doc: int = 2048, 
@@ -82,45 +127,13 @@ def buildFeatureStorage(
     iconn = IServerConn()
     text_src: dict[str, str] = {}       # uid -> text source for featurization
     
+    # extract text source
     for idx, (uid, dp) in enumerate(db.items()):
         # if idx > 100:
         #     # for debug
         #     break
-        print(f"[Extracting source] ({idx}/{len(db)}) {uid}...")
-        abstract = dp.fm.readAbstract()
-        title_text: str = "Title: " + dp.title + "\n"
-        if abstract:
-            # if abstract is available, use it as the text source
-            text_src[uid] = title_text + abstract
-            print(f"- use abstract")
-        elif dp.fm.hasFile() and dp.fm.file_extension == ".pdf":
-            # if has pdf, try to create a summary
-            pdf_path = dp.fm.file_p; assert pdf_path
-            pdf_text = getPDFText(pdf_path, max_words_per_doc)
-
-            _summary_cache_path = os.path.join(DOC_SUMMARY_DIR, uid + ".txt")
-            if os.path.exists(_summary_cache_path):
-                # check if summary is already created
-                summary = open(_summary_cache_path, "r").read()
-                print(f"- use cached summary")
-            else:
-                summary = createSummaryWithLLM(iconn, pdf_text)
-                with open(_summary_cache_path, "w") as f:
-                    f.write(summary)
-                if summary:
-                    print(f"- use LLM summary")
-
-            if summary:
-                # if summary is created, use it as the text source
-                text_src[uid] = title_text + summary
-            else:
-                # otherwise, use the full text
-                text_src[uid] = pdf_text
-                print(f"- use full text")
-        else:
-            # otherwise, use title
-            text_src[uid] = title_text.strip()
-            print(f"- use title")
+        text_src[uid], src_type = getFeatureTextSource(iconn, dp, max_words_per_doc)
+        print(f"[Extracting source] ({idx}/{len(db)}) <{src_type}>: {uid}...")
 
     # featurize the summary
     async def _featurize(text) -> list[float] | None:
