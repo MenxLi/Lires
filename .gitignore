@@ -16,6 +16,7 @@ venv
 *_tmp*
 .DS_Store
 .TempDir
+.cache
 
 *.pptx
 *.psd

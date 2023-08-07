@@ -14,7 +14,7 @@ def initDefaultLogger(log_level = "INFO") -> logging.Logger:
         term_id_color = BCOLORS.OKGRAY,
         term_log_level=log_level,
         file_path=LOG_FILE,
-        file_log_leve="DEBUG",
+        file_log_level="DEBUG",
         attach_execption_hook=True
     )
 
@@ -24,11 +24,11 @@ def setupLogger(
         term_id_color = BCOLORS.OKGRAY, 
         term_log_level = "INFO",
         file_path: Optional[str] = None,
-        file_log_leve = "INFO",
+        file_log_level = "INFO",
         attach_execption_hook = False
         ) -> logging.Logger:
     """
-    - term_id: will be used as terminal prifix
+    - term_id: will be used as terminal prefix
     - term_id_color: color of identifier
     - term_log_level: log level of terminal
     - file_path: file to save log
@@ -49,7 +49,7 @@ def setupLogger(
     logger.handlers.clear()
 
     # get less critical log level and set it to be the level of logger
-    logger.setLevel(min(logging.getLevelName(term_log_level), logging.getLevelName(file_log_leve)))
+    logger.setLevel(min(logging.getLevelName(term_log_level), logging.getLevelName(file_log_level)))
 
     _ch = logging.StreamHandler()
     _ch.setLevel(term_log_level)
@@ -60,7 +60,7 @@ def setupLogger(
     if file_path is not None:
         _fh = logging.FileHandler(file_path)
         _fh = RotatingFileHandler(file_path, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
-        _fh.setLevel(file_log_leve)
+        _fh.setLevel(file_log_level)
         _fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         logger.addHandler(_fh)
     

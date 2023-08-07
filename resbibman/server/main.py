@@ -89,7 +89,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
         term_id_color=BCOLORS.OKBLUE,
         term_log_level="DEBUG",
         file_path = os.path.join(RBM_HOME, "server.log"),
-        file_log_leve="INFO",
+        file_log_level="INFO",
     )
     setupLogger(
         G.logger_rbm,
@@ -97,7 +97,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
         term_id_color=BCOLORS.OKGREEN,
         term_log_level="DEBUG",
         file_path = os.path.join(RBM_HOME, "core.log"),
-        file_log_leve="INFO",
+        file_log_level="INFO",
     )
 
     # set global variables of iServer
