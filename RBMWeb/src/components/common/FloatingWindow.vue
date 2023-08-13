@@ -46,7 +46,7 @@
           <span class="close-icon">✕</span>
         </button>
       </div>
-      <div class="window-content">
+      <div class="window-content scrollable">
         <slot></slot>
       </div>
     </div>
@@ -120,8 +120,9 @@ div.header {
 .window-content {
   margin: 15px;
   margin-top: 5px;
-  max-width: 90vw;
-  max-height: 85vh;
+  /* 100vw - 15*2px - [edge_width]px */
+  max-width: calc(100vw - 50px);
+  max-height: calc(100vh - 80px);
   overflow: auto;
 }
 

@@ -241,7 +241,7 @@
         justify-content: flex-start;
         align-items: flex-start;
         flex-wrap: wrap;
-        gap: 5px;
+        gap: 10px;
     }
     td#authorTD div{
         display: block;
