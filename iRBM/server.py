@@ -17,7 +17,7 @@ from .utils import autoTorchDevice
 from .lmTools import EncoderT, _default_encoder
 from .lmTools import featurize as lmFeaturize
 from .lmTools import structuredSummerize as lmStructuredSummerize
-from .lmInterface import StreamIterType, getStreamIter
+from .lmInterface import ChatStreamIterType, getStreamIter
 
 from . import globalConfig as config
 
@@ -46,7 +46,7 @@ def featurize(req: FeaturizeRequest):
 
 class ChatBotRequest(BaseModel):
     prompt: str
-    model_name: StreamIterType = "gpt-3.5-turbo"
+    model_name: ChatStreamIterType = "gpt-3.5-turbo"
     temperature: float = 0.7
     conv_dict: str = '{\
         "system": "A conversation between a human and an AI assistant.",\

@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from resbibman.core.dataSearcher import StringSearchT
     from resbibman.core.dataClass import DataTagT, DataPointSummary
     from resbibman.core.dbConn import DBFileInfo
-    from iRBM.lmInterface import ConversationDictT, StreamIterType
+    from iRBM.lmInterface import ConversationDictT, ChatStreamIterType
 
 class ConnectionBase:
     @property
@@ -289,7 +289,7 @@ class IServerConn(ConnectionBase):
             self, 
             prompt: str, 
             conv_dict: Optional[ConversationDictT] = None, 
-            model_name: Optional[StreamIterType] = None,
+            model_name: Optional[ChatStreamIterType] = None,
             ) -> Optional[_ChatReturnT]:    # type: ignore
         post_url = self.url + "/chatbot"
         post_args = {

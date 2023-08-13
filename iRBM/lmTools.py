@@ -5,7 +5,7 @@ import asyncio, os
 
 from typing import Callable, Optional, Literal
 from .lmInterface import StreamData, Iterator
-from .lmInterface import getStreamIter, streamOutput, StreamIterType
+from .lmInterface import getStreamIter, streamOutput, ChatStreamIterType
 from .utils import autoTorchDevice, MuteEverything, Timer
 
 import pdb
@@ -15,15 +15,15 @@ import numpy as np
 from transformers import AutoTokenizer, AutoModel
 
 def summarize(txt: str) -> Iterator[StreamData]:
-    from .lmInterface import OpenAIStreamIter
+    from .lmInterface import OpenAIChatStreamIter
     prompt = f"Summarize the following paper, "\
         "your summary should focus on the motivation, methods and contributions of the paper. "\
         "Your summary should be in academic literature style. Don't exagerate the significance. "\
         f"Here is the paper: {txt}"
-    return OpenAIStreamIter()(prompt)
+    return OpenAIChatStreamIter()(prompt)
 
 dummy_print = lambda x, end = " ", flush = True: ...
-async def structuredSummerize(txt: str, model: StreamIterType = "gpt-3.5-turbo", print_func: Callable = dummy_print) -> str:
+async def structuredSummerize(txt: str, model: ChatStreamIterType = "gpt-3.5-turbo", print_func: Callable = dummy_print) -> str:
     PRINT = True
     if print_func is dummy_print:
         PRINT = False

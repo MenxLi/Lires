@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from typing import Any, TypedDict, Literal, Type
 import dataclasses, json
+import enum
 
 # check python version
 import sys, os
@@ -16,6 +17,7 @@ else:
 
 import openai
 from . import globalConfig as config
+import basaran.model
 
 
 ConvRole = Literal["user", "assistant"]
@@ -73,12 +75,17 @@ def streamOutput(output_stream: Iterator[StreamData], print_callback: Any = lamb
     print_callback(" ".join(output_text[pre:]), flush=True)
     return " ".join(output_text)
 
+
+class ErrorCodes(enum.Enum):
+    """Error codes for the model output stream"""
+    OK = 0
+
 class StreamData(TypedDict):
     """a class to represent the data returned by the model output stream"""
     text: str
-    error_code: int
+    error_code: ErrorCodes
 
-class StreamIter(ABC):
+class ChatStreamIter(ABC):
     """Abstract class for language model interface"""
     temperature = 0.8
     max_response_length = 1024
@@ -93,7 +100,7 @@ class StreamIter(ABC):
     def __call__(self, prompt) -> Iterator[StreamData]:
         return self.call(prompt, self.temperature, self.max_response_length)
 
-class OpenAIStreamIter(StreamIter):
+class OpenAIChatStreamIter(ChatStreamIter):
     """
     Connect to OpenAI API interface
     """
@@ -127,19 +134,108 @@ class OpenAIStreamIter(StreamIter):
             text += piece
             data: StreamData = {
                 "text": piece if self.return_pieces else text,
-                "error_code": 0
+                "error_code": ErrorCodes.OK
             }
             yield data
         self.conversations.add(role = "assistant", content = text)
 
-class OfflineStreamIter(StreamIter):
-    """Offline models, maybe from huggingface"""
-    ...
+class HFChatStreamIter(ChatStreamIter):
+    """Offline models from huggingface"""
+    def __init__(
+            self, 
+            model: Literal["lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B"], 
+            load_in_8bit: bool = True
+            ):
+        self.model_name = model
+        self.model = basaran.model.load_model(model, load_in_8bit=load_in_8bit)
+        self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
+    
+    def getConv(self):
+        if "Llama-2" in self.model_name:
+            # Not sure if this is correct
+            ret = f"[INST]<<SYS>>\n{self.conversations.system.strip()}\n<<SYS>>\n"
+            for i, (role, content) in enumerate(self.conversations.conversations):
+                if i == 0:
+                    assert role == "user"
+                    ret += f"{content}[/INST]"
+                else:
+                    if role == "user":
+                        ret += f"[INST]{content}[/INST]"
+                    else:
+                        ret += f"{content}</s><s>"
+            if self.conversations.conversations[-1][0] == "user":
+                ret += "[INST]"
+            return ret
+        
+        elif "vicuna" in self.model_name:
+            # Not sure if this is correct
+            ret = f"{self.conversations.system.strip()}"
+            for i, (role, content) in enumerate(self.conversations.conversations):
+                if i == 0:
+                    assert role == "user"
+                if role == "user":
+                    ret += f"USER: {content} "
+                else:
+                    ret += f"ASSISTANT: {content}</s>"
+            if self.conversations.conversations[-1][0] == "user":
+                ret += "ASSISTANT: "
+            else:
+                ret += "USER: "
+            return ret
+        
+        elif "StableBeluga" in self.model_name:
+            """
+            ### System:
+            This is a system prompt, please behave and help the user.
+
+            ### User:
+            Your prompt here
+
+            ### Assistant:
+            The output of Stable Beluga 7B
+            """
+            ret = f"### System:\n{self.conversations.system.strip()}\n\n"
+            for i, (role, content) in enumerate(self.conversations.conversations):
+                if i == 0:
+                    assert role == "user"
+                if role == "user":
+                    ret += f"### User:\n{content}\n\n"
+                else:
+                    ret += f"### Assistant:\n{content}\n\n"
+            if self.conversations.conversations[-1][0] == "user":
+                ret += "### Assistant:\n"
+            else:
+                ret += "### User:\n"
+            return ret
+        
+        else:
+            raise NotImplementedError("Unknown model: {}".format(self.model_name))
+    
+    def call(self, prompt: str, temperature: float, max_len: int = 1024) -> Iterator[StreamData]:
+
+        self.conversations.add(role = "user", content = prompt)
+        text = ""
+        for choice in self.model(prompt=self.getConv(), max_tokens=max_len, temperature=temperature, return_full_text=False):
+            piece = choice["text"]
+            data: StreamData = {
+                "text": piece,
+                "error_code": ErrorCodes.OK
+            }
+            text += piece
+            yield data
+        self.conversations.add(role = "assistant", content = text)
 
 
-StreamIterType = Literal["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit"]
-def getStreamIter(itype: StreamIterType = "gpt-3.5-turbo") -> StreamIter:
+ChatStreamIterType = Literal[
+    "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit", 
+    "lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B"
+    ]
+def getStreamIter(itype: ChatStreamIterType = "gpt-3.5-turbo") -> ChatStreamIter:
     if itype in ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit"]:
-        return OpenAIStreamIter(model=itype)
+        return OpenAIChatStreamIter(model=itype)
+    
     else:
-        raise ValueError("Unknown interface type: {}".format(itype))
+        try:
+            return HFChatStreamIter(model=itype)
+        except:
+            raise ValueError("Unknown interface type: {}".format(itype))
