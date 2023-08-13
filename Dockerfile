@@ -32,4 +32,5 @@ EXPOSE 8081
 EXPOSE 8080
 EXPOSE 8731
 
+ENV HF_HOME=/root/.RBM/hf_home
 ENTRYPOINT ["resbibman", "server"]

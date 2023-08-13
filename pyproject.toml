@@ -69,11 +69,11 @@ ai = [
     "openai",
     "transformers",
     "fastapi[all]",
-    "auto-gptq[triton]",
     "sentencepiece",
     "protobuf",
     "accelerate",
-    "bitsandbytes",
     "basaran",
+    # "auto-gptq[triton]",
+    # "bitsandbytes",
 ]
 all = ["resbibman[dev,gui,ai]"]
