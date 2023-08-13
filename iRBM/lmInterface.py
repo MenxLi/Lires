@@ -236,6 +236,6 @@ def getStreamIter(itype: ChatStreamIterType = "gpt-3.5-turbo") -> ChatStreamIter
     
     else:
         try:
-            return HFChatStreamIter(model=itype)
+            return HFChatStreamIter(model=itype)    # type: ignore
         except:
             raise ValueError("Unknown interface type: {}".format(itype))
