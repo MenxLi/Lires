@@ -143,7 +143,8 @@
 </script>
 
 <template>
-    <div id="fileRow" :class="`gradInFast${(props.compact && !showMore)?' compact':''}`" @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false" 
+    <!-- <div id="fileRow" :class="`gradInFast${(props.compact && !showMore)?' compact':''}`" @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false"  -->
+    <div id="fileRow" :class="`${(props.compact && !showMore)?' compact':''}`" @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false" 
         ref="dataCard" :style="{backgroundColor: datacardBackgroundColor}">
         <div id="init" class="row" ref="initDiv">
             <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">

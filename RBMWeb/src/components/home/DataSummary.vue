@@ -6,7 +6,7 @@
     import type { SearchResultant } from '../../core/protocalT';
     import { ServerConn } from '../../core/serverConn';
     import FileRowContainer from './FileRowContainer.vue';
-    import { useDataStore } from '../store';
+    import { useDataStore, formatAuthorName } from '../store';
 
     const props = defineProps<{
         datapoint: DataPoint
@@ -86,6 +86,29 @@
         }
     }
 
+    const showAuthorPapers = ref("");
+    const authorPapers = ref([] as DataPoint[]);
+    function onClickAuthorPubCount(author: string){
+        author = formatAuthorName(author);
+        console.log("check publication of author: ", author);
+        authorPapers.value = dataStore.authorPublicationMap[author];
+        // remove self from authorPapers
+        authorPapers.value = authorPapers.value.filter((dp)=>dp.summary.uuid != props.datapoint.summary.uuid);
+        if (showAuthorPapers.value === author){
+            showAuthorPapers.value = "";
+        }
+        else{ showAuthorPapers.value = author; }
+    }
+    function authorDatabasePublicationCount(author: string): null | number{
+        const pubMap = dataStore.authorPublicationMap;
+        author = formatAuthorName(author);
+        if (!(author in pubMap) || pubMap[author].length == 1){
+            return null;
+        }
+        let count = pubMap[author].length;
+        return count - 1;
+    }
+
     onMounted(() => {
         requestAISummary(false)
     });
@@ -103,8 +126,25 @@
                 <table>
                     <tr>
                         <td><b>Authors</b></td>
-                        <td>{{ datapoint.summary.authors.toString() }}</td>
+                        <td id="authorTD">
+                            <div v-for="author in datapoint.summary.authors">
+                                <span>{{ author }}</span>
+                                <a v-if="authorDatabasePublicationCount(author) !== null" @click="()=>onClickAuthorPubCount(author)">
+                                    ({{ authorDatabasePublicationCount(author) }})
+                                </a>
+                            </div>
+                        </td>
                     </tr>
+                    <Transition name="slideDown">
+                    <tr v-if="showAuthorPapers" id="otherPubTR">
+                        <td colspan="2">
+                            <b>{{ `Other publications from ${showAuthorPapers.toUpperCase()}:` }}</b>
+                            <div id="authorPapers">
+                                <FileRowContainer :datapoints="authorPapers" v-model:unfoldedIds="_unfoldedIds"></FileRowContainer>
+                            </div>
+                        </td>
+                    </tr>
+                    </Transition>
                     <tr>
                         <td><b>Publication</b></td>
                         <td>{{ datapoint.summary.publication }}</td>
@@ -162,11 +202,6 @@
     b{
         font-weight: bold;
     }
-    td{
-        vertical-align: top;
-        padding-left: 5px;
-        padding-right: 5px;
-    }
     #shortSummary{
         display: flex;
         flex-direction: column;
@@ -190,5 +225,40 @@
     }
     details{
         width: 100%;
+    }
+
+    table{
+        width: 100%
+    }
+    td{
+        vertical-align: top;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+    td#authorTD{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    td#authorTD div{
+        display: block;
+    }
+    tr#otherPubTR td{
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid var(--color-border);
+        background-color: var(--color-background-mute);
+        /* box-shadow: 0px 0px 5px var(--color-shadow); */
+    }
+    .slideDown-enter-active, .slideDown-leave-active {
+        transition: all 0.15s ease;
+    }
+    .slideDown-enter-from, .slideDown-leave-to {
+        transform: translateY(-10%);
+        opacity: 0;
     }
 </style>
