@@ -3,7 +3,7 @@ from resbibman.confReader import TMP_WEB_NOTES, ASSETS_PATH
 from resbibman.core.dataClass import DataPoint
 import os, shutil
 
-class CommentHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
+class CommentHandler(tornado.web.StaticFileHandler, RequestHandlerMixin):
     # Serve comment (Notes) as webpage
     def get(self, path: str):
         print("Get comment request: {}".format(path))

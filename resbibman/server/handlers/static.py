@@ -2,7 +2,7 @@ from ._base import *
 import os
 from resbibman.confReader import TMP_DIR 
 
-class StaticHandler(RequestHandlerBase, tornado.web.RequestHandler):
+class StaticHandler(RequestHandlerMixin, tornado.web.RequestHandler):
 
     def get(self, path: str):
         if path == "visfeat":

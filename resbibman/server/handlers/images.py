@@ -6,7 +6,7 @@ import os, uuid
 from tornado.httputil import HTTPFile
 
 
-class ImageGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class ImageGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Get image from misc folder
     """
@@ -48,7 +48,7 @@ class ImageGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
 
             self.write(f.read())
 
-class ImageUploadHandler(RequestHandlerBase, tornado.web.RequestHandler):
+class ImageUploadHandler(RequestHandlerMixin, tornado.web.RequestHandler):
     async def post(self, uid: str):
         # permission check
         permission = self.checkKey()

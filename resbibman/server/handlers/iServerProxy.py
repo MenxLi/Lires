@@ -4,7 +4,7 @@ import json
 from resbibman.core.serverConn import IServerConn
 
 
-class IServerProxyHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class IServerProxyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     def post(self, key):
         self.setDefaultHeader()
 

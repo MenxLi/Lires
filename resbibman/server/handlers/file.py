@@ -6,7 +6,7 @@ from resbibman.core.compressTools import compressDir, decompressDir, compressSel
 from resbibman.core.dataClass import DataPoint
 from resbibman.core.dbConn import DBFileInfo, DocInfo
 
-class FileHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class FileHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     ZIP_TMP_DIR = os.path.join(TMP_DIR, "server_zips")
     
     def initialize(self):

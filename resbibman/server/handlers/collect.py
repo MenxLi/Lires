@@ -3,7 +3,7 @@ from ._base import *
 from resbibman.cmd.rbmCollect import RBMRetriver
 import json
 
-class CollectHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class CollectHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """Command with arguments"""
     def post(self):
         permission =  self.checkKey()

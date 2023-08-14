@@ -6,7 +6,7 @@ from resbibman.core.pdfTools import getPDFText
 from resbibman.confReader import ASSETS_PATH, DOC_SUMMARY_DIR
 
 
-class SummaryHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class SummaryHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     @property
     def summary_html_template(self):
@@ -19,7 +19,7 @@ class SummaryHandler(tornado.web.RequestHandler, RequestHandlerBase):
             raise tornado.web.HTTPError(403)
         return self.write(self.summary_html_template)
 
-class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     def post(self):
         if not self.checkKey():
             self.write("ERROR: Invalid key.")

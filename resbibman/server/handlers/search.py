@@ -2,7 +2,7 @@ from ._base import *
 from resbibman.core.dataSearcher import DataSearcher
 import json
 
-class SearchHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class SearchHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     def post(self):
         self.checkKey()
         self.setDefaultHeader()

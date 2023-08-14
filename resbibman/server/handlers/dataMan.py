@@ -13,7 +13,7 @@ from resbibman.core.dataClass import DataTags
 from resbibman.confReader import getConf, TMP_DIR
 
 import pprint
-class DataDeleteHandler(RequestHandlerBase, tornado.web.RequestHandler):
+class DataDeleteHandler(RequestHandlerMixin, tornado.web.RequestHandler):
     def post(self):
         if not self.checkKey():
             raise tornado.web.HTTPError(403)
@@ -24,7 +24,7 @@ class DataDeleteHandler(RequestHandlerBase, tornado.web.RequestHandler):
         self.write("OK")
         return
 
-class DataUpdateHandler(RequestHandlerBase, tornado.web.RequestHandler):
+class DataUpdateHandler(RequestHandlerMixin, tornado.web.RequestHandler):
     def post(self):
         """
         Update or create a data entry
@@ -82,7 +82,7 @@ class DataUpdateHandler(RequestHandlerBase, tornado.web.RequestHandler):
         self.write(json.dumps(dp.summary))
         return 
 
-class DocumentUploadHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class DocumentUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     async def post(self, uid: str):
         # permission check
@@ -125,7 +125,7 @@ class DocumentUploadHandler(tornado.web.RequestHandler, RequestHandlerBase):
         self.logger.info(f"Document {uid} added")
         self.write(json.dumps(dp.summary))
 
-class DocumentFreeHandler(RequestHandlerBase, tornado.web.RequestHandler):
+class DocumentFreeHandler(RequestHandlerMixin, tornado.web.RequestHandler):
     def post(self, uid: str):
         """
         Free a document from a file
@@ -142,7 +142,7 @@ class DocumentFreeHandler(RequestHandlerBase, tornado.web.RequestHandler):
         dp.loadInfo()
         self.write(json.dumps(dp.summary))
 
-class TagRenameHandler(RequestHandlerBase, tornado.web.RequestHandler):
+class TagRenameHandler(RequestHandlerMixin, tornado.web.RequestHandler):
     def post(self):
         """
         Rename a tag
@@ -158,7 +158,7 @@ class TagRenameHandler(RequestHandlerBase, tornado.web.RequestHandler):
         self.logger.info(f"Tag {old_tag} renamed to {new_tag}")
         self.write("OK")
 
-class TagDeleteHandler(RequestHandlerBase, tornado.web.RequestHandler):
+class TagDeleteHandler(RequestHandlerMixin, tornado.web.RequestHandler):
     def post(self):
         """
         Delete a tag

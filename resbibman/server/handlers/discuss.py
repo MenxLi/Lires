@@ -1,7 +1,7 @@
 from ._base import *
 import string, markdown
 
-class DiscussionHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class DiscussionHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     def get(self, file_uid: str):
         self.checkCookieKey()
         self.setDefaultHeader()
@@ -57,7 +57,7 @@ class DiscussionHandler(tornado.web.RequestHandler, RequestHandlerBase):
         rendered = base_html.substitute(content = "<hr>".join(contents))
         self.write(rendered)
 
-class DiscussionModHandler (tornado.web.RequestHandler, RequestHandlerBase):
+class DiscussionModHandler (tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Modify discussions
     """

@@ -3,7 +3,7 @@ Get and modify notes of a datapoint
 """
 from ._base import *
 
-class NoteGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class NoteGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Get notes of a datapoint
     """
@@ -17,7 +17,7 @@ class NoteGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
         self.logger.debug("Get notes of: {}".format(dp))
         self.write(dp.fm.readComments())
 
-class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Update notes of a datapoint
     """
@@ -40,7 +40,7 @@ class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerBase):
         dp.fm.writeComments(note)
         self.write("OK")
 
-class AbstractGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class AbstractGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Get abstract of a datapoint
     """
@@ -55,7 +55,7 @@ class AbstractGetHandler(tornado.web.RequestHandler, RequestHandlerBase):
         self.write(dp.fm.readAbstract())
     
 
-class AbstractUpdateHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class AbstractUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Update abstract of a datapoint
     """

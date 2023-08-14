@@ -6,7 +6,7 @@ import os
 from resbibman.confReader import TMP_WEB
 from resbibman.core.htmlTools import unpackHtmlTmp
 
-class DocHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class DocHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     def get(self, uuid):
         self.setDefaultHeader()
         file_p = self.db[uuid].fm.file_p
@@ -20,7 +20,7 @@ class DocHandler(tornado.web.RequestHandler, RequestHandlerBase):
                     return
         self.write("The file not exist or is not PDF file.")
 
-class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerBase):
+class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerMixin):
     # handler for local web pages
     def get(self, path, include_body = True):
         self.setDefaultHeader()

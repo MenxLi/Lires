@@ -5,7 +5,7 @@ Serve pdfjs files
 from ._base import *
 from resbibman.confReader import DEFAULT_PDF_VIEWER_DIR
 
-class PdfJsHandler(RequestHandlerBase, tornado.web.StaticFileHandler):
+class PdfJsHandler(RequestHandlerMixin, tornado.web.StaticFileHandler):
     root_dir = DEFAULT_PDF_VIEWER_DIR
     G.logger_rbm.info("Using pdf viewer: {}".format(root_dir))
     def get(self, *args, **kwargs):

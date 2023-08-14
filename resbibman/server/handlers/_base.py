@@ -22,7 +22,7 @@ def loadDataBase(db_path: str):
     return db
 
 
-class RequestHandlerBase():
+class RequestHandlerMixin():
     get_argument: Callable
     get_cookie: Callable[[str, Optional[str]], Optional[str]]
     set_header: Callable
@@ -111,7 +111,7 @@ class RequestHandlerBase():
         """
         tags = DataTags(_tags)
         mandatory_tags = DataTags(_mandatory_tags)
-        RequestHandlerBase.logger.debug(f"check tags: {tags} vs {mandatory_tags}")
+        RequestHandlerMixin.logger.debug(f"check tags: {tags} vs {mandatory_tags}")
         if not mandatory_tags.issubset(tags.withParents()):
             raise tornado.web.HTTPError(403) 
 

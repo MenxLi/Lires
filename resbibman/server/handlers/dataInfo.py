@@ -6,9 +6,9 @@ import json
 import tornado.web
 
 from resbibman.core.dataClass import DataList, DataTags, DataPoint, DataPointSummary
-from ._base import RequestHandlerBase
+from ._base import RequestHandlerMixin
 
-class DataListHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class DataListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Query information of data of the entire database
     """
@@ -53,7 +53,7 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerBase):
         dl.sortBy(sort_by)
         return [d.summary for d in dl]
 
-class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Query information about a single file
     """

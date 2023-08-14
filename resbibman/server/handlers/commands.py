@@ -4,7 +4,7 @@ Post commands to the server
 from ._base import *
 import json
 
-class CMDHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class CMDHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     def _reloadDB(self):
         self.setDefaultHeader()
         # self.db.watchFileChange([])
@@ -19,7 +19,7 @@ class CMDHandler(tornado.web.RequestHandler, RequestHandlerBase):
             print("receiving reload Database command")
             self._reloadDB()
 
-class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerBase):
+class CMDArgHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """Command with arguments"""
     def post(self):
         self.setDefaultHeader()
