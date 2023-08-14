@@ -125,6 +125,8 @@
 
 <style scoped>
     #main{
+        width: calc(min(1200px, 100vw - 30px));
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -135,7 +137,9 @@
         justify-content:center;
         align-items: center;
     }
+
     div#banner{
+        width: 100%;
         padding-top: 10px;
     }
 </style>
