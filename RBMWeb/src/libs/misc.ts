@@ -106,3 +106,19 @@ export function openURLExternal(url: string){
         window.open(url, "_blank");
     }
 }
+
+// Execute a function after a delay,
+// if the function is called again before the delay, the previous call will be canceled
+// delay is in milliseconds
+export function lazify(func: Function, delay: number): (...args: any[]) => void{
+    let timerId: number | null = null;
+    return function(...args: any[]){
+        if (timerId){
+            window.clearTimeout(timerId);
+        }
+        timerId = window.setTimeout(() => {
+            func(...args);
+            timerId = null;
+        }, delay);
+    }
+}

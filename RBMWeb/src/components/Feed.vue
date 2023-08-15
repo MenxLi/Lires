@@ -9,6 +9,8 @@
     import { ServerConn } from '../core/serverConn';
     import Banner from './common/Banner.vue';
 
+    import { lazify } from '../libs/misc';
+
 
     export interface ArxivArticleWithFeatures extends ArxivArticle{
         features: number[] | null,
@@ -60,6 +62,7 @@
             },
         )
     }
+    const lazyUpdateSearchFeature = lazify(updateSearchFeature, 200);
 
     const router = useRouter();
     let maxResults = parseInt(router.currentRoute.value.query.maxResults as string) || 50;
@@ -116,7 +119,7 @@
                 <option value="cat:cs.CV">cs.CV</option>
                 <option value="cat:cs.AI">cs.AI</option>
             </select>
-            <input type="text" placeholder="Search" @input="updateSearchFeature" v-model="searchText">
+            <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText">
         </div>
         <h2 v-if="sortedArxivArticles.length===0">Fetching...</h2>
         <ArticleBlock v-for="article in sortedArxivArticles" :article="article"></ArticleBlock>

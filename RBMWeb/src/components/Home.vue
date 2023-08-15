@@ -22,6 +22,7 @@ export default {
     import sellIcon from "../assets/icons/sell.svg";
 
     import type { SearchStatus } from "./interface";
+    import { lazify } from "../libs/misc";
 
     // get data
     const uiState = useUIStateStore();
@@ -53,6 +54,7 @@ export default {
         console.log(status);
         uiState.updateShownData();
     }
+    const lazyOnSearchChanged = lazify(onSearchChanged, 200);
 
     // adding new data
     const showAddingDataWindow = ref(false);
@@ -120,7 +122,7 @@ export default {
                     <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
                         <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
                     </select>
-                    <input id="searchbar" type="text" v-model="searchInput" @input="onSearchChanged" placeholder="search">
+                    <input id="searchbar" type="text" v-model="searchInput" @input="lazyOnSearchChanged" placeholder="search">
                 </div>
             </div>
         </Banner>
