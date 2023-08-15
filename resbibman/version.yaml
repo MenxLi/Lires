@@ -359,3 +359,9 @@ version_history:
     - Able to set backend url at login page
     - UI updates
     - Fix - rbm-share
+  0.16.1:
+    - Summary show author articles in the database
+    - Lazy search
+    - Style - optimize floating window size; set feed page min width and height
+    - Dev - refactor - logger, textutils, chatstreamiter
+    - Dev - local llm support, set docker hf_home
