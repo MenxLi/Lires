@@ -6,9 +6,10 @@
     import ArticleBlock from './feed/ArticleBlock.vue';
     import { useRouter } from 'vue-router';
 
-    import { ServerConn } from '../core/serverConn';
     import Banner from './common/Banner.vue';
+    import LoadingWidget from './common/LoadingWidget.vue'
 
+    import { ServerConn } from '../core/serverConn';
     import { lazify } from '../libs/misc';
 
 
@@ -121,7 +122,10 @@
             </select>
             <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText">
         </div>
-        <h2 v-if="sortedArxivArticles.length===0">Fetching...</h2>
+        <div id="loadingPlaceholder" v-if="sortedArxivArticles.length===0">
+            <b>Fetching...</b>
+            <LoadingWidget></LoadingWidget>
+        </div>
         <ArticleBlock v-for="article in sortedArxivArticles" :article="article"></ArticleBlock>
     </div>
 </template>
@@ -133,6 +137,13 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
+    }
+    div#loadingPlaceholder{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
     }
     div#settings{
         display: flex;
