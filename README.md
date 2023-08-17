@@ -2,12 +2,18 @@
 Resbibman: a **Res**earch **bib**liograpy **man**ager
 
 ![RBMWeb-GUI](http://limengxun.com/files/imgs/rbmweb.png)
-A research literature manager, 
-it relies on tags to differentiate papers, and use markdown for notes.
 
-It mainly consists of two server modules: 
-1. resbibman-server (RBM server) with a web viewer (RBMWeb)
-2. iRBM server for computational intelligence features
+**A self-hosted research literature manager!**   
+<!-- It relies on tags to differentiate papers, and use markdown for notes. -->
+
+## Modules
+Mainly consists of two server modules:  
+1. resbibman-server (RBM server)
+2. iRBM server for computational intelligence features  
+
+And two frontend modules:  
+1. RBMWeb (WebUI)
+2. Qt client (Desktop GUI, less maintained)
 
 It is designed to be deployed onto a server to share literatures or work in online mode.
 
