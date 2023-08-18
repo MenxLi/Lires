@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from resbibman.core.dataSearcher import StringSearchT
     from resbibman.core.dataClass import DataTagT, DataPointSummary
     from resbibman.core.dbConn import DBFileInfo
-    from iRBM.lmInterface import ConversationDictT, ChatStreamIterType
+    from irbm.lmInterface import ConversationDictT, ChatStreamIterType
 
 class ConnectionBase:
     @property
@@ -218,7 +218,7 @@ class ServerConn(ConnectionBase):
     
 
 class IServerConn(ConnectionBase):
-    """Connection to iRBM.server"""
+    """Connection to irbm.server"""
 
     def __init__(self, host: str = "", port: str|int = "") -> None:
         super().__init__()

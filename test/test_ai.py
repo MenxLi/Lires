@@ -1,5 +1,5 @@
-from iRBM.lmInterface import OpenAIChatStreamIter, streamOutput
-from iRBM import globalConfig as config
+from irbm.lmInterface import OpenAIChatStreamIter, streamOutput
+from irbm import globalConfig as config
 
 
 text = ""

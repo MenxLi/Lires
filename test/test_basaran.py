@@ -1,5 +1,5 @@
-import iRBM
-from iRBM.lmInterface import HFChatStreamIter
+import irbm
+from irbm.lmInterface import HFChatStreamIter
 from basaran.model import load_model
 
 # pip install sentencepiece protobuf accelerate bitsandbytes basaran

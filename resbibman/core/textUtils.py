@@ -21,7 +21,7 @@ else:
     from collections.abc import Iterator
 
 if TYPE_CHECKING:
-    from iRBM.lmInterface import ChatStreamIterType
+    from irbm.lmInterface import ChatStreamIterType
 
 def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
     summary = ""
