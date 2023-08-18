@@ -3,21 +3,21 @@ requires = ["setuptools", "wheel", "pyyaml"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-"resbibman" = "resbibman.exec:run"
-"rbm-resetconf" = "resbibman.cmd.generateDefaultConf:run"
-"rbm-collect" = "resbibman.cmd.rbmCollect:main"
-"rbm-utils" = "resbibman.cmd.miscUtils:main"
-"rbm-share" = "resbibman.cmd.rbmShare:main"
-"rbm-keyman" = "resbibman.cmd.manageKey:run"
-"rbm-discuss" = "resbibman.cmd.rbmDiscuss:main"
-"rbm-index" = "resbibman.cmd.index:main"
+"lires" = "lires.exec:run"
+"lrs-resetconf" = "lires.cmd.generateDefaultConf:run"
+"lrs-collect" = "lires.cmd.rbmCollect:main"
+"lrs-utils" = "lires.cmd.miscUtils:main"
+"lrs-share" = "lires.cmd.rbmShare:main"
+"lrs-keyman" = "lires.cmd.manageKey:run"
+"lrs-discuss" = "lires.cmd.rbmDiscuss:main"
+"lrs-index" = "lires.cmd.index:main"
 
 [project.urls]
 "Homepage" = "https://github.com/MenxLi/ResBibManager"
 "Bug Tracker" = "https://github.com/MenxLi/ResBibManager/issues"
 
 [project]
-name = "ResBibManager"
+name = "Lires"
 authors = [
   { name="Li, Mengxun", email="mengxunli@whu.edu.cn" },
 ]
@@ -76,4 +76,4 @@ ai = [
     # "auto-gptq[triton]",
     # "bitsandbytes",
 ]
-all = ["resbibman[dev,gui,ai]"]
+all = ["Lires[dev,gui,ai]"]

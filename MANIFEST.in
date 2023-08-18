@@ -1,7 +1,7 @@
 include README.md
-include resbibman/version.yaml *
-recursive-include resbibman/docs *
-recursive-include resbibman/icons *
-recursive-include resbibman/assets *
-recursive-include resbibman/stylesheets *
+include lires/version.yaml *
+recursive-include lires/docs *
+recursive-include lires/icons *
+recursive-include lires/assets *
+recursive-include lires/stylesheets *
 recursive-include rbmweb/dist *

@@ -68,17 +68,17 @@ class TestBase(unittest.TestCase):
             subprocess.check_call(["rbm-resetconf"], stdout=fp)
 
         # maybe generate database path
-        from resbibman.confReader import getConf
+        from lires.confReader import getConf
         if not os.path.exists(getConf()["database"]):
             os.mkdir(getConf()["database"])
 
     @classmethod
     def _setup_test_filePaths(cls):
-        from resbibman.confReader import RBM_HOME
-        from resbibman.confReader import RBM_HOME
-        from resbibman.confReader import TMP_DIR
-        from resbibman.confReader import TMP_COVER, TMP_DB, TMP_WEB, TMP_WEB_NOTES
-        from resbibman.confReader import CONF_FILE_PATH
+        from lires.confReader import RBM_HOME
+        from lires.confReader import RBM_HOME
+        from lires.confReader import TMP_DIR
+        from lires.confReader import TMP_COVER, TMP_DB, TMP_WEB, TMP_WEB_NOTES
+        from lires.confReader import CONF_FILE_PATH
 
         for cond in (
             RBM_HOME == os.environ["RBM_HOME"],
@@ -96,7 +96,7 @@ class TestBase(unittest.TestCase):
     
     @property
     def rbm_config(self):
-        from resbibman.confReader import getConf
+        from lires.confReader import getConf
         return getConf()
 
 class MuteStdout:

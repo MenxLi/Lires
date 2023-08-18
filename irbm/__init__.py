@@ -4,7 +4,7 @@ AI tools & GPU acceleration
 """
 
 
-from resbibman.initLogger import setupLogger
+from lires.initLogger import setupLogger
 
 def initLogger(level = "info"):
     return setupLogger(

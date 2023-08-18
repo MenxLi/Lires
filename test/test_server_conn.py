@@ -1,4 +1,4 @@
-from resbibman.core.serverConn import ServerConn, IServerConn
+from lires.core.serverConn import ServerConn, IServerConn
 
 conn = ServerConn()
 print(conn.permission())

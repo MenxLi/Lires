@@ -19,7 +19,7 @@ subprocess.check_call(['rbm-resetconf'], env=os.environ.copy())
 
 # now import the resbibman modules to do experiments in the temporary data folder!
 # experiments: set configuration host and port
-from resbibman.api import RBM_HOME, getConf, saveToConf
+from lires.api import RBM_HOME, getConf, saveToConf
 print("RBM_HOME: ", RBM_HOME)
 
 config = getConf()

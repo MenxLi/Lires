@@ -17,13 +17,13 @@ end_note = """
 %W CNKI
 """
 
-from resbibman.core.refparser import endnote
+from lires.core.refparser import endnote
 
 parser = endnote.EndnoteParser()
 res = parser.parseEntry(end_note)
 print(res)
 
-from resbibman.core.bibReader import BibConverter
+from lires.core.bibReader import BibConverter
 
 conv = BibConverter()
 res = conv.fromEndNote(end_note)

@@ -13,7 +13,7 @@ In the Bottom Up approach, we create a sqlite connection and use the connection 
 
 import os
 from pprint import pprint
-from resbibman.api import addDocument, FileManipulatorVirtual, DBConnection, DataPoint
+from lires.api import addDocument, FileManipulatorVirtual, DBConnection, DataPoint
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 

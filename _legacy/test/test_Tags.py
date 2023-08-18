@@ -1,6 +1,6 @@
 
 import unittest
-from resbibman.core.dataClass import TagRule, DataTags
+from lires.core.dataClass import TagRule, DataTags
 
 class TestTagRule(unittest.TestCase):
 

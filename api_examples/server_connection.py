@@ -3,9 +3,9 @@ This script shows how to build a online database and syncronize data to the serv
 """
 
 from pprint import pprint
-from resbibman.api import DataBase
-from resbibman.confReader import getDatabase
-from resbibman.initLogger import initDefaultLogger
+from lires.api import DataBase
+from lires.confReader import getDatabase
+from lires.initLogger import initDefaultLogger
 
 logger = initDefaultLogger("DEBUG")
 

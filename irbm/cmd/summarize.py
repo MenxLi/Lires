@@ -1,6 +1,6 @@
 import asyncio
 import argparse
-from resbibman.core.pdfTools import PDFAnalyser
+from lires.core.pdfTools import PDFAnalyser
 from ..lmTools import summarize, structuredSummerize, featurize
 from ..lmInterface import streamOutput
 

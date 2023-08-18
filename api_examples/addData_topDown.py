@@ -12,7 +12,7 @@ In the Top Down approach, we create a database object and use the object to obta
 
 import os
 from pprint import pprint
-from resbibman.api import addDocument, DataBase
+from lires.api import addDocument, DataBase
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 

@@ -1,6 +1,6 @@
 
-from resbibman.gui.tagSelector import TagDataModel
-from resbibman.core.dataClass import TagRule
+from lires.gui.tagSelector import TagDataModel
+from lires.core.dataClass import TagRule
 
 t = "a->b->c"
 t_pool = [

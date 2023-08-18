@@ -2,7 +2,7 @@
 # This script pack source code to the specified destination directory
 
 dest=$1
-dest_path="${dest}/resbibman.zip"
+dest_path="${dest}/lires.zip"
 
 if [ $dest ]; then
         if [ -d $dest ]; then

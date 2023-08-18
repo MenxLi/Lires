@@ -2,7 +2,6 @@
 *.swp
 *.vscode
 *.spec
-Database/*
 */conf_dev.json
 *.egg-info
 dist
@@ -21,8 +20,6 @@ venv
 *.pptx
 *.psd
 *.db
-
-resbibman/conf.json
 
 # Logs
 logs

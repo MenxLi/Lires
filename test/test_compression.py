@@ -1,5 +1,5 @@
 import os, shutil
-from resbibman.core.compressTools import compressSelected, decompressDir
+from lires.core.compressTools import compressSelected, decompressDir
 
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
