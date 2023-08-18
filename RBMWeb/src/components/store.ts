@@ -113,7 +113,31 @@ export const useDataStore = defineStore(
             allTags(): DataTags {
                 return this.database.getAllTags();
             }
+        },
+        actions: {
+            // reload the database from backend
+            reload(
+                backendReload: boolean = false,
+                onSuccess: () => void = () => {}, 
+                onError: (err: Error) => void = () => {}, 
+                clearHook: () => void = () => {},
+                ){
+                this.database.clear();
+                // clearHook is used to update the UI status
+                clearHook();
+
+                if (backendReload){
+                    // May need to call backend reload function here
+                    // ...
+                }
+
+                this.database.requestData().then(
+                    (_)=>{ onSuccess(); },
+                    (err)=>{ onError(err); }
+                )
+            },
         }
+
     }
 )
 

@@ -12,6 +12,7 @@ export default {
     import { useUIStateStore, useDataStore, useSettingsStore } from "./store";
     import { useRouter } from "vue-router";
     import { DataTags } from "../core/dataClass";
+    import { ServerConn } from "../core/serverConn";
     import FileTags from "./home/FileTags.vue";
     import FileRowContainer from "./home/FileRowContainer.vue";
     import Banner from "./common/Banner.vue";
@@ -21,6 +22,7 @@ export default {
     import addCircleIcon from "../assets/icons/add_circle.svg";
     import { MenuAttached } from "./common/fragments";
     import sellIcon from "../assets/icons/sell.svg";
+    import refreshIcon from "../assets/icons/refresh.svg";
 
     import type { SearchStatus } from "./interface";
     import { lazify } from "../libs/misc";
@@ -59,6 +61,18 @@ export default {
 
     // adding new data
     const showAddingDataWindow = ref(false);
+
+    // refresh database
+    function reloadDatabase(){
+        dataStore.reload(
+            true,
+            () => { uiState.updateShownData(); },
+            (_) => {
+                uiState.showPopup(`Failed to load database from: ${new ServerConn().apiURL()}`, "alert")
+            },
+            () => uiState.updateShownData()
+        );
+    }
 
     // rename and delete tags
     function queryRenameTag(){
@@ -118,6 +132,8 @@ export default {
                 ]">
                     <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"></BannerIcon>
                 </MenuAttached>
+                <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
+                    @click="reloadDatabase"></BannerIcon>
                 |
                 <div class="searchbar">
                     <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">

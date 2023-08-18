@@ -385,7 +385,7 @@ export class DataPoint {
     }
 }
 
-const _dummyDataSummary = {
+const _dummyDataSummary: DataInfoT = {
     has_file : false,
     file_type: "",
     year: "0000",

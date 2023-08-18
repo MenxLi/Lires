@@ -8,14 +8,14 @@
     const dataStore = useDataStore();
     const settingStore = useSettingsStore();
     function reloadDatabase(){
-        dataStore.database.requestData().then(
-            (_) => {
-                uiState.updateShownData();
-            },
+        dataStore.reload(
+            false,
+            () => { uiState.updateShownData(); },
             (_) => {
                 uiState.showPopup(`Failed to load database from: ${new ServerConn().apiURL()}`, "alert")
-            }
-        );
+            },
+            () => uiState.updateShownData()
+        )
     }
     watch(
         () => settingStore.loggedIn,
