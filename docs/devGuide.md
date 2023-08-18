@@ -4,10 +4,18 @@
 ## Principles
 **Keep it simple and maintainable**
 
+Simple:
+- Always present easy-to-use user interface
+- Adding features for common use cases
+- Minimal dependencies for each module
+
+Maintainable:
 - **Use type annotations whenever possible**
 - Modularized & well documented.
-- Minimal dependencies for each module
-- Reduce code duplication
+- Isolate the logic, from the UI
+- Abstract common logics and reduce code duplication
+- Module isolation, expose only the necessary interfaces (use `_protected` and `__private` for internal use)
+- Not afraid of refactoring, but do it gradually and carefully
 
 ## Naming convention
 **Python**
@@ -26,3 +34,7 @@ By my personal preference, I use the following naming rules:
 I follow Javascript naming convention, which is:
 - `lowerCamelCase` for variables, properties, functions and methods.
 - `UpperCamelCase` for classes.
+
+**Http path**  
+
+use `lowercase-with-dash` for http path, e.g. `/api/v1/your-path`
