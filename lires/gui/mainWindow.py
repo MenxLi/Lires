@@ -119,7 +119,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.show() 
     
     def initUI(self):
-        self.setWindowTitle("Research bib manager")
+        self.setWindowTitle("Lires GUI")
         self.setWindowIcon(QIcon(os.path.join(ICON_PATH, "lires-icon.png")))
         self._initPanels()
         self._createActions()
