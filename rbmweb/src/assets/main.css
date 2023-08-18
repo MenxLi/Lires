@@ -1,0 +1,115 @@
+@import './base.css';
+@import './anim.css';
+
+body {
+  display: flex;
+  place-items: center;
+}
+
+#app {
+  margin: 0 auto;
+  font-weight: normal;
+  text-align: center;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: rgb(8, 157, 134);
+  transition: 0.4s;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+div.panel{
+    /* will deprecate */
+    height: 100%;
+    width: 100%;
+    align-self: center;
+    margin: 0em;
+    /* border: 1px solid var(--color-border); */
+    border-radius: 12px;
+}
+
+.shadow{
+    box-shadow: 0 1px 3px 2px var(--color-shadow);
+}
+
+div.scrollable{
+    overflow-y:auto;
+    overflow-x:auto;
+}
+
+.non-selectable{
+  -webkit-user-select: none; /* Safari */        
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
+
+}
+
+/* scrollbar */
+html{
+  --scrollbarBG: var(--color-background-soft);
+  --thumbBG: var(--color-border);
+}
+body, .panel, .scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+body::-webkit-scrollbar, .panel::-webkit-scrollbar, .scrollable::-webkit-scrollbar {
+  width: 11px;
+}
+body::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track, .scrollable::-webkit-scrollbar-track {
+  background: var(--scrollbarBG);
+}
+body::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb, .scrollable::-webkit-scrollbar-thumb {
+  background-color: var(--thumbBG) ;
+  border-radius: 6px;
+  border: 3px solid var(--scrollbarBG);
+}
+
+input[type="text"],input[type="password"]{
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  background-color: var(--color-background-soft);
+  background-color: transparent;
+}
+
+textarea{
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+input[type="button"], button{
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background-soft);
+  /* background-color: transparent; */
+  color: var(--color-text);
+}
+input[type="button"]:hover, button:hover{
+  background-color: var(--color-background-theme-highlight);
+  transition: all 0.15s;
+}
+select{
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  padding: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
+  background-color: var(--color-background-soft);
+  background-color: transparent;
+  color: var(--color-text);
+  -webkit-appearance: none;
+}

@@ -1,0 +1,101 @@
+
+@keyframes slideInUp {
+    0% {
+        visibility: hidden;
+        transform: translateY(5%);
+        opacity: 0;
+    }
+    100% {
+        visibility: visible;
+        transform: translateY(0);
+    }
+}
+@keyframes slideInDown {
+    0% {
+        visibility: hidden;
+        transform: translateY(-5%);
+        opacity: 0;
+    }
+    100% {
+        visibility: visible;
+        transform: translateY(0);
+    }
+}
+@keyframes slideInBack {
+    0% {
+        visibility: hidden;
+    }
+    1% {
+        transform: translateY(6%) scale(0.95);
+        opacity: 0;
+        visibility: visible;
+    }
+    60% {
+        transform: translateY(-4%) scale(1.01);
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+@keyframes rotate90in {
+    0% { transform: rotateZ(-90deg); }
+    100% { transform: rotateZ(0deg); }
+}
+
+.gradIn {
+    animation-duration: 0.375s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: slideInUp; /* the name of the animation we defined above */
+}
+
+.gradInFast {
+    animation-duration: 0.15s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: slideInUp; /* the name of the animation we defined above */
+}
+
+.gradInDown {
+    animation-duration: 0.375s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: slideInDown; /* the name of the animation we defined above */
+}
+
+.gradIn2{
+    /* set to hidden so it will not show up before delay */
+    animation-duration: 0.375s;
+    /* set to backwords so it will not show up before animation */
+    animation-fill-mode:backwards;
+    animation-timing-function: ease-out;
+    /* defined in common.css */
+    animation-name: slideInBack;
+}
+
+.rotate90in {
+    animation-duration: 0.375s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: rotate90in; /* the name of the animation we defined above */
+}
+
+.hoverMaxout11:hover{
+    transform: scale(1.1);
+}
+
+.hoverMaxout105:hover{
+    transform: scale(1.05);
+}
+
+.hoverMaxout103:hover{
+    transform: scale(1.03);
+}
+.hoverMaxout101:hover{
+    transform: scale(1.01);
+}
