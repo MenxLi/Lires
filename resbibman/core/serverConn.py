@@ -163,24 +163,23 @@ class ServerConn(ConnectionBase):
         return self._checkRes(res)
     
     def deleteTag(self, tag_to_be_deleted: str) -> bool:
+        post_url = self.SERVER_URL + "/dataman/tag-delete"
         post_args = {
             "key": self.hash_key,
-            "cmd": "deleteTagAll",
-            "uuid": "_",
-            "args": json.dumps([tag_to_be_deleted]),
-            "kwargs": json.dumps({})
+            "tag": tag_to_be_deleted
         }
-        return self._remoteCMD(post_args)
+        res = requests.post(post_url, data = post_args)
+        return self._checkRes(res)
 
     def renameTag(self, src_tag: str, dst_tag: str) -> bool:
+        post_url = self.SERVER_URL + "/dataman/tag-rename"
         post_args = {
             "key": self.hash_key,
-            "cmd": "renameTagAll",
-            "uuid": "_",
-            "args": json.dumps([src_tag, dst_tag]),
-            "kwargs": json.dumps({})
+            "oldTag": src_tag,
+            "newTag": dst_tag
         }
-        return self._remoteCMD(post_args)
+        res = requests.post(post_url, data = post_args)
+        return self._checkRes(res)
     
     def postDiscussion(self, uid: str, name: str, content: str) -> bool:
         post_url = self.SERVER_URL + "/discussion_mod"
@@ -194,14 +193,6 @@ class ServerConn(ConnectionBase):
         res = requests.post(url = post_url, data = post_args)
         return self._checkRes(res)
 
-    def _remoteCMD(self, post_args) -> bool:
-        """
-        post command to remote/cmdA
-        """
-        post_addr = "{}/cmdA".format(self.SERVER_URL) 
-        res = requests.post(post_addr, params = post_args)
-        return self._checkRes(res)
-    
     def getDocURL(self, uid: str, dtype: Literal["pdf, hpack"]) -> str:
         if dtype == "pdf":
             return self.SERVER_URL + "/doc/{}".format(uid)

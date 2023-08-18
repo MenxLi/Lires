@@ -155,7 +155,7 @@ class TagRenameHandler(RequestHandlerMixin, tornado.web.RequestHandler):
             # only admin can rename tags
             raise tornado.web.HTTPError(403)
         self.db.renameTag(old_tag, new_tag)
-        self.logger.info(f"Tag {old_tag} renamed to {new_tag}")
+        self.logger.info(f"Tag [{old_tag}] renamed to [{new_tag}] by [{permission['identifier']}]")
         self.write("OK")
 
 class TagDeleteHandler(RequestHandlerMixin, tornado.web.RequestHandler):
@@ -170,5 +170,5 @@ class TagDeleteHandler(RequestHandlerMixin, tornado.web.RequestHandler):
             # only admin can delete tags
             raise tornado.web.HTTPError(403)
         self.db.deleteTag(tag)
-        self.logger.info(f"Tag {tag} deleted")
+        self.logger.info(f"Tag [{tag}] deleted by [{permission['identifier']}]")
         self.write("OK")
