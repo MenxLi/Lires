@@ -96,7 +96,7 @@ def run():
     
     if args.subparser == "iserver":
         import subprocess
-        call_args = ["python3", "-m", "iRBM.server"]
+        call_args = ["python3", "-m", "irbm.server"]
         for k in [
             "port", "host", 
             "openai-api-base", 
