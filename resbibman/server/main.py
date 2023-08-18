@@ -29,21 +29,26 @@ class Application(tornado.web.Application):
     def __init__(self) -> None:
         handlers = [
             # # Backend
-            (r"/doc/(.*)", DocHandler),
-            (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
-            (r"/filelist", DataListHandler),
-            (r"/fileinfo/(.*)", DataInfoHandler),
+
+            ## For Qt client and online filemanipulator only
             (r"/file", FileHandler),
             (r"/comment/(.*)", CommentHandler, {"path": "/"}),
-            (r"/cmd/(.*)", CMDHandler),
-            (r"/cmdA", CMDArgHandler),
+
+            ## For both clients
+            (r"/cmd/(.*)", CMDHandler),                 # will replace (reloadDB)
+            (r"/cmdA", CMDArgHandler),                  # will replace
             (r"/discussions/(.*)", DiscussionHandler),
             (r"/discussion_mod", DiscussionModHandler),
+            (r"/summary", SummaryHandler),              # may deprecate
+            (r"/summary-post", SummaryPostHandler),     # may rename
+
+            (r"/doc/(.*)", DocHandler),
+            (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
             (r"/auth", AuthHandler),
             (r"/search", SearchHandler),
-            (r"/summary", SummaryHandler),
-            (r"/summary-post", SummaryPostHandler),
             (r"/collect", CollectHandler),
+            (r"/filelist", DataListHandler),            # may change
+            (r"/fileinfo/(.*)", DataInfoHandler),       # may change
 
             # iServer proxy
             (r"/iserver/(.*)", IServerProxyHandler),

@@ -1,7 +1,17 @@
-# Development guide
+# Development Guide
+
+
+## Principles
+**Keep it simple and maintainable**
+
+- **Use type annotations whenever possible**
+- Modularized & well documented.
+- Minimal dependencies for each module
+- Reduce code duplication
 
 ## Naming convention
 **Python**
+
 Alough [PEP-8](https://peps.python.org/pep-0008/#function-and-variable-names) suggests use `lower_case_with_underscores` for methods and functions...  
 
 By my personal preference, I use the following naming rules: 
@@ -12,6 +22,7 @@ By my personal preference, I use the following naming rules:
 **Please follow this style if you are working on this repository**, these naming makes it very clear to distinguish between different types of code.
 
 **Javascript**   
+
 I follow Javascript naming convention, which is:
 - `lowerCamelCase` for variables, properties, functions and methods.
 - `UpperCamelCase` for classes.
