@@ -8,7 +8,7 @@ However, the Bottom Up approach is useful when you want to use the API without c
 
 In the Bottom Up approach, we create a sqlite connection and use the connection to add data to the sqlite database, 
     then, we create a FileManipulatorVirtual object which is in charge of IO operations of the data,
-    afterward, we create a DataPoint object which is the core data structure of resbibman out of the FileManipulatorVirtual object.
+    afterward, we create a DataPoint object which is the core data structure of lires out of the FileManipulatorVirtual object.
 """
 
 import os
@@ -20,7 +20,7 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 db_dir = os.path.join(this_dir, ".TempDir", "Database")
 if not os.path.exists(db_dir): os.makedirs(db_dir)
 ## [Optional] Get database path from config file
-# from resbibman.confReader import getConf
+# from lires.confReader import getConf
 # db_dir = getConf()["database"]
 print("Database path set to: ", db_dir)
 
@@ -53,7 +53,7 @@ assert uid is not None  # check if the document is added successfully
 # create a FileManipulator object, all IO operations are done through this object
 fm = FileManipulatorVirtual(uid, db_local = db_conn)
 
-# create a DataPoint object, which is the core data structure of resbibman
+# create a DataPoint object, which is the core data structure of lires
 data = DataPoint(fm)
 data._forceOffline()    # force the program to use offline mode, otherwise the program will try to connect to the server specified in the config file
 # ===============================================

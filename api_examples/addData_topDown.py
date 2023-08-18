@@ -19,7 +19,7 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 db_dir = os.path.join(this_dir, ".TempDir", "Database")
 if not os.path.exists(db_dir): os.makedirs(db_dir)
 ## [Optional] Get database path from config file
-# from resbibman.confReader import getConf
+# from lires.confReader import getConf
 # db_dir = getConf()["database"]
 print("Database path set to: ", db_dir)
 
@@ -52,7 +52,7 @@ uid = addDocument(
 assert uid is not None  # check if the document is added successfully
 
 # ask database to load the data
-# the data is a datapoint object, which is the core data structure of resbibman
+# the data is a datapoint object, which is the core data structure of lires
 data = database.add(uid)
 
 # data = db[uid]

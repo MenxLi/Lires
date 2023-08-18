@@ -1,6 +1,6 @@
 """
 Interface for server connections,
-refer to resbibman.server for more information
+refer to lires.server for more information
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from lires.core.dataSearcher import StringSearchT
     from lires.core.dataClass import DataTagT, DataPointSummary
     from lires.core.dbConn import DBFileInfo
-    from irbm.lmInterface import ConversationDictT, ChatStreamIterType
+    from ilires.lmInterface import ConversationDictT, ChatStreamIterType
 
 class ConnectionBase:
     @property
@@ -46,7 +46,7 @@ class ConnectionBase:
 
 
 class ServerConn(ConnectionBase):
-    """Connection to resbibman.server"""
+    """Connection to lires.server"""
     
     @property
     def SERVER_URL(self):

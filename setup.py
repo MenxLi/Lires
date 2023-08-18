@@ -4,7 +4,7 @@ import yaml, os
 
 __this_dir = os.path.dirname(__file__)
 
-_yaml_version_file = os.path.join(__this_dir, "resbibman", "version.yaml")
+_yaml_version_file = os.path.join(__this_dir, "lires", "version.yaml")
 with open(_yaml_version_file, "r", encoding='utf-8') as fp:
     version_histories: dict[str, list[str]] = yaml.safe_load(fp)["version_history"]
 _VERSION_HISTORIES = []

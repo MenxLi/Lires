@@ -1,7 +1,7 @@
 
 """
 Data management / manipulation handlers
-This are handlers to (partially) replace the file handlers in resbibman/server/handlers/file.py
+This are handlers to (partially) replace the file handlers in lires/server/handlers/file.py
 Provides handers for adding, deleting, and modifying files/tags
 """
 

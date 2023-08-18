@@ -3,7 +3,7 @@ import argparse
 from lires.core.pdfTools import DEFAULT_PDFJS_DOWNLOADING_URL
 
 def main():
-    parser = argparse.ArgumentParser("Miscellaneous utilities for resbibman.")
+    parser = argparse.ArgumentParser("Miscellaneous utilities for lires.")
     sub_parser = parser.add_subparsers(dest = "subparser", help = "task")
 
     parser_download_pdfjs = sub_parser.add_parser("download_pdfjs", help="download PDF.js distribution")

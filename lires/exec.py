@@ -67,7 +67,7 @@ def run():
     if args.clear_cache:
         prompt_msgs = [
             "This action is going to delete: {}".format(TMP_DIR),
-            "Please make sure that resbibman is not running in online mode",
+            "Please make sure that lires is not running in online mode",
             "Proceed? (y/[else]): "
         ]
         if input("\n".join(prompt_msgs)) == "y":

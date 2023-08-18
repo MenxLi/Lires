@@ -50,7 +50,7 @@ npm run app:build
 ## Server startup
 **To start the RBM and RBMWeb servers:**
 ```bash
-resbibman server
+lires server
 ```
 The RBM and RBMWeb are Tornado servers,   
 - RBM provides API for the client (GUI & WebUI & CLI) to communicate with.
@@ -58,7 +58,7 @@ The RBM and RBMWeb are Tornado servers,
 
 **To start the iRBM server:**
 ```bash
-resbibman iserver
+lires iserver
 ```
 The iRBM server is written with FastAPI, it provides additional AI features and is designed to be connected by the RBM server, so that the latter can provide AI features to the client.  
 
@@ -75,9 +75,9 @@ The data directory contains the configuration file, log files, default database,
 
 To start the application with arbitrary data directory, you can run: 
 ```bash
-RBM_HOME="your/path/here" resbibman ...
+RBM_HOME="your/path/here" lires ...
 ```
-Typically, the ResBibMan server can be started by binding a different port to each database and providing services to different users. Which can be achieved by setting the `$RBM_HOME` variable.  
+Typically, the lires server can be started by binding a different port to each database and providing services to different users. Which can be achieved by setting the `$RBM_HOME` variable.  
 
 Additionally, SSL certificates can be configured using `$RBM_SSL_CERTFILE` and `$RBM_SSL_KEYFILE` to enable HTTPS 
 (we must serve in HTTPS for tauri GUI to connect - [reason](https://github.com/tauri-apps/tauri/issues/2002)).  
@@ -86,13 +86,13 @@ Lastly, these servers can share the same 'iServer' for AI features, possibly on 
 
 Thus a more general command to start the server is:
 ```sh
-RBM_HOME="your/path/here" RBM_SSL_CERTFILE="your/cert/file" RBM_SSL_KEYFILE="your/key/file" resbibman server \
+RBM_HOME="your/path/here" RBM_SSL_CERTFILE="your/cert/file" RBM_SSL_KEYFILE="your/key/file" lires server \
     --iserver_host "your/iserver/host" --iserver_port "youriserverport" --port "yourport"
 ```
 
 The iRBM server is usually started with OPENAI API keys, which can be set with environment variable:
 ```sh
-OPENAI_API_KEY="sk-xxxx" resbibman iserver --openai-api-base "https://api.openai.com/v1"
+OPENAI_API_KEY="sk-xxxx" lires iserver --openai-api-base "https://api.openai.com/v1"
 ```
 Note that openai api base must be set via command line argument (or leave it to default), because it is not a constant in current implementation in order to support custom models such as that from [lmsys](https://github.com/lm-sys/FastChat).
 
@@ -136,26 +136,26 @@ rbm-utils       # Miscellaneous utilities
 Instead of installing the server, you can also deploy the server using docker.  
 Which adds additional security and building efficiency.  
 ```sh
-# creates a docker image named resbibman
-docker build -t resbibman:latest .
+# creates a docker image named lires
+docker build -t lires:latest .
 
 # create the container named 'rbm', 
 # please change the port mapping and volume mapping as needed
 # depending on your need, you may want to expose only a subset of the ports
-docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --name rbm resbibman:latest
+docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --name rbm lires:latest
 ```
 
 The container's default entry only starts the RBM and RBMWeb servers, the iRBM server should be started separately, if desired.   
 ```sh
-docker exec -d rbm resbibman iserver
+docker exec -d rbm lires iserver
 # or running with interactive tty
-# docker exec -it rbm resbibman iserver
+# docker exec -it rbm lires iserver
 ```
 
 Otherwise, we can set the iserver settings pointing the shared iRBM server, maybe on the host machine / another machine with GPU, or on another container  
 For an example, to setup the iserver to local machine of ip address `192.168.3.6` on creating the container, run:
 ```sh
-docker run <... your settings ...> resbibman:latest --iserver_host '192.168.3.6' --iserver_port <...>
+docker run <... your settings ...> lires:latest --iserver_host '192.168.3.6' --iserver_port <...>
 ```
 
 **On the first run** you need to generate the user key, which can be done by running the `rbm-keyman` command in the container.
@@ -188,5 +188,5 @@ pip install .[gui]
 
 **To start the client GUI program:**
 ```bash
-resbibman client
+lires client
 ```

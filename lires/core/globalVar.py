@@ -9,11 +9,11 @@ __initialized: bool
 logger_rbm: logging.Logger
 logger_rbm_server: logging.Logger
 last_status_code: int   # a register for last connection status code
-tmpdirs: List[str]      # temporary directories, will be cleared on resbibman GUI exit
+tmpdirs: List[str]      # temporary directories, will be cleared on lires GUI exit
 
-prog_args: Optional[argparse.Namespace]     # set by resbibman.exec
-prog_parser: Optional[argparse.ArgumentParser]     # set by resbibman.exec
-config:  ResbibmanConfT           # configuration, set by resbibman.confReader
+prog_args: Optional[argparse.Namespace]     # set by lires.exec
+prog_parser: Optional[argparse.ArgumentParser]     # set by lires.exec
+config:  ResbibmanConfT           # configuration, set by lires.confReader
 account_permission: Optional[AccountPermission]     # account permission, set by Database.fetch
 
 iserver_host: Optional[str] = None

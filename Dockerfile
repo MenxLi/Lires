@@ -9,11 +9,11 @@ RUN apt-get install -y --reinstall ca-certificates
 RUN apt-get install -y apt-utils
 RUN apt-get install -y python3 python3-pip build-essential
 
-RUN mkdir /ResBibManager
+RUN mkdir /Lires
 WORKDIR /
 
-COPY . /ResBibManager
-WORKDIR /ResBibManager/rbmweb 
+COPY . /Lires
+WORKDIR /Lires/rbmweb 
 # RUN npm config set registry https://registry.npm.taobao.org
 RUN npm install -g cnpm --registry=https://registry.npm.taobao.org
 RUN cnpm install && cnpm run build
@@ -25,12 +25,12 @@ RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 # https://stackoverflow.com/a/75722775/6775765
 RUN python3 -m pip install --upgrade pip --break-system-packages
-RUN pip3 install -e /ResBibManager/packages/tiny_vectordb --break-system-packages
-RUN pip3 install -e /ResBibManager[ai] --break-system-packages
+RUN pip3 install -e /Lires/packages/tiny_vectordb --break-system-packages
+RUN pip3 install -e /Lires[ai] --break-system-packages
 
 EXPOSE 8081
 EXPOSE 8080
 EXPOSE 8731
 
 ENV HF_HOME=/root/.RBM/hf_home
-ENTRYPOINT ["resbibman", "server"]
+ENTRYPOINT ["lires", "server"]

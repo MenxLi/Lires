@@ -1,6 +1,6 @@
 """
-This is a collection of APIs for resbibman client
-It is designed for easy retrieval of most frequently used modules of resbibman
+This is a collection of APIs for lires client
+It is designed for easy retrieval of most frequently used modules of lires
 """
 
 # classes

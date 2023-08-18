@@ -1,18 +1,18 @@
 """
-This is a script to download the newest release version source code of resbibman,
+This is a script to download the newest release version source code of lires,
 for those who do not have access to the git repository.
 """
 import requests, zipfile, shutil, os, argparse, tempfile
 
-DOWNLOAD_URL = "http://limengxun.com/files/src/resbibman.zip"
+DOWNLOAD_URL = "http://limengxun.com/files/src/lires.zip"
 CURR_DIR = os.path.abspath(os.path.realpath(os.path.dirname(__file__)))
 
 def main():
 
     parser = argparse.ArgumentParser(
-        description="Download the newest release version source code of resbibman"
+        description="Download the newest release version source code of lires"
     )
-    parser.add_argument("-d", "--dest", action="store", help="destination directory, default to <this_dir>/resbibman", default=os.path.join(CURR_DIR, "resbibman"))
+    parser.add_argument("-d", "--dest", action="store", help="destination directory, default to <this_dir>/lires", default=os.path.join(CURR_DIR, "lires"))
     parser.add_argument("-y", "--yes", action="store_true", help="do not ask for confirmation")
     args = parser.parse_args()
 
@@ -21,7 +21,7 @@ def main():
 
     print("=========================")
     lines = [
-        "This script will download the newest release version source code of resbibman",
+        "This script will download the newest release version source code of lires",
         "Plase use git pull instead if that is avaliable",
     ]
     print("\n".join(lines))
