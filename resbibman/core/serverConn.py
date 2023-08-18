@@ -89,8 +89,8 @@ class ServerConn(ConnectionBase):
             return json.loads(res.text)["data"]
     
     def reloadDB(self) -> bool:
-        post_url = self.SERVER_URL + "/cmd/reloadDB"
-        res = requests.get(post_url, timeout=5)
+        post_url = self.SERVER_URL + "/reload-db"
+        res = requests.post(post_url, data = {"key": self.hash_key}, timeout=5)
         if not self._checkRes(res):
             return False
         else:

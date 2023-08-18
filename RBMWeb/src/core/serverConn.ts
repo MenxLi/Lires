@@ -65,6 +65,21 @@ export class ServerConn {
         }
     }
 
+    async reqReloadDB(): Promise<boolean>{
+        const form = new FormData();
+        form.append('key', this.settings.encKey)
+        const res = await fetch(`${getBackendURL()}/reload-db`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){
+            return true;
+        }
+        else{
+            throw new Error(`Got response: ${res.status}`)
+        }
+    }
+
     async reqDatapointAbstract(uid: string): Promise<string>{
         const params = new URLSearchParams();
         params.set("key", this.settings.encKey);

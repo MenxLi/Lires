@@ -22,6 +22,8 @@ import json
 
 class AccountPermission(TypedDict):
     is_admin: bool
+    identifier: str
+    enc_key: str
     mandatory_tags: List[str]
 
 class Account:
@@ -39,6 +41,8 @@ class Account:
     def permission(self) -> AccountPermission:
         return {
             "is_admin": self.is_admin,
+            "identifier": self.identifier,
+            "enc_key": self.hashkey if self.hashkey else "",
             "mandatory_tags": self.mandatory_tags
         }
         

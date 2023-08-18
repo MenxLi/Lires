@@ -17,3 +17,5 @@ from .info import *
 from .pdfjs import *
 
 from .static import *
+
+from ._misc import *

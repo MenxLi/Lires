@@ -1,5 +1,4 @@
 from __future__ import annotations
-import logging
 from typing import Callable, Optional, List
 import tornado.web
 import http.cookies
@@ -7,7 +6,7 @@ from ..auth.account import AccountPermission
 from ..auth.encryptServer import queryAccount
 from ..discussUtils import DiscussDatabase
 from resbibman.core import globalVar as G
-from resbibman.core.dataClass import DataBase, TagRule, DataTags
+from resbibman.core.dataClass import DataBase, DataTags
 from resbibman.confReader import getConf, VECTOR_DB_PATH
 from tiny_vectordb import VectorDatabase
 
@@ -31,10 +30,13 @@ class RequestHandlerMixin():
     logger = G.logger_rbm_server
 
     def initdb(self):
+        """
+        Initialize / reload the database
+        """
         self.logger.debug("Initializing server global database objects")
         if G.hasGlobalAttr("server_db"):
             db: DataBase = G.getGlobalAttr("server_db")
-            db.watchFileChange([])
+            db.destroy()
         G.setGlobalAttr("server_db", loadDataBase(getLocalDatabasePath()))
         G.setGlobalAttr("server_discussion_db", DiscussDatabase())
         if G.hasGlobalAttr("vec_db"):
@@ -121,3 +123,9 @@ class RequestHandlerMixin():
         self.set_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
         self.set_header("Access-Control-Allow-Headers", "*")
         self.set_header("Access-Control-Expose-Headers", "*")
+
+__all__ = [
+    "tornado",
+    "RequestHandlerMixin",
+    "G",
+    ]

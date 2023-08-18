@@ -22,6 +22,8 @@ export interface DataInfoT {
 export interface AccountPermission {
     is_admin: boolean;
     mandatory_tags: string[];
+    identifier: string;
+    enc_key: string;
 }
 
 export interface SearchResultant {

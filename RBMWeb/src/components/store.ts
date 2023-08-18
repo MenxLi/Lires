@@ -1,6 +1,7 @@
 
 import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
+import { ServerConn } from '../core/serverConn'
 import { formatAuthorName } from '../libs/misc'
 export { formatAuthorName }
 import { platformType } from '../config'
@@ -126,15 +127,24 @@ export const useDataStore = defineStore(
                 // clearHook is used to update the UI status
                 clearHook();
 
-                if (backendReload){
-                    // May need to call backend reload function here
-                    // ...
+                function __requestDBData( dStore: ReturnType<typeof useDataStore>,){
+                    dStore.database.requestData().then(
+                        (_)=>{ onSuccess(); },
+                        (err)=>{ onError(err); }
+                    )
                 }
 
-                this.database.requestData().then(
-                    (_)=>{ onSuccess(); },
-                    (err)=>{ onError(err); }
-                )
+                if (backendReload){
+                    new ServerConn().reqReloadDB().then(
+                        (success) => {
+                            console.log("Reload: ", success);
+                            if (success){ __requestDBData(this); }
+                            else{ onError(new Error("Failed to reload database from backend")); }
+                        },
+                        (err) => { onError(err); }
+                    )
+                }
+                else{ __requestDBData(this); }
             },
         }
 

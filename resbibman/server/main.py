@@ -35,13 +35,14 @@ class Application(tornado.web.Application):
             (r"/comment/(.*)", CommentHandler, {"path": "/"}),
 
             ## For both clients
-            (r"/cmd/(.*)", CMDHandler),                 # will replace (reloadDB)
+            # (r"/cmd/(.*)", CMDHandler),                 # will replace (reload-db)
             (r"/cmdA", CMDArgHandler),                  # will replace
             (r"/discussions/(.*)", DiscussionHandler),
             (r"/discussion_mod", DiscussionModHandler),
             (r"/summary", SummaryHandler),              # may deprecate
             (r"/summary-post", SummaryPostHandler),     # may rename
 
+            (r"/reload-db", ReloadDBHandler),
             (r"/doc/(.*)", DocHandler),
             (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
             (r"/auth", AuthHandler),
