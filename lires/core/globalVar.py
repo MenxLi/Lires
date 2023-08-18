@@ -2,7 +2,7 @@ from __future__ import annotations
 import sys, shutil, logging, os, argparse
 from typing import List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
-    from ..types.configT import ResbibmanConfT
+    from ..types.configT import LiresConfT
     from ..server.auth.account import AccountPermission
 
 __initialized: bool
@@ -13,7 +13,7 @@ tmpdirs: List[str]      # temporary directories, will be cleared on lires GUI ex
 
 prog_args: Optional[argparse.Namespace]     # set by lires.exec
 prog_parser: Optional[argparse.ArgumentParser]     # set by lires.exec
-config:  ResbibmanConfT           # configuration, set by lires.confReader
+config:  LiresConfT           # configuration, set by lires.confReader
 account_permission: Optional[AccountPermission]     # account permission, set by Database.fetch
 
 iserver_host: Optional[str] = None

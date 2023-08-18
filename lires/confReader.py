@@ -9,12 +9,12 @@ join = os.path.join
 WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 
 # a schematic ascii image of the file tree
-# RBM_HOME
+# LRS_HOME
 # ├── conf.json
 # ├── Database (default)
 # ├── pdf-viewer
 # ├── log.txt
-# ├── RBM.cache [TMP_DIR]
+# ├── Lires.cache [TMP_DIR]
 # │   ├── Database [TMP_DB]
 # │   ├── cover [TMP_COVER]
 # │   ├── webpage [TMP_WEB]
@@ -28,17 +28,17 @@ __this_file_path = os.path.abspath(__file__)
 
 CURR_PATH = os.path.dirname(__this_file_path)
 CURR_PATH = os.path.abspath(CURR_PATH)
-if "RBM_HOME" in os.environ:
-    RBM_HOME = os.environ["RBM_HOME"]
+if "LRS_HOME" in os.environ:
+    LRS_HOME = os.environ["LRS_HOME"]
 else:
-    RBM_HOME = os.path.join(os.path.expanduser("~"), ".RBM")
+    LRS_HOME = os.path.join(os.path.expanduser("~"), ".Lires")
 
 if G.prog_args and G.prog_args.config_file:
     CONF_FILE_PATH = os.path.abspath(G.prog_args.config_file)
     if os.path.isdir(CONF_FILE_PATH):
         CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "rbm-conf.json")
 else:
-    CONF_FILE_PATH = join(RBM_HOME, "conf.json")
+    CONF_FILE_PATH = join(LRS_HOME, "conf.json")
 
 
 
@@ -49,12 +49,12 @@ DOC_PATH = join(CURR_PATH, "gui", "docs")
 ASSETS_PATH = join(CURR_PATH, "assets")
 BIB_TEMPLATE_PATH = join(ASSETS_PATH, "bibtexTemplates")
 
-DEFAULT_DATA_PATH = join(RBM_HOME, "Database")
-DEFAULT_PDF_VIEWER_DIR = join(RBM_HOME, "pdf-viewer")
-LOG_FILE = join(RBM_HOME, "log.txt")
+DEFAULT_DATA_PATH = join(LRS_HOME, "Database")
+DEFAULT_PDF_VIEWER_DIR = join(LRS_HOME, "pdf-viewer")
+LOG_FILE = join(LRS_HOME, "log.txt")
 
 # things under rbm_cache
-TMP_DIR = os.path.join(RBM_HOME, "RBM.cache")
+TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
@@ -67,8 +67,8 @@ VECTOR_DB_PATH = os.path.join(TMP_INDEX, "vector.db")
 DOC_SUMMARY_DIR = os.path.join(TMP_INDEX, "summary")
 
 # Create directories if they don't exist
-if not os.path.exists(RBM_HOME):
-    os.mkdir(RBM_HOME)
+if not os.path.exists(LRS_HOME):
+    os.mkdir(LRS_HOME)
 for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
@@ -91,11 +91,11 @@ def getStyleSheets() -> dict:
     ss["<None>"] = ""
     return ss
 
-def getConf() -> ResbibmanConfT:
+def getConf() -> LiresConfT:
     global CONF_FILE_PATH, CURR_PATH, G
     if not hasattr(G, "config"):
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
-            conf: ResbibmanConfT = json.load(conf_file)
+            conf: LiresConfT = json.load(conf_file)
             G.config = conf
     else:
         # Save configuration to global buffer
@@ -119,7 +119,7 @@ def getDatabase(offline: Optional[bool] = None) -> str:
     else:
         raise TypeError("offline should be bool or None")
 
-def getDatabasePath_withFallback(offline: Optional[bool] = None, fallback: str = os.path.join(RBM_HOME, "Database")) -> str:
+def getDatabasePath_withFallback(offline: Optional[bool] = None, fallback: str = os.path.join(LRS_HOME, "Database")) -> str:
     """
     get the path to the database,
     if it not exists, return the default path

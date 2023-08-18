@@ -9,7 +9,7 @@ def run():
     assert args is not None     # type checking purpose
 
     # Read configuration file after parse agruments
-    from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE, RBM_HOME
+    from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE, LRS_HOME
     from .version import VERSION, _VERSION_HISTORIES
     from .initLogger import initDefaultLogger
 
@@ -48,20 +48,20 @@ def run():
     if args.print_log:
         __find_log_fnames = []
         for fname in ["log.txt", "core.log", "server.log"]:
-            if os.path.exists(os.path.join(RBM_HOME, fname)):
+            if os.path.exists(os.path.join(LRS_HOME, fname)):
                 __find_log_fnames.append(fname)
         if not __find_log_fnames: print("Log file not exits, run the program to create the log file")
         else:
             print("\n".join([f"{idx}. {f}" for idx, f in enumerate(__find_log_fnames)]))
             __to_show_idx = input("Choose which log to show (default: 0): ")
             if not __to_show_idx: __to_show_idx = 0
-            with open(os.path.join(RBM_HOME, __find_log_fnames[int(__to_show_idx)]), "r") as f:
+            with open(os.path.join(LRS_HOME, __find_log_fnames[int(__to_show_idx)]), "r") as f:
                 print(f.read())
         print("=======================Above is the log=======================")
         NOT_RUN = True
 
     if args.show_home:
-        print(RBM_HOME)
+        print(LRS_HOME)
         NOT_RUN = True
     
     if args.clear_cache:

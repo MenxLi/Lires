@@ -9,7 +9,7 @@ from typing_extensions import NotRequired, TypedDict  # for Python <3.11 with (N
 
 from pybtex.database import BibliographyData, Entry
 from ..utils import randomAlphaNumeric
-from ..customError import RBMDocTypeNotSupportedError
+from ..customError import LiresDocTypeNotSupportedError
 
 class RefDict(TypedDict):
     type: str
@@ -54,7 +54,7 @@ class ParserBase(ABC):
         elif data['type'].lower() == "thesis":
             doc_type = "phdthesis"
         else:
-            raise RBMDocTypeNotSupportedError("Not supported document type {}".format(data['type']))
+            raise LiresDocTypeNotSupportedError("Not supported document type {}".format(data['type']))
         del data["type"]
 
         if "issue" in data:

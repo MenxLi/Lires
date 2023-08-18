@@ -1,7 +1,7 @@
 # Lires 
 **A self-hosted research literature manager!**   
 
-![RBMWeb-GUI](http://limengxun.com/files/imgs/rbmweb.png)
+![LiresWeb-GUI](http://limengxun.com/files/imgs/rbmweb.png)
 
 Lires is a combination of **Lire** and **Res**earch, where **Lire** is the French word for 'Read'.
 
@@ -22,7 +22,7 @@ It is designed to be deployed onto a server to share literatures or work in onli
 * Cascading tags  
 * Markdown notes
 * Multi-user permission management
-* AI-powered features (iRBM)
+* AI-powered features (iLires)
 
 # Getting started
 **Fetch all submodules**
@@ -36,7 +36,7 @@ git submodule update --init --recursive
 docker build -t lires:latest .
 
 # create a conainer and start the servers
-docker run -d -p 8080:8080 -p 8081:8081 -v $HOME/.RBM:/root/.RBM --name lrs lires:latest
+docker run -d -p 8080:8080 -p 8081:8081 -v $HOME/.Lires:/root/.Lires --name lrs lires:latest
 
 # register a user and download pdf.js viewer on the first run 
 # (no need to run again if the container is re-created / re-started)

@@ -24,7 +24,7 @@ class _ProxyT(TypedDict):
     host: str
     port: Union[str, int]
 
-class ResbibmanConfT(TypedDict):
+class LiresConfT(TypedDict):
     """
     Refer to rbm-resetconf 
     for the generation of default configuration file

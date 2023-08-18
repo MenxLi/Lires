@@ -14,7 +14,7 @@
     }>()
     const dataStore = useDataStore();
 
-    function addToRBM(){
+    function addToLires(){
         const arxivId = props.article.id;
         new ServerConn().addArxivPaperByID(
                 arxivId,
@@ -126,7 +126,7 @@
             <div class="actions">
                 <a @click="()=>openURLExternal(`https://arxiv.org/abs/${article.id}`)">Arxiv</a> |
                 <a @click="()=>openURLExternal(`https://arxiv.org/pdf/${article.id}.pdf`)">PDF</a> |
-                <a @click="addToRBM">Collect</a>
+                <a @click="addToLires">Collect</a>
             </div>
             <p>Published: {{ props.article.publishedTime }}</p>
             <details>

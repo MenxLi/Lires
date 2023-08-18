@@ -462,7 +462,7 @@ class FileInfo(FileInfoGUI):
         discuss_url = ServerConn().getDisscussionURL(uid)
         
         hex_key = generateHexHash(getConfV("access_key"))
-        req = requests.get(discuss_url, cookies={"RBM_ENC_KEY": hex_key})
+        req = requests.get(discuss_url, cookies={"LRS_ENC_KEY": hex_key})
         self.discussBrowser.setHtml(req.text)
         self.discuss_line.setText("")
 

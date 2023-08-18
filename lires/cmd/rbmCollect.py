@@ -165,7 +165,7 @@ class WebCollector(DocCollector):
     def url(self) -> str:
         return self.retrive_key
 
-class RBMRetriver:
+class LiresRetriver:
     KEY_COLLECTOR: Dict[str, Type[DocCollector]]
     KEY_COLLECTOR = {
         "arxiv": ArXivCollector,
@@ -253,7 +253,7 @@ def exec(
         tags: List[str] = [],
         uid: Optional[str] = None
         ) -> str:
-    retriver = RBMRetriver(retrive_str)
+    retriver = LiresRetriver(retrive_str)
     return retriver.run(
         download_doc = download_doc,
         tags = tags,

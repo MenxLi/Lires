@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "RBMWeb",
+    "productName": "LiresWeb",
     "version": "../package.json"
   },
   "tauri": {
@@ -40,7 +40,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "RBMWeb",
+        "title": "LiresWeb",
         "width": 1350,
         "height": 900
       }

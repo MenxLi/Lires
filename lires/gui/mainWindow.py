@@ -750,11 +750,11 @@ class MainWindow(MainWindowGUI):
         try:
             # database may not initialized
             if self.database.offline:
-                prefix = "ResBibMan-v{} (offline) ".format(VERSION)
+                prefix = "Lires-v{} (offline) ".format(VERSION)
             else:
-                prefix = "ResBibMan-v{} (online) ".format(VERSION)
+                prefix = "Lires-v{} (online) ".format(VERSION)
         except AttributeError:
-            prefix = "ResBibMan-v{}".format(VERSION)
+            prefix = "Lires-v{}".format(VERSION)
 
         proxy_status = []
         if getConf()["proxies"]["enable_requests"]:

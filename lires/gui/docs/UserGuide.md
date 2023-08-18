@@ -4,8 +4,8 @@
 
 ## 概述
 
-ResBibMan (Research bibliography manager, resbibman) 软件为一款轻量级文献储存和管理软件，该软件依赖Bibtex文件进行文献信息管理，以Markdown作为阅读笔记形式，利用不同的标签（tag）对文献类型进行区分。  
-RBMWeb为resbibman软件的网络应用，可以提供文献分享、在线同步、在线阅读等网络服务。
+Lires (Research bibliography manager, lires) 软件为一款轻量级文献储存和管理软件，该软件依赖Bibtex文件进行文献信息管理，以Markdown作为阅读笔记形式，利用不同的标签（tag）对文献类型进行区分。  
+LiresWeb为lires软件的网络应用，可以提供文献分享、在线同步、在线阅读等网络服务。
 
 （注：1. 本文档中文献/文档指同一内容；2. 当前显示文档指当前文档选择模块中显示的文档；3. 选中文档指当前文档中被选中的文献）
 
@@ -31,14 +31,14 @@ rbm-resetconf
 
 
 ## 软件启动
-使用软件时，进入命令行，输入`resbibman`打开客户端软件，命令行可选参数可见`resbibman -h`，常用参数：
+使用软件时，进入命令行，输入`lires`打开客户端软件，命令行可选参数可见`resbibman -h`，常用参数：
 ```bash
-resbibman                  # 启动客户端
-resbibman -S               # 启动服务端 (RBMWeb)
-resbibman -v               # 查看版本和更新日志
-resbibman -c               # 清理临时文件夹缓存
-resbibman -L DEBUG         # 软件运行过程中输出debug信息
-resbibman --reset_conf     # 重置配置文件
+lires                  # 启动客户端
+lires -S               # 启动服务端 (LiresWeb)
+lires -v               # 查看版本和更新日志
+lires -c               # 清理临时文件夹缓存
+lires -L DEBUG         # 软件运行过程中输出debug信息
+lires --reset_conf     # 重置配置文件
 ```
 
 ## 界面
@@ -121,7 +121,7 @@ resbibman --reset_conf     # 重置配置文件
 启动服务端后，可以使用客户端以在线模式接入，在线模式下同步数据将被保存于临时数据库文件夹中，重启计算机后需从新同步下载，删除缓存将删除临时文件夹。
 ![file_system](./imgs/fileSystem.png)  
 
-咨询、维护： [李梦寻](mailto:mengxunli@whu.edu.cn?subject=Resbibman_consult)
+咨询、维护： [李梦寻](mailto:mengxunli@whu.edu.cn?subject=Lires_consult)
 
 [comment]: <> (以下之后再改)
 <!--
@@ -131,7 +131,7 @@ resbibman --reset_conf     # 重置配置文件
 
 ### 设置数据库路径
 
-​		ResBibMan软件数据库本质为系统文件夹，通过指定文件夹可以更换数据库，数据库切换方法为：工具栏->设置->Database path。数据库的设置可以促进不同使用人员间文档交流，通过将数据库设置为云盘路径可以实现不同设备间数据云同步。
+​		Lires软件数据库本质为系统文件夹，通过指定文件夹可以更换数据库，数据库切换方法为：工具栏->设置->Database path。数据库的设置可以促进不同使用人员间文档交流，通过将数据库设置为云盘路径可以实现不同设备间数据云同步。
 
 ### 导入文献
 

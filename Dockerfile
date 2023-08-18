@@ -32,5 +32,5 @@ EXPOSE 8081
 EXPOSE 8080
 EXPOSE 8731
 
-ENV HF_HOME=/root/.RBM/hf_home
+ENV HF_HOME=/root/.Lires/hf_home
 ENTRYPOINT ["lires", "server"]

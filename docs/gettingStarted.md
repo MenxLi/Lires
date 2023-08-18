@@ -37,7 +37,7 @@ Install the server
 git submodule update --init --recursive
 pip install ./packages/tiny_vectordb
 pip install ".[ai]"
-rbm-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in RBMWeb
+rbm-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in LiresWeb
 ```
 **[Optional]** Compile tauri GUI
 > **Prerequisites:**  Node.js, TypeScript, Rust
@@ -48,49 +48,49 @@ npm run app:build
 ```
 ---
 ## Server startup
-**To start the RBM and RBMWeb servers:**
+**To start the Lires and LiresWeb servers:**
 ```bash
 lires server
 ```
-The RBM and RBMWeb are Tornado servers,   
-- RBM provides API for the client (GUI & WebUI & CLI) to communicate with.
-- RBMWeb is a Web-UI frontend server.
+The Lires and LiresWeb are Tornado servers,   
+- Lires provides API for the client (GUI & WebUI & CLI) to communicate with.
+- LiresWeb is a Web-UI frontend server.
 
-**To start the iRBM server:**
+**To start the iLires server:**
 ```bash
 lires iserver
 ```
-The iRBM server is written with FastAPI, it provides additional AI features and is designed to be connected by the RBM server, so that the latter can provide AI features to the client.  
+The iLires server is written with FastAPI, it provides additional AI features and is designed to be connected by the Lires server, so that the latter can provide AI features to the client.  
 
 > <details> 
-> <summary>The reason to separate iRBM server from RBM server</summary>  
+> <summary>The reason to separate iLires server from Lires server</summary>  
 > - AI features may require more resources, so that the iserver can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the iserver and install the heavy AI dependencies.  <br>
-> - Allocating resources to the iserver and RBM server separately can be more flexible. For example, the iserver may need more GPU memory, we can launch multiple RBM servers pointing to different `$RBM_HOME`, while sharing the same iserver. <br>
-> -  It is also possible that the iserver needs a proxy to access the internet, while the RBM server does not.   
+> - Allocating resources to the iserver and Lires server separately can be more flexible. For example, the iserver may need more GPU memory, we can launch multiple Lires servers pointing to different `$LRS_HOME`, while sharing the same iserver. <br>
+> -  It is also possible that the iserver needs a proxy to access the internet, while the Lires server does not.   
 </details>
 
 ### More on starting the servers
-`$RBM_HOME` directory is used for application data storage, by default it is set to `~/.RBM`.  
-The data directory contains the configuration file, log files, default database, RBMWeb backend data, cache files...  
+`$LRS_HOME` directory is used for application data storage, by default it is set to `~/.Lires`.  
+The data directory contains the configuration file, log files, default database, LiresWeb backend data, cache files...  
 
 To start the application with arbitrary data directory, you can run: 
 ```bash
-RBM_HOME="your/path/here" lires ...
+LRS_HOME="your/path/here" lires ...
 ```
-Typically, the lires server can be started by binding a different port to each database and providing services to different users. Which can be achieved by setting the `$RBM_HOME` variable.  
+Typically, the lires server can be started by binding a different port to each database and providing services to different users. Which can be achieved by setting the `$LRS_HOME` variable.  
 
-Additionally, SSL certificates can be configured using `$RBM_SSL_CERTFILE` and `$RBM_SSL_KEYFILE` to enable HTTPS 
+Additionally, SSL certificates can be configured using `$LRS_SSL_CERTFILE` and `$LRS_SSL_KEYFILE` to enable HTTPS 
 (we must serve in HTTPS for tauri GUI to connect - [reason](https://github.com/tauri-apps/tauri/issues/2002)).  
 
 Lastly, these servers can share the same 'iServer' for AI features, possibly on a different machine.  
 
 Thus a more general command to start the server is:
 ```sh
-RBM_HOME="your/path/here" RBM_SSL_CERTFILE="your/cert/file" RBM_SSL_KEYFILE="your/key/file" lires server \
+LRS_HOME="your/path/here" LRS_SSL_CERTFILE="your/cert/file" LRS_SSL_KEYFILE="your/key/file" lires server \
     --iserver_host "your/iserver/host" --iserver_port "youriserverport" --port "yourport"
 ```
 
-The iRBM server is usually started with OPENAI API keys, which can be set with environment variable:
+The iLires server is usually started with OPENAI API keys, which can be set with environment variable:
 ```sh
 OPENAI_API_KEY="sk-xxxx" lires iserver --openai-api-base "https://api.openai.com/v1"
 ```
@@ -112,7 +112,7 @@ It is currently implemented as building feature vectors for each entry (thanks t
 and use cosine similarity to measure the distance between vectors.
 
 To build the index, run:  
-**This requires iRBM server to be running.**
+**This requires iLires server to be running.**
 ```sh
 rbm-index build
 ```
@@ -142,24 +142,24 @@ docker build -t lires:latest .
 # create the container named 'rbm', 
 # please change the port mapping and volume mapping as needed
 # depending on your need, you may want to expose only a subset of the ports
-docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.RBM:/root/.RBM --name rbm lires:latest
+docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.Lires:/root/.Lires --name rbm lires:latest
 ```
 
-The container's default entry only starts the RBM and RBMWeb servers, the iRBM server should be started separately, if desired.   
+The container's default entry only starts the Lires and LiresWeb servers, the iLires server should be started separately, if desired.   
 ```sh
 docker exec -d rbm lires iserver
 # or running with interactive tty
 # docker exec -it rbm lires iserver
 ```
 
-Otherwise, we can set the iserver settings pointing the shared iRBM server, maybe on the host machine / another machine with GPU, or on another container  
+Otherwise, we can set the iserver settings pointing the shared iLires server, maybe on the host machine / another machine with GPU, or on another container  
 For an example, to setup the iserver to local machine of ip address `192.168.3.6` on creating the container, run:
 ```sh
 docker run <... your settings ...> lires:latest --iserver_host '192.168.3.6' --iserver_port <...>
 ```
 
 **On the first run** you need to generate the user key, which can be done by running the `rbm-keyman` command in the container.
-and you also need to download the pdf.js viewer to serve pdf with the viewer in RBMWeb.
+and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.
 The user information and pdf.js viewer will be stored in the volume mapping directory, so that they will not be lost when the container is removed.
 ```sh
 docker exec rbm rbm-keyman register your_key --admin

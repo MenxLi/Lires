@@ -1,8 +1,8 @@
 import os
-from lires.confReader import RBM_HOME
+from lires.confReader import LRS_HOME
 from lires.core.dbConn import DBConnection, DBFileInfo
 
-conn = DBConnection(os.path.join(RBM_HOME, "test.db"))
+conn = DBConnection(os.path.join(LRS_HOME, "test.db"))
 
 conn.insertItem({
     "uuid": "test",

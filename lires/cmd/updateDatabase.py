@@ -82,8 +82,8 @@ def useSqliteStorage(old_db_dir: str) -> str:
 
 
 if __name__ == "__main__":
-    from lires.confReader import RBM_HOME
-    print("Running script on $RBMHOME={}".format(RBM_HOME))
+    from lires.confReader import LRS_HOME
+    print("Running script on $LRS_HOME={}".format(LRS_HOME))
     y = input("It is suggested to backup database before running this stript, continue? (y/[else]): ")
     if y!="y":
         print("Abort.")

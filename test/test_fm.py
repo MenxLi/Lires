@@ -3,7 +3,7 @@
 import os
 from pprint import pprint
 from lires.initLogger import initDefaultLogger; initDefaultLogger()
-from lires.confReader import RBM_HOME, getDatabase
+from lires.confReader import LRS_HOME, getDatabase
 from lires.core.fileTools import addDocument, DBConnection, FileManipulator
 from lires.core.fileToolsV import FileManipulatorVirtual
 from lires.core.dataClass import DataPoint, DataBase

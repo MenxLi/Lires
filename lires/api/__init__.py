@@ -11,7 +11,7 @@ from lires.core.serverConn import ServerConn, IServerConn
 
 # variables and functions
 from lires.core.fileTools import addDocument
-from lires.confReader import RBM_HOME, getDatabase, getConf, saveToConf
+from lires.confReader import LRS_HOME, getDatabase, getConf, saveToConf
 
 __all__ = [
     "DataPoint",
@@ -22,7 +22,7 @@ __all__ = [
     "ServerConn",
     "IServerConn",
 
-    "RBM_HOME",
+    "LRS_HOME",
     "addDocument",
     "getDatabase",
     "getConf",

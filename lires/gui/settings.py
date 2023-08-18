@@ -67,7 +67,7 @@ class SetDatabase(SubSettingsBase):
 		vbox.addWidget(self.label_db)
 		vbox.addLayout(hbox)
 
-		self.label_host = QLabel("RBM server settings:")
+		self.label_host = QLabel("Lires server settings:")
 		self.btn_preset_edit = QPushButton("Edit preset")
 		self.btn_preset_choose = QPushButton("Choose preset")
 		self.lbl_host = QLabel("host: ")
@@ -151,7 +151,7 @@ class SetDatabase(SubSettingsBase):
 				self.warnDialog("Invalid host address, please check.")
 				return
 			saveToConf(host = host, port = port)
-			self.logger.debug("RBMWeb host set to: {}:{}".format(host, port))
+			self.logger.debug("LiresWeb host set to: {}:{}".format(host, port))
 			self.logger.info("Server settings changed, deleting previous local temporary files")
 			main_window.releaseDatabaseResources()
 			for f in os.listdir(TMP_DB):
@@ -165,7 +165,7 @@ class SetDatabase(SubSettingsBase):
 		
 		if not access_key == getConf()["access_key"]:
 			saveToConf(access_key = access_key)
-			self.logger.debug("RBMWeb access key changed.")
+			self.logger.debug("LiresWeb access key changed.")
 			RELOAD = True
 
 		if RELOAD:

@@ -1,6 +1,6 @@
 
 from ._base import *
-from lires.cmd.rbmCollect import RBMRetriver
+from lires.cmd.rbmCollect import LiresRetriver
 import json
 
 class CollectHandler(tornado.web.RequestHandler, RequestHandlerMixin):
@@ -23,7 +23,7 @@ class CollectHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         assert isinstance(tags, list)
         assert isinstance(download_doc, bool)
 
-        retriver = RBMRetriver(retrive_str)
+        retriver = LiresRetriver(retrive_str)
         actual_uuid = retriver.run(
             database=self.db,
             download_doc = download_doc,

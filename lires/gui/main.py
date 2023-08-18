@@ -11,7 +11,7 @@ from .mainWindow import MainWindow
 
 def execProg():
     logger = logging.getLogger("rbm")
-    logger.info("************Welcome to ResBibMan-v{} | {}**************".format(VERSION, getDateTimeStr()))
+    logger.info("************Welcome to Lires-v{} | {}**************".format(VERSION, getDateTimeStr()))
 
     # Qt proxy settings
     if getConf()["proxies"]["enable_requests"]:

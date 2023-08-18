@@ -36,7 +36,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         iconn = IServerConn()
         istatus = iconn.status
         if not (istatus and istatus['status']):
-            self.write("ERROR: iRBM server not running.")
+            self.write("ERROR: iLires server not running.")
             return
         
         if not uuid in self.db:
@@ -53,7 +53,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         #     self.write("\n<hr>")
         #     similar = queryFeatureIndex(summary_txt, n_return=9)
         #     if similar is None:
-        #         self.write("ERROR: iRBM server error while finding similar papers.")
+        #         self.write("ERROR: iLires server error while finding similar papers.")
         #         return
         #     self.write("<h3>Similar papers:</h3>")
         #     self.flush()
@@ -106,7 +106,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.logger.debug(f"PDFtext: {pdf_txt}")
 
         if res is None:
-            self.write("ERROR: iRBM server error.")
+            self.write("ERROR: iLires server error.")
             return
         
         assert res is not None

@@ -1,11 +1,11 @@
 import os, multiprocessing, logging
 from typing import Union, TypedDict
-from rbmweb import RBMWEB_SRC_ROOT
+from rbmweb import LRSWEB_SRC_ROOT
 from functools import partial
 from lires.core import globalVar as G
 from lires.core.utils import BCOLORS
 from lires.initLogger import setupLogger
-from lires.confReader import RBM_HOME
+from lires.confReader import LRS_HOME
 
 import tornado
 import tornado.ioloop
@@ -21,7 +21,7 @@ class FrontendApplication(tornado.web.Application):
     def __init__(self) -> None:
         handlers = [
             # Frontend
-            (r'/(.*)', tornado.web.StaticFileHandler, {"path": RBMWEB_SRC_ROOT, "default_filename": "index.html"}),
+            (r'/(.*)', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
         ]
         super().__init__(handlers)      # type: ignore
 
@@ -92,7 +92,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
         term_id="server",
         term_id_color=BCOLORS.OKBLUE,
         term_log_level="DEBUG",
-        file_path = os.path.join(RBM_HOME, "server.log"),
+        file_path = os.path.join(LRS_HOME, "server.log"),
         file_log_level="INFO",
     )
     setupLogger(
@@ -100,7 +100,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
         term_id="core",
         term_id_color=BCOLORS.OKGREEN,
         term_log_level="DEBUG",
-        file_path = os.path.join(RBM_HOME, "core.log"),
+        file_path = os.path.join(LRS_HOME, "core.log"),
         file_log_level="INFO",
     )
 
@@ -131,7 +131,7 @@ def __startFrontendServer(port: Union[int, str] = 8081, ssl_config : _SSL_CONFIG
         ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         ssl_ctx.load_cert_chain(certfile=ssl_config["certfile"], keyfile=ssl_config["keyfile"])
     server = HTTPServer(app, ssl_options=ssl_ctx)
-    logger.info(f"Starting RBMWeb server at port: {port}")
+    logger.info(f"Starting LiresWeb server at port: {port}")
     server.listen(int(port))
 
     tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
@@ -140,12 +140,12 @@ def __startFrontendServer(port: Union[int, str] = 8081, ssl_config : _SSL_CONFIG
 
 
 # SSL config
-_ENV_CERTFILE = os.environ.get("RBM_SSL_CERTFILE")
-_ENV_KEYFILE = os.environ.get("RBM_SSL_KEYFILE")
+_ENV_CERTFILE = os.environ.get("LRS_SSL_CERTFILE")
+_ENV_KEYFILE = os.environ.get("LRS_SSL_KEYFILE")
 SSL_CONFIG: _SSL_CONFIGT | None
 if bool(_ENV_CERTFILE) != bool(_ENV_KEYFILE):
     # if only one of them is set
-    raise ValueError("RBM_SSL_CERTFILE and RBM_SSL_KEYFILE must be both set or both not set")
+    raise ValueError("LRS_SSL_CERTFILE and LRS_SSL_KEYFILE must be both set or both not set")
 if _ENV_CERTFILE is not None:
     SSL_CONFIG = {"certfile": _ENV_CERTFILE, "keyfile": _ENV_KEYFILE} # type: ignore
 else:

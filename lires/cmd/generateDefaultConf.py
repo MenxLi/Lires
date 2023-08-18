@@ -9,7 +9,7 @@ def run():
 is_sys_darkmode = darkdetect.isDark()
 def generateDefaultConf():
 	"""
-	"database" points to local database, used by RBMWeb,
+	"database" points to local database, used by LiresWeb,
 	"""
 	saveToConf(
 		## CORE SETTINGS ##
