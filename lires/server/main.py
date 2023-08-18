@@ -1,6 +1,6 @@
 import os, multiprocessing, logging
 from typing import Union, TypedDict
-from rbmweb import LRSWEB_SRC_ROOT
+from lires_web import LRSWEB_SRC_ROOT
 from functools import partial
 from lires.core import globalVar as G
 from lires.core.utils import BCOLORS
@@ -76,7 +76,7 @@ class Application(tornado.web.Application):
             # info
             (r"/info/changelog", ChangelogHandler),
 
-            # # Frontend (Static file, non-rbmweb)
+            # # Frontend (Static file, non-lires_web)
             (r"/static/(.*)", StaticHandler),
 
         ]

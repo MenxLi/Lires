@@ -26,7 +26,7 @@
 Compile frontend files
 > **Prerequisites:**  Node.js, TypeScript
 ```bash
-cd rbmweb
+cd lires_web
 npm install
 npm run build
 cd ..
@@ -42,7 +42,7 @@ rbm-utils download_pdfjs                # download pdf.js viewer to serve pdf wi
 **[Optional]** Compile tauri GUI
 > **Prerequisites:**  Node.js, TypeScript, Rust
 ```bash
-cd rbmweb
+cd lires_web
 npm install
 npm run app:build
 ```

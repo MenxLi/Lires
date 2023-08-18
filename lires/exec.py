@@ -91,8 +91,8 @@ def run():
     if args.subparser == "server":
         from .server.main import startServerProcess, startFrontendServerProcess
         procs.append(startServerProcess(args.port, args.iserver_host, args.iserver_port))
-        if args.rbmweb_port != "0" and args.rbmweb_port.lower() != "none" and args.rbmweb_port:
-            procs.append(startFrontendServerProcess(args.rbmweb_port))
+        if args.lires_web_port != "0" and args.lires_web_port.lower() != "none" and args.lires_web_port:
+            procs.append(startFrontendServerProcess(args.lires_web_port))
     
     if args.subparser == "iserver":
         import subprocess

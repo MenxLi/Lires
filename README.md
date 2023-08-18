@@ -1,9 +1,9 @@
 # Lires 
 **A self-hosted research literature manager!**   
 
-![LiresWeb-GUI](http://limengxun.com/files/imgs/rbmweb.png)
+Lires is a combination of **Lire** and **Res**earch, where **Lire** is the French word for '***Read***'.
 
-Lires is a combination of **Lire** and **Res**earch, where **Lire** is the French word for 'Read'.
+![LiresWeb-GUI](http://limengxun.com/files/imgs/rbmweb.png)
 
 ## Modules
 Mainly consists of two server modules:  
