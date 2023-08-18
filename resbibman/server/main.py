@@ -1,6 +1,6 @@
 import os, multiprocessing, logging
 from typing import Union, TypedDict
-from RBMWeb import RBMWEB_SRC_ROOT
+from rbmweb import RBMWEB_SRC_ROOT
 from functools import partial
 from resbibman.core import globalVar as G
 from resbibman.core.utils import BCOLORS

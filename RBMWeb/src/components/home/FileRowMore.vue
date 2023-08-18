@@ -212,4 +212,4 @@ const showSummary = ref(false);
         opacity: 0;
         transform: translateY(-10px);
     }
-</style>../common/fragments.tsx
+</style>

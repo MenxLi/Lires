@@ -13,7 +13,7 @@ RUN mkdir /ResBibManager
 WORKDIR /
 
 COPY . /ResBibManager
-WORKDIR /ResBibManager/RBMWeb 
+WORKDIR /ResBibManager/rbmweb 
 # RUN npm config set registry https://registry.npm.taobao.org
 RUN npm install -g cnpm --registry=https://registry.npm.taobao.org
 RUN cnpm install && cnpm run build
