@@ -365,3 +365,8 @@ version_history:
     - Style - optimize floating window size; set feed page min width and height
     - Dev - refactor - logger, textutils, chatstreamiter
     - Dev - local llm support, set docker hf_home
+  0.16.2:
+    - Webui reload database button
+    - Style - loading spinner
+    - Refactor - remove cmd/cmdA http handlers
+    - Dev - modules rename
