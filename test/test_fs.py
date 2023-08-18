@@ -1,10 +1,9 @@
 
-import os
-import irbm.globalConfig as config
+import ilires.globalConfig as config
 import openai
 openai.api_key = "EMPTY"
 config.fastchat_api_base = "http://localhost:16862/v1"
-from irbm.lmInterface import streamOutput,getStreamIter
+from ilires.lmInterface import streamOutput,getStreamIter
 
 text = ""
 print("generating....")

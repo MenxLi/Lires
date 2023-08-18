@@ -1,5 +1,5 @@
 
-from irbm.textFeature import queryFeatureIndex
+from ilires.textFeature import queryFeatureIndex
 
 res = queryFeatureIndex("hello", n_return=16)
 print(res)
