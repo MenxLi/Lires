@@ -89,10 +89,12 @@ def run():
         G.prog_parser.print_help()
 
     if args.subparser == "server":
-        from .server.main import startServerProcess, startFrontendServerProcess
+        from .server.main import startServerProcess
         procs.append(startServerProcess(args.port, args.iserver_host, args.iserver_port))
-        if args.lires_web_port != "0" and args.lires_web_port.lower() != "none" and args.lires_web_port:
-            procs.append(startFrontendServerProcess(args.lires_web_port))
+    
+    if args.subparser == "web":
+        from .server.main import startFrontendServerProcess
+        procs.append(startFrontendServerProcess(args.port))
     
     if args.subparser == "iserver":
         import subprocess
@@ -108,8 +110,8 @@ def run():
         subprocess.check_call(call_args)
 
     if args.subparser == "client":
-        from lires_qt.main import execProg
-        execProg()
+        from lires_qt.main import execProg as execProgQt
+        execProgQt()
 
     for proc in procs:
         proc.join()

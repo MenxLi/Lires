@@ -58,3 +58,6 @@ def execProg():
     EXIT_CODE =  app.exec()
     G.clearTempDirs()
     return EXIT_CODE
+
+if __name__ == "__main__":
+    execProg()
