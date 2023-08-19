@@ -11,17 +11,19 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # a schematic ascii image of the file tree
 # LRS_HOME
 # ├── conf.json
-# ├── Database (default)
 # ├── pdf-viewer
 # ├── log.txt
+# ├── Database (default)
+# │   ├── lrs.db
+# │   └── ...
+# ├── index [INDEX_DIR]
+# │   ├── vector.db [FEATURE_PATH]
+# │   └── summary [DOC_SUMMARY_DIR]
 # ├── Lires.cache [TMP_DIR]
 # │   ├── Database [TMP_DB]
 # │   ├── cover [TMP_COVER]
 # │   ├── webpage [TMP_WEB]
-# │   ├── notes_webpage [TMP_WEB_NOTES]
-# │   ├── index [TMP_INDEX]
-# │   │   ├── vector.db [FEATURE_PATH]
-# │   │   └── summary [DOC_SUMMARY_DIR]
+# │   └── notes_webpage [TMP_WEB_NOTES]
 
 __this_file_path = os.path.abspath(os.path.realpath(__file__))
 
@@ -45,17 +47,18 @@ DEFAULT_DATA_PATH = join(LRS_HOME, "Database")
 DEFAULT_PDF_VIEWER_DIR = join(LRS_HOME, "pdf-viewer")
 LOG_FILE = join(LRS_HOME, "log.txt")
 
+INDEX_DIR = os.path.join(LRS_HOME, "index")      # For index cache
+
 # things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
 TMP_WEB_NOTES = os.path.join(TMP_DIR, "notes_webpage")  # For notes as webpages
-TMP_INDEX = os.path.join(TMP_DIR, "index")      # For index cache
 
 # indexing related
-VECTOR_DB_PATH = os.path.join(TMP_INDEX, "vector.db")
-DOC_SUMMARY_DIR = os.path.join(TMP_INDEX, "summary")
+VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
+DOC_SUMMARY_DIR = os.path.join(INDEX_DIR, "summary")
 
 # Create directories if they don't exist
 if not os.path.exists(LRS_HOME):
@@ -63,7 +66,7 @@ if not os.path.exists(LRS_HOME):
 for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
-for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES, TMP_INDEX, DOC_SUMMARY_DIR]:
+for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES, INDEX_DIR, DOC_SUMMARY_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 
