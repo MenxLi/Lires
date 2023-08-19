@@ -75,7 +75,7 @@ class DBConnection:
     logger = G.logger_lrs
     lock = threading.Lock()
 
-    def __init__(self, db_dir: str, fname: str = "rbm.db") -> None:
+    def __init__(self, db_dir: str, fname: str = "lrs.db") -> None:
         # create db if not exist
         self.db_fname = fname
         db_path = os.path.join(db_dir, self.db_fname)

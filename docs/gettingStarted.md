@@ -37,7 +37,7 @@ Install the server
 git submodule update --init --recursive
 pip install ./packages/tiny_vectordb
 pip install ".[ai]"
-rbm-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in LiresWeb
+lrs-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in LiresWeb
 ```
 **[Optional]** Compile tauri GUI
 > **Prerequisites:**  Node.js, TypeScript, Rust
@@ -100,11 +100,11 @@ Note that openai api base must be set via command line argument (or leave it to 
 
 ## Management
 ### User management
-After installation, user access keys should be generated with `rbm-keyman` command.
+After installation, user access keys should be generated with `lrs-keyman` command.
 ```sh
-rbm-keyman register <your_key> --admin
+lrs-keyman register <your_key> --admin
 ```
-for more information, see `rbm-keyman -h`.  
+for more information, see `lrs-keyman -h`.  
 
 ### Build search index
 The search index is used for **fuzzy search** and querying **related works**,
@@ -114,7 +114,7 @@ and use cosine similarity to measure the distance between vectors.
 To build the index, run:  
 **This requires iLires server to be running.**
 ```sh
-rbm-index build
+lrs-index build
 ```
 *The priority for indexing sources: Abstract > AI summerization > PDF full text*
 
@@ -122,13 +122,13 @@ rbm-index build
 
 All managements tools include:
 ```sh
-rbm-keyman      # Manage access key
-rbm-discuss     # Manage online discussions
-rbm-collect     # Automatic add entry to database with retriving string
-rbm-resetconf   # To reset default configuration
-rbm-share       # To generate share url
-rbm-index       # To build and query feature of the database, for fuzzy search
-rbm-utils       # Miscellaneous utilities
+lrs-keyman      # Manage access key
+lrs-discuss     # Manage online discussions
+lrs-collect     # Automatic add entry to database with retriving string
+lrs-resetconf   # To reset default configuration
+lrs-share       # To generate share url
+lrs-index       # To build and query feature of the database, for fuzzy search
+lrs-utils       # Miscellaneous utilities
 ```
 
 ---
@@ -139,17 +139,17 @@ Which adds additional security and building efficiency.
 # creates a docker image named lires
 docker build -t lires:latest .
 
-# create the container named 'rbm', 
+# create the container named 'lrs', 
 # please change the port mapping and volume mapping as needed
 # depending on your need, you may want to expose only a subset of the ports
-docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.Lires:/root/.Lires --name rbm lires:latest
+docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.Lires:/root/.Lires --name lrs lires:latest
 ```
 
 The container's default entry only starts the Lires and LiresWeb servers, the iLires server should be started separately, if desired.   
 ```sh
-docker exec -d rbm lires iserver
+docker exec -d lrs lires iserver
 # or running with interactive tty
-# docker exec -it rbm lires iserver
+# docker exec -it lrs lires iserver
 ```
 
 Otherwise, we can set the iserver settings pointing the shared iLires server, maybe on the host machine / another machine with GPU, or on another container  
@@ -158,17 +158,17 @@ For an example, to setup the iserver to local machine of ip address `192.168.3.6
 docker run <... your settings ...> lires:latest --iserver_host '192.168.3.6' --iserver_port <...>
 ```
 
-**On the first run** you need to generate the user key, which can be done by running the `rbm-keyman` command in the container.
+**On the first run** you need to generate the user key, which can be done by running the `lrs-keyman` command in the container.
 and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.
 The user information and pdf.js viewer will be stored in the volume mapping directory, so that they will not be lost when the container is removed.
 ```sh
-docker exec rbm rbm-keyman register your_key --admin
-docker exec rbm rbm-utils download_pdfjs
+docker exec lrs lrs-keyman register your_key --admin
+docker exec lrs lrs-utils download_pdfjs
 ```
 
 Other management tools can be run in the container.  
 ```sh
-docker exec rbm rbm-...
+docker exec lrs lrs-...
 ```
 
 ---
@@ -176,7 +176,7 @@ docker exec rbm rbm-...
 ## Optional - PyQt6 GUI
 There is a PyQt6 GUI, which can be installed on the server for GUI management in offline mode, or on the client as a secondary native GUI.
 
-![rbmgui](http://limengxun.com/files/imgs/rbmgui.png)
+![lrsgui](http://limengxun.com/files/imgs/rbmgui.png)
 
 **(PyQt GUI are legacy codes.  There will be less mantainance for it in the future.)**
 

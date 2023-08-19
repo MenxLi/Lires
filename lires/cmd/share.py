@@ -7,7 +7,7 @@ import urllib.parse
 from lires.confReader import getConf
 
 def main():
-	parser = argparse.ArgumentParser("rbm-share")
+	parser = argparse.ArgumentParser("lrs-share")
 	parser.add_argument("-t", "--tags", default=[], nargs="+")
 	parser.add_argument("-p", "--port", default="8081", help="port of the lires_web frontend")
 

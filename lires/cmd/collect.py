@@ -262,7 +262,7 @@ def exec(
 
 def main():
     _description = "automatically add entry to the database by id"
-    parser = argparse.ArgumentParser("rbm-collect", description = _description)
+    parser = argparse.ArgumentParser("lrs-collect", description = _description)
     parser.add_argument("retrive", help = "retrive instruction, e.g. arxiv:[....]")
     parser.add_argument("-s", "--server_run", action = "store_true", default = False, help = "Run on the server side")
     parser.add_argument("-d", "--download", action = "store_true", default = False, help = "download file (please consider network condition)")

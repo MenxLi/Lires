@@ -17,7 +17,7 @@ def main():
     args = parser.parse_args()
 
     dst_dir = args.dest
-    zip_path = os.path.join(tempfile.gettempdir(), "rbm.zip")
+    zip_path = os.path.join(tempfile.gettempdir(), "lires.zip")
 
     print("=========================")
     lines = [

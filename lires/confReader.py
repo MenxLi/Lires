@@ -45,7 +45,7 @@ DEFAULT_DATA_PATH = join(LRS_HOME, "Database")
 DEFAULT_PDF_VIEWER_DIR = join(LRS_HOME, "pdf-viewer")
 LOG_FILE = join(LRS_HOME, "log.txt")
 
-# things under rbm_cache
+# things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache

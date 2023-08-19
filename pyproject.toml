@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project.scripts]
 "lires" = "lires.exec:run"
 "lrs-resetconf" = "lires.cmd.generateDefaultConf:run"
-"lrs-collect" = "lires.cmd.rbmCollect:main"
+"lrs-collect" = "lires.cmd.collect:main"
 "lrs-utils" = "lires.cmd.miscUtils:main"
-"lrs-share" = "lires.cmd.rbmShare:main"
+"lrs-share" = "lires.cmd.share:main"
 "lrs-keyman" = "lires.cmd.manageKey:run"
-"lrs-discuss" = "lires.cmd.rbmDiscuss:main"
+"lrs-discuss" = "lires.cmd.discuss:main"
 "lrs-index" = "lires.cmd.index:main"
 
 [project.urls]

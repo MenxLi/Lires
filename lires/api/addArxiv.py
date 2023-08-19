@@ -8,22 +8,22 @@ if TYPE_CHECKING:
 def postAddArxiv(
         arxiv_id: str, 
         enc_key: str,
-        rbm_backend_url: str = "http://localhost:8080", 
+        lrs_backend_url: str = "http://localhost:8080", 
         tags: list[str] = []) -> DataPointSummary | str:
     """
-    A shortcut to post to rbm backend to add arxiv paper.
+    A shortcut to post to lrs backend to add arxiv paper.
     - arxiv_id: arxiv id, e.g. "arxiv:2101.00123"
-    - enc_key: sha256 encrypted rbm-key
+    - enc_key: sha256 encrypted lrs-key
     """
     arxiv_id = arxiv_id.strip().lower()
     if not arxiv_id.startswith("arxiv:"):
         # only number
         arxiv_id += "arxiv:"
     
-    if not rbm_backend_url.endswith("/"):
-        rbm_backend_url += "/"
+    if not lrs_backend_url.endswith("/"):
+        lrs_backend_url += "/"
     
-    post_url = rbm_backend_url + "collect"
+    post_url = lrs_backend_url + "collect"
     post_args = {
         "retrive": arxiv_id,
         "tags": json.dumps(tags),

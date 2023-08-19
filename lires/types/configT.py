@@ -26,7 +26,7 @@ class _ProxyT(TypedDict):
 
 class LiresConfT(TypedDict):
     """
-    Refer to rbm-resetconf 
+    Refer to lrs-resetconf 
     for the generation of default configuration file
     """
     """CORE SETTINGS"""

@@ -209,7 +209,7 @@ class ServerConn(ConnectionBase):
     
 
 class IServerConn(ConnectionBase):
-    """Connection to irbm.server"""
+    """Connection to ilrs.server"""
 
     def __init__(self, host: str = "", port: str|int = "") -> None:
         super().__init__()

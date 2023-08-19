@@ -1,6 +1,6 @@
 
 from ._base import *
-from lires.cmd.rbmCollect import LiresRetriver
+from lires.cmd.collect import LiresRetriver
 import json
 
 class CollectHandler(tornado.web.RequestHandler, RequestHandlerMixin):

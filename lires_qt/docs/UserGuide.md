@@ -21,7 +21,7 @@ LiresWeb为lires软件的网络应用，可以提供文献分享、在线同步�
 进入安装目录，打开命令行（Windows10下为：shift+鼠标右键呼出交互菜单，选择“在此打开PowerShell”），依次输入：
 ```bash
 pip install .
-rbm-resetconf
+lrs-resetconf
 ```
 至此安装完成。
 
@@ -114,7 +114,7 @@ lires --reset_conf     # 重置配置文件
 文档阅读笔记区使用Markdown记录，支持简单的语法高亮，可以使用拖拽或者复制粘贴的方式添加图片。点击”Note.html“将以网页渲染模式显示笔记。
 
 ## 服务端使用
-服务端启动前需要录入可用密码，密码管理使用`rbm-keyman`，命令行参数可见`rbm-keyman -h`  
+服务端启动前需要录入可用密码，密码管理使用`lrs-keyman`，命令行参数可见`lrs-keyman -h`  
 
 服务端将设置中的数据库路径作为服务端数据库，默认端口为8080，网页端文献分享地址为`localhost:8080/main/`，网页端仅能查看数据库文献
 

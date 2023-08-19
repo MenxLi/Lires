@@ -15,7 +15,7 @@ os.environ['LRS_HOME'] = tempdir
 
 # call subprocess to create a default lires config
 # don't forget to copy the environment variables!
-subprocess.check_call(['rbm-resetconf'], env=os.environ.copy())
+subprocess.check_call(['lrs-resetconf'], env=os.environ.copy())
 
 # now import the lires modules to do experiments in the temporary data folder!
 # experiments: set configuration host and port
