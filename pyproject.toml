@@ -11,6 +11,7 @@ build-backend = "setuptools.build_meta"
 "lrs-keyman" = "lires.cmd.manageKey:run"
 "lrs-discuss" = "lires.cmd.discuss:main"
 "lrs-index" = "lires.cmd.index:main"
+"lrs-cluster" = "lires.cmd.cluster:main"
 
 [project.urls]
 "Homepage" = "https://github.com/MenxLi/ResBibManager"
