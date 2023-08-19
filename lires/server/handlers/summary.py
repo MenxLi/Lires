@@ -20,7 +20,7 @@ class SummaryHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         return self.write(self.summary_html_template)
 
 class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
-    def post(self):
+    async def post(self):
         if not self.checkKey():
             self.write("ERROR: Invalid key.")
             raise tornado.web.HTTPError(403)
@@ -113,7 +113,9 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.logger.info(f"Generating summary for {dp.title} ...")
         # summary_txt += f"<h3>Title: {dp.title}</h3>"
         self.write(summary_txt)
-        for msg in res:
+
+        # Wrap the generator in an asynchronous iterator
+        async for msg in self.wrapAsyncGen(res):
             summary_txt += msg      # save to cache
             self.write(msg)
             self.flush()  # Flush the response buffer to send the chunk immediately

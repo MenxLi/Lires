@@ -1,6 +1,10 @@
 from __future__ import annotations
-from typing import Callable, Optional, List
+from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator
 import tornado.web
+from tornado.ioloop import IOLoop
+import asyncio
+import concurrent.futures
+
 import http.cookies
 from ..auth.account import AccountPermission
 from ..auth.encryptServer import queryAccount
@@ -20,7 +24,6 @@ def loadDataBase(db_path: str):
     db.init(db_path, force_offline=True)
     return db
 
-
 class RequestHandlerMixin():
     get_argument: Callable
     get_cookie: Callable[[str, Optional[str]], Optional[str]]
@@ -28,6 +31,22 @@ class RequestHandlerMixin():
     cookies: http.cookies.SimpleCookie
     db_path: str = getLocalDatabasePath()
     logger = G.logger_lrs_server
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+
+    @property
+    def io_loop(self):
+        return IOLoop.current()
+    
+    def offloadTask(self, func, *args, **kwargs) -> Awaitable:
+        """
+        Offload a blocking task to a thread pool
+        """
+        return self.io_loop.run_in_executor(self.executor, func, *args, **kwargs)
+    
+    async def wrapAsyncGen(self, gen: Generator) -> AsyncGenerator:
+        for item in gen:
+            await asyncio.sleep(0)  # make the control back to the event loop, tricky
+            yield item
 
     def initdb(self):
         """

@@ -5,7 +5,7 @@ from lires.core.serverConn import IServerConn
 
 
 class IServerProxyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
-    def post(self, key):
+    async def post(self, key):
         self.setDefaultHeader()
 
         if key == "textFeature":
@@ -13,7 +13,8 @@ class IServerProxyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             text = self.get_argument("text")
 
             self.logger.debug("textFeature request")
-            ret = IServerConn().featurize(text)
+
+            ret = await self.offloadTask(IServerConn().featurize, text)
             if ret is None:
                 raise tornado.web.HTTPError(500, "iServer error")
             else:
