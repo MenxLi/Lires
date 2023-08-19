@@ -197,20 +197,26 @@ def initProcesses(config: ClusterConfigT):
 def main():
     parser = argparse.ArgumentParser(description="Generate config file for lires cluster")
     parser.add_argument("path", type=str, help="path to the config file")
-    parser.add_argument("--generate", action="store_true", help="generate config file")
-    parser.add_argument("--yes", action="store_true", help="overwrite existing config file")
+    parser.add_argument("--generate", action="store_true", help="generate init config file, then exit")
+    parser.add_argument("--overwrite", action="store_true", help="overwrite existing config file")
+
+    parser.add_argument("-i", "--init-if-not-exist", 
+                        action="store_true", help="initialize the config file if it does not exist")
     args = parser.parse_args()
 
     if args.generate:
-        if os.path.exists(args.path) and not args.yes:
-            print("Config file already exists, use --yes to overwrite")
+        if os.path.exists(args.path) and not args.overwrite:
+            print("Config file already exists, use --overwrite to overwrite")
             exit(1)
         generateConfigFile(args.path)
         exit(0)
     
-    if args.yes and not args.generate:
-        print("--yes can only be used with --generate")
+    if args.overwrite and not args.generate:
+        print("--overwrite can only be used with --generate")
         exit(1)
+    
+    if not os.path.exists(args.path) and args.init_if_not_exist:
+        generateConfigFile(args.path)
     
     if not os.path.exists(args.path):
         print("Config file does not exist, use --generate to generate one")

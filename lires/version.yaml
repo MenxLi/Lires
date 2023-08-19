@@ -370,3 +370,10 @@ version_history:
     - Style - loading spinner
     - Refactor - remove cmd/cmdA http handlers
     - Dev - modules rename
+
+  1.0.0:
+    - Lires!
+    - Name change - resbibman -> lires, rbm -> lrs
+    - Isolate lires-qt
+    - Dev - lrs-cluster for server clustering
+    - Dev - startup subcommand change, how have four entries - server, web, client, iserver
