@@ -12,3 +12,9 @@ _to_create = [LRS_SERVER_HOME, ACCOUNT_DIR]
 for fpath in _to_create:
     if not os.path.exists(fpath):
         os.mkdir(fpath)
+
+__all__ = [
+    "LRS_SERVER_HOME",
+    "ACCOUNT_DIR",
+    "DISCUSSION_DB_PATH",
+]
