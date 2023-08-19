@@ -9,7 +9,7 @@ def initDefaultLogger(log_level = "INFO") -> logging.Logger:
     Log will be recorded in LOG_FILE
     """
     return setupLogger(
-        _logger = "rbm",
+        _logger = "lires",
         term_id = "default",
         term_id_color = BCOLORS.OKGRAY,
         term_log_level=log_level,

@@ -8,9 +8,9 @@ from QFlowLayout import FlowLayout
 from .widgets import  MainWidgetBase, RefWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
-from ..core.dataClass import DataPoint, DataTags, DataTagT
-from ..types.configT import _ConfFontSizeT
-from ..confReader import getConf, saveToConf
+from lires.core.dataClass import DataPoint, DataTags, DataTagT
+from lires.types.configT import _ConfFontSizeT
+from lires.confReader import getConf, saveToConf
 
 class FileTagGUI(MainWidgetBase):
     """

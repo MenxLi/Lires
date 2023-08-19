@@ -9,9 +9,9 @@ from PyQt6.QtWidgets import QHBoxLayout, QSplitter
 
 from .widgets import MainWidgetBase
 from .fileInfo import FileInfo
-from ..core.dataClass import DataPoint
-from ..core.htmlTools import unpackHtmlTmp
-from ..confReader import getConf
+from lires.core.dataClass import DataPoint
+from lires.core.htmlTools import unpackHtmlTmp
+from lires.confReader import getConf
 
 if TYPE_CHECKING:
     from .mainWindow import MainWindow

@@ -20,7 +20,7 @@ from lires.core import globalVar as G
 class DocCollector(ABC):
     DOC_EXT = ".pdf"
     retrive_key: str
-    logger = G.logger_rbm
+    logger = G.logger_lrs
     def __init__(self, retrive_key: str):
         self.retrive_key = retrive_key
 
@@ -171,7 +171,7 @@ class LiresRetriver:
         "arxiv": ArXivCollector,
         "web": WebCollector,
     }
-    logger = G.logger_rbm
+    logger = G.logger_lrs
     def __init__(self, retrive_str: str):
         collector_key = retrive_str.split(":")[0].lower()
         retrive_key = retrive_str[len(collector_key) + 1:]
@@ -271,7 +271,7 @@ def main():
     # t = "arxiv:2108.06753v1"
     args = parser.parse_args()
 
-    logger = logging.getLogger("rbm")
+    logger = logging.getLogger("lires")
     handler = logging.StreamHandler(sys.stdout)
     logger.setLevel(getattr(logging, args.log_level))
     handler.setLevel(getattr(logging, args.log_level))

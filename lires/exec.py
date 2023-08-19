@@ -32,7 +32,7 @@ def run():
         NOT_RUN = True
 
     if not os.path.exists(getConf()["database"]):
-        G.logger_rbm.warn("Database not exists, default database path is set. "\
+        G.logger_lrs.warn("Database not exists, default database path is set. "\
                           "The path can be changed in settings or edit conf.json")
         if not os.path.exists(DEFAULT_DATA_PATH):
             os.mkdir(DEFAULT_DATA_PATH)
@@ -108,7 +108,7 @@ def run():
         subprocess.check_call(call_args)
 
     if args.subparser == "client":
-        from lires.gui.main import execProg
+        from lires_qt.main import execProg
         execProg()
 
     for proc in procs:

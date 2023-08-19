@@ -14,12 +14,12 @@ if TYPE_CHECKING:
     from .fileInfo import FileInfo
     from .fileSelector import FileSelector
     from .fileTags import FileTag
-    from ..core.dataClass import DataBase
-    from ..types.configT import _ConfFontSizeT
+    from lires.core.dataClass import DataBase
+    from lires.types.configT import _ConfFontSizeT
 
-LOGGER = logging.getLogger("rbm")
+LOGGER = logging.getLogger("lires_qt")
 class WidgetMixin:
-    logger = logging.getLogger("rbm")
+    logger = logging.getLogger("lires_qt")
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 

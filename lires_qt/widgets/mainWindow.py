@@ -1,3 +1,4 @@
+import os, typing, requests, functools, time, shutil, traceback, webbrowser
 import pyperclip
 from typing import Literal, Tuple, List, Callable
 from PyQt6 import QtGui
@@ -19,17 +20,18 @@ from .tagModifer import TagModifier
 from .helpWidget import HelpWidget
 from ._styleUtils import qIconFromSVG_autoBW, isThemeDarkMode
 
-from ..core.fileTools import addDocument
-from ..core.fileToolsV import FileManipulatorVirtual
-from ..core.bibReader import BibParser, BibConverter
-from ..core.utils import openFile, ProgressBarCustom
-from ..core.serverConn import ServerConn
-from ..core.dataClass import DataTags, DataBase, DataPoint
-from ..confReader import getConf, ICON_PATH, getConfV, getDatabase, saveToConf, saveToConf_guiStatus
-from ..confReader import TMP_DB, TMP_WEB, TMP_COVER, getStyleSheets
-from ..version import VERSION
+from lires.core.fileTools import addDocument
+from lires.core.fileToolsV import FileManipulatorVirtual
+from lires.core.bibReader import BibParser, BibConverter
+from lires.core.utils import openFile, ProgressBarCustom
+from lires.core.serverConn import ServerConn
+from lires.core.dataClass import DataTags, DataBase, DataPoint
+from lires.confReader import getConf, getConfV, saveToConf, saveToConf_guiStatus
+from lires.confReader import TMP_DB, TMP_WEB, TMP_COVER
+from lires.version import VERSION
 from .qtThreading import SyncWorker, InitDBWorker
-import os, typing, requests, functools, time, shutil, traceback, webbrowser
+
+from ..config import ICON_PATH, getStyleSheets
 
 class MainTabWidget(QTabWidget, RefWidgetBase):
     def __init__(self, parent) -> None:

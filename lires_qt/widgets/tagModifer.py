@@ -3,8 +3,8 @@ from typing import Callable, Optional
 from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QInputDialog, QDialog
 from .tagSelector import TagSelector, DataItemAbstract
 from .widgets import RefMixin, RefWidgetBase, WidgetMixin
-from ..confReader import saveToConf
-from ..core.dataClass import TagRule, DataTags
+from lires.confReader import saveToConf
+from lires.core.dataClass import TagRule, DataTags
 
 class TagModifier(RefMixin, WidgetMixin):
     def __init__(self, origin: RefWidgetBase) -> None:

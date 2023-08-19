@@ -5,10 +5,10 @@ import requests
 from typing import TYPE_CHECKING, List, TypedDict
 from PyQt6.QtCore import QObject, QRunnable, pyqtSignal
 
-from ..core import globalVar as G
+from lires.core import globalVar as G
 if TYPE_CHECKING:
-    from ..core.dataClass import DataPoint, DataBase
-    from ..core.dataSearcher import DataSearcher, StringSearchT
+    from lires.core.dataClass import DataPoint, DataBase
+    from lires.core.dataSearcher import DataSearcher, StringSearchT
 
 
 class ThreadSignalsQ(QObject):
@@ -89,7 +89,7 @@ class SearchWorker(QRunnable):
         try:
             res = self.searcher.run()
         except AttributeError as e: 
-            G.logger_rbm.warning("Error while runing searcher: {}".format(e))
+            G.logger_lrs.warning("Error while runing searcher: {}".format(e))
             return
         self.signals.finished.emit({
             "id": id(self),

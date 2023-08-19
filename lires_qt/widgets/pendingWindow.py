@@ -4,9 +4,11 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QListView, QVBoxLayout, QInputD
 from PyQt6.QtGui import QAction
 
 from .widgets import RefWidgetBase
-from ..core.utils import openFile
-from ..core.pdfTools import getPDFCoverAsQPixelmap
-from ..confReader import ICON_PATH, getConfV
+from lires.core.utils import openFile
+from lires.confReader import getConfV
+
+from ..config import ICON_PATH
+from ..utils import getPDFCoverAsQPixelmap
 
 
 class PendingWindowGUI(RefWidgetBase):

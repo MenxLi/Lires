@@ -2,15 +2,17 @@ import os
 import webbrowser
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QDialog, QMessageBox
 from .widgets import WidgetMixin
-from ..core.utils import openFile
-from ..confReader import DOC_PATH, WEBPAGE
-from ..version import _VERSION_HISTORIES
+from lires.core.utils import openFile
+from lires.confReader import WEBPAGE
+from lires.version import _VERSION_HISTORIES
+
+from ..config import DOC_PATH
 
 
 LICENSE = """
 BSD 2-Clause License
 
-Copyright (c) 2021-2022, Mengxun Li
+Copyright (c) 2021-Now, Mengxun Li
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,7 +35,6 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """
 
 class HelpWidget(QDialog, WidgetMixin):

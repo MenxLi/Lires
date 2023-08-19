@@ -6,8 +6,8 @@ if TYPE_CHECKING:
     from ..server.auth.account import AccountPermission
 
 __initialized: bool
-logger_rbm: logging.Logger
-logger_rbm_server: logging.Logger
+logger_lrs: logging.Logger
+logger_lrs_server: logging.Logger
 last_status_code: int   # a register for last connection status code
 tmpdirs: List[str]      # temporary directories, will be cleared on lires GUI exit
 
@@ -23,8 +23,8 @@ __global_dict: dict
 
 def init():
     global tmpdirs
-    global logger_rbm
-    global logger_rbm_server
+    global logger_lrs
+    global logger_lrs_server
     global __initialized
     global last_status_code
     global prog_args, prog_parser
@@ -33,14 +33,14 @@ def init():
 
     thismodule = sys.modules[__name__]
     if hasattr(thismodule, "__initialized") and __initialized:
-        logger_rbm.debug("Skipping re-initialization of globalVar")
+        logger_lrs.debug("Skipping re-initialization of globalVar")
         return
     else:
         __initialized = True
 
     tmpdirs = []
-    logger_rbm = logging.getLogger("rbm")
-    logger_rbm_server = logging.getLogger("rbm_server")
+    logger_lrs = logging.getLogger("lires")
+    logger_lrs_server = logging.getLogger("lires_server")
     last_status_code = 200
     prog_args = None
     prog_parser = None
@@ -65,11 +65,11 @@ def hasGlobalAttr(key):
 
 def clearTempDirs():
     global tmpdirs
-    logger_rbm.info("Clearing temporary directories...")
+    logger_lrs.info("Clearing temporary directories...")
     for d in tmpdirs:
         if os.path.exists(d):
             shutil.rmtree(d)
-            logger_rbm.debug("Removed temporary directory - {}".format(d))
+            logger_lrs.debug("Removed temporary directory - {}".format(d))
     tmpdirs = []
 
 def resetGlobalConfVar():

@@ -6,12 +6,12 @@ import pybtex.scanner
 from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QDialog
 from PyQt6 import QtCore
 
-from ..core.dataClass import DataPoint, DataTags, DataBase
+from lires.core.dataClass import DataPoint, DataTags, DataBase
 from .tagEditor import TagEditor
-from ..core.bibReader import BibParser
-from ..core.fileTools import addDocument
-from ..core.fileToolsV import FileManipulatorVirtual
-from ..confReader import getDatabase
+from lires.core.bibReader import BibParser
+from lires.core.fileTools import addDocument
+from lires.core.fileToolsV import FileManipulatorVirtual
+from lires.confReader import getDatabase
 from .widgets import WidgetMixin
 from .bibtexEditor import BibEditor
 

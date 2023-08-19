@@ -7,13 +7,15 @@ from PyQt6.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLay
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtGui import QKeySequence, QShortcut
 from .widgets import MainWidgetBase
-from ..confReader import ICON_PATH, getConfV, TMP_COVER, getServerURL
-from ..core.dataClass import DataPoint
-from ..core.serverConn import ServerConn
-from ..core.pdfTools import getPDFCoverAsQPixelmap
-from ..core.encryptClient import generateHexHash
+from lires.confReader import getConfV, TMP_COVER, getServerURL
+from lires.core.dataClass import DataPoint
+from lires.core.serverConn import ServerConn
+from lires.core.encryptClient import generateHexHash
 
 from .mdHighlighter import MarkdownSyntaxHighlighter
+
+from ..config import ICON_PATH
+from ..utils import getPDFCoverAsQPixelmap
 
 
 class FileInfoGUI(MainWidgetBase):

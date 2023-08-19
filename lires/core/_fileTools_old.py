@@ -129,7 +129,7 @@ class FileGenerator(FileGeneratorBase):
         self._generateBibFile() # Blank file
         self._generateCommentFile()
         self._generateInfoFile()
-        G.logger_rbm.info("File generated at: {}".format(self.dst_dir))
+        G.logger_lrs.info("File generated at: {}".format(self.dst_dir))
         return True
 
     @classmethod
@@ -194,7 +194,7 @@ class FileManipulator:
     """
     Tools to manipulate single data directory
     """
-    logger = G.logger_rbm
+    logger = G.logger_lrs
     LOG_TOLERANCE_INTERVAL = 0.5
     try:
         _WATCHING_EXT = getConfV("accepted_extensions") + [".json", ".md", ".bib"]

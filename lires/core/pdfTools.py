@@ -4,44 +4,10 @@ import os
 import logging
 import requests, os, zipfile
 from tqdm import tqdm
-from ..confReader import ICON_PATH, DEFAULT_PDF_VIEWER_DIR, TMP_DIR
+from ..confReader import DEFAULT_PDF_VIEWER_DIR, TMP_DIR
 
 # DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v3.0.279/pdfjs-3.0.279-dist.zip"
 DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v3.7.107/pdfjs-3.7.107-dist.zip"
-
-def render_pdf_page(page_data, for_cover=False):
-    from PyQt6 import QtGui
-    zoom_matrix = fitz.Matrix(4, 4)
-    if for_cover:
-        zoom_matrix = fitz.Matrix(1, 1)
-    
-    pagePixmap = page_data.get_pixmap(
-        matrix = zoom_matrix, 
-        alpha=False) 
-    imageFormat = QtGui.QImage.Format.Format_RGB888 
-    pageQImage = QtGui.QImage(
-        pagePixmap.samples,
-        pagePixmap.width, 
-        pagePixmap.height, 
-        pagePixmap.stride,
-        imageFormat)
-
-    pixmap = QtGui.QPixmap()
-    pixmap.convertFromImage(pageQImage)
-    return pixmap
-
-def getPDFCoverAsQPixelmap(f_path: str):
-    from PyQt6 import QtGui
-    cover: QtGui.QPixmap
-    try:
-        with PDFAnalyser(f_path) as doc:
-            cover = doc.getCoverIcon()
-        return cover
-    except Exception as E:
-        logging.getLogger("rbm").debug(f"Error happened while rendering pdf cover: {E}")
-        cover= QtGui.QPixmap()
-        cover.convertFromImage(QtGui.QImage(os.path.join(ICON_PATH, "error-48px.png")))
-    return cover
 
 def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL) -> bool:
     if os.path.exists(DEFAULT_PDF_VIEWER_DIR):
@@ -95,11 +61,6 @@ class PDFAnalyser:
     def __exit__(self, exc_type, exc_value, traceback):
         self.doc.close()
 
-    def getCoverIcon(self):
-        page = self.doc.load_page(0)
-        cover = render_pdf_page(page)
-        return cover
-    
     def getText(self, no_new_line = True, smaller_space = True) -> str:
         text = chr(12).join([page.get_text() for page in self.doc]) # type: ignore
         if no_new_line:

@@ -30,7 +30,7 @@ class ConnectionBase:
     
     @property
     def logger(self):
-        return G.logger_rbm
+        return G.logger_lrs
 
     def _checkRes(self, res: requests.Response) -> bool:
         """

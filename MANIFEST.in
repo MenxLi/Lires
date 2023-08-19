@@ -1,7 +1,7 @@
 include README.md
 include lires/version.yaml *
-recursive-include lires/docs *
-recursive-include lires/icons *
 recursive-include lires/assets *
-recursive-include lires/stylesheets *
-recursive-include lires-web/dist *
+recursive-include lires_qt/docs *
+recursive-include lires_qt/icons *
+recursive-include lires_qt/stylesheets *
+recursive-include lires_web/dist *

@@ -72,7 +72,7 @@ class DBConnection:
     """
     to manage database connection
     """
-    logger = G.logger_rbm
+    logger = G.logger_lrs
     lock = threading.Lock()
 
     def __init__(self, db_dir: str, fname: str = "rbm.db") -> None:

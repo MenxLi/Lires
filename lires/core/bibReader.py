@@ -17,7 +17,7 @@ def checkBibtexValidity(bib_str: str) -> bool:
     """
     Check if the bib string is valid
     """
-    logger = G.logger_rbm
+    logger = G.logger_lrs
     try:
         bib_parser = BibParser()
         _ = bib_parser(bib_str)[0]
@@ -36,7 +36,7 @@ def checkBibtexValidity(bib_str: str) -> bool:
         return False
 
 class BibParser:
-    logger = logging.getLogger("rbm")
+    logger = logging.getLogger("lires")
     def __init__(self, mode = "single"):
         self.mode = mode
     
@@ -127,7 +127,7 @@ def parallelParseBibtex(bib_strs: list[str]) -> list[ParsedRef]:
 
 
 class BibConverter:
-    logger = logging.getLogger("rbm")
+    logger = logging.getLogger("lires")
     def fromNBib(self, nb: str) -> str:
         parsed = nbib.read(nb.strip("\n") + "\n")
         if not parsed:

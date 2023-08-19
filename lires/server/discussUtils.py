@@ -3,7 +3,7 @@ import os, time, sqlite3
 from typing import TypedDict, Dict, List, Optional
 from uuid import uuid4
 from lires.core.utils import TimeUtils
-from ._config import DISCUSSION_DB_PATH, logger_rbm
+from ._config import DISCUSSION_DB_PATH, logger_lrs
 
 class DiscussLine(TypedDict):
     discuss_uid: str            # Uid for this single discussion
@@ -19,7 +19,7 @@ class DiscussSet:
     """
     All discussions related to one file
     """
-    logger = logger_rbm
+    logger = logger_lrs
     def __init__(self, database: DiscussDatabase, file_uid: str):
         self.db = database
         self.file_uid = file_uid
@@ -47,7 +47,7 @@ class DiscussSet:
         return
 
 class DiscussDatabase:
-    logger = logger_rbm
+    logger = logger_lrs
     def __init__(self):
         if not os.path.exists(DISCUSSION_DB_PATH):
             self.logger.info("Created new discussion database: {}".format(DISCUSSION_DB_PATH))

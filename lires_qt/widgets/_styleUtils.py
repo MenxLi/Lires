@@ -1,7 +1,7 @@
 import platform
 from subprocess import Popen, PIPE
 from PyQt6.QtGui import QPainter, QPixmap, QColor, QIcon
-from ..confReader import getConfV
+from lires.confReader import getConfV
 
 
 def isSysDarkMode() -> bool:

@@ -5,12 +5,14 @@ import warnings, os, shutil, time
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog
 
-from ..core.dataClass import DataList, DataTableList
+from lires.core.dataClass import DataList, DataTableList
+from lires.confReader import getConf, getConfV, saveToConf, TMP_DB
 
 from ._styleUtils import isThemeDarkMode
 from .widgets import RefWidgetBase
 from .serverPreset import ServerPresetEdit, ServerPresetChoice
-from ..confReader import getConf, getConfV, getStyleSheets, saveToConf, TMP_DB
+
+from ..config import getStyleSheets
 
 class SubSettingsBase(RefWidgetBase):
 	def __init__(self) -> None:

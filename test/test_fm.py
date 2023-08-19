@@ -9,7 +9,7 @@ from lires.core.fileToolsV import FileManipulatorVirtual
 from lires.core.dataClass import DataPoint, DataBase
 
 import logging
-logger = logging.getLogger("rbm")
+logger = logging.getLogger("lires")
 logger.info("Hi")
 
 test_bibtex = """

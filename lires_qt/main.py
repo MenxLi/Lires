@@ -2,15 +2,17 @@
 from PyQt6 import QtNetwork
 from PyQt6.QtWidgets import QApplication, QStyleFactory
 import logging, os, sys
-from ..core import globalVar as G
-from ..confReader import getStyleSheets, getConf
-from ..version import VERSION
-from ..core.utils import getDateTimeStr
+from lires.core import globalVar as G
+from lires.confReader import getConf
+from lires.version import VERSION
+from lires.core.utils import getDateTimeStr
 
-from .mainWindow import MainWindow
+from .widgets.mainWindow import MainWindow
+
+from .config import getStyleSheets
 
 def execProg():
-    logger = logging.getLogger("rbm")
+    logger = logging.getLogger("lires")
     logger.info("************Welcome to Lires-v{} | {}**************".format(VERSION, getDateTimeStr()))
 
     # Qt proxy settings

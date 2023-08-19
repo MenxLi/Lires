@@ -1,7 +1,7 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QShortcut, QKeySequence
 from PyQt6.QtWidgets import QLineEdit, QWidget, QHBoxLayout, QComboBox
-from ..core.dataSearcher import DataSearcher
+from lires.core.dataSearcher import DataSearcher
 
 class SearchLineEdit(QLineEdit):
 

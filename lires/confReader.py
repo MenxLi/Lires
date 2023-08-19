@@ -2,7 +2,7 @@ import os, json, tempfile, logging
 from .core import globalVar as G
 from .types.configT import *
 
-rbm_logger = logging.getLogger("rbm")
+logger_lrs = logging.getLogger("lires")
 
 join = os.path.join
 
@@ -20,14 +20,12 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # │   ├── webpage [TMP_WEB]
 # │   ├── notes_webpage [TMP_WEB_NOTES]
 # │   ├── index [TMP_INDEX]
-# │   │   ├── feature.pt [DOC_FEATURE_PATH]
 # │   │   ├── vector.db [FEATURE_PATH]
 # │   │   └── summary [DOC_SUMMARY_DIR]
 
-__this_file_path = os.path.abspath(__file__)
+__this_file_path = os.path.abspath(os.path.realpath(__file__))
 
-CURR_PATH = os.path.dirname(__this_file_path)
-CURR_PATH = os.path.abspath(CURR_PATH)
+CURR_PATH = os.path.abspath(os.path.dirname(__this_file_path))
 if "LRS_HOME" in os.environ:
     LRS_HOME = os.environ["LRS_HOME"]
 else:
@@ -36,15 +34,9 @@ else:
 if G.prog_args and G.prog_args.config_file:
     CONF_FILE_PATH = os.path.abspath(G.prog_args.config_file)
     if os.path.isdir(CONF_FILE_PATH):
-        CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "rbm-conf.json")
+        CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "lrs-conf.json")
 else:
     CONF_FILE_PATH = join(LRS_HOME, "conf.json")
-
-
-
-ICON_PATH = join(CURR_PATH, "gui", "icons")
-STYLESHEET_PATH = join(CURR_PATH, "gui", "stylesheets")
-DOC_PATH = join(CURR_PATH, "gui", "docs")
 
 ASSETS_PATH = join(CURR_PATH, "assets")
 BIB_TEMPLATE_PATH = join(ASSETS_PATH, "bibtexTemplates")
@@ -62,7 +54,6 @@ TMP_WEB_NOTES = os.path.join(TMP_DIR, "notes_webpage")  # For notes as webpages
 TMP_INDEX = os.path.join(TMP_DIR, "index")      # For index cache
 
 # indexing related
-DOC_FEATURE_PATH = os.path.join(TMP_INDEX, "feature.pt")    # will deprecate!!
 VECTOR_DB_PATH = os.path.join(TMP_INDEX, "vector.db")
 DOC_SUMMARY_DIR = os.path.join(TMP_INDEX, "summary")
 
@@ -75,21 +66,6 @@ for _p in [TMP_DIR]:
 for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES, TMP_INDEX, DOC_SUMMARY_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
-
-def getStyleSheets() -> dict:
-    global STYLESHEET_PATH
-    ss = {
-        # "Aqua": join(STYLESHEET_PATH, "Aqua.qss"),
-        "Breeze-light": join(STYLESHEET_PATH, "Breeze", "light.qss"),
-        "Breeze-dark": join(STYLESHEET_PATH, "Breeze", "dark.qss"),
-    }
-    for f_ in os.listdir(STYLESHEET_PATH):
-        k = os.path.splitext(f_)[0]
-        v = join(STYLESHEET_PATH, f_)
-        if os.path.isfile(v) and v.endswith(".qss"):
-            ss[k] = v
-    ss["<None>"] = ""
-    return ss
 
 def getConf() -> LiresConfT:
     global CONF_FILE_PATH, CURR_PATH, G
@@ -134,9 +110,9 @@ def getConfV(key : str):
     try:
         return getConf()[key]
     except json.decoder.JSONDecodeError as e:
-        rbm_logger.warn("Error while reading configuration: {}".format(e))
+        logger_lrs.warn("Error while reading configuration: {}".format(e))
         with open(CONF_FILE_PATH, "r") as fp:
-            rbm_logger.debug("Current configuration file: \n{}".format(fp.read()))
+            logger_lrs.debug("Current configuration file: \n{}".format(fp.read()))
         raise Exception("Manual exception, check log.")
 
 def getServerURL() -> str:

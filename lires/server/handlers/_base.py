@@ -15,7 +15,7 @@ def getLocalDatabasePath():
     return getConf()['database']
 
 def loadDataBase(db_path: str):
-    G.logger_rbm_server.info("Loading database: {}".format(db_path))
+    G.logger_lrs_server.info("Loading database: {}".format(db_path))
     db = DataBase()
     db.init(db_path, force_offline=True)
     return db
@@ -27,7 +27,7 @@ class RequestHandlerMixin():
     set_header: Callable
     cookies: http.cookies.SimpleCookie
     db_path: str = getLocalDatabasePath()
-    logger = G.logger_rbm_server
+    logger = G.logger_lrs_server
 
     def initdb(self):
         """

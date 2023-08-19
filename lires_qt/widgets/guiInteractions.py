@@ -2,7 +2,7 @@ import time, logging
 from typing import List
 from PyQt6.QtWidgets import QDialog, QPushButton, QVBoxLayout, QHBoxLayout, QLabel
 from PyQt6.QtCore import pyqtSignal, QObject
-from ..core.clInteractions import ChoicePromptAbstract
+from lires.core.clInteractions import ChoicePromptAbstract
 
 
 class ChoicePromptDialog(QDialog):
@@ -48,7 +48,7 @@ class M_ChoicePromptGUI(type(ChoicePromptAbstract), type(QObject)): ...
     # https://stackoverflow.com/a/41266737
 
 class ChoicePromptGUI(ChoicePromptAbstract, QObject, metaclass = M_ChoicePromptGUI):
-    logger = logging.getLogger("rbm")
+    logger = logging.getLogger("lires")
     open_choices = pyqtSignal(str, list, str)
     def __init__(self):
         ChoicePromptAbstract.__init__(self)

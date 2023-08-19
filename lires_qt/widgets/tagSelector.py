@@ -7,9 +7,9 @@ from PyQt6 import QtCore
 from QCollapsibleCheckList import CollapsibleCheckList, DataItemAbstract
 
 from .widgets import RefWidgetBase, WidgetMixin
-from ..confReader import saveToConf_guiStatus, getConf
-from ..core.dataClass import DataTags, TagRule, DataTagT
-from ..core import globalVar as G
+from lires.confReader import saveToConf_guiStatus, getConf
+from lires.core.dataClass import DataTags, TagRule, DataTagT
+from lires.core import globalVar as G
 
 class TagSelector(RefWidgetBase):
     entry_added = QtCore.pyqtSignal(str)

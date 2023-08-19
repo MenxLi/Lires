@@ -23,7 +23,7 @@ from .serverConn import ServerConn
 from . import globalVar as G
 
 class DataCore:
-    logger = G.logger_rbm
+    logger = G.logger_lrs
 
 class TagRule(DataCore):
     SEP = "->"

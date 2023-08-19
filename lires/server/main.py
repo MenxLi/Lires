@@ -88,7 +88,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
 
     # init loggers
     setupLogger(
-        G.logger_rbm_server,
+        G.logger_lrs_server,
         term_id="server",
         term_id_color=BCOLORS.OKBLUE,
         term_log_level="DEBUG",
@@ -96,7 +96,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
         file_log_level="INFO",
     )
     setupLogger(
-        G.logger_rbm,
+        G.logger_lrs,
         term_id="core",
         term_id_color=BCOLORS.OKGREEN,
         term_log_level="DEBUG",
@@ -110,7 +110,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
     G.iserver_port = iserver_port
 
     app = Application()
-    G.logger_rbm_server.info("Starting server at port: {}".format(port))
+    G.logger_lrs_server.info("Starting server at port: {}".format(port))
 
     ssl_ctx = None
     if ssl_config is not None:

@@ -38,7 +38,7 @@ class MuteEverything:
         sys.stderr = self.stderr
 
 def hintCall(func: CallVar) -> CallVar:
-    logger = logging.getLogger("rbm")
+    logger = logging.getLogger("lires")
     @wraps(func)
     def func_(*args, **kwargs):
         logger.debug(f" [{func.__name__}] ")
@@ -46,7 +46,7 @@ def hintCall(func: CallVar) -> CallVar:
     return func_    # type: ignore
 
 def timedFunc(func: CallVar) -> CallVar:
-    logger = logging.getLogger("rbm")
+    logger = logging.getLogger("lires")
     @wraps(func)
     def func_(*args, **kwargs):
         with Timer(func.__name__, print_func=lambda x: logger.debug(x)) as timer:
@@ -311,7 +311,7 @@ def formatMarkdownHTML(md_html: str, abs_fpath: bool = True):
 
     htm = html_template.substitute(style=css, content=md_html, mathjax = mathjax_js)
     if USE_MATHJAX:
-        logging.getLogger("rbm").debug("Using mathjax")
+        logging.getLogger("lires").debug("Using mathjax")
     return htm
 
 # https://stackoverflow.com/questions/287871/how-do-i-print-colored-text-to-the-terminal

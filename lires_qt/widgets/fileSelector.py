@@ -11,13 +11,13 @@ from .widgets import  MainWidgetBase, LazyResizeMixin
 from .searchBar import SearchBar
 from .bibtexEditor import BibEditorWithOK
 from .qtThreading import SearchWorker
-from ..core import globalVar as G
-from ..core.dataClass import  DataPoint, DataList, DataTags, DataTableList
-from ..core.dataSearcher import StringSearchT, DataSearcher
-from ..core.utils import copy2clip, openFile
-from ..core.encryptClient import generateHexHash
-from ..confReader import getConf, getConfV, getServerURL
-from ..types.configT import _ConfFontSizeT
+from lires.core import globalVar as G
+from lires.core.dataClass import  DataPoint, DataList, DataTags, DataTableList
+from lires.core.dataSearcher import StringSearchT, DataSearcher
+from lires.core.utils import copy2clip, openFile
+from lires.core.encryptClient import generateHexHash
+from lires.confReader import getConf, getConfV, getServerURL
+from lires.types.configT import _ConfFontSizeT
 
 class FileSelectorGUI(MainWidgetBase):
     def __init__(self, parent):

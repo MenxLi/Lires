@@ -7,7 +7,7 @@ from lires.confReader import DEFAULT_PDF_VIEWER_DIR
 
 class PdfJsHandler(RequestHandlerMixin, tornado.web.StaticFileHandler):
     root_dir = DEFAULT_PDF_VIEWER_DIR
-    G.logger_rbm.info("Using pdf viewer: {}".format(root_dir))
+    G.logger_lrs.info("Using pdf viewer: {}".format(root_dir))
     def get(self, *args, **kwargs):
         # to prevent unauthorized access! 
         # otherwise, anyone can access the pdf viewer and this may become a public pdf viewer...?

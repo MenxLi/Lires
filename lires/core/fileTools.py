@@ -66,13 +66,13 @@ def addDocument(
     try:
         bib = parser(citation)[0]   # check if citation is valid
     except IndexError as e:
-        G.logger_rbm.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
+        G.logger_lrs.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
         return 
     except pybtex.scanner.PrematureEOF:
-        G.logger_rbm.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
+        G.logger_lrs.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
         return 
     except KeyError:
-        G.logger_rbm.warning(f"KeyError. (Author year and title must be provided)")
+        G.logger_lrs.warning(f"KeyError. (Author year and title must be provided)")
         return 
 
     if "abstract" in bib and abstract == "":
@@ -94,7 +94,7 @@ def addDocument(
             aim_bib = parser(d_file_info["bibtex"])[0] # type: ignore
             aim_search_str = getSearchStr(aim_bib)
             if search_str == aim_search_str:
-                G.logger_rbm.warning(f"Duplicate entry found: {_uid}")
+                G.logger_lrs.warning(f"Duplicate entry found: {_uid}")
                 return None
 
     uid = db_conn.addEntry(citation, abstract, comments, doc_info = doc_info)
@@ -108,7 +108,7 @@ def addDocument(
     
 
 class FileManipulator:
-    logger = G.logger_rbm
+    logger = G.logger_lrs
 
     # LOG_TOLERANCE_INTERVAL = 0.5
 
