@@ -33,10 +33,13 @@ class RequestHandlerMixin():
     db_path: str = getLocalDatabasePath()
     logger = G.logger_lrs_server
 
-    # Set max_workers to larger than 1 will somehow cause blocking
-    # if iserver is running in a container (it's ok if running on host)
-    # and we are sending requests from the core server with multiple threads...
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    # Set max_workers to larger than 1 will somehow cause blocking 
+    # if iserver is running in a container (it's ok if runs on host), 
+    # and we are sending offloaded featurize requests from the core server with multiple threads...
+    # (Happened on MacOS with Docker version 24.0.5, build ced0996)
+    # (Not observed on OpenSUSE-leap 15 with Docker version 23.0.6-ce, build 9dbdbd4b6d76)
+    # (More tests needed ... )
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
     @property
     def io_loop(self):
