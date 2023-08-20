@@ -371,9 +371,14 @@ version_history:
     - Refactor - remove cmd/cmdA http handlers
     - Dev - modules rename
 
-  1.0.0:
-    - Lires!
-    - Name change - resbibman -> lires, rbm -> lrs
-    - Isolate lires-qt
-    - Dev - lrs-cluster for server clustering
-    - Dev - startup subcommand change, how have four entries - server, web, client, iserver
+  1.0.0 - New start!:
+    - Lires! A new name for the project.
+    - Main features and refactors:
+      - Name change - resbibman -> lires, rbm -> lrs
+      - Isolation of the GUI module - lires-qt
+      - More detailed version changelog
+    - Performance updates:
+      - use asyncio threading and async iter wrap to offload blocking task
+    - Developments:
+      - Dev - lrs-cluster for server clustering
+      - Dev - startup subcommand change, how have four entries - server, web, client, iserver
