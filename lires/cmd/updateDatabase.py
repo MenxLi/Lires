@@ -115,6 +115,9 @@ def changeHomeStructure():
 
     old_web_dir = os.path.join(home, "RBMWeb")
     if os.path.exists(old_web_dir):
+        if os.path.exists(LRS_SERVER_HOME):
+            assert os.listdir(os.path.join(LRS_SERVER_HOME, "account")) == [], "account dir is not empty"
+            shutil.rmtree(LRS_SERVER_HOME)
         shutil.move(old_web_dir, LRS_SERVER_HOME)
     return
 
