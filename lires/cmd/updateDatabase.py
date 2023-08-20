@@ -106,11 +106,15 @@ def changeHomeStructure():
     old_tmp_dir = os.path.join(home, "RBM.cache")
     old_index_dir = os.path.join(old_tmp_dir, "index")
     if os.path.exists(old_index_dir):
+        if os.path.exists(INDEX_DIR):
+            shutil.rmtree(INDEX_DIR)
         shutil.move(old_index_dir, INDEX_DIR)
 
     old_tmp_dir = os.path.join(home, "RBM.cache")
     new_tmp_dir = os.path.join(home, TMP_DIR)
     if os.path.exists(old_tmp_dir):
+        if os.path.exists(new_tmp_dir):
+            shutil.rmtree(new_tmp_dir)
         shutil.move(old_tmp_dir, new_tmp_dir)
 
     old_web_dir = os.path.join(home, "RBMWeb")
