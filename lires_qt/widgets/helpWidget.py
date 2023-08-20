@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QDialog, QMessageBox
 from .widgets import WidgetMixin
 from lires.core.utils import openFile
 from lires.confReader import WEBPAGE
-from lires.version import _VERSION_HISTORIES
+from lires.version import VERSION_HISTORIES
 
 from ..config import DOC_PATH
 
@@ -86,7 +86,7 @@ class HelpWidget(QDialog, WidgetMixin):
 
     def showVersionHistory(self):
         self.logger.debug("helpWidget: Open changelog")
-        version_history = [": ".join(x) for x in _VERSION_HISTORIES]
+        version_history = [": ".join(str(x)) for x in VERSION_HISTORIES]
         if len(version_history) > 20:
             version_history = ["..."] + version_history[-19:]
         version_history = "\n".join(version_history)

@@ -3,7 +3,7 @@
 
 import {getBackendURL} from "../config.js";
 import { useSettingsStore } from "../components/store.js";
-import type { DataInfoT, AccountPermission, SearchResult} from "./protocalT.js";
+import type { DataInfoT, AccountPermission, SearchResult, Changelog} from "./protocalT.js";
 
 export class ServerConn {
     constructor(){
@@ -409,7 +409,7 @@ export class ServerConn {
     }
 
     // ---- info ----
-    async changelog(): Promise<Record<string, string[]>>{
+    async changelog(): Promise<Changelog>{
         const url = new URL(`${getBackendURL()}/info/changelog`);
         url.searchParams.append("key", this.settings.encKey);
         const response = await fetch(url.toString(),

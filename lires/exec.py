@@ -10,7 +10,7 @@ def run():
 
     # Read configuration file after parse agruments
     from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE, LRS_HOME
-    from .version import VERSION, _VERSION_HISTORIES
+    from .version import VERSION, VERSION_HISTORIES
     from .initLogger import initDefaultLogger
 
     initDefaultLogger("DEBUG")
@@ -39,8 +39,17 @@ def run():
         saveToConf(database=DEFAULT_DATA_PATH)
 
     if args.version:
-        for v,d in _VERSION_HISTORIES:
-            print("v{version}: {history}".format(version = v, history = d))
+        for v,change_list in VERSION_HISTORIES:
+            change_strings = []
+            for change in change_list:
+                if isinstance(change, str):
+                    change_strings.append(change)
+                elif isinstance(change, dict):
+                    __only_key = list(change.keys())[0]
+                    change_strings.append(f"{__only_key}: ")
+                    for item in change[__only_key]:
+                        change_strings.append("  "+item)
+            print("v{version}: \n\t{history}".format(version = v, history = "\n\t".join(change_strings)))
         print("=====================================")
         print("Current version: ", VERSION)
         NOT_RUN = True

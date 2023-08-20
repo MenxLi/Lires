@@ -32,3 +32,4 @@ export interface SearchResultant {
 }
 
 export type SearchResult = Record<string, SearchResultant | null>;
+export type Changelog = [string, string[] | Record<string, string[]>][];

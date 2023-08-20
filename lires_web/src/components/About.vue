@@ -2,9 +2,10 @@
     import { ServerConn } from '../core/serverConn';
     import { ref, computed } from 'vue';
     import { getBackendURL } from '../config';
+    import { type Changelog } from '../core/protocalT';
     import Banner from './common/Banner.vue';
 
-    const changelog = ref<Record<string, string[]>>({});
+    const changelog = ref<Changelog>([]);
 
     const updateChangelog = () => {
         new ServerConn().changelog().then(
@@ -20,12 +21,7 @@
     updateChangelog();
 
     const reversedChangelog = computed(() => {
-        const new_obj= {} as Record<string, string[]>;
-        const rev_obj = Object.keys(changelog.value).reverse();
-        rev_obj.forEach(function(i) { 
-            new_obj[i] = changelog.value[i];
-        })
-        return new_obj;
+        return changelog.value.slice().reverse();
     })
 
     
@@ -49,10 +45,19 @@
 
         <h2>Change log</h2>
         <div id="versionHistory" class="content">
-            <div class="block" v-for="(changes, version) in reversedChangelog">
-                <h2>{{version.toString()}}</h2>
+            <div class="block" v-for="i in reversedChangelog.length">
+                <h2>{{reversedChangelog[i-1][0].toString()}}</h2>
                 <ul>
-                    <li v-for="change in changes">{{change}}</li>
+                    <li v-for="change in reversedChangelog[i-1][1]">
+                        <div v-if="typeof change === 'string'"> {{change}} </div>
+                        <div v-else-if="(typeof change === 'object')">
+                            <!-- change is an object with only one key, and the value is an array of strings -->
+                            {{ Object.keys(change)[0] }}
+                            <ul>
+                                <li v-for="item in change[Object.keys(change)[0] as any]">{{item}}</li>
+                            </ul>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
