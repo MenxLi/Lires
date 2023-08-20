@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator
+from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator, TypeVar
 import tornado.web
 from tornado.ioloop import IOLoop
 import asyncio
 import concurrent.futures
+import time
 
 import http.cookies
 from ..auth.account import AccountPermission
@@ -31,7 +32,11 @@ class RequestHandlerMixin():
     cookies: http.cookies.SimpleCookie
     db_path: str = getLocalDatabasePath()
     logger = G.logger_lrs_server
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+
+    # Set max_workers to larger than 1 will somehow cause blocking
+    # if iserver is running in a container (it's ok if running on host)
+    # and we are sending requests from the core server with multiple threads...
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
     @property
     def io_loop(self):
@@ -143,8 +148,29 @@ class RequestHandlerMixin():
         self.set_header("Access-Control-Allow-Headers", "*")
         self.set_header("Access-Control-Expose-Headers", "*")
 
+def minResponseInterval(min_interval=0.1):
+    """
+    Decorator to limit the minimum interval between responses
+    """
+    last_response_time = 0
+    FuncT = TypeVar("FuncT", bound=Callable[..., Awaitable])
+    def decorator(func: FuncT) -> FuncT:
+        async def wrapper(*args, **kwargs):
+            nonlocal last_response_time
+            while True:
+                now = time.time()
+                if now - last_response_time < min_interval:
+                    await asyncio.sleep(min_interval - (now - last_response_time))
+                else:
+                    break
+            last_response_time = time.time()
+            return await func(*args, **kwargs)
+        return wrapper
+    return decorator
+
 __all__ = [
     "tornado",
     "RequestHandlerMixin",
     "G",
+    "minResponseInterval"
     ]

@@ -74,7 +74,8 @@ def __getDefaultConfig()->ClusterConfigT:
         "iserver": [
             {
                 "ENVS": {
-                    "OPENAI_API_KEY": "sk-xxxxx"
+                    "OPENAI_API_KEY": "sk-xxxxx",
+                    "HF_DATASETS_OFFLINE": "1",
                 },
                 "ARGS": {
                     "--port": 8731,

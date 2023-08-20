@@ -66,7 +66,7 @@ def chatbot(req: ChatBotRequest):
 
 
 def main():
-    import argparse
+    import argparse, threading
     import uvicorn
 
     parser = argparse.ArgumentParser()
@@ -76,6 +76,12 @@ def main():
     parser.add_argument("--openai-api-base", type=str, default=config.openai_api_base)
     parser.add_argument("--fastchat-api-base", type=str, default=config.fastchat_api_base)
     args = parser.parse_args()
+
+    def warmup():
+        logger.info("Warming up...")
+        asyncio.run(lmFeaturize("Hello world!"))
+        logger.info("Warmup done!")
+    threading.Thread(target = warmup).start()
 
     initLogger(args.log_level)
     logger.info("Using device: {}".format(autoTorchDevice()))
