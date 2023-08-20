@@ -198,9 +198,19 @@ export default {
         display: flex;
         align-items: center;
         justify-self: center;
-        gap: 10px;
     }
     #fileSelector{
         padding: 5px;
+    }
+
+    div.searchbar{
+        display: flex;
+        gap: 5px;
+    }
+    div.searchbar select {
+        width: 75px;
+    }
+    div.searchbar input {
+        width: calc(100% - 80px);
     }
 </style>

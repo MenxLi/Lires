@@ -66,6 +66,8 @@
 <style scoped>
     span.button{
         padding: 3px;
+        padding-left: 5px;
+        padding-right: 5px;
         border-radius: 10px;
         display: flex;
         align-items: center;

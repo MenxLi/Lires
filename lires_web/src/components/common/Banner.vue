@@ -82,6 +82,5 @@
     div.button{
         display: flex;
         align-items: center;
-        gap: 3px;
     }
 </style>
