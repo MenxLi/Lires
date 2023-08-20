@@ -45,7 +45,8 @@ docker exec lrs lrs-utils download_pdfjs
 ```
 Now open the browser and visit the WebUI on `http://localhost:8081`.
 
-Please refer to the documents for more details on [getting started](docs/gettingStarted.md).
+Docker deployment is a quick way to deploy the server, but it has some limitations.  
+**Please refer to the documents for more details on [getting started](docs/gettingStarted.md).**
 
 # Manuals and documentations
 - [Getting started](docs/gettingStarted.md)

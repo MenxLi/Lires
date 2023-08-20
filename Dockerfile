@@ -36,5 +36,6 @@ EXPOSE 8081
 EXPOSE 8080
 EXPOSE 8731
 
+ENV LRS_HOME=/root/.Lires
 ENV HF_HOME=/root/.Lires/hf_home
 ENTRYPOINT ["lrs-cluster", "/root/.Lires/container-cluster-config.yaml", "--init-if-not-exist"]
