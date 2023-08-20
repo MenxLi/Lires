@@ -144,8 +144,11 @@
 
 <template>
     <!-- <div id="fileRow" :class="`gradInFast${(props.compact && !showMore)?' compact':''}`" @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false"  -->
-    <div id="fileRow" :class="`${(props.compact && !showMore)?' compact':''}`" @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false" 
+    <div id="fileRow" 
+        :class="`${(props.compact && !showMore)?' compact':''}` + `${(showMore)?' unfolded':''}`" 
+        @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false" 
         ref="dataCard" :style="{backgroundColor: datacardBackgroundColor}">
+
         <div id="init" class="row" ref="initDiv">
             <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
                 {{ authorYearText }}
@@ -168,7 +171,7 @@
                 <slot></slot>
             </div>
         </div>
-        <Transition name="more">
+        <Transition name="expand-transition">
             <div id="more" ref="moreDiv">
                 <FileRowMore :datapoint="datapoint" :show="showMore" ref="moreComponent"></FileRowMore>
             </div>
