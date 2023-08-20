@@ -8,7 +8,9 @@
   - [Installation](#installation)
     - [Server-side manual installation](#server-side-manual-installation)
   - [Server startup](#server-startup)
+    - [Basic entries](#basic-entries)
     - [More on starting the servers](#more-on-starting-the-servers)
+    - [Cluster startup](#cluster-startup)
   - [Management](#management)
     - [User management](#user-management)
     - [Build search index](#build-search-index)
@@ -48,19 +50,25 @@ npm run app:build
 ```
 ---
 ## Server startup
-**To start the Lires and LiresWeb servers:**
+
+### Basic entries
+**Start the Lires:**
 ```bash
 lires server
 ```
-The Lires and LiresWeb are Tornado servers,   
-- Lires provides API for the client (GUI & WebUI & CLI) to communicate with.
-- LiresWeb is a Web-UI frontend server.
+Lires is a tornado server that provides API for the client (GUI & WebUI & CLI) to communicate with.
 
-**To start the iLires server:**
+**Start the iLires:**
 ```bash
 lires iserver
 ```
 The iLires server is written with FastAPI, it provides additional AI features and is designed to be connected by the Lires server, so that the latter can provide AI features to the client.  
+
+**Start the LiresWeb:**  
+```bash
+lires web
+```
+LiresWeb is a Web-UI frontend.
 
 > <details> 
 > <summary>The reason to separate iLires server from Lires server</summary>  
@@ -96,6 +104,23 @@ OPENAI_API_KEY="sk-xxxx" lires iserver --openai-api-base "https://api.openai.com
 ```
 Note that openai api base must be set via command line argument (or leave it to default), because it is not a constant in current implementation in order to support custom models such as that from [lmsys](https://github.com/lm-sys/FastChat).
 
+### Cluster startup
+It will be laborious and error-prone to start multiple servers manually.  
+Especially when we want to start multiple servers with different configurations.  
+
+Instead, we provide a simple script to enable server clustering for easy deployment.  
+```sh
+# Generate a template configuration file
+lrs-cluster <your/configuration.yaml> --generate
+
+# Edit the configuration file
+# ...
+
+# Start the cluster
+lrs-cluster <your/configuration.yaml>
+```
+The configuration file designates the environment variables, as well as the command line arguments for each server.
+
 ---
 
 ## Management
@@ -107,7 +132,7 @@ lrs-keyman register <your_key> --admin
 for more information, see `lrs-keyman -h`.  
 
 ### Build search index
-The search index is used for **fuzzy search** and querying **related works**,
+The search index is used for **semantic search** and querying **related works**,
 It is currently implemented as building feature vectors for each entry (thanks to [huggingface transformers](https://huggingface.co/docs/transformers/index)), 
 and use cosine similarity to measure the distance between vectors.
 
@@ -122,6 +147,7 @@ lrs-index build
 
 All managements tools include:
 ```sh
+lrs-cluster     # Cluster management
 lrs-keyman      # Manage access key
 lrs-discuss     # Manage online discussions
 lrs-collect     # Automatic add entry to database with retriving string
@@ -142,21 +168,20 @@ docker build -t lires:latest .
 # create the container named 'lrs', 
 # please change the port mapping and volume mapping as needed
 # depending on your need, you may want to expose only a subset of the ports
-docker run -d -p 8080:8080 -p 8081:8081 -p 8731:8731 -v $HOME/.Lires:/root/.Lires --name lrs lires:latest
+docker run -d -p 8080:8080 -p 8081:8081 -v $HOME/.Lires:/root/.Lires --name lrs lires:latest
 ```
 
-The container's default entry only starts the Lires and LiresWeb servers, the iLires server should be started separately, if desired.   
-```sh
-docker exec -d lrs lires iserver
-# or running with interactive tty
-# docker exec -it lrs lires iserver
-```
+The container runs server cluster with configuration at `/root/.Lires/container-cluster-config.yaml` (Which should be mounted to the host).  
+You can edit the configuration file to change the server settings.
 
-Otherwise, we can set the iserver settings pointing the shared iLires server, maybe on the host machine / another machine with GPU, or on another container  
-For an example, to setup the iserver to local machine of ip address `192.168.3.6` on creating the container, run:
-```sh
-docker run <... your settings ...> lires:latest --iserver_host '192.168.3.6' --iserver_port <...>
-```
+**To maximize the compatibility, The container image by default does not use GPU for AI features.**  
+**It's suggested to disable iserver on the container by modifying the configuration file.**  
+
+Instead, we can set the server settings pointing to the shared iLires server outside of the container, maybe on the host machine / another machine with GPU, or on another container.  
+> This can be done by delete the `iserver` section in the configuration file.  
+> Then, set the `server -> ARGS -> iserver_*` section to point to the iLires server.
+> 
+> For example, if the iLires server is running on the host machine with IP address `192.168.3.6:8731`, then we can set the `iserver_host` to `192.168.3.6` and `iserver_port` to `8731`.
 
 **On the first run** you need to generate the user key, which can be done by running the `lrs-keyman` command in the container.
 and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.
