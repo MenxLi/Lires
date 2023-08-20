@@ -86,19 +86,20 @@ def changeHomeStructure():
     change home naming
     """
     from lires.version import VERSION; assert VERSION >= "1.0.0"
-    from lires.confReader import TMP_DIR, INDEX_DIR, LRS_HOME
+    from lires.confReader import TMP_DIR, INDEX_DIR, LRS_HOME, getConf
     from lires.server import LRS_SERVER_HOME
     import os, shutil
 
     home = LRS_HOME
+    database_path = getConf()['database']
 
-    old_db = os.path.join(home, "Database", "rbm.db")
-    new_db = os.path.join(home, "Database", "lrs.db")
+    old_db = os.path.join(database_path, "rbm.db")
+    new_db = os.path.join(database_path, "lrs.db")
     if os.path.exists(old_db):
         shutil.move(old_db, new_db)
 
-    old_db_trash = os.path.join(home, "Database", ".trash", "rbm.db")
-    new_db_trash = os.path.join(home, "Database", ".trash", "lrs.db")
+    old_db_trash = os.path.join(database_path, ".trash", "rbm.db")
+    new_db_trash = os.path.join(database_path, ".trash", "lrs.db")
     if os.path.exists(old_db_trash):
         shutil.move(old_db_trash, new_db_trash)
 
