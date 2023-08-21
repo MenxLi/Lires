@@ -221,6 +221,7 @@ const showSummary = ref(false);
         0% {
             max-height: 0px;
             opacity: 0;
+            margin: 0px;
         }
         50% {
             /* set a lower max-height, 
@@ -244,21 +245,21 @@ const showSummary = ref(false);
             max-height: 58px;
             opacity: 0;
         }
-        80% {
-            max-height: 25px;
-            opacity: 0;
+        50% {
+            max-height: 0px;
         }
         100% {
+            margin: 0px;
             max-height: 0px;
             opacity: 0;
         }
     }
     
     .expand-transition-enter-active{
-        animation: expand .15s;
+        animation: expand .2s;
     }
     .expand-transition-leave-active {
         /* animation: expand 0.1s reverse; */
-        animation: contract .05s;
+        animation: contract .2s;
     }
 </style>
