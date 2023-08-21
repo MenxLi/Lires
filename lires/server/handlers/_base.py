@@ -134,7 +134,7 @@ class RequestHandlerMixin():
         return res
     
     @staticmethod
-    def checkTagPermission(_tags: List[str] | DataTags, _mandatory_tags: List[str]):
+    def checkTagPermission(_tags: List[str] | DataTags, _mandatory_tags: List[str], raise_error=True) -> bool:
         """
         Check if tags are dominated by mandatory_tags
         """
@@ -142,7 +142,11 @@ class RequestHandlerMixin():
         mandatory_tags = DataTags(_mandatory_tags)
         RequestHandlerMixin.logger.debug(f"check tags: {tags} vs {mandatory_tags}")
         if not mandatory_tags.issubset(tags.withParents()):
-            raise tornado.web.HTTPError(403) 
+            if raise_error:
+                raise tornado.web.HTTPError(403)
+            else:
+                return False
+        return True
 
     def setDefaultHeader(self):
         self.set_header("Access-Control-Allow-Origin", "*")
