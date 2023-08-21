@@ -9,8 +9,9 @@ with open(_yaml_version_file, "r", encoding='utf-8') as fp:
     version_histories: dict[str, list[str]] = yaml.safe_load(fp)["version_history"]
 _VERSION_HISTORIES = []
 for v, h in version_histories.items():
-    _VERSION_HISTORIES.append((v, "; ".join(h)))
-VERSION, DESCRIPEITON = _VERSION_HISTORIES[-1]
+    v = v.split("-")[0].strip()
+    _VERSION_HISTORIES.append((v, h))
+VERSION, _ = _VERSION_HISTORIES[-1]
 
 _license_file = os.path.join(__this_dir, "LICENSE")
 with open(_license_file, "r", encoding='utf-8') as fp:
