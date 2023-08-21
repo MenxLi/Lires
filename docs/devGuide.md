@@ -5,7 +5,6 @@
 **Keep it simple and maintainable**
 
 Simple:
-- Always present easy-to-use user interface
 - Adding features for common use cases
 - Minimal dependencies for each module
 
@@ -14,8 +13,6 @@ Maintainable:
 - Modularized & well documented.
 - Isolate the logic, from the UI
 - Abstract common logics and reduce code duplication
-- Module isolation, expose only the necessary interfaces (use `_protected` and `__private` for internal use)
-- Not afraid of refactoring, but do it gradually and carefully
 
 ## Naming convention
 **Python**

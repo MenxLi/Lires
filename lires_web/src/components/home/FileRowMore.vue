@@ -228,11 +228,11 @@ const showSummary = ref(false);
             the actuall added height would be around 55-100? */
             /* use 70% of the time to expand to about actual height */
             max-height: 58px;
+            opacity: 0;
         }
         75% {
             /* 58 -> 97.x */
             max-height: 100px;
-            opacity: 0;
         }
         100% {
             max-height: auto;
@@ -243,6 +243,9 @@ const showSummary = ref(false);
     @keyframes contract {
         0% {
             max-height: 58px;
+            opacity: 1;
+        }
+        25% {
             opacity: 0;
         }
         50% {
@@ -256,10 +259,10 @@ const showSummary = ref(false);
     }
     
     .expand-transition-enter-active{
-        animation: expand .2s;
+        animation: expand .2s ease-in-out;
     }
     .expand-transition-leave-active {
         /* animation: expand 0.1s reverse; */
-        animation: contract .2s;
+        animation: contract .2s ease-in-out;
     }
 </style>
