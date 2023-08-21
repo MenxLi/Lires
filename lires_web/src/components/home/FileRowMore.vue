@@ -219,16 +219,16 @@ const showSummary = ref(false);
     /* https://www.cnblogs.com/WindrunnerMax/p/14346468.html */
     @keyframes expand {
         0% {
-            opacity: 0;
             max-height: 0px;
-        }
-        40% {
             opacity: 0;
+        }
+        50% {
+            /* set a lower max-height, 
+            the actuall added height would be around 55-100? */
+            /* use 70% of the time to expand to about actual height */
             max-height: 58px;
         }
         75% {
-            /* set a lower max-height, 
-            the actuall added height would be around 55-100? */
             /* 58 -> 97.x */
             max-height: 100px;
             opacity: 0;
@@ -238,11 +238,27 @@ const showSummary = ref(false);
             opacity: 1;
         }
     }
+
+    @keyframes contract {
+        0% {
+            max-height: 58px;
+            opacity: 0;
+        }
+        80% {
+            max-height: 25px;
+            opacity: 0;
+        }
+        100% {
+            max-height: 0px;
+            opacity: 0;
+        }
+    }
     
     .expand-transition-enter-active{
-        animation: expand 0.15s;
+        animation: expand .15s;
     }
     .expand-transition-leave-active {
-        animation: expand 0.15s reverse;
+        /* animation: expand 0.1s reverse; */
+        animation: contract .05s;
     }
 </style>
