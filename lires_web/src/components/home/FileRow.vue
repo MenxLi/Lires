@@ -171,11 +171,9 @@
                 <slot></slot>
             </div>
         </div>
-        <Transition name="expand-transition">
-            <div id="more" ref="moreDiv">
-                <FileRowMore :datapoint="datapoint" :show="showMore" ref="moreComponent"></FileRowMore>
-            </div>
-        </Transition>
+        <div id="more" ref="moreDiv">
+            <FileRowMore :datapoint="datapoint" :show="showMore" ref="moreComponent"></FileRowMore>
+        </div>
     </div>
 </template>
 

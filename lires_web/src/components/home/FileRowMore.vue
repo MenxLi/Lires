@@ -109,6 +109,7 @@ const showSummary = ref(false);
         </div>
     </FloatingWindow>
     <DataEditor v-model:show="showEditor" :datapoint="datapoint"></DataEditor>
+    <Transition name="expand-transition">
     <div id="moreMain" v-if="show">
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
@@ -136,6 +137,7 @@ const showSummary = ref(false);
             </details>
         </div>
     </div>
+    </Transition>
 </template>
 
 <style scoped>
@@ -155,6 +157,7 @@ const showSummary = ref(false);
         justify-content: center;
         margin-top: 8px;
         margin-bottom: 10px;
+        overflow-y: hidden;
     }
     div#buttons{
         gap: 15px
@@ -211,5 +214,33 @@ const showSummary = ref(false);
     .actions-enter-from, .actions-leave-to {
         opacity: 0;
         transform: translateY(-10px);
+    }
+
+    /* https://www.cnblogs.com/WindrunnerMax/p/14346468.html */
+    @keyframes expand {
+        0% {
+            max-height: 0px;
+            opacity: 0;
+        }
+        50% {
+            max-height: 40px;
+            opacity: 0;
+        }
+        70% {
+            opacity: 0;
+            /* set a lower max-height */
+            max-height: 50px;
+        }
+        100% {
+            opacity: 1;
+            max-height: auto;
+        }
+    }
+    
+    .expand-transition-enter-active{
+        animation: expand 0.075s;
+    }
+    .expand-transition-leave-active {
+        animation: expand 0.05s reverse;
     }
 </style>
