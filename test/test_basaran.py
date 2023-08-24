@@ -1,4 +1,4 @@
-from ilires.lmInterface import HFChatStreamIter
+from lires_ai.lmInterface import HFChatStreamIter
 from basaran.model import load_model
 
 # pip install sentencepiece protobuf accelerate bitsandbytes basaran

@@ -8,7 +8,7 @@ The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** 
 ## Modules
 Mainly consists of two server modules:  
 1. `lires`, the core server
-2. `ilires`, AI server for computational intelligence features  
+2. `lires-ai`, AI server for computational intelligence features  
 
 And two frontend modules:  
 1. `lires-web` (WebUI)
@@ -22,7 +22,7 @@ It is designed to be deployed onto a server to share literatures or work in onli
 * Cascading tags  
 * Markdown notes
 * Multi-user permission management
-* AI-powered features (iLires)
+* AI-powered features (LiresAI)
 
 # Getting started
 **Fetch all submodules**

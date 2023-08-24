@@ -58,11 +58,11 @@ lires server
 ```
 Lires is a tornado server that provides API for the client (GUI & WebUI & CLI) to communicate with.
 
-**Start the iLires:**
+**Start the LiresAI:**
 ```bash
 lires iserver
 ```
-The iLires server is written with FastAPI, it provides additional AI features and is designed to be connected by the Lires server, so that the latter can provide AI features to the client.  
+The LiresAI server is written with FastAPI, it provides additional AI features and is designed to be connected by the Lires server, so that the latter can provide AI features to the client.  
 
 **Start the LiresWeb:**  
 ```bash
@@ -71,7 +71,7 @@ lires web
 LiresWeb is a Web-UI frontend.
 
 > <details> 
-> <summary>The reason to separate iLires server from Lires server</summary>  
+> <summary>The reason to separate LiresAI server from Lires server</summary>  
 > - AI features may require more resources, so that the iserver can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the iserver and install the heavy AI dependencies.  <br>
 > - Allocating resources to the iserver and Lires server separately can be more flexible. For example, the iserver may need more GPU memory, we can launch multiple Lires servers pointing to different `$LRS_HOME`, while sharing the same iserver. <br>
 > -  It is also possible that the iserver needs a proxy to access the internet, while the Lires server does not.   
@@ -98,7 +98,7 @@ LRS_HOME="your/path/here" LRS_SSL_CERTFILE="your/cert/file" LRS_SSL_KEYFILE="you
     --iserver_host "your/iserver/host" --iserver_port "youriserverport" --port "yourport"
 ```
 
-The iLires server is usually started with OPENAI API keys, which can be set with environment variable:
+The LiresAI server is usually started with OPENAI API keys, which can be set with environment variable:
 ```sh
 OPENAI_API_KEY="sk-xxxx" lires iserver --openai-api-base "https://api.openai.com/v1"
 ```
@@ -137,7 +137,7 @@ It is currently implemented as building feature vectors for each entry (thanks t
 and use cosine similarity to measure the distance between vectors.
 
 To build the index, run:  
-**This requires iLires server to be running.**
+**This requires LiresAI server to be running.**
 ```sh
 lrs-index build
 ```
@@ -177,11 +177,11 @@ You can edit the configuration file to change the server settings.
 **To maximize the compatibility, The container image by default does not use GPU for AI features.**  
 **It's suggested to disable iserver on the container by modifying the configuration file.**  
 
-Instead, we can set the server settings pointing to the shared iLires server outside of the container, maybe on the host machine / another machine with GPU, or on another container.  
+Instead, we can set the server settings pointing to the shared LiresAI server outside of the container, maybe on the host machine / another machine with GPU, or on another container.  
 > This can be done by delete the `iserver` section in the configuration file.  
-> Then, set the `server -> ARGS -> iserver_*` section to point to the iLires server.
+> Then, set the `server -> ARGS -> iserver_*` section to point to the LiresAI server.
 > 
-> For example, if the iLires server is running on the host machine with IP address `192.168.3.6:8731`, then we can set the `iserver_host` to `192.168.3.6` and `iserver_port` to `8731`.
+> For example, if the LiresAI server is running on the host machine with IP address `192.168.3.6:8731`, then we can set the `iserver_host` to `192.168.3.6` and `iserver_port` to `8731`.
 
 **On the first run** you need to generate the user key, which can be done by running the `lrs-keyman` command in the container.
 and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.

@@ -1,7 +1,7 @@
 
 # random text
 import random, string, asyncio
-from ilires.lmTools import vectorize, featurize, EncoderT
+from lires_ai.lmTools import vectorize, featurize, EncoderT
 
 def random_text(words: int):
     def random_word():

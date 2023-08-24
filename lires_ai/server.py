@@ -21,7 +21,7 @@ from .lmInterface import ChatStreamIterType, getStreamIter
 
 from . import globalConfig as config
 
-logger = logging.getLogger("iLires")
+logger = logging.getLogger("LiresAI")
 
 app = fastapi.FastAPI()
 
@@ -97,5 +97,5 @@ def main():
         )
 
 if __name__ == "__main__":
-    logger.info("Starting iLires server...")
+    logger.info("Starting LiresAI server...")
     main()

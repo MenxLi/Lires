@@ -21,7 +21,7 @@ else:
     from collections.abc import Iterator
 
 if TYPE_CHECKING:
-    from ilires.lmInterface import ChatStreamIterType
+    from lires_ai.lmInterface import ChatStreamIterType
 
 def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
     summary = ""

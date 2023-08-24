@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from lires.core.dataSearcher import StringSearchT
     from lires.core.dataClass import DataTagT, DataPointSummary
     from lires.core.dbConn import DBFileInfo
-    from ilires.lmInterface import ConversationDictT, ChatStreamIterType
+    from lires_ai.lmInterface import ConversationDictT, ChatStreamIterType
 
 class ConnectionBase:
     @property

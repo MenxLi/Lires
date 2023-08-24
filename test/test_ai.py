@@ -1,5 +1,5 @@
-from ilires.lmInterface import OpenAIChatStreamIter, streamOutput
-from ilires import globalConfig as config
+from lires_ai.lmInterface import OpenAIChatStreamIter, streamOutput
+from lires_ai import globalConfig as config
 
 
 text = ""

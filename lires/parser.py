@@ -28,8 +28,8 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     parser_server.add_argument("--iserver_host", action = "store", default = "127.0.0.1", help = "host, default to 127.0.0.1")
     parser_server.add_argument("--iserver_port", action = "store", default = "8731", help = "port, default to 8731")
 
-    parser_iserver = sp.add_parser("iserver", help = "Start iLires server")
-    # set according to iLires.server
+    parser_iserver = sp.add_parser("iserver", help = "Start LiresAI server")
+    # set according to LiresAI.server
     parser_iserver.add_argument("--port", type=int, default=8731, help="port, default to 8731")
     parser_iserver.add_argument("--host", type=str, default="0.0.0.0")
     parser_iserver.add_argument("--openai-api-base", type=str, default="https://api.openai.com/v1")

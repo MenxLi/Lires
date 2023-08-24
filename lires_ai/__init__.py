@@ -8,7 +8,7 @@ from lires.initLogger import setupLogger
 
 def initLogger(level = "info"):
     return setupLogger(
-        "iLires",
+        "LiresAI",
         term_id="iserver",
     )
 
