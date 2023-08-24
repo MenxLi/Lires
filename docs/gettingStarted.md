@@ -26,19 +26,19 @@
 
 ### Server-side manual installation
 Compile frontend files
-> **Prerequisites:**  Node.js, TypeScript
+> **Prerequisites:**  Node.js
 ```bash
 cd lires_web
 npm install
 npm run build
 cd ..
 ```
-Install the server
+Install the servers
 > **Prerequisites:**  Python 3.8+
 ```bash
 git submodule update --init --recursive
 pip install ./packages/tiny_vectordb
-pip install ".[ai]"
+pip install ".[core,ai]"
 lrs-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in LiresWeb
 ```
 **[Optional]** Compile tauri GUI

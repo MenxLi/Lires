@@ -1,6 +1,9 @@
 import asyncio
 import argparse
-from lires.core.pdfTools import PDFAnalyser
+try:
+    from lires.core.pdfTools import PDFAnalyser
+except ImportError:
+    raise ImportError("Please install Lires[core] first")
 from ..lmTools import summarize, structuredSummerize, featurize
 from ..lmInterface import streamOutput
 

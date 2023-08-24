@@ -81,7 +81,7 @@ def main():
         logger.info("Warming up...")
         asyncio.run(lmFeaturize("Hello world!"))
         logger.info("Warmup done!")
-    threading.Thread(target = warmup).start()
+    threading.Thread(target = warmup, daemon=True).start()
 
     initLogger(args.log_level)
     logger.info("Using device: {}".format(autoTorchDevice()))

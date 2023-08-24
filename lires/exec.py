@@ -11,9 +11,14 @@ def run():
     # Read configuration file after parse agruments
     from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE, LRS_HOME
     from .version import VERSION, VERSION_HISTORIES
-    from .initLogger import initDefaultLogger
 
-    initDefaultLogger("DEBUG")
+    # Init logger will import lires.core, 
+    # May cause dependency error if only runs lires.ai
+    try:
+        from .initLogger import initDefaultLogger
+        initDefaultLogger("DEBUG")
+    except ImportError:
+        pass
 
     procs = []
 

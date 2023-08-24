@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
-from typing import Any, TypedDict, Literal, Type
-import dataclasses, json
+from typing import Any, TypedDict, Literal
+import dataclasses
 import enum
 
 # check python version

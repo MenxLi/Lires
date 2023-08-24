@@ -35,37 +35,40 @@ dynamic = [
     "license",
 ]
 dependencies = [
+    # for successful import from basic lires packages,
+    # such as lires.version, lires.confReader
     "pyyaml",
+    "requests",
+    "deprecated",
+]
+
+[project.optional-dependencies]
+core = [
     "pybtex",
     "pylatexenc",
     "tornado",
     "pyperclip",
     "PyMuPDF",
     "markdown",
-    "requests",
     "nest_asyncio",
     "arxiv",
     "nbib",
     "typing_extensions",
     "tqdm",
     "bs4",
-    "deprecated",
     "numpy",
     "scikit-learn",
     "pybind11",
     "ninja",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "pyinstaller",
-]
 gui = [
+    "Lires[core]",
     "darkdetect",
     "PyQt6",
     "PyQt6-WebEngine",
 ]
 ai = [
+    "safetensors <= 0.3.2",     # 0.3.3 or higher seems requires rust installed
     "torch",
     "openai",
     "transformers",
@@ -77,4 +80,4 @@ ai = [
     # "auto-gptq[triton]",
     # "bitsandbytes",
 ]
-all = ["Lires[dev,gui,ai]"]
+all = ["Lires[core,gui,ai]"]

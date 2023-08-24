@@ -8,10 +8,8 @@ from .lmInterface import StreamData, Iterator
 from .lmInterface import getStreamIter, streamOutput, ChatStreamIterType
 from .utils import autoTorchDevice, MuteEverything, Timer
 
-import pdb
 import torch
 import torch.nn.functional as F
-import numpy as np
 from transformers import AutoTokenizer, AutoModel
 
 def summarize(txt: str) -> Iterator[StreamData]:
