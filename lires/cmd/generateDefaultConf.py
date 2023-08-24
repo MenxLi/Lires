@@ -1,12 +1,18 @@
 import os
-import darkdetect
 from ..core.dataClass import DataTableList
 from ..confReader import CONF_FILE_PATH, saveToConf, DEFAULT_DATA_PATH, DEFAULT_PDF_VIEWER_DIR
 
 def run():
 	generateDefaultConf()
 
-is_sys_darkmode = darkdetect.isDark()
+try:
+	import darkdetect
+	# this is the only place where darkdetect is used, 
+	# this dependency is not required for the server environment
+	is_sys_darkmode = darkdetect.isDark()
+except ImportError:
+	is_sys_darkmode = False
+
 def generateDefaultConf():
 	"""
 	"database" points to local database, used by LiresWeb,
@@ -23,6 +29,7 @@ def generateDefaultConf():
 		pdfjs_viewer_path = os.path.join(DEFAULT_PDF_VIEWER_DIR, "web", "viewer.html"),
 
 		## GUI SETTINGS ##
+		# Maybe move them to a separate file?
 		server_preset = [{
 			"host": "http://localhost",
 			"port": "8080",

@@ -48,7 +48,6 @@ dependencies = [
     "nbib",
     "typing_extensions",
     "tqdm",
-    "darkdetect",
     "bs4",
     "deprecated",
     "numpy",
@@ -62,6 +61,7 @@ dev = [
     "pyinstaller",
 ]
 gui = [
+    "darkdetect",
     "PyQt6",
     "PyQt6-WebEngine",
 ]
