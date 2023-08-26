@@ -2,8 +2,8 @@ from ._base import *
 import string, markdown
 
 class DiscussionHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+    @keyRequired
     def get(self, file_uid: str):
-        self.checkCookieKey()
         self.setDefaultHeader()
         discussions = self.discussion_db.discussions(file_uid)
         base_html = string.Template(
@@ -61,19 +61,18 @@ class DiscussionModHandler (tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Modify discussions
     """
+    @keyRequired
     def post(self):
         self.setDefaultHeader()
-        print("Receiving discussion modify request")
 
         cmd = self.get_argument("cmd")
         file_uid = self.get_argument("file_uid")
         content = self.get_argument("content")
         usr_name = self.get_argument("usr_name")
 
-        permission =  self.checkKey()
-        if not permission["is_admin"]:
+        if not self.permission["is_admin"]:
             dp = self.db[file_uid]
-            self.checkTagPermission(dp.tags, permission["mandatory_tags"])
+            self.checkTagPermission(dp.tags, self.permission["mandatory_tags"])
 
         if cmd == "add":
             print("Adding discussion...")

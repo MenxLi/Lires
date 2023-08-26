@@ -13,6 +13,7 @@ from ..discussUtils import DiscussDatabase
 from lires.core import globalVar as G
 from lires.core.dataClass import DataBase, DataTags
 from lires.confReader import getConf, VECTOR_DB_PATH
+from lires.core.utils import BCOLORS
 from tiny_vectordb import VectorDatabase
 
 G.init()
@@ -24,6 +25,20 @@ def loadDataBase(db_path: str):
     db = DataBase()
     db.init(db_path, force_offline=True)
     return db
+
+FuncT = TypeVar("FuncT", bound=Callable[..., Awaitable])
+def keyRequired(func: FuncT) -> FuncT:
+    """
+    Decorator to check if user is logged in
+    """
+    async def wrapper(self: RequestHandlerMixin, *args, **kwargs):
+        self.checkKey()
+        # check async 
+        if asyncio.iscoroutinefunction(func):
+            return await func(self, *args, **kwargs)
+        else:
+            return func(self, *args, **kwargs)
+    return wrapper
 
 class RequestHandlerMixin():
     get_argument: Callable
@@ -40,6 +55,9 @@ class RequestHandlerMixin():
     # (Not observed on OpenSUSE-leap 15 with Docker version 23.0.6-ce, build 9dbdbd4b6d76)
     # (More tests needed ... )
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.logger.debug(f"{BCOLORS.OKGREEN} [init] :: {self.__class__.__name__} {BCOLORS.ENDC}")
 
     @property
     def io_loop(self):
@@ -96,31 +114,34 @@ class RequestHandlerMixin():
     @property
     def discussion_db(self) -> DiscussDatabase:
         return G.getGlobalAttr("server_discussion_db")
-
-    def checkCookieKey(self) -> AccountPermission:
-        """
-        Authenticates key from cookies
-        """
-        #  cookies = self.cookies
-        enc_key = self.get_cookie("LRS_ENC_KEY", "")
-        if not enc_key:
-            enc_key = self.get_cookie("encKey", "")
-        return self._checkKey(enc_key)
-
+    
+    @property
+    def enc_key(self) -> str:
+        try:
+            enc_key = self.get_argument("key", "")
+        except tornado.web.HTTPError:
+            enc_key = ""
+            # no key defined in params, try cookies
+            for _k in ["LRS_ENC_KEY", "encKey"]:
+                enc_key = self.get_cookie(_k, "")
+                if enc_key:
+                    break
+        return enc_key
+    
+    @property
+    def permission(self) -> AccountPermission:
+        try:
+            # use cached permission, from checkKey()
+            return self.__account_perm
+        except AttributeError:
+            return self.checkKey()
+    
     def checkKey(self) -> AccountPermission:
         """
         Authenticates key from params, then cookies
+        Will raise HTTPError if key is invalid
         """
-        try:
-            enc_key = self.get_argument("key")
-        except tornado.web.HTTPError:
-            # no key defined in params, try cookies
-            enc_key = self.get_cookie("LRS_ENC_KEY", "")
-            if not enc_key:
-                enc_key = self.get_cookie("encKey", "")
-        return self._checkKey(enc_key)
-
-    def _checkKey(self, enc_key) -> AccountPermission:
+        enc_key = self.enc_key
         self.logger.debug(f"check key: {enc_key}")
         if not enc_key:
             raise tornado.web.HTTPError(403) 
@@ -130,7 +151,9 @@ class RequestHandlerMixin():
             # unauthorized
             print("Reject key ({}), abort".format(enc_key))
             raise tornado.web.HTTPError(403) 
-        self.enc_key = enc_key
+        
+        # Set a cached permission, requires it via property
+        self.__account_perm = res
         return res
     
     @staticmethod
@@ -160,7 +183,6 @@ def minResponseInterval(min_interval=0.1):
     Decorator to limit the minimum interval between responses
     """
     last_response_time = 0
-    FuncT = TypeVar("FuncT", bound=Callable[..., Awaitable])
     def decorator(func: FuncT) -> FuncT:
         async def wrapper(*args, **kwargs):
             nonlocal last_response_time
@@ -179,5 +201,6 @@ __all__ = [
     "tornado",
     "RequestHandlerMixin",
     "G",
-    "minResponseInterval"
+    "minResponseInterval",
+    "keyRequired"
     ]

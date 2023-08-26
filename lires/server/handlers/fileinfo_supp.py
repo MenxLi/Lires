@@ -7,7 +7,7 @@ class NoteGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Get notes of a datapoint
     """
-    def get(self, uid:str):
+    async def get(self, uid:str):
         """
         Args:
             uid (str): uuid of the datapoint
@@ -21,12 +21,13 @@ class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Update notes of a datapoint
     """
-    def post(self, uid:str):
+    @keyRequired
+    async def post(self, uid:str):
         """
         Args:
             uid (str): uuid of the datapoint
         """
-        permission = self.checkKey()
+        permission = self.permission
         note = self.get_argument("content")
         self.setDefaultHeader()
 
@@ -44,7 +45,7 @@ class AbstractGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Get abstract of a datapoint
     """
-    def get(self, uid:str):
+    async def get(self, uid:str):
         """
         Args:
             uid (str): uuid of the datapoint
@@ -59,12 +60,13 @@ class AbstractUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Update abstract of a datapoint
     """
-    def post(self, uid:str):
+    @keyRequired
+    async def post(self, uid:str):
         """
         Args:
             uid (str): uuid of the datapoint
         """
-        permission = self.checkKey()
+        permission = self.permission
         abstract = self.get_argument("content")
         self.setDefaultHeader()
 

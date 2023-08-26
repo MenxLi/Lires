@@ -7,11 +7,11 @@ from lires.core.serverConn import IServerConn
 class IServerProxyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     @minResponseInterval(1e-2)
+    @keyRequired
     async def post(self, key):
         self.setDefaultHeader()
 
         if key == "textFeature":
-            self.checkKey()
             text = self.get_argument("text")
 
             self.logger.debug("textFeature request")

@@ -15,6 +15,7 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         if not os.path.exists(self.zip_tmp_dir):
             os.mkdir(self.zip_tmp_dir)
 
+    @keyRequired
     async def post(self):
         db = self.db
 
@@ -23,7 +24,7 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         uuid = self.get_argument("uuid")
         self.logger.info(f"Receiving file request: [{cmd}]({uuid})")
 
-        permission =  self.checkKey()
+        permission = self.permission
 
         if cmd == "download-d_info":
             # download data info (DBFileInfo) only

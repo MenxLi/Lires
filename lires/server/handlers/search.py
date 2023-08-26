@@ -3,8 +3,9 @@ from lires.core.dataSearcher import DataSearcher
 import json
 
 class SearchHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+
+    @keyRequired
     def post(self):
-        self.checkKey()
         self.setDefaultHeader()
 
         method = self.get_argument("method")

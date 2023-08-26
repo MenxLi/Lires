@@ -14,12 +14,13 @@ class SummaryHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             _summary_html_template = fp.read()
         return _summary_html_template
 
+    @keyRequired
     def get(self):
-        if not self.checkKey():
-            raise tornado.web.HTTPError(403)
         return self.write(self.summary_html_template)
 
 class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+
+    @keyRequired
     async def post(self):
 
         # Set the appropriate headers to enable streaming
@@ -31,7 +32,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         force = self.get_argument("force", "false").lower() == "true"
         model_name = self.get_argument("model", "gpt-3.5-turbo")
 
-        perm = self.checkKey()
+        perm = self.permission
         if not perm["is_admin"]:
             is_allowed = self.checkTagPermission(self.db[uuid].tags, perm["mandatory_tags"], raise_error=False)
             if not is_allowed:

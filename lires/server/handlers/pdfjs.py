@@ -5,7 +5,7 @@ Serve pdfjs files
 from ._base import *
 from lires.confReader import DEFAULT_PDF_VIEWER_DIR
 
-class PdfJsHandler(RequestHandlerMixin, tornado.web.StaticFileHandler):
+class PdfJsHandler(tornado.web.StaticFileHandler, RequestHandlerMixin):
     root_dir = DEFAULT_PDF_VIEWER_DIR
     G.logger_lrs.info("Using pdf viewer: {}".format(root_dir))
     def get(self, *args, **kwargs):
