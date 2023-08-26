@@ -57,7 +57,7 @@ class RequestHandlerMixin():
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
     def __init__(self, *args, **kwargs) -> None:
-        self.logger.debug(f"{BCOLORS.OKGREEN} [init] :: {self.__class__.__name__} {BCOLORS.ENDC}")
+        self.logger.debug(f"{BCOLORS.YELLOW} [init] :: {self.__class__.__name__} {BCOLORS.ENDC}")
 
     @property
     def io_loop(self):
