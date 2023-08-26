@@ -121,7 +121,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.write(summary_txt)
 
         # Wrap the generator in an asynchronous iterator
-        async for msg in self.wrapAsyncGen(res):
+        async for msg in self.wrapAsyncIter(res):
             summary_txt += msg      # save to cache
             self.write(msg)
             self.flush()  # Flush the response buffer to send the chunk immediately

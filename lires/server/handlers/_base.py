@@ -69,7 +69,7 @@ class RequestHandlerMixin():
         """
         return self.io_loop.run_in_executor(self.executor, func, *args, **kwargs)
     
-    async def wrapAsyncGen(self, gen: Generator) -> AsyncGenerator:
+    async def wrapAsyncIter(self, gen: Generator) -> AsyncGenerator:
         for item in gen:
             await asyncio.sleep(0)  # make the control back to the event loop, tricky
             yield item

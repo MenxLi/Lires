@@ -54,12 +54,11 @@ class DataListStreamHandler(DataListHandler):
 
         # it's a bit tricky to stream json
         # we add a \N at the end of each json string
-        for d in data_info:
-            # import asyncio
-            # await asyncio.sleep(0.01)
+        async for d in self.wrapAsyncIter(data_info):
+            # import time; time.sleep(0.01)
             self.write(json.dumps(d))
             self.write("\\N")
-            await self.flush()
+            self.flush()
 
 class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
