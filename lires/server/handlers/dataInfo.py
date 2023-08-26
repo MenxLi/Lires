@@ -19,11 +19,14 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             tags (str): tags should be "%" or split by "&&"
         """
         self.setDefaultHeader()
+
+        # may delete this
         tags = self.get_argument("tags")
         if tags == "":
             tags = []
         else:
             tags = tags.split("&&")
+
         await self.emitDataList(tags)
     
     @keyRequired
@@ -36,19 +39,27 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     
     async def emitDataList(self, tags):
         data_info = self.getDictDataListByTags(tags)
-        if data_info is not None:
-            json_data = {
-                "data":data_info
-            }
-            self.write(json.dumps(json_data))
-        else:
-            self.write("Something wrong with the server.")
+        self.write(json.dumps(data_info))
         return
 
     def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by = DataList.SORT_TIMEADDED) -> List[DataPointSummary]:
         dl = self.db.getDataByTags(tags)
         dl.sortBy(sort_by)
         return [d.summary for d in dl]
+
+class DataListStreamHandler(DataListHandler):
+
+    async def emitDataList(self, tags):
+        data_info = self.getDictDataListByTags(tags)
+
+        # it's a bit tricky to stream json
+        # we add a \N at the end of each json string
+        for d in data_info:
+            # import asyncio
+            # await asyncio.sleep(0.01)
+            self.write(json.dumps(d))
+            self.write("\\N")
+            await self.flush()
 
 class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """

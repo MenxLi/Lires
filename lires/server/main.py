@@ -46,7 +46,9 @@ class Application(tornado.web.Application):
             (r"/auth", AuthHandler),
             (r"/search", SearchHandler),
             (r"/collect", CollectHandler),
+
             (r"/filelist", DataListHandler),            # may change
+            (r"/filelist-stream", DataListStreamHandler),            # may change
             (r"/fileinfo/(.*)", DataInfoHandler),       # may change
 
             # iServer proxy

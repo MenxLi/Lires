@@ -121,14 +121,14 @@ export const useDataStore = defineStore(
                 backendReload: boolean = false,
                 onSuccess: () => void = () => {}, 
                 onError: (err: Error) => void = () => {}, 
-                clearHook: () => void = () => {},
+                uiUpdateCallback: () => void = () => {},
                 ){
                 this.database.clear();
-                // clearHook is used to update the UI status
-                clearHook();
+                uiUpdateCallback()
 
                 function __requestDBData( dStore: ReturnType<typeof useDataStore>,){
-                    dStore.database.requestData().then(
+                    // dStore.database.requestData().then(
+                    dStore.database.requestDataStream(uiUpdateCallback).then(
                         (_)=>{ onSuccess(); },
                         (err)=>{ onError(err); }
                     )

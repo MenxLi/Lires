@@ -87,7 +87,7 @@ class ServerConn(ConnectionBase):
         if not self._checkRes(res):
             return None
         else:
-            return json.loads(res.text)["data"]
+            return json.loads(res.text)
     
     def reloadDB(self) -> bool:
         post_url = self.SERVER_URL + "/reload-db"

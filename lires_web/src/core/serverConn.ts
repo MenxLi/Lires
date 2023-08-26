@@ -45,13 +45,73 @@ export class ServerConn {
         const response = await fetch(url.toString());
         if (response.ok){
             const resObj = await response.json();
-            const DataInfoList: DataInfoT[] = resObj.data;
+            const DataInfoList: DataInfoT[] = resObj;
             return DataInfoList;
         }
         else {
             throw new Error(`Got response: ${response.status}`)
         }
     };
+
+    // get the file list in a streaming way
+    async reqFileListStream( 
+        tags: string[] = [],
+        onReceive: (data: DataInfoT)=>void = ()=>{},
+        ){
+
+        const concatTags = tags.join("&&");
+        const url = new URL(`${getBackendURL()}/filelist-stream`);
+        url.searchParams.append("tags", concatTags);
+        url.searchParams.append("key", this.settings.encKey);
+
+        const response = await fetch(url.toString());
+        if (!response.ok){
+            throw new Error(`Got response: ${response.status}`)
+        };
+
+        const reader = response.body!.getReader();
+        let partialData = "";
+        const processTextData = ({ value, done } : {value: Uint8Array, done: boolean}) => {
+            
+            const chunkText = partialData + new TextDecoder().decode(value);
+
+            // Split the chunk into individual JSON strings
+            const jsonStrings = chunkText.split("\\N");
+
+            // Process each JSON string, except the last one
+            for (let i = 0; i < jsonStrings.length - 1; i++) {
+                const jsonString = jsonStrings[i];
+                try{
+                    const data = JSON.parse(jsonString) as DataInfoT;
+                    onReceive(data);
+                }
+                catch(err){
+                    // incomplete JSON string, should not happen
+                    console.error(err);
+                }
+            }
+            // Store the partial data from the last JSON string in the chunk
+            if (jsonStrings.length > 0){
+                partialData = jsonStrings[jsonStrings.length - 1];
+            }
+            if (done) {
+                if (partialData) {
+                    try{
+                        const data = JSON.parse(partialData) as DataInfoT;
+                        onReceive(data);
+                    }
+                    catch(err){
+                        // the last chunk should contain an entire JSON string
+                        // incomplete JSON string, should not happen
+                        console.error(err);
+                    }
+                }
+                return;
+            }
+            return reader.read().then(processTextData as any);
+        }
+        return reader.read().then(processTextData as any);
+    }
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
         const url = new URL(`${getBackendURL()}/fileinfo/${uid}`);

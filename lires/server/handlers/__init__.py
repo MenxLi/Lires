@@ -1,4 +1,4 @@
-from .dataInfo import DataInfoHandler, DataListHandler
+from .dataInfo import *
 from .documents import DocHandler, HDocHandler
 from .comment import CommentHandler
 from .file import FileHandler

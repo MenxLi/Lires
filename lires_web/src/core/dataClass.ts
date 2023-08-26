@@ -425,10 +425,33 @@ export class DataBase {
     async requestData(){
         const conn = new ServerConn();
         const allData = await conn.reqFileList([]);
+        console.log("Get infolist of size: ", 
+            (JSON.stringify(allData).length * 2 / 1024 / 1024)
+            .toPrecision(2), "MB");
+
         this.clear();
         for ( let summary of allData ){
             this.add(summary);
         };
+        this._initliazed = true;
+    }
+
+    // get the datalist in chunks
+    async requestDataStream(stepCallback: () => void = () => {}, stepSize: number = 25){
+        const conn = new ServerConn();
+        this.clear()
+        let n_accum = 0;
+        await conn.reqFileListStream([], (data: DataInfoT) => {
+            this.add(data);
+            n_accum += 1;
+            if (n_accum % stepSize === 0){
+                stepCallback();
+            }
+        });
+        stepCallback();
+        console.log("Get datapoints of size: ",
+            (JSON.stringify(this.data).length * 2 / 1024 / 1024)
+            .toPrecision(2), "MB");
         this._initliazed = true;
     }
 
