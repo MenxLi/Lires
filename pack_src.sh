@@ -22,5 +22,7 @@ if [ -f $dest_path ]; then
 fi
 
 echo "Packing..."
-zip -qr ${dest_path} $(git ls-files)
+# zip -qr ${dest_path} $(git ls-files --exclude-standard)
+zip -qr ${dest_path} \
+$(git ls-files | grep -v -f <(git config --file .gitmodules --get-regexp path | awk '{ print $2 }'))
 echo "Done."
