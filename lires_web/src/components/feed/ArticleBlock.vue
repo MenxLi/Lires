@@ -107,7 +107,7 @@
             <FileRowContainer :datapoints="authorPapers" v-model:unfoldedIds="_unfoldedIds"></FileRowContainer>
         </div>
     </FloatingWindow>
-    <div id="main" class="gradInFast">
+    <div id="main" class="slideInFast">
         <div class="articleBlock">
             <div class="titleBlock">
                 <h2>{{ props.article.title }}</h2>

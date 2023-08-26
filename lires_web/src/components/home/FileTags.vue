@@ -46,7 +46,7 @@
     
 </script>
 <template>
-    <div class="main panel gradInFast" ref="ftPanel">
+    <div class="main panel slideInFast" ref="ftPanel">
         <TagSelector @onCheck="(status: TagStatus) => emit('onCheck', status)" v-model:tagStatus="uiState.tagStatus"></TagSelector>
         <TagBubbleContainer v-if="currentSelectedDatapoint" 
             :tags="currentSelectedDatapoint.tags" 

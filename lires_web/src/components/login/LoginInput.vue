@@ -52,7 +52,7 @@ function login(){
 
 <template>
     <div class="main">
-        <div id="login" class="gradIn">
+        <div id="login" class="slideIn">
         <form>
             <div class="loginLine">
                 <label for="access-key">Access Key </label>

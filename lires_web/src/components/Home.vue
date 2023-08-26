@@ -120,7 +120,7 @@ export default {
 
 <template>
     <DataEditor :datapoint="null" v-model:show="showAddingDataWindow"></DataEditor>
-    <div id="main" class="gradIn">
+    <div id="main" class="slideIn">
         <Banner>
             <div id="bannerAddons">
                 <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"

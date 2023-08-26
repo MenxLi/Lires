@@ -48,7 +48,7 @@
             <slot></slot>
         </Toggle>
     </div>
-    <div v-show="toggled" class="children gradInDown">
+    <div v-show="toggled" class="children slideInDown">
         <CollapsibleToggle v-for="(v, k) in children" 
             :identifier="String(k)" 
             :children="v" 

@@ -93,7 +93,7 @@
             </Toggle>
         </div>
     </div>
-    <div v-show="!collapsed" class="children gradInDown">
+    <div v-show="!collapsed" class="children slideInDown">
         <TagCollapsibleToggle v-for="(v, k) in children" 
             :identifier="String(k)" 
             :children="v" 

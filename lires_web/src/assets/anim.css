@@ -1,5 +1,5 @@
 
-@keyframes slideInUp {
+@keyframes slideInUpAnim {
     0% {
         visibility: hidden;
         transform: translateY(5%);
@@ -10,7 +10,7 @@
         transform: translateY(0);
     }
 }
-@keyframes slideInDown {
+@keyframes slideInDownAnim {
     0% {
         visibility: hidden;
         transform: translateY(-5%);
@@ -21,7 +21,7 @@
         transform: translateY(0);
     }
 }
-@keyframes slideInBack {
+@keyframes slideInBackAnim {
     0% {
         visibility: hidden;
     }
@@ -43,38 +43,59 @@
     100% { transform: rotateZ(0deg); }
 }
 
+@keyframes gradInAnim {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
 .gradIn {
     animation-duration: 0.375s; /* the duration of the animation */
     animation-timing-function: ease-out; /* how the animation will behave */
     animation-delay: 0s; /* how long to delay the animation from starting */
     animation-iteration-count: 1; /* how many times the animation will play */
-    animation-name: slideInUp; /* the name of the animation we defined above */
+    animation-name: slideInUpAnim; /* the name of the animation we defined above */
 }
 
-.gradInFast {
-    animation-duration: 0.15s; /* the duration of the animation */
-    animation-timing-function: ease-out; /* how the animation will behave */
-    animation-delay: 0s; /* how long to delay the animation from starting */
-    animation-iteration-count: 1; /* how many times the animation will play */
-    animation-name: slideInUp; /* the name of the animation we defined above */
-}
-
-.gradInDown {
+.slideIn {
     animation-duration: 0.375s; /* the duration of the animation */
     animation-timing-function: ease-out; /* how the animation will behave */
     animation-delay: 0s; /* how long to delay the animation from starting */
     animation-iteration-count: 1; /* how many times the animation will play */
-    animation-name: slideInDown; /* the name of the animation we defined above */
+    animation-name: slideInUpAnim; /* the name of the animation we defined above */
 }
 
-.gradIn2{
+.slideInFast {
+    animation-duration: 0.15s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: slideInUpAnim; /* the name of the animation we defined above */
+}
+
+.slidInFast {
+    animation-duration: 0.15s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: slideInUpAnim; /* the name of the animation we defined above */
+}
+
+.slideInDown {
+    animation-duration: 0.375s; /* the duration of the animation */
+    animation-timing-function: ease-out; /* how the animation will behave */
+    animation-delay: 0s; /* how long to delay the animation from starting */
+    animation-iteration-count: 1; /* how many times the animation will play */
+    animation-name: slideInDownAnim; /* the name of the animation we defined above */
+}
+
+.slideIn2{
     /* set to hidden so it will not show up before delay */
     animation-duration: 0.375s;
     /* set to backwords so it will not show up before animation */
     animation-fill-mode:backwards;
     animation-timing-function: ease-out;
     /* defined in common.css */
-    animation-name: slideInBack;
+    animation-name: slideInBackAnim;
 }
 
 .rotate90in {
