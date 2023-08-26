@@ -437,7 +437,7 @@ export class DataBase {
     }
 
     // get the datalist in chunks
-    async requestDataStream(stepCallback: () => void = () => {}, stepSize: number = 50){
+    async requestDataStream(stepCallback: () => void = () => {}, stepSize: number = 100){
         const conn = new ServerConn();
         this.clear()
         let n_accum = 0;

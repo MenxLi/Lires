@@ -16,7 +16,6 @@ export default {
     import FileTags from "./home/FileTags.vue";
     import FileRowContainer from "./home/FileRowContainer.vue";
     import Banner from "./common/Banner.vue";
-    import LoadingWidget from "./common/LoadingWidget.vue";
     import BannerIcon from "./common/BannerIcon.vue";
     import DataEditor from "./home/DataEditor.vue";
     import addCircleIcon from "../assets/icons/add_circle.svg";
@@ -151,14 +150,11 @@ export default {
                     v-if="uiState.shownDataUIDs.length > 0"
                 ></FileRowContainer>
 
-                <LoadingPopout v-if="!dataStore.database.initialized" />
                 <div id="blankPlaceholder" v-else>
-                    <div v-if="!dataStore.database.initialized">
-                        <b>Loading...</b>
-                        <LoadingWidget></LoadingWidget>
-                    </div>
-                    <p v-else>Nothing to show</p>
+                    <p v-if="dataStore.database.initialized">Nothing to show</p>
                 </div>
+
+                <LoadingPopout v-if="!dataStore.database.initialized" />
             </div>
         </div>
     </div>
