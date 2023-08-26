@@ -378,7 +378,24 @@ version_history:
       - Isolation of the GUI module - lires-qt
       - More detailed version changelog
     - Performance updates:
-      - use asyncio threading and async iter wrap to offload blocking task
+      - Use asyncio threading and async iter wrap to offload blocking task
     - Developments:
       - Dev - lrs-cluster for server clustering
       - Dev - startup subcommand change, how have four entries - server, web, client, iserver
+  
+  1.0.1:
+    - UI updates:
+      - Datacard expand animation
+      - Adjust banner icon size and gap
+      - Adjust search input size on small screen
+    - Permission changes:
+      - Check tag permission on AI summary
+      - Requires key to get data list and single data information
+    - Developments:
+      - Rename ilires -> lires_ai
+      - Handlers use keyReqired wrapper to check key
+      - Log handler initialization
+      - AI module dependency isolation
+      - Add core optional dependencies
+      - Seperate docker build for each module
+      - Fix build issues - tauri identifier and setup version read
