@@ -55,6 +55,8 @@ export class ServerConn {
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
         const url = new URL(`${getBackendURL()}/fileinfo/${uid}`);
+        url.searchParams.append("key", this.settings.encKey);
+
         const response = await fetch(url.toString());
         if (response.ok){
             const resObj = await response.json();

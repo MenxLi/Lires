@@ -54,29 +54,9 @@ class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     Query information about a single file
     """
-    def get(self, uid:str):
-        """
-         - uuid_cmd (str): <uuid>?<cmd> | <uuid>
-        """
+    @keyRequired
+    async def get(self, uid:str):
         self.setDefaultHeader()
-        
-        try:
-            cmd = self.get_argument("type")
-        except:
-            cmd = None
         dp: DataPoint = self.db[uid]
-        if cmd is None:
-            d_info = self.db[uid].summary
-            self.write(json.dumps(d_info))
-            return
-        elif cmd == "stringInfo":
-            detail = dp.stringInfo()
-            self.write(detail)
-            return 
-        elif cmd == "abstract":
-            raise DeprecationWarning("get abstract through this api is deprecated")
-            abstract = dp.fm.readAbstract()
-            self.write(abstract)
-        else:
-            # not implemented
-            raise tornado.web.HTTPError(404)
+        self.write(json.dumps(dp.summary))
+        return
