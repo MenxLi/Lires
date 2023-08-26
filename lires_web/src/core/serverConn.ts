@@ -40,6 +40,7 @@ export class ServerConn {
         const concatTags = tags.join("&&");
         const url = new URL(`${getBackendURL()}/filelist`);
         url.searchParams.append("tags", concatTags);
+        url.searchParams.append("key", this.settings.encKey);
 
         const response = await fetch(url.toString());
         if (response.ok){

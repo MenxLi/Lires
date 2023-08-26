@@ -80,9 +80,10 @@ class ServerConn(ConnectionBase):
     def summaries(self, tags: DataTagT = []) -> Optional[List[DataPointSummary]]:
         post_url = self.SERVER_URL + "/filelist"
         post_args = {
+            "key": self.hash_key,
             "tags": json.dumps([ t for t in tags])
         }
-        res = requests.post(post_url, data = post_args)
+        res = requests.post(post_url, data = post_args, timeout=5)
         if not self._checkRes(res):
             return None
         else:

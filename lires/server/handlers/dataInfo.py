@@ -6,38 +6,35 @@ import json
 import tornado.web
 
 from lires.core.dataClass import DataList, DataTags, DataPoint, DataPointSummary
-from ._base import RequestHandlerMixin
+from ._base import *
 
 class DataListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
-    Query information of data of the entire database
+    Query information of the entire database
     """
-    def get(self):
+    @keyRequired
+    async def get(self):
         """
         Args:
             tags (str): tags should be "%" or split by "&&"
         """
-
-        self.logger.debug("receiving file list request")
-        # self.checkKey()
-
         self.setDefaultHeader()
         tags = self.get_argument("tags")
         if tags == "":
             tags = []
         else:
             tags = tags.split("&&")
-        self.emitDataList(tags)
+        await self.emitDataList(tags)
     
-    def post(self):
+    @keyRequired
+    async def post(self):
         """
         tags are list of strings
         """
-        print("posting file list request")
         tags = json.loads(self.get_argument("tags"))
-        self.emitDataList(tags)
+        await self.emitDataList(tags)
     
-    def emitDataList(self, tags):
+    async def emitDataList(self, tags):
         data_info = self.getDictDataListByTags(tags)
         if data_info is not None:
             json_data = {
