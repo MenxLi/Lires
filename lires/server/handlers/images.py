@@ -48,7 +48,7 @@ class ImageGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
             self.write(f.read())
 
-class ImageUploadHandler(RequestHandlerMixin, tornado.web.RequestHandler):
+class ImageUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     @keyRequired
     async def post(self, uid: str):
