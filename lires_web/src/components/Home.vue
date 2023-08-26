@@ -23,6 +23,7 @@ export default {
     import { MenuAttached } from "./common/fragments";
     import sellIcon from "../assets/icons/sell.svg";
     import refreshIcon from "../assets/icons/refresh.svg";
+    import LoadingPopout from "./common/LoadingPopout.vue";
 
     import type { SearchStatus } from "./interface";
     import { lazify } from "../libs/misc";
@@ -149,6 +150,8 @@ export default {
                 <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
                     v-if="uiState.shownDataUIDs.length > 0"
                 ></FileRowContainer>
+
+                <LoadingPopout v-if="!dataStore.database.initialized" />
                 <div id="blankPlaceholder" v-else>
                     <div v-if="!dataStore.database.initialized">
                         <b>Loading...</b>
