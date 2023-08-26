@@ -14,7 +14,6 @@
   - [Management](#management)
     - [User management](#user-management)
     - [Build search index](#build-search-index)
-    - [All management tools](#all-management-tools)
   - [Docker deployment](#docker-deployment)
   - [Optional - PyQt6 GUI](#optional---pyqt6-gui)
 
@@ -124,6 +123,10 @@ The configuration file designates the environment variables, as well as the comm
 ---
 
 ## Management
+There are several management tools for the server, they are all accessible by `lrs-<tool_name>`.  
+A detailed description of each tool can be found in [manage.md](./manage.md).
+
+Following are some common management tasks.
 ### User management
 After installation, user access keys should be generated with `lrs-keyman` command.
 ```sh
@@ -142,20 +145,6 @@ To build the index, run:
 lrs-index build
 ```
 *The priority for indexing sources: Abstract > AI summerization > PDF full text*
-
-### All management tools
-
-All managements tools include:
-```sh
-lrs-cluster     # Cluster management
-lrs-keyman      # Manage access key
-lrs-discuss     # Manage online discussions
-lrs-collect     # Automatic add entry to database with retriving string
-lrs-resetconf   # To reset default configuration
-lrs-share       # To generate share url
-lrs-index       # To build and query feature of the database, for fuzzy search
-lrs-utils       # Miscellaneous utilities
-```
 
 ---
 ## Docker deployment
