@@ -84,6 +84,17 @@ export const useUIStateStore = defineStore(
                 setTimeout(() => {
                     delete this.popupValues[id];
                 }, time);
+            },
+            reloadDatabase(
+                backendReload: boolean = false,
+            ){
+                useDataStore().reload(
+                    backendReload,
+                    () => this.updateShownData(),
+                    () => this.showPopup(`Failed to load database from: ${new ServerConn().apiURL()}`, "alert"),
+                    () => this.updateShownData(),
+                )
+
             }
         }
     }
@@ -128,7 +139,7 @@ export const useDataStore = defineStore(
 
                 function __requestDBData( dStore: ReturnType<typeof useDataStore>,){
                     // dStore.database.requestData().then(
-                    dStore.database.requestDataStream(uiUpdateCallback).then(
+                    dStore.database.requestDataStream(uiUpdateCallback, 50).then(
                         (_)=>{ onSuccess(); },
                         (err)=>{ onError(err); }
                     )

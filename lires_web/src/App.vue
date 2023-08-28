@@ -2,25 +2,13 @@
 <script setup lang="ts">
     import { watch } from 'vue';
     import Popup from './components/common/Popup.vue';
-    import { useUIStateStore, useDataStore, useSettingsStore } from './components/store';
-    import { ServerConn } from './core/serverConn';
+    import { useUIStateStore, useSettingsStore } from './components/store';
     const uiState = useUIStateStore();
-    const dataStore = useDataStore();
     const settingStore = useSettingsStore();
-    function reloadDatabase(){
-        dataStore.reload(
-            false,
-            () => { uiState.updateShownData(); },
-            (_) => {
-                uiState.showPopup(`Failed to load database from: ${new ServerConn().apiURL()}`, "alert")
-            },
-            () => uiState.updateShownData()
-        )
-    }
     watch(
         () => settingStore.loggedIn,
         (new_: boolean, old_: boolean) => {
-            if (new_){ reloadDatabase(); }
+            if (new_){ uiState.reloadDatabase(false); }
             if (!new_ && new_ !== old_){ console.log("Logged out.") }
             if (new_ && new_ !== old_){ console.log("Logged in.") }
         }
