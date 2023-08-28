@@ -311,6 +311,21 @@ export class DataPoint {
         return this.summary.uuid === _dummyDataSummary.uuid;
     }
 
+    getRawDocURL(): string {
+        const uid = this.summary.uuid;
+        if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
+            return `${getBackendURL()}/doc/${uid}`;
+        }
+        if (this.summary["has_file"] && this.summary["file_type"] == ".hpack"){
+            return `${getBackendURL()}/hdoc/${uid}/`
+        }
+        if (!this.summary["has_file"] && this.summary["url"]){
+            return this.summary.url;
+        }
+        return "about:blank";
+    }
+
+    // will wrap the url with backend pdfjs viewer if the url is a pdf
     getOpenDocURL(): string {
         const uid = this.summary.uuid;
         const backendPdfjsviewer = `${getBackendURL()}/pdfjs/web/viewer.html`;

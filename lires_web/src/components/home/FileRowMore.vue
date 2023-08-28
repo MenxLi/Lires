@@ -101,11 +101,18 @@ const showSummary = ref(false);
             `${datapoint.summary.title}`,
             `${datapoint.summary.title}. ${datapoint.authorAbbr()} (${datapoint.summary.year})`,
             `${datapoint.summary.bibtex}`,
+            `${datapoint.getRawDocURL()}`,
         ] ">
-            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}">{{
-                index === 3 ? `[bibtex] ${text.slice(0, 50)}...` : text
+            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}" v-if="index===3">{{
+                `[Bibtex] ${text.slice(0, 50)}...`
             }}</p>
-            <hr v-if="index !== 3">
+            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}" v-else-if="index===4">{{
+                `[DocURL] ${text.slice(0, 50)}...`
+            }}</p>
+            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}" v-else>{{
+                text
+            }}</p>
+            <hr v-if="index !== 4">
         </div>
     </FloatingWindow>
     <DataEditor v-model:show="showEditor" :datapoint="datapoint"></DataEditor>
