@@ -242,3 +242,55 @@ def queryFeatureIndexByUID(db: DataBase, query_uid: str, n_return: int = 16) -> 
         query_string = getPDFText(pdf_path, 4096)
     return queryFeatureIndex(query_string, n_return)
 
+
+async def retrieveRelevantSections(
+        query_text: str, 
+        src_text: str, 
+        n_max_return = 5,
+        min_split_words: int = 128,
+        min_score = 0.2,
+        verbose = False
+        ) -> list[tuple[str, float]]:
+    iconn = IServerConn()
+    assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
+
+    if verbose: print("Querying relevent sections...")
+
+    sentences = src_text.replace("\n", " ").split(".")
+
+    for i in range(len(sentences)):
+        sentences[i] = sentences[i].strip()
+
+        # merge the sentences if the length is too short
+        if len(sentences[i].split(" ")) < min_split_words:
+            if i == len(sentences) - 1:
+                break
+            sentences[i+1] = sentences[i] + ". " + sentences[i+1]
+            sentences[i] = ""
+
+    if verbose: print(f"Found {len(sentences)} sentences")
+    sentences = [s for s in sentences if s != ""]
+
+    # featurize the sentences
+    # split the text into sections
+    if verbose: print(f"Query: {query_text}")
+    query_text = query_text.replace("\n", " ")
+    query_vec = iconn.featurize(query_text)
+
+    src_vec_dict: dict[str, list[float]] = {}
+    for sentence in sentences:
+        await asyncio.sleep(0)
+        src_vec_dict[sentence] = iconn.featurize(sentence)
+    
+    # compute the similarity
+    vec_col = tiny_vectordb.VectorCollection(None, "_feature", 768)
+    vec_col.addBlock(
+        list(src_vec_dict.keys()), 
+        list(src_vec_dict.values())
+        )     # requires python > 3.7
+    search_res = vec_col.search(query_vec, n_max_return)
+
+    ret = [(sentence, score) for sentence, score in zip(search_res[0], search_res[1]) if score > min_score]
+    ret.sort(key=lambda x: x[1], reverse=True) # sort by score, descending
+    return ret
+
