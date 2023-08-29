@@ -52,14 +52,22 @@ def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -
 FeatureQueryResult = TypedDict("FeatureQueryResult", {"uids": list[str], "scores": list[float]})
 
 def getFeatureTextSource(
-        iconn: IServerConn, 
+        iconn: Optional[IServerConn], 
         dp: DataPoint, 
         max_words_per_doc: Optional[int] = None, 
         print_fn: Callable[[str], None] = lambda x: None
-        ) -> tuple[str, Literal["abstract", "summary", "fulltext", "title"]]:
+        )-> TypedDict("FeatureTextSource", {
+            "text": str, 
+            "hash": str,
+            "type": Literal["abstract", "summary", "fulltext", "title"]},
+            ):
     """
     Extract text source from a document for feature extraction.
-    return text_source, source_type
+    Priority: abstract > ai summary > fulltext > title
+    - iconn: IServerConn, if set to None, will not use LLM to create summary
+    - dp: DataPoint
+    - max_words_per_doc: int, if set to None, will not truncate the text
+    - print_fn: Callable[[str], None], a function to print the progress
     """
     abstract = dp.fm.readAbstract()
     uid = dp.uuid
@@ -67,7 +75,11 @@ def getFeatureTextSource(
     if abstract:
         # if abstract is available, use it as the text source
         print_fn(f"- use abstract")
-        return title_text + abstract, "abstract"
+        return {
+            "text": (_text := title_text + abstract),
+            "hash": hashlib.sha256(_text.encode()).hexdigest(),
+            "type": "abstract"
+        }
     elif dp.fm.hasFile() and dp.fm.file_extension == ".pdf":
         # if has pdf, try to create a summary
         pdf_path = dp.fm.file_p; assert pdf_path
@@ -79,60 +91,83 @@ def getFeatureTextSource(
             summary = open(_summary_cache_path, "r").read()
             print_fn(f"- use cached summary")
         else:
-            summary = createSummaryWithLLM(iconn, pdf_text)
-            with open(_summary_cache_path, "w") as f:
-                f.write(summary)
-            if summary:
-                print_fn(f"- use LLM summary")
+            if iconn:
+                # if LLM is available, use it to create summary
+                summary = createSummaryWithLLM(iconn, pdf_text)
+                with open(_summary_cache_path, "w") as f:
+                    f.write(summary)
+                if summary:
+                    print_fn(f"- use LLM summary")
 
         if summary:
             # if summary is created, use it as the text source
-            return title_text + summary, "summary"
+            return {
+                "text": (_text := title_text + summary),
+                "hash": hashlib.sha256(_text.encode()).hexdigest(),
+                "type": "summary"
+            }
         else:
             # otherwise, use the full text
             print_fn(f"- use full text")
-            return pdf_text, "fulltext"
+            return {
+                "text": (_text := pdf_text),
+                "hash": hashlib.sha256(_text.encode()).hexdigest(),
+                "type": "fulltext"
+            }
     else:
         # otherwise, use title
         print_fn(f"- use title")
-        return title_text.strip(), "title"
+        return {
+            "text": (_text := title_text.strip()),
+            "hash": hashlib.sha256(_text.encode()).hexdigest(),
+            "type": "title"
+        }
 
 def buildFeatureStorage(
         db: DataBase, 
         max_words_per_doc: int = 2048, 
+        use_llm: bool = True,
         force = False
         ):
+    iconn = IServerConn()
     vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
     vector_collection = vector_db.getCollection("doc_feature")
 
+    # check if iserver is running
+    assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
+
     # a file to store the source text hash, to avoid repeated featurization
-    doc_feature_src_hash_log = os.path.join(os.path.dirname(VECTOR_DB_PATH), "doc_feature_src_hash.log")
-    doc_feature_src_hash = {}       # uid -> hash of the source text
-    if not os.path.exists(doc_feature_src_hash_log):
-        with open(doc_feature_src_hash_log, "w") as f:
+    text_src_hash_log = os.path.join(os.path.dirname(VECTOR_DB_PATH), "doc_feature_src_hash.log")
+
+    text_src_hash = {}               # uid -> hash of the source text
+    text_src_hash_record = {}        # uid -> hash of the source text
+    if not os.path.exists(text_src_hash_log):
+        with open(text_src_hash_log, "w") as f:
             f.write(r"")
 
     if force:
         vector_collection.deleteBlock(vector_collection.keys())
+        os.remove(text_src_hash_log)
     else:
         # load existing features source record
-        with open(doc_feature_src_hash_log, "r") as f:
+        with open(text_src_hash_log, "r") as f:
             lines = f.readlines()
             for line in lines:
                 if not line.strip():
                     continue
                 uid, hash = line.strip().split(":")
-                doc_feature_src_hash[uid] = hash
+                text_src_hash_record[uid] = hash
     
-    iconn = IServerConn()
     text_src: dict[str, str] = {}       # uid -> text source for featurization
     
     # extract text source
     for idx, (uid, dp) in enumerate(db.items()):
-        # if idx > 100:
-        #     # for debug
-        #     break
-        text_src[uid], src_type = getFeatureTextSource(iconn, dp, max_words_per_doc)
+        # if idx > 100: break # for debug
+        _ret = getFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
+        text_src[uid] = _ret["text"]
+        src_type = _ret["type"]
+        text_src_hash[uid] = _ret["hash"]
+
         print(f"[Extracting source] ({idx}/{len(db)}) <{src_type}>: {uid}...")
 
     # featurize the summary
@@ -149,8 +184,7 @@ def buildFeatureStorage(
             text_src_update[uid] = text
         else:
             # check if the feature is outdated
-            hash = hashlib.sha256(text.encode()).hexdigest()
-            if hash != doc_feature_src_hash[uid]:
+            if text_src_hash[uid] != text_src_hash_record[uid]:
                 text_src_update[uid] = text
 
     print(f"Featurizing {len(text_src_update)} documents...")
@@ -167,14 +201,14 @@ def buildFeatureStorage(
         if feature_item is None:
             print(f"Warning: failed to featurize {uid}")
             continue
-        doc_feature_src_hash[uid] = hashlib.sha256(text_src[uid].encode()).hexdigest()
+        text_src_hash_record[uid] = text_src_hash[uid] 
         _to_record_uids.append(uid)
         _to_record_features.append(feature_item)
     vector_collection.setBlock(_to_record_uids, _to_record_features)
     vector_db.flush()
     vector_db.commit()
-    with open(doc_feature_src_hash_log, "w") as f:
-        for uid, hash in doc_feature_src_hash.items():
+    with open(text_src_hash_log, "w") as f:
+        for uid, hash in text_src_hash_record.items():
             f.write(f"{uid}:{hash}\n")
     
     print(f"Saved feature index to {VECTOR_DB_PATH}")
