@@ -1,4 +1,4 @@
-from lires_ai.lmInterface import HFChatStreamIter
+from lires_ai.lmInterface import getStreamIter
 from basaran.model import load_model
 
 # pip install sentencepiece protobuf accelerate bitsandbytes basaran
@@ -10,7 +10,8 @@ from basaran.model import load_model
 #     print(choice["text"], end="", flush=True)
 
 # si = HFChatStreamIter("lmsys/vicuna-7b-v1.5-16k")
-si = HFChatStreamIter("stabilityai/StableBeluga-7B")
+# si = HFChatStreamIter("stabilityai/StableBeluga-7B")
+si = getStreamIter("Open-Orca/LlongOrca-7B-16k")
 for choice in si.call("Tell me a story of about 100 words", 0.7):
     print(choice["text"], end="", flush=True)
 
