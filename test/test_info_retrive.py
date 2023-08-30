@@ -36,18 +36,12 @@ class AI:
         ))
         return ans
 
-
-# question = "What are some risks of AI?"
-# question = "What is the advatages of using neural field for CBCT reconstruction?"
-# question = "What is the current state of the art of using AI in dentistry"
-
 def extractAction(ans: str):
     """
     Ask LLM to summarize the action into JSON format.
     """
 
-    system = "A conversation between an AI assistant and a human, "
-    "The AI is responsible for summarizing the action into JSON format. "
+    system = "You are an AI that is responsible for summarizing some words into JSON format. "
 
     conv_dict = {
         "system": system,
@@ -80,12 +74,7 @@ def searchForInfo(query: str):
 
     query_vec = iconn.featurize(query)
 
-    related_article_uids, _ = vector_collection.search(query_vec, 16)
-
-    # add some randomness by selecting the radom articles
-    # import random
-    # random.shuffle(related_article_uids)
-    # related_article_uids = related_article_uids[:8]
+    related_article_uids, _ = vector_collection.search(query_vec, 8)
 
     related_articles = [database[uid] for uid in related_article_uids]
 
@@ -104,7 +93,7 @@ def searchForInfo(query: str):
         else:
             continue
     
-    ret = asyncio.run(retrieveRelevantSections(query, src_text=text_src, n_max_return=8, min_split_words=168))
+    ret = asyncio.run(retrieveRelevantSections(query, src_text=text_src, n_max_return=8, min_split_words=196))
 
     related_sections = [r[0] for r in ret]
 
@@ -118,19 +107,20 @@ def searchForInfo(query: str):
 
 def refineSelectedSections(question: str, related_sections: str) -> str:
 
-    # system = "A conversation between an AI assistant and a human, the AI is designed to help the human to refine the selected sections from the literature database"
-    system = "You are an AI assistant that helps people find information. User will you give you a question. Your task is to answer as faithfully as you can."
+    system = "You are an AI assistant that helps people find information. User will you give you a instruction. " \
+    "Your task is to distill information and answer as faithfully as you can."
     history = [
         ("user", "I'm searching for the answer for a question from a literature database, you should help me pick the most relavent search result from the searched sections."), 
         ("assistant", "Sure! Please provide me with the sections you have searched so that I can assist you in selecting the most relevant ones.")
         ]
-    prompt = "Please help me pick at most 5 of the most relevant sections from the following searched sections: \n"\
+    prompt = "I'm searching for the answer for a question from a literature database, you should help me pick the most relavent search result from the searched sections."
+    "Please help me pick at most 5 of the most relevant sections from the following searched sections: \n"\
     "---\n"\
     "\n".join(related_sections) + \
     "---\n"\
     "For your reference, here is the question that I'm searching: {} \n".format(question) + "\n" \
     "You can slightly refine each section by adding or removing some words to make it better answer the question, but you shouldn't change the meaning of the section. \n" \
-    "You answer should not contain anything else other than explicitly listing the selected sections. \n"
+    "You answer should not contain anything else other than explicitly listing the selected informations. \n"
     # breakpoint()
 
     ai = AI(iconn)
@@ -151,8 +141,9 @@ def refineSelectedSections(question: str, related_sections: str) -> str:
 if __name__ == "__main__":
     iconn = IServerConn()
     # MODEL: ChatStreamIterType = "stabilityai/StableBeluga-7B"
-    MODEL: ChatStreamIterType = "Open-Orca/LlongOrca-7B-16k"
+    # MODEL: ChatStreamIterType = "Open-Orca/LlongOrca-7B-16k"
     # MODEL: ChatStreamIterType = "gpt-3.5-turbo-16k"
+    MODEL: ChatStreamIterType = "LOCAL"
 
     question = sys.argv[1]
 
@@ -209,7 +200,8 @@ if __name__ == "__main__":
             ref_se = refineSelectedSections(action_dict["action_input"], se)
             input_str = \
                 "Here are some related sections from research articles: \n" + ref_se + "\n"\
-                "Please tell me what you are thinking about these sections, and what you are going to do next. \n" + \
+                "You can take them as a referece, and not necessarily to use them. \n" + \
+                "Please tell me what you are going to do next. \n" + \
                 "This is our {} round of conversation. Try to give out your answer within 3 rounds. \n".format(counter) +\
                 "(Don't search for repetitive information.)\n"
             if counter > 3:

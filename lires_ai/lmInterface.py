@@ -256,25 +256,38 @@ class HFChatStreamIter(ChatStreamIter):
 
 
 ChatStreamIterType = Literal[
+    "LOCAL",
     "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit", 
     "lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B", "Open-Orca/LlongOrca-7B-16k"
     ]
 g_stream_iter = {}
 def getStreamIter(itype: ChatStreamIterType = "gpt-3.5-turbo") -> ChatStreamIter:
-    if itype in g_stream_iter:
-        return g_stream_iter[itype]
+
     if itype in ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit"]:
+
+        if itype in g_stream_iter:
+            return g_stream_iter[itype]
+
         ret = OpenAIChatStreamIter(model=itype)
         g_stream_iter[itype] = ret
         return ret
     
-    else:
+    elif itype == config.local_llm_name or itype == "LOCAL":
+        assert config.local_llm_name, "local_llm_name is not set"
+        itype = config.local_llm_name
+
+        if itype in g_stream_iter:
+            return g_stream_iter[itype]
+
         try:
             with Timer("Loading model: {}".format(itype)):
-                ret = HFChatStreamIter(model=itype, load_bit=8)    # type: ignore
+                ret = HFChatStreamIter(model=itype, load_bit=config.local_llm_load_bit)    # type: ignore
             g_stream_iter[itype] = ret
             return ret
 
         except Exception as e:
             print(e)
-            raise ValueError("Unknown interface type: {}".format(itype))
+            raise Exception("Failed to load model: {}".format(itype))
+    
+    else:
+        raise NotImplementedError("Unknown model: {}".format(itype))

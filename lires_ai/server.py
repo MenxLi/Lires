@@ -81,6 +81,9 @@ def main():
     def warmup():
         logger.info("Warming up...")
         asyncio.run(lmFeaturize("Hello world!"))
+        if config.local_llm_name is not None:
+            getStreamIter("LOCAL")
+
         logger.info("Warmup done!")
     threading.Thread(target = warmup, daemon=True).start()
 

@@ -256,7 +256,7 @@ async def retrieveRelevantSections(
 
     if verbose: print("Querying relevent sections...")
 
-    sentences = src_text.replace("\n", " ").split(".")
+    sentences = src_text.replace("\n", " ").split(". ")
 
     for i in range(len(sentences)):
         sentences[i] = sentences[i].strip()
