@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from typing import Any, TypedDict, Literal
 import dataclasses
+from .utils import Timer
 import enum
 
 # check python version
@@ -144,10 +145,11 @@ class HFChatStreamIter(ChatStreamIter):
     def __init__(
             self, 
             model: Literal["lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B"], 
-            load_in_8bit: bool = True
+            load_bit: int = 16
             ):
+        assert load_bit in [4, 8, 16]
         self.model_name = model
-        self.model = basaran.model.load_model(model, load_in_8bit=load_in_8bit)
+        self.model = basaran.model.load_model(model, load_in_8bit=load_bit == 8, load_in_4bit=load_bit == 4)
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
     
     def getConv(self):
@@ -208,6 +210,33 @@ class HFChatStreamIter(ChatStreamIter):
                 ret += "### User:\n"
             return ret
         
+        elif "LlongOrca" in self.model_name:
+            """
+            # https://huggingface.co/Open-Orca/LlongOrca-7B-16k
+            <|im_start|>system
+            You are LlongOrca, a large language model trained by Alignment Lab AI. Write out your reasoning step-by-step to be sure you get the right answers!
+            <|im_end|>
+            <|im_start|>user
+            How are you<|im_end|>
+            <|im_start|>assistant
+            I am doing well!<|im_end|>
+            <|im_start|>user
+            How are you now?<|im_end|>
+            """
+            ret = f"<|im_start|>system\n{self.conversations.system.strip()}\n<|im_end|>\n"
+            for i, (role, content) in enumerate(self.conversations.conversations):
+                if i == 0:
+                    assert role == "user"
+                if role == "user":
+                    ret += f"<|im_start|>user\n{content}<|im_end|>\n"
+                else:
+                    ret += f"<|im_start|>assistant\n{content}<|im_end|>\n"
+            if self.conversations.conversations[-1][0] == "user":
+                ret += "<|im_start|>assistant\n"
+            else:
+                ret += "<|im_start|>user\n"
+            return ret
+        
         else:
             raise NotImplementedError("Unknown model: {}".format(self.model_name))
     
@@ -228,14 +257,24 @@ class HFChatStreamIter(ChatStreamIter):
 
 ChatStreamIterType = Literal[
     "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit", 
-    "lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B"
+    "lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B", "Open-Orca/LlongOrca-7B-16k"
     ]
+g_stream_iter = {}
 def getStreamIter(itype: ChatStreamIterType = "gpt-3.5-turbo") -> ChatStreamIter:
+    if itype in g_stream_iter:
+        return g_stream_iter[itype]
     if itype in ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit"]:
-        return OpenAIChatStreamIter(model=itype)
+        ret = OpenAIChatStreamIter(model=itype)
+        g_stream_iter[itype] = ret
+        return ret
     
     else:
         try:
-            return HFChatStreamIter(model=itype)    # type: ignore
-        except:
+            with Timer("Loading model: {}".format(itype)):
+                ret = HFChatStreamIter(model=itype, load_bit=8)    # type: ignore
+            g_stream_iter[itype] = ret
+            return ret
+
+        except Exception as e:
+            print(e)
             raise ValueError("Unknown interface type: {}".format(itype))

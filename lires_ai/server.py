@@ -38,6 +38,7 @@ class FeaturizeRequest(BaseModel):
     model_name: EncoderT = _default_encoder
     dim_reduce: bool = False
 @app.post("/featurize")
+# @maximumConcurrency(1)
 def featurize(req: FeaturizeRequest):
     feat = asyncio.run(lmFeaturize(req.text, req.word_chunk, req.model_name, req.dim_reduce))
     return {
@@ -94,6 +95,7 @@ def main():
         host=args.host,
         port=args.port,
         log_level=args.log_level,
+        workers=1,
         )
 
 if __name__ == "__main__":
