@@ -89,17 +89,17 @@ class StreamData(TypedDict):
 class ChatStreamIter(ABC):
     """Abstract class for language model interface"""
     temperature = 0.8
-    max_response_length = 1024
+    max_response_tokens = 1024
     conversations: Conversation
 
     # whether to return the pieces of the output stream or return the concatenated whole output stream
     return_pieces: bool = False     
 
     @abstractmethod
-    def call(self, message: str, temperature: float, max_len: int = 1024) -> Iterator[StreamData]:
+    def call(self, message: str, temperature: float, max_tokens: int) -> Iterator[StreamData]:
         ...
     def __call__(self, prompt) -> Iterator[StreamData]:
-        return self.call(prompt, self.temperature, self.max_response_length)
+        return self.call(prompt, self.temperature, self.max_response_tokens)
 
 class OpenAIChatStreamIter(ChatStreamIter):
     """
@@ -114,10 +114,14 @@ class OpenAIChatStreamIter(ChatStreamIter):
         self.conversations.add(role = "user", content = prompt)
         return self.conversations.openai_conversations
     
-    def call(self, prompt: str, temperature: float, max_len: int = 1024) -> Iterator[StreamData]:
+    def call(self, prompt: str, temperature: float, max_tokens: int = 1024) -> Iterator[StreamData]:
 
         res = openai.ChatCompletion.create(
-            model=self.model, messages=self.generateMessages(prompt), temperature=temperature, stream=True
+            model=self.model, 
+            messages=self.generateMessages(prompt), 
+            temperature=temperature, 
+            max_tokens=max_tokens,
+            stream=True, 
         )
         text = ""
         for chunk in res:
