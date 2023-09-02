@@ -5,7 +5,7 @@ from lires_ai import globalConfig as config
 text = ""
 print("generating....")
 
-config.openai_api_base = "https://api.aiproxy.io/v1"
+# config.openai_api_base = "https://api.aiproxy.io/v1"
 # config.fastchat_api_base = ""
 # ai = OpenAIStreamIter(model="vicuna-13b")
 ai = OpenAIChatStreamIter(model="gpt-4-32k")

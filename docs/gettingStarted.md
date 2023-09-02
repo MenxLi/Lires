@@ -99,9 +99,8 @@ LRS_HOME="your/path/here" LRS_SSL_CERTFILE="your/cert/file" LRS_SSL_KEYFILE="you
 
 The LiresAI server is usually started with OPENAI API keys, which can be set with environment variable:
 ```sh
-OPENAI_API_KEY="sk-xxxx" lires iserver --openai-api-base "https://api.openai.com/v1"
+OPENAI_API_KEY="sk-xxxx" OPENAI_API_BASE="..." lires iserver
 ```
-Note that openai api base must be set via command line argument (or leave it to default), because it is not a constant in current implementation in order to support custom models such as that from [lmsys](https://github.com/lm-sys/FastChat).
 
 ### Cluster startup
 It will be laborious and error-prone to start multiple servers manually.  

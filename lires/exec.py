@@ -115,8 +115,6 @@ def run():
         call_args = ["python3", "-m", "lires_ai.server"]
         for k in [
             "port", "host", 
-            "openai-api-base", 
-            "fastchat-api-base"
             ]:
             val = getattr(args, k.replace("-", "_"))
             call_args += ["--" + k, str(val)]

@@ -9,14 +9,12 @@ from fastapi.responses import StreamingResponse
 
 import logging
 from pydantic import BaseModel
-import deprecated
 
 from . import initLogger
 from .utils import autoTorchDevice
 
 from .lmTools import EncoderT, _default_encoder
 from .lmTools import featurize as lmFeaturize
-from .lmTools import structuredSummerize as lmStructuredSummerize
 from .lmInterface import ChatStreamIterType, getStreamIter
 
 from . import globalConfig as config
@@ -38,7 +36,6 @@ class FeaturizeRequest(BaseModel):
     model_name: EncoderT = _default_encoder
     dim_reduce: bool = False
 @app.post("/featurize")
-# @maximumConcurrency(1)
 def featurize(req: FeaturizeRequest):
     feat = asyncio.run(lmFeaturize(req.text, req.word_chunk, req.model_name, req.dim_reduce))
     return {
@@ -47,7 +44,7 @@ def featurize(req: FeaturizeRequest):
 
 class ChatBotRequest(BaseModel):
     prompt: str
-    model_name: ChatStreamIterType = "gpt-3.5-turbo"
+    model_name: ChatStreamIterType = config.defaultChatModel()
     temperature: float = 0.7
     conv_dict: str = '{\
         "system": "A conversation between a human and an AI assistant.",\
@@ -67,15 +64,13 @@ def chatbot(req: ChatBotRequest):
 
 
 def main():
-    import argparse, threading
+    import argparse, threading, os
     import uvicorn
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8731)
     parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--log-level", type=str, default="info")
-    parser.add_argument("--openai-api-base", type=str, default=config.openai_api_base)
-    parser.add_argument("--fastchat-api-base", type=str, default=config.fastchat_api_base)
     args = parser.parse_args()
 
     def warmup():
@@ -89,9 +84,6 @@ def main():
 
     initLogger(args.log_level)
     logger.info("Using device: {}".format(autoTorchDevice()))
-
-    config.openai_api_base = args.openai_api_base
-    config.fastchat_api_base = args.fastchat_api_base
 
     uvicorn.run(
         app,

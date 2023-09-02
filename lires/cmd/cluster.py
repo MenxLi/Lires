@@ -75,13 +75,12 @@ def __getDefaultConfig()->ClusterConfigT:
             {
                 "ENVS": {
                     "OPENAI_API_KEY": "sk-xxxxx",
+                    "OPENAI_API_BASE": "https://api.openai.com/v1",
                     "HF_DATASETS_OFFLINE": "1",
                 },
                 "ARGS": {
                     "--port": 8731,
                     "--host": "0.0.0.0",
-                    "--openai-api-base": "https://api.openai.com/v1",
-                    "--fastchat-api-base": "",
                 },
             }
         ],

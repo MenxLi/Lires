@@ -109,22 +109,12 @@ class OpenAIChatStreamIter(ChatStreamIter):
         super().__init__()
         self.model = model
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
-        if "vicunna" in model:
-            assert config.fastchat_api_base, "fastchat_api_base is not set"
     
     def generateMessages(self, prompt: str):
         self.conversations.add(role = "user", content = prompt)
         return self.conversations.openai_conversations
     
-    @property
-    def openai_base(self):
-        if "vicuna" in self.model:
-            return config.fastchat_api_base
-        else:
-            return config.openai_api_base
-
     def call(self, prompt: str, temperature: float, max_len: int = 1024) -> Iterator[StreamData]:
-        openai.api_base = self.openai_base      # set the api base according to the model
 
         res = openai.ChatCompletion.create(
             model=self.model, messages=self.generateMessages(prompt), temperature=temperature, stream=True
@@ -144,7 +134,7 @@ class HFChatStreamIter(ChatStreamIter):
     """Offline models from huggingface"""
     def __init__(
             self, 
-            model: Literal["lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B"], 
+            model: ChatStreamIterType, 
             load_bit: int = 16
             ):
         assert load_bit in [4, 8, 16]
@@ -257,13 +247,13 @@ class HFChatStreamIter(ChatStreamIter):
 
 ChatStreamIterType = Literal[
     "LOCAL",
-    "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit", 
+    "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k", 
     "lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B", "Open-Orca/LlongOrca-7B-16k"
     ]
-g_stream_iter = {}
-def getStreamIter(itype: ChatStreamIterType = "gpt-3.5-turbo") -> ChatStreamIter:
+g_stream_iter = {}      # a cache for the stream iterators
+def getStreamIter(itype: ChatStreamIterType = config.defaultChatModel()) -> ChatStreamIter:
 
-    if itype in ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "vicuna-13b", "gpt-4", "gpt-4-32k", "vicuna-33b-v1.3-gptq-4bit"]:
+    if itype in config.openai_api_chat_models:
 
         if itype in g_stream_iter:
             return g_stream_iter[itype]

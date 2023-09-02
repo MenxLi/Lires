@@ -24,7 +24,6 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
 
     parser_server = sp.add_parser("server", help = "Start lires server")
     parser_server.add_argument("-p", "--port", action = "store", default = "8080", help = "port, default to 8080")
-    # parser_server.add_argument("--lires_web_port", action = "store", default = "8081", help = "port, default to 8081, set to 0 to disable LiresWeb")
     parser_server.add_argument("--iserver_host", action = "store", default = "127.0.0.1", help = "host, default to 127.0.0.1")
     parser_server.add_argument("--iserver_port", action = "store", default = "8731", help = "port, default to 8731")
 
@@ -32,8 +31,6 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     # set according to LiresAI.server
     parser_iserver.add_argument("--port", type=int, default=8731, help="port, default to 8731")
     parser_iserver.add_argument("--host", type=str, default="0.0.0.0")
-    parser_iserver.add_argument("--openai-api-base", type=str, default="https://api.openai.com/v1")
-    parser_iserver.add_argument("--fastchat-api-base", type=str, default="")
 
     args = parser.parse_args()
     G.prog_args = args
