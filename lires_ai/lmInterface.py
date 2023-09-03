@@ -277,7 +277,11 @@ def getStreamIter(itype: ChatStreamIterType = "DEFAULT") -> ChatStreamIter:
         if itype in g_stream_iter:
             return g_stream_iter[itype]
 
-        ret = OpenAIChatStreamIter(model=itype)
+        if itype in [ "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k", ]:
+            ret = OpenAIChatStreamIter(model=itype, max_response_tokens=None)
+        else:
+            # tentatively set max_response_tokens to 1k
+            ret = OpenAIChatStreamIter(model=itype, max_response_tokens=1024)
         g_stream_iter[itype] = ret
         return ret
     

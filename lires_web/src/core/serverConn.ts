@@ -262,7 +262,7 @@ export class ServerConn {
         onStreamComing: (txt: string)=>void, 
         onDone: ()=>void = ()=>{},
         force: boolean = true,
-        model = "gpt-3.5-turbo"
+        model = "DEFAULT"
         ): void{
         const form = new FormData();
         form.append('key', this.settings.encKey)

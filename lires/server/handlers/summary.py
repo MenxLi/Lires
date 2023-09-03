@@ -30,7 +30,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
         uuid = self.get_argument("uuid")
         force = self.get_argument("force", "false").lower() == "true"
-        model_name = self.get_argument("model", "gpt-3.5-turbo")
+        model_name = self.get_argument("model", "DEFAULT")
 
         perm = self.permission
         if not perm["is_admin"]:
@@ -85,12 +85,16 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             return
         
         assert dp.file_path
-        if model_name == "gpt-3.5-turbo":
+        if "16k" in model_name:
+            __max_words = 16384
+        elif "32k" in model_name:
+            __max_words = 32768
+        elif model_name == "gpt-3.5-turbo":
             __max_words = 2048
         elif model_name == "gpt-4":
             __max_words = 4096
         else:
-            __max_words = 768
+            __max_words = 2048
         pdf_txt = getPDFText(dp.file_path, __max_words)
         if len(pdf_txt) < 100:
             self.write("ERROR: Not enough content in the paper.")
