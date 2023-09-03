@@ -399,3 +399,23 @@ version_history:
       - Add core optional dependencies
       - Seperate docker build for each module
       - Fix build issues - tauri identifier and setup version read
+  
+  1.0.2:
+    - Lires web updates:
+      - Streaming datalist
+      - Home loading spinner as a popout
+      - Cite as raw document url
+      - Use default llm for summary
+    - Lires server:
+      - Async emit streaming data list
+      - Update npm packages and tiny vectordb
+      - Optionally build index without llm summary
+    - Lires AI:
+      - Allowing 'DEFAULT' and 'LOCAL' as llm name;
+      - Remove fastchat related args, remove openai-api-base argument
+      - Set openai model names from commandline arguments
+    - Refactor & developments:
+      - Move reload database function to uistate store
+      - Chat stream iter class using per-instance settings, can be set in constructor
+    - Fix:
+      - Server handler base-class init order
