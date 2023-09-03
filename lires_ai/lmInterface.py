@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
-from typing import Any, TypedDict, Literal
+from typing import Any, TypedDict, Literal, Optional
 import dataclasses
 from .utils import Timer
 import enum
@@ -88,12 +88,22 @@ class StreamData(TypedDict):
 
 class ChatStreamIter(ABC):
     """Abstract class for language model interface"""
-    temperature = 0.8
-    max_response_tokens = 1024
+    temperature: float
+    max_response_tokens: Optional[int]
     conversations: Conversation
 
     # whether to return the pieces of the output stream or return the concatenated whole output stream
-    return_pieces: bool = False     
+    return_pieces: bool
+
+    def __init__(self, 
+        temperature: float = 0.8,
+        max_response_tokens: Optional[int] = None,
+        conversations: Conversation = Conversation(system="A conversation between a human and an AI assistant.", conversations=[]),
+        return_pieces: bool = False,
+        ) -> None:
+        super().__init__()
+        for k in ["temperature", "max_response_tokens", "return_pieces"]:
+            setattr(self, k, locals()[k])
 
     @abstractmethod
     def call(self, message: str, temperature: float, max_tokens: int) -> Iterator[StreamData]:
@@ -105,8 +115,8 @@ class OpenAIChatStreamIter(ChatStreamIter):
     """
     Connect to OpenAI API interface
     """
-    def __init__(self, model: str = "gpt-3.5-turbo") -> None:
-        super().__init__()
+    def __init__(self, model: str = "gpt-3.5-turbo", **kwargs) -> None:
+        super().__init__(**kwargs)
         self.model = model
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
     
@@ -114,7 +124,7 @@ class OpenAIChatStreamIter(ChatStreamIter):
         self.conversations.add(role = "user", content = prompt)
         return self.conversations.openai_conversations
     
-    def call(self, prompt: str, temperature: float, max_tokens: int = 1024) -> Iterator[StreamData]:
+    def call(self, prompt: str, temperature: float, max_tokens: Optional[int]) -> Iterator[StreamData]:
 
         res = openai.ChatCompletion.create(
             model=self.model, 
@@ -139,8 +149,10 @@ class HFChatStreamIter(ChatStreamIter):
     def __init__(
             self, 
             model: ChatStreamIterType, 
-            load_bit: int = 16
+            load_bit: int = 16,
+            **kwargs
             ):
+        super().__init__(**kwargs)
         assert load_bit in [4, 8, 16]
         self.model_name = model
         self.model = basaran.model.load_model(model, load_in_8bit=load_bit == 8, load_in_4bit=load_bit == 4)
@@ -250,12 +262,15 @@ class HFChatStreamIter(ChatStreamIter):
 
 
 ChatStreamIterType = Literal[
+    "DEFAULT",
     "LOCAL",
     "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k", 
     "lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B", "Open-Orca/LlongOrca-7B-16k"
     ]
 g_stream_iter = {}      # a cache for the stream iterators
-def getStreamIter(itype: ChatStreamIterType = config.defaultChatModel()) -> ChatStreamIter:
+def getStreamIter(itype: ChatStreamIterType = "DEFAULT") -> ChatStreamIter:
+    if itype == "DEFAULT":
+        itype = config.defaultChatModel()
 
     if itype in config.openai_api_chat_models:
 

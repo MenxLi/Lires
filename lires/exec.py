@@ -113,12 +113,14 @@ def run():
     if args.subparser == "iserver":
         import subprocess
         call_args = ["python3", "-m", "lires_ai.server"]
-        for k in [
-            "port", "host", 
-            ]:
+        for k in ["port", "host", "local-llm-chat", "openai-models"]:
             val = getattr(args, k.replace("-", "_"))
-            call_args += ["--" + k, str(val)]
-
+            if isinstance(val, list):
+                call_args += ["--" + k]
+                for v in val:
+                    call_args += [str(v)]
+            else:
+                call_args += ["--" + k, str(val)]
         subprocess.check_call(call_args)
 
     if args.subparser == "client":

@@ -1,6 +1,15 @@
 import argparse
 from .core import globalVar as G
 
+def prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument("--port", type=int, default=8731, help="port, default to 8731")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="host, default to 0.0.0.0")
+    parser.add_argument("--local-llm-chat", type=str, default="", 
+        help = "name of the local llm chat model, default is not using local llm chat")
+    parser.add_argument("--openai-models", nargs="+", default=["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k"], type=str,
+        help="models that can be used with openai-api, you would typically specify a different openai-base if you change this")
+    return parser
+
 def parseArgs() -> argparse.Namespace:
     _description = f"\
 Lires, a research bibliography manager. \
@@ -28,9 +37,7 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
     parser_server.add_argument("--iserver_port", action = "store", default = "8731", help = "port, default to 8731")
 
     parser_iserver = sp.add_parser("iserver", help = "Start LiresAI server")
-    # set according to LiresAI.server
-    parser_iserver.add_argument("--port", type=int, default=8731, help="port, default to 8731")
-    parser_iserver.add_argument("--host", type=str, default="0.0.0.0")
+    prepareIServerParser(parser_iserver)
 
     args = parser.parse_args()
     G.prog_args = args

@@ -4,7 +4,7 @@ thus the client don't need to install the heavy packages...
 """
 import asyncio, json
 
-import fastapi
+import fastapi, openai
 from fastapi.responses import StreamingResponse
 
 import logging
@@ -44,7 +44,7 @@ def featurize(req: FeaturizeRequest):
 
 class ChatBotRequest(BaseModel):
     prompt: str
-    model_name: ChatStreamIterType = config.defaultChatModel()
+    model_name: ChatStreamIterType = "DEFAULT"
     temperature: float = 0.7
     conv_dict: str = '{\
         "system": "A conversation between a human and an AI assistant.",\
@@ -52,6 +52,9 @@ class ChatBotRequest(BaseModel):
     }'
 @app.post("/chatbot")
 def chatbot(req: ChatBotRequest):
+    if req.model_name == "DEFAULT":
+        req.model_name = config.defaultChatModel()
+
     def _chatbot():
         ai = getStreamIter(req.model_name)
         ai.temperature = req.temperature
@@ -66,12 +69,25 @@ def chatbot(req: ChatBotRequest):
 def main():
     import argparse, threading, os
     import uvicorn
+    from lires.parser import prepareIServerParser
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--port", type=int, default=8731)
-    parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--log-level", type=str, default="info")
+    parser = argparse.ArgumentParser(description="LiresAI server")
+    parser = prepareIServerParser(parser)
     args = parser.parse_args()
+
+    initLogger("info")
+
+    # load config into global config
+    if args.local_llm_chat:
+        config.local_llm_name = args.local_llm_chat
+    if args.openai_models:
+        config.openai_api_chat_models = args.openai_models
+    
+    if os.getenv("OPENAI_API_KEY") is None:
+        logger.warning("OPENAI_API_KEY not set, please set it to use openai models")
+        if os.getenv("OPENAI_API_BASE"):
+            # set a dummy key, so that openai api will not raise error
+            openai.api_key="sk-dummy__"
 
     def warmup():
         logger.info("Warming up...")
@@ -82,14 +98,13 @@ def main():
         logger.info("Warmup done!")
     threading.Thread(target = warmup, daemon=True).start()
 
-    initLogger(args.log_level)
     logger.info("Using device: {}".format(autoTorchDevice()))
 
     uvicorn.run(
         app,
         host=args.host,
         port=args.port,
-        log_level=args.log_level,
+        log_level="info",
         workers=1,
         )
 

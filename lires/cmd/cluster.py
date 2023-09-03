@@ -81,6 +81,8 @@ def __getDefaultConfig()->ClusterConfigT:
                 "ARGS": {
                     "--port": 8731,
                     "--host": "0.0.0.0",
+                    "--local-llm-chat": "",
+                    "--openai-models": ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k"],
                 },
             }
         ],
@@ -170,8 +172,15 @@ def initProcesses(config: ClusterConfigT):
         __parseEnv(entry["ENVS"], this_environ)
         exec_args = ["lires", subcommand]
         for k, v in entry["ARGS"].items():
-            exec_args.append(f"{k}")
-            exec_args.append(str(v))
+            if isinstance(v, str) or isinstance(v, int) or isinstance(v, float):
+                exec_args.append(f"{k}")
+                exec_args.append(str(v))
+            elif isinstance(v, list):
+                exec_args.append(k)
+                for item in v:
+                    exec_args.append(str(item))
+            else:
+                raise ValueError(f"Invalid value type for {k}: {type(v)}")
         
         # print(f"Environment: {this_environ}")
         # print(f"Executing: {' '.join(exec_args)}")
