@@ -14,7 +14,7 @@ export function formatAuthorName(author: string): string{
     // <Given Name> <...> <Family Name> 
     // make sure formatted author is named as <Family Name>, <Given Name> in lower case
 
-    author = author.trim().toLowerCase();
+    author = author.trim().toLowerCase().replace(/-/g, "");
 
     let formattedAuthor = author.trim(); // Remove leading/trailing whitespace
     // Check if the author name contains a comma

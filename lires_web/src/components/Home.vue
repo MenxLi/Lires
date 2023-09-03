@@ -44,7 +44,7 @@ export default {
     }
 
     // search refealated
-    const searchTypesPool = ["general", "title", "publication", "feature"];
+    const searchTypesPool = ["general", "title", "author", "publication", "feature"];
     const searchInput = ref("")
     const searchSelector: Ref<HTMLSelectElement | null> = ref(null)
     function onSearchChanged(){

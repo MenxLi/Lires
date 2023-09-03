@@ -2,7 +2,7 @@ import type { DataInfoT, SearchResultant } from "./protocalT";
 import { ServerConn } from "./serverConn";
 import { getBackendURL } from "../config";
 import type { SearchStatus } from "../components/interface";
-import { useSettingsStore } from "../components/store";
+import { useSettingsStore, useDataStore, formatAuthorName } from "../components/store";
 
 export interface TagHierarchy extends Record<string, TagHierarchy>{};
 export const TAG_SEP = "->";
@@ -603,6 +603,29 @@ export class DataSearcher{
             for (const dp of datapoints){
                 if (dp.summary.title.toLowerCase().search(pattern) !== -1){
                     dp_new.push(dp);
+                }
+            }
+        }
+        if (searchStatus.searchBy.toLowerCase() === "author"){
+            const authorPubMap = useDataStore().authorPublicationMap;
+            const searchAuthor = formatAuthorName(searchStatus.content);
+            if (searchAuthor in authorPubMap){
+                for (const dp of authorPubMap[searchAuthor]){
+                    if (valid_uids.has(dp.summary.uuid)){
+                        dp_new.push(dp);
+                    }
+                }
+            }
+            else{
+                // partial input
+                for (const _author in authorPubMap){
+                    if (_author.search(searchAuthor) !== -1){
+                        for (const dp of authorPubMap[_author]){
+                            if (valid_uids.has(dp.summary.uuid)){
+                                dp_new.push(dp);
+                            }
+                        }
+                    }
                 }
             }
         }
