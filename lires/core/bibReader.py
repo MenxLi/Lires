@@ -83,7 +83,7 @@ class BibParser:
                 "year": _d.fields["year"],
                 "authors": [str(p) for p in _d.persons["author"]]
             }
-            for bib_entry in ["journal", "doi", "booktitle", "pages", "abstract"]:
+            for bib_entry in ["journal", "doi", "booktitle", "pages", "abstract", "eprint"]:
                 if bib_entry in _d.fields:
                     data[bib_entry] = _d.fields[bib_entry],
             bibs.append(data)
@@ -102,7 +102,7 @@ def parseBibtex(bib_single: str) -> ParsedRef:
     """
     parsed = BibParser()(bib_single)[0]
     publication = None
-    for k in ["journal", "booktitle"]:
+    for k in ["journal", "booktitle", "eprint"]:
         if k in parsed:
             pub = parsed[k]
             if isinstance(pub, str):

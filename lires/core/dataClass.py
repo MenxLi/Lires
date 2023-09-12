@@ -16,7 +16,7 @@ try:
     from .dbConn import DBFileInfo
 except (FileNotFoundError, KeyError):
     pass
-from .bibReader import parseBibtex, parallelParseBibtex
+from .bibReader import parseBibtex, parallelParseBibtex, ParsedRef
 #  from .utils import HTML_TEMPLATE_RAW
 from ..types.dataT import DataPointSummary
 from .serverConn import ServerConn
@@ -308,7 +308,7 @@ class DataPoint(DataCore):
         if parse_bibtex:
             self.loadParsedBibtex_(parseBibtex(self.fm.readBib()))
     
-    def loadParsedBibtex_(self, parsed_bibtex):
+    def loadParsedBibtex_(self, parsed_bibtex: ParsedRef):
         self.bib = parsed_bibtex["bib"]
         self.title = parsed_bibtex["title"]
         self.year = parsed_bibtex["year"]
