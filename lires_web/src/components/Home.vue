@@ -21,7 +21,8 @@ export default {
     import { MenuAttached } from "./common/fragments";
     import sellIcon from "../assets/icons/sell.svg";
     import refreshIcon from "../assets/icons/refresh.svg";
-    import LoadingPopout from "./common/LoadingPopout.vue";
+    import LoadingProgressPopout from "./common/LoadingProgressPopout.vue";
+    import LoadingWidget from "./common/LoadingWidget.vue";
 
     import type { SearchStatus } from "./interface";
     import { lazify } from "../libs/misc";
@@ -139,9 +140,13 @@ export default {
 
                 <div id="blankPlaceholder" v-else>
                     <p v-if="dataStore.database.initialized">Nothing to show</p>
+                    <LoadingWidget v-else></LoadingWidget>
                 </div>
 
-                <LoadingPopout v-if="!dataStore.database.initialized" />
+                <Transition name="fade">
+                    <LoadingProgressPopout v-if="!dataStore.database.initialized" :perc="uiState.databaseLoadingProgress" 
+                            :text="uiState.databaseLoadingStatus.nTotal >= 0?`${uiState.databaseLoadingStatus.nCurrent} / ${uiState.databaseLoadingStatus.nTotal}`:'_'"/>
+                </Transition>
             </div>
         </div>
     </div>
@@ -198,5 +203,13 @@ export default {
     }
     div.searchbar input {
         width: calc(100% - 80px);
+    }
+
+    .fade-leave-active {
+        transition: opacity 0.5s;
+    }
+
+    .fade-enter-from, .fade-leave-to {
+        opacity: 0;
     }
 </style>

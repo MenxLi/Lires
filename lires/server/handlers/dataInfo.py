@@ -19,6 +19,7 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             tags (str): tags should be "%" or split by "&&"
         """
         self.setDefaultHeader()
+        self.set_header("totalDataCount", str(len(self.db)))
 
         # may delete this
         tags = self.get_argument("tags")
@@ -34,6 +35,7 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         tags are list of strings
         """
+        self.set_header("totalDataCount", str(len(self.db)))
         tags = json.loads(self.get_argument("tags"))
         await self.emitDataList(tags)
     
@@ -55,7 +57,7 @@ class DataListStreamHandler(DataListHandler):
         # it's a bit tricky to stream json
         # we add a \N at the end of each json string
         async for d in self.wrapAsyncIter(data_info):
-            # import time; time.sleep(0.01)
+            # import time; time.sleep(0.0005)
             self.write(json.dumps(d))
             self.write("\\N")
             self.flush()

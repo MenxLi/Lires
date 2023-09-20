@@ -37,16 +37,26 @@ export const useUIStateStore = defineStore(
 
                 // global popup component, need to be initialized in App.vue
                 popupValues : {} as Record<string, PopupValue>,
+
+                // global database loading status
+                databaseLoadingStatus: {
+                    nCurrent: 0,
+                    nTotal: -1,
+                }
+
             }
         },
         getters: {
-            // tagSelectionState(): Record<string, boolean> {
-            //     const ret: Record<string, boolean> = {};
-            //     const allTags = useDataStore().database.getAllTags();
-            //     allTags.forEach(tag => ret[tag] = tag in this.currentlySelectedTags);
-            //     console.log(ret)
-            //     return ret;
-            // }
+            databaseLoadingProgress(): number {
+                if (this.databaseLoadingStatus.nTotal === -1){
+                    if (this.databaseLoadingStatus.nCurrent === 0) return 0.0;
+                    else return 1.0;
+                }
+                else{
+                    return this.databaseLoadingStatus.nCurrent / this.databaseLoadingStatus.nTotal;
+                }
+
+            }
         },
         actions: {
             updateShownData(){
@@ -90,9 +100,23 @@ export const useUIStateStore = defineStore(
             ){
                 useDataStore().reload(
                     backendReload,
-                    () => this.updateShownData(),
-                    () => this.showPopup(`Failed to load database from: ${new ServerConn().apiURL()}`, "alert"),
-                    () => this.updateShownData(),
+                    () => {
+                        this.databaseLoadingStatus.nCurrent = 0;
+                        useDataStore().database.clear();
+                        this.updateShownData()
+                    },
+                    () => {
+                        this.updateShownData(); 
+                        useUIStateStore().databaseLoadingStatus.nTotal = -1
+                    },
+                    () => {
+                        this.showPopup(`Failed to load database from: ${new ServerConn().apiURL()}`, "alert");
+                        useUIStateStore().databaseLoadingStatus.nTotal = -1
+                    },
+                    (nCurrent, nTotal) => {
+                        this.databaseLoadingStatus.nCurrent = nCurrent;
+                        this.databaseLoadingStatus.nTotal = nTotal
+                    }
                 )
 
             }
@@ -130,16 +154,16 @@ export const useDataStore = defineStore(
             // reload the database from backend
             reload(
                 backendReload: boolean = false,
+                onStart: () => void = () => {this.database.clear()},
                 onSuccess: () => void = () => {}, 
                 onError: (err: Error) => void = () => {}, 
-                uiUpdateCallback: () => void = () => {},
+                uiUpdateCallback: (nCurrent_: number, nTotal_: number) => void = () => {},
                 ){
-                this.database.clear();
-                uiUpdateCallback()
 
+                onStart()
                 function __requestDBData( dStore: ReturnType<typeof useDataStore>,){
                     // dStore.database.requestData().then(
-                    dStore.database.requestDataStream(uiUpdateCallback, 50).then(
+                    dStore.database.requestDataStream(uiUpdateCallback).then(
                         (_)=>{ onSuccess(); },
                         (err)=>{ onError(err); }
                     )

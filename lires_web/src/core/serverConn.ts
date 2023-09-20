@@ -73,7 +73,7 @@ export class ServerConn {
     // get the file list in a streaming way
     async reqFileListStream( 
         tags: string[] = [],
-        onReceive: (data: DataInfoT)=>void = ()=>{},
+        onReceive: (data_: DataInfoT, nCurrent_: number, nTotal_: number)=>void = ()=>{},
         ){
 
         const concatTags = tags.join("&&");
@@ -85,6 +85,10 @@ export class ServerConn {
         if (!response.ok){
             throw new Error(`Got response: ${response.status}`)
         };
+
+        const _nTotal = response.headers.get("totalDataCount");
+        const nTotal = _nTotal?parseInt(_nTotal):-1;
+        let nCurrent = 0;
 
         const reader = response.body!.getReader();
         let partialData = "";
@@ -100,7 +104,8 @@ export class ServerConn {
                 const jsonString = jsonStrings[i];
                 try{
                     const data = JSON.parse(jsonString) as DataInfoT;
-                    onReceive(data);
+                    nCurrent += 1;
+                    onReceive(data, nCurrent, nTotal);
                 }
                 catch(err){
                     // incomplete JSON string, should not happen
@@ -115,7 +120,8 @@ export class ServerConn {
                 if (partialData) {
                     try{
                         const data = JSON.parse(partialData) as DataInfoT;
-                        onReceive(data);
+                        nCurrent += 1;
+                        onReceive(data, nCurrent, nTotal);
                     }
                     catch(err){
                         // the last chunk should contain an entire JSON string

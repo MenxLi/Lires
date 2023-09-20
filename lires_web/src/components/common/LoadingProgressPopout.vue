@@ -1,21 +1,30 @@
 <!-- A popout at the right bottom corner of the screen that shows a loading animation -->
 <script setup lang="ts">
-    import LoadingWidget from "./LoadingWidget.vue";
+    import { computed } from "vue";
 
     const props = withDefaults(
         defineProps<{
             text?: string
+            perc: number
         }>(),
         {
-            "text": "loading"
+            "text": "Progress: "
         }
     )
+
+    const barStyle = computed(() => {
+        return {
+            width: props.perc*120 + 'px'
+        }
+    })
 </script>
 
 <template>
     <div class="loading-popout">
-        <LoadingWidget size="25px" />
         <label>{{ props.text }}</label>
+        <div class="bar" id="bar">
+            <div class="bar" id="barCurrent" :style=barStyle></div>
+        </div>
     </div>
 </template>
 
@@ -25,8 +34,10 @@ div.loading-popout{
     bottom: 0;
     right: 0;
     padding: 10px;
-    width: 240px;
     margin: 20px;
+    padding-left: 25px;
+    padding-right: 25px;
+    min-width: 260px;
 
     display: flex;
     flex-direction: row;
@@ -42,4 +53,21 @@ div.loading-popout{
     background-color: var(--color-background-theme-thin);
     /* background-color: rebeccapurple; */
 }
+
+label{
+    min-width: 90px;
+}
+div.bar{
+    height: 8px;
+    border-radius: 4px;
+}
+div#bar{
+    width: 120px;
+    background-color: var(--color-border)
+}
+div#barCurrent{
+    background-color: var(--color-text);
+}
+
+
 </style>

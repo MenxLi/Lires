@@ -453,18 +453,13 @@ export class DataBase {
     }
 
     // get the datalist in chunks
-    async requestDataStream(stepCallback: () => void = () => {}, stepSize: number = 10){
+    async requestDataStream(stepCallback: (nCurrent_: number, nTotal_: number) => void = () => {}){
         const conn = new ServerConn();
         this.clear()
-        let n_accum = 0;
-        await conn.reqFileListStream([], (data: DataInfoT) => {
+        await conn.reqFileListStream([], (data: DataInfoT, nCurrent: number, nTotal: number) => {
             this.add(data);
-            n_accum += 1;
-            if (n_accum % stepSize === 0){
-                stepCallback();
-            }
+            stepCallback(nCurrent, nTotal);
         });
-        stepCallback();
         console.log("Get datapoints of size: ",
             (JSON.stringify(this.data).length * 2 / 1024 / 1024)
             .toPrecision(2), "MB");
