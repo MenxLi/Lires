@@ -17,6 +17,7 @@ export interface DataInfoT {
     doc_size: number;
 
     note_linecount: number;
+    has_abstract: boolean;
 }
 
 export interface AccountPermission {

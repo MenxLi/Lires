@@ -131,6 +131,7 @@ class DBConnection:
         """
         Get file info by uuid
         """
+        # TODO: make a cache for this to reduce db access
         self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
         row = self.cursor.fetchone()
         if row is None:

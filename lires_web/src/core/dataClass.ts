@@ -416,6 +416,7 @@ const _dummyDataSummary: DataInfoT = {
     bibtex: "",
     doc_size: 0,
     note_linecount: 0,
+    has_abstract: false,
 }
 
 export class DataBase {

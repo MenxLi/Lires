@@ -17,3 +17,4 @@ class DataPointSummary(TypedDict):
     doc_size: float # in M.
 
     note_linecount: int
+    has_abstract: bool

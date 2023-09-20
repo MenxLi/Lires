@@ -219,6 +219,7 @@ class DataPoint(DataCore):
             "doc_size": self.fm.getDocSize(),
 
             "note_linecount": len([line for line in self.fm.readComments().split("\n") if line.strip() != ""]),
+            "has_abstract": (abs_ := self.fm.readAbstract().strip()) != "" and abs_ != "<Not avaliable>",
         }
     
     @property
