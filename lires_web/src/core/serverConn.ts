@@ -3,7 +3,7 @@
 
 import {getBackendURL} from "../config.js";
 import { useSettingsStore } from "../components/store.js";
-import type { DataInfoT, AccountPermission, SearchResult, Changelog} from "./protocalT.js";
+import type { DataInfoT, AccountPermission, SearchResult, Changelog, ServerStatus} from "./protocalT.js";
 
 export class ServerConn {
     constructor(){
@@ -34,6 +34,23 @@ export class ServerConn {
             else{
                 throw new Error(`Got response: ${response.status}`);
             }
+    }
+
+    async status( encKey: string ): Promise<ServerStatus>{
+        const form = new FormData();
+        form.append('key', encKey);
+
+        const response = await fetch(`${getBackendURL()}/status`, {
+            method: 'POST',
+            body: form,
+        });
+        console.log(response);
+        if (response.ok){
+            return JSON.parse(await response.text());
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`)
+        }
     }
     
     async reqFileList( tags: string[] ): Promise<DataInfoT[]>{

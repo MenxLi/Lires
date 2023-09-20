@@ -1,4 +1,10 @@
 
+export interface ServerStatus {
+    status: 'OK';
+    n_data: number;
+    uptime: number;
+}
+
 export interface DataInfoT {
     has_file: boolean;
     file_type: string;

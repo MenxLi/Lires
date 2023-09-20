@@ -40,6 +40,7 @@ class Application(tornado.web.Application):
             (r"/summary", SummaryHandler),              # may deprecate
             (r"/summary-post", SummaryPostHandler),     # may rename
 
+            (r"/status", StatusHandler),
             (r"/reload-db", ReloadDBHandler),
             (r"/doc/(.*)", DocHandler),
             (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
