@@ -419,3 +419,11 @@ version_history:
       - Chat stream iter class using per-instance settings, can be set in constructor
     - Fix:
       - Server handler base-class init order
+    
+  1.0.3:
+    - Lires web UI:
+      - Loading progress bar
+    - New feature:
+      - Real-time feature reduction for interactive visualization
+      - Support eprint as publication
+      - Search by author
