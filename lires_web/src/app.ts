@@ -18,7 +18,6 @@ const routes = [
   { path: '/feed', component: Feed },
   { path: '/login', component: Login },
   { path: '/reader/:id', component: Reader },
-
   { path: '/about', component: About }
 ]
 const router = createRouter({

@@ -23,6 +23,7 @@ export default {
     import refreshIcon from "../assets/icons/refresh.svg";
     import LoadingProgressPopout from "./common/LoadingProgressPopout.vue";
     import LoadingWidget from "./common/LoadingWidget.vue";
+    import FilterVis from "./visfeat/FilterVis.vue";
 
     import type { SearchStatus } from "./interface";
     import { lazify } from "../libs/misc";
@@ -133,20 +134,25 @@ export default {
         </Banner>
         <div class="horizontal fullHeight">
             <FileTags v-if="settingsStore.showTagPanel" @onCheck="() => uiState.updateShownData()"></FileTags>
-            <div class="panel scrollable" id="fileSelector">
-                <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
-                    v-if="uiState.shownDataUIDs.length > 0"
-                ></FileRowContainer>
-
-                <div id="blankPlaceholder" v-else>
-                    <p v-if="dataStore.database.initialized">Nothing to show</p>
-                    <LoadingWidget v-else></LoadingWidget>
+            <div id="rightPanel">
+                <div>
+                    <FilterVis></FilterVis>
                 </div>
+                <div class="scrollable panel" id="fileSelector">
+                    <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
+                        v-if="uiState.shownDataUIDs.length > 0"
+                    ></FileRowContainer>
 
-                <Transition name="fade">
-                    <LoadingProgressPopout v-if="!dataStore.database.initialized" :perc="uiState.databaseLoadingProgress" 
-                            :text="uiState.databaseLoadingStatus.nTotal >= 0?`${uiState.databaseLoadingStatus.nCurrent} / ${uiState.databaseLoadingStatus.nTotal}`:'_'"/>
-                </Transition>
+                    <div id="blankPlaceholder" v-else>
+                        <p v-if="dataStore.database.initialized">Nothing to show</p>
+                        <LoadingWidget v-else></LoadingWidget>
+                    </div>
+
+                    <Transition name="fade">
+                        <LoadingProgressPopout v-if="!dataStore.database.initialized" :perc="uiState.databaseLoadingProgress" 
+                                :text="uiState.databaseLoadingStatus.nTotal >= 0?`${uiState.databaseLoadingStatus.nCurrent} / ${uiState.databaseLoadingStatus.nTotal}`:'_'"/>
+                    </Transition>
+                </div>
             </div>
         </div>
     </div>
@@ -158,6 +164,20 @@ export default {
         width: 98vw;
         display: flex;
         flex-direction: column;
+    }
+    .panel1{
+        width: 100%;
+        height: 100%;
+        align-self: center;
+        margin: 0em;
+        border-radius: 12px;
+    }
+    #rightPanel{
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        gap: 5px;
     }
     #blankPlaceholder{
         display: flex;
@@ -190,8 +210,9 @@ export default {
         align-items: center;
         justify-self: center;
     }
-    #fileSelector{
+    div#fileSelector{
         padding: 5px;
+        flex-grow: 999;
     }
 
     div.searchbar{

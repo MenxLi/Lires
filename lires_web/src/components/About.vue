@@ -33,7 +33,7 @@
             <Banner/>
         </div>
 
-        <h2>Document distribution</h2>
+        <!-- <h2>Document distribution</h2>
         <p>
             Visualize the distribution of documents using transformer encoder and tSNE.
             (<a :href="`${getBackendURL()}/static/visfeat`" target="_blank">Open externally</a>, 
@@ -41,7 +41,19 @@
         </p> 
         <iframe :src="`${getBackendURL()}/static/visfeat`" frameborder="0" id="visfeat"></iframe>
 
-        <hr/>
+        <hr/> -->
+
+        <h2>Info</h2>
+        <div class="content">
+            <p>
+                <b>BackendURL</b>: {{getBackendURL()}}
+            </p>
+            <p>
+                <b>About Lires</b>: ...
+            </p>
+        </div>
+
+        <hr>
 
         <h2>Change log</h2>
         <div id="versionHistory" class="content">
@@ -84,6 +96,7 @@
         height: 850px;
     }
     div.content{
+        width: 100%;
         text-align: left;
     }
     div#versionHistory{

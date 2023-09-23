@@ -94,3 +94,17 @@ export function isChildDOMElement(child: HTMLElement, parent: HTMLElement){
   }
   return false;
 }
+
+export function deepCopy(obj: any) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+
+  let copy: any = Array.isArray(obj) ? [] : {};
+
+  for (let key in obj) {
+    copy[key] = deepCopy(obj[key]);
+  }
+
+  return copy;
+}

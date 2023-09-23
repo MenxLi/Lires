@@ -8,6 +8,7 @@ from .search import SearchHandler
 from .summary import SummaryHandler, SummaryPostHandler
 from .collect import CollectHandler
 from .iServerProxy import IServerProxyHandler
+from .dataFeature import DataFeatureTSNEHandler
 
 from .dataMan import *
 from .images import *

@@ -563,13 +563,20 @@ export class DataBase {
 }
 
 
+interface FilteredDataT {
+    datapoints: DataPoint[],
+    scores: number[] | null,
+}
 export class DataSearcher{
 
     // perform a search and sort on the datapoints
-    static async filter(datapoints: DataPoint[], searchStatus: SearchStatus): Promise<DataPoint[]> {
+    static async filter(datapoints: DataPoint[], searchStatus: SearchStatus): Promise<FilteredDataT> {
         const pattern = searchStatus["content"].toLowerCase();
         if (!pattern){
-            return this.sortDefault(datapoints, false);
+            return {
+                datapoints: this.sortDefault(datapoints, false),
+                scores: null,
+            }
         }
         const valid_uids = new Set();
         for (const dp of datapoints){
@@ -591,7 +598,11 @@ export class DataSearcher{
                 }
             }
 
-            return this.sortByScore(dp_new, scores, false)[0];
+            const sortedDataScore = this.sortByScore(dp_new, scores, false);
+            return {
+                datapoints: sortedDataScore[0],
+                scores: sortedDataScore[1],
+            }
         } 
 
         // local search
@@ -641,7 +652,10 @@ export class DataSearcher{
         else{
             throw new Error("Unknown searchBy option");
         }
-        return this.sortDefault(dp_new, false);
+        return {
+            datapoints: this.sortDefault(dp_new, false),
+            scores: null,
+        }
     }
 
     // sort datapoints by default method, the later added, the first (descending order)

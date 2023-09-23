@@ -25,6 +25,7 @@ export const useUIStateStore = defineStore(
                 } as TagStatus,
 
                 shownDataUIDs: [] as string[],
+                shownDataScores: [] as number[] | null,
                 searchState: {
                         "searchBy": "",
                         "content": ""
@@ -66,7 +67,11 @@ export const useUIStateStore = defineStore(
                 this.tagStatus.all = dataStore.allTags;
                 const tagFilteredDataPoints = dataStore.database.getDataByTags(this.tagStatus.checked);
                 DataSearcher.filter(tagFilteredDataPoints, this.searchState).then(
-                    (datapoints: DataPoint[]) => this.shownDataUIDs = datapoints.map((dp) => dp.summary.uuid)
+                    // (datapoints: DataPoint[]) => this.shownDataUIDs = datapoints.map((dp) => dp.summary.uuid)
+                    (filterRes) => {
+                        this.shownDataUIDs = filterRes.datapoints.map((dp) => dp.summary.uuid)
+                        this.shownDataScores = filterRes.scores;
+                    }
                 )
             },
             addRecentlyReadDataUID(uid: string){

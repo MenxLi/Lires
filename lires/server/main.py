@@ -48,9 +48,11 @@ class Application(tornado.web.Application):
             (r"/search", SearchHandler),
             (r"/collect", CollectHandler),
 
-            (r"/filelist", DataListHandler),            # may change
-            (r"/filelist-stream", DataListStreamHandler),            # may change
-            (r"/fileinfo/(.*)", DataInfoHandler),       # may change
+            (r"/filelist", DataListHandler),
+            (r"/filelist-stream", DataListStreamHandler),
+            (r"/fileinfo/(.*)", DataInfoHandler),
+
+            (r'/datafeat/tsne/(.*)', DataFeatureTSNEHandler),
 
             # iServer proxy
             (r"/iserver/(.*)", IServerProxyHandler),

@@ -3,7 +3,7 @@
 
 import {getBackendURL} from "../config.js";
 import { useSettingsStore } from "../components/store.js";
-import type { DataInfoT, AccountPermission, SearchResult, Changelog, ServerStatus} from "./protocalT.js";
+import type { DataInfoT, AccountPermission, SearchResult, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
 
 export class ServerConn {
     constructor(){
@@ -134,6 +134,23 @@ export class ServerConn {
             return reader.read().then(processTextData as any);
         }
         return reader.read().then(processTextData as any);
+    }
+
+    async reqDatabaseFeatureTSNE(collectionName = "doc_feature", nComponent = 3, perplexity = 10): Promise<DatabaseFeature>{
+        const url = new URL(`${getBackendURL()}/datafeat/tsne/${collectionName}`);
+        url.searchParams.append("key", this.settings.encKey);
+        url.searchParams.append("n_component", nComponent.toString());
+        url.searchParams.append("perplexity", perplexity.toString());
+
+        const response = await fetch(url.toString());
+        if (response.ok){
+            const resObj = await response.json();
+            const DataFeatList: DatabaseFeature = resObj;
+            return DataFeatList;
+        }
+        else{
+            throw new Error(`Got response: ${response.status}`)
+        }
     }
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
