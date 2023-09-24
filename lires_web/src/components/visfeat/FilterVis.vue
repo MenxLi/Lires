@@ -166,10 +166,15 @@
 <style scoped>
     div#main{
         display: flex;
+        margin-top: 0px;
         width: 100%;
         height: 100%;
     }
 
+    details{
+        margin: 0px;
+        padding: 0px;
+    }
     summary{
         font-weight: bold;
         margin-left: 10px;
@@ -185,9 +190,9 @@
         width: 100%;
         max-width: 98vw;
         overflow: hidden;
-        box-shadow: 0px 0px 0px 0px var(--color-shadow);
         border-radius: 10px;
         z-index: 0;
+        box-shadow: 0 0 2px var(--color-shadow);
     }
     div#loadingDiv{
         position:absolute;

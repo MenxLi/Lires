@@ -134,11 +134,11 @@ export default {
         </Banner>
         <div class="horizontal fullHeight">
             <FileTags v-if="settingsStore.showTagPanel" @onCheck="() => uiState.updateShownData()"></FileTags>
-            <div id="rightPanel">
+            <div id="rightPanel" class="panel">
                 <div>
                     <FilterVis></FilterVis>
                 </div>
-                <div class="scrollable panel" id="fileSelector">
+                <div class="scrollable" id="fileSelector">
                     <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
                         v-if="uiState.shownDataUIDs.length > 0"
                     ></FileRowContainer>
@@ -159,8 +159,12 @@ export default {
 </template>
 
 <style scoped>
+    body {
+        height: 100vh;
+    }
     #main{
-        height: 98vh;
+        height: calc(100vh - 20px);
+        margin-top: 10px;
         width: 98vw;
         display: flex;
         flex-direction: column;
@@ -178,6 +182,7 @@ export default {
         height: 100%;
         width: 100%;
         gap: 5px;
+        overflow-x: hidden;
     }
     #blankPlaceholder{
         display: flex;
