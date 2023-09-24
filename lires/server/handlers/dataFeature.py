@@ -30,6 +30,8 @@ class DataFeatureTSNEHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         _all_ids = vector_collection.keys()
         _all_feat = vector_collection.getBlock(_all_ids)
         all_feat = np.array(_all_feat)
+        if len(all_feat) < 5:
+            return self.write(json.dumps({}))
 
         def runTSNE(perplexity: int):
             with Timer("TSNE", print_func=self.logger.debug):

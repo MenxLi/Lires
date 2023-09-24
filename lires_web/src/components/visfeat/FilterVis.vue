@@ -15,8 +15,11 @@
     const uiState = useUIStateStore();
     const settingsStore = useSettingsStore();
 
-    const featsRaw = ref({} as DatabaseFeature);
+    const featsRaw = ref(null as null | DatabaseFeature);
     const feats = computed(()=>{
+        if (featsRaw.value === null){
+            return {};
+        }
         // filter out the features that are not in the database
         const allUIDs = Object.keys(dataStore.database.data);
         const ret = {} as DatabaseFeature;
@@ -131,7 +134,7 @@
         return Object.keys(feats.value).length > 0;
     })
     async function fetchFeaturess(){
-        featsRaw.value = {};
+        featsRaw.value = null;
         const datasetSize = (await new ServerConn().status()).n_data;
 
         // set perplextiy to according to the dataset size
@@ -169,7 +172,8 @@
             <div id="plot3dDiv">
                 <Plot3d :data="plotPoints" ref="plot3DRef"></Plot3d>
                 <div id="loadingDiv" class="full" v-if="!dataObtained">
-                    <LoadingWidget></LoadingWidget>
+                    <LoadingWidget v-if="featsRaw === null"></LoadingWidget>
+                    <p class="status" v-else>Data not ready</p>
                 </div>
             </div>
         </details>
@@ -216,6 +220,11 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
+    }
+    
+    div#loadingDiv p.status{
+        font-size: large;
+        font-weight: bold;
     }
 
     @media screen and (max-height: 900px) {
