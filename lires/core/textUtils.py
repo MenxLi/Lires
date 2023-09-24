@@ -169,7 +169,7 @@ async def buildFeatureStorage(
     
     # extract text source
     for idx, (uid, dp) in enumerate(db.items()):
-        # if idx > 100: break # for debug
+        # if idx > 290: break # for debug
         await asyncio.sleep(operation_interval)
         _ret = await getFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
         text_src[uid] = _ret["text"]

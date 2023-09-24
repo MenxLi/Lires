@@ -132,7 +132,19 @@
     })
     async function fetchFeaturess(){
         featsRaw.value = {};
-        new ServerConn().reqDatabaseFeatureTSNE("doc_feature", 3, 12).then((data)=>{
+        const datasetSize = (await new ServerConn().status()).n_data;
+
+        // set perplextiy to according to the dataset size
+        let perp;
+        if (datasetSize < 50){ perp = -1; }    // use PCA
+        if (datasetSize < 100){ perp = 5; }
+        else if (datasetSize < 300) { perp = 8; }
+        else if (datasetSize < 500) { perp = 12; }
+        else{ perp = 15; }
+
+        console.log("dataset size: ", datasetSize, "perp: ", perp);
+
+        new ServerConn().reqDatabaseFeatureTSNE("doc_feature", 3, perp).then((data)=>{
             featsRaw.value = data;
         });
     }

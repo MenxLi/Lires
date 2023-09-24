@@ -36,9 +36,9 @@ export class ServerConn {
             }
     }
 
-    async status( encKey: string ): Promise<ServerStatus>{
+    async status(): Promise<ServerStatus>{
         const form = new FormData();
-        form.append('key', encKey);
+        form.append('key', this.settings.encKey);
 
         const response = await fetch(`${getBackendURL()}/status`, {
             method: 'POST',
@@ -141,6 +141,7 @@ export class ServerConn {
         url.searchParams.append("key", this.settings.encKey);
         url.searchParams.append("n_component", nComponent.toString());
         url.searchParams.append("perplexity", perplexity.toString());
+        // url.searchParams.append("random_state", Math.floor(Math.random()*1000).toString());
 
         const response = await fetch(url.toString());
         if (response.ok){
