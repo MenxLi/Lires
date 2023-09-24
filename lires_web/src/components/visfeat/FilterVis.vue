@@ -186,7 +186,7 @@
     }
 
     div#plot3dDiv{
-        height: 500px;
+        height: 430px;
         width: 100%;
         max-width: 98vw;
         overflow: hidden;
@@ -205,9 +205,9 @@
         justify-content: center;
     }
 
-    @media screen and (max-height: 800px) {
+    @media screen and (max-height: 900px) {
         div#plot3dDiv{
-            height: 300px;
+            height: 260px;
         }
     }
 </style>
