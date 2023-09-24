@@ -3,7 +3,7 @@
     import Plot3d from './Plot3d.vue';
     import LoadingWidget from '../common/LoadingWidget.vue';
     import { ref, computed } from 'vue';
-    import { useDataStore, useUIStateStore } from '../store';
+    import { useDataStore, useUIStateStore, useSettingsStore } from '../store';
     import { ServerConn } from '../../core/serverConn';
     import { deepCopy } from '../../core/misc';
     import { ThemeMode } from '../../core/misc';
@@ -13,6 +13,7 @@
     const dataStore = useDataStore();
     const plot3DRef = ref(null as any);
     const uiState = useUIStateStore();
+    const settingsStore = useSettingsStore();
 
     const featsRaw = ref({} as DatabaseFeature);
     const feats = computed(()=>{
@@ -138,7 +139,11 @@
     function onToggleDetail(ev:Event){
         if (ev.target instanceof HTMLDetailsElement){
             if (ev.target.open){
+                settingsStore.setShow3DScatterPlot(true);
                 fetchFeaturess();
+            }
+            else{
+                settingsStore.setShow3DScatterPlot(false);
             }
         }
     }
@@ -147,13 +152,9 @@
 
 <template>
     <div id="main">
-        <details @toggle="onToggleDetail">
+        <details @toggle="onToggleDetail" :open="settingsStore.show3DScatterPlot">
             <summary>Visualization</summary>
             <div id="plot3dDiv">
-                <!-- must be placed inside a div to prevent re-rendering -->
-                <!-- <div class="full" v-if="dataObtained">
-                    <Plot3d :data="plotPoints" ref="plot3DRef"></Plot3d>
-                </div> -->
                 <Plot3d :data="plotPoints" ref="plot3DRef"></Plot3d>
                 <div id="loadingDiv" class="full" v-if="!dataObtained">
                     <LoadingWidget></LoadingWidget>

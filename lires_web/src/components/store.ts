@@ -199,6 +199,7 @@ export const useSettingsStore = defineStore(
                 __backendUrl: localStorage.getItem("backendUrl") || defaultBackendHost(),
                 __backendPort: localStorage.getItem("backendPort") || "8080",
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
+                __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 loggedIn: false,    // will be watched by App.vue to reload the database
                 accountPermission: null as AccountPermission | null,
             }
@@ -215,7 +216,10 @@ export const useSettingsStore = defineStore(
             },
             showTagPanel(): boolean{
                 return this.__showTagPanel;
-            }
+            },
+            show3DScatterPlot(): boolean{
+                return this.__show3DScatterPlot;
+            },
         },
         "actions": {
             setEncKey(key: string, keep: boolean | null){
@@ -238,6 +242,10 @@ export const useSettingsStore = defineStore(
             setShowTagPanel(show: boolean){
                 this.__showTagPanel = show;
                 localStorage.setItem("showTagPanel", show.toString());
+            },
+            setShow3DScatterPlot(show: boolean){
+                this.__show3DScatterPlot = show;
+                localStorage.setItem("show3DScatterPlot", show.toString());
             }
         },
     }
