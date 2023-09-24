@@ -1,13 +1,15 @@
 """
 Build search index for the database
 """
-import argparse, subprocess
+import argparse, subprocess, asyncio
 
-from lires.confReader import getDatabasePath_withFallback
+from lires.confReader import getDatabasePath_withFallback, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase
 from lires.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
 from lires.core.utils import MuteEverything
 from lires.core import globalVar as G
+
+import tiny_vectordb
 
 
 def parseArgs() -> argparse.Namespace:
@@ -45,7 +47,8 @@ def main():
     G.iserver_port = args.iserver_port
 
     if args.subparser == "build":
-        buildFeatureStorage(db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words)
+        vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
+        asyncio.run(buildFeatureStorage(db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words))
         ret = subprocess.run(["python", "-m", "lires.cmd.visFeat"])
         if ret.returncode != 0:
             print("Failed to visualize the features, please run `python -m lires.cmd.visFeat` manually")

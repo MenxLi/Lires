@@ -10,7 +10,6 @@ from lires.confReader import DOC_SUMMARY_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
 from lires.core.serverConn import IServerConn
-from lires.core.asynciolib import asyncioLoopRun
 from lires.core.utils import Timer
 from lires.core import globalVar as G
 import tiny_vectordb
@@ -51,7 +50,7 @@ def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -
 
 FeatureQueryResult = TypedDict("FeatureQueryResult", {"uids": list[str], "scores": list[float]})
 
-def getFeatureTextSource(
+async def getFeatureTextSource(
         iconn: Optional[IServerConn], 
         dp: DataPoint, 
         max_words_per_doc: Optional[int] = None, 
@@ -123,21 +122,28 @@ def getFeatureTextSource(
             "type": "title"
         }
 
-def buildFeatureStorage(
+async def buildFeatureStorage(
         db: DataBase, 
+        vector_db: tiny_vectordb.VectorDatabase,
         max_words_per_doc: int = 2048, 
         use_llm: bool = True,
-        force = False
+        force = False,
+        operation_interval: int = 0.,
         ):
+    """
+    - operation_interval: float, the interval between two operations, in seconds, 
+        set this to a positive value to avoid blocking the main event loop
+    """
+    # vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
     iconn = IServerConn()
-    vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
     vector_collection = vector_db.getCollection("doc_feature")
 
     # check if iserver is running
     assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
 
     # a file to store the source text hash, to avoid repeated featurization
-    text_src_hash_log = os.path.join(os.path.dirname(VECTOR_DB_PATH), "doc_feature_src_hash.log")
+    __vec_db_path = vector_db.database_path
+    text_src_hash_log = os.path.join(os.path.dirname(__vec_db_path), "doc_feature_src_hash.log")
 
     text_src_hash = {}               # uid -> hash of the source text
     text_src_hash_record = {}        # uid -> hash of the source text
@@ -155,7 +161,8 @@ def buildFeatureStorage(
             for line in lines:
                 if not line.strip():
                     continue
-                uid, hash = line.strip().split(":")
+                hash = (__split := line.strip().split(":"))[-1]
+                uid = ":".join(__split[:-1])
                 text_src_hash_record[uid] = hash
     
     text_src: dict[str, str] = {}       # uid -> text source for featurization
@@ -163,18 +170,14 @@ def buildFeatureStorage(
     # extract text source
     for idx, (uid, dp) in enumerate(db.items()):
         # if idx > 100: break # for debug
-        _ret = getFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
+        await asyncio.sleep(operation_interval)
+        _ret = await getFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
         text_src[uid] = _ret["text"]
         src_type = _ret["type"]
         text_src_hash[uid] = _ret["hash"]
 
         print(f"[Extracting source] ({idx}/{len(db)}) <{src_type}>: {uid}...")
 
-    # featurize the summary
-    async def _featurize(text) -> list[float] | None:
-        res = iconn.featurize(text)
-        return res 
-    
     # build update dict
     print(f"Checking {len(text_src)} documents signature...")
     text_src_update = {}
@@ -190,8 +193,17 @@ def buildFeatureStorage(
     print(f"Featurizing {len(text_src_update)} documents...")
     uid_list = list(text_src_update.keys())
     text_list = list(text_src_update.values())
-    tasks = [ _featurize(text) for text in text_list ]
-    feature_list: list[list[float] | None] = asyncioLoopRun(asyncio.gather(*tasks))
+
+    # featurize the summary
+    # async def _featurize(text) -> list[float] | None:
+    #     res = iconn.featurize(text)
+    #     return res 
+    # tasks = [ _featurize(text) for text in text_list ]
+    # feature_list: list[list[float] | None] = asyncioLoopRun(asyncio.gather(*tasks))
+    feature_list = []
+    for text in text_list:
+        await asyncio.sleep(operation_interval)
+        feature_list.append(iconn.featurize(text))
 
     _to_record_uids = []
     _to_record_features = []
@@ -211,7 +223,7 @@ def buildFeatureStorage(
         for uid, hash in text_src_hash_record.items():
             f.write(f"{uid}:{hash}\n")
     
-    print(f"Saved feature index to {VECTOR_DB_PATH}")
+    print(f"Saved feature index to {__vec_db_path}, source log to {text_src_hash_log}")
 
 def queryFeatureIndex(
         query: str, n_return: int = 16, 

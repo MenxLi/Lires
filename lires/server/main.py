@@ -1,4 +1,4 @@
-import os, multiprocessing, logging
+import os, multiprocessing
 from typing import Union, TypedDict
 from lires_web import LRSWEB_SRC_ROOT
 from functools import partial
@@ -126,6 +126,24 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
 
     tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
     tornado.autoreload.start()
+
+    async def buildIndex(op_interval = 0.05):
+        print("Periodically build index")
+        from lires.core.textUtils import buildFeatureStorage
+
+        base_request_handler = RequestHandlerMixin()
+        await buildFeatureStorage(
+            db = base_request_handler.db,
+            vector_db = base_request_handler.vec_db,
+            use_llm = False,
+            operation_interval=op_interval,
+        )
+
+    # tornado.ioloop.IOLoop.current().add_callback(buildIndex)
+    pc = tornado.ioloop.PeriodicCallback(buildIndex, 60*60*1000)  # in milliseconds
+    pc.start()
+    print("Registered - Periodically build index")
+
     tornado.ioloop.IOLoop.current().start()
 
 def __startFrontendServer(port: Union[int, str] = 8081, ssl_config : _SSL_CONFIGT | None = None):
@@ -142,7 +160,6 @@ def __startFrontendServer(port: Union[int, str] = 8081, ssl_config : _SSL_CONFIG
     tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
     tornado.autoreload.start()
     tornado.ioloop.IOLoop.current().start()
-
 
 # SSL config
 _ENV_CERTFILE = os.environ.get("LRS_SSL_CERTFILE")
