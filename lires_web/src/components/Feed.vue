@@ -14,15 +14,15 @@
 
 
     export interface ArxivArticleWithFeatures extends ArxivArticle{
-        features: number[] | null,
+        features: Float32Array | null,
     }
 
     const conn = new ServerConn();
 
     // search and main data structure
-    const fetchCategory = ref("cat:cs.CV");
+    const fetchCategory = ref("cat:cs.CV OR cat:cs.AI OR stat.ML");
     const searchText = ref("");
-    const searchFeature = ref(null as null | number[]);
+    const searchFeature = ref(null as null | Float32Array);
     const arxivArticles = ref([] as ArxivArticleWithFeatures[]);
     const sortedArxivArticles = computed(function(){
         const articleShallowCopy = [...arxivArticles.value] as ArxivArticleWithFeatures[];
@@ -31,9 +31,9 @@
                 return 0;
             }
             else{
-                const feat_a = a.features as number[];
-                const feat_b = b.features as number[];
-                const feat_search = searchFeature.value as number[];
+                const feat_a = a.features as Float32Array;
+                const feat_b = b.features as Float32Array;
+                const feat_search = searchFeature.value as Float32Array;
 
                 // calculate which vector is closer to the search vector
                 const dist_a = feat_a.reduce((acc, cur, idx) => {
@@ -56,17 +56,17 @@
         }
         new ServerConn().featurize(searchText.value).then(
             (features) => {
-                searchFeature.value = features;
+                searchFeature.value = new Float32Array(features);
             },
             () => {
                 console.log("failed to featurize");
             },
         )
     }
-    const lazyUpdateSearchFeature = lazify(updateSearchFeature, 200);
+    const lazyUpdateSearchFeature = lazify(updateSearchFeature, 100);
 
     const router = useRouter();
-    let maxResults = parseInt(router.currentRoute.value.query.maxResults as string) || 50;
+    let maxResults = parseInt(router.currentRoute.value.query.maxResults as string) || 100;
     if (maxResults > 200){
         window.alert("maxResults cannot be larger than 200");
         maxResults = 200;
@@ -85,13 +85,13 @@
             (articles) => {
                 for (const article of articles){
                     const article_with_features = article as any;       // type: ArticleWithFeatures
-                    article_with_features.features = ref(null as null | number[]);
+                    article_with_features.features = ref(null as null | Float32Array);
                     arxivArticles.value.push(article_with_features);
 
                     conn.featurize(article.abstract).then(
                         // update article features
                         (features) => {
-                            article_with_features.features.value = features;
+                            article_with_features.features.value = new Float32Array(features);
                         },
                         () => {
                             console.log("failed to featurize: ", article.id);
@@ -117,8 +117,10 @@
         <h1>Arxiv daily</h1>
         <div id="settings">
             <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">
+                <option value="cat:cs.CV OR cat:cs.AI OR stat.ML">ALL</option>
                 <option value="cat:cs.CV">cs.CV</option>
                 <option value="cat:cs.AI">cs.AI</option>
+                <option value="cat:stat.ML">stat.ML</option>
             </select>
             <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText">
         </div>
