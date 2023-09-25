@@ -97,6 +97,8 @@ async def getFeatureTextSource(
                     f.write(summary)
                 if summary:
                     print_fn(f"- use LLM summary")
+            else:
+                summary = ""
 
         if summary:
             # if summary is created, use it as the text source
