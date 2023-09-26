@@ -20,13 +20,26 @@ const uiState = useUIStateStore();
 const abstractParagraph = ref<typeof EditableParagraph|null>(null);
 
 // a function to get the abstract of the datapoint
-let abstract: string|null = null;
-const setAbstract = async () => {
+const getAbstract = async (ev: Event) => {
+    if (ev.target instanceof HTMLDetailsElement){
+        if (!ev.target.open){ return; }
+    }
     abstractParagraph.value!.setEditable(false);
-    // abstractParagraph.value!.innerText = "Loading...";
-    abstract = await props.datapoint.fetchAbstract();
-    abstractParagraph.value!.setEditable(true);
-    abstractParagraph.value!.innerText = abstract;
+    abstractParagraph.value!.innerText = "Loading...";
+    props.datapoint.fetchAbstract().then(
+        (abstract: string) => {
+            abstractParagraph.value!.innerText = abstract;
+            abstractParagraph.value!.setEditable(true);
+        },
+        () => {
+            abstractParagraph.value!.innerText = "Failed to load abstract.";
+        }
+    );
+}
+const onSetAbstract = async (t: string) => {
+    if (!t){ return; }
+    await props.datapoint.uploadAbstract(t);
+    await props.datapoint.update();     // update datapoint summary abstract status
 }
 
 const showCopyCitation = ref(false);
@@ -137,10 +150,10 @@ const showSummary = ref(false);
             </div>
         </Transition>
         <div id="abstract">
-            <details>
-                <summary @click="setAbstract">Abstract</summary>
+            <details @toggle="getAbstract">
+                <summary>Abstract</summary>
                 <EditableParagraph id="abstractParagraph"  ref="abstractParagraph" :style="{minHeight: '20px'}"
-                    @finish="(t: string)=>datapoint.uploadAbstract(t)"></EditableParagraph>
+                    @finish="(t: string)=>onSetAbstract(t)"></EditableParagraph>
             </details>
         </div>
     </div>
