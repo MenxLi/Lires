@@ -5,22 +5,13 @@ AI method shoud go through IServerConn interface.
 import os, sys, hashlib
 import asyncio
 import requests
-from typing import TypedDict, TYPE_CHECKING, Optional, Callable, Literal
+from typing import TypedDict, Optional, Callable, Literal
 from lires.confReader import DOC_SUMMARY_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
 from lires.core.serverConn import IServerConn
 from lires.core.utils import Timer
-from lires.core import globalVar as G
 import tiny_vectordb
-
-if sys.version_info < (3, 9):
-    from typing import Iterator
-else:
-    from collections.abc import Iterator
-
-if TYPE_CHECKING:
-    from lires_ai.lmInterface import ChatStreamIterType
 
 def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
     summary = ""
@@ -34,7 +25,7 @@ def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -
             "your summary should focus on the motivation and contribution. "\
             "Don't mention title."
             f"Here is the paper: {text}",
-        model_name = "gpt-3.5-turbo"
+        model_name = "DEFAULT"
     )
     if not res:
         return ""
