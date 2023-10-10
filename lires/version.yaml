@@ -427,3 +427,20 @@ version_history:
       - Real-time feature reduction for interactive visualization
       - Support eprint as publication
       - Search by author
+  
+  1.0.4
+    - New features:
+      - Bookmark
+      - Periodically update search index
+      - Update home layout
+    - Improve feature visualization:
+      - Store 3D visualization state
+      - Data not ready prompt
+      - Use PCA for small dataset
+    - Performace:
+      - Use float32array for faster feature distance calculation
+    - Fix:
+      - Center login page
+    - Refactors:
+      - Better default arguments for datacard container
+      - Record hover state in datacard container
