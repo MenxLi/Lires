@@ -153,7 +153,7 @@ const showSummary = ref(false);
             <details @toggle="getAbstract">
                 <summary>Abstract</summary>
                 <EditableParagraph id="abstractParagraph"  ref="abstractParagraph" :style="{minHeight: '20px'}"
-                    @finish="(t: string)=>onSetAbstract(t)"></EditableParagraph>
+                    @finish="(t: any)=>onSetAbstract(t)"></EditableParagraph>
             </details>
         </div>
     </div>
