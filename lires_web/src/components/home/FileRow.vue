@@ -242,6 +242,11 @@
         flex-wrap: wrap;
         column-gap: 10px;
     }
+    div#marks:hover{
+        justify-self: flex-end;
+        align-items: flex-end;
+        cursor: pointer;
+    }
     div#fileRow {
         flex-wrap: wrap;
         /* border: 1px solid var(--color-border); */
