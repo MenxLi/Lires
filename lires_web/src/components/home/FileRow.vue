@@ -56,7 +56,7 @@
     const initDiv = ref<HTMLElement | null>(null);
     const moreDiv = ref<HTMLElement | null>(null);
     const moreComponent = ref<typeof FileRowMore | null>(null);
-    const titleStatus = ref<HTMLElement | null>(null);
+    const leadingStatus = ref<HTMLElement | null>(null);
 
     // A flag to prevent unfold datacard when click on some elements, set this to true when click on those elements
     // so that clickOnRow can check this flag and prevent show more, while also alow the event to propagate to parent
@@ -195,10 +195,22 @@
         ref="dataCard" :style="{backgroundColor: datacardBackgroundColor}">
 
         <div id="init" class="row" ref="initDiv">
-            <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
-                {{ authorYearText }}
+            
+            <div class="left row">
+                <div id="leadingStatus" class="row" ref="leadingStatus">
+                    <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
+                        {{ authorYearText }}
+                    </div>
+                    <div id="marks">
+                        <img v-if="datapoint.summary.tags.includes('* Bookmark')" :src="BookmarkFill1" alt="" class="icon redIcon" @click="()=>setBookmark(false)">
+                        <img v-else :src="BookmarkFill0" alt="" class="icon" @click="() => setBookmark(true)">
+                    </div>
+                </div>
+                <div id="title" class="text">{{ datapoint.summary.title }}</div>
+                <slot></slot>
             </div>
-            <div id="titleStatus" class="row" ref="titleStatus">
+
+            <div class="right row">
                 <div id="statusDiv">
                     <div class="status">
                         <img v-if="datapoint.summary.has_abstract" src="../../assets/icons/contract.svg" alt="" class="icon">
@@ -217,13 +229,6 @@
                         <img v-else src="../../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
                     </div>
                 </div>
-                <div id="title" class="text">{{ datapoint.summary.title }}</div>
-                <div id="marks">
-                    <img v-if="datapoint.summary.tags.includes('* Bookmark')" :src="BookmarkFill1" alt="" class="icon redIcon" @click="()=>setBookmark(false)">
-                    <img v-else :src="BookmarkFill0" alt="" class="icon" @click="() => setBookmark(true)">
-                </div>
-
-                <slot></slot>
             </div>
         </div>
         <div id="more" ref="moreDiv">
@@ -239,8 +244,15 @@
         justify-content: flex-start;
     }
     div#init{
-        flex-wrap: wrap;
-        column-gap: 10px;
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    div#init>div.left{
+        flex-wrap: nowrap;
+        column-gap: 5px;
+        overflow: hidden;
     }
     div#marks:hover{
         justify-self: flex-end;
@@ -272,7 +284,7 @@
         transition: all 0.25s;
         box-shadow: 0 1px 3px 3px var(--color-shadow);
     }
-    #titleStatus{
+    #leadingStatus{
         column-gap: 8px;
         display: flex;
         flex-direction: row;
@@ -291,7 +303,7 @@
             width:auto;
             min-width: 10px;
         }
-        div#fileRow{
+        div#fileRow > div.left{
             flex-direction: column;
             align-items:flex-start;
         }
@@ -334,7 +346,7 @@
     #fileRow.compact #init{
         flex-wrap: nowrap;
     }
-    #fileRow.compact #titleStatus{
+    #fileRow.compact #leadingStatus{
         max-width: 100%;
     }
     #fileRow.compact #title{
@@ -346,7 +358,11 @@
         /* https://stackoverflow.com/a/69078238/6775765 */
     }
     @media (max-width: 750px){
-        #fileRow.compact #init{
+        div#fileRow.compact #title{
+            width: 100%;
+        }
+        div#init>div.left{
+            width: 100%;
             flex-wrap: wrap;
         }
     }
