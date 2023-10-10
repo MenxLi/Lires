@@ -428,7 +428,7 @@ version_history:
       - Support eprint as publication
       - Search by author
   
-  1.0.4
+  1.0.4:
     - New features:
       - Bookmark
       - Periodically update search index
