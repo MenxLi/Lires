@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 
-    import { ref, computed, onActivated, onDeactivated } from 'vue';
+    import { ref, computed, onActivated, onDeactivated, watch } from 'vue';
     import FileRowMore from './FileRowMore.vue';
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
@@ -18,6 +18,7 @@
     const props = withDefaults(defineProps<{
         datapoint: DataPoint
         unfoldedIds: string[]     // global unfoldedIds from DataCardContainer
+        hoveredIds: string[]      // global hoveredIds from DataCardContainer
         line_number?: number
         compact?: boolean
     }>(), {
@@ -25,14 +26,21 @@
         compact: false,
     })
 
-    const emits = defineEmits<
-        (e: "update:unfoldedIds", v: string[]) => void
-    >()
+    const emits = defineEmits<{
+        (e: "update:unfoldedIds", v: string[]) : void
+        (e: "update:hoveredIds", v: string[]) : void
+    }>()
 
     // mutable unfoldedIds
     const g_unfoldedIds = computed({
         get: ()=>props.unfoldedIds,
         set: (v)=>emits("update:unfoldedIds", v)}
+    );
+
+    // mutable hoveredIds
+    const g_hoveredIds = computed({
+        get: ()=>props.hoveredIds,
+        set: (v)=>emits("update:hoveredIds", v)}
     );
 
     // record if show more is toggled
@@ -103,6 +111,15 @@
 
     // fileRow Style
     const isDataCardHover = ref(false);
+    watch(isDataCardHover, (newVal) => {
+        if (newVal){
+            g_hoveredIds.value.push(props.datapoint.summary.uuid);
+        }
+        else{
+            g_hoveredIds.value = g_hoveredIds.value.filter(uid => uid !== props.datapoint.summary.uuid);
+        }
+        // console.log("hoveredIds: ", g_hoveredIds.value);
+    })
     const datacardBackgroundColor = computed(() => {
         // if is hover
         if (isDataCardHover.value){
@@ -124,12 +141,6 @@
             return "var(--color-background)";
         }
     })
-    // const titleMaxWidth = computed(() => {
-    //     if (!titleStatus.value){
-    //         return 1000;
-    //     }
-    //     return titleStatus.value.offsetWidth - 500;
-    // })
 
     function setBookmark(ev: Event, status: boolean){
         const newTags = props.datapoint.summary.tags.slice();
@@ -231,11 +242,6 @@
         padding-left: 5px;
         /* background-color: var(--color-background-ssoft); */
         box-shadow: 0px 1px 2px 0px var(--color-shadow);
-    }
-    div#fileRow:hover{
-        /* background-color: var(--color-background-theme-highlight); */
-        box-shadow: 1px 2px 5px 1px var(--color-shadow);
-        transition: all 0.2s;
     }
     #authorYear{
         width: 250px;

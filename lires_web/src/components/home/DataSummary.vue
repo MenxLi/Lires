@@ -113,7 +113,6 @@
         requestAISummary(false)
     });
 
-    const _unfoldedIds = ref<string[]>([]);
     const minWidth = computed(()=>Math.min(1200, window.innerWidth-20));
 
 </script>
@@ -140,7 +139,7 @@
                         <td colspan="2">
                             <b>{{ `Other publications from ${showAuthorPapers.toUpperCase()}:` }}</b>
                             <div id="authorPapers">
-                                <FileRowContainer :datapoints="authorPapers" v-model:unfoldedIds="_unfoldedIds"></FileRowContainer>
+                                <FileRowContainer :datapoints="authorPapers"></FileRowContainer>
                             </div>
                         </td>
                     </tr>
@@ -177,7 +176,7 @@
             </div>
             <details>
                 <summary><b>Related Articles</b></summary>
-                <FileRowContainer :datapoints="relatedDatapoints" :scores="relatedDatapointsScoresDict" v-model:unfolded-ids="_unfoldedIds"></FileRowContainer>
+                <FileRowContainer :datapoints="relatedDatapoints" :scores="relatedDatapointsScoresDict"></FileRowContainer>
             </details>
         </div>
     </div>
