@@ -394,14 +394,25 @@ export class ServerConn {
         }
     }
     
-    async editData(uid: string | null, bibtex: string, tags: string[] = [], url: string = ""): Promise<DataInfoT>{
+    async editData(
+        uid: string | null, 
+        bibtex: string | null = null, 
+        tags: string[] | null = null, 
+        url: string | null = null,
+        ): Promise<DataInfoT>{
+        if (!uid){
+            // make sure other fields are not null
+            if (bibtex === null || tags === null || url === null){
+                throw new Error("uid is null, other fields should be complete");
+            }
+        }
         const params = new URLSearchParams();
         if (!uid){ uid = null; }
         params.set("key", this.settings.encKey);
         params.set("uuid", JSON.stringify(uid))
-        params.set("bibtex", bibtex);
-        params.set("tags", JSON.stringify(tags));
-        params.set("url", url);
+        if (bibtex !== null ) params.set("bibtex", bibtex);
+        if (tags !== null) params.set("tags", JSON.stringify(tags));
+        if (url !== null) params.set("url", url);
         const response = await fetch(`${getBackendURL()}/dataman/update`,
             {
                 method: "POST",

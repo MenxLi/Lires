@@ -42,10 +42,12 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         uuid = json.loads(self.get_argument("uuid"))
         assert uuid is None or isinstance(uuid, str)
 
-        tags = json.loads(self.get_argument("tags"))
-        url = self.get_argument("url")
-        bibtex = self.get_argument("bibtex")
-        if not checkBibtexValidity(bibtex):
+        # optional arguments (set to None) if uuid is present
+        tags = json.loads(self.get_argument("tags", 'null'))
+        url = self.get_argument("url", None)
+        bibtex = self.get_argument("bibtex", None)
+
+        if bibtex is not None and not checkBibtexValidity(bibtex):
             raise tornado.web.HTTPError(400)
         
         if not permission["is_admin"]:
@@ -58,6 +60,10 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
                 self.checkTagPermission(old_tags, permission["mandatory_tags"])
         
         if uuid is None:
+            assert bibtex is not None
+            assert tags is not None
+            assert url is not None
+
             uuid = addDocument(self.db.conn, bibtex, check_duplicate=True)
             if uuid is None:
                 # most likely a duplicate
@@ -69,13 +75,13 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         else:
             dp = self.db[uuid]
             __info.append("update entry [{}]".format(uuid))
-            if dp.fm.readBib() != bibtex:
+            if bibtex is not None and dp.fm.readBib() != bibtex:
                 dp.fm.writeBib(bibtex)
                 __info.append("bibtex updated")
-            if DataTags(dp.tags) != DataTags(tags):
+            if tags is not None and DataTags(dp.tags) != DataTags(tags):
                 dp.fm.writeTags(DataTags(tags).toOrderedList())
                 __info.append("tags updated")
-            if dp.fm.getWebUrl() != url:
+            if url is not None and dp.fm.getWebUrl() != url:
                 dp.fm.setWebUrl(url)
                 __info.append("url updated")
         self.logger.info(", ".join(__info))

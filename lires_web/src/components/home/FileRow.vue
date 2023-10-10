@@ -6,6 +6,11 @@
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
     import { openURLExternal } from '../../libs/misc';
+    import { ServerConn } from '../../core/serverConn';
+    import { useUIStateStore } from '../store';
+
+    import BookmarkFill0 from '../../assets/icons/bookmark_fill0.svg'
+    import BookmarkFill1 from '../../assets/icons/bookmark_fill1.svg'
 
     const NOTE_FULLSHOW_THRESHOLD = 12;
     const NOTE_SHOW_THRESHOLD = 1;
@@ -126,6 +131,27 @@
     //     return titleStatus.value.offsetWidth - 500;
     // })
 
+    function setBookmark(ev: Event, status: boolean){
+        const newTags = props.datapoint.summary.tags.slice();
+        if (status){
+            newTags.push("* Bookmark");
+        }
+        else{
+            newTags.splice(newTags.indexOf("* Bookmark"), 1);
+        }
+
+        const uuid = props.datapoint.summary.uuid;
+        new ServerConn().editData(uuid, null, newTags).then(
+            (summary) => {
+                props.datapoint.update(summary);
+                useUIStateStore().updateShownData();
+            },
+            () => useUIStateStore().showPopup("Failed to save", "error")
+        )
+
+        ev.stopPropagation();   // to prevent clickOnRow
+    }
+
     // shortcut to edit datapoint information
     function shortcutEdit(event: KeyboardEvent){
         if (event.code === "Space" && g_unfoldedIds.value.includes(props.datapoint.summary.uuid) && moreComponent.value?.shouldEnableEditDatapoint){
@@ -173,6 +199,11 @@
                     </div>
                 </div>
                 <div id="title" class="text">{{ datapoint.summary.title }}</div>
+                <div id="marks">
+                    <img v-if="datapoint.summary.tags.includes('* Bookmark')" :src="BookmarkFill1" alt="" class="icon redIcon" @click="(ev: Event)=>setBookmark(ev, false)">
+                    <img v-else :src="BookmarkFill0" alt="" class="icon" @click="(ev: Event) => setBookmark(ev, true)">
+                </div>
+
                 <slot></slot>
             </div>
         </div>
@@ -265,6 +296,9 @@
     img.icon {
         height: 15px;
         filter: invert(0.5) opacity(0.25) drop-shadow(0 0 0 var(--color-border)) ;
+    }
+    img.redIcon {
+        filter: invert(33%) sepia(92%) saturate(3443%) hue-rotate(0deg) brightness(97%) contrast(101%);
     }
     img.placeholder{
         height: 8px
