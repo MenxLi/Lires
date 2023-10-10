@@ -58,6 +58,9 @@
     const moreComponent = ref<typeof FileRowMore | null>(null);
     const titleStatus = ref<HTMLElement | null>(null);
 
+    // A flag to prevent unfold datacard when click on some elements, set this to true when click on those elements
+    // so that clickOnRow can check this flag and prevent show more, while also alow the event to propagate to parent
+    let __preventNextUnfold = false;      
     function clickOnRow(event: Event){
         // check if event target is fileRow div or not
         if (!isChildDOMElement(event.target as HTMLElement, dataCard.value!)){
@@ -70,9 +73,14 @@
             if (url !== ""){
                 openURLExternal(url);
             }
-            event.stopPropagation();    // prevent show more
+            // event.stopPropagation();    // prevent show more
+            __preventNextUnfold = true;
         }
         if (!isChildDOMElement(event.target as HTMLElement, moreDiv.value!)){
+            if (__preventNextUnfold){
+                __preventNextUnfold = false;
+                return;
+            }
             // toggle show more
             if (showMore.value){
                 g_unfoldedIds.value = g_unfoldedIds.value.filter(uid => uid !== props.datapoint.summary.uuid);
@@ -142,7 +150,7 @@
         }
     })
 
-    function setBookmark(ev: Event, status: boolean){
+    function setBookmark(status: boolean){
         const newTags = props.datapoint.summary.tags.slice();
         if (status){
             newTags.push("* Bookmark");
@@ -160,7 +168,7 @@
             () => useUIStateStore().showPopup("Failed to save", "error")
         )
 
-        ev.stopPropagation();   // to prevent clickOnRow
+        __preventNextUnfold = true;
     }
 
     // shortcut to edit datapoint information
@@ -211,8 +219,8 @@
                 </div>
                 <div id="title" class="text">{{ datapoint.summary.title }}</div>
                 <div id="marks">
-                    <img v-if="datapoint.summary.tags.includes('* Bookmark')" :src="BookmarkFill1" alt="" class="icon redIcon" @click="(ev: Event)=>setBookmark(ev, false)">
-                    <img v-else :src="BookmarkFill0" alt="" class="icon" @click="(ev: Event) => setBookmark(ev, true)">
+                    <img v-if="datapoint.summary.tags.includes('* Bookmark')" :src="BookmarkFill1" alt="" class="icon redIcon" @click="()=>setBookmark(false)">
+                    <img v-else :src="BookmarkFill0" alt="" class="icon" @click="() => setBookmark(true)">
                 </div>
 
                 <slot></slot>
