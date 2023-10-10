@@ -97,14 +97,12 @@
             )
     }
 
-    const _unfoldedIds = ref([] as string[]);   // a local shared state to enable unfolding of datacards
-
 </script>
 
 <template>
     <FloatingWindow v-model:show="showAuthorPapers" title="Publications in the database" @onClose="authorPapers=[]">
         <div id="authorPapers">
-            <FileRowContainer :datapoints="authorPapers" v-model:unfoldedIds="_unfoldedIds"></FileRowContainer>
+            <FileRowContainer :datapoints="authorPapers"></FileRowContainer>
         </div>
     </FloatingWindow>
     <div id="main" class="slideInFast">
@@ -136,8 +134,7 @@
             <details>
                 <summary @click="queryRelatedArticles">Related articles</summary>
                 <div id="relatedArticles">
-                    <FileRowContainer :datapoints="relatedArticles" :scores="relatedArticlesScoresByUid"
-                        v-model:unfoldedIds="_unfoldedIds"/>
+                    <FileRowContainer :datapoints="relatedArticles" :scores="relatedArticlesScoresByUid"/>
                 </div>
             </details>
         </div>
