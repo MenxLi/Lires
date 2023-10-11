@@ -13,7 +13,7 @@ class ReloadDBHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         perm = self.permission
         self.setDefaultHeader()
 
-        self.logger.info(f"Reload DB, from {perm['identifier']}({perm['enc_key']})")
+        self.logger.info(f"Reload DB, from {perm['name']}({perm['enc_key']})")
         self.initdb()
 
         self.write("OK")

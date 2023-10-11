@@ -31,7 +31,7 @@ export type DatabaseFeature = Record<string, number[]>;
 export interface AccountPermission {
     is_admin: boolean;
     mandatory_tags: string[];
-    identifier: string;
+    name: string;
     enc_key: string;
 }
 

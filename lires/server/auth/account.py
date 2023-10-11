@@ -22,7 +22,7 @@ import json
 
 class AccountPermission(TypedDict):
     is_admin: bool
-    identifier: str
+    name: str
     enc_key: str
     mandatory_tags: List[str]
 
@@ -30,7 +30,7 @@ class Account:
     def __init__(self, **kwargs):
         # default constructor
         self.hashkey: Optional[str] = None
-        self.identifier: str = ""
+        self.name: str = ""
         self.is_admin: bool = False
         self.mandatory_tags: List[str] = []
 
@@ -41,7 +41,7 @@ class Account:
     def permission(self) -> AccountPermission:
         return {
             "is_admin": self.is_admin,
-            "identifier": self.identifier,
+            "name": self.name,
             "enc_key": self.hashkey if self.hashkey else "",
             "mandatory_tags": self.mandatory_tags
         }
@@ -58,19 +58,19 @@ class Account:
         assert fpath.endswith(".json")
         with open(fpath, "w") as fp:
             obj = dict()
-            for k in ["hashkey", "identifier", "is_admin", "mandatory_tags"]:
+            for k in ["hashkey", "name", "is_admin", "mandatory_tags"]:
                 obj[k] = getattr(self, k)
             json.dump(obj, fp, indent=1)
         return self
     
     def detailString(self):
         lines = []
-        for k in ["hashkey", "identifier", "is_admin", "mandatory_tags"]:
+        for k in ["hashkey", "name", "is_admin", "mandatory_tags"]:
             lines.append(f" - {k}: {getattr(self, k)}")
         return "\n".join(lines)
     
     def __str__(self) -> str:
-        ret = f"{self.hashkey} ({self.identifier})"
+        ret = f"{self.hashkey} ({self.name})"
         if self.is_admin:
             ret = "* " + ret
         return ret
