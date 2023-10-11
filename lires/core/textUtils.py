@@ -282,9 +282,20 @@ async def retrieveRelevantSections(
     query_text = query_text.replace("\n", " ")
     query_vec = iconn.featurize(query_text)
 
+
+    def __containsNoneEnglish(sentence):
+        import re
+        non_english_regex = re.compile(r'[^a-zA-Z0-9]+')
+        return bool(non_english_regex.findall(sentence))
+
     src_vec_dict: dict[str, list[float]] = {}
     for sentence in sentences:
         await asyncio.sleep(0)
+        # TODO: replace this
+        # ignore sentences with none english words
+        if __containsNoneEnglish(sentence):
+            continue
+
         src_vec_dict[sentence] = iconn.featurize(sentence)
     
     # compute the similarity

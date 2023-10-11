@@ -26,7 +26,7 @@ class AI:
         )
         ans = ""
         for t in res:
-            if verbose: print(t, end = "")
+            if verbose: print(t, end = "", flush=True)
             ans += t
         self.conv_dict["conversations"].append((
             "user", input_str
@@ -40,6 +40,7 @@ def extractAction(ans: str):
     """
     Ask LLM to summarize the action into JSON format.
     """
+    global MODEL
 
     system = "You are an AI that is responsible for summarizing some words into JSON format. "
 
@@ -58,14 +59,14 @@ def extractAction(ans: str):
         "-----\n"
         "Here is the speaking, please summarize it in the above mentioned json format: {}".format(ans),
         conv_dict=conv_dict,
-        model_name="gpt-3.5-turbo-16k"
+        model_name=MODEL
         # model_name="stabilityai/StableBeluga-7B"
         )
     ret = ""
     for t in res:
-        print(t, end = "")
+        print(t, end = "", flush=True)
         ret += t
-    return ret.replace('"', "'")
+    return ret.replace('"', "'").replace('\_', '_')
 
 def searchForInfo(query: str):
     print("\nSearching for information: {}{}".format(BCOLORS.GREEN, query), end=BCOLORS.ENDC + "\n")
@@ -113,15 +114,14 @@ def refineSelectedSections(question: str, related_sections: str) -> str:
         ("user", "I'm searching for the answer for a question from a literature database, you should help me pick the most relavent search result from the searched sections."), 
         ("assistant", "Sure! Please provide me with the sections you have searched so that I can assist you in selecting the most relevant ones.")
         ]
-    prompt = "I'm searching for the answer for a question from a literature database, you should help me pick the most relavent search result from the searched sections."
+    prompt = "I'm searching for the answer for a question from a literature database, you should help me pick the most relavent search result from the searched sections.\n" \
+    "For your reference, here is the question that I'm searching: {} \n".format(question) + "\n" \
     "Please help me pick at most 5 of the most relevant sections from the following searched sections: \n"\
     "---\n"\
-    "\n".join(related_sections) + \
+    "\n".join(['- ' + r for r in related_sections]) + \
     "---\n"\
-    "For your reference, here is the question that I'm searching: {} \n".format(question) + "\n" \
     "You can slightly refine each section by adding or removing some words to make it better answer the question, but you shouldn't change the meaning of the section. \n" \
     "You answer should not contain anything else other than explicitly listing the selected informations. \n"
-    # breakpoint()
 
     ai = AI(iconn)
     ai.conv_dict = {
@@ -143,7 +143,8 @@ if __name__ == "__main__":
     # MODEL: ChatStreamIterType = "stabilityai/StableBeluga-7B"
     # MODEL: ChatStreamIterType = "Open-Orca/LlongOrca-7B-16k"
     # MODEL: ChatStreamIterType = "gpt-3.5-turbo-16k"
-    MODEL: ChatStreamIterType = "LOCAL"
+    MODEL: ChatStreamIterType = "DEFAULT"
+    # MODEL: ChatStreamIterType = "LOCAL"
 
     question = sys.argv[1]
 
