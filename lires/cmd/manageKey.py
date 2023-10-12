@@ -10,18 +10,18 @@ def run():
 
     parser_gen = sp.add_parser("generate", help = "Generate key")
     parser_gen.add_argument("-l", "--length", type = int, default=6, help = "Length of the key")
-    parser_gen.add_argument("-i", "--name", default = "Anonymous", help = "Identifier for this key")
+    parser_gen.add_argument("-n", "--name", default = "Anonymous", help = "Identifier for this key")
     parser_gen.add_argument("-t", "--tags", nargs = "+", default = [], help = "Mandatory tag for this key")
     parser_gen.add_argument("--admin", action="store_true", help = "Set the account to admin")
 
     parser_reg = sp.add_parser("register", help = "Register key")
     parser_reg.add_argument("key", help = "Key")
-    parser_reg.add_argument("-i", "--name", default = "Anonymous", help = "Identifier for this key")
+    parser_reg.add_argument("-n", "--name", default = "Anonymous", help = "Identifier for this key")
     parser_reg.add_argument("-t", "--tags", nargs = "+", default = [], help = "Mandatory tag for this key")
     parser_reg.add_argument("--admin", action="store_true", help = "Set the account to administrator")
 
     parser_del = sp.add_parser("delete", help = "Delete key")
-    parser_del.add_argument("-i", "--name", help = "Keys with selected name will be deleted")
+    parser_del.add_argument("-n", "--name", help = "Keys with selected name will be deleted")
     parser_del.add_argument("-k", "--key", help = "Key to delete")
     parser_del.add_argument("--hash_key", help = "Hash key to delete")
 
@@ -69,8 +69,7 @@ def run():
     elif args.subparser == "list":
         accounts = getAllAccounts()
         if args.hashkey is not None:
-            acc: Account
-            acc = accounts[args.hashkey]
+            acc: Account = accounts[args.hashkey]
             print(acc.detailString())
         else:
             for acc in accounts.values():
