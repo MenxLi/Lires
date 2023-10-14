@@ -1,16 +1,16 @@
-FROM python:3.11-bookworm as iserver-build
+FROM nvcr.io/nvidia/driver:535.104.12-ubuntu22.04
 WORKDIR /
 COPY . /Lires
 
-RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/debian.sources
+RUN apt-get update && apt-get install -y python3 python3-pip
 RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Install rust and make sure it's up to date and using stable channel
 # RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 # RUN rustup update
 
-RUN python3 -m pip install --upgrade pip --break-system-packages
-RUN pip3 install -e /Lires[ai] --break-system-packages
+RUN python3 -m pip install --upgrade pip
+RUN pip3 install -e /Lires[ai]
 
 EXPOSE 8731
 

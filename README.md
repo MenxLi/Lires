@@ -32,11 +32,7 @@ git submodule update --init --recursive
 
 **Docker deployment**
 ```sh
-# build docker image
-docker build -t lires:latest .
-
-# create a conainer and start the servers
-docker run -d -p 8080:8080 -p 8081:8081 -v $HOME/.Lires:/root/.Lires --name lrs lires:latest
+docker compose up
 
 # register a user and download pdf.js viewer on the first run 
 # (no need to run again if the container is re-created / re-started)
@@ -45,7 +41,6 @@ docker exec lrs lrs-utils download_pdfjs
 ```
 Now open the browser and visit the WebUI on `http://localhost:8081`.
 
-Docker deployment is a quick way to deploy the server, but it has some limitations.  
 **Please refer to the documents for more details on [getting started](docs/gettingStarted.md).**
 
 # Manuals and documentations

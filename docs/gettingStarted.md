@@ -149,9 +149,17 @@ lrs-index build
 ## Docker deployment
 Instead of installing the server, you can also deploy the server using docker.  
 Which adds additional security and building efficiency.  
+
+### Method 1 - Use docker compose (recommended)
+**Nvidia container toolkit should be installed**
+```sh
+docker compose up
+```
+
+### Method 2 - Use the cluster image
 ```sh
 # creates a docker image named lires
-docker build -t lires:latest .
+docker build -f ./docker/cluster.Dockerfile -t lires:latest .
 
 # create the container named 'lrs', 
 # please change the port mapping and volume mapping as needed
@@ -171,6 +179,7 @@ Instead, we can set the server settings pointing to the shared LiresAI server ou
 > 
 > For example, if the LiresAI server is running on the host machine with IP address `192.168.3.6:8731`, then we can set the `iserver_host` to `192.168.3.6` and `iserver_port` to `8731`.
 
+### On the first run
 **On the first run** you need to generate the user key, which can be done by running the `lrs-keyman` command in the container.
 and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.
 The user information and pdf.js viewer will be stored in the volume mapping directory, so that they will not be lost when the container is removed.
