@@ -3,6 +3,7 @@ from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QHBoxLayout, QItemDelegate, QMessageBox, QStyleOptionViewItem, QVBoxLayout, QFrame, QAbstractItemView, QTableView, QFileDialog, QStyledItemDelegate, QStyle
 from PyQt6.QtGui import QAction, QShortcut, QColor
 from PyQt6 import QtGui, QtCore
+import pyperclip
 import typing, copy, functools
 from typing import List, overload, Union, Literal, Callable, Optional, cast
 
@@ -14,10 +15,14 @@ from .qtThreading import SearchWorker
 from lires.core import globalVar as G
 from lires.core.dataClass import  DataPoint, DataList, DataTags, DataTableList
 from lires.core.dataSearcher import StringSearchT, DataSearcher
-from lires.core.utils import copy2clip, openFile
+from lires.core.utils import openFile
 from lires.core.encryptClient import generateHexHash
 from lires.confReader import getConf, getConfV, getServerURL
 from lires.types.configT import _ConfFontSizeT
+
+def copy2clip(text: str):
+    pyperclip.copy(text.strip("\""))
+    return True
 
 class FileSelectorGUI(MainWidgetBase):
     def __init__(self, parent):
