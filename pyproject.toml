@@ -43,7 +43,6 @@ dependencies = [
 
     # used by both core and ai, may be removed in the future
     "markdown",
-    "pyperclip",
 ]
 
 [project.optional-dependencies]
@@ -69,6 +68,7 @@ gui = [
     "darkdetect",
     "PyQt6",
     "PyQt6-WebEngine",
+    "pyperclip",
 ]
 ai = [
     "safetensors <= 0.3.2",     # 0.3.3 or higher seems requires rust installed
