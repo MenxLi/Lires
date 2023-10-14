@@ -40,6 +40,10 @@ dependencies = [
     "pyyaml",
     "requests",
     "deprecated",
+
+    # used by both core and ai, may be removed in the future
+    "markdown",
+    "pyperclip",
 ]
 
 [project.optional-dependencies]
@@ -47,7 +51,6 @@ core = [
     "pybtex",
     "pylatexenc",
     "tornado",
-    "pyperclip",
     "PyMuPDF",
     "markdown",
     "nest_asyncio",

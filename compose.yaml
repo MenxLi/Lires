@@ -1,0 +1,51 @@
+
+services:
+
+  web:
+    container_name: lrs_web
+    build:
+      context: .
+      dockerfile: ./docker/web.Dockerfile
+    ports:
+      - "8081:80"
+    networks:
+      - lires_net
+
+  server:
+    container_name: lrs
+    build:
+      context: .
+      dockerfile: ./docker/server.Dockerfile
+    ports:
+      - "8080:8080"
+      # - "8731:8731"
+    volumes:
+      - "$HOME/.Lires:/root/.Lires"
+    networks:
+      - lires_net
+  
+  ai:
+    container_name: lrs_ai
+    build:
+      context: .
+      dockerfile: ./docker/iserver.Dockerfile
+    # ports:
+    #   - "8731:8731"
+    volumes:
+      - "$HOME/.Lires:/root/.Lires"
+    environment:
+      - OPENAI_API_KEY=sk-1234567890abcdef1234567890abcdef
+      - OPENAI_API_BASE=https://api.openai.com/v1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: "nvidia"
+              count: "all"
+              capabilities: [gpu]
+    networks:
+      - lires_net
+
+networks:
+  lires_net:
+    driver: bridge
