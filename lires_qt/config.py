@@ -11,6 +11,7 @@ ICON_PATH = os.path.join(MODULE_PATH, "icons")
 DOC_PATH = os.path.join(MODULE_PATH, "docs")
 ASSETS_PATH = os.path.join(MODULE_PATH, "assets")
 __STYLESHEET_PATH = os.path.join(ASSETS_PATH, "stylesheets")
+BIB_TEMPLATE_PATH = os.path.join(ASSETS_PATH, "bibtexTemplates")
 
 def getStyleSheets() -> dict:
     global __STYLESHEET_PATH

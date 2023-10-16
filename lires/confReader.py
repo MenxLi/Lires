@@ -45,7 +45,6 @@ else:
     CONF_FILE_PATH = join(LRS_HOME, "config.json")
 
 ASSETS_PATH = join(CURR_PATH, "assets")
-BIB_TEMPLATE_PATH = join(ASSETS_PATH, "bibtexTemplates")
 
 DEFAULT_DATA_PATH = join(LRS_HOME, "Database")
 DEFAULT_PDF_VIEWER_DIR = join(LRS_HOME, "pdf-viewer")
