@@ -283,7 +283,7 @@ def formatMarkdownHTML(md_html: str, abs_fpath: bool = True):
         html_template = string.Template(fp.read())
 
     USE_MATHJAX = False     # To determine if using latex equation, save bandwidth
-    for sign in ["$$", "\\("]:
+    for sign in ["$$", "\\(", "$"]:
         if sign in md_html:
             USE_MATHJAX = True
     if USE_MATHJAX:

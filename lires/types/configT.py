@@ -28,19 +28,3 @@ class LiresConfT(TypedDict):
     # the path is suppose to be the viewer.html
     pdfjs_viewer_path: str
     proxies: _ConfProxyT
-
-    """GUI SETTINGS"""
-    # server_preset: List[_ConfServerPresetT]
-    # # Tag settings
-    # default_tags: List[str]
-    # table_headers: List[str]
-
-    # # GUI settings
-    # sort_method: str
-    # sort_reverse: bool
-
-    # font_sizes: _ConfFontSizeT
-    # stylesheet: str
-    # auto_save_comments: bool
-    # gui_status: _ConfGUIStatusT
-

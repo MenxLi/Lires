@@ -51,7 +51,6 @@ core = [
     "pylatexenc",
     "tornado",
     "PyMuPDF",
-    "markdown",
     "nest_asyncio",
     "arxiv",
     "nbib",
