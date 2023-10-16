@@ -613,7 +613,14 @@ export class DataSearcher{
                 }
             }
         }
-        if (searchStatus.searchBy.toLowerCase() === "author"){
+        else if (searchStatus.searchBy.toLowerCase() === "uuid"){
+            for (const dp of datapoints){
+                if (dp.summary.uuid.toLowerCase().search(pattern) !== -1){
+                    dp_new.push(dp);
+                }
+            }
+        }
+        else if (searchStatus.searchBy.toLowerCase() === "author"){
             const authorPubMap = useDataStore().authorPublicationMap;
             const searchAuthor = formatAuthorName(searchStatus.content);
             if (searchAuthor in authorPubMap){
