@@ -3,7 +3,7 @@
 
 The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** is the French word for '***Read***'.
 
-<!-- ![LiresWeb-GUI](http://limengxun.com/files/imgs/rbmweb.png) -->
+![LiresWeb-GUI](http://limengxun.com/files/imgs/liresweb.png)
 
 ## Modules
 Mainly consists of three modules:  
