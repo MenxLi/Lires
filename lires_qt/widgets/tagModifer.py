@@ -3,8 +3,8 @@ from typing import Callable, Optional
 from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QInputDialog, QDialog
 from .tagSelector import TagSelector, DataItemAbstract
 from .widgets import RefMixin, RefWidgetBase, WidgetMixin
-from lires.confReader import saveToConf
 from lires.core.dataClass import TagRule, DataTags
+from ..config import saveToGUIConf
 
 class TagModifier(RefMixin, WidgetMixin):
     def __init__(self, origin: RefWidgetBase) -> None:
@@ -34,7 +34,7 @@ class TagModifier(RefMixin, WidgetMixin):
                     maybe_change_sel_tags = TagRule.renameTag(curr_tags, tag, text)
                     if maybe_change_sel_tags is not None:
                         new_selected_tags = maybe_change_sel_tags
-                        saveToConf(default_tags = new_selected_tags.toOrderedList())
+                        saveToGUIConf(default_tags = new_selected_tags.toOrderedList())
                     self.getMainPanel().reloadData()
                 else:
                     self.getMainPanel().statusBarInfo("Failed, check log for more info.", 5, bg_color = "red")
@@ -66,7 +66,7 @@ class TagModifier(RefMixin, WidgetMixin):
                         curr_tags = self.getTagPanel().tag_selector.getSelectedTags()
                         maybe_deleted_sel_tags = TagRule.deleteTag(curr_tags, tag)
                         if maybe_deleted_sel_tags is not None:
-                            saveToConf(default_tags = maybe_deleted_sel_tags.toOrderedList())
+                            saveToGUIConf(default_tags = maybe_deleted_sel_tags.toOrderedList())
                         self.getMainPanel().reloadData()
                     else:
                         self.getMainPanel().statusBarInfo("Failed, check log for more info.", 5, bg_color = "red")

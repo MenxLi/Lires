@@ -26,12 +26,11 @@ from lires.core.bibReader import BibParser, BibConverter
 from lires.core.utils import openFile, ProgressBarCustom
 from lires.core.serverConn import ServerConn
 from lires.core.dataClass import DataTags, DataBase, DataPoint
-from lires.confReader import getConf, getConfV, saveToConf, saveToConf_guiStatus
-from lires.confReader import TMP_DB, TMP_WEB, TMP_COVER
+from lires.confReader import TMP_DB, TMP_WEB, TMP_COVER, getConf
 from lires.version import VERSION
 from .qtThreading import SyncWorker, InitDBWorker
 
-from ..config import ICON_PATH, getStyleSheets
+from ..config import ICON_PATH, getStyleSheets, getGUIConf, saveToGUIConf, saveToConf_guiStatus
 
 class MainTabWidget(QTabWidget, RefWidgetBase):
     def __init__(self, parent) -> None:
@@ -313,13 +312,13 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
         self.toolbars = [tool_bar, file_bar, panel_bar]
 
     def loadFontConfig(self):
-        font_config = getConf()["font_sizes"]
+        font_config = getGUIConf()["font_sizes"]
         self.file_selector.applyFontConfig(font_config)
         self.file_tags.applyFontConfig(font_config)
 
     def fontSizeStep1(self, mode: Literal["increase", "decrease"] = "increase"):
         self.logger.debug(f"{mode} font size by 1")
-        font_config = getConf()["font_sizes"]
+        font_config = getGUIConf()["font_sizes"]
         new_font_config = font_config.copy()
         for k in ["data", "tag"]:
             old_font = font_config[k]
@@ -334,7 +333,7 @@ class MainWindowGUI(QMainWindow, RefWidgetBase):
             new_font_config[k] = new_font
         self.file_selector.applyFontConfig(new_font_config)
         self.file_tags.applyFontConfig(new_font_config)
-        saveToConf(font_sizes = new_font_config)
+        saveToGUIConf(font_sizes = new_font_config)
 
     def toggleShowToobar(self, status: bool):
         for bar in self.toolbars:
@@ -346,6 +345,7 @@ class MainWindow(MainWindowGUI):
         super().__init__()
         self.logger.debug("Configuration: ")
         self.logger.debug(getConf())
+        self.logger.debug(getGUIConf())
         self.initActions()
         self.initGUIStatusConfig()
         self.reloadData()
@@ -386,7 +386,7 @@ class MainWindow(MainWindowGUI):
         self.act_tool_deletetag.triggered.connect(lambda: TagModifier(self).promptDeleteTag())
 
     def initGUIStatusConfig(self):
-        gui_conf = getConfV("gui_status")
+        gui_conf = getGUIConf()["gui_status"]
         self.act_show_toolbar.setChecked(gui_conf["show_toolbar"])
         self.toggleShowToobar(gui_conf["show_toolbar"])
 
@@ -477,7 +477,7 @@ class MainWindow(MainWindowGUI):
             # Online mode
             self.statusBarInfo("Requesting remote server", bg_color = "blue")
         self.db.init(data_path)
-        self.file_selector.loadValidData(DataTags(getConf()["default_tags"]), hint = True)
+        self.file_selector.loadValidData(DataTags(getGUIConf()["default_tags"]), hint = True)
         self.file_tags.initTags(self.database.total_tags)
         self.statusBarInfo("Success", 2, bg_color = "green")
 
@@ -742,7 +742,7 @@ class MainWindow(MainWindowGUI):
         # reload stylesheet
         # get application style, for development purpose
         app: QApplication = QApplication.instance()     # type: ignore
-        ss = getStyleSheets()[getConf()["stylesheet"]]
+        ss = getStyleSheets()[getGUIConf()["stylesheet"]]
         if ss != "":
             with open(ss, "r", encoding="utf-8") as f:
                 app.setStyleSheet(f.read())

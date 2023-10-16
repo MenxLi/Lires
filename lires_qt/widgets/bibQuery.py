@@ -2,16 +2,13 @@
 The quary dialog for bibtex input
 """
 import os, typing
-import pybtex.scanner
 from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QDialog
 from PyQt6 import QtCore
 
 from lires.core.dataClass import DataPoint, DataTags, DataBase
 from .tagEditor import TagEditor
-from lires.core.bibReader import BibParser
 from lires.core.fileTools import addDocument
 from lires.core.fileToolsV import FileManipulatorVirtual
-from lires.confReader import getDatabase
 from .widgets import WidgetMixin
 from .bibtexEditor import BibEditor
 

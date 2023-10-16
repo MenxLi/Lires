@@ -9,7 +9,7 @@ from lires.core.utils import getDateTimeStr
 
 from .widgets.mainWindow import MainWindow
 
-from .config import getStyleSheets
+from .config import getStyleSheets, getGUIConf
 
 def execProg():
     logger = logging.getLogger("lires")
@@ -46,7 +46,7 @@ def execProg():
         ...
     
     # load user stylesheet
-    ss = getStyleSheets()[getConf()["stylesheet"]]
+    ss = getStyleSheets()[getGUIConf()["stylesheet"]]
     if ss != "":
         with open(ss, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())

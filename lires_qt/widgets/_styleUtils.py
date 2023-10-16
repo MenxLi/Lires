@@ -1,8 +1,8 @@
 from PyQt6.QtGui import QPainter, QPixmap, QColor, QIcon
-from lires.confReader import getConfV
+from ..config import getGUIConf
 
 def isThemeDarkMode() -> bool:
-    return "dark" in getConfV("stylesheet").lower()
+    return "dark" in getGUIConf()["stylesheet"].lower()
 
 DARKMODE = isThemeDarkMode()
 COLOR_WHITE = "#cccccc"

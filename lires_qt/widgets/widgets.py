@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from .fileSelector import FileSelector
     from .fileTags import FileTag
     from lires.core.dataClass import DataBase
-    from lires.types.configT import _ConfFontSizeT
+    from lires_qt.config import _ConfFontSizeT
 
 LOGGER = logging.getLogger("lires_qt")
 class WidgetMixin:

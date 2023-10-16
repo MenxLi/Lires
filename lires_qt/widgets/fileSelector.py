@@ -13,12 +13,18 @@ from .searchBar import SearchBar
 from .bibtexEditor import BibEditorWithOK
 from .qtThreading import SearchWorker
 from lires.core import globalVar as G
-from lires.core.dataClass import  DataPoint, DataList, DataTags, DataTableList
+from lires.core.dataClass import  DataPoint, DataList, DataTags
+from lires_qt.utils import DataTableList
 from lires.core.dataSearcher import StringSearchT, DataSearcher
 from lires.core.utils import openFile
 from lires.core.encryptClient import generateHexHash
-from lires.confReader import getConf, getConfV, getServerURL
-from lires.types.configT import _ConfFontSizeT
+from lires.confReader import getServerURL, getConf
+
+from lires_qt.config import _ConfFontSizeT, getGUIConf
+
+def copy2clip(text: str):
+    pyperclip.copy(text.strip("\""))
+    return True
 
 def copy2clip(text: str):
     pyperclip.copy(text.strip("\""))
@@ -159,23 +165,6 @@ class FileSelector(FileSelectorGUI):
         for wid in disable_wids:
             wid.setEnabled(status)
     
-    def __syncCurrentSelections(self) -> bool:
-        """Deprecated"""
-        selections = self.getCurrentSelection(return_multiple=True)
-        SUCCESS = True
-        if selections is None:
-            return False
-        for d in selections:
-            d: DataPoint
-            if not d.sync():
-                SUCCESS = False
-        if len(selections) == 1 and selections[0].is_local:
-            # only one selection and sync successed
-            self.offlineStatus(True)
-            self.getInfoPanel().offlineStatus(True)
-            self.getTagPanel().offlineStatus(True)
-        return SUCCESS
-
     def syncCurrentSelections_async(self, callback_on_finish: Callable[[bool], None] = lambda _ : None) -> None:
         """
          - callback_on_finish: additional callback to be called when sync is finished
@@ -214,8 +203,8 @@ class FileSelector(FileSelectorGUI):
         valid_data = self.getMainPanel().db.getDataByTags(tags, from_uids=from_uids)
         # if screen_pattern != "":
         #     valid_data = DataList([i for i in valid_data if i.screenByPattern(screen_pattern)])
-        sort_method = getConf()["sort_method"]
-        sort_reverse = getConf()["sort_reverse"]
+        sort_method = getGUIConf()["sort_method"]
+        sort_reverse = getGUIConf()["sort_reverse"]
         if sort_uids is not None:
             valid_data.sortBy(sort_uids, reverse=False)
         else:
@@ -250,7 +239,7 @@ class FileSelector(FileSelectorGUI):
                     sort_uids = [i for i, _ in sorted(res.items(), key=lambda x: x[1]["score"], reverse=True)] # type: ignore
 
             self.loadValidData(
-                tags = DataTags(getConf()["default_tags"]), 
+                tags = DataTags(getGUIConf()["default_tags"]), 
                 from_uids=vaild_uids,
                 sort_uids=sort_uids
                 )
@@ -402,8 +391,8 @@ class FileSelector(FileSelectorGUI):
         """
         dp = self.getMainPanel().db.add(file_path)
         self.data_model.add(dp)
-        sort_method = getConf()["sort_method"]
-        sort_reverse = getConf()["sort_reverse"]
+        sort_method = getGUIConf()["sort_method"]
+        sort_reverse = getGUIConf()["sort_reverse"]
         self.data_model.sortBy(sort_method, reverse=sort_reverse)
     
     def deleteCurrentSelected(self):
@@ -598,7 +587,7 @@ class FileTableModel(QtCore.QAbstractTableModel):
     def headerData(self, section: int, orientation: QtCore.Qt.Orientation, role: int = ...) -> typing.Any:
         if orientation == QtCore.Qt.Orientation.Horizontal:
             if role == QtCore.Qt.ItemDataRole.DisplayRole:
-                title = getConf()["table_headers"][section]
+                title = getGUIConf()["table_headers"][section]
                 if title == DataTableList.HEADER_FILESTATUS:
                     title = ""
                 return title
@@ -608,7 +597,7 @@ class FileTableModel(QtCore.QAbstractTableModel):
         return len(self.datalist)
     
     def columnCount(self, parent: QtCore.QModelIndex) -> int:
-        return len(getConfV("table_headers"))
+        return len(getGUIConf()["table_headers"])
 
 class FileTableView(QTableView, LazyResizeMixin):
     # How to highlight entire row on hovering? - https://stackoverflow.com/a/46231218/6775765
@@ -643,7 +632,7 @@ class FileTableView(QTableView, LazyResizeMixin):
     
     @property
     def table_headers(self) -> List[str]:
-        return getConf()["table_headers"]
+        return getGUIConf()["table_headers"]
     
     def delayed_update(self):
         # self.reset()
@@ -651,7 +640,7 @@ class FileTableView(QTableView, LazyResizeMixin):
     
     def _init_headerResizeMode(self, fast: bool = False):
         for i in range(len(self.table_headers)):
-            if getConfV("table_headers")[i] == DataTableList.HEADER_TITLE:
+            if getGUIConf()["table_headers"][i] == DataTableList.HEADER_TITLE:
                 self.header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.Stretch)
             else:
                 if not fast:
@@ -662,9 +651,9 @@ class FileTableView(QTableView, LazyResizeMixin):
     def _init_headerSize(self):
         self.header.setDefaultSectionSize(120)
         for i in range(len(self.table_headers)):
-            if getConfV("table_headers")[i] == DataTableList.HEADER_FILESTATUS:
+            if getGUIConf()["table_headers"][i] == DataTableList.HEADER_FILESTATUS:
                 self.header.resizeSection(i, 20)
-            if getConfV("table_headers")[i] == DataTableList.HEADER_YEAR:
+            if getGUIConf()["table_headers"][i] == DataTableList.HEADER_YEAR:
                 self.header.resizeSection(i, 50)
 
     def mouseMoveEvent(self, e: QtGui.QMouseEvent) -> None:

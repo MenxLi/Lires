@@ -5,7 +5,7 @@ from PyQt6.QtGui import QAction
 
 from .widgets import RefWidgetBase
 from lires.core.utils import openFile
-from lires.confReader import getConfV
+from lires.confReader import getConf
 
 from ..config import ICON_PATH
 from ..utils import getPDFCoverAsQPixelmap
@@ -57,7 +57,7 @@ class PendingWindow(PendingWindowGUI):
 	PENDING_FOLDER = "pending"
 	def __init__(self) -> None:
 		super().__init__()
-		self.ppath = os.path.join(getConfV("database"), self.PENDING_FOLDER)
+		self.ppath = os.path.join(getConf()["database"], self.PENDING_FOLDER)
 		if not os.path.exists(self.ppath):
 			os.mkdir(self.ppath)
 		self.loadData()
@@ -146,7 +146,7 @@ class PendingWindow(PendingWindowGUI):
 		except:
 			return False
 		file_name, file_extension = os.path.splitext(_file_name)
-		if not file_extension in getConfV("accepted_extensions"):
+		if not file_extension in getConf()["accepted_extensions"]:
 			warnings.warn("Incorrect file type, check extensions.")
 			return False
 		else:

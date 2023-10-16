@@ -1,6 +1,7 @@
 import os, json, tempfile, logging
 from .core import globalVar as G
 from .types.configT import *
+import deprecated
 
 logger_lrs = logging.getLogger("lires")
 
@@ -10,9 +11,12 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 
 # a schematic ascii image of the file tree
 # LRS_HOME
-# ├── conf.json
+# ├── config.json
+# ├── (config_gui.json)
 # ├── pdf-viewer
-# ├── log.txt
+# ├── core.log
+# ├── (gui.log)
+# ├── (server.log)
 # ├── Database (default)
 # │   ├── lrs.db
 # │   └── ...
@@ -36,12 +40,11 @@ else:
 if G.prog_args and G.prog_args.config_file:
     CONF_FILE_PATH = os.path.abspath(G.prog_args.config_file)
     if os.path.isdir(CONF_FILE_PATH):
-        CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "lrs-conf.json")
+        CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "lrs-config.json")
 else:
-    CONF_FILE_PATH = join(LRS_HOME, "conf.json")
+    CONF_FILE_PATH = join(LRS_HOME, "config.json")
 
 ASSETS_PATH = join(CURR_PATH, "assets")
-BIB_TEMPLATE_PATH = join(ASSETS_PATH, "bibtexTemplates")
 
 DEFAULT_DATA_PATH = join(LRS_HOME, "Database")
 DEFAULT_PDF_VIEWER_DIR = join(LRS_HOME, "pdf-viewer")
@@ -109,6 +112,7 @@ def getDatabasePath_withFallback(offline: Optional[bool] = None, fallback: str =
     else:
         return fallback
 
+@deprecated.deprecated(version="1.2.0", reason="use getConf instead")
 def getConfV(key : str):
     try:
         return getConf()[key]
@@ -142,9 +146,34 @@ def saveToConf(**kwargs):
     # So that next time the configuration will be read from file by getConf/getConfV
     G.resetGlobalConfVar()
 
-def saveToConf_guiStatus(**kwargs):
-    gui_status = getConfV("gui_status")
-    for k,v in kwargs.items():
-        gui_status[k] = v
-    saveToConf(gui_status = gui_status)
 
+def generateDefaultConf():
+    """
+    "database" points to local database, used by LiresServer and Qt GUI in local mode,
+    """
+    default_config: LiresConfT = {
+        "accepted_extensions": [".pdf", ".caj", ".html", ".hpack", ".md", ".pptx", ".ppt"],
+        "database": DEFAULT_DATA_PATH,
+
+        "host": "",
+        "port": "8080",
+        "access_key": "",
+
+        "pdfjs_viewer_path": os.path.join(DEFAULT_PDF_VIEWER_DIR, "web", "viewer.html"),
+
+        "proxies": {
+            "proxy_config": {
+                "proxy_type": "socks5",
+                "host": "127.0.0.1",
+                "port": ""
+            },
+            "enable_requests": False,
+            "enable_qt": False,
+        },
+    }
+
+    with open(CONF_FILE_PATH, "w", encoding="utf-8") as fp:
+        json.dump(default_config, fp, indent=1)
+    
+    print("Generated default configuration file at: ", CONF_FILE_PATH)
+    return 

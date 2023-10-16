@@ -9,8 +9,8 @@ from .widgets import  MainWidgetBase, RefWidgetBase
 from .tagEditor import TagEditorWidget
 from .tagSelector import TagSelector
 from lires.core.dataClass import DataPoint, DataTags, DataTagT
-from lires.types.configT import _ConfFontSizeT
-from lires.confReader import getConf, saveToConf
+from lires_qt.config import _ConfFontSizeT, getGUIConf, saveToGUIConf
+# from lires.confReader import getConf, saveToConf
 
 class FileTagGUI(MainWidgetBase):
     """
@@ -78,11 +78,11 @@ class FileTag(FileTagGUI):
     
     def initTags(self, tag_total: DataTags, mandatory_tags: Optional[DataTagT] = None):
         tag_data = DataTags([])
-        for t in getConf()["default_tags"]:
+        for t in getGUIConf()["default_tags"]:
             if t in tag_total:
                 tag_data.add(t)
         self.tag_selector.initDataModel(tag_data, tag_total, mandatory_tags=mandatory_tags)
-        saveToConf(default_tags = tag_data.toOrderedList())
+        saveToGUIConf(default_tags = tag_data.toOrderedList())
 
     @property
     def selected_tags(self):
@@ -125,7 +125,7 @@ class FileTag(FileTagGUI):
     
     def saveCurrentTagsAsDefault(self):
         curr_tags = self.tag_selector.getSelectedTags()
-        saveToConf(default_tags = curr_tags.toOrderedList())
+        saveToGUIConf(default_tags = curr_tags.toOrderedList())
     
     def clearSelection(self):
         self.tag_selector.data_model.setAllStatusToFalse()

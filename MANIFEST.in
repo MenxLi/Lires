@@ -3,5 +3,5 @@ include lires/version.yaml *
 recursive-include lires/assets *
 recursive-include lires_qt/docs *
 recursive-include lires_qt/icons *
-recursive-include lires_qt/stylesheets *
+recursive-include lires_qt/assets *
 recursive-include lires_web/dist *

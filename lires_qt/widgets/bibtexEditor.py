@@ -5,9 +5,10 @@ from PyQt6.QtWidgets import QButtonGroup, QDialog, QPushButton, QTextEdit, QVBox
 from PyQt6 import QtCore
 from .widgets import WidgetMixin
 
-from lires.confReader import BIB_TEMPLATE_PATH
 from lires.core.utils import sssUUID
 from lires.core.bibReader import BibConverter
+
+from ..config import BIB_TEMPLATE_PATH
 
 class TemplateChoice(WidgetMixin, QDialog):
     template_selected = QtCore.pyqtSignal(str)

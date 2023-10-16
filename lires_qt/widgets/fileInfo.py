@@ -7,14 +7,14 @@ from PyQt6.QtWidgets import QLabel, QPushButton, QTabWidget, QTextEdit, QVBoxLay
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtGui import QKeySequence, QShortcut
 from .widgets import MainWidgetBase
-from lires.confReader import getConfV, TMP_COVER, getServerURL
+from lires.confReader import getConf, TMP_COVER
 from lires.core.dataClass import DataPoint
 from lires.core.serverConn import ServerConn
 from lires.core.encryptClient import generateHexHash
 
 from .mdHighlighter import MarkdownSyntaxHighlighter
 
-from ..config import ICON_PATH
+from ..config import ICON_PATH, getGUIConf
 from ..utils import getPDFCoverAsQPixelmap
 
 
@@ -61,7 +61,7 @@ class FileInfoGUI(MainWidgetBase):
         _vlayout = QVBoxLayout()
         _vlayout.addWidget(self.tEdit)
         _hlayout = QHBoxLayout()
-        if not getConfV("auto_save_comments"):
+        if not getGUIConf()["auto_save_comments"]:
             _save_h_layout = QHBoxLayout()
             _save_h_layout.addWidget(self.save_comment_btn, 1)
             _save_h_layout.addWidget(self.comment_save_indicate_lbl, 0)
@@ -290,7 +290,7 @@ class FileInfo(FileInfoGUI):
 
         self.setCommentSaveStatusLbl("changed")
         # Asynchronous saving
-        if getConfV("auto_save_comments"):
+        if getGUIConf()["auto_save_comments"]:
             # synchronous saving for now...
             self.saveComments()
 
@@ -326,7 +326,7 @@ class FileInfo(FileInfoGUI):
         else:
             fpath = files[0]
             # Add new entry
-            for extension in getConfV("accepted_extensions"):
+            for extension in getConf()["accepted_extensions"]:
                 if fpath.endswith(extension):
                     self.getSelectPanel().addFileToCurrentSelection(fpath)
                     return super().dropEvent(a0)
@@ -463,7 +463,7 @@ class FileInfo(FileInfoGUI):
         uid = self.curr_data.uuid
         discuss_url = ServerConn().getDisscussionURL(uid)
         
-        hex_key = generateHexHash(getConfV("access_key"))
+        hex_key = generateHexHash(getConf()["access_key"])
         req = requests.get(discuss_url, cookies={"LRS_ENC_KEY": hex_key})
         self.discussBrowser.setHtml(req.text)
         self.discuss_line.setText("")

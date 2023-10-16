@@ -3,8 +3,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QL
 
 from .tagSelector import TagSelector
 from .widgets import RefMixin, QUtilsMixin, WidgetMixin
-from lires.core.dataClass import DataTags, TagRule, DataTagT
-from lires.core import globalVar as G
+from lires.core.dataClass import DataTags, TagRule
 
 class TagEditor(QDialog, RefMixin, QUtilsMixin, WidgetMixin):
     def __init__(self, tag_data: DataTags, tag_total: DataTags, parent = None) -> None:
