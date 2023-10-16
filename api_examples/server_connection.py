@@ -37,7 +37,8 @@ dp.fm.writeComments(f"{old_comments}\nThis is a new comment!")
 
 # syncronize datapoint again will compare the local data and remote data's timestamp
 # if the local data is newer, the local data will be uploaded to the server
-dp.sync()
+
+# dp.sync()
 
 pprint(dp.fm.readComments())
 

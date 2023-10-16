@@ -2,7 +2,7 @@ from io import TextIOWrapper
 import time, datetime, re, random, string, logging
 import subprocess, os, platform, sys, threading
 from typing import Callable, TypeVar
-from ..confReader import LOG_FILE, ASSETS_PATH
+from ..confReader import LOG_FILE
 from functools import wraps
 from uuid import uuid4
 
@@ -272,34 +272,6 @@ def randomAlphaNumeric(length: int):
     """Generate a random string"""
     str = string.ascii_lowercase
     return ''.join(random.choice(str) for i in range(length))
-
-def formatMarkdownHTML(md_html: str, abs_fpath: bool = True):
-    """
-    - abs_fpath: absolute path to any file in the html template
-    """
-    with open(os.path.join(ASSETS_PATH, "github-markdown-light.css"), "r", encoding="utf-8") as fp:
-        css = fp.read()
-    with open(os.path.join(ASSETS_PATH, "markdown.template.html"), "r", encoding="utf-8") as fp:
-        html_template = string.Template(fp.read())
-
-    USE_MATHJAX = False     # To determine if using latex equation, save bandwidth
-    for sign in ["$$", "\\(", "$"]:
-        if sign in md_html:
-            USE_MATHJAX = True
-    if USE_MATHJAX:
-        with open(os.path.join(ASSETS_PATH, "tex-chtml.js"), "r", encoding="utf-8") as fp:
-            mathjax_js = fp.read()
-            # for equation fonts
-            if abs_fpath:
-                fonts_path = os.path.join(ASSETS_PATH, "mathjax/output/chtml/fonts/").replace(os.sep, "/")
-                mathjax_js = mathjax_js.replace("output/chtml/fonts/", fonts_path)
-    else:
-        mathjax_js = ""
-
-    htm = html_template.substitute(style=css, content=md_html, mathjax = mathjax_js)
-    if USE_MATHJAX:
-        logging.getLogger("lires").debug("Using mathjax")
-    return htm
 
 # https://stackoverflow.com/questions/287871/how-do-i-print-colored-text-to-the-terminal
 class BCOLORS:

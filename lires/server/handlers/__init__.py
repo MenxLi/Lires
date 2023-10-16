@@ -1,6 +1,5 @@
 from .dataInfo import *
 from .documents import DocHandler, HDocHandler
-from .comment import CommentHandler
 from .file import FileHandler
 from .auth import AuthHandler
 from .discuss import DiscussionHandler, DiscussionModHandler

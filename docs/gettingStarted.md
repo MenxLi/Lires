@@ -15,7 +15,9 @@
     - [User management](#user-management)
     - [Build search index](#build-search-index)
   - [Docker deployment](#docker-deployment)
-  - [Optional - PyQt6 GUI](#optional---pyqt6-gui)
+    - [Method 1 - Use docker compose (recommended)](#method-1---use-docker-compose-recommended)
+    - [Method 2 - Use the cluster image](#method-2---use-the-cluster-image)
+    - [On the first run](#on-the-first-run)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -191,24 +193,4 @@ docker exec lrs lrs-utils download_pdfjs
 Other management tools can be run in the container.  
 ```sh
 docker exec lrs lrs-...
-```
-
----
-
-## Optional - PyQt6 GUI
-There is a PyQt6 GUI, which can be installed on the server for GUI management in offline mode, or on the client as a secondary native GUI.
-
-![lrsgui](http://limengxun.com/files/imgs/rbmgui.png)
-
-**(PyQt GUI are legacy codes.  There will be less mantainance for it in the future.)**
-
-Installation:
-```sh
-pip install packages/QFlowLayout packages/QCollapsibleCheckList
-pip install .[gui]
-```
-
-**To start the client GUI program:**
-```bash
-lires client
 ```

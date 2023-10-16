@@ -1,4 +1,4 @@
-import os, json, tempfile, logging
+import os, json, logging
 from .core import globalVar as G
 from .types.configT import *
 import deprecated
@@ -57,7 +57,6 @@ TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
-TMP_WEB_NOTES = os.path.join(TMP_DIR, "notes_webpage")  # For notes as webpages
 
 # indexing related
 VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
@@ -69,7 +68,7 @@ if not os.path.exists(LRS_HOME):
 for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
-for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, TMP_WEB_NOTES, INDEX_DIR, DOC_SUMMARY_DIR]:
+for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, INDEX_DIR, DOC_SUMMARY_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 
@@ -159,17 +158,7 @@ def generateDefaultConf():
         "port": "8080",
         "access_key": "",
 
-        "pdfjs_viewer_path": os.path.join(DEFAULT_PDF_VIEWER_DIR, "web", "viewer.html"),
-
-        "proxies": {
-            "proxy_config": {
-                "proxy_type": "socks5",
-                "host": "127.0.0.1",
-                "port": ""
-            },
-            "enable_requests": False,
-            "enable_qt": False,
-        },
+        "pdfjs_viewer_path": os.path.join(DEFAULT_PDF_VIEWER_DIR, "web", "viewer.html")
     }
 
     with open(CONF_FILE_PATH, "w", encoding="utf-8") as fp:

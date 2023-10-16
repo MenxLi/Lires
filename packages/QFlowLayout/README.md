@@ -1,2 +1,0 @@
-
-A [FlowLayout](https://doc.qt.io/qtforpython-5/overviews/qtwidgets-layouts-flowlayout-example.html#flow-layout-example) (Flex) for PyQt6, adapted from [ekhumoro-stackoverflow](https://stackoverflow.com/a/41643802/6775765)

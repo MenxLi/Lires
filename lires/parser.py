@@ -26,8 +26,6 @@ For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
 
     sp = parser.add_subparsers(dest = "subparser", help = "Sub-commands")
 
-    parser_client = sp.add_parser("client", help = "Start client gui program")
-
     parser_web = sp.add_parser("web", help = "Start fronetend web server")
     parser_web.add_argument("-p", "--port", action = "store", default = "8081", help = "port, default to 8081")
 

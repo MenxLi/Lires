@@ -40,9 +40,6 @@ dependencies = [
     "pyyaml",
     "requests",
     "deprecated",
-
-    # used by both core and ai, may be removed in the future
-    "markdown",
 ]
 
 [project.optional-dependencies]
@@ -50,6 +47,7 @@ core = [
     "pybtex",
     "pylatexenc",
     "tornado",
+    "markdown",
     "PyMuPDF",
     "nest_asyncio",
     "arxiv",
@@ -61,13 +59,6 @@ core = [
     "scikit-learn",
     "pybind11",
     "ninja",
-]
-gui = [
-    "Lires[core]",
-    "darkdetect",
-    "PyQt6",
-    "PyQt6-WebEngine",
-    "pyperclip",
 ]
 ai = [
     "safetensors <= 0.3.2",     # 0.3.3 or higher seems requires rust installed
@@ -82,4 +73,4 @@ ai = [
     # "auto-gptq[triton]",
     # "bitsandbytes",
 ]
-all = ["Lires[core,gui,ai]"]
+all = ["Lires[core,ai]"]

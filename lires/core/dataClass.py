@@ -4,8 +4,7 @@ from ..confReader import getConfV, getServerURL
 import os, asyncio
 from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar
 import difflib
-import markdown
-from .utils import formatMarkdownHTML, TimeUtils, Timer
+from .utils import Timer
 from .clInteractions import ChoicePromptAbstract
 from .asynciolib import asyncioLoopRun
 from pylatexenc import latex2text
@@ -354,27 +353,6 @@ class DataPoint(DataCore):
         info_txt = "--{}--\n".format(bib["type"]) + info_txt
         return info_txt
     
-    def htmlComment(self, abs_fpath: bool = True) -> str:
-        """
-        - abs_fpath: whether to use absolute path to any file in the html
-        """
-        self.logger.debug("htmlComment (DataPoint): render comment")
-        comment = self.fm.readComments()
-        if comment == "":
-            return ""
-        
-        misc_f = self.fm.getMiscDir()
-        misc_f = misc_f.replace(os.sep, "/")
-        if abs_fpath:
-            comment = comment.replace("./misc", misc_f)
-
-        _md_extensions = [
-            'tables',
-            'toc'
-        ]
-        comment_html = markdown.markdown(comment, extensions=_md_extensions)
-        return formatMarkdownHTML(comment_html, abs_fpath = abs_fpath)
-
     def getFileStatusStr(self):
         """
         Unicode icon indicate if the datapoint contains file

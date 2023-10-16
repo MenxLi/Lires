@@ -30,11 +30,10 @@ class Application(tornado.web.Application):
         handlers = [
             # # Backend
 
-            ## For Qt client and online filemanipulator only
+            # legacy
+            # TODO: remove this handler and use /dataman/* instead
             (r"/file", FileHandler),
-            (r"/comment/(.*)", CommentHandler, {"path": "/"}),
 
-            ## For both clients
             (r"/discussions/(.*)", DiscussionHandler),
             (r"/discussion_mod", DiscussionModHandler),
             (r"/summary", SummaryHandler),              # may deprecate

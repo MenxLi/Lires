@@ -123,10 +123,6 @@ def run():
                 call_args += ["--" + k, str(val)]
         subprocess.check_call(call_args)
 
-    if args.subparser == "client":
-        from lires_qt.main import execProg as execProgQt
-        execProgQt()
-
     for proc in procs:
         proc.join()
 

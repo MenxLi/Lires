@@ -6,13 +6,10 @@ The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** 
 <!-- ![LiresWeb-GUI](http://limengxun.com/files/imgs/rbmweb.png) -->
 
 ## Modules
-Mainly consists of two server modules:  
+Mainly consists of three modules:  
 1. `lires`, the core server
 2. `lires-ai`, AI server for computational intelligence features  
-
-And two frontend modules:  
-1. `lires-web` (WebUI)
-2. `lires-qt` (Desktop GUI, less maintained)
+3. `lires-web`, the WebUI
 
 It is designed to be deployed onto a server to share literatures or work in online mode.
 
