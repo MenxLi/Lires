@@ -7,9 +7,10 @@ from PyQt6 import QtCore
 from QCollapsibleCheckList import CollapsibleCheckList, DataItemAbstract
 
 from .widgets import RefWidgetBase, WidgetMixin
-from lires.confReader import saveToConf_guiStatus, getConf
 from lires.core.dataClass import DataTags, TagRule, DataTagT
 from lires.core import globalVar as G
+
+from ..config import getGUIConf, saveToConf_guiStatus
 
 class TagSelector(RefWidgetBase):
     entry_added = QtCore.pyqtSignal(str)
@@ -131,7 +132,7 @@ class TagDataModel(QtCore.QObject, WidgetMixin):
         """
         save to configuration
         """
-        conf = getConf()
+        conf = getGUIConf()
         uncollapse_status = conf["gui_status"]["tag_uncollapsed"]
 
         if status:
@@ -148,7 +149,7 @@ class TagDataModel(QtCore.QObject, WidgetMixin):
         saveToConf_guiStatus(tag_uncollapsed = uncollapse_status)
 
     def loadDefaultUnCollapseStatus(self):
-        conf = getConf()
+        conf = getGUIConf()
         uncollapse_status = conf["gui_status"]["tag_uncollapsed"]
         total_tags = self.total_tags
         for i in range(len(uncollapse_status))[::-1]:

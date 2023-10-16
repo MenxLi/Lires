@@ -503,37 +503,6 @@ class DataList(List[DataPoint], DataCore):
     def getTable(self):
         pass
 
-    # def getTableItem(self, row: int, col: int) -> str:
-        # data = self[row]
-        # return DataList.TB_FUNCS[col](data)
-
-    # def getTableHeaderItem(self, col: int) -> str:
-        # return self.TB_HEADER[col]
-
-class DataTableList(DataList, DataCore):
-    HEADER_FILESTATUS = "File status"
-    HEADER_YEAR = "Year"
-    HEADER_AUTHOR = "Author"
-    HEADER_TITLE = "Title"
-    HEADER_TIMEMODIFY = "Time modified"
-    _HEADER_FUNCS = {
-        HEADER_FILESTATUS: lambda x: x.getFileStatusStr(),
-        HEADER_YEAR: lambda x: x.year,
-        HEADER_AUTHOR: lambda x: x.getAuthorsAbbr(),
-        HEADER_TITLE: lambda x: x.title,
-        HEADER_TIMEMODIFY: lambda x: TimeUtils.toStr(TimeUtils.stamp2Local(x.time_modified))
-    }
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.header_order = getConfV("table_headers")
-
-    def getTableItem(self, row: int, col: int) -> str:
-        data = self[row]
-        return DataTableList._HEADER_FUNCS[self.header_order[col]](data)
-
-    def getTableHeaderItem(self, col: int) -> str:
-        return self.header_order[col]
-
 class DataBase(Dict[str, DataPoint], DataCore):
     def __init__(self, local_path: Optional[str] = None, force_offline: bool = False):
         super().__init__()

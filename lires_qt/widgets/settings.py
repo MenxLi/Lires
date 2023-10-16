@@ -5,14 +5,15 @@ import warnings, os, shutil, time
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QFileDialog
 
-from lires.core.dataClass import DataList, DataTableList
-from lires.confReader import getConf, getConfV, saveToConf, TMP_DB
+from lires.core.dataClass import DataList
+from lires.confReader import TMP_DB, getConf, saveToConf
 
 from ._styleUtils import isThemeDarkMode
 from .widgets import RefWidgetBase
 from .serverPreset import ServerPresetEdit, ServerPresetChoice
 
-from ..config import getStyleSheets
+from ..utils import DataTableList
+from ..config import getStyleSheets, saveToGUIConf, getGUIConf
 
 class SubSettingsBase(RefWidgetBase):
 	def __init__(self) -> None:
@@ -103,9 +104,9 @@ class SetDatabase(SubSettingsBase):
 		self.btn_preset_choose.clicked.connect(self.openPresetChoice)
 
 		self.line_edit_db.setText(getConf()["database"])
-		self.line_edit_host.setText(getConfV("host"))
-		self.line_edit_port.setText(getConfV("port"))
-		self.line_edit_key.setText(getConfV("access_key"))
+		self.line_edit_host.setText(getConf()["host"])
+		self.line_edit_port.setText(getConf()["port"])
+		self.line_edit_key.setText(getConf()["access_key"])
 	
 	def openPresetEdit(self):
 		self.preset_edit = ServerPresetEdit(self)
@@ -181,10 +182,10 @@ class SetSortingMethod(SubSettingsBase):
 	def initUI(self):
 		self.cb = QComboBox(self)
 		self.cb.addItems([DataList.SORT_AUTHOR, DataList.SORT_TIMEADDED, DataList.SORT_YEAR])
-		self.cb.setCurrentText(getConf()["sort_method"])
+		self.cb.setCurrentText(getGUIConf()["sort_method"])
 		
 		self.ck = QCheckBox("Reverse", self)
-		self.ck.setChecked(getConf()["sort_reverse"])
+		self.ck.setChecked(getGUIConf()["sort_reverse"])
 
 		self.lbl = QLabel("Sort by: ")
 		hbox = QHBoxLayout()
@@ -196,15 +197,15 @@ class SetSortingMethod(SubSettingsBase):
 	def confirm(self):
 		selection = self.cb.currentText()
 		reverse = self.ck.isChecked()
-		if selection != getConf()["sort_method"] or reverse != getConf()["sort_reverse"]:
-			saveToConf(sort_method = selection, sort_reverse = reverse)
+		if selection != getGUIConf()["sort_method"] or reverse != getGUIConf()["sort_reverse"]:
+			saveToGUIConf(sort_method = selection, sort_reverse = reverse)
 			self.getSelectPanel().data_model.sortBy(selection, reverse = reverse)
 			self.logger.info("Sorting method changed to {} (Reverse: {})"\
-					.format(getConf()["sort_method"], getConf()["sort_reverse"]))
+					.format(getGUIConf()["sort_method"], getGUIConf()["sort_reverse"]))
 
 class SetTableHeader(SubSettingsBase):
 	def initUI(self):
-		self.old_headers = getConfV("table_headers")
+		self.old_headers = getGUIConf()["table_headers"]
 		vbox = QVBoxLayout()
 		self.label = QLabel("Table header:")
 		self.list_wid = QListWidget()
@@ -236,7 +237,7 @@ class SetTableHeader(SubSettingsBase):
 			if cb.isChecked():
 				chooses.append(cb.text())
 		if chooses != self.old_headers:
-			saveToConf(table_headers = chooses)
+			saveToGUIConf(table_headers = chooses)
 			self.logger.info("Headers changed -> {}".format(chooses))
 			self.getMainPanel().reloadData()
 			self.getSelectPanel().data_view.initSettings()	# Resize header width
@@ -246,7 +247,7 @@ class SetStyle(SubSettingsBase):
 		ss_dict = getStyleSheets()
 		self.cb = QComboBox(self)
 		self.cb.addItems(list(ss_dict.keys()))
-		self.cb.setCurrentText(getConf()["stylesheet"])
+		self.cb.setCurrentText(getGUIConf()["stylesheet"])
 		self.lbl = QLabel("Application style: ")
 		hbox = QHBoxLayout()
 		hbox.addWidget(self.lbl)
@@ -256,16 +257,16 @@ class SetStyle(SubSettingsBase):
 		_dark = isThemeDarkMode()
 
 		selection = self.cb.currentText()
-		if selection != getConf()["stylesheet"]:
-			saveToConf(stylesheet = selection)
+		if selection != getGUIConf()["stylesheet"]:
+			saveToGUIConf(stylesheet = selection)
 			app:QtWidgets.QApplication = QtWidgets.QApplication.instance()
-			ss = getStyleSheets()[getConf()["stylesheet"]]
+			ss = getStyleSheets()[getGUIConf()["stylesheet"]]
 			if ss == "":
 				app.setStyleSheet("")
 			else:
 				with open(ss, "r", encoding="utf-8") as f:
 					app.setStyleSheet(f.read())
-			self.logger.info("Loaded new style: {}".format(getConf()["stylesheet"]))
+			self.logger.info("Loaded new style: {}".format(getGUIConf()["stylesheet"]))
 			if _dark != isThemeDarkMode():
 				self.requestRestart()
 
@@ -277,12 +278,12 @@ class SetFont(SubSettingsBase):
 		hlayout.addLayout(vlayout, 2)
 		self.lbls: List[QLabel] = []
 		self.inpts: List[QLineEdit] = []
-		for k in getConfV("font_sizes").keys():
+		for k in getGUIConf()["font_sizes"].keys():
 			lbl = QLabel(f"{k}")
 			inpt = QLineEdit(self)
 			self.lbls.append(lbl)
 			self.inpts.append(inpt)
-			font, size = getConfV("font_sizes")[k]
+			font, size = getGUIConf()["font_sizes"][k]
 			inpt.setText(f"{font}, {size}")
 			_hlayout = QHBoxLayout()
 			_hlayout.addWidget(lbl)
@@ -304,9 +305,9 @@ class SetFont(SubSettingsBase):
 			self.warnDialog("An error happened while parsing font settings, \
 				   please check the format.")
 			return
-		if getConfV("font_sizes") != font_sizes:
+		if getGUIConf()["font_sizes"] != font_sizes:
 			#  self.requestRestart()
-			saveToConf(font_sizes = font_sizes)
+			saveToGUIConf(font_sizes = font_sizes)
 			self.getMainPanel().loadFontConfig()
 
 
@@ -316,13 +317,13 @@ class SetAutoSaveComments(SubSettingsBase):
 		hbox = QHBoxLayout()
 		hbox.addWidget(self.cb)
 		self._frame.setLayout(hbox)
-		if getConfV("auto_save_comments"):
+		if getGUIConf()["auto_save_comments"]:
 			self.cb.setChecked(True)
 	
 	def confirm(self):
 		status = self.cb.isChecked()
-		if status != getConfV("auto_save_comments"):
-			saveToConf(auto_save_comments = status)
+		if status != getGUIConf()["auto_save_comments"]:
+			saveToGUIConf(auto_save_comments = status)
 			self.requestRestart()
 			if status:
 				self.logger.info("Autosave comments enabled.")

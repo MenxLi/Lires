@@ -1,10 +1,11 @@
 from __future__ import annotations
 from typing import List
 import json
-from lires.confReader import getConfV, saveToConf
+# from lires.confReader import getConfV, saveToConf
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QPushButton, QComboBox
 from PyQt6.QtCore import pyqtSignal
 
+from ..config import getGUIConf, saveToGUIConf
 class ServerPresetEdit(QDialog):
 	on_ok = pyqtSignal(list)
 	def __init__(self, parent):
@@ -20,7 +21,7 @@ class ServerPresetEdit(QDialog):
 		self.vlayout.addWidget(self.btn_ok)
 		self.setLayout(self.vlayout)
 
-		preset_server: List[dict] = getConfV("server_preset")
+		preset_server: List[dict] = getGUIConf()["server_preset"]
 		self.t_edit.textChanged.connect(self.onTextChange)
 		self.btn_ok.clicked.connect(self.confirm)
 		self.t_edit.setPlainText(json.dumps(preset_server, indent = 1))
@@ -28,7 +29,7 @@ class ServerPresetEdit(QDialog):
 	def confirm(self):
 		t = self.t_edit.toPlainText()
 		if self.checkSyntax(t):
-			saveToConf(server_preset = json.loads(t))
+			saveToGUIConf(server_preset = json.loads(t))
 			self.on_ok.emit(json.loads(t))
 			self.close()
 	
@@ -64,7 +65,7 @@ class ServerPresetChoice(QDialog):
 		self.btn_cancel = QPushButton("Cancel")
 		self.cb = QComboBox(self)
 
-		preset_server: List[dict] = getConfV("server_preset")
+		preset_server: List[dict] = getGUIConf()["server_preset"]
 		for server in preset_server:
 			host = server["host"]
 			port = server["port"]

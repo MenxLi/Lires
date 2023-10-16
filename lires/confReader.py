@@ -1,6 +1,7 @@
 import os, json, tempfile, logging
 from .core import globalVar as G
 from .types.configT import *
+import deprecated
 
 logger_lrs = logging.getLogger("lires")
 
@@ -10,7 +11,7 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 
 # a schematic ascii image of the file tree
 # LRS_HOME
-# ├── conf.json
+# ├── config.json
 # ├── pdf-viewer
 # ├── log.txt
 # ├── Database (default)
@@ -36,9 +37,9 @@ else:
 if G.prog_args and G.prog_args.config_file:
     CONF_FILE_PATH = os.path.abspath(G.prog_args.config_file)
     if os.path.isdir(CONF_FILE_PATH):
-        CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "lrs-conf.json")
+        CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "lrs-config.json")
 else:
-    CONF_FILE_PATH = join(LRS_HOME, "conf.json")
+    CONF_FILE_PATH = join(LRS_HOME, "config.json")
 
 ASSETS_PATH = join(CURR_PATH, "assets")
 BIB_TEMPLATE_PATH = join(ASSETS_PATH, "bibtexTemplates")
@@ -109,6 +110,7 @@ def getDatabasePath_withFallback(offline: Optional[bool] = None, fallback: str =
     else:
         return fallback
 
+@deprecated.deprecated(version="1.2.0", reason="use getConf instead")
 def getConfV(key : str):
     try:
         return getConf()[key]
@@ -141,10 +143,3 @@ def saveToConf(**kwargs):
     # Reset global configuration buffer
     # So that next time the configuration will be read from file by getConf/getConfV
     G.resetGlobalConfVar()
-
-def saveToConf_guiStatus(**kwargs):
-    gui_status = getConfV("gui_status")
-    for k,v in kwargs.items():
-        gui_status[k] = v
-    saveToConf(gui_status = gui_status)
-
