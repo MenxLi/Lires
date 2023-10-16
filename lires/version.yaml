@@ -444,3 +444,11 @@ version_history:
     - Refactors:
       - Better default arguments for datacard container
       - Record hover state in datacard container
+  
+  1.0.5:
+    - Deploy:
+      - Use docker-compose
+    - Refactor:
+      - Isolate qt gui configuration file
+      - Move bibtex templates into qt module
+      - Set name for each access key
