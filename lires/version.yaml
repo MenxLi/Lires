@@ -452,3 +452,7 @@ version_history:
       - Isolate qt gui configuration file
       - Move bibtex templates into qt module
       - Set name for each access key
+
+  1.1.0:
+    - Module Removal:
+      - Remove lires_qt
