@@ -58,7 +58,7 @@ class LiresGUIConfT(TypedDict):
     gui_status: _ConfGUIStatusT
 
 
-__gui_config_file = os.path.join(LRS_HOME, "gui_config.json")
+__gui_config_file = os.path.join(LRS_HOME, "config_gui.json")
 def generateDefaultGUIConfig():
     from .utils import DataTableList
     default_gui_conf: LiresGUIConfT = {

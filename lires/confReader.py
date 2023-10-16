@@ -12,8 +12,11 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # a schematic ascii image of the file tree
 # LRS_HOME
 # ├── config.json
+# ├── (config_gui.json)
 # ├── pdf-viewer
-# ├── log.txt
+# ├── core.log
+# ├── (gui.log)
+# ├── (server.log)
 # ├── Database (default)
 # │   ├── lrs.db
 # │   └── ...
