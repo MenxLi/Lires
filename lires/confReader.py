@@ -143,3 +143,35 @@ def saveToConf(**kwargs):
     # Reset global configuration buffer
     # So that next time the configuration will be read from file by getConf/getConfV
     G.resetGlobalConfVar()
+
+
+def generateDefaultConf():
+    """
+    "database" points to local database, used by LiresServer and Qt GUI in local mode,
+    """
+    default_config: LiresConfT = {
+        "accepted_extensions": [".pdf", ".caj", ".html", ".hpack", ".md", ".pptx", ".ppt"],
+        "database": DEFAULT_DATA_PATH,
+
+        "host": "",
+        "port": "8080",
+        "access_key": "",
+
+        "pdfjs_viewer_path": os.path.join(DEFAULT_PDF_VIEWER_DIR, "web", "viewer.html"),
+
+        "proxies": {
+            "proxy_config": {
+                "proxy_type": "socks5",
+                "host": "127.0.0.1",
+                "port": ""
+            },
+            "enable_requests": False,
+            "enable_qt": False,
+        },
+    }
+
+    with open(CONF_FILE_PATH, "w", encoding="utf-8") as fp:
+        json.dump(default_config, fp, indent=1)
+    
+    print("Generated default configuration file at: ", CONF_FILE_PATH)
+    return 
