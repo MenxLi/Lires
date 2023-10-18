@@ -8,21 +8,6 @@ def openTmp_hpack(hpack_path: str, tmp_dir_name: str = "") -> bool:
     """
     Unpack a html file to a temporary directory
     """
-    #  tmp_dir = tempfile.gettempdir()
-    #  tmp_dir = unpackHtml(hpack_path, os.path.join(tmp_dir, randomAlphaNumeric(10)))
-    #  G.tmpdirs.append(tmp_dir)
-    #  G.logger_lrs.debug("Created temporary directory for HTML files: {}".format(tmp_dir))
-    #
-    #  h_file = None
-    #  if "index.html" in os.listdir(tmp_dir):
-    #      h_file = "index.html"
-    #  else:
-    #      for f_ in os.listdir(tmp_dir):
-    #          if f_.endswith(".html"):
-    #              h_file = f_
-    #
-    #  if h_file is None:
-    #      return False
     tmp_hpath = unpackHtmlTmp(hpack_path, tmp_dir_name)
     if not tmp_hpath:
         return False
@@ -76,13 +61,10 @@ def unpackHtmlTmp(hpack_path: str, tmp_dir_name: str = "") -> str:
     """
     Unpack a html file to a temporary directory
     """
-    # tmp_dir = tempfile.gettempdir()
     tmp_dir = TMP_WEB
     if not tmp_dir_name:
         tmp_dir_name = randomAlphaNumeric(10)
     tmp_dir = unpackHtml(hpack_path, os.path.join(tmp_dir, tmp_dir_name))
-    G.tmpdirs.append(tmp_dir)
-    G.logger_lrs.debug("Temporary directory for html file: {}".format(tmp_dir))
 
     h_file = None
     if "index.html" in os.listdir(tmp_dir):

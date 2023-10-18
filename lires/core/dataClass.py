@@ -611,7 +611,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
         try:
             flist = ServerConn().summaries([])
             self.__account_permission = ServerConn().permission()
-            G.account_permission = self.account_permission
         except requests.exceptions.ConnectionError as e:
             self.logger.debug("Error: {}".format(e))
             self.logger.warning("Server is down, abort fetching remote data.")

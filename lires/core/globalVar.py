@@ -9,12 +9,10 @@ __initialized: bool
 logger_lrs: logging.Logger
 logger_lrs_server: logging.Logger
 last_status_code: int   # a register for last connection status code
-tmpdirs: List[str]      # temporary directories, will be cleared on lires GUI exit
 
 prog_args: Optional[argparse.Namespace]     # set by lires.exec
 prog_parser: Optional[argparse.ArgumentParser]     # set by lires.exec
 config:  LiresConfT           # configuration, set by lires.confReader
-account_permission: Optional[AccountPermission]     # account permission, set by Database.fetch
 
 iserver_host: Optional[str] = None
 iserver_port: Optional[str] = None
@@ -22,14 +20,12 @@ iserver_port: Optional[str] = None
 __global_dict: dict
 
 def init():
-    global tmpdirs
     global logger_lrs
     global logger_lrs_server
     global __initialized
     global last_status_code
     global prog_args, prog_parser
     global __global_dict
-    global account_permission
 
     thismodule = sys.modules[__name__]
     if hasattr(thismodule, "__initialized") and __initialized:
@@ -38,13 +34,11 @@ def init():
     else:
         __initialized = True
 
-    tmpdirs = []
     logger_lrs = logging.getLogger("lires")
     logger_lrs_server = logging.getLogger("lires_server")
     last_status_code = 200
     prog_args = None
     prog_parser = None
-    account_permission = None
     __global_dict = dict()
 
 def setGlobalAttr(key, val):
@@ -62,15 +56,6 @@ def deleteGlobalAttr(key):
 def hasGlobalAttr(key):
     global __global_dict
     return key in __global_dict.keys()
-
-def clearTempDirs():
-    global tmpdirs
-    logger_lrs.info("Clearing temporary directories...")
-    for d in tmpdirs:
-        if os.path.exists(d):
-            shutil.rmtree(d)
-            logger_lrs.debug("Removed temporary directory - {}".format(d))
-    tmpdirs = []
 
 def resetGlobalConfVar():
     global config

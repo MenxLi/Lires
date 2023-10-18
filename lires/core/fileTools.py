@@ -199,39 +199,6 @@ class FileManipulator:
     def is_watched(self) -> bool:
         return hasattr(self, "file_ob")
 
-    def _createFileOB(self):
-        """
-        file observer thread
-        """
-        def _onCreated(event):
-            if self._log():
-                self.logger.debug(f"file_ob (fm) - {event.src_path} created.")
-        def _onDeleted(event):
-            if self._log():
-                self.logger.debug(f"file_ob (fm) - {event.src_path} deleted.")
-        def _onModified(event):
-            if self._log():
-                self.logger.debug(f"file_ob (fm) - {event.src_path} modified.")
-        def _onMoved(event):
-            if self._log():
-                self.logger.debug(f"file_ob (fm) - {event.src_path} moved to {event.dest_path}.")
-
-        # event_handler = PatternMatchingEventHandler(patterns = self.WATCHING_EXT, 
-        #                                             ignore_patterns = [".DS_Store"], 
-        #                                             case_sensitive=True)
-        # event_handler.on_created = _onCreated
-        # event_handler.on_deleted = _onDeleted
-        # event_handler.on_modified = _onModified
-        # event_handler.on_moved = _onMoved
-        # observer = Observer()
-        # TO IMPLEMENT LATER!!
-        # observer.schedule(event_handler, self.path, recursive=True)
-        # self.logger.debug(f"_createFileOB (fm): Created file observer for: {self.uuid}")
-        # return observer
-
-        print("TODO: maybe implement file observer")
-        return None
-
     def openFile(self) -> bool:
         # import pdb; pdb.set_trace()
         if self.file_p is None:
@@ -239,7 +206,7 @@ class FileManipulator:
         if self.file_extension == ".hpack":
             openTmp_hpack(self.file_p)
         else:
-            # Open file in MacOS will be treated as a file modification
+            # Open file in MacOS will somehow be treated as a file modification
             # so temporarily ban file observer log modification time
             if sys.platform == "darwin":
                 self._enable_log_modification_timestamp = False
@@ -275,10 +242,6 @@ class FileManipulator:
         assert self.conn.updateInfo(self.uuid, info), "Failed to update info when logging modification time"
 
         self._time_last_log = time_now
-        return True
-    
-    def screen(self):
-        print("TODO: remove screen")
         return True
     
     # miscelaneous files directory
@@ -400,13 +363,9 @@ class FileManipulator:
         return info.version_modify
     
     def openMiscDir(self):
-        if not self.hasMisc():
-            return False
-        _openFile(self._misc_dir)
+        if self.hasMisc():
+            _openFile(self._misc_dir)
     
-    def openBib(self):
-        raise NotImplementedError("TODO: open bib")
-
     def deleteEntry(self, create_backup = True) -> bool:
         """
         Will delete the entry from the database, and delete the file and misc folder if exist.

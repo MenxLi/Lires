@@ -218,19 +218,6 @@ class FileManipulatorVirtual(FileManipulator):
         assert self.has_local
         return super().gatherFiles()
 
-    def _createFileOB(self):
-        if self.has_local:
-            return super()._createFileOB()
-        else:
-            raise ValueError("File not local")
-
-    def screen(self) -> bool:
-        print("TODO: remove fmv.screen")
-        if self.has_local:
-            return super().screen()
-        else:
-            return True
-
     def hasFile(self):
         if self.has_local:
             return super().hasFile()
@@ -347,12 +334,6 @@ class FileManipulatorVirtual(FileManipulator):
         else:
             ...
     
-    def openBib(self):
-        if self.has_local:
-            return super().openBib()
-        else:
-            ...
-
     def deleteDocument(self) -> bool:
         if self.has_local:
             return super().deleteDocument()
