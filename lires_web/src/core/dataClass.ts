@@ -605,8 +605,23 @@ export class DataSearcher{
             }
         } 
 
+        else if (searchStatus.searchBy.toLowerCase() === "note"){
+            const conn = new ServerConn();
+            const res = await conn.search("searchNote", {"pattern": searchStatus.content , "ignore_case": true});
+            const uids = Object.keys(res);
+            for (const dp of datapoints){
+                if (uids.includes(dp.summary.uuid)){
+                    dp_new.push(dp);
+                }
+            }
+            return {
+                datapoints: this.sortDefault(dp_new, false),
+                scores: null,
+            }
+        }
+
         // local search
-        if (searchStatus.searchBy.toLowerCase() === "title"){
+        else if (searchStatus.searchBy.toLowerCase() === "title"){
             for (const dp of datapoints){
                 if (dp.summary.title.toLowerCase().search(pattern) !== -1){
                     dp_new.push(dp);

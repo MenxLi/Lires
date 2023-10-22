@@ -83,14 +83,14 @@ class DataSearcher(DataCore):
                 results[uid] = {"score": None, "match": res}
         return results
     
-    def searchComment(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
+    def searchNote(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
 
-        async def _searchComment(db: DataBase):
+        async def _searchNote(db: DataBase):
             results: StringSearchT = {}
             async_tasks = []
             uids = []
             for uid, dp in self.db.items():
-                async_tasks.append(_searchCommentSingle(dp, pattern, ignore_case))
+                async_tasks.append(_searchNoteSingle(dp, pattern, ignore_case))
                 uids.append(uid)
             all_res = await asyncio.gather(*async_tasks)
             for uid, res in zip(uids, all_res): # type: ignore
@@ -98,17 +98,17 @@ class DataSearcher(DataCore):
                     results[uid] = {"score": None, "match": res}
             return results
         
-        async def _searchCommentSingle(dp: DataPoint, pattern_, ignore_case_):
+        async def _searchNoteSingle(dp: DataPoint, pattern_, ignore_case_):
             comments = dp.fm.readComments()
             res = self._searchRegex(pattern, comments, ignore_case)
             return res
 
         if self.db.offline:
-            return asyncioLoopRun(_searchComment(self.db))
+            return asyncioLoopRun(_searchNote(self.db))
         
         else:
             conn = ServerConn()
-            res = conn.search("searchComment", kwargs = {
+            res = conn.search("searchNote", kwargs = {
                 "pattern": pattern,
                 "ignore_case": ignore_case,
             })
