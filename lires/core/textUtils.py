@@ -2,7 +2,7 @@
 Build and query text features of each document.
 AI method shoud go through IServerConn interface.
 """
-import os, sys, hashlib
+import os, hashlib, re
 import asyncio
 import requests
 from typing import TypedDict, Optional, Callable, Literal
@@ -187,12 +187,6 @@ async def buildFeatureStorage(
     uid_list = list(text_src_update.keys())
     text_list = list(text_src_update.values())
 
-    # featurize the summary
-    # async def _featurize(text) -> list[float] | None:
-    #     res = iconn.featurize(text)
-    #     return res 
-    # tasks = [ _featurize(text) for text in text_list ]
-    # feature_list: list[list[float] | None] = asyncioLoopRun(asyncio.gather(*tasks))
     feature_list = []
     for text in text_list:
         await asyncio.sleep(operation_interval)
@@ -283,10 +277,9 @@ async def retrieveRelevantSections(
     query_vec = iconn.featurize(query_text)
 
 
+    __non_english_regex = re.compile(r'[^a-zA-Z0-9\s\.\,\;\:\!\?\-\'\"\(\)\[\]\{\}\&\%\$\#\@\!\~\`\+\=\_\\\/\*\^]+')
     def __containsNoneEnglish(sentence):
-        import re
-        non_english_regex = re.compile(r'[^a-zA-Z0-9]+')
-        return bool(non_english_regex.findall(sentence))
+        return bool(__non_english_regex.findall(sentence))
 
     src_vec_dict: dict[str, list[float]] = {}
     for sentence in sentences:
