@@ -121,7 +121,7 @@ async def buildFeatureStorage(
         max_words_per_doc: int = 2048, 
         use_llm: bool = True,
         force = False,
-        operation_interval: int = 0.,
+        operation_interval: float = 0.,
         ):
     """
     - operation_interval: float, the interval between two operations, in seconds, 

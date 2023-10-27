@@ -14,9 +14,9 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # ├── config.json
 # ├── (config_gui.json)
 # ├── pdf-viewer
-# ├── core.log
-# ├── (gui.log)
-# ├── (server.log)
+# ├── log
+# │   ├── core.log
+# │   └── server.log
 # ├── Database (default)
 # │   ├── lrs.db
 # │   └── ...
@@ -25,7 +25,6 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # │   └── summary [DOC_SUMMARY_DIR]
 # ├── Lires.cache [TMP_DIR]
 # │   ├── Database [TMP_DB]
-# │   ├── cover [TMP_COVER]
 # │   ├── webpage [TMP_WEB]
 # │   └── notes_webpage [TMP_WEB_NOTES]
 
@@ -48,14 +47,14 @@ ASSETS_PATH = join(CURR_PATH, "assets")
 
 DEFAULT_DATA_PATH = join(LRS_HOME, "Database")
 DEFAULT_PDF_VIEWER_DIR = join(LRS_HOME, "pdf-viewer")
-LOG_FILE = join(LRS_HOME, "log.txt")
+LOG_FILE = join(LRS_HOME, "default.txt")
 
 INDEX_DIR = os.path.join(LRS_HOME, "index")      # For index cache
+LOG_DIR = os.path.join(LRS_HOME, "log")          # For log files
 
 # things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
-TMP_COVER = os.path.join(TMP_DIR, "cover")      # For cover cache
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
 
 # indexing related
@@ -68,7 +67,7 @@ if not os.path.exists(LRS_HOME):
 for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
-for _p in [TMP_DIR, TMP_DB, TMP_COVER, TMP_WEB, INDEX_DIR, DOC_SUMMARY_DIR]:
+for _p in [TMP_DIR, TMP_DB, TMP_WEB, INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 

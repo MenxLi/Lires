@@ -9,7 +9,7 @@ def run():
     assert args is not None     # type checking purpose
 
     # Read configuration file after parse agruments
-    from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_FILE, LRS_HOME
+    from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_DIR, LRS_HOME
     from .version import VERSION, VERSION_HISTORIES
 
     # Init logger will import lires.core, 
@@ -50,9 +50,9 @@ def run():
                 if isinstance(change, str):
                     change_strings.append(change)
                 elif isinstance(change, dict):
-                    __only_key = list(change.keys())[0]
+                    __only_key:str = list(change.keys())[0]
                     change_strings.append(f"{__only_key}: ")
-                    for item in change[__only_key]:
+                    for item in change[__only_key] if isinstance(change[__only_key], list) else [change[__only_key]]:
                         change_strings.append("  "+item)
             print("v{version}: \n\t{history}".format(version = v, history = "\n\t".join(change_strings)))
         print("=====================================")
@@ -62,7 +62,7 @@ def run():
     if args.print_log:
         __find_log_fnames = []
         for fname in ["log.txt", "core.log", "server.log"]:
-            if os.path.exists(os.path.join(LRS_HOME, fname)):
+            if os.path.exists(os.path.join(LOG_DIR, fname)):
                 __find_log_fnames.append(fname)
         if not __find_log_fnames: print("Log file not exits, run the program to create the log file")
         else:

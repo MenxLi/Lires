@@ -5,7 +5,7 @@ from functools import partial
 from lires.core import globalVar as G
 from lires.core.utils import BCOLORS
 from lires.initLogger import setupLogger
-from lires.confReader import LRS_HOME
+from lires.confReader import LOG_DIR
 
 import tornado
 import tornado.ioloop
@@ -96,7 +96,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
         term_id="server",
         term_id_color=BCOLORS.OKBLUE,
         term_log_level="DEBUG",
-        file_path = os.path.join(LRS_HOME, "server.log"),
+        file_path = os.path.join(LOG_DIR, "server.log"),
         file_log_level="INFO",
     )
     setupLogger(
@@ -104,7 +104,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
         term_id="core",
         term_id_color=BCOLORS.OKGREEN,
         term_log_level="DEBUG",
-        file_path = os.path.join(LRS_HOME, "core.log"),
+        file_path = os.path.join(LOG_DIR, "core.log"),
         file_log_level="INFO",
     )
 
