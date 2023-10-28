@@ -12,7 +12,6 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # a schematic ascii image of the file tree
 # LRS_HOME
 # ├── config.json
-# ├── (config_gui.json)
 # ├── pdf-viewer
 # ├── log
 # │   ├── core.log
@@ -20,6 +19,9 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # ├── Database (default)
 # │   ├── lrs.db
 # │   └── ...
+# ├── Users [USER_DIR]
+# │   ├── user.db
+# │   └── avatar [USER_AVATAR_DIR]
 # ├── index [INDEX_DIR]
 # │   ├── vector.db [FEATURE_PATH]
 # │   └── summary [DOC_SUMMARY_DIR]
@@ -52,6 +54,9 @@ LOG_FILE = join(LRS_HOME, "default.txt")
 INDEX_DIR = os.path.join(LRS_HOME, "index")      # For index cache
 LOG_DIR = os.path.join(LRS_HOME, "log")          # For log files
 
+USER_DIR = os.path.join(LRS_HOME, "Users")
+USER_AVATAR_DIR = os.path.join(USER_DIR, "avatar")
+
 # things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
 TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
@@ -67,7 +72,11 @@ if not os.path.exists(LRS_HOME):
 for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
-for _p in [TMP_DIR, TMP_DB, TMP_WEB, INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR]:
+for _p in [
+    TMP_DIR, TMP_DB, TMP_WEB, 
+    USER_DIR, USER_AVATAR_DIR,
+    INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR, 
+    ]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 
