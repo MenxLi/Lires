@@ -37,9 +37,7 @@ class LiresUser:
     @property
     def raw(self) -> RawUser:
         """The user information in the database"""
-        __raw = self.conn.getUser(self._id)
-        assert __raw is not None, "User not found"
-        return __raw
+        return self.conn.getUser(self._id)
     
     def info(self) -> UserInfo:
         """For json serialization"""
@@ -54,6 +52,16 @@ class LiresUser:
             "mandatory_tags": raw["mandatory_tags"],
             "has_avatar": self.avatar_image_path is not None
         }
+    
+    def __str__(self) -> str:
+        info = self.info()
+        out = f"[{info['id']}] {info['username']} ({info['name']}), {info['enc_key']}"
+        if info["is_admin"]:
+            out += ", admin"
+        return out
+    
+    def __repr__(self) -> str:
+        return f"<LiresUser: {str(self)}>"
     
     @property
     def avatar_image_path(self) -> Optional[AvatarPath]:

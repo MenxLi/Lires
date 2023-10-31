@@ -6,7 +6,7 @@ refer to lires.server for more information
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, List, Literal, TypedDict
 import deprecated
-import requests, json, os
+import requests, json
 from . import globalVar as G
 from .encryptClient import generateHexHash
 from ..confReader import getServerURL, getConfV
@@ -17,7 +17,7 @@ else:
     from collections.abc import Iterator
 
 if TYPE_CHECKING:
-    from lires.server.auth.account import AccountPermission
+    from lires.user import UserInfo
     from lires.core.dataSearcher import StringSearchT
     from lires.core.dataClass import DataTagT, DataPointSummary
     from lires.core.dbConn import DBFileInfo
@@ -52,7 +52,7 @@ class ServerConn(ConnectionBase):
     def SERVER_URL(self):
         return getServerURL()
 
-    def permission(self) -> Optional[AccountPermission]:
+    def permission(self) -> Optional[UserInfo]:
         post_url = self.SERVER_URL + "/auth"
         post_args = {
             "key": self.hash_key,

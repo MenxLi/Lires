@@ -7,8 +7,8 @@ import concurrent.futures
 import time
 
 import http.cookies
-from ..auth.account import AccountPermission
-from ..auth.encryptServer import queryAccount
+from lires.user import UserInfo, UserPool
+from lires.confReader import USER_DIR
 from ..discussUtils import DiscussDatabase
 from lires.core import globalVar as G
 from lires.core.dataClass import DataBase, DataTags
@@ -38,7 +38,7 @@ def keyRequired(func: FuncT) -> FuncT:
             return await func(self, *args, **kwargs)
         else:
             return func(self, *args, **kwargs)
-    return wrapper
+    return wrapper  # type: ignore
 
 class RequestHandlerMixin():
     get_argument: Callable
@@ -74,28 +74,40 @@ class RequestHandlerMixin():
             await asyncio.sleep(0)  # make the control back to the event loop, tricky
             yield item
 
-    def initdb(self):
+    def initdb(
+            self, 
+            load_db: bool = True,
+            load_vec_db: bool = True,
+            load_user_pool: bool = True,
+            ):
         """
         Initialize / reload the database
         """
         self.logger.debug("Initializing server global database objects")
-        if G.hasGlobalAttr("server_db"):
-            db: DataBase = G.getGlobalAttr("server_db")
-            db.destroy()
-        G.setGlobalAttr("server_db", loadDataBase(getLocalDatabasePath()))
-        G.setGlobalAttr("server_discussion_db", DiscussDatabase())
-        if G.hasGlobalAttr("vec_db"):
-            vec_db: VectorDatabase = G.getGlobalAttr("vec_db")
-            vec_db.flush()
-            vec_db.commit()
-        G.setGlobalAttr(
-            "vec_db", 
-            VectorDatabase(VECTOR_DB_PATH, [
-                {
-                    "name": "doc_feature",
-                    "dimension": 768
-                },
-            ]))
+        if load_db:
+            if G.hasGlobalAttr("server_db"):
+                db: DataBase = G.getGlobalAttr("server_db")
+                db.destroy()
+            G.setGlobalAttr("server_db", loadDataBase(getLocalDatabasePath()))
+            G.setGlobalAttr("server_discussion_db", DiscussDatabase())
+        if load_vec_db:
+            if G.hasGlobalAttr("vec_db"):
+                vec_db: VectorDatabase = G.getGlobalAttr("vec_db")
+                vec_db.flush()
+                vec_db.commit()
+            G.setGlobalAttr(
+                "vec_db", 
+                VectorDatabase(VECTOR_DB_PATH, [
+                    {
+                        "name": "doc_feature",
+                        "dimension": 768
+                    },
+                ]))
+        if load_user_pool:
+            if G.hasGlobalAttr("user_pool"):
+                user_pool: UserPool = G.getGlobalAttr("user_pool")
+                user_pool.destroy()
+            G.setGlobalAttr("user_pool", UserPool(USER_DIR))
     
     # initdb(None)    # type: ignore
     
@@ -112,6 +124,12 @@ class RequestHandlerMixin():
         return G.getGlobalAttr("vec_db")
     
     @property
+    def user_pool(self) -> UserPool:
+        if not G.hasGlobalAttr("user_pool"):
+            self.initdb()
+        return G.getGlobalAttr("user_pool")
+    
+    @property
     def discussion_db(self) -> DiscussDatabase:
         return G.getGlobalAttr("server_discussion_db")
     
@@ -126,17 +144,18 @@ class RequestHandlerMixin():
                 enc_key = self.get_cookie(_k, "")
                 if enc_key:
                     break
+            assert isinstance(enc_key, str), "Not found key in params or cookies"
         return enc_key
     
     @property
-    def permission(self) -> AccountPermission:
+    def permission(self) -> UserInfo:
         try:
             # use cached permission, from checkKey()
-            return self.__account_perm
+            return self.__account_info
         except AttributeError:
             return self.checkKey()
     
-    def checkKey(self) -> AccountPermission:
+    def checkKey(self) -> UserInfo:
         """
         Authenticates key from params, then cookies
         Will raise HTTPError if key is invalid
@@ -146,15 +165,16 @@ class RequestHandlerMixin():
         if not enc_key:
             raise tornado.web.HTTPError(403) 
 
-        res = queryAccount(enc_key)
+        res = self.user_pool.getUserByKey(enc_key)
         if res is None:
-            # unauthorized
+            # unauthorized or user not found
             print("Reject key ({}), abort".format(enc_key))
             raise tornado.web.HTTPError(403) 
         
         # Set a cached permission, requires it via property
-        self.__account_perm = res
-        return res
+        user_info = res.info()
+        self.__account_info = user_info
+        return user_info
     
     @staticmethod
     def checkTagPermission(_tags: List[str] | DataTags, _mandatory_tags: List[str], raise_error=True) -> bool:
@@ -194,7 +214,7 @@ def minResponseInterval(min_interval=0.1):
                     break
             last_response_time = time.time()
             return await func(*args, **kwargs)
-        return wrapper
+        return wrapper  # type: ignore
     return decorator
 
 __all__ = [

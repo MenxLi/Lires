@@ -8,6 +8,7 @@ from typing import TypedDict, Optional
 
 from ..core import globalVar as G
 from ..confReader import USER_DIR
+from ..core.customError import *
 
 # a wrapper that marks an object instance needs lock,
 def lock_required(func):
@@ -63,12 +64,12 @@ class UsrDBConnection:
     def insertUser(self, 
                 username: str, password: str, name: str,
                 is_admin: bool, mandatory_tags: list[str]
-                ) -> bool:
+                ) -> None:
         # check if the user already exists
         self.cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         res = self.cursor.fetchone()
         if res is not None:
-            return False
+            raise LiresUserDuplicationError(f"User {username} already exists")
         # insert the user
         self.cursor.execute("""
                             INSERT INTO users 
@@ -77,10 +78,9 @@ class UsrDBConnection:
                             """, 
                             (username, password, name, is_admin, json.dumps(mandatory_tags)))
         self.conn.commit()
-        return True
     
     @lock_required
-    def deleteUser(self, query: str | int) -> bool:
+    def deleteUser(self, query: str | int) -> None:
         # check if the user exists
         if isinstance(query, str):
             self.cursor.execute("SELECT * FROM users WHERE username = ?", (query,))
@@ -89,22 +89,21 @@ class UsrDBConnection:
         else: raise ValueError("Invalid query type")
         res = self.cursor.fetchone()
         if res is None:
-            return False
+            raise LiresUserNotFoundError(f"User {query} not found")
         # delete the user
         if isinstance(query, int):
             self.cursor.execute("DELETE FROM users WHERE id = ?", (query,))
         else:
             self.cursor.execute("DELETE FROM users WHERE username = ?", (query,))
         self.conn.commit()
-        return True
     
     @lock_required
-    def updateUser(self, id_: int, **kwargs) -> bool:
+    def updateUser(self, id_: int, **kwargs) -> None:
         # check if the user exists
         self.cursor.execute("SELECT * FROM users WHERE id = ?", (id_,))
         res = self.cursor.fetchone()
         if res is None:
-            return False
+            raise LiresUserNotFoundError(f"User {id_} not found")
 
         # update the user
         for k, v in kwargs.items():
@@ -115,13 +114,12 @@ class UsrDBConnection:
             self.cursor.execute(f"UPDATE users SET {k} = ? WHERE id = ?", (v, id_))
 
         self.conn.commit()
-        return True
     
     def getAllUserIDs(self) -> list[int]:
         self.cursor.execute("SELECT id FROM users")
         return [res[0] for res in self.cursor.fetchall()]
     
-    def getUser(self, query: str | int) -> Optional[RawUser]:
+    def getUser(self, query: str | int) -> RawUser:
         if isinstance(query, str):
             self.cursor.execute("SELECT * FROM users WHERE username = ?", (query,))
         elif isinstance(query, int):
@@ -130,7 +128,7 @@ class UsrDBConnection:
             raise ValueError("Invalid query type")
         res = self.cursor.fetchone()
         if res is None:
-            return None
+            raise LiresUserNotFoundError(f"User {query} not found")
         return {
             "id": res[0],
             "username": res[1],
