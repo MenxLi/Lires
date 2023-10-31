@@ -9,11 +9,12 @@ import { useSettingsStore } from '../store';
 
 import Toggle from '../common/Toggle.vue'
 
-const accessKey = ref("");
+const username = ref("");
+const password = ref("");
 const error = ref("");
 const stayLogin = ref(true);
 const showPassword = ref(false);
-const inputType = computed(() => showPassword.value?"text":"password");
+const pwdInputType = computed(() => showPassword.value?"text":"password");
 const loginText = ref("Login")
 
 const backendUrl = ref(useSettingsStore().backendUrl);
@@ -26,7 +27,7 @@ function login(){
 
     loginText.value = "Connecting..."
 
-    const encKey = sha256(accessKey.value);
+    const encKey = sha256(username.value + password.value);
     const conn = new ServerConn();
     conn.authUsr(encKey as string).then(
         (permission) => {
@@ -55,15 +56,19 @@ function login(){
         <div id="login" class="slideIn">
         <form>
             <div class="loginLine">
-                <label for="access-key">Access Key </label>
-                <input :type="inputType" id="access-key" v-model="accessKey" />
+                <!-- <label for="username-input">Username: </label> -->
+                <input class='key-input' type="text" id="username-input" v-model="username" placeholder="Username"/>
+            </div>
+            <div class="loginLine">
+                <!-- <label for="password-input">Password: </label> -->
+                <input class="key-input" :type="pwdInputType" id="password-input" v-model="password" placeholder="Password"/>
             </div>
             <details>
                 <summary>Settings</summary>
                 <div id="settings">
-                    <label for="backendUrl">Backend </label>
+                    <label for="backendUrl">Backend: </label>
                     <input type="text" id="backendUrl" v-model="backendUrl" />
-                    ::
+                    :
                     <input type="text" id="port" v-model="port" />
                     <div class="options">
                         <Toggle :checked="stayLogin" @onCheck="() => {stayLogin=!stayLogin}">Stay login</Toggle>
@@ -78,7 +83,7 @@ function login(){
     </div>
 </template>
   
-<style>
+<style scoped>
 .error {
 color: red;
 }
@@ -91,10 +96,21 @@ div#login {
     border-radius: 15px;
     padding: 15px;
     text-align: center;
+    background-color: var(--color-background-ssoft);
+}
+
+input[type="text"],input[type="password"]{
+    background-color: var(--color-background);
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
 }
 
 div.loginLine{
     margin: 5px;
+}
+
+div.loginLine label{
+    font-weight: bold;
 }
 
 div.options {
@@ -105,8 +121,8 @@ div.options {
 button{
     width: 200px
 }
-#access-key{
-    width: 200px
+input.key-input {
+    width: 275px
 }
 
 details{
@@ -114,14 +130,14 @@ details{
 }
 div#settings{
     border-radius: 5px;
-    background-color: var(--color-background-soft);
+    background-color: var(--color-background-mute);
     padding: 5px;
 }
 details summary{
     text-align: left;
 }
 details input{
-    width: 120px;
+    width: 160px;
 }
 #port {
     display: inline-block;

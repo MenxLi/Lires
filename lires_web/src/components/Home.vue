@@ -222,6 +222,7 @@ export default {
 
     div.searchbar{
         display: flex;
+        margin-left: 5px;
         gap: 5px;
     }
     div.searchbar select {

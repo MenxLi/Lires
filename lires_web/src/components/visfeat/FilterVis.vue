@@ -193,6 +193,7 @@
         padding: 0px;
     }
     summary{
+        text-align: left;
         font-weight: bold;
         margin-left: 10px;
     }

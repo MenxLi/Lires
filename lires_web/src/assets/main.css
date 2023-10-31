@@ -78,11 +78,16 @@ body::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb, .scrollable::-we
 }
 
 input[type="text"],input[type="password"]{
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
+  /* border: 1px solid var(--color-border); */
+  border: transparent;
   color: var(--color-text);
+  height: 24px;
+  border-radius: 8px;
+  padding-left: 4px;
+  font-size: small;
   background-color: var(--color-background-soft);
   background-color: transparent;
+  /* box-shadow: inset 0 0px 2px 1px var(--color-shadow); */
 }
 
 textarea{
@@ -93,8 +98,10 @@ textarea{
 }
 input[type="button"], button{
   border-radius: 5px;
+  height: 24px;
   border: 1px solid var(--color-border);
   background-color: var(--color-background-soft);
+  font-size: small;
   /* background-color: transparent; */
   color: var(--color-text);
 }

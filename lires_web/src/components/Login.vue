@@ -3,6 +3,10 @@ import LoginInput from "./login/LoginInput.vue"
 import { ThemeMode } from "../core/misc";
 import { MAINTAINER } from "../config";
 ThemeMode.setDefaultDarkMode();
+
+function _notImplemented(){
+  alert("Not implemented yet. \nPlease contact the maintainer for registration.");
+}
 </script>
 
 <template>
@@ -10,7 +14,7 @@ ThemeMode.setDefaultDarkMode();
     <div id="container">
       <LoginInput/>
       <label for="login" id="info">
-        Need assistant? - <a :href="`mailto:${MAINTAINER.email}`">contact me</a>
+        Need assistant? - <a @click="_notImplemented">Register</a> | <a :href="`mailto:${MAINTAINER.email}`">Contact me</a>
       </label>
     </div>
   </div>
