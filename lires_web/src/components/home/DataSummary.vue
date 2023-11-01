@@ -113,12 +113,25 @@
         requestAISummary(false)
     });
 
-    const minWidth = computed(()=>Math.min(1200, window.innerWidth-20));
+    const initWidth = computed(()=>{
+        const maxW = 1200;      // max width
+
+        // full screen at fullScreenAt, 
+        // max width at maximizeAt,
+        const maximizeAt = 2400;
+        const fullScreenAt = 600;
+
+        const perc = Math.min(Math.max(window.innerWidth - fullScreenAt, 0) / (maximizeAt - fullScreenAt), 1)
+        const x = (perc - 0.5) * Math.PI    // 0.5 -> 0, 1 -> PI/2
+        const borderW = (Math.sin(x) + 1)*0.5 * (maximizeAt - maxW)
+        const borderW_integer = Math.round(borderW)
+        return `${window.innerWidth - borderW_integer}px`
+    });
 
 </script>
 
 <template>
-    <div id="main" :style="{minWidth: minWidth}">
+    <div id="main" :style="{width: initWidth}">
         <h2>{{ datapoint.summary.title }}</h2>
         <div class="layout">
             <div id="info">
