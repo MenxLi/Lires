@@ -6,7 +6,7 @@ from lires.core.serverConn import IServerConn
 
 class IServerProxyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
-    @minResponseInterval(1e-2)
+    # @minResponseInterval(1e-2)
     @keyRequired
     async def post(self, key):
         self.setDefaultHeader()
