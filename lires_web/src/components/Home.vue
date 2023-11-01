@@ -110,7 +110,7 @@ export default {
 <template>
     <DataEditor :datapoint="null" v-model:show="showAddingDataWindow"></DataEditor>
     <div id="main" class="slideIn">
-        <Banner>
+        <Banner :return-home="false">
             <div id="bannerAddons">
                 <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
                     @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>

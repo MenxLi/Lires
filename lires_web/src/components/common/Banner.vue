@@ -12,6 +12,13 @@
     import logoutIcon from "../../assets/icons/logout.svg";
     import exploreIcon from "../../assets/icons/explore.svg";
     import bulbTipsIcon from "../../assets/icons/bulb_tips.svg";
+    import homeIcon from "../../assets/icons/home.svg";
+
+    const props = withDefaults(defineProps<{
+        returnHome?: boolean,
+    }>(), {
+        returnHome: true,
+    })
 
     // authentication on load
     const router = useRouter();
@@ -49,7 +56,9 @@
 <template>
     <div class="main shadow">
         <div class="button">
-            <BannerIcon :iconSrc="logoutIcon" labelText="Logout" shortcut="ctrl+q"
+            <BannerIcon v-if="props.returnHome" :iconSrc="homeIcon" labelText="Home" shortcut="ctrl+h"
+                @onClick="()=>{router.push('/')}" title="home"/>
+            <BannerIcon v-else :iconSrc="logoutIcon" labelText="Logout" shortcut="ctrl+q"
                 @onClick="logout" title="logout"/>
             <MenuAttached :menuItems="[
                 {name:'Home', action:()=>{router.push('/')}},
