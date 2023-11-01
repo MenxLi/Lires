@@ -1,7 +1,8 @@
 
 <script setup lang="ts">
     import { ref, computed, watch } from 'vue';
-    import FloatingWindow from '../common/FloatingWindow.vue';
+    // import FloatingWindow from '../common/FloatingWindow.vue';
+    import QueryDialog from '../common/QueryDialog.vue';
     import TagSelector from './TagSelector.vue';
     import { useUIStateStore, useDataStore } from '../store';
     import { DataTags, TagRule } from '../../core/dataClass';
@@ -83,7 +84,11 @@
 </script>
 
 <template>
-    <FloatingWindow v-model:show="show" :title="datapoint?datapoint.authorAbbr():'new'">
+    <QueryDialog 
+        v-model:show="show" :title="datapoint?datapoint.authorAbbr():'new'" :show-cancel="false"
+        @on-accept="save" @on-cancel="() => show=false"
+    >
+
         <div id="inputDiv">
             <div id="inputLeft">
                 <div id="bibtexArea">
@@ -109,10 +114,7 @@
                 </div>
             </div>
         </div>
-        <div id="buttons">
-            <button @click="save">Save</button>
-        </div>
-    </FloatingWindow>
+    </QueryDialog>
 </template>
 
 <style scoped>
@@ -121,6 +123,8 @@
         flex-direction: row;
         width: 100%;
         gap: 10px;
+        padding-left: 15px;
+        padding-right: 15px;
     }
 
     label {
