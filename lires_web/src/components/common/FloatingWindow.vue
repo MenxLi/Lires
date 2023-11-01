@@ -4,9 +4,11 @@
     "title"?: string,
     "show": boolean,
     "closeKey"?: string,
+    "compact"?: boolean,
   }>(), {
     title: "_",
     closeKey: "Escape",
+    compact: false,   // if set to true, the window will have no margin
   });
   const emit = defineEmits<{
     (e: "close"): void,
@@ -46,7 +48,10 @@
           <span class="close-icon">✕</span>
         </button>
       </div>
-      <div class="window-content scrollable">
+      <div class="window-content scrollable" :style="{
+        margin: props.compact? '0px': '15px',
+        marginTop: props.compact? '0px': '5px',
+      }">
         <slot></slot>
       </div>
     </div>
@@ -118,8 +123,6 @@ div.header {
 }
 
 .window-content {
-  margin: 15px;
-  margin-top: 5px;
   /* 100vw - 15*2px - [edge_width]px */
   max-width: calc(100vw - 50px);
   max-height: calc(100vh - 80px);
