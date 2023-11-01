@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator, TypeVar
+from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator, TypeVar, Any
 import tornado.web
 from tornado.ioloop import IOLoop
 import asyncio
@@ -26,6 +26,7 @@ def loadDataBase(db_path: str):
     db.init(db_path, force_offline=True)
     return db
 
+T = TypeVar("T")
 FuncT = TypeVar("FuncT", bound=Callable)
 def keyRequired(func: FuncT) -> FuncT:
     """
@@ -69,7 +70,7 @@ class RequestHandlerMixin():
         """
         return self.io_loop.run_in_executor(self.executor, func, *args, **kwargs)
     
-    async def wrapAsyncIter(self, gen: Generator) -> AsyncGenerator:
+    async def wrapAsyncIter(self, gen: Generator[T, None, Any]) -> AsyncGenerator[T, None]:
         for item in gen:
             await asyncio.sleep(0)  # make the control back to the event loop, tricky
             yield item

@@ -1,5 +1,6 @@
 from ._base import *
 import os
+from typing import Generator
 from lires.core.serverConn import IServerConn
 from lires.core.textUtils import queryFeatureIndex
 from lires.core.pdfTools import getPDFText
@@ -125,6 +126,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.write(summary_txt)
 
         # Wrap the generator in an asynchronous iterator
+        res: Generator[str, None, None]
         async for msg in self.wrapAsyncIter(res):
             summary_txt += msg      # save to cache
             self.write(msg)
