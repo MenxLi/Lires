@@ -30,8 +30,8 @@ function login(){
     const encKey = sha256(username.value + password.value);
     const conn = new ServerConn();
     conn.authUsr(encKey as string).then(
-        (permission) => {
-            saveAuthentication(encKey as string, permission, stayLogin.value);
+        (userInfo) => {
+            saveAuthentication(encKey as string, userInfo, stayLogin.value);
             error.value = "";
             const urlFrom = router.currentRoute.value.query.from;
             if (!urlFrom){

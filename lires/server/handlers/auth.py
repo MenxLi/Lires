@@ -6,8 +6,8 @@ class AuthHandler (tornado.web.RequestHandler, RequestHandlerMixin):
     async def post(self):
         self.setDefaultHeader()
 
-        require_permission = self.get_argument("require_permission")
-        if not require_permission:
+        require_user_info = self.get_argument("require_user_info")
+        if not require_user_info:
             self.write("Success")
         else:
-            self.write(json.dumps(self.permission))
+            self.write(json.dumps(self.user_info))

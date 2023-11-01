@@ -27,14 +27,14 @@ class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         Args:
             uid (str): uuid of the datapoint
         """
-        permission = self.permission
+        user_info = self.user_info
         note = self.get_argument("content")
         self.setDefaultHeader()
 
         dp = self.db[uid]
-        if not permission["is_admin"]:
+        if not user_info["is_admin"]:
             tags = dp.tags
-            self.checkTagPermission(tags, permission["mandatory_tags"])
+            self.checkTagPermission(tags, user_info["mandatory_tags"])
         
         self.logger.info("Update notes of: {}".format(dp))
 
@@ -66,14 +66,14 @@ class AbstractUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         Args:
             uid (str): uuid of the datapoint
         """
-        permission = self.permission
+        user_info = self.user_info
         abstract = self.get_argument("content")
         self.setDefaultHeader()
 
         dp = self.db[uid]
-        if not permission["is_admin"]:
+        if not user_info["is_admin"]:
             tags = dp.tags
-            self.checkTagPermission(tags, permission["mandatory_tags"])
+            self.checkTagPermission(tags, user_info["mandatory_tags"])
         
         self.logger.info("Update abstract of: {}".format(dp))
 

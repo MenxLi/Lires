@@ -54,8 +54,8 @@ class ImageUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     async def post(self, uid: str):
         # permission check
         dp = self.db[uid]
-        if not self.permission["is_admin"]:
-            self.checkTagPermission(dp.tags, self.permission["mandatory_tags"])
+        if not self.user_info["is_admin"]:
+            self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
 
         self.setDefaultHeader()
         file_info = self.request.files['file'][0]  # Get the file information

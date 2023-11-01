@@ -33,7 +33,7 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             uuid: uuid of the data entry (None for new entry)
             tags: list[str], bibtex: str, url: str
         """
-        permission = self.permission
+        permission = self.user_info
 
         __info = [] # for logging
         self.setDefaultHeader()
@@ -95,8 +95,8 @@ class DocumentUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     async def post(self, uid: str):
         # permission check
         dp = self.db[uid]
-        if not self.permission["is_admin"]:
-            self.checkTagPermission(dp.tags, self.permission["mandatory_tags"])
+        if not self.user_info["is_admin"]:
+            self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
 
         self.setDefaultHeader()
         file_info = self.request.files['file'][0]  # Get the file information
@@ -140,8 +140,8 @@ class DocumentFreeHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         self.setDefaultHeader()
         dp = self.db[uid]
-        if not self.permission["is_admin"]:
-            self.checkTagPermission(dp.tags, self.permission["mandatory_tags"])
+        if not self.user_info["is_admin"]:
+            self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
 
         if not dp.fm.deleteDocument():
             raise tornado.web.HTTPError(500, reason="Failed to delete file")
@@ -158,11 +158,11 @@ class TagRenameHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.setDefaultHeader()
         old_tag = self.get_argument("oldTag")
         new_tag = self.get_argument("newTag")
-        if not self.permission["is_admin"]:
+        if not self.user_info["is_admin"]:
             # only admin can rename tags
             raise tornado.web.HTTPError(403)
         self.db.renameTag(old_tag, new_tag)
-        self.logger.info(f"Tag [{old_tag}] renamed to [{new_tag}] by [{self.permission['name']}]")
+        self.logger.info(f"Tag [{old_tag}] renamed to [{new_tag}] by [{self.user_info['name']}]")
         self.write("OK")
 
 class TagDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
@@ -173,9 +173,9 @@ class TagDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         self.setDefaultHeader()
         tag = self.get_argument("tag")
-        if not self.permission["is_admin"]:
+        if not self.user_info["is_admin"]:
             # only admin can delete tags
             raise tornado.web.HTTPError(403)
         self.db.deleteTag(tag)
-        self.logger.info(f"Tag [{tag}] deleted by [{self.permission['name']}]")
+        self.logger.info(f"Tag [{tag}] deleted by [{self.user_info['name']}]")
         self.write("OK")

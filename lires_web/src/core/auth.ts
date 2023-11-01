@@ -1,16 +1,16 @@
 
 import { ServerConn } from "./serverConn";
 import { useSettingsStore } from "../components/store";
-import type { AccountPermission } from "./protocalT";
+import type { UserInfo } from "./protocalT";
 
 export function saveAuthentication(
     encKey: string, 
-    permission: AccountPermission|null, 
+    userInfo: UserInfo|null, 
     stayLogin: boolean | null,
     ){
         useSettingsStore().setEncKey(encKey, stayLogin);
-        useSettingsStore().accountPermission = permission;
-        if (permission){
+        useSettingsStore().userInfo = userInfo;
+        if (userInfo){
             useSettingsStore().loggedIn = true;
         }
         else{
@@ -30,13 +30,13 @@ export function settingsLogout(){
 
 // Use current settings to authenticate again
 // Will be called when the page is loaded or on navigation
-export async function settingsAuthentication(): Promise<AccountPermission|null> {
+export async function settingsAuthentication(): Promise<UserInfo|null> {
     const conn = new ServerConn();
     const usrEncKey = useSettingsStore().encKey;
     try{
-        const permission = await conn.authUsr(usrEncKey);
-        saveAuthentication( usrEncKey, permission, null);
-        return permission;
+        const userInfo = await conn.authUsr(usrEncKey);
+        saveAuthentication( usrEncKey, userInfo, null);
+        return userInfo;
     } catch (e){
         console.log("settingsAuthentication failed: ", e);
         saveAuthentication("", null, true);

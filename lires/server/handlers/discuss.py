@@ -70,9 +70,9 @@ class DiscussionModHandler (tornado.web.RequestHandler, RequestHandlerMixin):
         content = self.get_argument("content")
         usr_name = self.get_argument("usr_name")
 
-        if not self.permission["is_admin"]:
+        if not self.user_info["is_admin"]:
             dp = self.db[file_uid]
-            self.checkTagPermission(dp.tags, self.permission["mandatory_tags"])
+            self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
 
         if cmd == "add":
             print("Adding discussion...")

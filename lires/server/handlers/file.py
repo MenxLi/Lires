@@ -24,23 +24,23 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         uuid = self.get_argument("uuid")
         self.logger.info(f"Receiving file request: [{cmd}]({uuid})")
 
-        permission = self.permission
+        user_info = self.user_info
 
         if cmd == "download-d_info":
             # download data info (DBFileInfo) only
             dp: DataPoint = db[uuid]
-            if not permission["is_admin"]:
+            if not user_info["is_admin"]:
                 # tag permission check
-                self.checkTagPermission(dp.tags, permission["mandatory_tags"])
+                self.checkTagPermission(dp.tags, user_info["mandatory_tags"])
             info = dp.d_info; assert info is not None
             self.write(json.dumps(info))
             self.logger.debug(f"DBInfo {uuid} sent to client")
 
         elif cmd == "download":
             dp: DataPoint = db[uuid]
-            if not permission["is_admin"]:
+            if not user_info["is_admin"]:
                 # tag permission check
-                self.checkTagPermission(dp.tags, permission["mandatory_tags"])
+                self.checkTagPermission(dp.tags, user_info["mandatory_tags"])
             tmp_zip = os.path.join(self.zip_tmp_dir, uuid+".zip")
             # gather selected files
             this_files = dp.fm.gatherFiles()
@@ -68,10 +68,10 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         
         elif cmd == "upload":
             d_info: DBFileInfo = json.loads(self.get_argument("d_info"))
-            if not permission["is_admin"]:
+            if not user_info["is_admin"]:
                 # tag permission check
                 tags = DocInfo.fromString(d_info["info_str"]).tags
-                self.checkTagPermission(tags, permission["mandatory_tags"])
+                self.checkTagPermission(tags, user_info["mandatory_tags"])
             # add through DBConnection
             self.db.conn.insertItem(d_info)
             assert uuid == d_info["uuid"], "uuid not match" # should not happen
@@ -99,10 +99,10 @@ class FileHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             self.logger.debug(f"File {uuid} received from client")
         
         elif cmd == "delete":
-            if not permission["is_admin"]:
+            if not user_info["is_admin"]:
                 # tag permission check
                 dp: DataPoint = db[uuid]
-                self.checkTagPermission(dp.tags, permission["mandatory_tags"])
+                self.checkTagPermission(dp.tags, user_info["mandatory_tags"])
             if uuid in db:
                 db.delete(uuid)
             else:

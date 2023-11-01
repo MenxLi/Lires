@@ -3,7 +3,7 @@
 
 import {getBackendURL} from "../config.js";
 import { useSettingsStore } from "../components/store.js";
-import type { DataInfoT, AccountPermission, SearchResult, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
+import type { DataInfoT, UserInfo, SearchResult, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
 
 export class ServerConn {
     constructor(){
@@ -15,10 +15,10 @@ export class ServerConn {
     apiURL(){
         return getBackendURL();
     }
-    async authUsr( encKey: string ): Promise<AccountPermission>{
+    async authUsr( encKey: string ): Promise<UserInfo>{
             const params = new URLSearchParams();
             params.set("key", encKey);
-            params.set("require_permission", "true");
+            params.set("require_user_info", "true");
 
             const response = await fetch(`${getBackendURL()}/auth`, 
                 {

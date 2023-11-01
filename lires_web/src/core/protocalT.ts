@@ -28,7 +28,7 @@ export interface DataInfoT {
 
 export type DatabaseFeature = Record<string, number[]>;
 
-export interface AccountPermission {
+export interface UserInfo {
     is_admin: boolean;
     mandatory_tags: string[];
     name: string;

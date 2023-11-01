@@ -26,7 +26,7 @@ def loadDataBase(db_path: str):
     db.init(db_path, force_offline=True)
     return db
 
-FuncT = TypeVar("FuncT", bound=Callable[..., Awaitable])
+FuncT = TypeVar("FuncT", bound=Callable)
 def keyRequired(func: FuncT) -> FuncT:
     """
     Decorator to check if user is logged in
@@ -148,7 +148,7 @@ class RequestHandlerMixin():
         return enc_key
     
     @property
-    def permission(self) -> UserInfo:
+    def user_info(self) -> UserInfo:
         try:
             # use cached permission, from checkKey()
             return self.__account_info

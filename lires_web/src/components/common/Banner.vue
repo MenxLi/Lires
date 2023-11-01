@@ -16,7 +16,7 @@
     // authentication on load
     const router = useRouter();
     settingsAuthentication().then(
-        (permission)=>{if (!permission){ logout(); }},
+        (userInfo)=>{if (!userInfo){ logout(); }},
         ()=>{logout();},
     )
 

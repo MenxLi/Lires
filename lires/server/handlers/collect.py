@@ -7,7 +7,7 @@ class CollectHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """Command with arguments"""
     @keyRequired
     def post(self):
-        if not self.permission["is_admin"]:
+        if not self.user_info["is_admin"]:
             # only admin access
             raise tornado.web.HTTPError(403)
 

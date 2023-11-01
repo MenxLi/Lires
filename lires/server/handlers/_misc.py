@@ -10,10 +10,10 @@ class ReloadDBHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     @keyRequired
     async def post(self):
-        perm = self.permission
+        user_info = self.user_info
         self.setDefaultHeader()
 
-        self.logger.info(f"Reload DB, from {perm['name']}({perm['enc_key']})")
+        self.logger.info(f"Reload DB, from {user_info['name']}({user_info['enc_key']})")
         self.initdb()
 
         self.write("OK")

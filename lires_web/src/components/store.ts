@@ -6,7 +6,7 @@ import { formatAuthorName } from '../libs/misc'
 export { formatAuthorName }
 import { platformType } from '../config'
 import type { SearchStatus, PopupStyle, TagStatus } from './interface'
-import type { AccountPermission } from '../core/protocalT'
+import type { UserInfo } from '../core/protocalT'
 
 interface PopupValue {
     content: string,
@@ -201,7 +201,7 @@ export const useSettingsStore = defineStore(
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 loggedIn: false,    // will be watched by App.vue to reload the database
-                accountPermission: null as AccountPermission | null,
+                userInfo: null as UserInfo | null,
             }
         },
         "getters":{

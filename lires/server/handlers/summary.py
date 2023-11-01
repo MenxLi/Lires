@@ -32,9 +32,9 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         force = self.get_argument("force", "false").lower() == "true"
         model_name = self.get_argument("model", "DEFAULT")
 
-        perm = self.permission
-        if not perm["is_admin"]:
-            is_allowed = self.checkTagPermission(self.db[uuid].tags, perm["mandatory_tags"], raise_error=False)
+        user_info = self.user_info
+        if not user_info["is_admin"]:
+            is_allowed = self.checkTagPermission(self.db[uuid].tags, user_info["mandatory_tags"], raise_error=False)
             if not is_allowed:
                 self.write("ERROR: Permission denied.")
                 return
@@ -111,7 +111,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
                 "your summary should focus on the motivation and contribution. "\
                 "Don't mention title."
                 f"Here is the paper: {pdf_txt}",
-            model_name = model_name
+            model_name = model_name # type: ignore
         )
         self.logger.debug(f"PDFtext: {pdf_txt}")
 
