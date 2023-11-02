@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { ServerConn } from '../core/serverConn';
     import { ref, computed } from 'vue';
-    import { getBackendURL } from '../config';
+    // import { getBackendURL } from '../config';
     import { type Changelog } from '../core/protocalT';
     import Banner from './common/Banner.vue';
 
@@ -43,7 +43,7 @@
 
         <hr/> -->
 
-        <h2>Info</h2>
+        <!-- <h2>Info</h2>
         <div class="content">
             <p>
                 <b>BackendURL</b>: {{getBackendURL()}}
@@ -53,7 +53,7 @@
             </p>
         </div>
 
-        <hr>
+        <hr> -->
 
         <h2>Change log</h2>
         <div id="versionHistory" class="content">

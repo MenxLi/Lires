@@ -12,13 +12,15 @@ import Feed from './components/Feed.vue';
 import Login from './components/Login.vue';
 import Reader from './components/Reader.vue';
 import About from './components/About.vue';
+import Dashboard from './components/Dashboard.vue'
 
 const routes = [
   { path: '/', component: Home },
   { path: '/feed', component: Feed },
   { path: '/login', component: Login },
   { path: '/reader/:id', component: Reader },
-  { path: '/about', component: About }
+  { path: '/about', component: About },
+  { path: '/dashboard/:username', component: Dashboard }
 ]
 const router = createRouter({
   history: createWebHashHistory(),

@@ -523,6 +523,72 @@ export class ServerConn {
         else{ throw new Error(`Got response: ${res.status}`) }
     }
 
+    // =============================================
+    //                User related               
+    // =============================================
+
+    async reqUserInfo(username: string): Promise<UserInfo>{
+        const form = new FormData();
+        form.append('key', this.settings.encKey)
+
+        const res = await fetch(`${getBackendURL()}/user/info/${username}`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){ return await res.json(); }
+        else { throw new Error(`Got response: ${res.status}`) }
+    }
+
+    async updateUserNickname(name: string): Promise<UserInfo>{
+        const form = new FormData();
+        form.append('key', this.settings.encKey) // the user is identified by the key
+        form.append('name', name)
+
+        const res = await fetch(`${getBackendURL()}/user/info-update`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){ return await res.json(); }
+        else { throw new Error(`Got response: ${res.status}`) }
+    }
+
+    async updateUserPassword(newPassword: string): Promise<UserInfo>{
+        const form = new FormData();
+        form.append('key', this.settings.encKey) // the user is identified by the key
+        form.append('password', newPassword)
+        
+        const res = await fetch(`${getBackendURL()}/user/info-update`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){ return await res.json(); }
+        else { throw new Error(`Got response: ${res.status}`) }
+    }
+
+    async reqUserList(): Promise<UserInfo[]>{
+        const form = new FormData();
+        form.append('key', this.settings.encKey)
+
+        const res = await fetch(`${getBackendURL()}/user/list`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){ return await res.json(); }
+        else { throw new Error(`Got response: ${res.status}`) }
+    }
+
+    async uploadUserAvatar(file: File): Promise<UserInfo>{
+        const form = new FormData();
+        form.append('file', file);
+        form.append('key', this.settings.encKey)
+        const res = await fetch(`${getBackendURL()}/user/avatar-upload`, {
+            method: 'POST',
+            body: form,
+        })
+        if (res.ok){ return await res.json(); }
+        else { throw new Error(`Got response: ${res.status}`) }
+    }
+
     // ---- info ----
     async changelog(): Promise<Changelog>{
         const url = new URL(`${getBackendURL()}/info/changelog`);

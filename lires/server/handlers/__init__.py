@@ -13,6 +13,7 @@ from .dataMan import *
 from .images import *
 from .fileinfo_supp import *
 from .info import *
+from .user import *
 from .pdfjs import *
 
 from .static import *

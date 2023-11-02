@@ -29,10 +29,13 @@ export interface DataInfoT {
 export type DatabaseFeature = Record<string, number[]>;
 
 export interface UserInfo {
+    id: number;
+    username: string;
+    enc_key: string;
+    name: string;
     is_admin: boolean;
     mandatory_tags: string[];
-    name: string;
-    enc_key: string;
+    has_avatar: boolean;
 }
 
 export interface SearchResultant {

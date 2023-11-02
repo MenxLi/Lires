@@ -17,8 +17,7 @@ class UserInfo(TypedDict):
 
 class AvatarPath(TypedDict):
     original: str
-    large: str
-    small: str
+    square: str
 
 class LiresUser:
     """
@@ -50,7 +49,7 @@ class LiresUser:
             "name": raw["name"],
             "is_admin": raw["is_admin"],
             "mandatory_tags": raw["mandatory_tags"],
-            "has_avatar": self.avatar_image_path is not None
+            "has_avatar": self.avatar_image_path is not None,
         }
     
     def __str__(self) -> str:
@@ -67,15 +66,14 @@ class LiresUser:
     def avatar_image_path(self) -> Optional[AvatarPath]:
         a_pth: AvatarPath = {
             "original": os.path.join(USER_AVATAR_DIR, f"{self._id}_original.png"),
-            "large": os.path.join(USER_AVATAR_DIR, f"{self._id}_large.png"),
-            "small": os.path.join(USER_AVATAR_DIR, f"{self._id}_small.png"),
+            "square": os.path.join(USER_AVATAR_DIR, f"{self._id}_square.png"),
         }
         if not all([os.path.exists(a_pth[k]) for k in a_pth]):
             return None
         else:
             return a_pth
     
-    def setAvatar(self, image_path: Optional[str]) -> None:
+    def setAvatar(self, image: Optional[str | Image.Image]) -> None:
         """
         Read image from image_path,
         resize, and save it to USER_AVATAR_DIR.
@@ -84,14 +82,20 @@ class LiresUser:
 
         When image_path is None, remove avatar images.
         """
-        if image_path is None:
+        if image is None:
             # remove avatar image
             for k in ["original", "large", "small"]:
                 pth = os.path.join(USER_AVATAR_DIR, f"{self._id}_{k}.png")
                 if os.path.exists(pth):
                     os.remove(pth)
             return
-        img = Image.open(image_path)
+        if isinstance(image, str):
+            img = Image.open(image)
+        elif isinstance(image, Image.Image):
+            img = image
+        else:
+            raise TypeError("image must be str or PIL.Image.Image")
+
         # save original
         img.save(os.path.join(USER_AVATAR_DIR, f"{self._id}_original.png"))
 
@@ -105,11 +109,7 @@ class LiresUser:
         crop_len = min(img.width, img.height)
         img = img.crop((crop_left, crop_top, crop_left+crop_len, crop_top+crop_len))
 
-        # resize to 500x500
-        img_500 = img.resize((500, 500))
-        img_500.save(os.path.join(USER_AVATAR_DIR, f"{self._id}_large.png"))
-
-        # resize to 100x100
-        img_100 = img.resize((100, 100))
-        img_100.save(os.path.join(USER_AVATAR_DIR, f"{self._id}_small.png"))
+        # resize to 512x512
+        img_sq = img.resize((512, 512))
+        img_sq.save(os.path.join(USER_AVATAR_DIR, f"{self._id}_square.png"))
         return 

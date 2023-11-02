@@ -250,3 +250,36 @@ export const MenuAttached = defineComponent({
         );
     }
 })
+
+
+export const CircularImage = defineComponent({
+    name: 'CircularImage',
+    props: {
+        href: {
+            type: String,
+            required: true,
+        },
+        size: {
+            type: String,
+            required: true,
+        },
+        alt: {
+            type: String,
+            default: '',
+        }
+    },
+    emits: ['click'],
+    setup(props, context: SetupContext) {
+        const style = {
+            width: `${props.size}`,
+            height: `${props.size}`,
+            borderRadius: '50%',
+            border: '1px solid var(--color-border)',
+            overflow: 'hidden',
+        };
+
+        return () => (
+            <img src={props.href} alt={props.alt} style={style} onClick={() => context.emit('click')}/>
+        );
+    },
+});

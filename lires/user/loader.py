@@ -2,6 +2,7 @@
 from .object import LiresUser, UsrDBConnection
 from typing import Optional, Sequence
 from ..confReader import USER_DIR
+from ..core.customError import *
 
 class UserPool(Sequence[LiresUser]):
 
@@ -42,7 +43,15 @@ class UserPool(Sequence[LiresUser]):
         return None
     
     def getUserByUsername(self, username: str) -> Optional[LiresUser]:
-        for user in self:
-            if user.raw['username'] == username:
-                return user
-        return None
+        try:
+            user_id = self.conn.getUser(username)['id']
+            return LiresUser(self.conn, user_id)
+        except LiresUserNotFoundError:
+            return None
+    
+    def getUserById(self, id: int) -> Optional[LiresUser]:
+        try:
+            self.conn.getUser(id)
+            return LiresUser(self.conn, id)
+        except LiresUserNotFoundError:
+            return None
