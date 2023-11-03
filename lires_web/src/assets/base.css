@@ -1,8 +1,8 @@
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
   --vt-c-white: #fefefe;
-  --vt-c-white-soft: #f7f7f7;
-  --vt-c-white-mute: #f0f0f0;
+  --vt-c-white-soft: #f1f1f1;
+  --vt-c-white-mute: #ebebeb;
 
   --vt-c-black: #181818;
   --vt-c-black-soft: #222222;
@@ -63,7 +63,7 @@
 :root, :root.light{
   --color-theme: rgb(98, 171, 200);
   --color-text-soft: rgba(80, 80, 80, 0.5);
-  --color-background-ssoft: #f6f6f8;
+  --color-background-ssoft: #f6f6f6;
   --color-background-theme-highlight: rgba(128, 198, 197, 0.2);
   --color-background-theme-thin: #e6e9ee;
   --color-background-theme: rgb(225, 238, 243);

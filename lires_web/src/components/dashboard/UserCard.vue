@@ -110,6 +110,7 @@
             <div id="user-settings">
                 <b>{{ props.userInfo.username }}</b>
                 <input type="text" v-model="settings_nickname" placeholder="Nickname" class="input"/>
+                <hr>
                 <details>
                     <summary>Change password</summary>
                     <div id="password-container">
@@ -122,16 +123,16 @@
         </QueryDialog>
 
         <div id="info">
-            <div id="avatar" :style="THIS_USER?{'cursor':'pointer'}:{}">
+            <div id="avatar" :style="THIS_USER?{'cursor':'pointer', 'borderRadius': '50%'}:{}">
                 <CircularImage :href="avatarURL" size="168px" @click="THIS_USER?avatarUploadBtn?.click():()=>{}"/>
                 <FileSelectButton :text="'Change avatar'" :action="onUploadAvatarImage" ref="avatarUploadBtn" :style="{'display': 'none'}"/>
             </div>
             <div id="user-desc">
                 <div id="name-edit">
                     <h1 id="name">{{ props.userInfo.name }}</h1>
-                    <img :src="EditSquareIcon" alt="" class="icon" id="edit-settings-icon" @click="showUserSettingsDialog=true">
+                    <img v-if="THIS_USER" :src="EditSquareIcon" alt="" class="icon" id="edit-settings-icon" @click="showUserSettingsDialog=true">
                 </div>
-                <p>{{ props.userInfo.username }}</p>
+                <p>{{ props.userInfo.username}} <admin_hint>{{  props.userInfo.is_admin?"admin":""  }}</admin_hint></p>
                 <p id="backendurl">{{ getBackendURL() }}</p>
             </div>
         </div>
@@ -152,6 +153,16 @@
         align-items: center;
         flex-direction: row;
         gap: 20px;
+    }
+    admin_hint{
+        font-size: x-small;
+        padding-left: 5px;
+        padding-right: 5px;
+        height: 10px;
+        border-radius: 5px;
+        background-color: var(--color-background-theme);
+        /* color: var(--color-text-soft); */
+        color: var(--color-theme);
     }
     div#info div#name-edit{
         display: flex;
@@ -210,25 +221,30 @@
         display: flex;
         flex-direction: column;
         text-align: left;
-        gap: 10px;
     }
+    div#user-settings 
+    hr{
+        margin: 0px;
+        padding: 0px;
+    }
+    div#user-settings 
     b{
         font-weight: bold;
     }
     div#user-settings input[type=text]{
         width: 300px;
         background-color: var(--color-background);
-        font-weight: bold;
         height: 36px;
     }
     div#user-settings details summary{
+        margin-top: 5px;
         text-align: left;
         font-size: smaller;
     }
     div#password-container{
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 5px;
     }
     div#password-container input[type=password]{
         width: 300px;

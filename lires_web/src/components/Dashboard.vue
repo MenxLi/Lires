@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import Banner from './common/Banner.vue';
     import UserCard from './dashboard/UserCard.vue';
-    import { ref } from 'vue';
+    import { ref, onActivated } from 'vue';
     import { useRoute } from 'vue-router';
     import { ServerConn } from '../core/serverConn';
     import { useUIStateStore } from './store';
@@ -9,7 +9,6 @@
 
     const route = useRoute();
     const conn = new ServerConn();
-    const param_username = route.params.username as string;
 
     const userInfo = ref({
         id: 0,
@@ -21,15 +20,20 @@
         has_avatar: false,
     } as UserInfo);
 
-    conn.reqUserInfo(param_username).then(
-        (res) => {
-            console.log("Change userInfo")
-            userInfo.value = res;
-        }, 
-        (err) => {
-            useUIStateStore().showPopup(err, 'error');
-        }
-    );
+    function updateUser(){
+        conn.reqUserInfo(route.params.username as string).then(
+            (res) => {
+                userInfo.value = res;
+            }, 
+            (err) => {
+                useUIStateStore().showPopup(err, 'error');
+            }
+        );
+    }
+
+    // update user info on load
+    onActivated(updateUser);
+    window.onhashchange = updateUser;
 
 </script>
 
