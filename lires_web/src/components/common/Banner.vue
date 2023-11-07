@@ -56,12 +56,12 @@
     let lastScrollTop = 0;
     window.addEventListener('scroll', function() {
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        if (scrollTop > lastScrollTop) {
-            // Scrolling down
-            mainDiv.value!.classList.add('hidden');
-        } else {
+        if (scrollTop <= lastScrollTop || lastScrollTop < 10) {
             // Scrolling up
             mainDiv.value!.classList.remove('hidden');
+        } else {
+            // Scrolling down
+            mainDiv.value!.classList.add('hidden');
         }
         lastScrollTop = scrollTop;
     });
