@@ -102,7 +102,7 @@
         align-items: center;
         justify-content: space-between;
         background-color: var(--color-background-soft);
-        border-radius: 10px;
+        border-radius: 13px;
         padding-left: 10px;
         padding-right: 10px;
         font-size: small;
