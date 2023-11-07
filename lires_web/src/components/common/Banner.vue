@@ -52,10 +52,24 @@
         _currentDarkTheme.value = !_currentDarkTheme.value;
     }
 
+    const mainDiv = ref(null as HTMLDivElement | null);
+    let lastScrollTop = 0;
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        if (scrollTop > lastScrollTop) {
+            // Scrolling down
+            mainDiv.value!.classList.add('hidden');
+        } else {
+            // Scrolling up
+            mainDiv.value!.classList.remove('hidden');
+        }
+        lastScrollTop = scrollTop;
+    });
+
 </script>
 
 <template>
-    <div class="main shadow">
+    <div class="main-banner shadow" ref="mainDiv">
         <div class="button">
             <BannerIcon v-if="props.returnHome" :iconSrc="homeIcon" labelText="Home" shortcut="ctrl+h"
                 @onClick="()=>{router.push('/')}" title="home"/>
@@ -77,7 +91,7 @@
 </template>
 
 <style scoped>
-    div.main{
+    div.main-banner{
         position: fixed;
         top: 10px;
         left: 10px;
@@ -94,6 +108,10 @@
         font-size: small;
         height: 30px;
         z-index: 1;
+        transition: top 0.25s ease-in-out;
+    }
+    div.main-banner.hidden{
+        top: -30px;
     }
     div.button{
         display: flex;
