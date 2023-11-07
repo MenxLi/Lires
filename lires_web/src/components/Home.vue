@@ -109,33 +109,33 @@ export default {
 
 <template>
     <DataEditor :datapoint="null" v-model:show="showAddingDataWindow"></DataEditor>
-    <div id="main" class="slideIn">
-        <Banner :return-home="false">
-            <div id="bannerAddons">
-                <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
-                    @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>
-                <MenuAttached :menu-items="[
-                    {name: `Display: ${settingsStore.showTagPanel?'hide':'show'}`, action: () => settingsStore.setShowTagPanel(!settingsStore.showTagPanel)},
-                    {name: 'Rename' , action: queryRenameTag},
-                    {name: 'Delete' , action: queryDeleteTag},
-                ]">
-                    <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"></BannerIcon>
-                </MenuAttached>
-                <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
-                    @click="()=>uiState.reloadDatabase(true)"></BannerIcon>
-                |
-                <div class="searchbar">
-                    <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
-                        <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
-                    </select>
-                    <input id="searchbar" type="text" v-model="searchInput" @input="lazyOnSearchChanged" placeholder="search">
-                </div>
+    <Banner :return-home="false">
+        <div id="bannerAddons">
+            <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
+                @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>
+            <MenuAttached :menu-items="[
+                {name: `Display: ${settingsStore.showTagPanel?'hide':'show'}`, action: () => settingsStore.setShowTagPanel(!settingsStore.showTagPanel)},
+                {name: 'Rename' , action: queryRenameTag},
+                {name: 'Delete' , action: queryDeleteTag},
+            ]">
+                <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"></BannerIcon>
+            </MenuAttached>
+            <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
+                @click="()=>uiState.reloadDatabase(true)"></BannerIcon>
+            |
+            <div class="searchbar">
+                <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
+                    <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
+                </select>
+                <input id="searchbar" type="text" v-model="searchInput" @input="lazyOnSearchChanged" placeholder="search">
             </div>
-        </Banner>
+        </div>
+    </Banner>
+    <div id="main-home" class="slideIn">
         <div class="horizontal fullHeight">
             <FileTags v-if="settingsStore.showTagPanel" @onCheck="() => uiState.updateShownData()"></FileTags>
-            <div id="rightPanel" class="panel">
-                <div>
+            <div id="rightPanel" class="panel1">
+                <div class="fullWidth">
                     <FilterVis></FilterVis>
                 </div>
                 <div class="scrollable" id="fileSelector">
@@ -162,9 +162,9 @@ export default {
     body {
         height: 100vh;
     }
-    #main{
-        height: calc(100vh - 20px);
-        margin-top: 10px;
+    #main-home{
+        margin-top: 45px;
+        height: calc(100vh - 45px);
         width: 98vw;
         display: flex;
         flex-direction: column;
@@ -200,7 +200,8 @@ export default {
         user-select: none;
     }
     .fullHeight{
-        height: calc(100% - 30px);
+        height: calc(100% - 15px);
+        /* 15 to the bottom, not good for mobile safari though... */
     }
     .fullWidth{
         width: 100%;

@@ -28,10 +28,10 @@
 </script>
 
 <template>
+    <div class="banner">
+        <Banner/>
+    </div>
     <div id="main">
-        <div class="banner">
-            <Banner/>
-        </div>
 
         <!-- <h2>Document distribution</h2>
         <p>
@@ -83,13 +83,7 @@
         justify-content: center;
         align-items: center;
         max-width: 900px;
-        margin-top: 15px;
-    }
-    div.banner{
-        display: flex;
-        justify-content: center;
-        width: 95vw;
-        margin-bottom: 10px;
+        margin-top: 40px;
     }
     iframe#visfeat{
         width: 100%;

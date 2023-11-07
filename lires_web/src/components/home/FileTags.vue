@@ -80,4 +80,11 @@
         font-weight: bold;
         /* color: var(--color-theme) */
     }
+    .panel1{
+        width: 100%;
+        height: 100%;
+        align-self: center;
+        margin: 0em;
+        border-radius: 12px;
+    }
 </style>

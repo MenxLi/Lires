@@ -126,42 +126,37 @@ export default {
 <template>
     <!-- a tricky way to use FileSelectButton as select-upload agent -->
     <FileSelectButton :action="onUploadNewDocument" ref="fileSelectionBtn" :style="{display: 'none'}"> </FileSelectButton>
-    <div id="main">
-        <div id="banner">
-            <Banner>
-                <div id="bannerOps">
-                    <BannerIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
-                        @onClick="changeLayout" title="change layout"></BannerIcon>
-                    <BannerIcon :iconSrc="uploadIcon" labelText="upload" shortcut="ctrl+u"
-                        @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></BannerIcon>
-                    <BannerIcon :iconSrc="eyeIcon" :labelText="previewBtnText" shortcut="ctrl+p"
-                        @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></BannerIcon>
-                    |
-                    <MenuAttached :menu-items="recentReadMenuItems">
-                        <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
-                    </MenuAttached>
-                </div>
-            </Banner>
+    <Banner>
+        <div id="bannerOps">
+            <BannerIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
+                @onClick="changeLayout" title="change layout"></BannerIcon>
+            <BannerIcon :iconSrc="uploadIcon" labelText="upload" shortcut="ctrl+u"
+                @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></BannerIcon>
+            <BannerIcon :iconSrc="eyeIcon" :labelText="previewBtnText" shortcut="ctrl+p"
+                @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></BannerIcon>
+            |
+            <MenuAttached :menu-items="recentReadMenuItems">
+                <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
+            </MenuAttached>
         </div>
+    </Banner>
+    <div id="main-reader">
         <ReaderBody :datapoint="datapoint" :layoutType="layoutType" ref="readerBody"></ReaderBody>
     </div>
 </template>
 
 <style scoped>
-div#main{
+div#main-reader{
+    margin-top: 45px;
+    height: calc(100vh - 45px);
     padding: 10px;
+    padding-top: 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 98vw;
-    height: 98vh;
-    max-height: 98vh;
     background-color: var(--color-background);
-}
-div#banner{
-    padding-bottom: 10px;
-    width: 100%;
 }
 div#bannerOps{
     display: flex;

@@ -39,17 +39,19 @@
 
 
 <template>
-    <div id="main">
-        <Banner />
+    <Banner />
+    <div id="main-dashboard">
         <UserCard v-model:user-info="userInfo"/>
     </div>
 </template>
 
 <style scoped>
-    div#main{
+    div#main-dashboard{
+        margin-top: 45px;
         display: flex;
+        align-items: center;
         flex-direction: column;
-        margin-top: 20px;
         width: calc(100vw - 20px);
+        /* border: 1px solid #ccc; */
     }
 </style>

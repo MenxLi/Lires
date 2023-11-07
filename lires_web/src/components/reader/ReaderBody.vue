@@ -104,7 +104,7 @@ div#body{
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: calc(100% - 25px - 10px);
+    height: 100%;
     /* 100% - bannerheight - banner padding bottom */
 }
 
@@ -132,5 +132,8 @@ iframe{
     align-self: center;
     background-color: var(--color-border);
     cursor: col-resize;
+}
+#splitter:hover{
+    background-color: var(--color-theme);
 }
 </style>

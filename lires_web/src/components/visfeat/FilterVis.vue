@@ -166,7 +166,7 @@
 </script>
 
 <template>
-    <div id="main">
+    <div id="main-filtervis">
         <details @toggle="onToggleDetail" :open="settingsStore.show3DScatterPlot">
             <summary>Visualization</summary>
             <div id="plot3dDiv">
@@ -181,7 +181,7 @@
 </template>
 
 <style scoped>
-    div#main{
+    div#main-filtervis{
         display: flex;
         margin-top: 0px;
         width: 100%;
@@ -191,6 +191,7 @@
     details{
         margin: 0px;
         padding: 0px;
+        width: 100%;
     }
     summary{
         text-align: left;

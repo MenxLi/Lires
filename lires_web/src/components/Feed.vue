@@ -110,10 +110,10 @@
 </script>
 
 <template>
+    <div id="banner">
+        <Banner ref="banner"></Banner>
+    </div>
     <div id="main">
-        <div id="banner">
-            <Banner ref="banner"></Banner>
-        </div>
         <h1>Arxiv daily</h1>
         <div id="settings">
             <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">
@@ -134,8 +134,9 @@
 
 <style scoped>
     #main{
-        width: calc(min(1200px, 100vw - 30px));
-        min-height: 100vh;
+        margin-top: 40px;
+        width: calc(min(1200px, 100vw - 20px));
+        min-height: calc(100vh - 40px);
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -152,10 +153,5 @@
         flex-direction: row;
         justify-content:center;
         align-items: center;
-    }
-
-    div#banner{
-        width: 100%;
-        padding-top: 10px;
     }
 </style>
