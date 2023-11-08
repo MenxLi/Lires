@@ -155,7 +155,7 @@ div#main-reader{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 98vw;
+    width: calc(100vw - 10px);
     background-color: var(--color-background);
 }
 div#bannerOps{

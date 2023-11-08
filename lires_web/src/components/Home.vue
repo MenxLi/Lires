@@ -163,9 +163,9 @@ export default {
         height: 100vh;
     }
     #main-home{
-        margin-top: 45px;
-        height: calc(100vh - 45px);
-        width: 98vw;
+        margin-top: 50px;
+        height: calc(100vh - 50px);
+        width: calc(100vw - 20px);
         display: flex;
         flex-direction: column;
     }
@@ -208,7 +208,6 @@ export default {
     }
     div.horizontal{
         display: flex;
-        padding-top: 10px;
         gap: 10px;
     }
     div#bannerAddons{
