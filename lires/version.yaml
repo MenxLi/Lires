@@ -456,3 +456,16 @@ version_history:
   1.1.0:
     - Module Removal:
       - Remove lires_qt
+  
+  1.1.1:
+    - User account udpate:
+      - New user system with username, password and avatar
+      - User can change name, password and avatar
+      - Allocate dashboard page for user to manage their data
+    - UI update:
+      - Banner stick on top, hide on scroll down
+      - Return home button on none-home page
+      - Query dialog window style update
+      - Improve summary window size
+    - Fix:
+      - AI summary none-english regex match error
