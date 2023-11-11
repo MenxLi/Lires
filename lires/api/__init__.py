@@ -5,26 +5,25 @@ It is designed for easy retrieval of most frequently used modules of lires
 
 # classes
 from lires.core.dataClass import DataPoint, DataBase, DataTags
-from lires.core.fileToolsV import FileManipulatorVirtual
+from lires.core.fileTools import FileManipulator
 from lires.core.dbConn import DBConnection
 from lires.core.serverConn import ServerConn, IServerConn
 
 # variables and functions
 from lires.core.fileTools import addDocument
-from lires.confReader import LRS_HOME, getDatabase, getConf, saveToConf
+from lires.confReader import LRS_HOME, getConf, saveToConf
 
 __all__ = [
     "DataPoint",
     "DataBase",
     "DataTags",
-    "FileManipulatorVirtual",
+    "FileManipulator",
     "DBConnection",
     "ServerConn",
     "IServerConn",
 
     "LRS_HOME",
     "addDocument",
-    "getDatabase",
     "getConf",
     "saveToConf",
 ]

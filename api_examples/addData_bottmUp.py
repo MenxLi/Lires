@@ -7,13 +7,13 @@ We recommend using the Top Down approach because it's more convenient and more f
 However, the Bottom Up approach is useful when you want to use the API without creating a database object.
 
 In the Bottom Up approach, we create a sqlite connection and use the connection to add data to the sqlite database, 
-    then, we create a FileManipulatorVirtual object which is in charge of IO operations of the data,
-    afterward, we create a DataPoint object which is the core data structure of lires out of the FileManipulatorVirtual object.
+    then, we create a FileManipulator object which is in charge of IO operations of the data,
+    afterward, we create a DataPoint object which is the core data structure of lires out of the FileManipulator object.
 """
 
 import os
 from pprint import pprint
-from lires.api import addDocument, FileManipulatorVirtual, DBConnection, DataPoint
+from lires.api import addDocument, FileManipulator, DBConnection, DataPoint
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,7 +37,7 @@ bibtex = """
 doc_path = None         # pdf file path, set to None if no pdf file
 
 # ================== Bottom Up ==================
-# * No database object is created, all operations are done through DataPoint and FileManipulatorVirtual *
+# * No database object is created, all operations are done through DataPoint and FileManipulator *
 
 # create a sqlite connection
 db_conn = DBConnection(db_dir)
@@ -51,11 +51,10 @@ uid = addDocument(
 assert uid is not None  # check if the document is added successfully
 
 # create a FileManipulator object, all IO operations are done through this object
-fm = FileManipulatorVirtual(uid, db_local = db_conn)
+fm = FileManipulator(uid, db_local = db_conn)
 
 # create a DataPoint object, which is the core data structure of lires
 data = DataPoint(fm)
-data._forceOffline()    # force the program to use offline mode, otherwise the program will try to connect to the server specified in the config file
 # ===============================================
 
 # write some notes

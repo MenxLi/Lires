@@ -1,24 +1,18 @@
 from __future__ import annotations
-import shutil, requests, json
-from ..confReader import getConfV, getServerURL
 import os, asyncio
 from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar
 import difflib
 from .utils import Timer
-from .clInteractions import ChoicePromptAbstract
 from .asynciolib import asyncioLoopRun
-from pylatexenc import latex2text
 try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable
-    from .fileToolsV import FileManipulatorVirtual
+    from .fileTools import FileManipulator
     from .dbConn import DBFileInfo
 except (FileNotFoundError, KeyError):
     pass
 from .bibReader import parseBibtex, parallelParseBibtex, ParsedRef
-#  from .utils import HTML_TEMPLATE_RAW
 from ..types.dataT import DataPointSummary
-from .serverConn import ServerConn
 from . import globalVar as G
 
 class DataCore:
@@ -177,7 +171,7 @@ DataTagT_G = TypeVar('DataTagT_G', bound=DataTagT)
 
 class DataPoint(DataCore):
     MAX_AUTHOR_ABBR = 36
-    def __init__(self, fm: FileManipulatorVirtual, parse_bibtex: bool = True):
+    def __init__(self, fm: FileManipulator, parse_bibtex: bool = True):
         """
         The basic data structure that holds single data
         fm - FileManipulator, data completeness should be confirmed ahead (use fm.screen())
@@ -186,7 +180,6 @@ class DataPoint(DataCore):
         """
         self.fm = fm
         self.__parent_db: DataBase
-        self.__force_offline = False
         self.loadInfo(parse_bibtex=parse_bibtex)
     
     def __del__(self):
@@ -222,51 +215,14 @@ class DataPoint(DataCore):
         }
     
     @property
-    def d_info(self) -> Optional[DBFileInfo]:
+    def d_info(self) -> DBFileInfo:
         """
         Return the DBFileInfo object (Raw sqlite database data information) if the data is in local database
         """
-        if self.is_local:
-            d_info = self.fm.conn[self.uuid]
-            assert d_info is not None
-            return d_info
-        else:
-            return None
+        d_info = self.fm.conn[self.uuid]
+        assert d_info is not None
+        return d_info
     
-    def _forceOffline(self):
-        """
-        Will be called when run on server side or failed to connect to the server
-        """
-        self.__force_offline = True
-        self.fm._forceOffline()
-
-    def setPromptObj(self, prompt_obj: ChoicePromptAbstract):
-        """
-        User prompt method set with GUI modules
-        """
-        self.fm.prompt_obj = prompt_obj
-    
-    def sync(self) -> bool:
-        """
-        Synchronize,
-        if the data is in remote, call self.fm._sync to check if is up-to-date and upload/dowload or do nothing
-        else if the data is new, upload to the remote
-        (if in offline mode, self.fm._sync will fail thus return False)
-        return if success
-        """
-        if self.uuid in self.par_db.remote_info:
-            remote_info = self.par_db.remote_info[self.uuid]
-            self.fm.v_summary = remote_info
-            SUCCESS = self.fm._sync()
-        else:
-            # New data that remote don't have
-            self.logger.info("Creating new data remote {}".format(self.uuid))
-            SUCCESS = self.fm._uploadRemote()
-        if SUCCESS:
-            # update local virtual info
-            self.fm.v_summary = self.summary
-        return SUCCESS
-
     @property
     def par_db(self) -> DataBase:
         return self.__parent_db
@@ -279,13 +235,7 @@ class DataPoint(DataCore):
             self.par_db.logger.warn("Can't re-assign database for datapoint: {}".format(self))
     
     @property
-    def is_local(self):
-        if self.__force_offline:
-            return True
-        return self.fm.has_local
-
-    @property
-    def file_path(self) -> Union[None, str]:
+    def file_path(self) -> Optional[str]:
         return self.fm.file_p
 
     def reload(self):
@@ -358,17 +308,9 @@ class DataPoint(DataCore):
         Unicode icon indicate if the datapoint contains file
         """
         if self.has_file:
-            if self.is_local:
-                return "\u2726"
-            else:
-                return "\u2726"
-                # return "\u29bf"
+            return "\u2726"
         else:
-            if self.is_local:
-                return "\u2727"
-            else:
-                return "\u2727"
-                # return "\u29be"
+            return "\u2727"
 
     def stringCitation(self):
         """
@@ -405,27 +347,6 @@ class DataPoint(DataCore):
             return author
         else:
             return author[:self.MAX_AUTHOR_ABBR-4] + "..."
-
-    def getDocShareLink(self, with_base: bool = True) -> str:
-        """
-        with_base: whether to include the base address
-        """
-        ftype = self.summary["file_type"]
-        if ftype == "":
-            if self.summary["url"]:
-                return self.summary["url"]
-            else: return ""
-        else:
-            if with_base:
-                base_addr = getServerURL()
-            else:
-                base_addr = ""
-            if ftype == ".pdf":
-                return f"{base_addr}/doc/{self.uuid}"
-            elif ftype == ".hpack":
-                return f"{base_addr}/hdoc/{self.uuid}/"
-            else:
-                return ""
 
     def _getFirstName(self, name: str):
         x = name.split(", ")
@@ -482,13 +403,12 @@ class DataList(List[DataPoint], DataCore):
         pass
 
 class DataBase(Dict[str, DataPoint], DataCore):
-    def __init__(self, local_path: Optional[str] = None, force_offline: bool = False):
+    def __init__(self, local_path: Optional[str] = None):
         super().__init__()
-        self.__account_permission = None
         self.__conn = None
 
         if local_path is not None:
-            self.init(local_path, force_offline)
+            self.init(local_path)
     
     def destroy(self):
         """
@@ -505,84 +425,38 @@ class DataBase(Dict[str, DataPoint], DataCore):
         self.logger.debug("Deleted DataBase object")
 
     @property
-    def account_permission(self):
-        return self.__account_permission
-
-    @property
-    def offline(self) -> bool:
-        if hasattr(self, "_force_offline") and self._force_offline:
-            return True
-        return getConfV("host") == ""
-
-    @property
-    def n_local(self):
-        """Number of local files"""
-        count = 0
-        for uuid, dp in self.items():
-            if dp.is_local:
-                count += 1
-        return count
-    
-    @property
     def conn(self):
         if self.__conn is None:
             raise RuntimeError("Database not initialized")
         return self.__conn
     
-    @property
-    def remote_info(self)-> Dict[str, DataPointSummary]:
-        d = dict()
-        assert self.__file_list_remote is not None # should be called after successful fetch
-        for f_info in self.__file_list_remote:
-            d[f_info["uuid"]] = f_info
-        return d
-
-    def init(self, db_local, force_offline = False) -> DataBase:
-        """
-        An abstraction of self.construct, load both db_local and remote server
-        if force_offline is True, the database will be initialized as offline on db_local
-
-        Call this function may reset offline status
-        """
+    def init(self, db_local: str) -> DataBase:
+        """ An abstraction of self.construct """
         if not os.path.exists(db_local):
             os.mkdir(db_local)
-        self._force_offline = force_offline
-        conn = FileManipulatorVirtual.getDatabaseConnection(db_local) 
-        self.__conn = conn      # set global database connection instance
+        conn = FileManipulator.getDatabaseConnection(db_local) 
+        self.__conn = conn      # set database-wise connection instance
         self.logger.debug("Initializing new DataBase's DBConnection")
-        if not self.offline:
-            flist = self.fetch()
-            if flist is None:
-                # None indicate an server error
-                asyncioLoopRun(self.constuct([], force_offline=True))
-            else:
-                # server may be back when reload (re-call self.init)
-                asyncioLoopRun(self.constuct(flist, force_offline=self._force_offline))
         if db_local:
             # when load database is provided
-            to_load = []
             to_load = conn.keys()
-            asyncioLoopRun(self.constuct(to_load, force_offline=self._force_offline))
+            asyncioLoopRun(self.constuct(to_load))
         return self     # enable chaining initialization
 
-    async def constuct(self, vs: Union[List[str], List[DataPointSummary]], force_offline = False):
+    async def constuct(self, vs: List[str]):
         """
         Construct the DataBase (Add new entries to database)
-         - vs: list of DataPointInfo or local data directories
-         - force_offline: use when called by server side
-                         or when server is down
+         - vs: list of data uuids
         """
-        async def _getDataPoint(v_, force_offline_: bool) -> DataPoint:
-            fm = FileManipulatorVirtual(v_, db_local=self.conn)
+        async def _getDataPoint(v_) -> DataPoint:
+            fm = FileManipulator(v_, db_local=self.conn)
             data = DataPoint(fm, parse_bibtex=False)    # set parse_bibtex to False, will be parsed later
-            if force_offline_:
-                data._forceOffline()
             return data
 
         # load all datapoint
         async_tasks = []
         for v in vs:
-            async_tasks.append(_getDataPoint(v, force_offline))
+            async_tasks.append(_getDataPoint(v))
         with Timer("Constructing database", self.logger.info):
             all_data: list[DataPoint] = await asyncio.gather(*async_tasks)
             _all_bibtex = [d.fm.readBib() for d in all_data]
@@ -594,30 +468,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
         for d_ in all_data:
             if d_ is not None:
                 self.add(d_)
-        if force_offline:
-            self._force_offline = True
-
-    def fetch(self) -> Union[List[DataPointSummary], None]:
-        """
-        update self.remote_info
-        will not change data
-        return None for failed fetching
-        return Union[List[DataPointInfo], None]
-        """
-        if self.offline:
-            self.logger.info("Offline mode, can't fetch database")
-            return None
-
-        try:
-            flist = ServerConn().summaries([])
-            self.__account_permission = ServerConn().permission()
-        except requests.exceptions.ConnectionError as e:
-            self.logger.debug("Error: {}".format(e))
-            self.logger.warning("Server is down, abort fetching remote data.")
-            return None
-        
-        self.__file_list_remote = flist
-        return flist
 
     def add(self, data: Union[DataPoint, str]) -> DataPoint:
         """
@@ -627,7 +477,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         if isinstance(data, str):
             # uid of the data
-            fm = FileManipulatorVirtual(data, db_local = self.conn)
+            fm = FileManipulator(data, db_local = self.conn)
             data = DataPoint(fm)
         data.par_db = self
         self[data.uuid] = data
@@ -641,17 +491,8 @@ class DataBase(Dict[str, DataPoint], DataCore):
         self.logger.info("Deleting {}".format(uuid))
         if uuid in self.keys():
             dp: DataPoint = self[uuid]
-            res = True      # fallback to True if offline and no local (should not happen)
-            if dp.fm.has_local:
-                dp.fm.setWatch(False)
-                res = dp.fm.deleteEntry()
-            if not self.offline:
-                # If remote has this data, delete remote as well, 
-                # otherwise it will be downloaded again when sync
-                res = dp.fm._deleteRemote()
-                if not res:
-                    self.logger.info("Oops, the data on the server side may not be deleted")
-                    self.logger.warn("You may need to sync->delete again for {}".format(dp))
+            dp.fm.setWatch(False)
+            res = dp.fm.deleteEntry()
             del self[uuid]
             return res
         return False
@@ -703,17 +544,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
         return if success
         """
         data = self.getDataByTags(DataTags([tag_old]))
-        if not self.offline:
-            if not self.allUptodate():
-                self.logger.warning("Rename failed, remote file is advance than local, solve conflict before renaming")
-                return False
-            # request remote tag change
-            if self.offline or not ServerConn().renameTag(tag_old, dst_tag=tag_new):
-                self.logger.info("Abort renaming")
-                return False
-
-        # change local tag
-        # (After remote change so local is always updated than remote)
         self.logger.info(f"Renaming local tag: {tag_old} -> {tag_new}")
         for d in data:
             d: DataPoint
@@ -729,17 +559,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
         return if success
         """
         data = self.getDataByTags(DataTags([tag]))
-        if not self.offline:
-            if not self.allUptodate():
-                self.logger.warning("Delete tag failed, remote file is advance than local, solve conflict before deleting tag")
-                return False
-            # request remote tag delete
-            if self.offline or not ServerConn().deleteTag(tag):
-                self.logger.info("Abort deleting tag")
-                return False
-
-        # delete local tag
-        # (After remote delete so local is always updated than remote)
         self.logger.info(f"Deleting local tag: {tag}")
         for d in data:
             d: DataPoint
@@ -761,44 +580,3 @@ class DataBase(Dict[str, DataPoint], DataCore):
             if similarity > 0.8:
                 return v
         return None
-
-    def allUptodate(self, fetch: bool = True, strict: bool = False) -> bool:
-        """
-        Return if all data points in local are up-to-date with remote
-         - fetch (bool): whether to perform self.fetch()
-         - strict (bool): only return true if all data points are the same as remote,
-            Otherwise will return true if all data points are same/advance than remote
-        """
-        if self.offline:
-            return True
-        # udpate remote file info
-        if fetch:
-            self.fetch()
-        for d in self.values():
-            d: DataPoint
-            remote_info = self.remote_info
-            if d.is_local:
-                # update file manipulator v_summary to the same with remote
-                if fetch: d.fm.v_summary = remote_info[d.uuid]
-                if d.fm.is_uptodate == "behind":
-                    self.logger.info(f"allUptodate (database): data({d.uuid}) is behind remote")
-                    return False
-                if strict and d.fm.is_uptodate == "advance":
-                    self.logger.info(f"allUptodate (database): data({d.uuid}) is advance than remote")
-                    return False
-        return True
-
-    def exportFiles(self, uids: List[str], dst: str):
-        """
-        Copy data folders to dst
-         - uids: data uids to export
-         - dst: destination folder to store the exported files (folders)
-        """
-        raise NotImplementedError
-        assert os.path.exists(dst) and os.path.isdir(dst), "Destination should be an existing directory"
-        for uid in uids:
-            dp: DataPoint = self[uid]
-            src_pth = dp.data_path
-            dst_pth = os.path.join(dst, os.path.basename(src_pth))
-            if os.path.exists(src_pth):
-                shutil.copytree(src_pth, dst_pth)

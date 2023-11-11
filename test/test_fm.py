@@ -5,7 +5,6 @@ from pprint import pprint
 from lires.initLogger import initDefaultLogger; initDefaultLogger()
 from lires.confReader import LRS_HOME, getDatabase
 from lires.core.fileTools import addDocument, DBConnection, FileManipulator
-from lires.core.fileToolsV import FileManipulatorVirtual
 from lires.core.dataClass import DataPoint, DataBase
 
 import logging
@@ -53,23 +52,19 @@ def testFileManipulator(fm: FileManipulator):
     fm.deleteDocument()
     # fm.openFile()
 
-db_pth = getDatabase(True)
+db_pth = getDatabase()
 conn = DBConnection(db_pth)
 uid = addDocument(conn, test_bibtex, doc_src=pdf_path); assert uid
 # fm = FileManipulator(uid, conn)
-fm = FileManipulatorVirtual(uid, conn)
+fm = FileManipulator(uid, conn)
 dp = DataPoint(fm)
-dp._forceOffline()
 # assert conn is fm.conn
 
 assert fm.conn.db_dir == db_pth, (fm.conn.db_dir, db_pth)
 
-print(fm.has_local)
-
 testFileManipulator(fm)
 
-dp._forceOffline()
 pprint(dp.summary)
 
-db = DataBase().init(db_pth, force_offline=True)
+db = DataBase().init(db_pth)
 print(db)

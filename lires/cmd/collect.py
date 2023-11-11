@@ -6,13 +6,11 @@ import os, argparse, logging, sys
 from datetime import date
 from pybtex.database import BibliographyData, Entry
 
-import requests, urllib
+import requests
 from bs4 import BeautifulSoup
 
-from lires.core.bibReader import BibParser
-from lires.core.fileTools import addDocument, DBConnection
-from lires.core.fileToolsV import FileManipulatorVirtual
-from lires.core.dataClass import DataPoint, DataBase
+from lires.core.fileTools import addDocument
+from lires.core.dataClass import DataBase
 from lires.confReader import TMP_DIR, getConfV, getServerURL
 from lires.core.utils import sssUUID
 from lires.core import globalVar as G
@@ -192,7 +190,7 @@ class LiresRetriver:
         if database is None:
             __new_database = True   # indicate if the database is newly created
             database_dir = getConfV("database")
-            database = DataBase(database_dir, force_offline = True)
+            database = DataBase(database_dir)
         else:
             __new_database = False
 

@@ -70,7 +70,7 @@ def extractAction(ans: str):
 
 def searchForInfo(query: str):
     print("\nSearching for information: {}{}".format(BCOLORS.GREEN, query), end=BCOLORS.ENDC + "\n")
-    database = DataBase(getDatabase(offline=True), force_offline=True)
+    database = DataBase(getDatabase())
     vector_collection = VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])["doc_feature"]
 
     query_vec = iconn.featurize(query)

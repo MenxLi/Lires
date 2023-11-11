@@ -23,7 +23,7 @@ def getLocalDatabasePath():
 def loadDataBase(db_path: str):
     G.logger_lrs_server.info("Loading database: {}".format(db_path))
     db = DataBase()
-    db.init(db_path, force_offline=True)
+    db.init(db_path)
     return db
 
 T = TypeVar("T")

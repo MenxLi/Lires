@@ -46,7 +46,14 @@ class ConnectionBase:
 
 
 class ServerConn(ConnectionBase):
-    """Connection to lires.server"""
+    """
+    Connection to lires.server
+    This class is highly unfinished and untested, 
+    More features will be added in the future.
+    
+    **There used to be an online mode using this class, with a GUI written in PyQt6,
+    now it is deprecated and the interface is not maintained.**
+    """
     
     @property
     def SERVER_URL(self):
@@ -97,72 +104,6 @@ class ServerConn(ConnectionBase):
         else:
             return True
         
-    def uploadData(self, d_info: DBFileInfo, fpath: str) -> bool:
-        """
-        d_info: dict, data info to insert into server database
-        fpath: str, file path to upload, should be zip file of the data associated with d_info
-            the original data is supposed to be under database directory
-        """
-        post_url = self.SERVER_URL + "/file"
-        uid = d_info["uuid"]
-        post_args = {
-            "key": self.hash_key,
-            "cmd": "upload",
-            "uuid": uid, 
-            "d_info": json.dumps(d_info)
-        }
-        # compress file...
-        with open(fpath, "rb") as fp:
-            file_args = {
-                "filename": (uid + ".zip").encode("utf-8"),
-                "file": fp
-            }
-            res = requests.post(post_url, params = post_args, files=file_args)
-
-        if not self._checkRes(res):
-            return False
-        else:
-            return True
-    
-    def downloadData(self, out_fpath, uid: str) -> Optional[DBFileInfo]:
-        """
-        out_fpath: str, output file path, the downloaded data will be a zip file
-        """
-        post_url = self.SERVER_URL + "/file"
-        # first get data info for inserting into database
-        post_args = {
-            "key": self.hash_key,
-            "cmd": "download-d_info",
-            "uuid": uid
-        }
-        res = requests.post(post_url, params = post_args)
-        if not self._checkRes(res):
-            return None
-        d_info = json.loads(res.text)
-
-        # then download file
-        post_args = {
-            "key": self.hash_key,
-            "cmd": "download",
-            "uuid": uid
-        }
-        res = requests.post(post_url, params = post_args)
-        if not self._checkRes(res):
-            return None
-        with open(out_fpath, "wb") as fp:
-            fp.write(res.content)
-        return d_info
-    
-    def deleteData(self, uid: str) -> bool:
-        post_url = self.SERVER_URL + "/file"
-        post_args = {
-            "key": self.hash_key,
-            "cmd": "delete",
-            "uuid": uid
-        }
-        res = requests.post(post_url, params = post_args)
-        return self._checkRes(res)
-    
     def deleteTag(self, tag_to_be_deleted: str) -> bool:
         post_url = self.SERVER_URL + "/dataman/tag-delete"
         post_args = {

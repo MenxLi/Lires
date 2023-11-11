@@ -38,8 +38,8 @@ def parseArgs() -> argparse.Namespace:
 def main():
     args = parseArgs()
     with MuteEverything():
-        db_path = getDatabasePath_withFallback(offline=True)
-        db = DataBase().init(db_path, force_offline=True)
+        db_path = getDatabasePath_withFallback()
+        db = DataBase().init(db_path)
 
     # set global variables of iServer
     # so that when initializing iServerConn, it can get the correct host and port

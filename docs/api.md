@@ -10,7 +10,7 @@ From local database:
 ```python
 from lires.api import DataBase, getConf
 config = getConf()
-database = DataBase(config['database'], force_offline = True)
+database = DataBase(config['database'])
 summaries = [data.summary for data in database.values()]
 ```
 From the server:

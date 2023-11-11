@@ -26,7 +26,6 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # │   ├── vector.db [FEATURE_PATH]
 # │   └── summary [DOC_SUMMARY_DIR]
 # ├── Lires.cache [TMP_DIR]
-# │   ├── Database [TMP_DB]
 # │   ├── webpage [TMP_WEB]
 # │   └── notes_webpage [TMP_WEB_NOTES]
 
@@ -59,7 +58,6 @@ USER_AVATAR_DIR = os.path.join(USER_DIR, "avatar")
 
 # things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
-TMP_DB = os.path.join(TMP_DIR, "Database")      # For online mode
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
 
 # indexing related
@@ -73,7 +71,7 @@ for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 for _p in [
-    TMP_DIR, TMP_DB, TMP_WEB, 
+    TMP_DIR, TMP_WEB, 
     USER_DIR, USER_AVATAR_DIR,
     INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR, 
     ]:
@@ -94,26 +92,15 @@ def getConf() -> LiresConfT:
     conf["database"] = os.path.realpath(conf["database"])
     return conf
 
-def getDatabase(offline: Optional[bool] = None) -> str:
-    if offline is None:
-        if getConf()["host"]:
-            return TMP_DB
-        else:
-            return getConf()["database"]
-    if isinstance(offline, bool):
-        if offline:
-            return getConf()["database"]
-        else:
-            return TMP_DB
-    else:
-        raise TypeError("offline should be bool or None")
+def getDatabase() -> str:
+    return getConf()["database"]
 
-def getDatabasePath_withFallback(offline: Optional[bool] = None, fallback: str = os.path.join(LRS_HOME, "Database")) -> str:
+def getDatabasePath_withFallback(fallback: str = os.path.join(LRS_HOME, "Database")) -> str:
     """
     get the path to the database,
     if it not exists, return the default path
     """
-    tempt = getDatabase(offline)
+    tempt = getConf()["database"]
     if os.path.exists(tempt):
         return tempt
     else:

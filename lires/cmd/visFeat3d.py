@@ -31,7 +31,7 @@ if __name__ == "__main__":
     vector_collection = vector_db.getCollection("doc_feature")
 
     print("Loading database...")
-    db = DataBase(getConf()["database"], force_offline=True)
+    db = DataBase(getConf()["database"])
     feat_dict: dict[str, FeatDictItemWthTSNE] = {}
     _all_ids = vector_collection.keys()
     _all_feat = vector_collection.getBlock(_all_ids)

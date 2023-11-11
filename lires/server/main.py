@@ -29,11 +29,6 @@ class Application(tornado.web.Application):
     def __init__(self) -> None:
         handlers = [
             # # Backend
-
-            # legacy
-            # TODO: remove this handler and use /dataman/* instead
-            (r"/file", FileHandler),
-
             (r"/discussions/(.*)", DiscussionHandler),
             (r"/discussion_mod", DiscussionModHandler),
             (r"/summary", SummaryHandler),              # may deprecate

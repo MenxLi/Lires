@@ -103,44 +103,21 @@ class DataSearcher(DataCore):
             res = self._searchRegex(pattern, comments, ignore_case)
             return res
 
-        if self.db.offline:
-            return asyncioLoopRun(_searchNote(self.db))
-        
-        else:
-            conn = ServerConn()
-            res = conn.search("searchNote", kwargs = {
-                "pattern": pattern,
-                "ignore_case": ignore_case,
-            })
-            if res is None:
-                return {}
-            else:
-                return res
+        return asyncioLoopRun(_searchNote(self.db))
     
     def searchFeature(self, pattern: str, n_return = 999, vec_db:Optional[ VectorDatabase ] = None) -> StringSearchT:
-        if self.db.offline:
-            if pattern.strip() == "":
-                return {uid: None for uid in self.db.keys()}
-            if vec_db:
-                search_res = queryFeatureIndex(pattern, n_return=n_return, vector_collection=vec_db.getCollection("doc_feature"))
-            else:
-                search_res = queryFeatureIndex(pattern, n_return=n_return)
-
-            if search_res is None:
-                self.logger.error("Error connecting to iserver, return empty result")
-                return {uid: None for uid in self.db.keys()}
-
-            return {uid: {"score": score, "match": None} for uid, score in zip(search_res["uids"], search_res["scores"])}
+        if pattern.strip() == "":
+            return {uid: None for uid in self.db.keys()}
+        if vec_db:
+            search_res = queryFeatureIndex(pattern, n_return=n_return, vector_collection=vec_db.getCollection("doc_feature"))
         else:
-            conn = ServerConn()
-            res = conn.search("searchFeature", kwargs = {
-                "pattern": pattern,
-                "n_return": n_return,
-            })
-            if res is None:
-                return {}
-            else:
-                return res
+            search_res = queryFeatureIndex(pattern, n_return=n_return)
+
+        if search_res is None:
+            self.logger.error("Error connecting to iserver, return empty result")
+            return {uid: None for uid in self.db.keys()}
+
+        return {uid: {"score": score, "match": None} for uid, score in zip(search_res["uids"], search_res["scores"])}
     
     def _searchRegex(self, pattern: str, aim: str, ignore_case: bool):
         if ignore_case:
