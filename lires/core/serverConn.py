@@ -123,18 +123,6 @@ class ServerConn(ConnectionBase):
         res = requests.post(post_url, data = post_args)
         return self._checkRes(res)
     
-    def postDiscussion(self, uid: str, name: str, content: str) -> bool:
-        post_url = self.SERVER_URL + "/discussion_mod"
-        post_args = {
-            "key": self.hash_key,
-            "cmd": "add",
-            "file_uid": uid,
-            "content": content,
-            "usr_name": name
-        }
-        res = requests.post(url = post_url, data = post_args)
-        return self._checkRes(res)
-
     def getDocURL(self, uid: str, dtype: Literal["pdf, hpack"]) -> str:
         if dtype == "pdf":
             return self.SERVER_URL + "/doc/{}".format(uid)
@@ -146,9 +134,6 @@ class ServerConn(ConnectionBase):
     def getNoteURL(self, uid: str) -> str:
         return self.SERVER_URL + "/comment/{}/".format(uid)
 
-    def getDisscussionURL(self, uid: str) -> str:
-        return self.SERVER_URL + "/discussions/{}".format(uid)
-    
 
 class IServerConn(ConnectionBase):
     """Connection to ilrs.server"""

@@ -29,8 +29,6 @@ class Application(tornado.web.Application):
     def __init__(self) -> None:
         handlers = [
             # # Backend
-            (r"/discussions/(.*)", DiscussionHandler),
-            (r"/discussion_mod", DiscussionModHandler),
             (r"/summary", SummaryHandler),              # may deprecate
             (r"/summary-post", SummaryPostHandler),     # may rename
 

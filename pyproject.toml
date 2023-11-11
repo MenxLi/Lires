@@ -9,7 +9,6 @@ build-backend = "setuptools.build_meta"
 "lrs-utils" = "lires.cmd.miscUtils:main"
 "lrs-share" = "lires.cmd.share:main"
 "lrs-keyman" = "lires.cmd.manageKey:run"
-"lrs-discuss" = "lires.cmd.discuss:main"
 "lrs-index" = "lires.cmd.index:main"
 "lrs-cluster" = "lires.cmd.cluster:main"
 

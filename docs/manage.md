@@ -7,7 +7,6 @@ All managements tools include:
 ```sh
 lrs-cluster     # Cluster management
 lrs-keyman      # Manage access key
-lrs-discuss     # Manage online discussions
 lrs-collect     # Automatic add entry to database with retriving string
 lrs-resetconf   # To reset default configuration
 lrs-share       # To generate share url

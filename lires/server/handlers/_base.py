@@ -9,7 +9,6 @@ import time
 import http.cookies
 from lires.user import UserInfo, UserPool
 from lires.confReader import USER_DIR
-from ..discussUtils import DiscussDatabase
 from lires.core import globalVar as G
 from lires.core.dataClass import DataBase, DataTags
 from lires.confReader import getConf, VECTOR_DB_PATH
@@ -90,7 +89,6 @@ class RequestHandlerMixin():
                 db: DataBase = G.getGlobalAttr("server_db")
                 db.destroy()
             G.setGlobalAttr("server_db", loadDataBase(getLocalDatabasePath()))
-            G.setGlobalAttr("server_discussion_db", DiscussDatabase())
         if load_vec_db:
             if G.hasGlobalAttr("vec_db"):
                 vec_db: VectorDatabase = G.getGlobalAttr("vec_db")
@@ -129,10 +127,6 @@ class RequestHandlerMixin():
         if not G.hasGlobalAttr("user_pool"):
             self.initdb()
         return G.getGlobalAttr("user_pool")
-    
-    @property
-    def discussion_db(self) -> DiscussDatabase:
-        return G.getGlobalAttr("server_discussion_db")
     
     @property
     def enc_key(self) -> str:
