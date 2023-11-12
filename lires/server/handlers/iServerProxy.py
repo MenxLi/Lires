@@ -9,7 +9,7 @@ class IServerProxyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     # @minResponseInterval(1e-2)
     @keyRequired
     async def post(self, key):
-        self.setDefaultHeader()
+        self.allowCORS()
 
         if key == "textFeature":
             text = self.get_argument("text")

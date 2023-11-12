@@ -18,7 +18,7 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         Args:
             tags (str): tags should be "%" or split by "&&"
         """
-        self.setDefaultHeader()
+        self.allowCORS()
         self.set_header("totalDataCount", str(len(self.db)))
 
         # may delete this
@@ -68,7 +68,7 @@ class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
     @keyRequired
     async def get(self, uid:str):
-        self.setDefaultHeader()
+        self.allowCORS()
         dp: DataPoint = self.db[uid]
         self.write(json.dumps(dp.summary))
         return

@@ -12,7 +12,7 @@ class NoteGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         Args:
             uid (str): uuid of the datapoint
         """
-        self.setDefaultHeader()
+        self.allowCORS()
         dp = self.db[uid]
         self.logger.debug("Get notes of: {}".format(dp))
         self.write(dp.fm.readComments())
@@ -29,7 +29,7 @@ class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         user_info = self.user_info
         note = self.get_argument("content")
-        self.setDefaultHeader()
+        self.allowCORS()
 
         dp = self.db[uid]
         if not user_info["is_admin"]:
@@ -50,7 +50,7 @@ class AbstractGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         Args:
             uid (str): uuid of the datapoint
         """
-        self.setDefaultHeader()
+        self.allowCORS()
         dp = self.db[uid]
         self.logger.debug("Get abstract of: {}".format(dp))
         self.write(dp.fm.readAbstract())
@@ -68,7 +68,7 @@ class AbstractUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         user_info = self.user_info
         abstract = self.get_argument("content")
-        self.setDefaultHeader()
+        self.allowCORS()
 
         dp = self.db[uid]
         if not user_info["is_admin"]:

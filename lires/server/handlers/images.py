@@ -57,7 +57,7 @@ class ImageUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         if not self.user_info["is_admin"]:
             self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
 
-        self.setDefaultHeader()
+        self.allowCORS()
         file_info = self.request.files['file'][0]  # Get the file information
         file_data = file_info['body']  # Get the file data
         

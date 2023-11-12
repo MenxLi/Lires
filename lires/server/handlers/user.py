@@ -8,7 +8,7 @@ class UserInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     # @keyRequired
     def post(self, username):
-        self.setDefaultHeader()
+        self.allowCORS()
 
         user = self.user_pool.getUserByUsername(username)
         if user is None:
@@ -20,13 +20,17 @@ class UserInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.write(json.dumps(to_send))
 
 class UserInfoUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+    """
+    To update a user's settings.
+    Admin should update any user's settings using handers in userMan.py
+    """
     @keyRequired
     def post(self):
         user = self.user_pool.getUserByKey(self.user_info["enc_key"])
         assert user is not None, "User not found"   # should not happen
         id_ = user.info()["id"]
 
-        self.setDefaultHeader()
+        self.allowCORS()
 
         new_name = self.get_argument("name", None)
         if new_name is not None:
@@ -43,7 +47,7 @@ class UserListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     # @keyRequired
     def post(self):
-        self.setDefaultHeader()
+        self.allowCORS()
 
         to_send = []
         for user in self.user_pool:
@@ -96,7 +100,7 @@ class UserAvatarUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     @keyRequired
     def post(self):
-        self.setDefaultHeader()
+        self.allowCORS()
         user = self.user_pool.getUserByKey(self.user_info["enc_key"])
         assert user is not None, "User not found"   # should not happen
         

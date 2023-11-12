@@ -4,7 +4,7 @@ import json
 class AuthHandler (tornado.web.RequestHandler, RequestHandlerMixin):
     @keyRequired
     async def post(self):
-        self.setDefaultHeader()
+        self.allowCORS()
 
         require_user_info = self.get_argument("require_user_info")
         if not require_user_info:

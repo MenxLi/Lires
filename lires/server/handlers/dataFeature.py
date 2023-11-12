@@ -16,7 +16,7 @@ class DataFeatureTSNEHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     @keyRequired
     async def get(self, collection_name: str):
-        self.setDefaultHeader()
+        self.allowCORS()
 
         n_components = self.get_argument("n_components", default="3")
         perplexity = self.get_argument("perplexity", default="-1")

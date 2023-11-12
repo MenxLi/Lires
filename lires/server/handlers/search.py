@@ -6,7 +6,7 @@ class SearchHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     @keyRequired
     def post(self):
-        self.setDefaultHeader()
+        self.allowCORS()
 
         method = self.get_argument("method")
         kwargs = json.loads(self.get_argument("kwargs"))

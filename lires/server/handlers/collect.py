@@ -11,7 +11,7 @@ class CollectHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             # only admin access
             raise tornado.web.HTTPError(403)
 
-        self.setDefaultHeader()
+        self.allowCORS()
         retrive_str = self.get_argument("retrive")
         tags = json.loads(self.get_argument("tags", default="[]"))
         uuid = self.get_argument("uuid", default=None)

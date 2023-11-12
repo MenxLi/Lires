@@ -8,7 +8,7 @@ from lires.core.htmlTools import unpackHtmlTmp
 
 class DocHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     def get(self, uuid):
-        self.setDefaultHeader()
+        self.allowCORS()
         file_p = self.db[uuid].fm.file_p
         if isinstance(file_p, str):
             if file_p.endswith(".pdf"):
@@ -23,7 +23,7 @@ class DocHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerMixin):
     # handler for local web pages
     def get(self, path, include_body = True):
-        self.setDefaultHeader()
+        self.allowCORS()
         psplit = path.split("/")
         uuid = psplit[0]
 

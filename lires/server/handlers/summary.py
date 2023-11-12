@@ -25,7 +25,7 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     async def post(self):
 
         # Set the appropriate headers to enable streaming
-        self.setDefaultHeader()
+        self.allowCORS()
         self.set_header('Content-Type', 'text/plain')
         self.set_header('Cache-Control', 'no-cache')
 

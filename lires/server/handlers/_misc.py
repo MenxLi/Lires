@@ -11,7 +11,7 @@ class ReloadDBHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     @keyRequired
     async def post(self):
         user_info = self.user_info
-        self.setDefaultHeader()
+        self.allowCORS()
 
         self.logger.info(f"Reload DB, from {user_info['name']}({user_info['enc_key']})")
         self.initdb()
@@ -23,7 +23,7 @@ class StatusHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     _init_time = time.time()
 
     async def _respond(self):
-        self.setDefaultHeader()
+        self.allowCORS()
         self.write(json.dumps({
             "status": "OK",
             "uptime": time.time() - self._init_time,

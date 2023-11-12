@@ -16,7 +16,7 @@ class DataDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     @keyRequired
     async def post(self):
-        self.setDefaultHeader()
+        self.allowCORS()
         uuid = self.get_argument("uuid")
         if self.db.delete(uuid):
             self.logger.info(f"Deleted {uuid}")
@@ -36,7 +36,7 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         permission = self.user_info
 
         __info = [] # for logging
-        self.setDefaultHeader()
+        self.allowCORS()
 
         uuid = json.loads(self.get_argument("uuid"))
         assert uuid is None or isinstance(uuid, str)
@@ -98,7 +98,7 @@ class DocumentUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         if not self.user_info["is_admin"]:
             self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
 
-        self.setDefaultHeader()
+        self.allowCORS()
         file_info = self.request.files['file'][0]  # Get the file information
         file_data = file_info['body']  # Get the file data
         
@@ -138,7 +138,7 @@ class DocumentFreeHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         Free a document from a file
         """
-        self.setDefaultHeader()
+        self.allowCORS()
         dp = self.db[uid]
         if not self.user_info["is_admin"]:
             self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
@@ -155,7 +155,7 @@ class TagRenameHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         Rename a tag
         """
-        self.setDefaultHeader()
+        self.allowCORS()
         old_tag = self.get_argument("oldTag")
         new_tag = self.get_argument("newTag")
         if not self.user_info["is_admin"]:
@@ -171,7 +171,7 @@ class TagDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         Delete a tag
         """
-        self.setDefaultHeader()
+        self.allowCORS()
         tag = self.get_argument("tag")
         if not self.user_info["is_admin"]:
             # only admin can delete tags

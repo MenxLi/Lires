@@ -4,5 +4,5 @@ from lires.version import VERSION_HISTORIES
 
 class ChangelogHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     def get(self):
-        self.setDefaultHeader()
+        self.allowCORS()
         self.write(json.dumps(VERSION_HISTORIES))

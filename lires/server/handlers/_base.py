@@ -186,7 +186,7 @@ class RequestHandlerMixin():
                 return False
         return True
 
-    def setDefaultHeader(self):
+    def allowCORS(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Credentials", "true")
         self.set_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
