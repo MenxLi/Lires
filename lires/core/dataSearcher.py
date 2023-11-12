@@ -8,7 +8,6 @@ from . import globalVar as G
 from typing import Dict, Optional, TypedDict
 from .dataClass import DataCore, DataBase, DataPoint
 from .asynciolib import asyncioLoopRun
-from .serverConn import ServerConn
 from .textUtils import queryFeatureIndex
 from tiny_vectordb import VectorDatabase
 

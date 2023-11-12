@@ -9,7 +9,7 @@ def run():
     assert args is not None     # type checking purpose
 
     # Read configuration file after parse agruments
-    from .confReader import getConf, saveToConf, CONF_FILE_PATH, DEFAULT_DATA_PATH, TMP_DIR, LOG_DIR, LRS_HOME
+    from .confReader import getConf, saveToConf, CONF_FILE_PATH, DATABASE_DIR, TMP_DIR, LOG_DIR, LRS_HOME
     from .version import VERSION, VERSION_HISTORIES
 
     # Init logger will import lires.core, 
@@ -39,9 +39,9 @@ def run():
     if not os.path.exists(getConf()["database"]):
         G.logger_lrs.warn("Database not exists, default database path is set. "\
                           "The path can be changed in settings or edit conf.json")
-        if not os.path.exists(DEFAULT_DATA_PATH):
-            os.mkdir(DEFAULT_DATA_PATH)
-        saveToConf(database=DEFAULT_DATA_PATH)
+        if not os.path.exists(DATABASE_DIR):
+            os.mkdir(DATABASE_DIR)
+        saveToConf(database=DATABASE_DIR)
 
     if args.version:
         for v,change_list in VERSION_HISTORIES:

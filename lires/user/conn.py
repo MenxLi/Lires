@@ -4,10 +4,9 @@ import json
 from functools import wraps
 from threading import Lock
 
-from typing import TypedDict, Optional
+from typing import TypedDict
 
 from ..core import globalVar as G
-from ..confReader import USER_DIR
 from ..core.customError import *
 
 # a wrapper that marks an object instance needs lock,
@@ -30,9 +29,12 @@ class RawUser(TypedDict):
 class UsrDBConnection:
     logger = G.logger_lrs
 
-    def __init__(self, db_dir: str = USER_DIR, fname: str = "user.db"):
+    def __init__(self, db_dir: str, fname: str = "user.db"):
         self.lock = Lock()
         self.db_path = os.path.join(db_dir, fname)
+        if not os.path.exists(db_dir):
+            os.mkdir(db_dir)
+            self.logger.info("Creating user database directory at: %s", db_dir)
         if not os.path.exists(self.db_path):
             self.logger.info("Creating user database at: %s", self.db_path)
 

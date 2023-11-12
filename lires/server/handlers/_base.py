@@ -8,7 +8,7 @@ import time
 
 import http.cookies
 from lires.user import UserInfo, UserPool
-from lires.confReader import USER_DIR
+from lires.confReader import getConf
 from lires.core import globalVar as G
 from lires.core.dataClass import DataBase, DataTags
 from lires.confReader import getConf, VECTOR_DB_PATH
@@ -106,7 +106,7 @@ class RequestHandlerMixin():
             if G.hasGlobalAttr("user_pool"):
                 user_pool: UserPool = G.getGlobalAttr("user_pool")
                 user_pool.destroy()
-            G.setGlobalAttr("user_pool", UserPool(USER_DIR))
+            G.setGlobalAttr("user_pool", UserPool(getConf()["user_database"]))
     
     # initdb(None)    # type: ignore
     

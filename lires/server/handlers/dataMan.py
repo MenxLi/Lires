@@ -10,7 +10,7 @@ import json, os, tempfile
 from lires.core.bibReader import checkBibtexValidity
 from lires.core.fileTools import addDocument
 from lires.core.dataClass import DataTags
-from lires.confReader import getConf, TMP_DIR
+from lires.confReader import getConf, TMP_DIR, ACCEPTED_EXTENSIONS
 
 class DataDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
@@ -111,7 +111,7 @@ class DocumentUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
         #check file extension
         ext = os.path.splitext(original_filename)[1]
-        if ext not in getConf()["accepted_extensions"]:
+        if ext not in ACCEPTED_EXTENSIONS:
             raise tornado.web.HTTPError(400, reason="File extension not allowed")
         
         # save the file to a temporary location

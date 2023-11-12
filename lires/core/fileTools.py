@@ -11,7 +11,7 @@ from .dbConn import DBConnection, DocInfo
 from .bibReader import BibParser
 from .utils import TimeUtils
 from .utils import openFile as _openFile
-from ..confReader import getConf, getDatabase
+from ..confReader import getConf, getDatabase, ACCEPTED_EXTENSIONS
 from ..version import VERSION
 from .htmlTools import openTmp_hpack
 
@@ -265,7 +265,7 @@ class FileManipulator:
             self.logger.warn("The file is already existing")
             return False
         doc_ext = _getFileExt(extern_file_p)
-        if doc_ext not in getConf()["accepted_extensions"]:
+        if doc_ext not in ACCEPTED_EXTENSIONS:
             self.logger.warn("The file extension is not supported")
             return False
         _addDocumentFile(self.conn, self.uuid, extern_file_p)

@@ -19,9 +19,6 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 
 db_dir = os.path.join(this_dir, ".TempDir", "Database")
 if not os.path.exists(db_dir): os.makedirs(db_dir)
-## [Optional] Get database path from config file
-# from lires.confReader import getConf
-# db_dir = getConf()["database"]
 print("Database path set to: ", db_dir)
 
 # prepare document data

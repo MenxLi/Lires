@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 
 from lires.core.fileTools import addDocument
 from lires.core.dataClass import DataBase
-from lires.confReader import TMP_DIR, getConfV, getServerURL
+from lires.confReader import TMP_DIR, getConf
 from lires.core.utils import sssUUID
 from lires.core import globalVar as G
 
@@ -189,7 +189,7 @@ class LiresRetriver:
         """
         if database is None:
             __new_database = True   # indicate if the database is newly created
-            database_dir = getConfV("database")
+            database_dir = getConf()["database"]
             database = DataBase(database_dir)
         else:
             __new_database = False
@@ -278,22 +278,14 @@ def main():
     logger.addHandler(handler)
 
     if args.server_run:
-        import requests, json
         from lires.core.encryptClient import generateHexHash
-        post_args = {
-            "key": generateHexHash(getConfV("access_key")),
-            "retrive": args.retrive,
-            "tags": json.dumps(args.tags),
-            "download_doc": "true" if args.download else "false",
-            # "uuid": args.retrive,
-        }
-        addr = getServerURL()
-        post_addr = "{}/collect".format(addr) 
-        res = requests.post(post_addr, params = post_args)
-        if not res.ok:
-            logger.error(f"Failed requesting {post_addr} ({res.status_code}).")
-        else:
-            logger.info("Success")
+        from lires.core.serverConn import ServerConn
+        # TODO: get server url and hash key in some way...
+        server_url = ""
+        hash_key = ""
+        ServerConn(server_url, hash_key).collect(args.retrive, tags = args.tags, download_doc = args.download)
+        logger.info("Success")
+
     else:
         if exec(args.retrive, download_doc=args.download, tags=args.tags):
             logger.info("Success")

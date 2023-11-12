@@ -4,7 +4,6 @@ import PIL.Image as Image
 from typing import Optional, TypedDict
 from .conn import RawUser, UsrDBConnection
 from .encrypt import encryptKey
-from ..confReader import USER_AVATAR_DIR
 
 class UserInfo(TypedDict):
     id: int
@@ -28,6 +27,11 @@ class LiresUser:
     def __init__(self, conn: UsrDBConnection, id: int) -> None:
         self._conn = conn
         self._id = id
+
+        user_database = os.path.dirname(conn.db_path)
+        self.USER_AVATAR_DIR = os.path.join(user_database, "avatar")
+        if not os.path.exists(self.USER_AVATAR_DIR):
+            os.mkdir(self.USER_AVATAR_DIR)
     
     @property
     def conn(self) -> UsrDBConnection:
@@ -65,8 +69,8 @@ class LiresUser:
     @property
     def avatar_image_path(self) -> Optional[AvatarPath]:
         a_pth: AvatarPath = {
-            "original": os.path.join(USER_AVATAR_DIR, f"{self._id}_original.png"),
-            "square": os.path.join(USER_AVATAR_DIR, f"{self._id}_square.png"),
+            "original": os.path.join(self.USER_AVATAR_DIR, f"{self._id}_original.png"),
+            "square": os.path.join(self.USER_AVATAR_DIR, f"{self._id}_square.png"),
         }
         if not all([os.path.exists(a_pth[k]) for k in a_pth]):
             return None
@@ -85,7 +89,7 @@ class LiresUser:
         if image is None:
             # remove avatar image
             for k in ["original", "large", "small"]:
-                pth = os.path.join(USER_AVATAR_DIR, f"{self._id}_{k}.png")
+                pth = os.path.join(self.USER_AVATAR_DIR, f"{self._id}_{k}.png")
                 if os.path.exists(pth):
                     os.remove(pth)
             return
@@ -97,7 +101,7 @@ class LiresUser:
             raise TypeError("image must be str or PIL.Image.Image")
 
         # save original
-        img.save(os.path.join(USER_AVATAR_DIR, f"{self._id}_original.png"))
+        img.save(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_original.png"))
 
         # crop to square
         if img.width > img.height:
@@ -111,5 +115,5 @@ class LiresUser:
 
         # resize to 512x512
         img_sq = img.resize((512, 512))
-        img_sq.save(os.path.join(USER_AVATAR_DIR, f"{self._id}_square.png"))
+        img_sq.save(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_square.png"))
         return 

@@ -5,11 +5,10 @@ refer to lires.server for more information
 
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, List, Literal, TypedDict
+from abc import abstractproperty
 import deprecated
 import requests, json
 from . import globalVar as G
-from .encryptClient import generateHexHash
-from ..confReader import getServerURL, getConfV
 import sys
 if sys.version_info < (3, 9):
     from typing import Iterator
@@ -24,9 +23,9 @@ if TYPE_CHECKING:
     from lires_ai.lmInterface import ConversationDictT, ChatStreamIterType
 
 class ConnectionBase:
-    @property
-    def hash_key(self):
-        return generateHexHash(getConfV("access_key"))
+    @abstractproperty
+    def hash_key(self) -> str:
+        ...
     
     @property
     def logger(self):
@@ -54,10 +53,20 @@ class ServerConn(ConnectionBase):
     **There used to be an online mode using this class, with a GUI written in PyQt6,
     now it is deprecated and the interface is not maintained.**
     """
+
+    def __init__(self, api_url: str, hash_key: str = "") -> None:
+        self.__hash_key = hash_key
+        self.__api_url = api_url
+    
+    @property
+    def hash_key(self) -> str:
+        return self.__hash_key
     
     @property
     def SERVER_URL(self):
-        return getServerURL()
+        if self.__api_url.endswith("/"):
+            return self.__api_url[:-1]
+        return self.__api_url
 
     def permission(self) -> Optional[UserInfo]:
         post_url = self.SERVER_URL + "/auth"
@@ -133,7 +142,18 @@ class ServerConn(ConnectionBase):
 
     def getNoteURL(self, uid: str) -> str:
         return self.SERVER_URL + "/comment/{}/".format(uid)
-
+    
+    def collect(self, retrive_str: str, tags: list[str] = [], download_doc: bool = False):
+        post_url = self.SERVER_URL + "/collect"
+        post_args = {
+            "key": self.hash_key,
+            "retrive": retrive_str,
+            "tags": json.dumps(tags),
+            "download_doc": json.dumps(download_doc)
+        }
+        res = requests.post(post_url, data = post_args)
+        if not self._checkRes(res):
+            raise RuntimeError("Failed to collect, get response {}".format(res.status_code))
 
 class IServerConn(ConnectionBase):
     """Connection to ilrs.server"""
