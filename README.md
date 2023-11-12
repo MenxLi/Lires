@@ -3,7 +3,7 @@
 
 The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** is the French word for '***Read***'.
 
-![LiresWeb-GUI](http://limengxun.com/files/imgs/liresweb.png)
+![LiresWeb-GUI](https://limengxun.com/files/imgs/liresweb.png)
 
 ## Modules
 Mainly consists of three modules:  
@@ -42,5 +42,4 @@ Now open the browser and visit the WebUI on `http://localhost:8081`.
 
 # Manuals and documentations
 - [Getting started](docs/gettingStarted.md)
-- [API-usage](docs/api.md)
 - [Development](docs/devGuide.md)

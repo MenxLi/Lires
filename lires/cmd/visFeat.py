@@ -2,7 +2,7 @@
 Command line tool to visualize the features of the documents in the database.
 """
 from lires.confReader import DATABASE_DIR, TMP_DIR, VECTOR_DB_PATH
-from lires.api import DataBase
+from lires.core.dataClass import DataBase
 import torch
 from typing import TypedDict
 import os

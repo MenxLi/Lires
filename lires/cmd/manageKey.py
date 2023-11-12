@@ -2,6 +2,7 @@ import argparse
 from lires.core.encryptClient import generateHexHash
 from lires.core.utils import randomAlphaNumeric
 from lires.user import UsrDBConnection, UserPool
+from lires.confReader import USER_DIR
 
 def run():
     parser = argparse.ArgumentParser()
@@ -24,14 +25,14 @@ def run():
 
     if args.subparser == "register":
         assert args.password is not None, "Password is required"
-        user_db_conn = UsrDBConnection()
+        user_db_conn = UsrDBConnection(USER_DIR)
         user_db_conn.insertUser(
             username=args.username, password=args.password, name=args.name,
             is_admin=args.admin, mandatory_tags=args.tags
         )
 
     elif args.subparser == "delete":
-        user_db_conn = UsrDBConnection()
+        user_db_conn = UsrDBConnection(USER_DIR)
         assert args.username is not None or args.id is not None, "Username or id is required"
         assert not (args.username is not None and args.id is not None), "Cannot specify both username and id"
         if args.username is not None:

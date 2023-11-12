@@ -1,10 +1,11 @@
-from lires.api import *
 import sys
 import asyncio
 from lires.confReader import DATABASE_DIR, VECTOR_DB_PATH
 from lires.core.textUtils import retrieveRelevantSections
-from lires.core.pdfTools import PDFAnalyser, getPDFText
+from lires.core.pdfTools import getPDFText
 from lires.core.utils import BCOLORS
+from lires.core.serverConn import IServerConn
+from lires.core.dataClass import DataBase
 from tiny_vectordb import VectorDatabase
 from lires_ai.lmInterface import ChatStreamIterType
 
