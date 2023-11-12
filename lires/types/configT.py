@@ -4,12 +4,11 @@ from typing import TypedDict
 class LiresConfT(TypedDict):
     """
     Refer to lrs-resetconf 
-    for the generation of default configuration file
-    """
+    for the generation of default configuration file,
 
-    """STATIC SETTINGS, refer to confReader.getConf()"""
-    database: str
-    user_database: str
-    index_store: str
+    changed in v1.1.2:
+        - All fields are moved as static fields of lires.confReader, May add some fields in the future.
+    """
+    ...
 
 __all__ = ["LiresConfT"]

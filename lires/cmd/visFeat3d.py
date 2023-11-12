@@ -1,7 +1,7 @@
 """
 Command line tool to visualize the features of the documents in the database.
 """
-from lires.confReader import VECTOR_DB_PATH, getConf, TMP_DIR
+from lires.confReader import VECTOR_DB_PATH, DATABASE_DIR, TMP_DIR
 from lires.api import DataBase
 from lires.core import globalVar as G
 # import torch
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     vector_collection = vector_db.getCollection("doc_feature")
 
     print("Loading database...")
-    db = DataBase(getConf()["database"])
+    db = DataBase(DATABASE_DIR)
     feat_dict: dict[str, FeatDictItemWthTSNE] = {}
     _all_ids = vector_collection.keys()
     _all_feat = vector_collection.getBlock(_all_ids)

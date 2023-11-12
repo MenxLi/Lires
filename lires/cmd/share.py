@@ -4,7 +4,6 @@ To generate share page
 
 import argparse
 import urllib.parse
-from lires.confReader import getConf
 
 def main():
 	parser = argparse.ArgumentParser("lrs-share")

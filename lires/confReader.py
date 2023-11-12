@@ -1,48 +1,12 @@
 import os, json, logging
 from .core import globalVar as G
 from .types.configT import *
-import deprecated
 
 logger_lrs = logging.getLogger("lires")
 
 join = os.path.join
 
 WEBPAGE = "https://github.com/MenxLi/ResBibManager"
-
-def getConf() -> LiresConfT:
-    global CONF_FILE_PATH, CURR_PATH, G
-    static_config = {
-        "database": DATABASE_DIR,
-        "user_database": USER_DIR,
-        "index_store": INDEX_DIR,
-    }
-    if not hasattr(G, "config"):
-        with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
-            read_conf = json.load(conf_file)
-
-        conf: LiresConfT = {**static_config, **read_conf}   # type: ignore
-        conf["database"] = os.path.normpath(conf["database"])
-        conf["database"] = os.path.realpath(conf["database"])
-        G.config = conf
-
-    # Configuration saved at global buffer
-    # To not repeatedly reading/parsing configuration file
-    return G.config
-
-def saveToConf(**kwargs):
-    try:
-        with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
-            conf_ori = json.load(conf_file)
-    except FileNotFoundError:
-        conf_ori = dict()
-    for k,v in kwargs.items():
-        conf_ori[k] = v
-    with open(CONF_FILE_PATH, "w", encoding="utf-8") as conf_file:
-        json.dump(conf_ori, conf_file, indent=1)
-
-    # Reset global configuration buffer
-    # So that next time the configuration will be read from file by getConf/getConfV
-    G.resetGlobalConfVar()
 
 # a schematic ascii image of the file tree
 # LRS_HOME
@@ -81,21 +45,22 @@ else:
 
 ASSETS_PATH = join(CURR_PATH, "assets")
 
+## Data entries
 DATABASE_DIR = join(LRS_HOME, "Database")
 USER_DIR = join(LRS_HOME, "Users")
 INDEX_DIR = os.path.join(LRS_HOME, "index")      # For index cache
-LOG_DIR = os.path.join(LRS_HOME, "log")          # For log files
-PDF_VIEWER_DIR = join(LRS_HOME, "pdf-viewer")
 
+# indexing related
+VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
+DOC_SUMMARY_DIR = os.path.join(INDEX_DIR, "summary")
+
+PDF_VIEWER_DIR = join(LRS_HOME, "pdf-viewer")
+LOG_DIR = os.path.join(LRS_HOME, "log")          # For log files
 LOG_FILE = join(LRS_HOME, "default.txt")    # may deprecate this
 
 # things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
 TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
-
-# indexing related
-VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
-DOC_SUMMARY_DIR = os.path.join(INDEX_DIR, "summary")
 
 ACCEPTED_EXTENSIONS = [".pdf", ".caj", ".html", ".hpack", ".md", ".pptx", ".ppt"]
 
@@ -106,35 +71,45 @@ for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 for _p in [
-    TMP_DIR, TMP_WEB, 
+    TMP_DIR, TMP_WEB,
     INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR, 
     ]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 
-def getDatabase() -> str:
-    return getConf()["database"]
+def getConf() -> LiresConfT:
+    global CONF_FILE_PATH, CURR_PATH, G
+    default_config = { }
+    if not hasattr(G, "config"):
+        with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
+            read_conf = json.load(conf_file)
+        conf: LiresConfT = {**default_config, **read_conf}   # type: ignore
+        G.config = conf
 
-def getDatabasePath_withFallback(fallback: str = DATABASE_DIR) -> str:
-    """
-    get the path to the database,
-    if it not exists, return the default path
-    """
-    tempt = getConf()["database"]
-    if os.path.exists(tempt):
-        return tempt
-    else:
-        return fallback
+    # Configuration saved at global buffer
+    # To not repeatedly reading/parsing configuration file
+    return G.config
+
+def saveToConf(**kwargs):
+    try:
+        with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
+            conf_ori = json.load(conf_file)
+    except FileNotFoundError:
+        conf_ori = dict()
+    for k,v in kwargs.items():
+        conf_ori[k] = v
+    with open(CONF_FILE_PATH, "w", encoding="utf-8") as conf_file:
+        json.dump(conf_ori, conf_file, indent=1)
+
+    # Reset global configuration buffer
+    # So that next time the configuration will be read from file by getConf/getConfV
+    G.resetGlobalConfVar()
 
 def generateDefaultConf():
     """
     "database" points to local database, used by LiresServer and Qt GUI in local mode,
     """
-    default_config: LiresConfT = {
-        "database": DATABASE_DIR,
-        "user_database": USER_DIR,
-        "index_store": INDEX_DIR,
-    }
+    default_config: LiresConfT = {}
 
     with open(CONF_FILE_PATH, "w", encoding="utf-8") as fp:
         json.dump(default_config, fp, indent=1)

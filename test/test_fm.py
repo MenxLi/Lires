@@ -3,7 +3,7 @@
 import os
 from pprint import pprint
 from lires.initLogger import initDefaultLogger; initDefaultLogger()
-from lires.confReader import LRS_HOME, getDatabase
+from lires.confReader import DATABASE_DIR
 from lires.core.fileTools import addDocument, DBConnection, FileManipulator
 from lires.core.dataClass import DataPoint, DataBase
 
@@ -52,7 +52,7 @@ def testFileManipulator(fm: FileManipulator):
     fm.deleteDocument()
     # fm.openFile()
 
-db_pth = getDatabase()
+db_pth = DATABASE_DIR
 conn = DBConnection(db_pth)
 uid = addDocument(conn, test_bibtex, doc_src=pdf_path); assert uid
 # fm = FileManipulator(uid, conn)

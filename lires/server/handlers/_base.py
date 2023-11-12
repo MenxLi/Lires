@@ -8,16 +8,16 @@ import time
 
 import http.cookies
 from lires.user import UserInfo, UserPool
-from lires.confReader import getConf
+from lires.confReader import DATABASE_DIR
 from lires.core import globalVar as G
 from lires.core.dataClass import DataBase, DataTags
-from lires.confReader import getConf, VECTOR_DB_PATH
+from lires.confReader import USER_DIR, VECTOR_DB_PATH
 from lires.core.utils import BCOLORS
 from tiny_vectordb import VectorDatabase
 
 G.init()
 def getLocalDatabasePath():
-    return getConf()['database']
+    return DATABASE_DIR
 
 def loadDataBase(db_path: str):
     G.logger_lrs_server.info("Loading database: {}".format(db_path))
@@ -45,7 +45,7 @@ class RequestHandlerMixin():
     get_cookie: Callable[[str, Optional[str]], Optional[str]]
     set_header: Callable
     cookies: http.cookies.SimpleCookie
-    db_path: str = getLocalDatabasePath()
+    db_path: str = DATABASE_DIR
     logger = G.logger_lrs_server
 
     # Set max_workers to larger than 1 will somehow cause blocking 
@@ -88,7 +88,7 @@ class RequestHandlerMixin():
             if G.hasGlobalAttr("server_db"):
                 db: DataBase = G.getGlobalAttr("server_db")
                 db.destroy()
-            G.setGlobalAttr("server_db", loadDataBase(getLocalDatabasePath()))
+            G.setGlobalAttr("server_db", loadDataBase(DATABASE_DIR))
         if load_vec_db:
             if G.hasGlobalAttr("vec_db"):
                 vec_db: VectorDatabase = G.getGlobalAttr("vec_db")
@@ -106,7 +106,7 @@ class RequestHandlerMixin():
             if G.hasGlobalAttr("user_pool"):
                 user_pool: UserPool = G.getGlobalAttr("user_pool")
                 user_pool.destroy()
-            G.setGlobalAttr("user_pool", UserPool(getConf()["user_database"]))
+            G.setGlobalAttr("user_pool", UserPool(USER_DIR))
     
     # initdb(None)    # type: ignore
     

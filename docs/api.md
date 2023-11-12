@@ -8,9 +8,8 @@ It is designed for easy retrieval of most frequently used modules of lires
 
 From local database:
 ```python
-from lires.api import DataBase, getConf
-config = getConf()
-database = DataBase(config['database'])
+from lires.api import DataBase, DATABASE_PATH
+database = DataBase(DATABASE_PATH)
 summaries = [data.summary for data in database.values()]
 ```
 From the server:

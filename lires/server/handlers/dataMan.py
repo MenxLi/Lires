@@ -10,7 +10,7 @@ import json, os, tempfile
 from lires.core.bibReader import checkBibtexValidity
 from lires.core.fileTools import addDocument
 from lires.core.dataClass import DataTags
-from lires.confReader import getConf, TMP_DIR, ACCEPTED_EXTENSIONS
+from lires.confReader import TMP_DIR, ACCEPTED_EXTENSIONS
 
 class DataDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 

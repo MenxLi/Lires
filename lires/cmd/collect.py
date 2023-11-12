@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 
 from lires.core.fileTools import addDocument
 from lires.core.dataClass import DataBase
-from lires.confReader import TMP_DIR, getConf
+from lires.confReader import TMP_DIR, DATABASE_DIR
 from lires.core.utils import sssUUID
 from lires.core import globalVar as G
 
@@ -189,8 +189,7 @@ class LiresRetriver:
         """
         if database is None:
             __new_database = True   # indicate if the database is newly created
-            database_dir = getConf()["database"]
-            database = DataBase(database_dir)
+            database = DataBase(DATABASE_DIR)
         else:
             __new_database = False
 

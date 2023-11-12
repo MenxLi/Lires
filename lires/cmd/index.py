@@ -3,7 +3,7 @@ Build search index for the database
 """
 import argparse, subprocess, asyncio
 
-from lires.confReader import getDatabasePath_withFallback, VECTOR_DB_PATH
+from lires.confReader import DATABASE_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase
 from lires.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
 from lires.core.utils import MuteEverything
@@ -38,8 +38,7 @@ def parseArgs() -> argparse.Namespace:
 def main():
     args = parseArgs()
     with MuteEverything():
-        db_path = getDatabasePath_withFallback()
-        db = DataBase().init(db_path)
+        db = DataBase().init(DATABASE_DIR)
 
     # set global variables of iServer
     # so that when initializing iServerConn, it can get the correct host and port

@@ -50,8 +50,11 @@ class ServerConn(ConnectionBase):
     This class is highly unfinished and untested, 
     More features will be added in the future.
     
-    **There used to be an online mode using this class, with a GUI written in PyQt6,
-    now it is deprecated and the interface is not maintained.**
+    **
+        There used to be an online mode using this class, with a GUI written in PyQt6,
+        now it is deprecated and the interface is not actively maintained.
+    **
+
     """
 
     def __init__(self, api_url: str, hash_key: str = "") -> None:
@@ -156,7 +159,7 @@ class ServerConn(ConnectionBase):
             raise RuntimeError("Failed to collect, get response {}".format(res.status_code))
 
 class IServerConn(ConnectionBase):
-    """Connection to ilrs.server"""
+    """Connection to lires_ai.server"""
 
     def __init__(self, host: str = "", port: str|int = "") -> None:
         super().__init__()

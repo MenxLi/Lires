@@ -11,7 +11,7 @@ from .dbConn import DBConnection, DocInfo
 from .bibReader import BibParser
 from .utils import TimeUtils
 from .utils import openFile as _openFile
-from ..confReader import getConf, getDatabase, ACCEPTED_EXTENSIONS
+from ..confReader import DATABASE_DIR, ACCEPTED_EXTENSIONS
 from ..version import VERSION
 from .htmlTools import openTmp_hpack
 
@@ -124,7 +124,7 @@ class FileManipulator:
     
     def init(self, db_local: Optional[DBConnection | str] = None):
         if db_local is None:
-            self._conn = DBConnection(getDatabase())
+            self._conn = DBConnection(DATABASE_DIR)
         elif isinstance(db_local, str):
             self._conn = DBConnection(db_local)
         else:

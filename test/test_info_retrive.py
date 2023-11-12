@@ -1,7 +1,7 @@
 from lires.api import *
 import sys
 import asyncio
-from lires.confReader import getDatabase, VECTOR_DB_PATH
+from lires.confReader import DATABASE_DIR, VECTOR_DB_PATH
 from lires.core.textUtils import retrieveRelevantSections
 from lires.core.pdfTools import PDFAnalyser, getPDFText
 from lires.core.utils import BCOLORS
@@ -70,7 +70,7 @@ def extractAction(ans: str):
 
 def searchForInfo(query: str):
     print("\nSearching for information: {}{}".format(BCOLORS.GREEN, query), end=BCOLORS.ENDC + "\n")
-    database = DataBase(getDatabase())
+    database = DataBase(DATABASE_DIR)
     vector_collection = VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])["doc_feature"]
 
     query_vec = iconn.featurize(query)

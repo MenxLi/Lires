@@ -1,12 +1,12 @@
 
 from .object import LiresUser, UsrDBConnection
 from typing import Optional, Sequence
-from ..confReader import getConf
+from ..confReader import USER_DIR
 from ..core.customError import *
 
 class UserPool(Sequence[LiresUser]):
 
-    def __init__(self, user_dir: str = getConf()['user_database']) -> None:
+    def __init__(self, user_dir: str = USER_DIR) -> None:
         super().__init__()
         self._conn = UsrDBConnection(user_dir)
 

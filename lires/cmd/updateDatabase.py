@@ -5,7 +5,8 @@ This script is used to update database if data storage format has been change
 def stripDataTags():
     """
     Changed on 0.8.0,
-    remove whitespace in tags
+    remove whitespace in tags.
+    Not work after 1.1.2
     """
     from lires.version import VERSION; assert VERSION < "0.12.0" and VERSION >= "0.8.0"
     from lires.core.dataClass import DataBase, DataPoint
@@ -21,7 +22,8 @@ def stripDataTags():
 def useSqliteStorage(old_db_dir: str) -> str:
     """
     Changed on 0.12.0,
-    use sqlite3 to store data
+    use sqlite3 to store data.
+    Not work after 1.1.2
     """
     import os, json, shutil, tqdm
     from lires.version import VERSION; assert VERSION >= "0.12.0"
@@ -84,6 +86,7 @@ def changeHomeStructure():
     """
     Changed on 1.0.0,
     change home naming
+    Not work after 1.1.2
     """
     from lires.version import VERSION; assert VERSION >= "1.0.0"
     from lires.confReader import TMP_DIR, INDEX_DIR, LRS_HOME, getConf
