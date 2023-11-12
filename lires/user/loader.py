@@ -1,6 +1,8 @@
 
-from .object import LiresUser, UsrDBConnection
+import os
 from typing import Optional, Sequence
+
+from .object import LiresUser, UsrDBConnection
 from ..confReader import USER_DIR
 from ..core.customError import *
 
@@ -55,3 +57,23 @@ class UserPool(Sequence[LiresUser]):
             return LiresUser(self.conn, id)
         except LiresUserNotFoundError:
             return None
+    
+    def deleteUser(self, query: int|str):
+        user: Optional[LiresUser] = None
+        if isinstance(query, str):
+            user = self.getUserByUsername(query)
+        elif isinstance(query, int):
+            user = self.getUserById(query)
+        else:
+            raise ValueError("Invalid query type")
+
+        if user is None:
+            raise LiresUserNotFoundError(f"User {query} not found")
+        
+        # remove avatar image
+        if user.avatar_image_path:
+            for k in user.avatar_image_path:
+                if os.path.exists(user.avatar_image_path[k]):
+                    os.remove(user.avatar_image_path[k])
+
+        self.conn.deleteUser(query)

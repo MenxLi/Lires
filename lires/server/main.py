@@ -73,6 +73,8 @@ class Application(tornado.web.Application):
             (r"/user/info-update", UserInfoUpdateHandler),
             (r"/user/avatar/(.*)", UserAvatarHandler),
             (r"/user/avatar-upload", UserAvatarUploadHandler),
+            (r"/userman/create", UserCreateHandler),
+            (r"/userman/delete", UserDeleteHandler),
 
             # pdfjs
             (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),

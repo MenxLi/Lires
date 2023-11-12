@@ -12,6 +12,7 @@ from .images import *
 from .fileinfo_supp import *
 from .info import *
 from .user import *
+from .userMan import *
 from .pdfjs import *
 
 from .static import *
