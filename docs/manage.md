@@ -6,7 +6,7 @@ There are several management tools for the server, they are all accessible by `l
 All managements tools include:
 ```sh
 lrs-cluster     # Cluster management
-lrs-keyman      # Manage access key
+lrs-user        # Manage access key
 lrs-collect     # Automatic add entry to database with retriving string
 lrs-resetconf   # To reset default configuration
 lrs-share       # To generate share url

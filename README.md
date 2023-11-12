@@ -33,7 +33,7 @@ docker compose up
 
 # register a user and download pdf.js viewer on the first run 
 # (no need to run again if the container is re-created / re-started)
-docker exec lrs lrs-keyman register <your_key_here> --admin
+docker exec lrs lrs-user add <username> <password> --admin
 docker exec lrs lrs-utils download_pdfjs
 ```
 Now open the browser and visit the WebUI on `http://localhost:8081`.

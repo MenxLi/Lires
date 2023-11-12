@@ -129,11 +129,11 @@ A detailed description of each tool can be found in [manage.md](./manage.md).
 
 Following are some common management tasks.
 ### User management
-After installation, user access keys should be generated with `lrs-keyman` command.
+After installation, user should be registered with `lrs-user` command.
 ```sh
-lrs-keyman register <your_key> --admin
+lrs-user add <your_key> --admin
 ```
-for more information, see `lrs-keyman -h`.  
+for more information, see `lrs-user -h`.  
 
 ### Build search index
 The search index is used for **semantic search** and querying **related works**,
@@ -182,11 +182,11 @@ Instead, we can set the server settings pointing to the shared LiresAI server ou
 > For example, if the LiresAI server is running on the host machine with IP address `192.168.3.6:8731`, then we can set the `iserver_host` to `192.168.3.6` and `iserver_port` to `8731`.
 
 ### On the first run
-**On the first run** you need to generate the user key, which can be done by running the `lrs-keyman` command in the container.
+**On the first run** you need to generate the user key, which can be done by running the `lrs-user` command in the container.
 and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.
 The user information and pdf.js viewer will be stored in the volume mapping directory, so that they will not be lost when the container is removed.
 ```sh
-docker exec lrs lrs-keyman register your_key --admin
+docker exec lrs lrs-user add <username> <password> --admin
 docker exec lrs lrs-utils download_pdfjs
 ```
 

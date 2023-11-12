@@ -8,7 +8,7 @@ def run():
     parser = argparse.ArgumentParser()
     sp = parser.add_subparsers(dest = "subparser", help = "Key management")
 
-    parser_reg = sp.add_parser("register", help = "Register a user")
+    parser_reg = sp.add_parser("add", help = "Register a user")
     parser_reg.add_argument("username", help = "Username")
     parser_reg.add_argument("password", help = "Password")
     parser_reg.add_argument("-n", "--name", default = "Anonymous", help = "Identifier for this key, default: Anonymous")
@@ -23,7 +23,7 @@ def run():
 
     args = parser.parse_args()
 
-    if args.subparser == "register":
+    if args.subparser == "add":
         assert args.password is not None, "Password is required"
         user_db_conn = UsrDBConnection(USER_DIR)
         user_db_conn.insertUser(
