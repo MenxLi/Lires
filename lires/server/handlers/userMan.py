@@ -1,7 +1,7 @@
 
 from ._base import *
-from lires.user import UserPool
-import json, os
+from lires.core.dataClass import DataTags
+import json
 
 
 class UserCreateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
@@ -54,3 +54,27 @@ class UserDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             raise tornado.web.HTTPError(404, "User not found")
         self.user_pool.deleteUser(user.info()["id"])
         self.write("Success")
+
+class UserModifyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+    @keyRequired
+    def post(self):
+        self.allowCORS()
+
+        # only admin access
+        if not self.user_info["is_admin"]:
+            raise tornado.web.HTTPError(403)
+        
+        username = self.get_argument("username")
+        user = self.user_pool.getUserByUsername(username)
+        if user is None:
+            raise tornado.web.HTTPError(404, "User not found")
+        
+        new_admin_status = json.loads(self.get_argument("is_admin", default='null'))
+        if new_admin_status is not None:
+            user.conn.updateUser(user.info()["id"], is_admin=new_admin_status)
+        
+        new_mandatory_tags = json.loads(self.get_argument("mandatory_tags", default='null'))
+        if new_mandatory_tags is not None:
+            user.conn.updateUser(user.info()["id"], mandatory_tags=DataTags(new_mandatory_tags).toOrderedList())
+        
+        self.write(json.dumps(user.info_desensitized()))

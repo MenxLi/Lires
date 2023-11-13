@@ -26,7 +26,7 @@
     const avatarUploadBtn = ref(null as HTMLInputElement | null);
     const avatarURL = computed(() => {
         console.log("avatarURL updated");
-        return `${getBackendURL()}/user/avatar/${props.userInfo.username}?t=${Date.now()}&size=168`
+        return `${getBackendURL()}/user/avatar/${props.userInfo.username}?t=${Date.now()}&size=256`
     });
     function onUploadAvatarImage(file: File){
         // check if the file is an image
@@ -104,7 +104,7 @@
 
 <template>
 
-    <div id="main">
+    <div id="usercard-main">
         <QueryDialog v-model:show="showUserSettingsDialog" title="User settings"
         @on-cancel="showUserSettingsDialog=false" @on-accept="onConfirmUserSettings">
             <div id="user-settings">
@@ -132,7 +132,7 @@
                     <h1 id="name">{{ props.userInfo.name }}</h1>
                     <img v-if="THIS_USER" :src="EditSquareIcon" alt="" class="icon" id="edit-settings-icon" @click="showUserSettingsDialog=true">
                 </div>
-                <p>{{ props.userInfo.username}} <admin_hint>{{  props.userInfo.is_admin?"admin":""  }}</admin_hint></p>
+                <p>{{ props.userInfo.username}} <label class='admin_hint' v-if="props.userInfo.is_admin">admin</label></p>
                 <p id="backendurl">{{ getBackendURL() }}</p>
             </div>
         </div>
@@ -143,7 +143,8 @@
     /* div{
         border: 1px solid red;
     } */
-    div#main{
+    div#usercard-main{
+        margin-top: 10px;
         display: flex;
         align-items: center;
     }
@@ -154,11 +155,11 @@
         flex-direction: row;
         gap: 20px;
     }
-    admin_hint{
+    label.admin_hint{
         font-size: x-small;
         padding-left: 5px;
         padding-right: 5px;
-        height: 10px;
+        height: 12px;
         border-radius: 5px;
         background-color: var(--color-background-theme);
         /* color: var(--color-text-soft); */

@@ -589,6 +589,51 @@ export class ServerConn {
         else { throw new Error(`Got response: ${res.status}`) }
     }
 
+    async setUserAccess(username: string, setAdmin: boolean | null, setMandatoryTags: string[] | null): Promise<UserInfo>{
+        const form = new FormData();
+        form.append('key', this.settings.encKey)
+        form.append('username', username)
+        if (setAdmin !== null) form.append('is_admin', setAdmin.toString())
+        if (setMandatoryTags !== null) form.append('mandatory_tags', JSON.stringify(setMandatoryTags))
+
+        const res = await fetch(`${getBackendURL()}/userman/modify`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){ return await res.json(); }
+        else { throw new Error(`Got response: ${res.status}`) }
+    }
+
+    async createUser(username: string, name: string, password: string, isAdmin: boolean, mandatoryTags: string[]): Promise<UserInfo>{
+        const form = new FormData();
+        form.append('key', this.settings.encKey)
+        form.append('username', username)
+        form.append('name', name)
+        form.append('password', password)
+        form.append('is_admin', isAdmin.toString())
+        form.append('mandatory_tags', JSON.stringify(mandatoryTags))
+
+        const res = await fetch(`${getBackendURL()}/userman/create`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){ return await res.json(); }
+        else { throw new Error(`Got response: ${res.status}`) }
+    }
+
+    async deleteUser(username: string){
+        const form = new FormData();
+        form.append('key', this.settings.encKey)
+        form.append('username', username)
+
+        const res = await fetch(`${getBackendURL()}/userman/delete`, {
+            method: 'POST',
+            body: form,
+        });
+        if (res.ok){ return true; }
+        else { throw new Error(`Got response: ${res.status}`) }
+    }
+
     // ---- info ----
     async changelog(): Promise<Changelog>{
         const url = new URL(`${getBackendURL()}/info/changelog`);

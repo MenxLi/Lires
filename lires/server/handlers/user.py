@@ -21,7 +21,7 @@ class UserInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
 class UserInfoUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     """
-    To update a user's settings.
+    To update a user's own settings.
     Admin should update any user's settings using handers in userMan.py
     """
     @keyRequired
@@ -86,7 +86,8 @@ class UserAvatarHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             self.set_header("Content-Disposition", "inline")    
 
             # the response can be cached by the client or intermediate caches for a maximum of 86400 seconds (24 hours)
-            self.set_header("Cache-Control", "max-age=86400")
+            # self.set_header("Cache-Control", "max-age=86400")
+            self.set_header("Cache-Control", "max-age=300")
 
             img = Image.open(avatar_path["square"])
             img.thumbnail((im_size, im_size))

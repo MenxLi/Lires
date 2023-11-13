@@ -119,6 +119,10 @@ export const TextInputWindow = defineComponent({
 export const EditableParagraph = defineComponent({
     name: 'editable-paragraph',
     props: {
+        contentEditable:{
+            type: Boolean,
+            default: true
+        },
         style: {
             type: Object,
             default: () => ({})
@@ -180,7 +184,7 @@ export const EditableParagraph = defineComponent({
         // checks if there is a default slot defined within the component's context (context.slots.default) and 
         // if so, it calls the slot function (context.slots.default()).
         return () => (
-            <p class="editable-paragraph" contenteditable="true" ref={p}
+            <p class="editable-paragraph" contenteditable={props.contentEditable} ref={p}
                 onInput={handleInput} onBlur={handleBlur} onKeydown={handleKeyDown} style={props.style}>
                 {context.slots.default && context.slots.default()}
             </p>

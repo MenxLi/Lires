@@ -1,14 +1,21 @@
 <script setup lang="ts">
     import Banner from './common/Banner.vue';
     import UserCard from './dashboard/UserCard.vue';
-    import { ref, onActivated } from 'vue';
+    import UsersWiget from './dashboard/UsersWidget.vue';
+    import { ref, computed, onActivated } from 'vue';
     import { useRoute } from 'vue-router';
     import { ServerConn } from '../core/serverConn';
-    import { useUIStateStore } from './store';
+    import { useUIStateStore, useSettingsStore } from './store';
     import type { UserInfo } from '../core/protocalT';
 
     const route = useRoute();
     const conn = new ServerConn();
+
+    const THIS_USER = computed(() => {
+        const thisUserId = useSettingsStore().userInfo?useSettingsStore().userInfo!.id:-1;
+        console.log(thisUserId, userInfo.value.id);
+        return thisUserId === userInfo.value.id;
+    });
 
     const userInfo = ref({
         id: 0,
@@ -42,6 +49,7 @@
     <Banner />
     <div id="main-dashboard">
         <UserCard v-model:user-info="userInfo"/>
+        <UsersWiget v-if="THIS_USER"/>
     </div>
 </template>
 
@@ -52,6 +60,6 @@
         align-items: center;
         flex-direction: column;
         width: calc(100vw - 20px);
-        /* border: 1px solid #ccc; */
+        gap: 20px;
     }
 </style>

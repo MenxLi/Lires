@@ -4,19 +4,24 @@
     import TagBubble from './TagBubble.vue';
 
     const props = withDefaults(defineProps<{
-        tags: DataTags
+        tags: DataTags | string[]
         highlightTags?: DataTags | null
         maxWidth?: number | null
+        middleAlign?: boolean
     }>(), {
         highlightTags: null,
-        maxWidth: null
+        maxWidth: null,
+        middleAlign: false,
     })
 
 </script>
 
 <template>
     <div id="bubbleContainer" class="scrollable" 
-        :style="{maxWidth: `${(props.maxWidth?props.maxWidth:999)-10}px`}">
+        :style="{
+            maxWidth: `${(props.maxWidth?props.maxWidth:999)-10}px`,
+            justifyContent: props.middleAlign?'center':'flex-start',
+            }">
         <TagBubble v-for="tag in props.tags" :tag="tag" :highlight="props.highlightTags? props.highlightTags.has(tag) : false"></TagBubble>
     </div>
 </template>
@@ -25,7 +30,6 @@
 div#bubbleContainer{
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
     align-items: center;
     overflow: hidden;
     gap: 5px;

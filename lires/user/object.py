@@ -56,6 +56,12 @@ class LiresUser:
             "has_avatar": self.avatar_image_path is not None,
         }
     
+    def info_desensitized(self) -> UserInfo:
+        """For json serialization"""
+        ret = self.info()
+        ret["enc_key"] = "__HIDDEN__"
+        return ret
+    
     def __str__(self) -> str:
         info = self.info()
         out = f"[{info['id']}] {info['username']} ({info['name']}), {info['enc_key']}"

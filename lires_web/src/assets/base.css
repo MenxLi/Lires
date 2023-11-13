@@ -54,7 +54,7 @@
 
 /* my colors */
 :root {
-  --color-red-tranparent: rgba(200, 50, 80, 0.3);
+  --color-red-transparent: rgba(200, 50, 80, 0.084);
   --color-red: rgb(200, 50, 80);
   --color-danger: rgb(200, 50, 80);
   --color-danger-hover: rgba(200, 50, 80, 0.2);

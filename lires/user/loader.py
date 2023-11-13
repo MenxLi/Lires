@@ -72,8 +72,9 @@ class UserPool(Sequence[LiresUser]):
         
         # remove avatar image
         if user.avatar_image_path:
-            for k in user.avatar_image_path:
-                if os.path.exists(user.avatar_image_path[k]):
-                    os.remove(user.avatar_image_path[k])
+            __avatar_images = [user.avatar_image_path[k] for k in user.avatar_image_path]
+            for pth in __avatar_images:
+                if os.path.exists(pth):
+                    os.remove(pth)
 
         self.conn.deleteUser(query)
