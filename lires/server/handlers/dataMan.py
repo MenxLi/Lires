@@ -18,6 +18,10 @@ class DataDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     async def post(self):
         self.allowCORS()
         uuid = self.get_argument("uuid")
+        # check tag permission
+        if not self.user_info["is_admin"]:
+            self.checkTagPermission(self.db[uuid].tags, self.user_info["mandatory_tags"])
+
         if self.db.delete(uuid):
             self.logger.info(f"Deleted {uuid}")
         self.write("OK")
