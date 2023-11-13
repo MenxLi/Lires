@@ -21,7 +21,7 @@ def lock_required(func):
 class RawUser(TypedDict):
     id: int
     username: str
-    password: str
+    password: str       # should be encrypted
     name: str
     is_admin: bool
     mandatory_tags: list[str]

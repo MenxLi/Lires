@@ -2,9 +2,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { ServerConn } from '../../core/serverConn';
-import { sha256 } from '../../libs/sha256lib';
 import { useRouter } from 'vue-router';
-import { saveAuthentication } from '../../core/auth.js'
+import { saveAuthentication, getEncKey } from '../../core/auth.js'
 import { useSettingsStore } from '../store';
 
 import Toggle from '../common/Toggle.vue'
@@ -27,7 +26,7 @@ function login(){
 
     loginText.value = "Connecting..."
 
-    const encKey = sha256(username.value + password.value);
+    const encKey = getEncKey(username.value, password.value);
     const conn = new ServerConn();
     conn.authUsr(encKey as string).then(
         (userInfo) => {

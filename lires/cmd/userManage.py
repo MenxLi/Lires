@@ -1,7 +1,6 @@
 import argparse
-from lires.core.encryptClient import generateHexHash
-from lires.core.utils import randomAlphaNumeric
 from lires.user import UsrDBConnection, UserPool
+from lires.core.encryptClient import generateHexHash
 from lires.confReader import USER_DIR
 
 def run():
@@ -27,7 +26,7 @@ def run():
         assert args.password is not None, "Password is required"
         user_db_conn = UsrDBConnection(USER_DIR)
         user_db_conn.insertUser(
-            username=args.username, password=args.password, name=args.name,
+            username=args.username, password=generateHexHash(args.password), name=args.name,
             is_admin=args.admin, mandatory_tags=args.tags
         )
 

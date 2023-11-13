@@ -2,6 +2,7 @@
 import { ServerConn } from "./serverConn";
 import { useSettingsStore } from "../components/store";
 import type { UserInfo } from "./protocalT";
+import { sha256 } from "../libs/sha256lib";
 
 export function saveAuthentication(
     encKey: string, 
@@ -42,4 +43,8 @@ export async function settingsAuthentication(): Promise<UserInfo|null> {
         saveAuthentication("", null, true);
         return null;
     }
+}
+
+export function getEncKey(username: string, password: string){
+    return sha256(username + sha256(password));
 }

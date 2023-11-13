@@ -2,7 +2,7 @@
 // from: 
 // https://geraintluff.github.io/sha256/
 
-var sha256 = function sha256(ascii: string) {
+var sha256 = function sha256(ascii: string): string {
     function rightRotate(value: any, amount: number) {
         return (value >>> amount) | (value << (32 - amount));
     }
@@ -40,8 +40,7 @@ var sha256 = function sha256(ascii: string) {
         ascii += '\x00'; // More zero padding
     for (i = 0; i < ascii[lengthProperty]; i++) {
         j = ascii.charCodeAt(i);
-        if (j >> 8)
-            return; // ASCII check: only accept characters in range 0-255
+        if (j >> 8) throw new Error('ASCII check failed');
         words[i >> 2] |= j << ((3 - i) % 4) * 8;
     }
     words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);

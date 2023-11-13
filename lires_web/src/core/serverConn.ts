@@ -4,6 +4,7 @@
 import {getBackendURL} from "../config.js";
 import { useSettingsStore } from "../components/store.js";
 import type { DataInfoT, UserInfo, SearchResult, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
+import { sha256 } from "../libs/sha256lib.js";
 
 export class ServerConn {
     constructor(){
@@ -555,7 +556,7 @@ export class ServerConn {
     async updateUserPassword(newPassword: string): Promise<UserInfo>{
         const form = new FormData();
         form.append('key', this.settings.encKey) // the user is identified by the key
-        form.append('password', newPassword)
+        form.append('password', sha256(newPassword))
         
         const res = await fetch(`${getBackendURL()}/user/info-update`, {
             method: 'POST',
@@ -609,7 +610,7 @@ export class ServerConn {
         form.append('key', this.settings.encKey)
         form.append('username', username)
         form.append('name', name)
-        form.append('password', password)
+        form.append('password', sha256(password))
         form.append('is_admin', isAdmin.toString())
         form.append('mandatory_tags', JSON.stringify(mandatoryTags))
 
