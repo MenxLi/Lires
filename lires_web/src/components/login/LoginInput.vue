@@ -57,7 +57,7 @@ function login(){
         <form>
             <div class="loginLine">
                 <!-- <label for="username-input">Username: </label> -->
-                <input class='key-input' type="text" id="username-input" v-model="username" placeholder="Username"/>
+                <input class='key-input' type="text" id="username-input" v-model="username" placeholder="Username" autocomplete="off"/>
             </div>
             <div class="loginLine">
                 <!-- <label for="password-input">Password: </label> -->

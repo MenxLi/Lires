@@ -122,7 +122,7 @@
                 <option value="cat:cs.AI">cs.AI</option>
                 <option value="cat:stat.ML">stat.ML</option>
             </select>
-            <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText">
+            <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText" autocomplete="off">
         </div>
         <div id="loadingPlaceholder" v-if="sortedArxivArticles.length===0">
             <b>Fetching...</b>
