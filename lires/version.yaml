@@ -469,3 +469,17 @@ version_history:
       - Improve summary window size
     - Fix:
       - AI summary none-english regex match error
+  
+  1.1.2:
+    - New Features:
+      - Dashboard user data management
+      - Not auto complete on login
+      - Update user settings via commandline
+      - Save hash password instead of plain text
+    - Developments and refactors:
+      - "Rename: lrs-keyman -> lrs-user"
+      - "Rename: setDefaultHeader -> allowCORS"
+      - "Remove: Deprecate FileManipulatorVirtual class and Lires.api"
+      - "Remove: Remove all configration entries"
+    - Fix:
+      - Check tag permission on data deletion
