@@ -217,7 +217,7 @@
                 <td> {{user.name}} </td>
                 <td>
                     <TagBubbleContainer v-if="!user.is_admin" :tags="user.mandatory_tags" :max-width="200" :middle-align="true"/>
-                    <admin_hint v-else>Admin</admin_hint>
+                    <label class=admin_hint v-else>ADMIN</label>
                 </td>
             </tr>
             <tr>
@@ -247,15 +247,14 @@
         border-radius: 50%;
     }
 
-    admin_hint{
+    label.admin_hint{
         font-size: small;
         font-weight: bold;
-        padding-left: 5px;
-        padding-right: 5px;
-        padding-top: 2px;
-        padding-bottom: 2px;
-        height: 10px;
-        border-radius: 5px;
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        border-radius: 7px;
         background-color: var(--color-background-theme);
         /* color: var(--color-text-soft); */
         color: var(--color-theme);
