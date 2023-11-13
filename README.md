@@ -11,7 +11,7 @@ Mainly consists of three modules:
 2. `lires-ai`, AI server for computational intelligence features  
 3. `lires-web`, the WebUI
 
-It is designed to be deployed onto a server to share literatures or work in online mode.
+It is designed to be deployed onto a server to provide a self-hosted collaborative solution for research literature management.
 
 ## Features
 * Host a server to view, share and discuss online

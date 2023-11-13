@@ -5,25 +5,26 @@
 **Table of Contents**
 
 - [Getting Started](#getting-started)
-  - [Installation](#installation)
+  - [Manual Deployment](#manual-deployment)
     - [Server-side manual installation](#server-side-manual-installation)
-  - [Server startup](#server-startup)
-    - [Basic entries](#basic-entries)
-    - [More on starting the servers](#more-on-starting-the-servers)
+    - [Server startup](#server-startup)
+      - [Basic entries](#basic-entries)
+      - [More on starting the servers](#more-on-starting-the-servers)
     - [Cluster startup](#cluster-startup)
-  - [Management](#management)
-    - [User management](#user-management)
-    - [Build search index](#build-search-index)
+    - [On the first run](#on-the-first-run)
   - [Docker deployment](#docker-deployment)
     - [Method 1 - Use docker compose (recommended)](#method-1---use-docker-compose-recommended)
     - [Method 2 - Use the cluster image](#method-2---use-the-cluster-image)
-    - [On the first run](#on-the-first-run)
+    - [On the first run](#on-the-first-run-1)
+  - [Management](#management)
+    - [User management](#user-management)
+    - [Build search index](#build-search-index)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 
 
-## Installation
+## Manual Deployment
 
 ### Server-side manual installation
 Compile frontend files
@@ -42,7 +43,7 @@ pip install ./packages/tiny_vectordb
 pip install ".[core,ai]"
 lrs-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in LiresWeb
 ```
-**[Optional]** Compile tauri GUI
+**[Optional]** Compile client-side tauri GUI
 > **Prerequisites:**  Node.js, TypeScript, Rust
 ```bash
 cd lires_web
@@ -50,9 +51,9 @@ npm install
 npm run app:build
 ```
 ---
-## Server startup
+### Server startup
 
-### Basic entries
+#### Basic entries
 **Start the Lires:**
 ```bash
 lires server
@@ -78,7 +79,7 @@ LiresWeb is a Web-UI frontend.
 > -  It is also possible that the iserver needs a proxy to access the internet, while the Lires server does not.   
 </details>
 
-### More on starting the servers
+#### More on starting the servers
 `$LRS_HOME` directory is used for application data storage, by default it is set to `~/.Lires`.  
 The data directory contains the configuration file, log files, default database, LiresWeb backend data, cache files...  
 
@@ -121,31 +122,14 @@ lrs-cluster <your/configuration.yaml>
 ```
 The configuration file designates the environment variables, as well as the command line arguments for each server.
 
----
-
-## Management
-There are several management tools for the server, they are all accessible by `lrs-<tool_name>`.  
-A detailed description of each tool can be found in [manage.md](./manage.md).
-
-Following are some common management tasks.
-### User management
-After installation, user should be registered with `lrs-user` command.
+### On the first run
+**On the first run** you need to a user account, which can be done by running the `lrs-user` command in the container.
+and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.
 ```sh
-lrs-user add <your_key> --admin
+# export LRS_HOME="..."
+lrs-user add <username> <password> --admin
+lrs-utils download_pdfjs
 ```
-for more information, see `lrs-user -h`.  
-
-### Build search index
-The search index is used for **semantic search** and querying **related works**,
-It is currently implemented as building feature vectors for each entry (thanks to [huggingface transformers](https://huggingface.co/docs/transformers/index)), 
-and use cosine similarity to measure the distance between vectors.
-
-To build the index, run:  
-**This requires LiresAI server to be running.**
-```sh
-lrs-index build
-```
-*The priority for indexing sources: Abstract > AI summerization > PDF full text*
 
 ---
 ## Docker deployment
@@ -159,13 +143,13 @@ docker compose up
 ```
 
 ### Method 2 - Use the cluster image
+If you don't have an Nvidia GPU, or you want more flexibility, you can use the cluster image.
 ```sh
 # creates a docker image named lires
 docker build -f ./docker/cluster.Dockerfile -t lires:latest .
 
 # create the container named 'lrs', 
 # please change the port mapping and volume mapping as needed
-# depending on your need, you may want to expose only a subset of the ports
 docker run -d -p 8080:8080 -p 8081:8081 -v $HOME/.Lires:/root/.Lires --name lrs lires:latest
 ```
 
@@ -182,15 +166,40 @@ Instead, we can set the server settings pointing to the shared LiresAI server ou
 > For example, if the LiresAI server is running on the host machine with IP address `192.168.3.6:8731`, then we can set the `iserver_host` to `192.168.3.6` and `iserver_port` to `8731`.
 
 ### On the first run
-**On the first run** you need to generate the user key, which can be done by running the `lrs-user` command in the container.
-and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.
+The same as manual deployment, you need to add a user account and download the pdf.js viewer on the first run. 
 The user information and pdf.js viewer will be stored in the volume mapping directory, so that they will not be lost when the container is removed.
 ```sh
 docker exec lrs lrs-user add <username> <password> --admin
 docker exec lrs lrs-utils download_pdfjs
 ```
 
-Other management tools can be run in the container.  
+---
+
+## Management
+There are several management tools for the server, they are all accessible by `lrs-<tool_name>`.  
+A detailed description of each tool can be found in [manage.md](./manage.md).
+
+Following are some common management tasks.
+### User management
+After installation, user should be registered with `lrs-user` command.
 ```sh
-docker exec lrs lrs-...
+lrs-user add <username> <password>
 ```
+Or you want to change the password, admin status, or tag permisson of a user, run:
+```sh
+lrs-user update <username> -p <password> -t "tag1" "tag2->subtag" --admin true
+```
+for more information, see `lrs-user -h`.  
+
+### Build search index
+The search index is used for **semantic search** and querying **related works**,
+It is currently implemented as building feature vectors for each entry (thanks to [huggingface transformers](https://huggingface.co/docs/transformers/index)), 
+and use cosine similarity to measure the distance between vectors.
+
+**No need to manually build the index**, the index will be periodically updated by the server.   
+If you add a document and want to update the index immediately, or you want to use LLM to summarize all the no-absract entries for indexing, you can run:
+```sh
+lrs-index build
+```
+**This requires LiresAI server to be running.**
+*The priority for indexing sources: Abstract > AI summerization > PDF full text*
