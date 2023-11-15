@@ -3,8 +3,8 @@
     import { watch, ref } from 'vue';
     import { DataTags } from '../../core/dataClass';
     import { computed } from 'vue';
-    import TagSelector from './TagSelector.vue';
-    import TagBubbleContainer from './TagBubbleContainer.vue';
+    import TagSelector from '../tags/TagSelector.vue';
+    import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
     import { useUIStateStore, useDataStore } from '../store';
     import type { TagStatus } from '../interface';
 

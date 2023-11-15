@@ -3,7 +3,7 @@
     import { ref, computed, watch } from 'vue';
     // import FloatingWindow from '../common/FloatingWindow.vue';
     import QueryDialog from '../common/QueryDialog.vue';
-    import TagSelector from './TagSelector.vue';
+    import TagSelector from '../tags/TagSelector.vue';
     import { useUIStateStore, useDataStore } from '../store';
     import { DataTags, TagRule } from '../../core/dataClass';
     import { ServerConn } from '../../core/serverConn';

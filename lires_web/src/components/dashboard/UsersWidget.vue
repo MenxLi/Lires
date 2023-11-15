@@ -6,7 +6,7 @@
     import { ServerConn } from '../../core/serverConn';
     import { ref, computed, onMounted } from 'vue';
 
-    import TagBubbleContainer from '../home/TagBubbleContainer.vue';
+    import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
     import QueryDialog from '../common/QueryDialog.vue';
     import Toggle from '../common/Toggle.vue';
     import { useUIStateStore } from '../store';
