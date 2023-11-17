@@ -69,11 +69,11 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        box-shadow: 0 0 10px var(--color-shadow);
+        box-shadow: 0 0 7px var(--color-shadow);
         border-radius: 10px;
         /* border: 1px solid var(--color-border); */
 
-        background-color: var(--color-background-tagPanel);
+        background-color: var(--color-background-tagpanel);
 
         gap: 10px;
     }

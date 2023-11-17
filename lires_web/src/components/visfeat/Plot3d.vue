@@ -69,11 +69,13 @@
                 },
             },
         },
+        paper_bgcolor: '#f6f6f6',
+        plot_bgcolor: '#f6f6f6',
     };
     const darklayout = {
         ...lightlayout,
-        paper_bgcolor: '#181818',
-        plot_bgcolor: '#181818',
+        paper_bgcolor: '#151515',
+        plot_bgcolor: '#151515',
         font: {
             color: 'white'
         }
