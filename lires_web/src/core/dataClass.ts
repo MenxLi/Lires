@@ -69,6 +69,9 @@ export class DataTags extends Set<string>{
         this.forEach(tag => ret.union_(TagRule.allParentsOf(tag)));
         return ret;
     }
+    toArray(): string[]{
+        return Array.from(this);
+    }
 }
 
 export class TagRule {

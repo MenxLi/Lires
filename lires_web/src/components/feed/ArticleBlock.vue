@@ -3,21 +3,41 @@
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { ServerConn } from '../../core/serverConn';
     import { useDataStore, formatAuthorName, useUIStateStore } from '../store';
-    import { DataPoint, DataSearcher } from '../../core/dataClass';
+    import { DataPoint, DataSearcher, DataTags } from '../../core/dataClass';
     import FileRowContainer from '../home/FileRowContainer.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
+    import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
+    import QueryDialog from '../common/QueryDialog.vue';
     import { computed, ref } from 'vue';
     import { openURLExternal } from '../../libs/misc';
+    import type { TagStatus } from '../interface';
 
     const props = defineProps<{
         article: ArxivArticleWithFeatures,
     }>()
     const dataStore = useDataStore();
 
+    const __showTagSelector = ref(false);
+    const addingDocumentTagStatus = ref(null as null | TagStatus)
+    const showAddDataTagSelector = computed({
+        set: (newVal) => {
+            // a hook on showup to reset the tag status
+            if (newVal){
+                addingDocumentTagStatus.value = {
+                    all: new DataTags(useUIStateStore().tagStatus.all),
+                    checked: new DataTags(),
+                    unfolded: new DataTags(),
+                };
+            }
+            __showTagSelector.value = newVal;
+        },
+        get: () => __showTagSelector.value,
+    });
     function addToLires(){
         const arxivId = props.article.id;
         new ServerConn().addArxivPaperByID(
                 arxivId,
+                addingDocumentTagStatus.value!.checked.toArray(),
             ).then(
             (dpSummary)=>{
                 const db = dataStore.database;
@@ -31,6 +51,7 @@
                     useUIStateStore().updateShownData();
                 }
                 useUIStateStore().showPopup(`collected: ${arxivId}`, "success")
+                showAddDataTagSelector.value = false;
             },
             ()=>{
                 useUIStateStore().showPopup(`failed to collect: ${arxivId}, check log for details`, "warning")
@@ -105,6 +126,12 @@
             <FileRowContainer :datapoints="authorPapers"></FileRowContainer>
         </div>
     </FloatingWindow>
+    <QueryDialog v-model:show="showAddDataTagSelector" :title="`Adding ${props.article.id}`" 
+        @on-accept="addToLires" @on-cancel="()=>showAddDataTagSelector=false">
+        <div id="tag-selector">
+            <TagSelectorWithEntry v-model:tagStatus="(addingDocumentTagStatus as TagStatus)"/>
+        </div>
+    </QueryDialog>
     <div id="main" class="slideInFast">
         <div class="articleBlock">
             <div class="titleBlock">
@@ -124,7 +151,7 @@
             <div class="actions">
                 <a @click="()=>openURLExternal(`https://arxiv.org/abs/${article.id}`)">Arxiv</a> |
                 <a @click="()=>openURLExternal(`https://arxiv.org/pdf/${article.id}.pdf`)">PDF</a> |
-                <a @click="addToLires">Collect</a>
+                <a @click="()=>showAddDataTagSelector=true">Collect</a>
             </div>
             <p>Published: {{ props.article.publishedTime }}</p>
             <details>
@@ -151,6 +178,11 @@
     }
     a:hover{
         cursor: pointer;
+    }
+    div#tag-selector{
+        padding: 5px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
     div#main{
         margin-top: 5px;

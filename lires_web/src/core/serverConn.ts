@@ -348,14 +348,17 @@ export class ServerConn {
     //                Manipulate data               
     // =============================================
 
-    async addArxivPaperByID( id: string,): Promise<DataInfoT>{
+    async addArxivPaperByID( 
+        id: string, 
+        tags: string[] = [],
+        ): Promise<DataInfoT>{
         if (!id.startsWith("arxiv:")){
             id = "arxiv:" + id;
         }
         const params = new URLSearchParams();
         params.set("key", this.settings.encKey);
         params.set("retrive", id);
-        params.set("tags", JSON.stringify(["arxiv_feed"]))
+        params.set("tags", JSON.stringify(tags))
 
         const response = await fetch(`${getBackendURL()}/collect?${params.toString()}`, 
             {
