@@ -64,12 +64,8 @@
         }
 
         // maybe update the password
-        if (settings_oldPassword.value !== "" || settings_newPassword.value !== "" || settings_confirmNewPassword.value !== ""){
+        if (settings_newPassword.value !== "" || settings_confirmNewPassword.value !== ""){
             // check completeness
-            if (settings_oldPassword.value === ""){
-                useUIStateStore().showPopup("Please enter the old password", "error");
-                return;
-            }
             if (settings_newPassword.value === ""){
                 useUIStateStore().showPopup("Please enter the new password", "error");
                 return;
@@ -80,7 +76,7 @@
             }
 
             // update the password
-            if (useSettingsStore().encKey !== sha256(props.userInfo.username + settings_oldPassword.value)){
+            if (useSettingsStore().encKey !== sha256(props.userInfo.username + sha256(settings_oldPassword.value))){
                 useUIStateStore().showPopup("The old password is incorrect", "error");
                 return;
             }
