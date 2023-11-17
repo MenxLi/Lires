@@ -183,20 +183,22 @@
 <style scoped>
     div#main-filtervis{
         display: flex;
-        margin-top: 0px;
+        margin-top: 5px;
         width: 100%;
         height: 100%;
     }
 
     details{
         margin: 0px;
+        margin-left: 15px;
+        margin-right: 15px;
         padding: 0px;
         width: 100%;
     }
     summary{
         text-align: left;
         font-weight: bold;
-        margin-left: 10px;
+        margin: 0px;
     }
 
     .full{
@@ -210,8 +212,8 @@
         max-width: 98vw;
         overflow: hidden;
         border-radius: 10px;
-        z-index: 0;
-        box-shadow: 0 0 2px var(--color-shadow);
+        z-index: 1;
+        box-shadow: 0 0 5px var(--color-shadow);
     }
     div#loadingDiv{
         position:absolute;

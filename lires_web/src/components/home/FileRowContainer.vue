@@ -74,8 +74,8 @@
     #dataCardContainer{
         display: flex;
         flex-direction: column;
-        width: 100%;
         overflow-x: hidden;
+        width: 100%;
     }
     label.relatedArticleScore{
         border-radius: 5px;

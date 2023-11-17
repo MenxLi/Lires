@@ -133,8 +133,10 @@ export default {
     </Banner>
     <div id="main-home" class="slideIn">
         <div class="horizontal fullHeight">
-            <FileTags v-if="settingsStore.showTagPanel" @onCheck="() => uiState.updateShownData()"></FileTags>
-            <div id="rightPanel" class="panel1">
+            <div id="left-panel" v-if="settingsStore.showTagPanel">
+                <FileTags @onCheck="() => uiState.updateShownData()"></FileTags>
+            </div>
+            <div id="right-panel" class="panel1">
                 <div class="fullWidth">
                     <FilterVis></FilterVis>
                 </div>
@@ -164,10 +166,15 @@ export default {
     }
     #main-home{
         margin-top: 50px;
-        height: calc(100vh - 50px);
+        height: calc(100vh - 50px - 10px);
         width: calc(100vw - 20px);
         display: flex;
         flex-direction: column;
+
+        border: 1px solid var(--color-border);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 0 5px var(--color-shadow);
     }
     .panel1{
         width: 100%;
@@ -176,12 +183,12 @@ export default {
         margin: 0em;
         border-radius: 12px;
     }
-    #rightPanel{
+    #right-panel{
         display: flex;
         flex-direction: column;
         height: 100%;
         width: 100%;
-        gap: 5px;
+        gap: 2px;
         overflow-x: hidden;
     }
     #blankPlaceholder{
@@ -200,7 +207,7 @@ export default {
         user-select: none;
     }
     .fullHeight{
-        height: calc(100% - 15px);
+        height: calc(100%);
         /* 15 to the bottom, not good for mobile safari though... */
     }
     .fullWidth{
@@ -208,7 +215,7 @@ export default {
     }
     div.horizontal{
         display: flex;
-        gap: 10px;
+        /* gap: 10px; */
     }
     div#bannerAddons{
         display: flex;
@@ -216,7 +223,7 @@ export default {
         justify-self: center;
     }
     div#fileSelector{
-        padding: 5px;
+        /* padding: 5px; */
         flex-grow: 999;
     }
 

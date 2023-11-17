@@ -46,7 +46,7 @@
     
 </script>
 <template>
-    <div id='file-tags-main' class="slideInFast" ref="ftPanel">
+    <div id='file-tags-main' ref="ftPanel">
         <div class="title">
             <h3>Tags</h3>
             <hr>
@@ -64,31 +64,46 @@
 </template>
 
 <style scoped>
-    div.title, h3{
+    div.title h3{
+        margin-left: 5px;
+    }
+    div.title h3{
         text-align: left;
         font-weight: bold;
-        margin-left: 5px;
-        color: var(--color-text);
+        color: var(--color-theme);
     }
     hr{
-        border-color: var(--color-border);
+        /* display: none; */
+        border: 1px solid var(--color-border);
+        border-top: none;
+        /* margin-right: -10px;
+        margin-left: -15px; */
     }
     div#file-tags-main{
         padding: 15px;
-        min-width: 280px;
+        padding-left: 10px;
+        padding-right: 10px;
+        min-width: 260px;
         width: fit-content;
         height: 100%;
 
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        box-shadow: 0 0 7px var(--color-shadow);
-        border-radius: 10px;
-        /* border: 1px solid var(--color-border); */
+        /* box-shadow: 0 0 10px var(--color-shadow); */
+        border-radius: 10px 0 0 10px;
+        border: 1px solid var(--color-border);
+        border-top: none;
+        border-left: none;
+        border-bottom: none;
 
         background-color: var(--color-background-tagpanel);
 
         gap: 10px;
+    }
+    div.buttons{
+        padding-left: 5px;
+        padding-right: 5px;
     }
     #btnClear{
         padding: 5px;

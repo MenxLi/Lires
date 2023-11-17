@@ -261,12 +261,14 @@
     }
     div#fileRow {
         flex-wrap: wrap;
-        /* border: 1px solid var(--color-border); */
-        border-radius: 5px;
+        border-radius: 0px;
         padding: 3px;
-        padding-left: 5px;
+        padding-left: 10px;
+        padding-right: 5px;
+        width: 100%;
+        /* border: 1px solid var(--color-border); */
         /* background-color: var(--color-background-ssoft); */
-        box-shadow: 0px 1px 2px 0px var(--color-shadow);
+        /* box-shadow: 0px 1px 2px 0px var(--color-shadow); */
     }
     #authorYear{
         width: 250px;
@@ -277,6 +279,7 @@
         padding: 10px;
         padding-top: 3px;
         padding-bottom: 3px;
+        /* margin-left: 5px; */
     }
     #authorYear:hover{
         text-align: center;
