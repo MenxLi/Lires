@@ -47,6 +47,10 @@
 </script>
 <template>
     <div id='file-tags-main' class="slideInFast" ref="ftPanel">
+        <div class="title">
+            <h3>Tags</h3>
+            <hr>
+        </div>
         <TagSelector @onCheck="(status: TagStatus) => emit('onCheck', status)" v-model:tagStatus="uiState.tagStatus"></TagSelector>
         <TagBubbleContainer v-if="currentSelectedDatapoint" 
             :tags="currentSelectedDatapoint.tags" 
@@ -60,8 +64,17 @@
 </template>
 
 <style scoped>
+    div.title, h3{
+        text-align: left;
+        font-weight: bold;
+        margin-left: 5px;
+        color: var(--color-text);
+    }
+    hr{
+        border-color: var(--color-border);
+    }
     div#file-tags-main{
-        padding: 20px;
+        padding: 15px;
         min-width: 280px;
         width: fit-content;
         height: 100%;
