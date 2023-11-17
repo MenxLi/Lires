@@ -63,10 +63,10 @@
 :root, :root.light{
   --color-theme: rgb(98, 171, 200);
   --color-text-soft: rgba(80, 80, 80, 0.5);
-  --color-background-ssoft: #f6f6f6;
-  --color-background-theme-highlight: rgba(128, 198, 197, 0.2);
+  --color-background-ssoft: #f4f4f4;
+  --color-background-theme-highlight: rgba(134, 188, 210, 0.2);
   --color-background-theme-thin: #e6e9ee;
-  --color-background-theme: rgb(225, 238, 243);
+  --color-background-theme: rgb(225, 233, 243);
 }
 
 :root.dark{
