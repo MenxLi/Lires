@@ -3,9 +3,10 @@
     import { ref, computed, watch } from 'vue';
     // import FloatingWindow from '../common/FloatingWindow.vue';
     import QueryDialog from '../common/QueryDialog.vue';
-    import TagSelector from '../tags/TagSelector.vue';
+    // import TagSelector from '../tags/TagSelector.vue';
+    import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
     import { useUIStateStore, useDataStore } from '../store';
-    import { DataTags, TagRule } from '../../core/dataClass';
+    import { DataTags } from '../../core/dataClass';
     import { ServerConn } from '../../core/serverConn';
     import type { DataPoint } from '../../core/dataClass';
     import type { TagStatus } from '../interface';
@@ -55,13 +56,6 @@
         )
     }
     const newTagInput = ref("");
-    function addNewTag(){
-        const tag = newTagInput.value.trim();
-        if (tag === ""){ return; }
-        tagStatus.value.checked.add(tag);
-        tagStatus.value.all.add(tag);
-        tagStatus.value.unfolded.union_(TagRule.allParentsOf(tag));
-    }
 
     watch(show, (newShow) => {
         // init data on every showup!
@@ -101,17 +95,10 @@
                 </div>
             </div>
             <div id="inputRight">
-                <div id="tagArea">
-                    <label for="tagSelector">Tags</label>
-                    <div id="tagSelector" class="scrollable">
-                        <TagSelector v-model:tag-status="tagStatus"></TagSelector>
-                    </div>
-                </div>
-                <div id="newTagArea">
-                    <label for="newTag">Add: </label>
-                    <input id="newTag" placeholder="new tag" type="text" v-model="newTagInput">
-                    <button id="addNewTag" @click="addNewTag">Add</button>
-                </div>
+                <TagSelectorWithEntry 
+                    v-model:tag-status="tagStatus"
+                    v-model:tag-input-value="newTagInput"
+                ></TagSelectorWithEntry>
             </div>
         </div>
     </QueryDialog>
@@ -130,7 +117,7 @@
     label {
         font-weight: bold;
     }
-    textarea, input[type="text"], div#tagSelector {
+    textarea, input[type="text"]{
         border: 1px solid var(--color-border);
         border-radius: 5px;
         background-color: var(--color-background);
@@ -144,7 +131,7 @@
         width: 100%;
         gap: 10px;
     }
-    div#bibtexArea, div#tagArea{
+    div#bibtexArea{
         display: flex;
         flex-direction: column;
         align-items: flex-start;
@@ -155,7 +142,7 @@
         height: 420px;
         padding: 5px
     }
-    div#urlArea, div#newTagArea {
+    div#urlArea {
         display: flex;
         flex-direction: row;
         align-items: center;

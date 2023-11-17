@@ -23,7 +23,7 @@
 </script>
 
 <template>
-    <div id="tagSelector" class="scrollable">
+    <div id="tagSelector-main" class="scrollable">
         <TagCollapsibleToggle v-for="k of sortedHierarchyKeys"
             :identifier="String(k)" 
             :children="hierarchy[k]" 
@@ -34,7 +34,7 @@
 </template>
 
 <style scoped>
-    #tagSelector {
+    #tagSelector-main {
         flex-grow: 1;
     }
 </style>
