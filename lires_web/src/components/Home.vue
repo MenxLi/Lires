@@ -18,7 +18,6 @@ export default {
     import BannerIcon from "./common/BannerIcon.vue";
     import DataEditor from "./home/DataEditor.vue";
     import addCircleIcon from "../assets/icons/add_circle.svg";
-    import { MenuAttached } from "./common/fragments";
     import sellIcon from "../assets/icons/sell.svg";
     import refreshIcon from "../assets/icons/refresh.svg";
     import LoadingProgressPopout from "./common/LoadingProgressPopout.vue";
@@ -63,48 +62,6 @@ export default {
     // adding new data
     const showAddingDataWindow = ref(false);
 
-    // rename and delete tags
-    function queryRenameTag(){
-        const oldTag = prompt("Old tag");
-        // check if oldTag is valid
-        if (oldTag && dataStore.database.getAllTags().has(oldTag)){
-            const newTag = prompt("New tag");
-            if (newTag){
-                dataStore.database.renameTag(oldTag, newTag).then(
-                    () => {
-                        uiState.showPopup("Tag renamed", "success");
-                        uiState.updateShownData()
-                    },
-                    () => {
-                        uiState.showPopup("Failed to rename tag", "error")
-                        uiState.updateShownData()
-                    },
-                )
-            }
-        }
-        else{
-            uiState.showPopup("Invalid tag", "warning");
-        }
-    }
-    function queryDeleteTag(){
-        const tag = prompt("Tag to delete");
-        if (tag && dataStore.database.getAllTags().has(tag)){
-            dataStore.database.deleteTag(tag).then(
-                () => {
-                    uiState.showPopup("Tag deleted", "success");
-                    uiState.updateShownData()
-                },
-                () => {
-                    uiState.showPopup("Failed to delete tag", "error")
-                    uiState.updateShownData()
-                },
-            )
-        }
-        else{
-            uiState.showPopup("Invalid tag", "warning");
-        }
-    }
-
 </script>
 
 <template>
@@ -113,13 +70,8 @@ export default {
         <div id="bannerAddons">
             <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
                 @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>
-            <MenuAttached :menu-items="[
-                {name: `Display: ${settingsStore.showTagPanel?'hide':'show'}`, action: () => settingsStore.setShowTagPanel(!settingsStore.showTagPanel)},
-                {name: 'Rename' , action: queryRenameTag},
-                {name: 'Delete' , action: queryDeleteTag},
-            ]">
-                <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"></BannerIcon>
-            </MenuAttached>
+            <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"
+                @click="()=>settingsStore.setShowTagPanel(!settingsStore.showTagPanel)"></BannerIcon>
             <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
                 @click="()=>uiState.reloadDatabase(true)"></BannerIcon>
             |
@@ -133,9 +85,11 @@ export default {
     </Banner>
     <div id="main-home" class="slideIn">
         <div class="horizontal fullHeight">
-            <div id="left-panel" v-if="settingsStore.showTagPanel">
-                <FileTags @onCheck="() => uiState.updateShownData()"></FileTags>
-            </div>
+            <Transition name="left-in">
+                <div id="left-panel" v-if="settingsStore.showTagPanel">
+                    <FileTags @onCheck="() => uiState.updateShownData()"></FileTags>
+                </div>
+            </Transition>
             <div id="right-panel" class="panel1">
                 <div class="fullWidth">
                     <FilterVis></FilterVis>
@@ -245,5 +199,14 @@ export default {
 
     .fade-enter-from, .fade-leave-to {
         opacity: 0;
+    }
+
+    .left-in-enter-active, .left-in-leave-active {
+        transition: all 0.15s ease-in-out;
+    }
+
+    .left-in-enter-from{
+        opacity: 0;
+        transform: translateX(-10%);
     }
 </style>

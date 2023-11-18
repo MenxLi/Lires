@@ -12,6 +12,7 @@
         (e: "onCheck", status: TagStatus) : void
     }>()
     const uiState = useUIStateStore();
+    const dataStore = useDataStore();
 
     const ftPanel = ref<HTMLElement | null>(null);
 
@@ -43,12 +44,61 @@
         uiState.updateShownData();
     }
     watch(uiState.tagStatus, () => emit('onCheck', uiState.tagStatus), {deep: true});
+
+    // rename and delete tags
+    function queryRenameTag(){
+        const oldTag = prompt("Old tag");
+        // check if oldTag is valid
+        if (oldTag && dataStore.database.getAllTags().has(oldTag)){
+            const newTag = prompt("New tag");
+            if (newTag){
+                dataStore.database.renameTag(oldTag, newTag).then(
+                    () => {
+                        uiState.showPopup("Tag renamed", "success");
+                        uiState.updateShownData()
+                    },
+                    () => {
+                        uiState.showPopup("Failed to rename tag", "error")
+                        uiState.updateShownData()
+                    },
+                )
+            }
+        }
+        else{
+            uiState.showPopup("Invalid tag", "warning");
+        }
+    }
+    function queryDeleteTag(){
+        const tag = prompt("Tag to delete");
+        if (tag && dataStore.database.getAllTags().has(tag)){
+            dataStore.database.deleteTag(tag).then(
+                () => {
+                    uiState.showPopup("Tag deleted", "success");
+                    uiState.updateShownData()
+                },
+                () => {
+                    uiState.showPopup("Failed to delete tag", "error")
+                    uiState.updateShownData()
+                },
+            )
+        }
+        else{
+            uiState.showPopup("Invalid tag", "warning");
+        }
+    }
+
     
 </script>
 <template>
     <div id='file-tags-main' ref="ftPanel">
         <div class="title">
-            <h3>Tags</h3>
+            <div id="title-title">
+                <h3 class="green">Tags</h3>
+                <div id="title-buttons">
+                    <div class="button" @click="queryRenameTag">rename</div>
+                    <div class="button" @click="queryDeleteTag">delete</div>
+                </div>
+            </div>
             <hr>
         </div>
         <TagSelector @onCheck="(status: TagStatus) => emit('onCheck', status)" v-model:tagStatus="uiState.tagStatus"></TagSelector>
@@ -64,16 +114,44 @@
 </template>
 
 <style scoped>
-    div.title h3{
+    div#title-title{
         margin-left: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
-    div.title h3{
+    div#title-title h3{
         text-align: left;
         font-weight: bold;
         color: var(--color-theme);
     }
+    div#title-buttons{
+        display: flex;
+        gap: 5px;
+        opacity: 0.1;
+        transition: opacity 0.5s;
+        transition-delay: opacity 0.2s;
+    }
+    div#title-buttons div.button:hover{
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+    div#title-buttons div.button{
+        /* border: 1px solid var(--color-border); */
+        transition: all 0.2s;
+        padding-left: 5px;
+        padding-right: 5px;
+        font-size: smaller;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    div#title-title:hover div#title-buttons{
+        opacity: 1;
+    }
+
     hr{
         /* display: none; */
+        margin-top: 5px;
         border: 1px solid var(--color-border);
         border-top: none;
         /* margin-right: -10px;
@@ -90,7 +168,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        /* box-shadow: 0 0 10px var(--color-shadow); */
+        /* box-shadow: 0 0 5px var(--color-shadow); */
         border-radius: 10px 0 0 10px;
         border: 1px solid var(--color-border);
         border-top: none;

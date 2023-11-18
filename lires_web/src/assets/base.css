@@ -61,13 +61,13 @@
 }
 
 :root, :root.light{
-  --color-theme: rgb(98, 171, 200);
+  --color-theme: rgb(82, 153, 182);
   --color-text-soft: rgba(80, 80, 80, 0.5);
   --color-background-ssoft: #e5e5e5;
   --color-background-theme-highlight: rgba(137, 189, 213, 0.2);
   --color-background-theme-thin: #dbdee5;
   --color-background-theme: rgb(197, 216, 232);
-  --color-background-tagpanel: #f5f5f5;
+  --color-background-tagpanel: #efefef;
 }
 
 :root.dark{
