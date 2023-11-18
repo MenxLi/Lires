@@ -1,19 +1,19 @@
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
   --vt-c-white: #f2f2f2;
-  --vt-c-white-soft: #e1e1e1;
+  --vt-c-white-soft: #e3e3e3;
   --vt-c-white-mute: rgb(228, 228, 228);
 
-  --vt-c-black: #181818;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
+  --vt-c-black: #1f1f1f;
+  --vt-c-black-soft: #303030;
+  --vt-c-black-mute: #3f3f3f;
 
   --vt-c-indigo: #2c3e50;
 
   --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
   --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
-  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
-  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
+  --vt-c-divider-dark-1: rgba(90, 90, 90, 0.65);
+  --vt-c-divider-dark-2: rgba(90, 90, 90, 0.48);
 
   --vt-c-text-light-1: var(--vt-c-indigo);
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
@@ -63,21 +63,21 @@
 :root, :root.light{
   --color-theme: rgb(82, 153, 182);
   --color-text-soft: rgba(80, 80, 80, 0.5);
-  --color-background-ssoft: #e5e5e5;
+  --color-background-ssoft: #e8e8e8;
   --color-background-theme-highlight: rgba(137, 189, 213, 0.2);
   --color-background-theme-thin: #dbdee5;
-  --color-background-theme: rgb(197, 216, 232);
+  --color-background-theme: rgba(127, 178, 220, 0.3);
   --color-background-tagpanel: #efefef;
 }
 
 :root.dark{
   --color-theme: rgb(80, 180, 200);
   --color-text-soft: rgba(180, 180, 180, 0.5);
-  --color-background-ssoft: #1f1f1f;
-  --color-background-theme-highlight: rgba(108, 186, 160, 0.2);
-  --color-background-theme-thin: #2c2e31;
-  --color-background-theme: rgba(26, 34, 37, 1);
-  --color-background-tagpanel: #1c1c1c;
+  --color-background-ssoft: #2c2c2c;
+  --color-background-theme-highlight: rgba(108, 186, 185, 0.2);
+  --color-background-theme-thin: #383b41;
+  --color-background-theme: rgba(52, 84, 93, 0.3);
+  --color-background-tagpanel: #232323;
 }
 
 /* @media (prefers-color-scheme: dark) {
