@@ -108,7 +108,7 @@
             :maxWidth="ftPanel? ftPanel.clientWidth : null">
         </TagBubbleContainer>
         <div class="buttons">
-            <button id="btnClear" class="green" @click="clearTagSelection">CLEAR TAGS</button>
+            <button id="btnClear" class="green" @click="clearTagSelection">CLEAR SELECTION</button>
         </div>
     </div>
 </template>
