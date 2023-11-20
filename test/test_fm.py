@@ -47,7 +47,7 @@ def testFileManipulator(fm: FileManipulator):
     print("Doc size: ", fm.getDocSize())
     fm.writeTags(["A", "AB", "AB->C"])
     print(fm.getTags())
-    fm.setWebUrl("http://limengxun.com")
+    fm.setWebUrl("https://bing.com")
     print(fm.getWebUrl())
     fm.deleteDocument()
     # fm.openFile()

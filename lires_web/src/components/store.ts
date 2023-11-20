@@ -261,8 +261,6 @@ function defaultBackendHost(){
             // however tauri use native webview, which can not access http backend
             // the backend should be deployed on the server with ssl certificate
             BACKEND_PROTOCAL = "https:";     
-            // set fixed host, may be changed in the future
-            HOSTNAME = "limengxun.com";
         }
     }
     return `${BACKEND_PROTOCAL}//${HOSTNAME}`;
