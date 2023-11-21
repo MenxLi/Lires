@@ -3,15 +3,15 @@
 
 The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** is the French word for '***Read***'.
 
-![LiresWeb-GUI](https://limengxun.com/files/imgs/liresweb.png)
+![LiresWeb-GUI](https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/liresweb1.1.3v0.png)
 
-## Modules
+## Modules & Aims
 Mainly consists of three modules:  
 1. `lires`, the core server
 2. `lires-ai`, AI server for computational intelligence features  
 3. `lires-web`, the WebUI
 
-It is designed to be deployed onto a server to provide a self-hosted collaborative solution for research literature management.
+It is designed to be deployed onto a server to provide a **self-hosted collaborative solution** for research literature management.
 
 ## Features
 * Host a server to view, share and discuss online
