@@ -5,7 +5,7 @@ The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** 
 
 ![LiresWeb-GUI](https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/liresweb1.1.3v0.png)
 
-## Aim & Modules
+---
 Lires is designed to be deployed onto a server to provide a **self-hosted collaborative solution** for research literature management.
 
 It mainly consists of three modules:  
