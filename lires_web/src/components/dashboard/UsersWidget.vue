@@ -13,6 +13,8 @@
     import { EditableParagraph } from '../common/fragments';
     import { predefinedUsernames } from '../../config';
 
+    import EditIcon from '../../assets/icons/edit_note.svg'
+
     const allUsers = ref([] as UserInfo[]);
     const is_admin = computed(() => useSettingsStore().userInfo?.is_admin);
 
@@ -203,15 +205,24 @@
 
         <table>
             <tr>
-                <th v-if="is_admin"> ID </th>
+                <th v-if="is_admin">  </th>
                 <th> Avatar </th>
                 <th> Username </th>
                 <th> Name </th>
                 <th> Accessibility </th>
             </tr>
-            <tr v-for="user in allUsers" class="user-line" @click="()=>editUser(user)">
-                <td v-if="is_admin"> {{user.id}} </td>
-                <td> <img :src="`${getBackendURL()}/user/avatar/${user.username}?size=60`" alt="" class="avatar" /> </td>
+            <tr v-for="user in allUsers" class="user-line">
+                <!-- <td v-if="is_admin"> {{user.id}} </td> -->
+                <td v-if="is_admin"> 
+                    <div class="edit-button" @click="()=>editUser(user)">
+                        <img :src="EditIcon" alt="" class="icon"/>
+                    </div> 
+                </td>
+                <td> 
+                    <div class="center full-width full-height">
+                        <img :src="`${getBackendURL()}/user/avatar/${user.username}?size=60`" alt="" class="avatar" /> 
+                    </div>
+                </td>
                 <td class="username"> {{user.username}} </td>
                 <td> {{user.name}} </td>
                 <td>
@@ -233,8 +244,20 @@
         align-items: center;
         gap: 10px;
     }
+    h2{
+        /* no new line */
+        white-space: nowrap;
+    }
+    div.center{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     div.full-width{
         width: 100%;
+    }
+    div.full-height{
+        height: 100%;
     }
     div.left-align{
         text-align: left;
@@ -249,8 +272,8 @@
     label.admin_hint{
         font-size: small;
         font-weight: bold;
-        padding-left: 8px;
-        padding-right: 8px;
+        padding-left: 5px;
+        padding-right: 5px;
         padding-top: 3px;
         padding-bottom: 3px;
         border-radius: 7px;
@@ -331,6 +354,23 @@
 
     b{
         font-weight: bold;
+    }
+
+    img.icon {
+        height: 20px;
+        filter: invert(0.5) opacity(0.75) drop-shadow(0 0 0 var(--color-border)) ;
+    }
+    div.edit-button{
+        /* background-color: rebeccapurple; */
+        border-radius: 30%;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        opacity: 20%;
+    }
+    div.edit-button:hover{
+        opacity: 100%;
+        border: 1px solid var(--color-border);
     }
 
     div#user-editor-main{

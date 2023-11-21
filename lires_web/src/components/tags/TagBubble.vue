@@ -31,9 +31,11 @@
 
 <style scoped>
 div.bubble{
-    padding: 5px;
+    padding: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
     text-align: left;
-    border-radius: 5px;
+    border-radius: 7px;
     background-color: var(--color-background-soft);
     transition: all 0.2s;
 

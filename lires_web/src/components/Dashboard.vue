@@ -60,6 +60,6 @@
         align-items: center;
         flex-direction: column;
         width: calc(100vw - 20px);
-        gap: 20px;
+        gap: 50px;
     }
 </style>
