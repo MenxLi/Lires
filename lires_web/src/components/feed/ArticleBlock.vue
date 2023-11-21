@@ -127,7 +127,11 @@
         </div>
     </FloatingWindow>
     <QueryDialog v-model:show="showAddDataTagSelector" :title="`Adding ${props.article.id}`" 
-        @on-accept="addToLires" @on-cancel="()=>showAddDataTagSelector=false">
+        @on-accept="()=>{
+            useUIStateStore().showPopup('collecting...', 'info');
+            addToLires();
+            showAddDataTagSelector=false;
+            }" @on-cancel="()=>showAddDataTagSelector=false">
         <div id="tag-selector">
             <TagSelectorWithEntry v-model:tagStatus="(addingDocumentTagStatus as TagStatus)"/>
         </div>
