@@ -361,16 +361,14 @@
         filter: invert(0.5) opacity(0.75) drop-shadow(0 0 0 var(--color-border)) ;
     }
     div.edit-button{
-        /* background-color: rebeccapurple; */
         border-radius: 30%;
         width: 20px;
         height: 20px;
         cursor: pointer;
-        opacity: 20%;
+        opacity: 30%;
     }
     div.edit-button:hover{
         opacity: 100%;
-        border: 1px solid var(--color-border);
     }
 
     div#user-editor-main{

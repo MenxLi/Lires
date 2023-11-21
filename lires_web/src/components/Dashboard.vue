@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import Banner from './common/Banner.vue';
+    import WidgetContainer from './dashboard/WidgetContainer.vue';
     import UserCard from './dashboard/UserCard.vue';
     import UsersWiget from './dashboard/UsersWidget.vue';
     import { ref, computed, onActivated } from 'vue';
@@ -13,7 +14,7 @@
 
     const THIS_USER = computed(() => {
         const thisUserId = useSettingsStore().userInfo?useSettingsStore().userInfo!.id:-1;
-        console.log(thisUserId, userInfo.value.id);
+        // console.log("thisUserId", thisUserId, "userId", userInfo.value.id);
         return thisUserId === userInfo.value.id;
     });
 
@@ -48,18 +49,23 @@
 <template>
     <Banner />
     <div id="main-dashboard">
-        <UserCard v-model:user-info="userInfo"/>
-        <UsersWiget v-if="THIS_USER"/>
+        <WidgetContainer>
+            <UserCard v-model:user-info="userInfo"/>
+        </WidgetContainer>
+        <WidgetContainer>
+            <UsersWiget v-if="THIS_USER"/>
+        </WidgetContainer>
     </div>
 </template>
 
 <style scoped>
     div#main-dashboard{
-        margin-top: 45px;
+        margin-top: calc(45px + 20px);
         display: flex;
-        align-items: center;
-        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: row;
         width: calc(100vw - 20px);
-        gap: 50px;
+        gap: 20px;
     }
 </style>

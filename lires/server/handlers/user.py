@@ -87,7 +87,7 @@ class UserAvatarHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
             # the response can be cached by the client or intermediate caches for a maximum of 86400 seconds (24 hours)
             # self.set_header("Cache-Control", "max-age=86400")
-            self.set_header("Cache-Control", "max-age=300")
+            self.set_header("Cache-Control", "max-age=60")
 
             img = Image.open(avatar_path["square"])
             img.thumbnail((im_size, im_size))
