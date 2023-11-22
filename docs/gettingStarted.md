@@ -12,7 +12,7 @@
       - [More on starting the servers](#more-on-starting-the-servers)
     - [Cluster startup](#cluster-startup)
     - [On the first run](#on-the-first-run)
-  - [Docker deployment](#docker-deployment)
+  - [Docker Deployment](#docker-deployment)
     - [Method 1 - Use docker compose (recommended)](#method-1---use-docker-compose-recommended)
     - [Method 2 - Use the cluster image](#method-2---use-the-cluster-image)
     - [On the first run](#on-the-first-run-1)
@@ -21,7 +21,6 @@
     - [Build search index](#build-search-index)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 
 
 ## Manual Deployment
@@ -132,7 +131,7 @@ lrs-utils download_pdfjs
 ```
 
 ---
-## Docker deployment
+## Docker Deployment
 Instead of installing the server, you can also deploy the server using docker.  
 Which adds additional security and building efficiency.  
 

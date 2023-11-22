@@ -7,7 +7,12 @@ The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** 
 
 Lires is designed to be deployed onto a server to provide a **self-hosted collaborative solution** for research literature management.
 
-It mainly consists of three modules:  
+📚 It can serve as a shared database for research literature.  
+📑 Currently, it supports PDF files and only provides basic features, such as adding tags, notes, and searching.    
+🔍 Some advanced features are also available, such as semantic search, auto summarization and arxiv subscription.  
+✨ These should be enough for most use cases, but more features may be added in the future.
+
+The software mainly consists of three modules:  
 1. `lires`, the core server
 2. `lires-ai`, AI server for computational intelligence features  
 3. `lires-web`, the WebUI
