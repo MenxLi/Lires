@@ -6,9 +6,6 @@ Any contribution is welcome!
 **But please fire an issue before you start working on it.** 
 This is to avoid duplicated work and make sure the changes are necessary.
 
-> Currently, I am almost the only one working on this project, so I don't have a strict rule for this. But I will follow this rule when there are more people working on this project.
-
-
 ## Principles
 **Keep it simple and maintainable**
 
