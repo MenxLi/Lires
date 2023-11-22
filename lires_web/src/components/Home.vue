@@ -73,7 +73,7 @@ export default {
             <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"
                 @click="()=>settingsStore.setShowTagPanel(!settingsStore.showTagPanel)"></BannerIcon>
             <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
-                @click="()=>uiState.reloadDatabase(true)"></BannerIcon>
+                @click="()=>uiState.reloadDatabase()"></BannerIcon>
             |
             <div class="searchbar">
                 <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
