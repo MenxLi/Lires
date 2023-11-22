@@ -1,5 +1,13 @@
 # Development Guide
 
+## Contribution
+Any contribution is welcome! 
+
+**But please fire an issue before you start working on it.** 
+This is to avoid duplicated work and make sure the changes are necessary.
+
+> Currently, I am almost the only one working on this project, so I don't have a strict rule for this. But I will follow this rule when there are more people working on this project.
+
 
 ## Principles
 **Keep it simple and maintainable**
@@ -10,9 +18,7 @@ Simple:
 
 Maintainable:
 - **Use type annotations whenever possible**
-- Modularized & well documented.
 - Isolate the logic, from the UI
-- Abstract common logics and reduce code duplication
 
 ## Naming convention
 **Python**
@@ -35,3 +41,13 @@ I follow Javascript naming convention, which is:
 **Http path**  
 
 use `lowercase-with-dash` for http path, e.g. `/api/v1/your-path`
+
+
+## Future plan
+
+The current version mainly focus on the core features including data storage, user management, and basic data visualization.
+
+In my plan, the next step is to add more features for collaboration between users, as this is the main purpose of this project:
+- [ ] Long connection between the server and the client, so that the client can receive notifications when there are new activities. This may be done by using [Websocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) or [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
+- [ ] Add a discussion board, anyone can post a topic and discuss with others, the topic can be linked to a paper or a tag. The data can be stored in the user database as table `posts`, and refer to the paper by id. 
+- [ ] Record user activities, e.g. who added/edited/removed a tag/note/paper, the reading history of a paper, etc. The data can be stored in the user database as table `activities`.
