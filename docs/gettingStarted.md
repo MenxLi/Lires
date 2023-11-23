@@ -35,7 +35,7 @@ npm run build
 cd ..
 ```
 Install the servers
-> **Prerequisites:**  Python 3.8+
+> **Prerequisites:**  Python 3.8+, GCC
 ```bash
 git submodule update --init --recursive
 pip install ./packages/tiny_vectordb
