@@ -13,7 +13,7 @@ The software mainly consists of three modules:
 3. `lires-web`, the WebUI
 
 ## Features
-📚 Shared database
+📚 Shared database  
 🔄 Cross-platform  
 🏷️ Cascading tags    
 📝 Markdown notes  
