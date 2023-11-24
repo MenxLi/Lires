@@ -63,6 +63,7 @@
         margin-top: calc(45px + 20px);
         display: flex;
         align-items: flex-start;
+        flex-wrap: wrap;
         justify-content: center;
         flex-direction: row;
         width: calc(100vw - 20px);
