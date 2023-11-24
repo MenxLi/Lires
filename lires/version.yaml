@@ -483,3 +483,18 @@ version_history:
       - "Remove: Remove all configration entries"
     - Fix:
       - Check tag permission on data deletion
+  
+  1.2.0:
+    - Release!:
+      - Code release
+    - Features:
+      - Not reload backend database on reload
+      - Close dialog on starting to collect arxiv daily
+      - Add collected paper with tags
+    - UI:
+      - More compact layout
+      - Tag panel style update
+      - Color theme minor update
+      - Update dashboard layout
+    - Fix:
+      - Allow revise empty password
