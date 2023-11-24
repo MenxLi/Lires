@@ -16,9 +16,18 @@ const showPassword = ref(false);
 const pwdInputType = computed(() => showPassword.value?"text":"password");
 const loginText = ref("Login")
 
+const router = useRouter();
 const backendUrl = ref(useSettingsStore().backendUrl);
 const port = ref(useSettingsStore().backendPort);
-const router = useRouter();
+
+// try get backend url and port from url query
+if (router.currentRoute.value.query.backendUrl){
+    backendUrl.value = router.currentRoute.value.query.backendUrl as string;
+}
+if (router.currentRoute.value.query.backendPort){
+    port.value = router.currentRoute.value.query.backendPort as string;
+}
+
 
 function login(){
     useSettingsStore().setBackendUrl(backendUrl.value);
