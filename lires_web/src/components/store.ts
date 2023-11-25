@@ -200,7 +200,8 @@ export const useSettingsStore = defineStore(
                 __backendPort: localStorage.getItem("backendPort") || "8080",
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
-                loggedIn: false,    // will be watched by App.vue to reload the database
+                // loggedIn is a watched flag by App.vue, which is used for logout / reload database
+                loggedIn: false,    
                 userInfo: null as UserInfo | null,
             }
         },

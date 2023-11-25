@@ -3,7 +3,7 @@
 
     import { ref, computed } from "vue";
     import { useRouter } from "vue-router";
-    import { settingsLogout, settingsAuthentication } from "../../core/auth";
+    import { settingsLogout } from "../../core/auth";
     import { useSettingsStore } from "../store";
     import { ThemeMode } from "../../core/misc";
     import BannerIcon from "./BannerIcon.vue";
@@ -21,23 +21,9 @@
         returnHome: true,
     })
 
-    // authentication on load
     const router = useRouter();
-    settingsAuthentication().then(
-        (userInfo)=>{if (!userInfo){ logout(); }},
-        ()=>{logout();},
-    )
-
-    // logout related
     function logout(){
-        settingsLogout();
-        console.log("Logged out.", router.currentRoute.value.fullPath);
-        router.push({
-            path: "/login",
-            query: {
-                from: router.currentRoute.value.fullPath,
-            }
-        })
+        settingsLogout(); // will trigger the watcher in App.vue
     }
 
     // theme related
