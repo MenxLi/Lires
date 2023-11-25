@@ -17,12 +17,12 @@ const pwdInputType = computed(() => showPassword.value?"text":"password");
 const loginText = ref("Login")
 
 const router = useRouter();
-const backendUrl = ref(useSettingsStore().backendUrl);
+const backendHost = ref(useSettingsStore().backendHost);
 const port = ref(useSettingsStore().backendPort);
 
 // try get backend url and port from url query
-if (router.currentRoute.value.query.backendUrl){
-    backendUrl.value = router.currentRoute.value.query.backendUrl as string;
+if (router.currentRoute.value.query.backendHost){
+    backendHost.value = router.currentRoute.value.query.backendHost as string;
 }
 if (router.currentRoute.value.query.backendPort){
     port.value = router.currentRoute.value.query.backendPort as string;
@@ -30,7 +30,7 @@ if (router.currentRoute.value.query.backendPort){
 
 
 function login(){
-    useSettingsStore().setBackendUrl(backendUrl.value);
+    useSettingsStore().setBackendHost(backendHost.value);
     useSettingsStore().setBackendPort(port.value);
 
     loginText.value = "Connecting..."
@@ -74,8 +74,8 @@ function login(){
             <details>
                 <summary>Settings</summary>
                 <div id="settings">
-                    <label for="backendUrl">Backend: </label>
-                    <input type="text" id="backendUrl" v-model="backendUrl" />
+                    <label for="backendHostInput">Backend: </label>
+                    <input type="text" id="backendHostInput" v-model="backendHost" />
                     :
                     <input type="text" id="port" v-model="port" />
                     <div class="options">

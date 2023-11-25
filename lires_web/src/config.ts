@@ -25,7 +25,7 @@ else{
 }
 function getBackendURL(){
     const BACKEND_PORT = useSettingsStore().backendPort;
-    const BACKEND_HOST = useSettingsStore().backendUrl;
+    const BACKEND_HOST = useSettingsStore().backendHost;
     return `${BACKEND_HOST}:${BACKEND_PORT}`;
 }
 

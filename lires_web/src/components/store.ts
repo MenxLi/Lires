@@ -196,7 +196,7 @@ export const useSettingsStore = defineStore(
         state: () => {
             return {
                 __encKey: localStorage.getItem("encKey") || "",
-                __backendUrl: localStorage.getItem("backendUrl") || defaultBackendHost(),
+                __backendHost: localStorage.getItem("backendUrl") || defaultBackendHost(),
                 __backendPort: localStorage.getItem("backendPort") || "8080",
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
@@ -208,8 +208,8 @@ export const useSettingsStore = defineStore(
             encKey(): string{
                 return this.__encKey;
             },
-            backendUrl(): string{
-                return this.__backendUrl;
+            backendHost(): string{
+                return this.__backendHost;
             },
             backendPort(): string{
                 return this.__backendPort;
@@ -231,8 +231,8 @@ export const useSettingsStore = defineStore(
                     localStorage.removeItem("encKey");
                 }
             },
-            setBackendUrl(url: string){
-                this.__backendUrl = url;
+            setBackendHost(url: string){
+                this.__backendHost = url;
                 localStorage.setItem("backendUrl", url);
             },
             setBackendPort(port: string){
