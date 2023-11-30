@@ -11,9 +11,9 @@ from lires.user import UserInfo, UserPool
 from lires.confReader import DATABASE_DIR
 from lires.core import globalVar as G
 from lires.core.dataClass import DataBase, DataTags
-from lires.confReader import USER_DIR, VECTOR_DB_PATH
+from lires.confReader import USER_DIR, VECTOR_DB_PATH, getConf
 from lires.core.utils import BCOLORS
-from tiny_vectordb import VectorDatabase
+from tiny_vectordb import VectorDatabase, VectorCollection
 
 G.init()
 def getLocalDatabasePath():
@@ -90,6 +90,9 @@ class RequestHandlerMixin():
                 db.destroy()
             G.setGlobalAttr("server_db", loadDataBase(DATABASE_DIR))
         if load_vec_db:
+            # Set global vector collection compiling config
+            VectorCollection.COMPILE_CONFIG = getConf()["tiny_vectordb_compile_config"]
+
             if G.hasGlobalAttr("vec_db"):
                 vec_db: VectorDatabase = G.getGlobalAttr("vec_db")
                 vec_db.flush()

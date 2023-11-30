@@ -107,9 +107,22 @@ def saveToConf(**kwargs):
 
 def generateDefaultConf():
     """
-    "database" points to local database, used by LiresServer and Qt GUI in local mode,
+    Generate default configuration file at CONF_FILE_PATH
     """
-    default_config: LiresConfT = {}
+    default_config: LiresConfT = {
+        # jit compile configuration for tiny_vectordb
+        'tiny_vectordb_compile_config':{
+            'cxx': 'g++',
+            'additional_compile_flags': [
+                '-march=native',
+                '-mtune=native',
+            ],
+            'additional_link_flags': []
+        },
+
+        # TODO: add more fields in the future, 
+        # maybe some fields for LLM configurations
+    }
 
     with open(CONF_FILE_PATH, "w", encoding="utf-8") as fp:
         json.dump(default_config, fp, indent=1)

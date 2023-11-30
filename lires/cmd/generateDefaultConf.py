@@ -1,4 +1,7 @@
 from ..confReader import generateDefaultConf
 
-if __name__ == "__main__":
+def run():
 	generateDefaultConf()
+
+if __name__ == "__main__":
+	run()

@@ -1,5 +1,8 @@
 from __future__ import annotations
-from typing import TypedDict
+from typing import TypedDict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from tiny_vectordb.wrap import CompileConfig as TinyVectordbCompileConfig
 
 class LiresConfT(TypedDict):
     """
@@ -7,8 +10,8 @@ class LiresConfT(TypedDict):
     for the generation of default configuration file,
 
     changed in v1.1.2:
-        - All fields are moved as static fields of lires.confReader, May add some fields in the future.
+        - Almost all fields are moved as static fields of lires.confReader, May add some fields in the future.
     """
-    ...
+    tiny_vectordb_compile_config: TinyVectordbCompileConfig
 
 __all__ = ["LiresConfT"]
