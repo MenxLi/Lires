@@ -48,12 +48,16 @@ def main():
     if args.subparser == "build":
         vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
         asyncio.run(buildFeatureStorage(db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words))
-        ret = subprocess.run(["python", "-m", "lires.cmd.visFeat"])
-        if ret.returncode != 0:
-            print("Failed to visualize the features, please run `python -m lires.cmd.visFeat` manually")
-        ret = subprocess.run(["python", "-m", "lires.cmd.visFeat3d"])
-        if ret.returncode != 0:
-            print("Failed to visualize the features 3d, please run `python -m lires.cmd.visFeat3d` manually")
+
+        # visualize the features
+        # TODO: deprecate these two commands
+        if False:
+            ret = subprocess.run(["python", "-m", "lires.cmd.visFeat"])
+            if ret.returncode != 0:
+                print("Failed to visualize the features, please run `python -m lires.cmd.visFeat` manually")
+            ret = subprocess.run(["python", "-m", "lires.cmd.visFeat3d"])
+            if ret.returncode != 0:
+                print("Failed to visualize the features 3d, please run `python -m lires.cmd.visFeat3d` manually")
 
     elif args.subparser == "query":
         if args.input_uid:
