@@ -77,13 +77,57 @@ for _p in [
     if not os.path.exists(_p):
         os.mkdir(_p)
 
+# Set the default configuration here, 
+# will be used for setting default configuration.
+# Also for backward compatibility, 
+# if the old config file exists, and does not contain some new fields,
+# the new fields will be added on top of the old config file on getConf()
+__default_config: LiresConfT = {
+    # jit compile configuration for tiny_vectordb
+    'tiny_vectordb_compile_config':{
+        'cxx': 'g++',
+        'additional_compile_flags': [
+            '-march=native',
+            '-mtune=native',
+        ],
+        'additional_link_flags': []
+    },
+
+    # TODO: add more fields in the future, 
+    # maybe some fields for LLM configurations?
+}
 def getConf() -> LiresConfT:
     global CONF_FILE_PATH, CURR_PATH, G
-    default_config = { }
     if not hasattr(G, "config"):
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
             read_conf = json.load(conf_file)
-        conf: LiresConfT = {**default_config, **read_conf}   # type: ignore
+        
+        # compare the keys and value types recursively
+        # TODO: may be replaced by a more elegant solution
+        def compareObject(d1, d2):
+            if not type(d1) == type(d2):
+                logger_lrs.debug(f"Type mismatch: {type(d1)} != {type(d2)}")
+                return False
+            if isinstance(d1, dict):
+                assert isinstance(d2, dict)
+                if not len(d1) == len(d2):
+                    logger_lrs.debug(f"Dict length mismatch: {d1.keys()} != {d2.keys()}")
+                    return False
+                for k in d1:
+                    if not k in d2:
+                        logger_lrs.debug(f"Key mismatch: {d1.keys()} != {d2.keys()}")
+                        return False
+                for k in d1:
+                    if not compareObject(d1[k], d2[k]):
+                        return False
+            return True
+        # warn if the configuration file is outdated
+        if not compareObject(read_conf, __default_config):
+            logger_lrs.warn("Configuration file outdated, "
+            "default configuration will be used as fallback, if errors occur, "
+            "please run `lrs-resetconf` to update the configuration file")
+
+        conf: LiresConfT = {**__default_config, **read_conf}   # type: ignore
         G.config = conf
 
     # Configuration saved at global buffer
@@ -109,20 +153,7 @@ def generateDefaultConf():
     """
     Generate default configuration file at CONF_FILE_PATH
     """
-    default_config: LiresConfT = {
-        # jit compile configuration for tiny_vectordb
-        'tiny_vectordb_compile_config':{
-            'cxx': 'g++',
-            'additional_compile_flags': [
-                '-march=native',
-                '-mtune=native',
-            ],
-            'additional_link_flags': []
-        },
-
-        # TODO: add more fields in the future, 
-        # maybe some fields for LLM configurations
-    }
+    default_config: LiresConfT = __default_config
 
     with open(CONF_FILE_PATH, "w", encoding="utf-8") as fp:
         json.dump(default_config, fp, indent=1)
