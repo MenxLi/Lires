@@ -16,6 +16,6 @@ EXPOSE 8731
 
 ENV LRS_HOME=/root/.Lires
 ENV HF_HOME=/root/.Lires/hf_home
-ENV HF_DATASETS_OFFLINE=1
+ENV HF_ENDPOINT=https://hf-mirror.com
 # ENTRYPOINT ["python3", "-m", "lires_ai.server"]
 ENTRYPOINT [ "lires", "iserver" ]
