@@ -498,3 +498,15 @@ version_history:
       - Update dashboard layout
     - Fix:
       - Allow revise empty password
+  1.2.1:
+    - Features:
+      - Allow login page set backend via url parameters
+      - Configuration eligibility check
+      - Set tiny_vectordb compile configuration via configure file
+      - Set maintainer information in environment variables during build process
+    - Refactors:
+      - Authenticated check at app page loading
+    - UI:
+      - Update about page, add link to github and not show version history by default
+      - Update dashboard layout to flex
+      - Use fade-in animation for home and reader page
