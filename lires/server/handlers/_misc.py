@@ -4,6 +4,7 @@ some small handlers that are not worth putting in a separate file
 """
 
 from ._base import *
+from lires import VERSION
 import json, time
 
 class ReloadDBHandler(tornado.web.RequestHandler, RequestHandlerMixin):
@@ -26,6 +27,7 @@ class StatusHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.allowCORS()
         self.write(json.dumps({
             "status": "OK",
+            "version": VERSION,
             "uptime": time.time() - self._init_time,
             "n_data": len(self.db),
         }))

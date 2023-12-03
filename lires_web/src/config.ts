@@ -1,5 +1,4 @@
 
-// import { getCookie } from "./libs/cookie";
 import { useSettingsStore } from "./components/store";
 
 export function platformType(){

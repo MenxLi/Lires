@@ -48,7 +48,7 @@
 
 <template>
     <Banner />
-    <div id="main-dashboard">
+    <div id="main-dashboard" class="slideIn">
         <WidgetContainer>
             <UserCard v-model:user-info="userInfo"/>
         </WidgetContainer>

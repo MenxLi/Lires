@@ -1,6 +1,7 @@
 
 export interface ServerStatus {
     status: 'OK';
+    version: string;
     n_data: number;
     uptime: number;
 }
