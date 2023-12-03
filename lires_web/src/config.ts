@@ -30,8 +30,8 @@ function getBackendURL(){
 
 export {getBackendURL, FRONTENDURL};
 export const MAINTAINER = {
-    name: "Li, Mengxun",
-    email: "mengxunli@whu.edu.cn"
+    name: import.meta.env.VITE_MAINTAINER_NAME,
+    email: import.meta.env.VITE_MAINTAINER_EMAIL
 }
 
 export const predefinedUsernames = [
