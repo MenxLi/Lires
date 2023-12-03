@@ -1,4 +1,9 @@
 
+@keyframes gradInAnim {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
 @keyframes slideInUpAnim {
     0% {
         visibility: hidden;
@@ -49,11 +54,11 @@
 }
 
 .gradIn {
-    animation-duration: 0.375s; /* the duration of the animation */
+    animation-duration: 0.3s; /* the duration of the animation */
     animation-timing-function: ease-out; /* how the animation will behave */
     animation-delay: 0s; /* how long to delay the animation from starting */
     animation-iteration-count: 1; /* how many times the animation will play */
-    animation-name: slideInUpAnim; /* the name of the animation we defined above */
+    animation-name: gradInAnim; /* the name of the animation we defined above */
 }
 
 .slideIn {

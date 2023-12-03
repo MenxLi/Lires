@@ -140,7 +140,7 @@ export default {
             </MenuAttached>
         </div>
     </Banner>
-    <div id="main-reader">
+    <div id="main-reader" class="gradIn">
         <ReaderBody :datapoint="datapoint" :layoutType="layoutType" ref="readerBody"></ReaderBody>
     </div>
 </template>

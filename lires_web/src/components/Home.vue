@@ -83,7 +83,7 @@ export default {
             </div>
         </div>
     </Banner>
-    <div id="main-home" class="slideIn">
+    <div id="main-home" class="gradIn">
         <div class="horizontal fullHeight">
             <Transition name="left-in">
                 <div id="left-panel" v-if="settingsStore.showTagPanel">
