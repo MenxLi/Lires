@@ -44,10 +44,14 @@
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
         if (scrollTop <= lastScrollTop || lastScrollTop < 10) {
             // Scrolling up
-            mainDiv.value!.classList.remove('hidden');
+            if (mainDiv.value!.classList.contains('hidden')){
+                mainDiv.value!.classList.remove('hidden');
+            }
         } else {
             // Scrolling down
-            mainDiv.value!.classList.add('hidden');
+            if (!mainDiv.value!.classList.contains('hidden')){
+                mainDiv.value!.classList.add('hidden');
+            }
         }
         lastScrollTop = scrollTop;
     });
