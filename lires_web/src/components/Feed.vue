@@ -86,7 +86,7 @@
             article_with_features.features = ref(null as null | Float32Array);
             arxivArticles.value.push(article_with_features);
 
-            conn.featurize(article.abstract).then(
+            conn.featurize(article.abstract, true).then(
                 // update article features
                 (features) => {
                     article_with_features.features.value = new Float32Array(features);

@@ -275,10 +275,11 @@ export class ServerConn {
     //                 AI API              
     // =============================================
 
-    async featurize(text: string): Promise<number[]>{
+    async featurize(text: string, requireCache: boolean = false): Promise<number[]>{
         const params = new URLSearchParams();
         params.set("key", this.settings.encKey);
         params.set("text", text);
+        params.set("require_cache", requireCache.toString());
 
         const response = await fetch(`${getBackendURL()}/iserver/textFeature?${params.toString()}`,
             {
