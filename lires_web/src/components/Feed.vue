@@ -5,6 +5,7 @@
     import { ArxivArticle } from './feed/arxivUtils.ts';
     import ArticleBlock from './feed/ArticleBlock.vue';
     import { useRouter } from 'vue-router';
+    import RefreshIcon from '../assets/icons/refresh.svg'
 
     import Banner from './common/Banner.vue';
     import LoadingWidget from './common/LoadingWidget.vue'
@@ -76,36 +77,37 @@
         searchText.value = initSearchString;
     }
 
-    function runFetchArticles(){
+    const refreshButton = ref(null as HTMLImageElement | null);
+    async function runFetchArticles(){
         arxivArticles.value = [];
-        fetchArxivFeed(
-            maxResults , 
-            fetchCategory.value, 
-            ).then(
-            (articles) => {
-                for (const article of articles){
-                    const article_with_features = article as any;       // type: ArticleWithFeatures
-                    article_with_features.features = ref(null as null | Float32Array);
-                    arxivArticles.value.push(article_with_features);
+        const articles = await fetchArxivFeed();
+        for (const article of articles){
+            const article_with_features = article as any;       // type: ArticleWithFeatures
+            article_with_features.features = ref(null as null | Float32Array);
+            arxivArticles.value.push(article_with_features);
 
-                    conn.featurize(article.abstract).then(
-                        // update article features
-                        (features) => {
-                            article_with_features.features.value = new Float32Array(features);
-                        },
-                        () => {
-                            console.log("failed to featurize: ", article.id);
-                        },
-                    )
-                }
-            },
-        )
+            conn.featurize(article.abstract).then(
+                // update article features
+                (features) => {
+                    article_with_features.features.value = new Float32Array(features);
+                },
+                () => {
+                    console.log("failed to featurize: ", article.id);
+                },
+            )
+        }
         updateSearchFeature();
     }
 
     // MAIN: fetch arxiv feed
     onMounted(() => {
-        runFetchArticles();
+        runFetchArticles().then(
+            ()=>refreshButton.value!.classList.remove('spin'),
+            ()=>{
+                refreshButton.value!.classList.remove('spin');
+                window.alert("Failed to fetch articles");
+            },
+        )
     })
 </script>
 
@@ -114,7 +116,16 @@
         <Banner ref="banner"></Banner>
     </div>
     <div id="main">
-        <h1>Arxiv daily</h1>
+        <h1>
+            Arxiv daily
+            <img ref="refreshButton" :src="RefreshIcon" alt="" class="icon spin" title="refresh the page" @click="(event: MouseEvent)=>{
+                const this_ = event.target as HTMLImageElement;
+                if (!this_.classList.contains('spin')){
+                    this_.classList.add('spin');
+                    runFetchArticles().then(()=>this_.classList.remove('spin'))
+                }
+            }">
+        </h1>
         <div id="settings">
             <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">
                 <option value="cat:cs.CV OR cat:cs.AI OR stat.ML">ALL</option>
@@ -153,5 +164,21 @@
         flex-direction: row;
         justify-content:center;
         align-items: center;
+    }
+
+    h1{
+        font-weight: bold;
+    }
+    img.icon {
+        height: 20px;
+        filter: invert(0.5) opacity(0.35) drop-shadow(0 0 0 var(--color-border)) ;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    img.icon.spin{
+        animation: spin 1s linear infinite;
+    }
+    img.icon:hover{
+        filter: invert(0.5) opacity(0.75) drop-shadow(0 0 0 var(--color-theme)) ;
     }
 </style>
