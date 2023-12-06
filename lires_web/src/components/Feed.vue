@@ -80,7 +80,8 @@
     const refreshButton = ref(null as HTMLImageElement | null);
     async function runFetchArticles(){
         arxivArticles.value = [];
-        const articles = await fetchArxivFeed();
+        const articles = await fetchArxivFeed(maxResults, fetchCategory.value);
+        console.log(`Got ${articles.length} entries.`)
         for (const article of articles){
             const article_with_features = article as any;       // type: ArticleWithFeatures
             article_with_features.features = ref(null as null | Float32Array);
