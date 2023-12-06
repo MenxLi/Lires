@@ -123,6 +123,11 @@ iframe{
     /* -webkit-overflow-scrolling: touch; */
     /* overflow: scroll; */
 }
+@media only screen and (max-width: 767px) {
+    iframe{
+        border-radius: 0px;
+    }
+}
 
 #splitter{
     width: 5px;

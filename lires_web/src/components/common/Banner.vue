@@ -44,12 +44,12 @@
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
         if (scrollTop <= lastScrollTop || lastScrollTop < 10) {
             // Scrolling up
-            if (mainDiv.value!.classList.contains('hidden')){
+            if (mainDiv.value && mainDiv.value.classList.contains('hidden')){
                 mainDiv.value!.classList.remove('hidden');
             }
         } else {
             // Scrolling down
-            if (!mainDiv.value!.classList.contains('hidden')){
+            if (mainDiv.value && !mainDiv.value!.classList.contains('hidden')){
                 mainDiv.value!.classList.add('hidden');
             }
         }
@@ -106,5 +106,13 @@
     div.button{
         display: flex;
         align-items: center;
+    }
+
+    @media only screen and (max-width: 767px) {
+        div.main-banner{
+            left: 0px;
+            right: 0px;
+            border-radius: 0px;
+        }
     }
 </style>

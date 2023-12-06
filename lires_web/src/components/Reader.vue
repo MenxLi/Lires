@@ -155,8 +155,13 @@ div#main-reader{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: calc(100vw - 10px);
+    width: 100vw;
     background-color: var(--color-background);
+}
+@media only screen and (max-width: 767px) {
+    div#main-reader{
+        padding: 0px;
+    }
 }
 div#bannerOps{
     display: flex;

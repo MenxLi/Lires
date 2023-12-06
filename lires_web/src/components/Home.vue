@@ -209,4 +209,14 @@ export default {
         opacity: 0;
         transform: translateX(-10%);
     }
+
+    @media screen and (max-width: 767px) {
+        #main-home{
+            width: 100vw;
+            height: calc(100vh - 50px);
+            border-radius: 0px;
+            border-left: none;
+            border-right: none;
+        }
+    }
 </style>
