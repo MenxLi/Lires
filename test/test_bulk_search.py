@@ -20,6 +20,6 @@ Conclusion:
 AI has the potential to revolutionize healthcare by improving diagnosis, treatment, and patient care. The integration of AI technologies in healthcare settings has already shown promising results, with increased accuracy in medical imaging analysis, personalized treatment recommendations, and efficient healthcare operations. However, to fully harness the potential of AI, it is crucial to address the challenges associated with data privacy, algorithm bias, and ethical considerations. Collaborative efforts between healthcare professionals, policymakers, and technology developers are needed to ensure the responsible and ethical implementation of AI in healthcare. By embracing AI's transformative power while safeguarding patient privacy and well-being, we can pave the way for a future where AI plays a pivotal role in advancing healthcare outcomes.
 """
 
-res = asyncio.run(retrieveRelevantSections("The risks of AI", text*100, n_max_return=5, min_split_words=256))
+res = asyncio.run(retrieveRelevantSections("The risks of AI", text*10, n_max_return=5, min_split_words=256, verbose=True))
 import pprint
 pprint.pprint(res)
