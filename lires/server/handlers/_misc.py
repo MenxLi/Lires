@@ -30,6 +30,7 @@ class StatusHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             "version": VERSION,
             "uptime": time.time() - self._init_time,
             "n_data": len(self.db),
+            "n_connections": len(self.connection_pool)
         }))
 
     @keyRequired

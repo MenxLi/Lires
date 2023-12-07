@@ -34,6 +34,7 @@
         'uptime': __uptimestr,
         '_uptime': -1,
         'numDocs': -1,
+        'numConnections': -1,
     })
     const updateServerStatus = () => {
         new ServerConn().status().then(
@@ -41,6 +42,7 @@
                 __uptime.value = data.uptime;
                 serverInfo.value.version = data.version;
                 serverInfo.value.numDocs = data.n_data;
+                serverInfo.value.numConnections = data.n_connections;
             },
             (err) => {
                 console.error(err);
@@ -80,6 +82,7 @@
                     </li>
                     <li><b>Uptime</b>: {{serverInfo.uptime}}</li>
                     <li><b>Number of documents</b>: {{serverInfo.numDocs}}</li>
+                    <li><b>Number of connections</b>: {{serverInfo.numConnections}}</li>
 
                 </ul>
             </p>
