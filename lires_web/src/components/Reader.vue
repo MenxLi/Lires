@@ -41,6 +41,7 @@ export default {
     const recentReadMenuItems = computed(()=>{
         const ret = [];
         for (const uid of uiStateStore.recentlyReadDataUIDs){
+            if (uid === route.params.id) continue;
             const datapoint = dataStore.database.get(uid);
             ret.push({
                 name: datapoint.authorYear(),
@@ -134,9 +135,10 @@ export default {
                 @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></BannerIcon>
             <BannerIcon :iconSrc="eyeIcon" :labelText="previewBtnText" shortcut="ctrl+p"
                 @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></BannerIcon>
-            |
             <MenuAttached :menu-items="recentReadMenuItems">
-                <p>{{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}</p>
+                <div id="recently-read">
+                    {{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}
+                </div>
             </MenuAttached>
         </div>
     </Banner>
@@ -167,5 +169,20 @@ div#bannerOps{
     display: flex;
     align-items: center;
     justify-content: center;
+}
+div#recently-read{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 10px;
+    border-radius: 5px;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-size: 0.8em;
+    font-weight: bold;
+    cursor: pointer;
+    text-wrap: nowrap;
+    white-space: nowrap;
+    overflow-x: hidden;
 }
 </style>
