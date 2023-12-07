@@ -46,3 +46,34 @@ export interface SearchResultant {
 
 export type SearchResult = Record<string, SearchResultant | null>;
 export type Changelog = [string, string[] | Record<string, string[]>][];
+
+
+// Event for websocket to broadcast
+interface EventBase{
+    type: 
+    'delete_entry' | 'add_entry' | 'update_entry' |
+    'delete_tag' | 'update_tag' |
+    'delete_user' | 'add_user' | 'update_user';
+
+    session_id: string;
+}
+
+interface Event_Data extends EventBase{
+    type: 'delete_entry' | 'add_entry' | 'update_entry'
+    uuid: string;
+    datapoint_summary: DataInfoT | null;
+}
+
+interface Event_Tag extends EventBase{
+    type: 'delete_tag' | 'update_tag'
+    src_tag: string
+    dst_tag: string | null
+}
+
+interface Event_User extends EventBase{
+    type: 'delete_user' | 'add_user' | 'update_user'
+    username: number;
+    user_info: UserInfo | null
+}
+
+export type Event = Event_Data | Event_Tag | Event_User;

@@ -6,6 +6,19 @@
     import { useRouter } from 'vue-router';
     import { settingsAuthentication, settingsLogout } from './core/auth';
 
+    import { ServerWebsocketConn } from './core/serverWebsocketConn';
+
+    const wsconn = new ServerWebsocketConn();
+    window.setInterval(
+        ()=>{
+            wsconn.send({
+                type: "ping",
+                data: "ping",
+            })
+        },
+        5000,
+    )
+
     const uiState = useUIStateStore();
     const settingStore = useSettingsStore();
 

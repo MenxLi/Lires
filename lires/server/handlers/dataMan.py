@@ -24,6 +24,12 @@ class DataDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
         if self.db.delete(uuid):
             self.logger.info(f"Deleted {uuid}")
+        
+        self.broadcastEventMessage({
+            'type': 'delete_entry',
+            'uuid': uuid, 
+            'datapoint_summary': None
+        })
         self.write("OK")
         return
 
@@ -75,6 +81,12 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             dp = self.db.add(uuid)
             dp.fm.writeTags(tags)
             dp.fm.setWebUrl(url)
+
+            self.broadcastEventMessage({
+                'type': 'add_entry',
+                'uuid': uuid, 
+                'datapoint_summary': dp.summary
+            })
         else:
             dp = self.db[uuid]
             __info.append("update entry [{}]".format(uuid))
@@ -87,6 +99,13 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             if url is not None and dp.fm.getWebUrl() != url:
                 dp.fm.setWebUrl(url)
                 __info.append("url updated")
+            
+            self.broadcastEventMessage({
+                'type': 'update_entry',
+                'uuid': uuid,
+                'datapoint_summary': dp.summary
+            })
+
         self.logger.info(", ".join(__info))
 
         dp.loadInfo()   # update the cached info
@@ -133,8 +152,14 @@ class DocumentUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         dp.loadInfo()
         os.remove(tmp_file)
         
+        d_summary = dp.summary
         self.logger.info(f"Document {uid} added")
-        self.write(json.dumps(dp.summary))
+        self.broadcastEventMessage({
+            "type": 'update_entry',
+            'uuid': uid,
+            'datapoint_summary': d_summary
+        })
+        self.write(json.dumps(d_summary))
 
 class DocumentFreeHandler(tornado.web.RequestHandler, RequestHandlerMixin):
     @keyRequired
@@ -151,6 +176,11 @@ class DocumentFreeHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             raise tornado.web.HTTPError(500, reason="Failed to delete file")
         self.logger.info(f"Document {uid} freed")
         dp.loadInfo()
+        self.broadcastEventMessage({
+            "type": 'update_entry',
+            'uuid': uid,
+            'datapoint_summary': dp.summary
+        })
         self.write(json.dumps(dp.summary))
 
 class TagRenameHandler(tornado.web.RequestHandler, RequestHandlerMixin):
@@ -167,6 +197,11 @@ class TagRenameHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             raise tornado.web.HTTPError(403)
         self.db.renameTag(old_tag, new_tag)
         self.logger.info(f"Tag [{old_tag}] renamed to [{new_tag}] by [{self.user_info['name']}]")
+        self.broadcastEventMessage({
+            'type': 'update_tag',
+            'src_tag': old_tag,
+            'dst_tag': new_tag
+        })
         self.write("OK")
 
 class TagDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
@@ -182,4 +217,9 @@ class TagDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             raise tornado.web.HTTPError(403)
         self.db.deleteTag(tag)
         self.logger.info(f"Tag [{tag}] deleted by [{self.user_info['name']}]")
+        self.broadcastEventMessage({
+            'type': 'delete_tag',
+            'src_tag': tag,
+            'dst_tag': None
+        })
         self.write("OK")

@@ -40,7 +40,14 @@ class UserInfoUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         if new_password is not None:
             user.conn.updateUser(id_, password=new_password)
         
-        self.write(json.dumps(user.info()))
+        _user_info = user.info()
+        self.broadcastEventMessage({
+            'type': 'update_user',
+            'username': _user_info["username"],
+            'user_info': user.info_desensitized()
+        })
+        
+        self.write(json.dumps(_user_info))
 
 
 class UserListHandler(tornado.web.RequestHandler, RequestHandlerMixin):

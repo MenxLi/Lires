@@ -18,3 +18,5 @@ from .pdfjs import *
 from .static import *
 
 from ._misc import *
+
+from .websocket import *

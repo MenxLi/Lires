@@ -36,6 +36,13 @@ class UserCreateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         assert user is not None, "User not found"   # should not happen
         to_send = user.info()
         to_send["enc_key"] = "__HIDDEN__"
+
+        self.broadcastEventMessage({
+            'type': 'add_user',
+            'username': to_send["username"],
+            'user_info': to_send
+        })
+
         self.write(json.dumps(to_send))
 
 class UserDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
@@ -53,6 +60,11 @@ class UserDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         self.user_pool.deleteUser(user.info()["id"])
+        self.broadcastEventMessage({
+            'type': 'delete_user',
+            'username': username,
+            'user_info': None
+        })
         self.write("Success")
 
 class UserModifyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
@@ -77,4 +89,11 @@ class UserModifyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         if new_mandatory_tags is not None:
             user.conn.updateUser(user.info()["id"], mandatory_tags=DataTags(new_mandatory_tags).toOrderedList())
         
-        self.write(json.dumps(user.info_desensitized()))
+        _user_info_desens = user.info_desensitized()
+        self.broadcastEventMessage({
+            'type': 'update_user',
+            'username': _user_info_desens["username"],
+            'user_info': _user_info_desens
+        })
+        
+        self.write(json.dumps(_user_info_desens))

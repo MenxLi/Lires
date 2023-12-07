@@ -1,10 +1,10 @@
 from __future__ import annotations
-from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator, TypeVar, Any
+from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator, TypeVar, Any, TYPE_CHECKING
 import tornado.web
 from tornado.ioloop import IOLoop
 import asyncio
 import concurrent.futures
-import time
+import time, json
 
 import http.cookies
 from lires.user import UserInfo, UserPool
@@ -13,7 +13,11 @@ from lires.core import globalVar as G
 from lires.core.dataClass import DataBase, DataTags
 from lires.confReader import USER_DIR, VECTOR_DB_PATH, getConf
 from lires.core.utils import BCOLORS
+from lires.types.eventT import Event
 from tiny_vectordb import VectorDatabase, VectorCollection
+
+if TYPE_CHECKING:
+    from .websocket import WebsocketHandler
 
 G.init()
 def getLocalDatabasePath():
@@ -132,6 +136,12 @@ class RequestHandlerMixin():
         return G.getGlobalAttr("user_pool")
     
     @property
+    def connection_pool(self) -> list[WebsocketHandler]:
+        if not G.hasGlobalAttr('WSConnections'):
+            G.setGlobalAttr('WSConnections', [])
+        return G.getGlobalAttr('WSConnections')
+    
+    @property
     def enc_key(self) -> str:
         try:
             enc_key = self.get_argument("key", "")
@@ -195,6 +205,18 @@ class RequestHandlerMixin():
         self.set_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
         self.set_header("Access-Control-Allow-Headers", "*")
         self.set_header("Access-Control-Expose-Headers", "*")
+
+    def broadcastEventMessage(self, event: Event):
+        """
+        Inform all connected clients about an event
+        """
+        self.logger.debug("Broadcast message - " + str(event))
+        for conn in self.connection_pool:
+            if conn is not self:
+                conn.write_message(json.dumps({
+                    "type": "event",
+                    "content": event
+                }))
 
 def minResponseInterval(min_interval=0.1):
     """

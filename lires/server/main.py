@@ -28,6 +28,9 @@ class FrontendApplication(tornado.web.Application):
 class Application(tornado.web.Application):
     def __init__(self) -> None:
         handlers = [
+            # websocket
+            (r'/ws', WebsocketHandler),
+
             # # Backend
             (r"/summary", SummaryHandler),              # may deprecate
             (r"/summary-post", SummaryPostHandler),     # may rename
