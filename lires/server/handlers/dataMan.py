@@ -82,6 +82,7 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             dp.fm.writeTags(tags)
             dp.fm.setWebUrl(url)
 
+            dp.loadInfo()   # update the cached info
             self.broadcastEventMessage({
                 'type': 'add_entry',
                 'uuid': uuid, 
@@ -100,6 +101,7 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
                 dp.fm.setWebUrl(url)
                 __info.append("url updated")
             
+            dp.loadInfo()   # update the cached info
             self.broadcastEventMessage({
                 'type': 'update_entry',
                 'uuid': uuid,
@@ -107,8 +109,6 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             })
 
         self.logger.info(", ".join(__info))
-
-        dp.loadInfo()   # update the cached info
         self.write(json.dumps(dp.summary))
         return 
 

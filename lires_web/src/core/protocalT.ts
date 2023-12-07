@@ -59,19 +59,19 @@ interface EventBase{
     session_id: string;
 }
 
-interface Event_Data extends EventBase{
+export interface Event_Data extends EventBase{
     type: 'delete_entry' | 'add_entry' | 'update_entry'
     uuid: string;
     datapoint_summary: DataInfoT | null;
 }
 
-interface Event_Tag extends EventBase{
+export interface Event_Tag extends EventBase{
     type: 'delete_tag' | 'update_tag'
     src_tag: string
     dst_tag: string | null
 }
 
-interface Event_User extends EventBase{
+export interface Event_User extends EventBase{
     type: 'delete_user' | 'add_user' | 'update_user'
     username: number;
     user_info: UserInfo | null

@@ -5,7 +5,7 @@
     import QueryDialog from '../common/QueryDialog.vue';
     // import TagSelector from '../tags/TagSelector.vue';
     import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
-    import { useUIStateStore, useDataStore } from '../store';
+    import { useUIStateStore } from '../store';
     import { DataTags } from '../../core/dataClass';
     import { ServerConn } from '../../core/serverConn';
     import type { DataPoint } from '../../core/dataClass';
@@ -42,13 +42,7 @@
             uuid = props.datapoint.summary.uuid;
         }
         new ServerConn().editData(uuid, bibtex.value, Array.from(tagStatus.value.checked), url.value).then(
-            (summary) => {
-                if (props.datapoint){
-                    props.datapoint.update(summary);
-                } else {
-                    useDataStore().database.add(summary);
-                }
-                uiState.updateShownData();
+            (_) => {
                 uiState.showPopup("Saved", "success");
                 show.value = false;
             },

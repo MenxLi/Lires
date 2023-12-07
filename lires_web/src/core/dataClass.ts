@@ -479,15 +479,8 @@ export class DataBase {
         this._initliazed = false;
     }
 
-    delete(uuid: string): Promise<boolean>{
-        return new Promise((resolve) => {
-            new ServerConn().deleteData(uuid).then((res) => {
-                if (res){
-                    delete this.data[uuid];   
-                }
-                resolve(res);
-            });
-        })
+    delete(uuid: string){
+        delete this.data[uuid];
     }
 
     get(uuid: string): DataPoint{

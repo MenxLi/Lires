@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator, TypeVar, Any, TYPE_CHECKING
-import tornado.web
+import tornado.web, tornado.websocket
 from tornado.ioloop import IOLoop
 import asyncio
 import concurrent.futures
@@ -213,10 +213,13 @@ class RequestHandlerMixin():
         self.logger.debug("Broadcast message - " + str(event))
         for conn in self.connection_pool:
             if conn is not self:
-                conn.write_message(json.dumps({
-                    "type": "event",
-                    "content": event
-                }))
+                try:
+                    conn.write_message(json.dumps({
+                        "type": "event",
+                        "content": event
+                    }))
+                except tornado.websocket.WebSocketClosedError as e:
+                    self.logger.error("Failed to broadcast to closed socket.")
 
 def minResponseInterval(min_interval=0.1):
     """

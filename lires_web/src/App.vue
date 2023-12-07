@@ -2,22 +2,11 @@
 <script setup lang="ts">
     import { watch } from 'vue';
     import Popup from './components/common/Popup.vue';
-    import { useUIStateStore, useSettingsStore } from './components/store';
+    import { useUIStateStore, useSettingsStore, useDataStore } from './components/store';
     import { useRouter } from 'vue-router';
     import { settingsAuthentication, settingsLogout } from './core/auth';
-
-    import { ServerWebsocketConn } from './core/serverWebsocketConn';
-
-    const wsconn = new ServerWebsocketConn();
-    window.setInterval(
-        ()=>{
-            wsconn.send({
-                type: "ping",
-                data: "ping",
-            })
-        },
-        5000,
-    )
+    import { getSessionConnection, registerServerEvenCallback } from './core/serverWebsocketConn';
+    import type { Event_Data } from './core/protocalT'
 
     const uiState = useUIStateStore();
     const settingStore = useSettingsStore();
@@ -25,14 +14,22 @@
     // Authentication on load
     const router = useRouter();
     const logout = settingsLogout;
+    function onLogin(){
+        // on login
+        console.log("Logged in.")
+        // initialize session connection if it's not been
+        getSessionConnection().init();
+        uiState.reloadDatabase();
+    }
     function onLogout(){
         console.log("Logged out from: ", router.currentRoute.value.fullPath);
+        getSessionConnection().close();
         router.push({
             path: "/login",
             query: {
                 from: router.currentRoute.value.fullPath,
             }
-        })
+        });
     }
     // if not on login page, try to authenticate with saved token
     if (window.location.hash.split('?')[0] !== "#/login"){
@@ -53,17 +50,32 @@
     watch(
         () => settingStore.loggedIn,
         (new_: boolean, _: boolean) => {
-            if (new_){
-                // on login
-                console.log("Logged in.")
-                uiState.reloadDatabase(false);
-            }
-            else{
-                // on logout
-                onLogout();
-            }
+            if (new_){ onLogin() }
+            else{ onLogout(); }
         }
     )
+
+    // register some server event callbacks for global storage
+    registerServerEvenCallback('add_entry', (event) => {
+        const dataStore = useDataStore();
+        const d_summary = (event as Event_Data).datapoint_summary!
+        dataStore.database.add(d_summary);
+        uiState.updateShownData();
+    })
+    registerServerEvenCallback('update_entry', (event) => {
+        const dataStore = useDataStore();
+        const d_summary = (event as Event_Data).datapoint_summary!
+        dataStore.database.get(d_summary.uuid)?.update(d_summary)
+        uiState.updateShownData();
+    })
+    registerServerEvenCallback('delete_entry', (event) => {
+        const dataStore = useDataStore();
+        const uid = (event as Event_Data).uuid!
+        dataStore.database.delete(uid)
+        uiState.updateShownData();
+    })
+
+
 </script>
 
 <template>
