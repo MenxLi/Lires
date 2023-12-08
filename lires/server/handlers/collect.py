@@ -30,7 +30,13 @@ class CollectHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             tags = tags,
             )
         if actual_uuid:
-            return self.write(json.dumps(self.db[actual_uuid].summary))
+            d_summary = self.db[actual_uuid].summary
+            self.broadcastEventMessage({
+                'type': 'add_entry',
+                'uuid': d_summary['uuid'],
+                'datapoint_summary': d_summary,
+            })
+            return self.write(json.dumps(d_summary))
         else:
             # most likely the file is already in the database
             raise tornado.web.HTTPError(409)    

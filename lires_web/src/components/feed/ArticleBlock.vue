@@ -39,23 +39,11 @@
                 arxivId,
                 addingDocumentTagStatus.value!.checked.toArray(),
             ).then(
-            (dpSummary)=>{
-                const db = dataStore.database;
-                if (Object.keys(db).length == 0){
-                    // db is empty, may happen when database is not loaded
-                    // do nothing
-                }
-                else{
-                    // add to database
-                    db.add(dpSummary);
-                    useUIStateStore().updateShownData();
-                }
+            (_)=>{
                 useUIStateStore().showPopup(`collected: ${arxivId}`, "success")
                 showAddDataTagSelector.value = false;
             },
-            ()=>{
-                useUIStateStore().showPopup(`failed to collect: ${arxivId}, check log for details`, "warning")
-            },
+            ()=>{ useUIStateStore().showPopup(`failed to collect: ${arxivId}, check log for details`, "warning") },
         )
     }
 

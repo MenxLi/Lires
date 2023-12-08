@@ -39,6 +39,11 @@ class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.logger.info("Update notes of: {}".format(dp))
 
         dp.fm.writeComments(note)
+        self.broadcastEventMessage({
+            'type': 'update_entry',
+            'uuid': uid,
+            'datapoint_summary': dp.summary
+        })
         self.write("OK")
 
 class AbstractGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
@@ -78,4 +83,9 @@ class AbstractUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.logger.info("Update abstract of: {}".format(dp))
 
         dp.fm.writeAbstract(abstract)
+        self.broadcastEventMessage({
+            'type': 'update_entry',
+            'uuid': uid,
+            'datapoint_summary': dp.summary
+        })
         self.write("OK")
