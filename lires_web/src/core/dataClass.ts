@@ -528,6 +528,10 @@ export class DataBase {
         return valid_data;
     }
 
+    /**
+     * @deprecated use server conn to directly rename tag,
+     * and use server event to update the database and UI
+     */
     async renameTag(oldTag: string, newTag: string): Promise<boolean>{
         oldTag = DataTags.removeSpaces(oldTag);
         newTag = DataTags.removeSpaces(newTag);
@@ -543,6 +547,10 @@ export class DataBase {
         else { return false; }
     }
 
+    /**
+     * @deprecated use server conn to directly delete tag,
+     * and use server event to update the database and UI
+     */
     async deleteTag(tag: string): Promise<boolean>{
         tag = DataTags.removeSpaces(tag);
         const conn = new ServerConn();

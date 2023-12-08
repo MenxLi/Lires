@@ -2,6 +2,7 @@
 <script setup lang="ts">
     import { watch, ref } from 'vue';
     import { DataTags } from '../../core/dataClass';
+    import { ServerConn } from '../../core/serverConn';
     import { computed } from 'vue';
     import TagSelector from '../tags/TagSelector.vue';
     import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
@@ -52,15 +53,9 @@
         if (oldTag && dataStore.database.getAllTags().has(oldTag)){
             const newTag = prompt("New tag");
             if (newTag){
-                dataStore.database.renameTag(oldTag, newTag).then(
-                    () => {
-                        uiState.showPopup("Tag renamed", "success");
-                        uiState.updateShownData()
-                    },
-                    () => {
-                        uiState.showPopup("Failed to rename tag", "error")
-                        uiState.updateShownData()
-                    },
+                new ServerConn().renameTag(oldTag, newTag).then(
+                    () => { uiState.showPopup("Tag renamed", "success"); },
+                    () => { uiState.showPopup("Failed to rename tag", "error") },
                 )
             }
         }
@@ -71,15 +66,12 @@
     function queryDeleteTag(){
         const tag = prompt("Tag to delete");
         if (tag && dataStore.database.getAllTags().has(tag)){
-            dataStore.database.deleteTag(tag).then(
-                () => {
-                    uiState.showPopup("Tag deleted", "success");
-                    uiState.updateShownData()
-                },
-                () => {
-                    uiState.showPopup("Failed to delete tag", "error")
-                    uiState.updateShownData()
-                },
+            if (!confirm(`Are you sure to delete tag "${tag}"?`)){
+                return;
+            }
+            new ServerConn().deleteTag(tag).then(
+                () => { uiState.showPopup("Tag deleted", "success"); },
+                () => { uiState.showPopup("Failed to delete tag", "error") },
             )
         }
         else{

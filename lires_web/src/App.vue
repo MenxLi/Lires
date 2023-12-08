@@ -6,7 +6,8 @@
     import { useRouter } from 'vue-router';
     import { settingsAuthentication, settingsLogout } from './core/auth';
     import { getSessionConnection, registerServerEvenCallback } from './core/serverWebsocketConn';
-    import type { Event_Data } from './core/protocalT'
+    import type { Event_Data, Event_Tag } from './core/protocalT'
+import { DataTags } from './core/dataClass';
 
     const uiState = useUIStateStore();
     const settingStore = useSettingsStore();
@@ -74,6 +75,19 @@
         dataStore.database.delete(uid)
         uiState.updateShownData();
     })
+    const __tagEventCallback = (event: any) =>{
+        const oldTag = new DataTags([(event as Event_Tag).src_tag!]);
+        const dataStore = useDataStore();
+        const needUpdate = dataStore.database.getDataByTags(oldTag);
+        Promise.all(needUpdate.map( (d) => d.update())).then(
+            () => { uiState.updateShownData(); },
+            () => { 
+                uiState.showPopup("Tag rename succeded at server side, but faild to fetch update, please reload the page", 'error') 
+            },
+        )
+    }
+    registerServerEvenCallback('update_tag', __tagEventCallback)
+    registerServerEvenCallback('delete_tag', __tagEventCallback)
 
 
 </script>

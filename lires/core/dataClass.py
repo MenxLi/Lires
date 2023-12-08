@@ -544,6 +544,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         return if success
         """
         data = self.getDataByTags(DataTags([tag_old]))
+        tag_new = TagRule.stripTag(tag_new)
         self.logger.info(f"Renaming local tag: {tag_old} -> {tag_new}")
         for d in data:
             d: DataPoint
