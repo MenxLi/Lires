@@ -136,7 +136,7 @@
             <TagSelectorWithEntry v-model:tagStatus="(addingDocumentTagStatus as TagStatus)"/>
         </div>
     </QueryDialog>
-    <div id="main" class="slideInFast">
+    <div id="feed-main" class="slideInFast">
         <div class="articleBlock">
             <div class="titleBlock">
                 <h2>{{ props.article.title }}</h2>
@@ -188,7 +188,7 @@
         padding-left: 10px;
         padding-right: 10px;
     }
-    div#main{
+    div#feed-main{
         margin-top: 5px;
         margin-bottom: 5px;
         display: flex;
@@ -197,7 +197,7 @@
         box-shadow: 2px 2px 4px 2px var(--color-shadow);
         border-radius: 5px;
     }
-    div#main:hover{
+    div#feed-main:hover{
         transform: scale(1.005, 1.005);
         transition: all 0.1s ease;
         box-shadow: 2px 2px 4px 3px var(--color-shadow);
