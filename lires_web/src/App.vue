@@ -1,16 +1,23 @@
 
 <script setup lang="ts">
-    import { watch } from 'vue';
+    import { watch, ref, computed } from 'vue';
     import Popup from './components/common/Popup.vue';
     import { useUIStateStore, useSettingsStore, useDataStore } from './components/store';
     import { useRouter } from 'vue-router';
     import { settingsAuthentication, settingsLogout } from './core/auth';
     import { getSessionConnection, registerServerEvenCallback } from './core/serverWebsocketConn';
+    import LoadingPopout from './components/common/LoadingPopout.vue';
     import type { Event_Data, Event_Tag, Event_User } from './core/protocalT'
     import { DataTags } from './core/dataClass';
 
     const uiState = useUIStateStore();
     const settingStore = useSettingsStore();
+
+    // session connection status hint
+    const __sessionConnected = ref(false)
+    const showConnectionHint = computed(()=>{
+        return !__sessionConnected.value && window.location.hash.split('?')[0] !== "#/login" 
+    })
 
     // Authentication on load
     const router = useRouter();
@@ -19,7 +26,10 @@
         // on login
         console.log("Logged in.")
         // initialize session connection if it's not been
-        getSessionConnection().init();
+        getSessionConnection().init({
+            onopenCallback: () => __sessionConnected.value = true,
+            oncloseCallback: () => __sessionConnected.value = false,
+        });
         uiState.reloadDatabase();
     }
     function onLogout(){
@@ -115,6 +125,7 @@
             {{ uiState.popupValues[key].content }}
         </Popup>
     </div>
+    <LoadingPopout text="connecting..." v-if="showConnectionHint"></LoadingPopout>
     <div id="app">
         <!-- https://stackoverflow.com/a/65619387/6775765 -->
         <router-view v-slot="{Component}">

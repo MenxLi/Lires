@@ -48,7 +48,14 @@ export class ServerWebsocketConn{
         return useSettingsStore();
     }
 
-    public init(): ServerWebsocketConn{
+    public isOpen=()=>(this.ws)?(this.ws.readyState === WebSocket.OPEN):false;
+
+    public init({
+        onopenCallback = ()=>{},
+        onmessageCallback = (_: MessageEvent)=>{},
+        oncloseCallback = ()=>{}
+    } = {}
+    ): ServerWebsocketConn{
         const urlParams = new URLSearchParams(window.location.search);
         urlParams.append('key', this.settings.encKey);
         urlParams.append('session_id', this.sessionID);
@@ -72,15 +79,22 @@ export class ServerWebsocketConn{
                     }
                 }
             }
+            onmessageCallback(msg);
         }
         this.ws.onopen = () => {
             console.log("connected to server websocket");
+            onopenCallback();
         }
         this.ws.onclose = () => {
             console.log("server websocket closed, will try to reconnect in 10 second");
+            oncloseCallback();
             new Promise(r => setTimeout(r, 10000)).then(
                 () => {
-                    if (this.ws.readyState === WebSocket.CLOSED) this.init()
+                    if (this.ws.readyState === WebSocket.CLOSED) this.init({
+                        onopenCallback,
+                        onmessageCallback,
+                        oncloseCallback
+                    })
                 }
             )
         }
