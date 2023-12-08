@@ -6,18 +6,20 @@
     import { ref, computed, onActivated } from 'vue';
     import { useRoute } from 'vue-router';
     import { ServerConn } from '../core/serverConn';
-    import { useUIStateStore, useSettingsStore } from './store';
+    import { useUIStateStore, useDataStore } from './store';
     import type { UserInfo } from '../core/protocalT';
 
     const route = useRoute();
     const conn = new ServerConn();
 
     const THIS_USER = computed(() => {
-        const thisUserId = useSettingsStore().userInfo?useSettingsStore().userInfo!.id:-1;
+        const thisUserId = useDataStore().user.id;
         // console.log("thisUserId", thisUserId, "userId", userInfo.value.id);
         return thisUserId === userInfo.value.id;
     });
 
+    // must use this instead of datastore.user, 
+    // because this page may be loaded for a different user
     const userInfo = ref({
         id: 0,
         username: '',

@@ -134,6 +134,15 @@ export const useDataStore = defineStore(
         state: () => {
             return {
                 database: new DataBase(),
+                user: {
+                    id: -1,
+                    username: '',
+                    enc_key: '',
+                    name: '',
+                    is_admin: false,
+                    mandatory_tags: [],
+                    has_avatar: false,
+                } as UserInfo,
             }
         },
         getters: {
@@ -156,6 +165,17 @@ export const useDataStore = defineStore(
             }
         },
         actions: {
+            clearUserInfo(){
+                this.user = {
+                    id: 0,
+                    username: '',
+                    enc_key: '',
+                    name: '',
+                    is_admin: false,
+                    mandatory_tags: [],
+                    has_avatar: false,
+                };
+            },
             // reload the database from backend
             reload(
                 backendReload: boolean = false,
@@ -202,7 +222,6 @@ export const useSettingsStore = defineStore(
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 // loggedIn is a watched flag by App.vue, which is used for logout / reload database
                 loggedIn: false,    
-                userInfo: null as UserInfo | null,
             }
         },
         "getters":{

@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import type { UserInfo } from '../../core/protocalT';
-    import { useSettingsStore, useUIStateStore } from '../store';
+    import { useSettingsStore, useUIStateStore, useDataStore } from '../store';
     import { ServerConn } from '../../core/serverConn';
     import { ref, computed } from 'vue';
     import { CircularImage, FileSelectButton } from '../common/fragments.tsx';
@@ -21,7 +21,7 @@
 
     // Indicate whether this user is the current user
     // must use computed to make it avaliable when the page is reloaded
-    const THIS_USER = computed(() => useSettingsStore().userInfo?.id === props.userInfo.id)
+    const THIS_USER = computed(() => useDataStore().user.id === props.userInfo.id)
 
     const avatarUploadBtn = ref(null as HTMLInputElement | null);
     const avatarURL = computed(() => {

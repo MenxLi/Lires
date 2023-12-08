@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import { getBackendURL } from '../../config';
-    import { useSettingsStore } from '../store';
+    import { useDataStore } from '../store';
     import type { UserInfo } from '../../core/protocalT';
     import { ServerConn } from '../../core/serverConn';
     import { ref, computed, onMounted } from 'vue';
@@ -16,7 +16,7 @@
     import EditIcon from '../../assets/icons/edit_note.svg'
 
     const allUsers = ref([] as UserInfo[]);
-    const is_admin = computed(() => useSettingsStore().userInfo?.is_admin);
+    const is_admin = computed(() => useDataStore().user.is_admin);
 
     // Edit user related
     const showEditUserDialog = ref(false);

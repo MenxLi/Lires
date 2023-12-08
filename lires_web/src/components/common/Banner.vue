@@ -4,7 +4,7 @@
     import { ref, computed } from "vue";
     import { useRouter } from "vue-router";
     import { settingsLogout } from "../../core/auth";
-    import { useSettingsStore } from "../store";
+    import { useDataStore } from "../store";
     import { ThemeMode } from "../../core/misc";
     import BannerIcon from "./BannerIcon.vue";
     import { MenuAttached } from './fragments.tsx'
@@ -67,7 +67,7 @@
                 @onClick="logout" title="logout"/>
             <MenuAttached :menuItems="[
                 {name:'Home', action:()=>{router.push('/')}},
-                {name:'Dashboard', action:()=>{router.push(`/dashboard/${useSettingsStore().userInfo!.username}`)}},
+                {name:'Dashboard', action:()=>{router.push(`/dashboard/${useDataStore().user.username}`)}},
                 {name:'Arxiv daily', action:()=>{router.push('/feed')}},
                 {name:'About', action:()=>{router.push('/about')}},
             ]">

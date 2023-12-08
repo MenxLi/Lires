@@ -1,6 +1,6 @@
 
 import { ServerConn } from "./serverConn";
-import { useSettingsStore } from "../components/store";
+import { useSettingsStore, useDataStore } from "../components/store";
 import type { UserInfo } from "./protocalT";
 import { sha256 } from "../libs/sha256lib";
 
@@ -10,14 +10,13 @@ export function saveAuthentication(
     stayLogin: boolean | null,
     ){
         useSettingsStore().setEncKey(encKey, stayLogin);
-        useSettingsStore().userInfo = userInfo;
-        if (userInfo){
-            useSettingsStore().loggedIn = true;
-        }
-        else{
-            // null indicates logout
+
+        if (userInfo !== null) useDataStore().user = userInfo;
+        else useDataStore().clearUserInfo() 
+
+        if (userInfo) useSettingsStore().loggedIn = true;
+        else // null indicates logout
             useSettingsStore().loggedIn = false;
-        }
     }
 
 // Check if logged out using cookies, no server authentication
