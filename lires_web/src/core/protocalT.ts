@@ -73,7 +73,7 @@ export interface Event_Tag extends EventBase{
 
 export interface Event_User extends EventBase{
     type: 'delete_user' | 'add_user' | 'update_user'
-    username: number;
+    username: string;
     user_info: UserInfo | null
 }
 

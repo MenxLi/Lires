@@ -66,8 +66,10 @@ export class ServerWebsocketConn{
             if (data['type'] === 'event'){
                 const serverEvent: Event = data.content;
                 console.log(serverEvent)
-                for (const hook_fn of __global_eventHooks[serverEvent.type]){
-                    hook_fn(serverEvent);
+                if (Object.keys(__global_eventHooks).includes(serverEvent.type)){
+                    for (const hook_fn of __global_eventHooks[serverEvent.type]){
+                        hook_fn(serverEvent);
+                    }
                 }
             }
         }

@@ -2,9 +2,10 @@
 <script setup lang="ts">
     import { getBackendURL } from '../../config';
     import { useDataStore } from '../store';
-    import type { UserInfo } from '../../core/protocalT';
+    import type { UserInfo, Event_User } from '../../core/protocalT';
     import { ServerConn } from '../../core/serverConn';
     import { ref, computed, onMounted } from 'vue';
+    import { registerServerEvenCallback } from '../../core/serverWebsocketConn';
 
     import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
     import QueryDialog from '../common/QueryDialog.vue';
@@ -39,15 +40,7 @@
             editUserDialog_userInfo.value!.is_admin,
             editUserDialog_userInfo.value!.mandatory_tags
         ).then(
-            (res) => {
-                showEditUserDialog.value = false;
-                for (let i=0; i<allUsers.value.length; i++){
-                    if (allUsers.value[i].username === editUserDialog_userInfo.value!.username){
-                        allUsers.value[i] = res;
-                        break;
-                    }
-                }
-            },
+            (_) => { showEditUserDialog.value = false; },
             (err) => { console.log(err); useUIStateStore().showPopup(err, 'error');}
         )
     }
@@ -62,12 +55,6 @@
         }
         new ServerConn().deleteUser(editUserDialog_userInfo.value!.username).then(
             (_) => {
-                for (let i=0; i<allUsers.value.length; i++){
-                    if (allUsers.value[i].username === editUserDialog_userInfo.value!.username){
-                        allUsers.value.splice(i, 1);
-                        break;
-                    }
-                }
                 useUIStateStore().showPopup(`User ${editUserDialog_userInfo.value!.username} deleted`, 'info');
                 showDeleteUserDialog.value = false;
                 showEditUserDialog.value = false;
@@ -106,8 +93,7 @@
             createUser_isAdmin.value,
             mandatoryTags
         ).then(
-            (res) => {
-                allUsers.value.push(res);
+            (_) => {
                 useUIStateStore().showPopup(`User ${createUser_username.value} created`, 'success');
                 closeCreateUserDialog();
             },
@@ -126,6 +112,22 @@
         );
     });
 
+    registerServerEvenCallback('add_user', (ev) => {
+        const additionalUser = (ev as Event_User).user_info!;
+        allUsers.value.push(additionalUser);
+    })
+    registerServerEvenCallback('update_user', (ev) => {
+        const changedUser = (ev as Event_User).user_info!;
+        allUsers.value.map((elem, idx)=>{
+            if (elem.id === changedUser.id){
+                allUsers.value[idx] = changedUser;
+            }
+        })
+    })
+    registerServerEvenCallback('delete_user', (ev) => {
+        const delUsername = (ev as Event_User).username;
+        allUsers.value = allUsers.value.filter(item => item.username !== delUsername)
+    })
 
 </script>
 

@@ -6,8 +6,8 @@
     import { useRouter } from 'vue-router';
     import { settingsAuthentication, settingsLogout } from './core/auth';
     import { getSessionConnection, registerServerEvenCallback } from './core/serverWebsocketConn';
-    import type { Event_Data, Event_Tag } from './core/protocalT'
-import { DataTags } from './core/dataClass';
+    import type { Event_Data, Event_Tag, Event_User } from './core/protocalT'
+    import { DataTags } from './core/dataClass';
 
     const uiState = useUIStateStore();
     const settingStore = useSettingsStore();
@@ -88,6 +88,20 @@ import { DataTags } from './core/dataClass';
     }
     registerServerEvenCallback('update_tag', __tagEventCallback)
     registerServerEvenCallback('delete_tag', __tagEventCallback)
+    registerServerEvenCallback('update_user', (event)=>{
+        if ((event as Event_User).username === useDataStore().user.username){
+            // update user info except enc_key
+            if ((event as Event_User).user_info === null){
+                throw new Error("assertion failed: User info is null"); // should be impossible
+            }
+            for (const key of Object.keys(useDataStore().user)){
+                if (key !== 'enc_key'){
+                    // @ts-ignore
+                    useDataStore().user[key] = (event as Event_User).user_info![key]
+                }
+            }
+        }
+    })
 
 
 </script>

@@ -7,7 +7,8 @@
     import { useRoute } from 'vue-router';
     import { ServerConn } from '../core/serverConn';
     import { useUIStateStore, useDataStore } from './store';
-    import type { UserInfo } from '../core/protocalT';
+    import { registerServerEvenCallback } from '../core/serverWebsocketConn';
+    import type { UserInfo, Event_User } from '../core/protocalT';
 
     const route = useRoute();
     const conn = new ServerConn();
@@ -45,6 +46,10 @@
     onActivated(updateUser);
     window.onhashchange = updateUser;
 
+    registerServerEvenCallback('update_user', (event)=>{
+        if ((event as Event_User).username === userInfo.value.username){ updateUser() }
+    })
+
 </script>
 
 
@@ -52,7 +57,7 @@
     <Banner />
     <div id="main-dashboard" class="slideIn">
         <WidgetContainer>
-            <UserCard v-model:user-info="userInfo"/>
+            <UserCard :user-info="userInfo"/>
         </WidgetContainer>
         <WidgetContainer>
             <UsersWiget v-if="THIS_USER"/>
