@@ -510,3 +510,13 @@ version_history:
       - Update about page, add link to github and not show version history by default
       - Update dashboard layout to flex
       - Use fade-in animation for home and reader page
+  1.2.2:
+    - Features:
+      - Use websocket to synchronize data modification events
+      - Feed page refresh button
+      - Optionally cache text feature
+    - UI:
+      - Responsive page margin
+      - Style recently read documents
+    - Fix:
+      - Fetch article number and type
