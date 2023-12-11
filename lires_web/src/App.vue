@@ -10,17 +10,19 @@
     import type { Event_Data, Event_Tag, Event_User } from './core/protocalT'
     import { DataTags } from './core/dataClass';
 
+    const router = useRouter();
     const uiState = useUIStateStore();
     const settingStore = useSettingsStore();
 
     // session connection status hint
     const __sessionConnected = ref(false)
-    const showConnectionHint = computed(()=>{
-        return !__sessionConnected.value && window.location.hash.split('?')[0] !== "#/login" 
+    const __isInLoginPage = ref(window.location.hash.split('?')[0] === "#/login")
+    router.afterEach((to, _) => {
+        __isInLoginPage.value = to.path === "/login"
     })
+    const showConnectionHint = computed(()=>!__sessionConnected.value && !__isInLoginPage.value)
 
     // Authentication on load
-    const router = useRouter();
     const logout = settingsLogout;
     function onLogin(){
         // on login
@@ -34,7 +36,9 @@
     }
     function onLogout(){
         console.log("Logged out from: ", router.currentRoute.value.fullPath);
-        getSessionConnection().close();
+        if (getSessionConnection().isOpen()){
+            getSessionConnection().close();
+        }
         router.push({
             path: "/login",
             query: {
