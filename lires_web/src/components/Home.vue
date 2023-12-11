@@ -19,7 +19,7 @@ export default {
     import DataEditor from "./home/DataEditor.vue";
     import addCircleIcon from "../assets/icons/add_circle.svg";
     import sellIcon from "../assets/icons/sell.svg";
-    // import refreshIcon from "../assets/icons/refresh.svg";
+    import refreshIcon from "../assets/icons/refresh.svg";
     import LoadingProgressPopout from "./common/LoadingProgressPopout.vue";
     import LoadingWidget from "./common/LoadingWidget.vue";
     import FilterVis from "./visfeat/FilterVis.vue";
@@ -72,8 +72,8 @@ export default {
                 @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>
             <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"
                 @click="()=>settingsStore.setShowTagPanel(!settingsStore.showTagPanel)"></BannerIcon>
-            <!-- <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
-                @click="()=>uiState.reloadDatabase()"></BannerIcon> -->
+            <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
+                @click="()=>uiState.reloadDatabase()"></BannerIcon>
             |
             <div class="searchbar">
                 <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
