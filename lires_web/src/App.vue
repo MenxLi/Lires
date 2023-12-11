@@ -14,6 +14,31 @@
     const uiState = useUIStateStore();
     const settingStore = useSettingsStore();
 
+    router.isReady().then(()=>{
+        // check if backend port and backend host is set via url query
+        if (router.currentRoute.value.query.backendPort){
+            useSettingsStore().setBackendPort(router.currentRoute.value.query.backendPort as string);
+        }
+        if (router.currentRoute.value.query.backendHost){
+            useSettingsStore().setBackendHost(router.currentRoute.value.query.backendHost as string);
+        }
+        // if not on login page, try to authenticate with saved token
+        if (window.location.hash.split('?')[0] !== "#/login"){
+            console.log("Authenticating...");
+            // Trigger logout event manually if authentication failed on page load.
+            // Since the default value of the flag is false, 
+            // the watcher will not be triggered when loggedIn flag is set to the same value
+            const __logoutAndRedirect = ()=>{
+                logout();
+                onLogout();
+            }
+            settingsAuthentication().then(
+                (userInfo)=>{if (!userInfo){ __logoutAndRedirect() }},
+                ()=>{ __logoutAndRedirect() },
+            )
+        }
+    })
+
     // session connection status hint
     const __sessionConnected = ref(false)
     const __isInLoginPage = ref(window.location.hash.split('?')[0] === "#/login")
@@ -45,21 +70,6 @@
                 from: router.currentRoute.value.fullPath,
             }
         });
-    }
-    // if not on login page, try to authenticate with saved token
-    if (window.location.hash.split('?')[0] !== "#/login"){
-        console.log("Authenticating...");
-        // Trigger logout event manually if authentication failed on page load.
-        // Since the default value of the flag is false, 
-        // the watcher will not be triggered when loggedIn flag is set to the same value
-        const __logoutAndRedirect = ()=>{
-            logout();
-            onLogout();
-        }
-        settingsAuthentication().then(
-            (userInfo)=>{if (!userInfo){ __logoutAndRedirect() }},
-            ()=>{ __logoutAndRedirect() },
-        )
     }
     // React to login status change
     watch(

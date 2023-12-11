@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { ServerConn } from '../../core/serverConn';
 import { useRouter } from 'vue-router';
 import { saveAuthentication, getEncKey } from '../../core/auth.js'
@@ -17,21 +17,22 @@ const pwdInputType = computed(() => showPassword.value?"text":"password");
 const loginText = ref("Login")
 
 const router = useRouter();
-const backendHost = ref(useSettingsStore().backendHost);
-const port = ref(useSettingsStore().backendPort);
-
-// try get backend url and port from url query
-if (router.currentRoute.value.query.backendHost){
-    backendHost.value = router.currentRoute.value.query.backendHost as string;
-}
-if (router.currentRoute.value.query.backendPort){
-    port.value = router.currentRoute.value.query.backendPort as string;
-}
+const backendHost = ref("");
+const backendPort = ref("");
+router.isReady().then(()=>{
+    // set backend host and port from settings
+    // the settings may be set from url query in App.vue in the first place,
+    // so we need to wait until the router is ready and set the settings
+    nextTick(()=>{
+        backendHost.value = useSettingsStore().backendHost;
+        backendPort.value = useSettingsStore().backendPort;
+    })
+})
 
 
 function login(){
     useSettingsStore().setBackendHost(backendHost.value);
-    useSettingsStore().setBackendPort(port.value);
+    useSettingsStore().setBackendPort(backendPort.value);
 
     loginText.value = "Connecting..."
 
@@ -77,7 +78,7 @@ function login(){
                     <label for="backendHostInput">Backend: </label>
                     <input type="text" id="backendHostInput" v-model="backendHost" />
                     :
-                    <input type="text" id="port" v-model="port" />
+                    <input type="text" id="port" v-model="backendPort" />
                     <div class="options">
                         <Toggle :checked="stayLogin" @onCheck="() => {stayLogin=!stayLogin}">Stay login</Toggle>
                         <Toggle :checked="showPassword" @onCheck="() => {showPassword=!showPassword}">Show key</Toggle>
