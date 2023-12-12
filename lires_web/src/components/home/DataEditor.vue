@@ -12,6 +12,7 @@
     import type { TagStatus } from '../interface';
     import Toggle from '../common/Toggle.vue';
     import { getBibtexTemplate, type BibtexTypes } from './bibtexUtils';
+    import { fetchArxivPaperByID, bibtexFromArxiv } from '../feed/arxivUtils';
 
     const props = defineProps<{
         datapoint: DataPoint | null,
@@ -76,6 +77,22 @@
     const bibtexTemplateSelection = ref("article" as BibtexTypes);
     const bibtexTemplate = computed(()=>getBibtexTemplate(bibtexTemplateSelection.value))
 
+    const showArxivInput = ref(false);
+    const arxivIdInput = ref("");
+    function insertArxivBibtex(id: string){
+        let __realId = id;
+        if (id.toLocaleLowerCase().startsWith("arxiv:")){
+            __realId = id.slice(6);
+        }
+        fetchArxivPaperByID(__realId).then(
+            (paper) => {
+                bibtex.value = bibtexFromArxiv(paper);
+            },
+            () => {
+                uiState.showPopup("Failed to fetch from arxiv", "error");
+            }
+    )}
+
 </script>
 
 <template>
@@ -95,6 +112,13 @@
         </div>
     </QueryDialog>
 
+    <QueryDialog v-model:show="showArxivInput" @on-cancel="showArxivInput=false" @on-accept="()=>{
+        insertArxivBibtex(arxivIdInput);
+        showArxivInput=false;
+    }" :z-index=100>
+        <input type="text" v-model="arxivIdInput" placeholder="id (e.g. 2106.00001)">
+    </QueryDialog>
+
     <QueryDialog 
         v-model:show="show" :title="datapoint?datapoint.authorAbbr():'new'" :show-cancel="false"
         @on-accept="save" @on-cancel="() => show=false"
@@ -106,7 +130,7 @@
                         <label for="bibtex">Bibtex</label>
                         <div id="bibtexSource" class="horizontal">
                             <div class="button" @click="showBibtexTemplate=true">template</div>
-                            <div class="button" v-if="!datapoint">from_arxiv</div>
+                            <div class="button" v-if="!datapoint" @click="showArxivInput=true">from_arxiv</div>
                         </div>
                     </div>
                     <textarea id="bibtex" v-model="bibtex" placeholder="bibtex"></textarea>
