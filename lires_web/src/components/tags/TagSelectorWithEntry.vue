@@ -55,7 +55,7 @@
         </div>
         <div class="entry">
             <input type="text" placeholder="New tag" v-model="mutableTagInput" @keyup.enter="addNewTag">
-            <button class="green" @click="addNewTag">ADD</button>
+            <button :class="`green${mutableTagInput?' to-be-confirmed':''}`" @click="addNewTag">ADD</button>
         </div>
     </div>
 </template>
@@ -94,10 +94,6 @@
         border-radius: 5px;
     }
 
-    button#addNewTag{
-        width: 80px;
-    }
-
     div.entry {
         display: flex;
         flex-direction: row;
@@ -108,5 +104,11 @@
 
     button {
         width: 80px;
+        cursor: pointer;
     }
+    button.to-be-confirmed{
+        color: rgb(255, 0, 150);
+        background-color: rgba(0, 255, 166, 0.75);
+    }
+
 </style>
