@@ -19,9 +19,15 @@ window.g_eventHooks = __global_eventHooks
     the server will send the event to the client, and the client will react to that kind of event
  */
 export function registerServerEvenCallback( 
-    eventType: Event['type'], 
+    eventType: Event['type'] | Event['type'][], 
     eventReactFn: (arg: Event)=>void)
     {
+    if (Array.isArray(eventType)){
+        for (const et of eventType){
+            registerServerEvenCallback(et, eventReactFn);
+        }
+        return;
+    }
     if (__global_eventHooks[eventType] === undefined){
         __global_eventHooks[eventType] = [];
     }

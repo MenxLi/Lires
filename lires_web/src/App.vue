@@ -99,7 +99,7 @@
         dataStore.database.delete(uid)
         uiState.updateShownData();
     })
-    const __tagEventCallback = (event: any) =>{
+    registerServerEvenCallback(['delete_tag', 'update_tag'], (event: any) =>{
         const oldTag = new DataTags([(event as Event_Tag).src_tag!]);
         const dataStore = useDataStore();
         const needUpdate = dataStore.database.getDataByTags(oldTag);
@@ -109,9 +109,7 @@
                 uiState.showPopup("Tag rename succeded at server side, but faild to fetch update, please reload the page", 'error') 
             },
         )
-    }
-    registerServerEvenCallback('update_tag', __tagEventCallback)
-    registerServerEvenCallback('delete_tag', __tagEventCallback)
+    })
     registerServerEvenCallback('update_user', (event)=>{
         if ((event as Event_User).username === useDataStore().user.username){
             // update user info except enc_key
