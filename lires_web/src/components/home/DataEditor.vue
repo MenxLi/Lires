@@ -81,7 +81,8 @@
     const arxivIdInput = ref("");
     function insertArxivBibtex(id: string){
         uiState.showPopup("Fetching from arxiv...", "info");
-        showArxivInput.value = false;
+        showArxivInput.value = false;   // close input
+        arxivIdInput.value = "";        // clear input
         let __realId = id;
         if (id.toLocaleLowerCase().startsWith("arxiv:")){
             __realId = id.slice(6);
