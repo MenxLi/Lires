@@ -80,6 +80,8 @@
     const showArxivInput = ref(false);
     const arxivIdInput = ref("");
     function insertArxivBibtex(id: string){
+        uiState.showPopup("Fetching from arxiv...", "info");
+        showArxivInput.value = false;
         let __realId = id;
         if (id.toLocaleLowerCase().startsWith("arxiv:")){
             __realId = id.slice(6);
@@ -87,6 +89,7 @@
         fetchArxivPaperByID(__realId).then(
             (paper) => {
                 bibtex.value = bibtexFromArxiv(paper);
+                uiState.showPopup("Obtained bibtex from arxiv", "success");
             },
             () => {
                 uiState.showPopup("Failed to fetch from arxiv", "error");
@@ -98,7 +101,7 @@
 <template>
     <QueryDialog v-model:show="showBibtexTemplate" 
     @on-accept="()=>{bibtex=bibtexTemplate; showBibtexTemplate=false}" 
-    @on-cancel="showBibtexTemplate=false" :z-index=100> 
+    @on-cancel="showBibtexTemplate=false" :z-index=102 title="Select template">
         <div :style="{
             display: 'flex',
             flexDirection: 'column',
@@ -114,8 +117,7 @@
 
     <QueryDialog v-model:show="showArxivInput" @on-cancel="showArxivInput=false" @on-accept="()=>{
         insertArxivBibtex(arxivIdInput);
-        showArxivInput=false;
-    }" :z-index=100>
+    }" :z-index=102 title="Paper ID input">
         <input type="text" v-model="arxivIdInput" placeholder="id (e.g. 2106.00001)">
     </QueryDialog>
 
