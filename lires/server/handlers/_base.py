@@ -217,7 +217,13 @@ class RequestHandlerMixin():
         Inform all connected clients about an event
         """
         self.logger.debug("Broadcast message - " + str(event))
-        for conn in self.connection_pool:
+
+        # there will somehow exists closed connections in the pool
+        # we need to remove them, otherwise they will block the function and slow down the server
+        # TODO: find out why...
+        __need_remove_idx = []
+        for i in range(len(self.connection_pool)):
+            conn = self.connection_pool[i]
             if conn is not self:
                 try:
                     conn.write_message(json.dumps({
@@ -225,7 +231,10 @@ class RequestHandlerMixin():
                         "content": event
                     }))
                 except tornado.websocket.WebSocketClosedError as e:
-                    self.logger.error("Failed to broadcast to closed socket.")
+                    self.logger.error("Failed to broadcast to closed socket (s: {})".format(conn.session_id))
+                    __need_remove_idx.append(i)
+        for i in __need_remove_idx[::-1]:
+            self.connection_pool.pop(i)
 
 def minResponseInterval(min_interval=0.1):
     """

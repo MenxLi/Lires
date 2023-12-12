@@ -33,7 +33,7 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
 
     @keyRequired
     def open(self):
-        self.logger.info("WebSocket opened from {} ({})".format(self.user_info['username'], self.session_id))
+        self.logger.info("WebSocket opened from {} (s: {})".format(self.user_info['username'], self.session_id))
         self.broadcastEventMessage({
             'type': 'login',
             'username': self.user_info['username'],
@@ -41,7 +41,7 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
         })
 
     def on_close(self):
-        self.logger.info("WebSocket closed from {} ({})".format(self.user_info['username'], self.session_id))
+        self.logger.info("WebSocket closed from {} (s: {})".format(self.user_info['username'], self.session_id))
         self.broadcastEventMessage({
             'type': 'logout',
             'username': self.user_info['username'],
