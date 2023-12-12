@@ -48,7 +48,6 @@ core = [
     "tornado",
     "markdown",
     "PyMuPDF",
-    "nest_asyncio",
     "arxiv",
     "nbib",
     "typing_extensions",

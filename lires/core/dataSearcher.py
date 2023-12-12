@@ -3,11 +3,8 @@ Search database by certain criteria
 """
 
 import re
-import asyncio
-from . import globalVar as G
 from typing import Dict, Optional, TypedDict
-from .dataClass import DataCore, DataBase, DataPoint
-from .asynciolib import asyncioLoopRun
+from .dataClass import DataCore, DataBase
 from .textUtils import queryFeatureIndex
 from tiny_vectordb import VectorDatabase
 
@@ -83,26 +80,18 @@ class DataSearcher(DataCore):
         return results
     
     def searchNote(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
-
-        async def _searchNote(db: DataBase):
-            results: StringSearchT = {}
-            async_tasks = []
-            uids = []
-            for uid, dp in self.db.items():
-                async_tasks.append(_searchNoteSingle(dp, pattern, ignore_case))
-                uids.append(uid)
-            all_res = await asyncio.gather(*async_tasks)
-            for uid, res in zip(uids, all_res): # type: ignore
-                if res is not None:
-                    results[uid] = {"score": None, "match": res}
-            return results
-        
-        async def _searchNoteSingle(dp: DataPoint, pattern_, ignore_case_):
+        results: StringSearchT = {}
+        uids = []
+        all_res = []
+        for uid, dp in self.db.items():
             comments = dp.fm.readComments()
             res = self._searchRegex(pattern, comments, ignore_case)
-            return res
-
-        return asyncioLoopRun(_searchNote(self.db))
+            uids.append(uid)
+            all_res.append(res)
+        for uid, res in zip(uids, all_res):
+            if res is not None:
+                results[uid] = {"score": None, "match": res}
+        return results
     
     def searchFeature(self, pattern: str, n_return = 999, vec_db:Optional[ VectorDatabase ] = None) -> StringSearchT:
         if pattern.strip() == "":

@@ -1,9 +1,8 @@
 from __future__ import annotations
-import os, asyncio
+import os
 from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar
 import difflib
 from .utils import Timer
-from .asynciolib import asyncioLoopRun
 try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable
@@ -440,25 +439,21 @@ class DataBase(Dict[str, DataPoint], DataCore):
         if db_local:
             # when load database is provided
             to_load = conn.keys()
-            asyncioLoopRun(self.constuct(to_load))
+            self.constuct(to_load)
         return self     # enable chaining initialization
 
-    async def constuct(self, vs: List[str]):
+    def constuct(self, vs: List[str]):
         """
         Construct the DataBase (Add new entries to database)
          - vs: list of data uuids
         """
-        async def _getDataPoint(v_) -> DataPoint:
-            fm = FileManipulator(v_, db_local=self.conn)
-            data = DataPoint(fm, parse_bibtex=False)    # set parse_bibtex to False, will be parsed later
-            return data
-
-        # load all datapoint
-        async_tasks = []
-        for v in vs:
-            async_tasks.append(_getDataPoint(v))
         with Timer("Constructing database", self.logger.info):
-            all_data: list[DataPoint] = await asyncio.gather(*async_tasks)
+            all_data: list[DataPoint] = []
+            for v_ in vs:
+                fm = FileManipulator(v_, db_local=self.conn)
+                data = DataPoint(fm, parse_bibtex=False)
+                all_data.append(data)
+
             _all_bibtex = [d.fm.readBib() for d in all_data]
             with Timer("Parsing bibtex", self.logger.debug):
                 _all_parsed_bibtex = parallelParseBibtex(_all_bibtex)
