@@ -41,10 +41,11 @@
         if (props.datapoint){
             uuid = props.datapoint.summary.uuid;
         }
+        show.value = false;
+        uiState.showPopup("Saving entry...", "info")
         new ServerConn().editData(uuid, bibtex.value, Array.from(tagStatus.value.checked), url.value).then(
             (_) => {
                 uiState.showPopup("Saved", "success");
-                show.value = false;
             },
             () => uiState.showPopup("Failed to save", "error")
         )
