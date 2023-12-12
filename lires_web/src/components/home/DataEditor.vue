@@ -10,6 +10,8 @@
     import { ServerConn } from '../../core/serverConn';
     import type { DataPoint } from '../../core/dataClass';
     import type { TagStatus } from '../interface';
+    import Toggle from '../common/Toggle.vue';
+    import { getBibtexTemplate, type BibtexTypes } from './bibtexUtils';
 
     const props = defineProps<{
         datapoint: DataPoint | null,
@@ -70,18 +72,43 @@
         }
     })
 
+    const showBibtexTemplate = ref(false);
+    const bibtexTemplateSelection = ref("article" as BibtexTypes);
+    const bibtexTemplate = computed(()=>getBibtexTemplate(bibtexTemplateSelection.value))
+
 </script>
 
 <template>
+    <QueryDialog v-model:show="showBibtexTemplate" 
+    @on-accept="()=>{bibtex=bibtexTemplate; showBibtexTemplate=false}" 
+    @on-cancel="showBibtexTemplate=false" :z-index=100> 
+        <div :style="{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            padding: '10px',
+            width: '100%',
+            height: '100%',
+        }">
+            <Toggle @on-check="bibtexTemplateSelection='article'" :checked="bibtexTemplateSelection=='article'">Article</Toggle>
+            <Toggle @on-check="bibtexTemplateSelection='inproceedings'" :checked="bibtexTemplateSelection=='inproceedings'">Inproceedings</Toggle>
+        </div>
+    </QueryDialog>
+
     <QueryDialog 
         v-model:show="show" :title="datapoint?datapoint.authorAbbr():'new'" :show-cancel="false"
         @on-accept="save" @on-cancel="() => show=false"
     >
-
         <div id="inputDiv">
             <div id="inputLeft">
                 <div id="bibtexArea">
-                    <label for="bibtex">Bibtex</label>
+                    <div class="horizontal">
+                        <label for="bibtex">Bibtex</label>
+                        <div id="bibtexSource" class="horizontal">
+                            <div class="button" @click="showBibtexTemplate=true">template</div>
+                            <div class="button" v-if="!datapoint">from_arxiv</div>
+                        </div>
+                    </div>
                     <textarea id="bibtex" v-model="bibtex" placeholder="bibtex"></textarea>
                 </div>
                 <div id="urlArea">
@@ -111,6 +138,27 @@
 
     label {
         font-weight: bold;
+    }
+    div.horizontal{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+    }
+    div#bibtexSource{
+        font-size: small;
+        margin-left: 10px;
+    }
+    div#bibtexSource div.button{
+        cursor: pointer;
+        opacity: 0.2;
+        transition: all 0.2s ease-in-out;
+    }
+    div#bibtexSource div.button:hover{
+        cursor: pointer;
+        opacity: 1;
+        color: var(--color-theme);
     }
     textarea, input[type="text"]{
         border: 1px solid var(--color-border);

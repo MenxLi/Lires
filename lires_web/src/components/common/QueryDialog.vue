@@ -7,9 +7,11 @@
         "show": boolean,
         "title"?: string,
         "showCancel"?: boolean,
+        "zIndex"?: number,
     }>(), {
         title: "Query",
         showCancel: true,
+        zIndex: 99,
     });
 
     const emit = defineEmits<{
@@ -29,7 +31,7 @@
 </script>
 
 <template>
-    <FloatingWindow v-model:show="showWindow" :title="title" :compact="true"
+    <FloatingWindow v-model:show="showWindow" :title="title" :compact="true" :z-index="zIndex"
     @on-close="()=>emit('onClose')">
         <div id="query-dialog-main">
             <div class="content">

@@ -5,10 +5,12 @@
     "show": boolean,
     "closeKey"?: string,
     "compact"?: boolean,
+    "zIndex"?: number,
   }>(), {
     title: "_",
     closeKey: "Escape",
     compact: false,   // if set to true, the window will have no margin
+    zIndex: 99,
   });
   const emit = defineEmits<{
     (e: "close"): void,
@@ -41,7 +43,7 @@
 <template>
   <div id="window" v-if="showWindow">
     <div id="blocker" @click="closeWindow"></div>
-    <div class="floating-window">
+    <div class="floating-window" :style="{'z-index':zIndex}">
       <div class="header">
         <label>{{ props.title }}</label>
         <button class="close-button" @click="closeWindow">
@@ -112,7 +114,6 @@ div.header {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  z-index: 100;
   box-shadow: 0 1px 3px 2px var(--color-shadow);
 
   animation-duration: 0.12s; /* the duration of the animation */
