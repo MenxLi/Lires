@@ -5,6 +5,7 @@
     import { getBackendURL } from '../config';
     import Banner from './common/Banner.vue';
     import FloatingWindow from './common/FloatingWindow.vue';
+    import { registerServerEvenCallback } from '../core/serverWebsocketConn';
 
     const changelog = ref<Changelog>([]);
     const showChangelog = ref(false);
@@ -57,6 +58,9 @@
     updateChangelog();
     updateServerStatus();
     window.setInterval(()=>__uptime.value++, 1000);
+
+    registerServerEvenCallback('login', ()=>serverInfo.value.numConnections++);
+    registerServerEvenCallback('logout', ()=>serverInfo.value.numConnections--);
     
 </script>
 

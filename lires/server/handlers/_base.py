@@ -163,6 +163,12 @@ class RequestHandlerMixin():
         except AttributeError:
             return self.checkKey()
     
+    @property
+    def user_info_desensitized(self) -> UserInfo:
+        info = self.user_info
+        info["enc_key"] = "__HIDDEN__"
+        return info
+    
     def checkKey(self) -> UserInfo:
         """
         Authenticates key from params, then cookies

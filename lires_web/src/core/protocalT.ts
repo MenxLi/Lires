@@ -54,7 +54,8 @@ interface EventBase{
     type: 
     'delete_entry' | 'add_entry' | 'update_entry' |
     'delete_tag' | 'update_tag' |
-    'delete_user' | 'add_user' | 'update_user';
+    'delete_user' | 'add_user' | 'update_user' |
+    'login' | 'logout';
 
     session_id: string;
 }
@@ -72,7 +73,7 @@ export interface Event_Tag extends EventBase{
 }
 
 export interface Event_User extends EventBase{
-    type: 'delete_user' | 'add_user' | 'update_user'
+    type: 'delete_user' | 'add_user' | 'update_user' | 'login' | 'logout'
     username: string;
     user_info: UserInfo | null
 }

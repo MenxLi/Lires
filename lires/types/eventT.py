@@ -19,7 +19,7 @@ class Event_Tag(EventBase):
     dst_tag: Optional[str]
 
 class Event_User(EventBase):
-    type: Literal['delete_user', 'add_user', 'update_user']
+    type: Literal['delete_user', 'add_user', 'update_user', 'login', 'logout']
     username: str
     user_info: Optional[UserInfo]
 
