@@ -12,7 +12,7 @@
     import type { TagStatus } from '../interface';
     import Toggle from '../common/Toggle.vue';
     import { getBibtexTemplate, type BibtexTypes } from './bibtexUtils';
-    import { fetchArxivPaperByID, bibtexFromArxiv } from '../../core/arxivUtils';
+    import { BibtexCollector } from './bibtexUtils';
 
     const props = defineProps<{
         datapoint: DataPoint | null,
@@ -83,19 +83,17 @@
         uiState.showPopup("Fetching from arxiv...", "info");
         showArxivInput.value = false;   // close input
         arxivIdInput.value = "";        // clear input
-        let __realId = id;
-        if (id.toLocaleLowerCase().startsWith("arxiv:")){
-            __realId = id.slice(6);
-        }
-        fetchArxivPaperByID(__realId).then(
-            (paper) => {
-                bibtex.value = bibtexFromArxiv(paper);
+        new BibtexCollector().fromArxiv(id).then(
+            (res) => {
                 uiState.showPopup("Obtained bibtex from arxiv", "success");
+                bibtex.value = res.bibtex;
+                url.value = res.url
             },
             () => {
                 uiState.showPopup("Failed to fetch from arxiv", "error");
             }
-    )}
+        )
+    }
 
 </script>
 
