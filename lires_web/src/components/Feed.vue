@@ -1,8 +1,7 @@
 
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue';
-    import { fetchArxivFeed } from './feed/arxivUtils.ts';
-    import { ArxivArticle } from './feed/arxivUtils.ts';
+    import { fetchArxivFeed, ArxivArticle } from '../core/arxivUtils.ts';
     import ArticleBlock from './feed/ArticleBlock.vue';
     import { useRouter } from 'vue-router';
     import RefreshIcon from '../assets/icons/refresh.svg'

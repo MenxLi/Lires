@@ -103,5 +103,6 @@ export function bibtexFromArxiv(paper: ArxivArticle){
   title = {${paper.title}},
   journal = {arXiv preprint arXiv:${paper.id}},
   year = {${paper.publishedTime.split('-')[0]}},
+  abstract = {${paper.abstract}}
   }`.replace(/  /g, "");
 }

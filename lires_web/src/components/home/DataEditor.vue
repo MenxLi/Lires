@@ -12,7 +12,7 @@
     import type { TagStatus } from '../interface';
     import Toggle from '../common/Toggle.vue';
     import { getBibtexTemplate, type BibtexTypes } from './bibtexUtils';
-    import { fetchArxivPaperByID, bibtexFromArxiv } from '../feed/arxivUtils';
+    import { fetchArxivPaperByID, bibtexFromArxiv } from '../../core/arxivUtils';
 
     const props = defineProps<{
         datapoint: DataPoint | null,
