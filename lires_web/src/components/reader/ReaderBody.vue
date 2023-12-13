@@ -2,7 +2,7 @@
     import { onMounted, ref, watch, computed } from 'vue';
     import { DataPoint } from '../../core/dataClass';
     import NoteEditor from './NoteEditor.vue';
-    import { useUIStateStore } from '../store';
+    import { useUIStateStore, useSettingsStore } from '../store';
 
     const props = defineProps<{
         datapoint: DataPoint,
@@ -66,11 +66,10 @@
             rightPane.value!.style.width = '100%';
         }
         else if (layoutType == 2){
-            // leftPane.value!.style.width = '50%';
-            // rightPane.value!.style.width = '50%';
             leftPane.value!.style.width = `${leftPaneWidthRatio.value * 100}%`;
             rightPane.value!.style.width = `${(1 - leftPaneWidthRatio.value) * 100}%`;
         }
+        useSettingsStore().setReaderLayoutType(layoutType);
     }
     watch(() => props.layoutType, (newLayoutType, oldLayoutType) => {
         console.log('layoutType changed:', oldLayoutType, "->", newLayoutType);

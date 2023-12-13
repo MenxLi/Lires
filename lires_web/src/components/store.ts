@@ -220,6 +220,7 @@ export const useSettingsStore = defineStore(
                 __backendPort: localStorage.getItem("backendPort") || "8080",
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
+                __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
                 // loggedIn is a watched flag by App.vue, which is used for logout / reload database
                 loggedIn: false,    
             }
@@ -239,6 +240,9 @@ export const useSettingsStore = defineStore(
             },
             show3DScatterPlot(): boolean{
                 return this.__show3DScatterPlot;
+            },
+            readerLayoutType(): number{
+                return parseInt(this.__readerLayoutType);
             },
         },
         "actions": {
@@ -266,7 +270,11 @@ export const useSettingsStore = defineStore(
             setShow3DScatterPlot(show: boolean){
                 this.__show3DScatterPlot = show;
                 localStorage.setItem("show3DScatterPlot", show.toString());
-            }
+            },
+            setReaderLayoutType(type: number){
+                this.__readerLayoutType = type.toString();
+                localStorage.setItem("readerLayoutType", type.toString());
+            },
         },
     }
 )

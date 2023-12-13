@@ -11,7 +11,7 @@ export default {
     import Banner from './common/Banner.vue';
     import BannerIcon from './common/BannerIcon.vue';
     import { ref, onMounted, computed, watch } from 'vue';
-    import { useDataStore, useUIStateStore } from './store';
+    import { useDataStore, useUIStateStore, useSettingsStore } from './store';
     import { useRoute, useRouter } from 'vue-router';
     import {FileSelectButton} from './common/fragments.tsx'
     import { MenuAttached } from './common/fragments.tsx';
@@ -57,7 +57,7 @@ export default {
     // 0: doc only
     // 1: note only
     // 2: doc and note
-    const layoutType = ref<number>(2);
+    const layoutType = ref<number>(useSettingsStore().readerLayoutType);
 
     // initialize layoutType according to screen size
     if (window.innerWidth < 800){
