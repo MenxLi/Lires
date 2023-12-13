@@ -133,7 +133,7 @@
                         <label for="bibtex">Bibtex</label>
                         <div id="bibtexSource" class="horizontal">
                             <div class="button" @click="showBibtexTemplate=true">template</div>
-                            <div class="button" v-if="!datapoint" @click="showArxivInput=true">from_arxiv</div>
+                            <div class="button" @click="showArxivInput=true">from_arxiv</div>
                         </div>
                     </div>
                     <textarea id="bibtex" v-model="bibtex" placeholder="bibtex"></textarea>
