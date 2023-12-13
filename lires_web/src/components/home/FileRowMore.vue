@@ -43,6 +43,9 @@ const onSetAbstract = async (t: string) => {
 }
 
 const showCopyCitation = ref(false);
+function wrapCitiation(type: string, text: string){
+    return [type, `${text.length>80?text.slice(0, 80)+'...':text}`]
+}
 function copy2clip(text: string){
     copyToClipboard(text).then(
         (success: boolean) => {
@@ -111,24 +114,37 @@ const showSummary = ref(false);
     <FloatingWindow v-model:show="showCopyCitation" title="Citations">
         <div id="citations" :style="{
             textAlign: 'left',
-        }" v-for=" (text, index) in 
+        }" v-for=" (textwrap, index) in 
         [ 
-            `${datapoint.authorAbbr()} (${datapoint.summary.year})`,
-            `${datapoint.summary.title}`,
-            `${datapoint.summary.title}. ${datapoint.authorAbbr()} (${datapoint.summary.year})`,
-            `${datapoint.summary.bibtex}`,
-            `${datapoint.getRawDocURL()}`,
+            wrapCitiation('Title', `${datapoint.summary.title}`),
+            wrapCitiation('Author-year', `${datapoint.authorAbbr()} (${datapoint.summary.year})`),
+            wrapCitiation('APA', `${datapoint.authorAbbr()} (${datapoint.summary.year}). ${datapoint.summary.title}. ${datapoint.summary.publication}.`),
+            wrapCitiation('Bibtex', datapoint.summary.bibtex),
+            wrapCitiation('DocURL', datapoint.getRawDocURL()),
+            wrapCitiation('Markdown', `[${datapoint.authorAbbr()} (${datapoint.summary.year})](${datapoint.getRawDocURL()})`)
         ] ">
-            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}" v-if="index===3">{{
-                `[Bibtex] ${text.slice(0, 50)}...`
-            }}</p>
-            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}" v-else-if="index===4">{{
-                `[DocURL] ${text.slice(0, 50)}...`
-            }}</p>
-            <p @click="copy2clip(text); showCopyCitation=false" :style="{cursor: 'pointer'}" v-else>{{
-                text
-            }}</p>
-            <hr v-if="index !== 4">
+            <div @click="()=>{ copy2clip(textwrap[1]); showCopyCitation=false }" :style="{cursor: 'pointer', display: 'flex', flexDirection: 'row'}">
+                <div class="citation-type" :style="{
+                    marginLeft: '10px', 
+                    marginRight: '10px', 
+                    borderRadius: '5px', 
+                    backgroundColor: 'var(--color-background-mute)',
+                    padding: '3px',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    }">
+                    {{ textwrap[0] }}
+                </div>
+                <p class="citation-text" :style="{
+                    overflowX: 'hidden',
+                    whiteSpace: 'nowrap',
+                }">
+                    {{ textwrap[1] }}
+                </p>
+            </div>
+            <hr v-if="index !== 5">
         </div>
     </FloatingWindow>
     <DataEditor v-model:show="showEditor" :datapoint="datapoint"></DataEditor>
