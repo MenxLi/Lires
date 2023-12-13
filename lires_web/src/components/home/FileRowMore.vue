@@ -44,7 +44,7 @@ const onSetAbstract = async (t: string) => {
 
 const showCopyCitation = ref(false);
 function wrapCitiation(type: string, text: string){
-    return [type, `${text.length>80?text.slice(0, 80)+'...':text}`]
+    return [type, `${text.length>80?text.slice(0, 80)+'...':text}`, text]
 }
 function copy2clip(text: string){
     copyToClipboard(text).then(
@@ -123,7 +123,7 @@ const showSummary = ref(false);
             wrapCitiation('DocURL', datapoint.getRawDocURL()),
             wrapCitiation('Markdown', `[${datapoint.authorAbbr()} (${datapoint.summary.year})](${datapoint.getRawDocURL()})`)
         ] ">
-            <div @click="()=>{ copy2clip(textwrap[1]); showCopyCitation=false }" :style="{cursor: 'pointer', display: 'flex', flexDirection: 'row'}">
+            <div @click="()=>{ copy2clip(textwrap[2]); showCopyCitation=false }" :style="{cursor: 'pointer', display: 'flex', flexDirection: 'row'}">
                 <div class="citation-type" :style="{
                     marginLeft: '10px', 
                     marginRight: '10px', 
