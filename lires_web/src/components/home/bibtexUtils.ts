@@ -79,4 +79,13 @@ export class BibtexCollector{
             url: url
         }
     };
+    async fromDoi(doi: string): Promise<CollectRes>{
+        const url = `http://api.crossref.org/works/${doi}/transform/application/x-bibtex`;
+        const response = await fetch(url, { method: 'GET', });
+        const bibtex = await response.text();
+        return {
+            bibtex: bibtex,
+            url: `https://doi.org/${doi}`
+        }
+    }
 }

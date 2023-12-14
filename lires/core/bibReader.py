@@ -29,7 +29,7 @@ def checkBibtexValidity(bib_str: str) -> bool:
         logger.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
         return False
     except KeyError:
-        logger.warning(f"KeyError. (Author year and title must be provided)")
+        logger.warning(f"KeyError. (Year and title must be provided)")
         return False
     except Exception as e:
         logger.error("Error when parsing bib string: {}".format(e))
@@ -74,7 +74,12 @@ class BibParser:
         for k in bib_data.entries.keys():
             _d = bib_data.entries[k]
             if not "year" in _d.fields:
+                self.logger.warning("No year found in bib entry {}".format(k))
                 _d.fields["year"] = date.today().year
+            
+            if not "author" in _d.persons:
+                self.logger.warning("No author found in bib entry {}".format(k))
+                _d.persons["author"] = ["_"]
 
             data = {
                 "type": _d.type,

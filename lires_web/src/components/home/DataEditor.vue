@@ -77,13 +77,26 @@
     const bibtexTemplateSelection = ref("article" as BibtexTypes);
     const bibtexTemplate = computed(()=>getBibtexTemplate(bibtexTemplateSelection.value))
 
-    const showArxivInput = ref(false);
-    const arxivIdInput = ref("");
-    function insertArxivBibtex(id: string){
-        uiState.showPopup("Fetching from arxiv...", "info");
-        showArxivInput.value = false;   // close input
-        arxivIdInput.value = "";        // clear input
-        new BibtexCollector().fromArxiv(id).then(
+    type BibSourceT = 'arxiv' | 'doi' | 'webpage'
+    const showBibSourceInput = ref(false);
+    const bibSourceType = ref("arxiv" as BibSourceT);
+    const __bibCollector = new BibtexCollector();
+    const __bibSourceMap: Record<BibSourceT, (src: string) => Promise<{bibtex: string, url: string}>> = {
+        arxiv: (src: string) => __bibCollector.fromArxiv(src),
+        doi: (src: string) => __bibCollector.fromDoi(src),
+        webpage: (src: string) => __bibCollector.fromWebpage(src),
+    }
+    const __bibSourceHintMap: Record<BibSourceT, string> = {
+        arxiv: "e.g. 2106.00001",
+        doi: "e.g. 10.1145/344779.344937",
+        webpage: "e.g. https://news.mit.edu/2021/xxx",
+    }
+    const bibSourceInput = ref("");
+    function insertBibtexFromSource(src: string){
+        uiState.showPopup("Fetching from BibTeX source...", "info");
+        showBibSourceInput.value = false;   // close input
+        bibSourceInput.value = "";        // clear input
+        __bibSourceMap[bibSourceType.value](src).then(
             (res) => {
                 uiState.showPopup("Obtained bibtex from arxiv", "success");
                 bibtex.value = res.bibtex;
@@ -114,10 +127,34 @@
         </div>
     </QueryDialog>
 
-    <QueryDialog v-model:show="showArxivInput" @on-cancel="showArxivInput=false" @on-accept="()=>{
-        insertArxivBibtex(arxivIdInput);
-    }" :z-index=102 title="Paper ID input">
-        <input type="text" v-model="arxivIdInput" placeholder="id (e.g. 2106.00001)">
+    <QueryDialog v-model:show="showBibSourceInput" @on-cancel="showBibSourceInput=false" @on-accept="()=>{
+        insertBibtexFromSource(bibSourceInput);
+    }" :z-index=102 title="Source input">
+        <div :style="{margin: '10px'}">
+            <fieldset :style="{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: '10px',
+                border: '1px solid var(--color-border)',
+            }">
+                <legend>Source</legend>
+                <div class="bibsource-container">
+                    <input type="radio" id="bibsource-arxiv" name="bibSource" value="arxiv" v-model="bibSourceType">
+                    <legend for="bibsource-arxiv">arxiv</legend>
+                </div>
+                <div class="bibsource-container">
+                    <input type="radio" id="bibsource-doi" name="bibSource" value="doi" v-model="bibSourceType">
+                    <legend for="bibsource-doi">doi</legend>
+                </div>
+                <div class="bibsource-container">
+                    <input type="radio" id="bibsource-webpage" name="bibSource" value="webpage" v-model="bibSourceType">
+                    <legend for="bibsource-webpage">webpage</legend>
+                </div>
+            </fieldset>
+            <input type="text" v-model="bibSourceInput" :placeholder="__bibSourceHintMap[bibSourceType]" :style="{
+                width: '100%', marginTop: '10px'
+            }"/>
+        </div>
     </QueryDialog>
 
     <QueryDialog 
@@ -131,7 +168,7 @@
                         <label for="bibtex">Bibtex</label>
                         <div id="bibtexSource" class="horizontal">
                             <div class="button" @click="showBibtexTemplate=true">template</div>
-                            <div class="button" @click="showArxivInput=true">from_arxiv</div>
+                            <div class="button" @click="showBibSourceInput=true">from-source</div>
                         </div>
                     </div>
                     <textarea id="bibtex" v-model="bibtex" placeholder="bibtex"></textarea>
@@ -184,6 +221,7 @@
         cursor: pointer;
         opacity: 1;
         color: var(--color-theme);
+        text-decoration: underline;
     }
     textarea, input[type="text"]{
         border: 1px solid var(--color-border);
@@ -231,5 +269,11 @@
         width: 80px;
     }
 
+    div.bibsource-container{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+    }
 
 </style>
