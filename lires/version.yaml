@@ -520,3 +520,16 @@ version_history:
       - Style recently read documents
     - Fix:
       - Fetch article number and type
+  1.2.3:
+    - Features:
+      - Collect bibtex from various sources
+      - Bibtex template
+      - Default author and year for incomplete entry
+      - Citation with APA and markdown formats
+      - Login and logout events
+      - Set backend url via url parameters
+    - UI:
+      - Update citation layout
+      - Highlight add button on entering new tag
+    - Fix:
+      - Remove closed websocket connections on broadcasting

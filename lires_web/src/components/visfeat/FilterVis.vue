@@ -217,7 +217,7 @@
     }
     div#loadingDiv{
         position:absolute;
-        z-index: 1;
+        z-index: 2;
         top: 0px;
         left: 0px;
         display: flex;
