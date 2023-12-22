@@ -45,9 +45,19 @@ export function getSessionConnection(): ServerWebsocketConn{
 export class ServerWebsocketConn{
     declare ws: WebSocket
     declare sessionID: string
+    declare __eventCallback_records: {
+        onopenCallback: ()=>void,
+        onmessageCallback: (arg: MessageEvent)=>void,
+        oncloseCallback: ()=>void
+    }
 
     constructor(){
         this.sessionID = sha256(Date.now().toString()).slice(0, 16);
+        this.__eventCallback_records = {
+            onopenCallback: ()=>{},
+            onmessageCallback: (_)=>{},
+            oncloseCallback: ()=>{}
+        }
     }
 
     get settings(){
@@ -62,6 +72,13 @@ export class ServerWebsocketConn{
         oncloseCallback = ()=>{}
     } = {}
     ): ServerWebsocketConn{
+        // keep a record of the callback functions, so that we can re-init the websocket connection
+        this.__eventCallback_records = {
+            onopenCallback,
+            onmessageCallback,
+            oncloseCallback
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         urlParams.append('key', this.settings.encKey);
         urlParams.append('session_id', this.sessionID);
@@ -115,6 +132,14 @@ export class ServerWebsocketConn{
         else{
             console.log("server websocket not ready, cannot send data");
         }
+    }
+
+    // reset the websocket connection using cached callback functions
+    public reset(){
+        if (this.ws.readyState === WebSocket.OPEN){
+            this.ws.close();
+        }
+        this.init(this.__eventCallback_records);
     }
 
     public close(){
