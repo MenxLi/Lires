@@ -263,15 +263,9 @@ const showSummary = ref(false);
             margin: 0px;
         }
         50% {
-            /* set a lower max-height, 
-            the actuall added height would be around 55-100? */
-            /* use 70% of the time to expand to about actual height */
-            max-height: 58px;
+            /* to maximum height */
+            max-height: 48px;
             opacity: 0;
-        }
-        75% {
-            /* 58 -> 97.x */
-            max-height: 100px;
         }
         100% {
             max-height: auto;
@@ -281,14 +275,12 @@ const showSummary = ref(false);
 
     @keyframes contract {
         0% {
-            max-height: 58px;
+            max-height: 48px;
             opacity: 1;
-        }
-        25% {
-            opacity: 0;
         }
         50% {
             max-height: 0px;
+            opacity: 0;
         }
         100% {
             margin: 0px;

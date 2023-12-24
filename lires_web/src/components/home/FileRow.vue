@@ -242,6 +242,7 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
+        cursor: default;
     }
     div#init{
         display: flex;
