@@ -312,7 +312,7 @@ export class ServerConn {
         form.append('force', force.toString())
         form.append('uuid', uid)
         form.append('model', model)
-        const res = fetch(`${getBackendURL()}/summary-post`, {
+        const res = fetch(`${getBackendURL()}/summary`, {
             method: 'POST',
             body: form,
         })

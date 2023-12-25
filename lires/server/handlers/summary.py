@@ -2,24 +2,10 @@ from ._base import *
 import os
 from typing import Generator
 from lires.core.serverConn import IServerConn
-from lires.core.textUtils import queryFeatureIndex
 from lires.core.pdfTools import getPDFText
-from lires.confReader import ASSETS_PATH, DOC_SUMMARY_DIR
-
+from lires.confReader import DOC_SUMMARY_DIR
 
 class SummaryHandler(tornado.web.RequestHandler, RequestHandlerMixin):
-
-    @property
-    def summary_html_template(self):
-        with open(os.path.join(ASSETS_PATH, "summary.template.html"), "r") as fp:
-            _summary_html_template = fp.read()
-        return _summary_html_template
-
-    @keyRequired
-    def get(self):
-        return self.write(self.summary_html_template)
-
-class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
     @keyRequired
     async def post(self):
@@ -55,24 +41,6 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             self.write("ERROR: No pdf file.")
             return
 
-        # def generateSimilar(summary_txt, except_uuid=""):
-        #     # find similar papers
-        #     self.write("\n<hr>")
-        #     similar = queryFeatureIndex(summary_txt, n_return=9)
-        #     if similar is None:
-        #         self.write("ERROR: LiresAI server error while finding similar papers.")
-        #         return
-        #     self.write("<h3>Similar papers:</h3>")
-        #     self.flush()
-
-        #     uids, scores = similar["uids"], similar["scores"]
-        #     for uuid, score in zip(uids, scores):
-        #         if uuid == except_uuid:
-        #             continue
-        #         dp = self.db[uuid]
-        #         self.write(f"<a href='{dp.getDocShareLink(with_base=False)}'>{dp.title}</a> ({score:.2f})<br>")
-        #         self.flush()
-        
         # a cache for summary
         summary_txt_path = os.path.join(DOC_SUMMARY_DIR, uuid + ".txt")
         if os.path.exists(summary_txt_path) and not force:
@@ -136,7 +104,5 @@ class SummaryPostHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             self.logger.info(f"Saving summary to {summary_txt_path} ...")
             fp.write(summary_txt)
         
-        # generateSimilar(summary_txt, except_uuid=uuid)
-
         self.finish()  # Signal the end of the response
         return

@@ -43,8 +43,6 @@ if G.prog_args and G.prog_args.config_file:
 else:
     CONF_FILE_PATH = join(LRS_HOME, "config.json")
 
-ASSETS_PATH = join(CURR_PATH, "assets")
-
 ## Data entries
 DATABASE_DIR = join(LRS_HOME, "Database")
 USER_DIR = join(LRS_HOME, "Users")

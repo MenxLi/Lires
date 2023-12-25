@@ -32,9 +32,7 @@ class Application(tornado.web.Application):
             (r'/ws', WebsocketHandler),
 
             # # Backend
-            (r"/summary", SummaryHandler),              # may deprecate
-            (r"/summary-post", SummaryPostHandler),     # may rename
-
+            (r"/summary", SummaryHandler),
             (r"/status", StatusHandler),
             (r"/reload-db", ReloadDBHandler),
             (r"/doc/(.*)", DocHandler),
