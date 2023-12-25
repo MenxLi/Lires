@@ -1,6 +1,7 @@
 
 <script setup lang="ts">
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
+    import { bibtexFromArxiv } from '../../core/arxivUtils';
     import { ServerConn } from '../../core/serverConn';
     import { useDataStore, formatAuthorName, useUIStateStore } from '../store';
     import { DataPoint, DataSearcher, DataTags } from '../../core/dataClass';
@@ -34,16 +35,13 @@
         get: () => __showTagSelector.value,
     });
     function addToLires(){
-        const arxivId = props.article.id;
-        new ServerConn().addArxivPaperByID(
-                arxivId,
-                addingDocumentTagStatus.value!.checked.toArray(),
-            ).then(
-            (_)=>{
-                useUIStateStore().showPopup(`collected: ${arxivId}`, "success")
-                showAddDataTagSelector.value = false;
+        const bibtex = bibtexFromArxiv(props.article);
+        const tags = addingDocumentTagStatus.value?.checked;
+        new ServerConn().editData(null, bibtex, Array.from(tags?tags:[]), props.article.link).then(
+            () => {
+                useUIStateStore().showPopup(`collected ${props.article.id}`, "success");
             },
-            ()=>{ useUIStateStore().showPopup(`failed to collect: ${arxivId}, check log for details`, "warning") },
+            () => useUIStateStore().showPopup(`failed to collect ${props.article.id}, check log for details`, "warning")
         )
     }
 
@@ -55,14 +53,6 @@
             return null;
         }
         let count = pubMap[author].length;
-        // check if current article is in the database
-        // const thisTitle = props.article.title.toLowerCase();
-        // if (pubMap[author].some((dp) => dp.summary.title.toLowerCase() === thisTitle)){
-        //     count -= 1;
-        // }
-        // if (count == 0){
-        //     return null;
-        // }
         return count;
     }
 
@@ -116,7 +106,6 @@
     </FloatingWindow>
     <QueryDialog v-model:show="showAddDataTagSelector" :title="`Adding ${props.article.id}`" 
         @on-accept="()=>{
-            useUIStateStore().showPopup('collecting...', 'info');
             addToLires();
             showAddDataTagSelector=false;
             }" @on-cancel="()=>showAddDataTagSelector=false">

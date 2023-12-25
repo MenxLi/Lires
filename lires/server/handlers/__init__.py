@@ -3,7 +3,6 @@ from .documents import DocHandler, HDocHandler
 from .auth import AuthHandler
 from .search import SearchHandler
 from .summary import SummaryHandler
-from .collect import CollectHandler
 from .iServerProxy import IServerProxyHandler
 from .dataFeature import DataFeatureTSNEHandler
 

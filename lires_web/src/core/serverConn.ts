@@ -348,36 +348,6 @@ export class ServerConn {
     //                Manipulate data               
     // =============================================
 
-    async addArxivPaperByID( 
-        id: string, 
-        tags: string[] = [],
-        ): Promise<DataInfoT>{
-        if (!id.startsWith("arxiv:")){
-            id = "arxiv:" + id;
-        }
-        const params = new URLSearchParams();
-        params.set("key", this.settings.encKey);
-        params.set("retrive", id);
-        params.set("tags", JSON.stringify(tags))
-
-        const response = await fetch(`${getBackendURL()}/collect?${params.toString()}`, 
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":"application/x-www-form-urlencoded"
-                },
-            }
-        );
-        if (response.ok && response.status === 200) {
-            const res: DataInfoT = JSON.parse(await response.text());
-            return res
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`);
-        }
-    }
-
-
     async deleteData(uid: string): Promise<boolean>{
         const url = new URL(`${getBackendURL()}/dataman/delete`);
         url.searchParams.append("key", this.settings.encKey);

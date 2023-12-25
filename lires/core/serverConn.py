@@ -143,18 +143,6 @@ class ServerConn(ConnectionBase):
     def getNoteURL(self, uid: str) -> str:
         return self.SERVER_URL + "/comment/{}/".format(uid)
     
-    def collect(self, retrive_str: str, tags: list[str] = [], download_doc: bool = False):
-        post_url = self.SERVER_URL + "/collect"
-        post_args = {
-            "key": self.hash_key,
-            "retrive": retrive_str,
-            "tags": json.dumps(tags),
-            "download_doc": json.dumps(download_doc)
-        }
-        res = requests.post(post_url, data = post_args)
-        if not self._checkRes(res):
-            raise RuntimeError("Failed to collect, get response {}".format(res.status_code))
-
 class IServerConn(ConnectionBase):
     """Connection to lires_ai.server"""
 

@@ -39,7 +39,6 @@ class Application(tornado.web.Application):
             (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
             (r"/auth", AuthHandler),
             (r"/search", SearchHandler),
-            (r"/collect", CollectHandler),
 
             (r"/filelist", DataListHandler),
             (r"/filelist-stream", DataListStreamHandler),

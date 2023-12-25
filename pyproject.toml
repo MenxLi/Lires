@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 [project.scripts]
 "lires" = "lires.exec:run"
 "lrs-resetconf" = "lires.cmd.generateDefaultConf:run"
-"lrs-collect" = "lires.cmd.collect:main"
 "lrs-utils" = "lires.cmd.miscUtils:main"
 "lrs-share" = "lires.cmd.share:main"
 "lrs-user" = "lires.cmd.userManage:run"
@@ -43,16 +42,14 @@ dependencies = [
 
 [project.optional-dependencies]
 core = [
+    "typing_extensions",
     "pybtex",
     "pylatexenc",
     "tornado",
     "markdown",
     "PyMuPDF",
-    "arxiv",
     "nbib",
-    "typing_extensions",
     "tqdm",
-    "bs4",
     "numpy",
     "pillow",
     "scikit-learn",
