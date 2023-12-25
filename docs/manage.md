@@ -10,9 +10,6 @@ lrs-cluster     # Cluster management
 lrs-user        # Manage user accounts
 lrs-index       # To build and query feature of the database, for fuzzy search
 lrs-utils       # Miscellaneous utilities (e.g. download pdf.js and edit configuration file)
-
-# below are not fully implemented yet
-lrs-share       # To generate share url
 ```
 
 ## ...
