@@ -20,9 +20,7 @@ def run():
     except ImportError:
         pass
 
-    procs = []
-
-    NOT_RUN = False     # Indicates whether to run main GUI
+    NOT_RUN = False     # Indicates whether to run main program
 
     def resetConf():
         from lires.cmd.generateDefaultConf import generateDefaultConf
@@ -100,12 +98,12 @@ def run():
         G.prog_parser.print_help()
 
     if args.subparser == "server":
-        from .server.main import startServerProcess
-        procs.append(startServerProcess(args.port, args.iserver_host, args.iserver_port))
+        from .server.main import startServer
+        startServer(args.port, args.iserver_host, args.iserver_port)
     
     if args.subparser == "web":
-        from .server.main import startFrontendServerProcess
-        procs.append(startFrontendServerProcess(args.port))
+        from .server.main import startFrontendServer
+        startFrontendServer(args.port)
     
     if args.subparser == "iserver":
         import subprocess
@@ -119,9 +117,6 @@ def run():
             else:
                 call_args += ["--" + k, str(val)]
         subprocess.check_call(call_args)
-
-    for proc in procs:
-        proc.join()
 
 if __name__=="__main__":
     run()

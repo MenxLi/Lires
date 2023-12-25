@@ -145,7 +145,6 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
     # tornado.ioloop.IOLoop.current().add_callback(buildIndex)
     pc = tornado.ioloop.PeriodicCallback(buildIndex, 60*60*1000)  # in milliseconds
     pc.start()
-    print("Registered - Periodically build index")
 
     tornado.ioloop.IOLoop.current().start()
 
@@ -176,18 +175,14 @@ if _ENV_CERTFILE is not None:
 else:
     SSL_CONFIG = None
 
-def startServerProcess(*args) -> multiprocessing.Process:
+def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[int, str]) -> None:
     # add ssl config
     p_startServer = partial(__startServer, ssl_config=SSL_CONFIG)
-    p = multiprocessing.Process(target=p_startServer, args=args)
-    p.start()
-    return p
+    p_startServer(port=port, iserver_host=iserver_host, iserver_port=iserver_port)
 
-def startFrontendServerProcess(*args) -> multiprocessing.Process:
+def startFrontendServer(port: Union[int, str] = 8081) -> None:
     p_startFrontendServer = partial(__startFrontendServer, ssl_config=SSL_CONFIG)
-    p = multiprocessing.Process(target=p_startFrontendServer, args=args)
-    p.start()
-    return p
+    p_startFrontendServer(port=port)
 
 if __name__ == "__main__":
     __startServer(8080, "127.0.0.1", "8731")
