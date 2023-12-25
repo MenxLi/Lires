@@ -9,5 +9,3 @@ Responsibilities of the core modules are:
 - general utility functions
 - interface to the server side
 """
-from . import globalVar
-globalVar.init()

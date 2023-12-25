@@ -19,7 +19,6 @@ from tiny_vectordb import VectorDatabase, VectorCollection
 if TYPE_CHECKING:
     from .websocket import WebsocketHandler
 
-G.init()
 def getLocalDatabasePath():
     return DATABASE_DIR
 
