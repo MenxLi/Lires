@@ -19,7 +19,6 @@ export class ServerConn {
     async authUsr( encKey: string ): Promise<UserInfo>{
             const params = new URLSearchParams();
             params.set("key", encKey);
-            params.set("require_user_info", "true");
 
             const response = await fetch(`${getBackendURL()}/auth`, 
                 {

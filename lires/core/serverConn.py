@@ -73,10 +73,7 @@ class ServerConn(ConnectionBase):
 
     def permission(self) -> Optional[UserInfo]:
         post_url = self.SERVER_URL + "/auth"
-        post_args = {
-            "key": self.hash_key,
-            "require_user_info": True
-        }
+        post_args = { "key": self.hash_key, }
         res = requests.post(post_url, data = post_args)
         if not self._checkRes(res):
             return None
