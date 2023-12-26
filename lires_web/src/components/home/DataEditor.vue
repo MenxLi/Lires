@@ -1,9 +1,7 @@
 
 <script setup lang="ts">
     import { ref, computed, watch } from 'vue';
-    // import FloatingWindow from '../common/FloatingWindow.vue';
     import QueryDialog from '../common/QueryDialog.vue';
-    // import TagSelector from '../tags/TagSelector.vue';
     import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
     import { useUIStateStore } from '../store';
     import { DataTags } from '../../core/dataClass';
@@ -25,7 +23,7 @@
 
     const show = computed({
         get: () => props.show,
-        set: (newShow: boolean) => emits("update:show", newShow)
+        set: (newShow: boolean) => emits("update:show", newShow) 
     });
 
     const uiState = useUIStateStore();
@@ -108,6 +106,41 @@
         )
     }
 
+    // Drag and drop to insert bibtex
+    const isInDrag = ref(false);
+    const dataEditorComponent = ref<HTMLDivElement | null>(null);
+    const __onDragover = (e: DragEvent) => {
+        e.preventDefault();
+        isInDrag.value = true;
+    }
+    const __onDragDrop = (e: DragEvent) => {
+        e.preventDefault();
+        isInDrag.value = false;
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0){
+            const file = files[0];
+            if (file.size < 64*1024){
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target?.result as string;
+                    bibtex.value = content;
+                }
+                reader.readAsText(file);
+            }
+            else{
+                uiState.showPopup("File too large", "error");
+            }
+        }
+    }
+    watch(show, (newShow) => {
+        if (newShow){
+            window.addEventListener("dragover", __onDragover);
+            window.addEventListener("drop", __onDragDrop);
+        }else{
+            window.removeEventListener("dragover", __onDragover);
+            window.removeEventListener("drop", __onDragDrop);
+        }
+    })
 </script>
 
 <template>
@@ -161,28 +194,42 @@
         v-model:show="show" :title="datapoint?datapoint.authorAbbr():'new'" :show-cancel="false"
         @on-accept="save" @on-cancel="() => show=false"
     >
-        <div id="inputDiv">
-            <div id="inputLeft">
-                <div id="bibtexArea">
-                    <div class="horizontal">
-                        <label for="bibtex">Bibtex</label>
-                        <div id="bibtexSource" class="horizontal">
-                            <div class="button" @click="showBibtexTemplate=true">template</div>
-                            <div class="button" @click="showBibSourceInput=true">from-source</div>
+        <div id="data-editor-main" ref="dataEditorComponent">
+            <div v-if="!isInDrag">
+                <div id="inputDiv">
+                    <div id="inputLeft">
+                        <div id="bibtexArea">
+                            <div class="horizontal">
+                                <label for="bibtex">Bibtex</label>
+                                <div id="bibtexSource" class="horizontal">
+                                    <div class="button" @click="showBibtexTemplate=true">template</div>
+                                    <div class="button" @click="showBibSourceInput=true">from-source</div>
+                                </div>
+                            </div>
+                            <textarea id="bibtex" v-model="bibtex" placeholder="bibtex / enw / nbib"></textarea>
+                        </div>
+                        <div id="urlArea">
+                            <label for="url">URL: </label>
+                            <input id="url" v-model="url" placeholder="url" type="text">
                         </div>
                     </div>
-                    <textarea id="bibtex" v-model="bibtex" placeholder="bibtex / enw / nbib"></textarea>
-                </div>
-                <div id="urlArea">
-                    <label for="url">URL: </label>
-                    <input id="url" v-model="url" placeholder="url" type="text">
+                    <div id="inputRight">
+                        <TagSelectorWithEntry 
+                            v-model:tag-status="tagStatus"
+                            v-model:tag-input-value="newTagInput"
+                        ></TagSelectorWithEntry>
+                    </div>
                 </div>
             </div>
-            <div id="inputRight">
-                <TagSelectorWithEntry 
-                    v-model:tag-status="tagStatus"
-                    v-model:tag-input-value="newTagInput"
-                ></TagSelectorWithEntry>
+            <div v-else>
+                <div style="
+                    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+                    /* height: 470px; width: 630px */
+                    height: 430px; width: 590px; border: 5px dashed var(--color-border); border-radius: 10px; margin: 15px;
+                ">
+                    <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Drop to insert citation</div>
+                    <div style="font-size: 12px; opacity: 0.5;">(only support bibtex/enw/nbib)</div>
+                </div>
             </div>
         </div>
     </QueryDialog>
