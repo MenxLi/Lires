@@ -216,11 +216,16 @@ export const useSettingsStore = defineStore(
         state: () => {
             return {
                 __encKey: localStorage.getItem("encKey") || "",
-                __backendHost: localStorage.getItem("backendUrl") || defaultBackendHost(),
-                __backendPort: localStorage.getItem("backendPort") || "8080",
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
+
+                // backend host and port are stored in sessionStorage, 
+                // unless user change it manually when login or via url parameters, 
+                // this is to make sure that the application always prioritize the backend on the same server.
+                __backendHost: sessionStorage.getItem("backendUrl") || defaultBackendHost(),
+                __backendPort: sessionStorage.getItem("backendPort") || defaultBackendPort(),
+
                 // loggedIn is a watched flag by App.vue, which is used for logout / reload database
                 loggedIn: false,    
             }
@@ -257,11 +262,11 @@ export const useSettingsStore = defineStore(
             },
             setBackendHost(url: string){
                 this.__backendHost = url;
-                localStorage.setItem("backendUrl", url);
+                sessionStorage.setItem("backendUrl", url);
             },
             setBackendPort(port: string){
                 this.__backendPort = port;
-                localStorage.setItem("backendPort", port);
+                sessionStorage.setItem("backendPort", port);
             },
             setShowTagPanel(show: boolean){
                 this.__showTagPanel = show;
@@ -292,4 +297,13 @@ function defaultBackendHost(){
         }
     }
     return `${BACKEND_PROTOCAL}//${HOSTNAME}`;
+}
+
+function defaultBackendPort(){
+    if (platformType() === "tauri"){
+        if (!import.meta.env.DEV){
+            return "8080";
+        }
+    }
+    return window.location.port;
 }
