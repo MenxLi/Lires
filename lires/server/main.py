@@ -18,7 +18,7 @@ import ssl
 from .handlers import *
 
 
-class DefaultRequestHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class DefaultRequestHandler(RequestHandlerBase):
     # TODO: to be implemented...
     ...
 

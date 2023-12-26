@@ -2,7 +2,7 @@ from ._base import *
 import os
 from lires.confReader import TMP_DIR 
 
-class StaticHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class StaticHandler(RequestHandlerBase):
 
     def get(self, path: str):
         if path == "visfeat":

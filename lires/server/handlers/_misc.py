@@ -7,24 +7,22 @@ from ._base import *
 from lires import VERSION
 import json, time
 
-class ReloadDBHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class ReloadDBHandler(RequestHandlerBase):
 
     @keyRequired
     async def post(self):
         user_info = self.user_info
-        self.allowCORS()
 
         self.logger.info(f"Reload DB, from {user_info['name']}({user_info['enc_key']})")
         self.initdb()
 
         self.write("OK")
 
-class StatusHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class StatusHandler(RequestHandlerBase):
 
     _init_time = time.time()
 
     async def _respond(self):
-        self.allowCORS()
         self.write(json.dumps({
             "status": "OK",
             "version": VERSION,

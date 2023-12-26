@@ -2,11 +2,10 @@ from ._base import *
 from lires.core.dataSearcher import DataSearcher
 import json
 
-class SearchHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class SearchHandler(RequestHandlerBase):
 
     @keyRequired
     def post(self):
-        self.allowCORS()
 
         method = self.get_argument("method")
         kwargs = json.loads(self.get_argument("kwargs"))

@@ -3,7 +3,7 @@ Get and modify notes of a datapoint
 """
 from ._base import *
 
-class NoteGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class NoteGetHandler(RequestHandlerBase):
     """
     Get notes of a datapoint
     """
@@ -12,12 +12,11 @@ class NoteGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         Args:
             uid (str): uuid of the datapoint
         """
-        self.allowCORS()
         dp = self.db[uid]
         self.logger.debug("Get notes of: {}".format(dp))
         self.write(dp.fm.readComments())
 
-class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class NoteUpdateHandler(RequestHandlerBase):
     """
     Update notes of a datapoint
     """
@@ -29,7 +28,6 @@ class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         user_info = self.user_info
         note = self.get_argument("content")
-        self.allowCORS()
 
         dp = self.db[uid]
         if not user_info["is_admin"]:
@@ -46,7 +44,7 @@ class NoteUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         })
         self.write("OK")
 
-class AbstractGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class AbstractGetHandler(RequestHandlerBase):
     """
     Get abstract of a datapoint
     """
@@ -55,13 +53,12 @@ class AbstractGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         Args:
             uid (str): uuid of the datapoint
         """
-        self.allowCORS()
         dp = self.db[uid]
         self.logger.debug("Get abstract of: {}".format(dp))
         self.write(dp.fm.readAbstract())
     
 
-class AbstractUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class AbstractUpdateHandler(RequestHandlerBase):
     """
     Update abstract of a datapoint
     """
@@ -73,7 +70,6 @@ class AbstractUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         """
         user_info = self.user_info
         abstract = self.get_argument("content")
-        self.allowCORS()
 
         dp = self.db[uid]
         if not user_info["is_admin"]:

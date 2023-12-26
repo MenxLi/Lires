@@ -4,12 +4,10 @@ from lires.core.dataClass import DataTags
 import json
 
 
-class UserCreateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class UserCreateHandler(RequestHandlerBase):
 
     @keyRequired
     def post(self):
-        self.allowCORS()
-
         # only admin access
         if not self.user_info["is_admin"]:
             raise tornado.web.HTTPError(403)
@@ -45,12 +43,10 @@ class UserCreateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
         self.write(json.dumps(to_send))
 
-class UserDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class UserDeleteHandler(RequestHandlerBase):
 
     @keyRequired
     def post(self):
-        self.allowCORS()
-
         # only admin access
         if not self.user_info["is_admin"]:
             raise tornado.web.HTTPError(403)
@@ -67,11 +63,9 @@ class UserDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         })
         self.write("Success")
 
-class UserModifyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class UserModifyHandler(RequestHandlerBase):
     @keyRequired
     def post(self):
-        self.allowCORS()
-
         # only admin access
         if not self.user_info["is_admin"]:
             raise tornado.web.HTTPError(403)

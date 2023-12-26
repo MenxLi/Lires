@@ -4,11 +4,10 @@ from io import BytesIO
 from PIL import Image
 from ._base import *
 
-class UserInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class UserInfoHandler(RequestHandlerBase):
 
     # @keyRequired
     def post(self, username):
-        self.allowCORS()
 
         user = self.user_pool.getUserByUsername(username)
         if user is None:
@@ -19,7 +18,7 @@ class UserInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         
         self.write(json.dumps(to_send))
 
-class UserInfoUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class UserInfoUpdateHandler(RequestHandlerBase):
     """
     To update a user's own settings.
     Admin should update any user's settings using handers in userMan.py
@@ -29,8 +28,6 @@ class UserInfoUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         user = self.user_pool.getUserByKey(self.user_info["enc_key"])
         assert user is not None, "User not found"   # should not happen
         id_ = user.info()["id"]
-
-        self.allowCORS()
 
         new_name = self.get_argument("name", None)
         if new_name is not None:
@@ -50,12 +47,10 @@ class UserInfoUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.write(json.dumps(_user_info))
 
 
-class UserListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class UserListHandler(RequestHandlerBase):
 
     # @keyRequired
     def post(self):
-        self.allowCORS()
-
         to_send = []
         for user in self.user_pool:
             u_info = user.info()
@@ -64,7 +59,7 @@ class UserListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         
         self.write(json.dumps(to_send))
 
-class UserAvatarHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class UserAvatarHandler(RequestHandlerBase):
 
     def get(self, username: str):
         im_size = int(self.get_argument("size", "512"))
@@ -104,11 +99,10 @@ class UserAvatarHandler(tornado.web.RequestHandler, RequestHandlerMixin):
             self.write(contents)
         
 
-class UserAvatarUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class UserAvatarUploadHandler(RequestHandlerBase):
 
     @keyRequired
     def post(self):
-        self.allowCORS()
         user = self.user_pool.getUserByKey(self.user_info["enc_key"])
         assert user is not None, "User not found"   # should not happen
         

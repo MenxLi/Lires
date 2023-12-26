@@ -5,13 +5,12 @@ from lires.core.serverConn import IServerConn
 from lires.core.pdfTools import getPDFText
 from lires.confReader import DOC_SUMMARY_DIR
 
-class SummaryHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class SummaryHandler(RequestHandlerBase):
 
     @keyRequired
     async def post(self):
 
         # Set the appropriate headers to enable streaming
-        self.allowCORS()
         self.set_header('Content-Type', 'text/plain')
         self.set_header('Cache-Control', 'no-cache')
 

@@ -4,13 +4,12 @@ import json, sys, math
 from lires.core.serverConn import IServerConn
 
 
-class IServerProxyHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class IServerProxyHandler(RequestHandlerBase):
 
     # @minResponseInterval(1e-2)
     CACHE_TEXT_FEATURE: list[tuple[str, list[float]]] = []
     @keyRequired
     async def post(self, key):
-        self.allowCORS()
 
         if key == "textFeature":
             text = self.get_argument("text")

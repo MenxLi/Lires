@@ -7,7 +7,7 @@ import json
 from lires.core.utils import Timer
 
 Feat3DT = dict[str, list[float]] | None
-class DataFeatureTSNEHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class DataFeatureTSNEHandler(RequestHandlerBase):
     """
     Query information of all 3d features
     """

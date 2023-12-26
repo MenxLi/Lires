@@ -8,7 +8,7 @@ import tornado.web
 from lires.core.dataClass import DataList, DataTags, DataPoint, DataPointSummary
 from ._base import *
 
-class DataListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class DataListHandler(RequestHandlerBase):
     """
     Query information of the entire database
     """
@@ -18,7 +18,6 @@ class DataListHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         Args:
             tags (str): tags should be "%" or split by "&&"
         """
-        self.allowCORS()
         self.set_header("totalDataCount", str(len(self.db)))
 
         # may delete this
@@ -62,13 +61,12 @@ class DataListStreamHandler(DataListHandler):
             self.write("\\N")
             self.flush()
 
-class DataInfoHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class DataInfoHandler(RequestHandlerBase):
     """
     Query information about a single file
     """
     @keyRequired
     async def get(self, uid:str):
-        self.allowCORS()
         dp: DataPoint = self.db[uid]
         self.write(json.dumps(dp.summary))
         return

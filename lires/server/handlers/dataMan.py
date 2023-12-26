@@ -12,11 +12,10 @@ from lires.core.fileTools import addDocument
 from lires.core.dataClass import DataTags
 from lires.confReader import TMP_DIR, ACCEPTED_EXTENSIONS
 
-class DataDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class DataDeleteHandler(RequestHandlerBase):
 
     @keyRequired
     async def post(self):
-        self.allowCORS()
         uuid = self.get_argument("uuid")
         # check tag permission
         if not self.user_info["is_admin"]:
@@ -33,7 +32,7 @@ class DataDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.write("OK")
         return
 
-class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class DataUpdateHandler(RequestHandlerBase):
 
     @keyRequired
     async def post(self):
@@ -46,7 +45,6 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         permission = self.user_info
 
         __info = [] # for logging
-        self.allowCORS()
 
         uuid = json.loads(self.get_argument("uuid"))
         assert uuid is None or isinstance(uuid, str)
@@ -112,13 +110,12 @@ class DataUpdateHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         self.write(json.dumps(dp.summary))
         return 
 
-class TagRenameHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class TagRenameHandler(RequestHandlerBase):
     @keyRequired
     def post(self):
         """
         Rename a tag
         """
-        self.allowCORS()
         old_tag = self.get_argument("oldTag")
         new_tag = self.get_argument("newTag")
         if not self.user_info["is_admin"]:
@@ -133,13 +130,12 @@ class TagRenameHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         })
         self.write("OK")
 
-class TagDeleteHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class TagDeleteHandler(RequestHandlerBase):
     @keyRequired
     def post(self):
         """
         Delete a tag
         """
-        self.allowCORS()
         tag = self.get_argument("tag")
         if not self.user_info["is_admin"]:
             # only admin can delete tags

@@ -6,7 +6,7 @@ import os, uuid
 from tornado.httputil import HTTPFile
 
 
-class ImageGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class ImageGetHandler(RequestHandlerBase):
     """
     Get image from misc folder
     """
@@ -48,7 +48,7 @@ class ImageGetHandler(tornado.web.RequestHandler, RequestHandlerMixin):
 
             self.write(f.read())
 
-class ImageUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+class ImageUploadHandler(RequestHandlerBase):
 
     @keyRequired
     async def post(self, uid: str):
@@ -57,7 +57,6 @@ class ImageUploadHandler(tornado.web.RequestHandler, RequestHandlerMixin):
         if not self.user_info["is_admin"]:
             self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
 
-        self.allowCORS()
         file_info = self.request.files['file'][0]  # Get the file information
         file_data = file_info['body']  # Get the file data
         
