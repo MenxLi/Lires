@@ -6,8 +6,8 @@ Provides handers for adding, deleting, and modifying files/tags
 """
 
 from ._base import *
-import json, os, tempfile
-from lires.core.bibReader import checkBibtexValidity
+import json
+from lires.core.bibReader import checkBibtexValidity, BibConverter
 from lires.core.fileTools import addDocument
 from lires.core.dataClass import DataTags
 from lires.confReader import TMP_DIR, ACCEPTED_EXTENSIONS
@@ -53,9 +53,6 @@ class DataUpdateHandler(RequestHandlerBase):
         tags = json.loads(self.get_argument("tags", 'null'))
         url = self.get_argument("url", None)
         bibtex = self.get_argument("bibtex", None)
-
-        if bibtex is not None and not checkBibtexValidity(bibtex):
-            raise tornado.web.HTTPError(400)
         
         if not permission["is_admin"]:
             if uuid is None:
@@ -65,6 +62,32 @@ class DataUpdateHandler(RequestHandlerBase):
                 # if the uuid is provided, check tag validity using old tags
                 old_tags = self.db[uuid].tags
                 self.checkTagPermission(old_tags, permission["mandatory_tags"])
+
+        if bibtex is not None and not checkBibtexValidity(bibtex, self.logger.error):
+            # check if it is other format
+            # TODO: find a more elegant way to do this...
+            bib_converter = BibConverter()
+            __c_bibtex = None
+            if not __c_bibtex:
+                try:
+                    __c_bibtex = bib_converter.fromNBib(bibtex)
+                    self.logger.debug("Obtained bibtex from nbib")
+                except Exception as e:
+                    self.logger.debug(f"Failed to convert from nbib: {e}")
+            
+            if not __c_bibtex:
+                try:
+                    __c_bibtex = bib_converter.fromEndNote(bibtex)
+                    self.logger.debug("Obtained bibtex from endnote")
+                except:
+                    self.logger.debug("Failed to convert from endnote")
+
+            if __c_bibtex and checkBibtexValidity(__c_bibtex, self.logger.error):
+                # successfully converted from other format
+                bibtex = __c_bibtex
+            else:
+                self.logger.warning("Invalid bibtex")
+                raise tornado.web.HTTPError(400)
         
         if uuid is None:
             assert bibtex is not None

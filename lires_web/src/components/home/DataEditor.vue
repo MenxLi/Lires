@@ -171,7 +171,7 @@
                             <div class="button" @click="showBibSourceInput=true">from-source</div>
                         </div>
                     </div>
-                    <textarea id="bibtex" v-model="bibtex" placeholder="bibtex"></textarea>
+                    <textarea id="bibtex" v-model="bibtex" placeholder="bibtex / enw / nbib"></textarea>
                 </div>
                 <div id="urlArea">
                     <label for="url">URL: </label>

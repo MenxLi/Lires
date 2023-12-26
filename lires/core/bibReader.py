@@ -1,6 +1,6 @@
 import pybtex.database
 from datetime import date
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, Callable
 from . import refparser
 from .utils import randomAlphaNumeric
 from .customError import LiresDocTypeNotSupportedError
@@ -11,28 +11,27 @@ import pybtex.scanner
 from pylatexenc import latex2text
 import multiprocessing as mp
 
-from . import globalVar as G
-
-def checkBibtexValidity(bib_str: str) -> bool:
+def checkBibtexValidity(bib_str: str, onerror: Optional[Callable[[str], None]] = None) -> bool:
     """
     Check if the bib string is valid
     """
-    logger = G.logger_lrs
+    if onerror is None:
+        onerror = lambda x: None
     try:
         bib_parser = BibParser()
         _ = bib_parser(bib_str)[0]
         return True
     except IndexError as e:
-        logger.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
+        onerror(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
         return False
     except pybtex.scanner.PrematureEOF:
-        logger.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
+        onerror(f"PrematureEOF while parsing bibtex, invalid bibtex")
         return False
     except KeyError:
-        logger.warning(f"KeyError. (Year and title must be provided)")
+        onerror(f"KeyError. (Year and title must be provided)")
         return False
     except Exception as e:
-        logger.error("Error when parsing bib string: {}".format(e))
+        onerror("Error when parsing bib string: {}".format(e))
         return False
 
 class BibParser:
