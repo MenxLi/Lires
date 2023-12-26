@@ -533,3 +533,18 @@ version_history:
       - Highlight add button on entering new tag
     - Fix:
       - Remove closed websocket connections on broadcasting
+  1.2.4:
+    - Features:
+      - Add default backend handler
+      - Collect arxiv paper information from client
+      - Reset websocket on database reload
+      - Server websocket connection check to close idle connections
+    - UI: 
+      - Change datacard cursor shape and expand animation
+    - Fix:
+      - Fetch from source popup hint
+    - Refactors:
+      - Use put and delete for doc modification
+    - Deprecation:
+      - Drop support for webpage archive
+      - Remove backend deprecated code
