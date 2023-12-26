@@ -98,12 +98,12 @@
         bibSourceInput.value = "";        // clear input
         __bibSourceMap[bibSourceType.value](src).then(
             (res) => {
-                uiState.showPopup("Obtained bibtex from arxiv", "success");
+                uiState.showPopup("Obtained bibtex from source", "success");
                 bibtex.value = res.bibtex;
                 url.value = res.url
             },
             () => {
-                uiState.showPopup("Failed to fetch from arxiv", "error");
+                uiState.showPopup("Failed to fetch from source", "error");
             }
         )
     }
