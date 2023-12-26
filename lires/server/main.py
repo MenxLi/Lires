@@ -2,6 +2,7 @@ import os
 from typing import Union, TypedDict
 from lires_web import LRSWEB_SRC_ROOT
 from functools import partial
+from lires.version import VERSION
 from lires.core import globalVar as G
 from lires.core.utils import BCOLORS
 from lires.initLogger import setupLogger
@@ -19,8 +20,23 @@ from .handlers import *
 
 
 class DefaultRequestHandler(RequestHandlerBase):
-    # TODO: to be implemented...
-    ...
+    def get(self, *args, **kwargs):
+        html_page = """
+        <!DOCTYPE html>
+        <html>
+        <head> <title>Lires Server (v{version})</title> </head>
+        <body>
+        <h1>Lires Server</h1>
+        <p><b> Current request is not supported.  </b></p>
+        <p>
+        Lires is a self-hosted literature management system. <br>
+        The source code is available at <a href="
+        https://github.com/menxli/lires">Github - Menxli/Lires</a>.
+        </p>
+        </body>
+        </html>
+        """.format(version = VERSION)
+        return self.write(html_page)
 
 class FrontendApplication(tornado.web.Application):
     def __init__(self) -> None:
