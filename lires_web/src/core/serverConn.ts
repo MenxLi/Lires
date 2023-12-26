@@ -415,8 +415,8 @@ export class ServerConn {
                     form.append('file', file);
                     form.append('key', this.settings.encKey)
                     
-                    fetch(`${this.apiURL()}/img-upload/${uid}`, {
-                        method: 'POST',
+                    fetch(`${getBackendURL()}/img/${uid}`, {
+                        method: 'PUT',
                         body: form,
                     })
                     .then((response) => {

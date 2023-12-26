@@ -63,7 +63,7 @@ class Application(tornado.web.Application):
             (r"/doc/(.*)", DocHandler),
             (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),
             (r"/static/(.*)", StaticHandler),
-            (r"/img/(.*)", ImageGetHandler),            # deal with images under misc folder of each datapoint
+            (r"/img/(.*)", ImageHandler),            # deal with images under misc folder of each datapoint
             (r"/user/avatar/(.*)", UserAvatarHandler),
 
             # APIs =================================================
@@ -87,7 +87,6 @@ class Application(tornado.web.Application):
             (r"/api/dataman/update", DataUpdateHandler),
             (r"/api/dataman/tag-rename", TagRenameHandler),
             (r"/api/dataman/tag-delete", TagDeleteHandler),
-            (r"/api/img-upload/(.*)", ImageUploadHandler),      # to be deprecated
 
             # additional information (supplementary data / resources) for each datapoint
             (r"/api/fileinfo-supp/note/(.*)", NoteGetHandler),
