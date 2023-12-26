@@ -7,6 +7,10 @@ import { useSettingsStore, useDataStore, formatAuthorName } from "../components/
 export interface TagHierarchy extends Record<string, TagHierarchy>{};
 export const TAG_SEP = "->";
 
+function apiURL(){
+    return `${getBackendURL()}/api`;
+}
+
 export class DataTags extends Set<string>{
     /* Remove spaces between words in a tag */
     static removeSpaces(tag: string): string{
@@ -370,12 +374,12 @@ export class DataPoint {
 
     getOpenNoteURL(): string {
         const uid = this.summary.uuid;
-        return `${getBackendURL()}/comment/${uid}/`;
+        return `${apiURL()}/comment/${uid}/`;
     }
 
     getOpenSummaryURL(): string {
         const uid = this.summary.uuid;
-        return `${getBackendURL()}/summary?uuid=${uid}&key=${useSettingsStore().encKey}`;
+        return `${apiURL()}/summary?uuid=${uid}&key=${useSettingsStore().encKey}`;
     }
 
     docType(): "" | "pdf" | "url" | "unknown" {

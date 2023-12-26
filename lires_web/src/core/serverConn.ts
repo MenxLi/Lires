@@ -14,13 +14,13 @@ export class ServerConn {
         return useSettingsStore();
     }
     apiURL(){
-        return getBackendURL();
+        return getBackendURL() + "/api";
     }
     async authUsr( encKey: string ): Promise<UserInfo>{
             const params = new URLSearchParams();
             params.set("key", encKey);
 
-            const response = await fetch(`${getBackendURL()}/auth`, 
+            const response = await fetch(`${this.apiURL()}/auth`, 
                 {
                     method: "POST",
                     headers: {
@@ -40,7 +40,7 @@ export class ServerConn {
         const form = new FormData();
         form.append('key', this.settings.encKey);
 
-        const response = await fetch(`${getBackendURL()}/status`, {
+        const response = await fetch(`${this.apiURL()}/status`, {
             method: 'POST',
             body: form,
         });
@@ -55,7 +55,7 @@ export class ServerConn {
     
     async reqFileList( tags: string[] ): Promise<DataInfoT[]>{
         const concatTags = tags.join("&&");
-        const url = new URL(`${getBackendURL()}/filelist`);
+        const url = new URL(`${this.apiURL()}/filelist`);
         url.searchParams.append("tags", concatTags);
         url.searchParams.append("key", this.settings.encKey);
 
@@ -77,7 +77,7 @@ export class ServerConn {
         ){
 
         const concatTags = tags.join("&&");
-        const url = new URL(`${getBackendURL()}/filelist-stream`);
+        const url = new URL(`${this.apiURL()}/filelist-stream`);
         url.searchParams.append("tags", concatTags);
         url.searchParams.append("key", this.settings.encKey);
 
@@ -137,7 +137,7 @@ export class ServerConn {
     }
 
     async reqDatabaseFeatureTSNE(collectionName = "doc_feature", nComponent = 3, perplexity = 10): Promise<DatabaseFeature>{
-        const url = new URL(`${getBackendURL()}/datafeat/tsne/${collectionName}`);
+        const url = new URL(`${this.apiURL()}/datafeat/tsne/${collectionName}`);
         url.searchParams.append("key", this.settings.encKey);
         url.searchParams.append("n_component", nComponent.toString());
         url.searchParams.append("perplexity", perplexity.toString());
@@ -155,7 +155,7 @@ export class ServerConn {
     }
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
-        const url = new URL(`${getBackendURL()}/fileinfo/${uid}`);
+        const url = new URL(`${this.apiURL()}/fileinfo/${uid}`);
         url.searchParams.append("key", this.settings.encKey);
 
         const response = await fetch(url.toString());
@@ -172,7 +172,7 @@ export class ServerConn {
     async reqReloadDB(): Promise<boolean>{
         const form = new FormData();
         form.append('key', this.settings.encKey)
-        const res = await fetch(`${getBackendURL()}/reload-db`, {
+        const res = await fetch(`${this.apiURL()}/reload-db`, {
             method: 'POST',
             body: form,
         });
@@ -187,7 +187,7 @@ export class ServerConn {
     async reqDatapointAbstract(uid: string): Promise<string>{
         const params = new URLSearchParams();
         params.set("key", this.settings.encKey);
-        const response = await fetch(`${getBackendURL()}/fileinfo-supp/abstract/${uid}`);
+        const response = await fetch(`${this.apiURL()}/fileinfo-supp/abstract/${uid}`);
         if (response.ok && response.status === 200) {
             const res: string = await response.text();
             return res
@@ -201,7 +201,7 @@ export class ServerConn {
         const form = new FormData();
         form.append('key', this.settings.encKey)
         form.append('content', content)
-        const res = await fetch(`${getBackendURL()}/fileinfo-supp/abstract-update/${uid}`, {
+        const res = await fetch(`${this.apiURL()}/fileinfo-supp/abstract-update/${uid}`, {
             method: 'POST',
             body: form,
         });
@@ -214,7 +214,7 @@ export class ServerConn {
     }
 
     async reqDatapointNote( uid: string ): Promise<string>{
-        const url = new URL(`${getBackendURL()}/fileinfo-supp/note/${uid}`);
+        const url = new URL(`${this.apiURL()}/fileinfo-supp/note/${uid}`);
         url.searchParams.append("key", this.settings.encKey);
         const response = await fetch(url.toString());
         if (response.ok){
@@ -227,7 +227,7 @@ export class ServerConn {
     }
 
     async reqDatapointNoteUpdate( uid: string, content: string ): Promise<boolean>{
-        const url = new URL(`${getBackendURL()}/fileinfo-supp/note-update/${uid}`);
+        const url = new URL(`${this.apiURL()}/fileinfo-supp/note-update/${uid}`);
         url.searchParams.append("key", this.settings.encKey);
         url.searchParams.append("content", content);
         const response = await fetch(url.toString(),
@@ -252,7 +252,7 @@ export class ServerConn {
         params.set("key", this.settings.encKey);
         params.set("method", method);
         params.set("kwargs", JSON.stringify(kwargs));
-        const response = await fetch(`${getBackendURL()}/search`, 
+        const response = await fetch(`${this.apiURL()}/search`, 
             {
                 method: "POST",
                 headers: {
@@ -280,7 +280,7 @@ export class ServerConn {
         params.set("text", text);
         params.set("require_cache", requireCache.toString());
 
-        const response = await fetch(`${getBackendURL()}/iserver/textFeature?${params.toString()}`,
+        const response = await fetch(`${this.apiURL()}/iserver/textFeature?${params.toString()}`,
             {
                 method: "POST",
                 headers: {
@@ -311,7 +311,7 @@ export class ServerConn {
         form.append('force', force.toString())
         form.append('uuid', uid)
         form.append('model', model)
-        const res = fetch(`${getBackendURL()}/summary`, {
+        const res = fetch(`${this.apiURL()}/summary`, {
             method: 'POST',
             body: form,
         })
@@ -349,7 +349,7 @@ export class ServerConn {
     // =============================================
 
     async deleteData(uid: string): Promise<boolean>{
-        const url = new URL(`${getBackendURL()}/dataman/delete`);
+        const url = new URL(`${this.apiURL()}/dataman/delete`);
         url.searchParams.append("key", this.settings.encKey);
         url.searchParams.append("uuid", uid);
 
@@ -387,7 +387,7 @@ export class ServerConn {
         if (bibtex !== null ) params.set("bibtex", bibtex);
         if (tags !== null) params.set("tags", JSON.stringify(tags));
         if (url !== null) params.set("url", url);
-        const response = await fetch(`${getBackendURL()}/dataman/update`,
+        const response = await fetch(`${this.apiURL()}/dataman/update`,
             {
                 method: "POST",
                 headers: {
@@ -415,7 +415,7 @@ export class ServerConn {
                     form.append('file', file);
                     form.append('key', this.settings.encKey)
                     
-                    fetch(`${getBackendURL()}/img-upload/${uid}`, {
+                    fetch(`${this.apiURL()}/img-upload/${uid}`, {
                         method: 'POST',
                         body: form,
                     })
@@ -476,7 +476,7 @@ export class ServerConn {
         form.append('oldTag', oldTag)
         form.append('newTag', newTag)
 
-        const res = await fetch(`${getBackendURL()}/dataman/tag-rename`, {
+        const res = await fetch(`${this.apiURL()}/dataman/tag-rename`, {
             method: 'POST',
             body: form,
         });
@@ -489,7 +489,7 @@ export class ServerConn {
         form.append('key', this.settings.encKey)
         form.append('tag', tag)
 
-        const res = await fetch(`${getBackendURL()}/dataman/tag-delete`, {
+        const res = await fetch(`${this.apiURL()}/dataman/tag-delete`, {
             method: 'POST',
             body: form,
         });
@@ -505,7 +505,7 @@ export class ServerConn {
         const form = new FormData();
         form.append('key', this.settings.encKey)
 
-        const res = await fetch(`${getBackendURL()}/user/info/${username}`, {
+        const res = await fetch(`${this.apiURL()}/user/info/${username}`, {
             method: 'POST',
             body: form,
         });
@@ -518,7 +518,7 @@ export class ServerConn {
         form.append('key', this.settings.encKey) // the user is identified by the key
         form.append('name', name)
 
-        const res = await fetch(`${getBackendURL()}/user/info-update`, {
+        const res = await fetch(`${this.apiURL()}/user/info-update`, {
             method: 'POST',
             body: form,
         });
@@ -531,7 +531,7 @@ export class ServerConn {
         form.append('key', this.settings.encKey) // the user is identified by the key
         form.append('password', sha256(newPassword))
         
-        const res = await fetch(`${getBackendURL()}/user/info-update`, {
+        const res = await fetch(`${this.apiURL()}/user/info-update`, {
             method: 'POST',
             body: form,
         });
@@ -543,7 +543,7 @@ export class ServerConn {
         const form = new FormData();
         form.append('key', this.settings.encKey)
 
-        const res = await fetch(`${getBackendURL()}/user/list`, {
+        const res = await fetch(`${this.apiURL()}/user/list`, {
             method: 'POST',
             body: form,
         });
@@ -555,7 +555,7 @@ export class ServerConn {
         const form = new FormData();
         form.append('file', file);
         form.append('key', this.settings.encKey)
-        const res = await fetch(`${getBackendURL()}/user/avatar-upload`, {
+        const res = await fetch(`${this.apiURL()}/user/avatar-upload`, {
             method: 'POST',
             body: form,
         })
@@ -570,7 +570,7 @@ export class ServerConn {
         if (setAdmin !== null) form.append('is_admin', setAdmin.toString())
         if (setMandatoryTags !== null) form.append('mandatory_tags', JSON.stringify(setMandatoryTags))
 
-        const res = await fetch(`${getBackendURL()}/userman/modify`, {
+        const res = await fetch(`${this.apiURL()}/userman/modify`, {
             method: 'POST',
             body: form,
         });
@@ -587,7 +587,7 @@ export class ServerConn {
         form.append('is_admin', isAdmin.toString())
         form.append('mandatory_tags', JSON.stringify(mandatoryTags))
 
-        const res = await fetch(`${getBackendURL()}/userman/create`, {
+        const res = await fetch(`${this.apiURL()}/userman/create`, {
             method: 'POST',
             body: form,
         });
@@ -600,7 +600,7 @@ export class ServerConn {
         form.append('key', this.settings.encKey)
         form.append('username', username)
 
-        const res = await fetch(`${getBackendURL()}/userman/delete`, {
+        const res = await fetch(`${this.apiURL()}/userman/delete`, {
             method: 'POST',
             body: form,
         });
@@ -610,7 +610,7 @@ export class ServerConn {
 
     // ---- info ----
     async changelog(): Promise<Changelog>{
-        const url = new URL(`${getBackendURL()}/info/changelog`);
+        const url = new URL(`${this.apiURL()}/info/changelog`);
         url.searchParams.append("key", this.settings.encKey);
         const response = await fetch(url.toString(),
             {

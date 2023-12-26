@@ -48,64 +48,64 @@ class FrontendApplication(tornado.web.Application):
 
 class Application(tornado.web.Application):
     def __init__(self, debug = False) -> None:
+        # will use simple storage service protocal (put, get, delete) to store data, when applicable
         handlers = [
+            # Frontend
+            (r'/()', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
+            (r'/index.html()', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/favico()', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(assets/.*)', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+
             # websocket
             (r'/ws', WebsocketHandler),
 
-            # # Simple Storage Service
+            # public resources
             (r"/doc/(.*)", DocHandler),
+            (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),
+            (r"/static/(.*)", StaticHandler),
+            (r"/img/(.*)", ImageGetHandler),            # deal with images under misc folder of each datapoint
+            (r"/user/avatar/(.*)", UserAvatarHandler),
 
-            # # APIs
-            (r"/summary", SummaryHandler),
-            (r"/status", StatusHandler),
-            (r"/reload-db", ReloadDBHandler),
-            (r"/auth", AuthHandler),
-            (r"/search", SearchHandler),
+            # APIs =================================================
+            (r"/api/summary", SummaryHandler),
+            (r"/api/status", StatusHandler),
+            (r"/api/reload-db", ReloadDBHandler),
+            (r"/api/auth", AuthHandler),
+            (r"/api/search", SearchHandler),
 
-            (r"/filelist", DataListHandler),
-            (r"/filelist-stream", DataListStreamHandler),
-            (r"/fileinfo/(.*)", DataInfoHandler),
+            (r"/api/filelist", DataListHandler),
+            (r"/api/filelist-stream", DataListStreamHandler),
+            (r"/api/fileinfo/(.*)", DataInfoHandler),
 
-            (r'/datafeat/tsne/(.*)', DataFeatureTSNEHandler),
+            (r'/api/datafeat/tsne/(.*)', DataFeatureTSNEHandler),
 
             # iServer proxy
-            (r"/iserver/(.*)", IServerProxyHandler),
+            (r"/api/iserver/(.*)", IServerProxyHandler),
 
             # data management
-            (r"/dataman/delete", DataDeleteHandler),
-            (r"/dataman/update", DataUpdateHandler),
-            (r"/dataman/tag-rename", TagRenameHandler),
-            (r"/dataman/tag-delete", TagDeleteHandler),
-
-            # deal with images under misc folder of each datapoint
-            (r"/img/(.*)", ImageGetHandler),
-            (r"/img-upload/(.*)", ImageUploadHandler),
+            (r"/api/dataman/delete", DataDeleteHandler),
+            (r"/api/dataman/update", DataUpdateHandler),
+            (r"/api/dataman/tag-rename", TagRenameHandler),
+            (r"/api/dataman/tag-delete", TagDeleteHandler),
+            (r"/api/img-upload/(.*)", ImageUploadHandler),      # to be deprecated
 
             # additional information (supplementary data / resources) for each datapoint
-            (r"/fileinfo-supp/note/(.*)", NoteGetHandler),
-            (r"/fileinfo-supp/note-update/(.*)", NoteUpdateHandler),
-            (r"/fileinfo-supp/abstract/(.*)", AbstractGetHandler),
-            (r"/fileinfo-supp/abstract-update/(.*)", AbstractUpdateHandler),
+            (r"/api/fileinfo-supp/note/(.*)", NoteGetHandler),
+            (r"/api/fileinfo-supp/note-update/(.*)", NoteUpdateHandler),
+            (r"/api/fileinfo-supp/abstract/(.*)", AbstractGetHandler),
+            (r"/api/fileinfo-supp/abstract-update/(.*)", AbstractUpdateHandler),
 
             # user
-            (r"/user/list", UserListHandler),
-            (r"/user/info/(.*)", UserInfoHandler),
-            (r"/user/info-update", UserInfoUpdateHandler),
-            (r"/user/avatar/(.*)", UserAvatarHandler),
-            (r"/user/avatar-upload", UserAvatarUploadHandler),
-            (r"/userman/create", UserCreateHandler),
-            (r"/userman/delete", UserDeleteHandler),
-            (r"/userman/modify", UserModifyHandler),
-
-            # pdfjs
-            (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),
+            (r"/api/user/list", UserListHandler),
+            (r"/api/user/info/(.*)", UserInfoHandler),
+            (r"/api/user/info-update", UserInfoUpdateHandler),
+            (r"/api/user/avatar-upload", UserAvatarUploadHandler),      # to be deprecated
+            (r"/api/userman/create", UserCreateHandler),
+            (r"/api/userman/delete", UserDeleteHandler),
+            (r"/api/userman/modify", UserModifyHandler),
 
             # info
-            (r"/info/changelog", ChangelogHandler),
-
-            # # Frontend (Static file, non-lires_web)
-            (r"/static/(.*)", StaticHandler),
-
+            (r"/api/info/changelog", ChangelogHandler),
         ]
         # https://www.tornadoweb.org/en/stable/web.html#tornado.web.Application.settings
         settings = {
