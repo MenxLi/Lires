@@ -109,7 +109,10 @@ class ChatStreamIter(ABC):
     def call(self, message: str, temperature: float, max_tokens: int) -> Iterator[StreamData]:
         ...
     def __call__(self, prompt) -> Iterator[StreamData]:
-        return self.call(prompt, self.temperature, self.max_response_tokens)
+        max_response_tokens = self.max_response_tokens
+        if max_response_tokens is None:
+            max_response_tokens = 1024
+        return self.call(prompt, self.temperature, max_response_tokens)
 
 class OpenAIChatStreamIter(ChatStreamIter):
     """

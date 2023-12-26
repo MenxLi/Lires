@@ -17,7 +17,7 @@ local_llm_load_bit: Literal[16, 8, 4] = 8
 # this specifies the default chat api for the models,
 # other models will fallback to using basaran's huggingface api as local model
 # may be changed by command line arguments
-openai_api_chat_models = [
+openai_api_chat_models: list[ChatStreamIterType] = [
     "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k", 
 ]
 
