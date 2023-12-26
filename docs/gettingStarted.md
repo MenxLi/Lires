@@ -116,13 +116,14 @@ lrs-cluster <your/configuration.yaml>
 The configuration file designates the environment variables, as well as the command line arguments for each server.
 
 ### On the first run
-**On the first run** you need to a user account, which can be done by running the `lrs-user` command in the container.
+**On the first run** you need to create a user account, which can be done by running the `lrs-user` command in the container.
 and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.
 ```sh
 # export LRS_HOME="..."
 lrs-user add <username> <password> --admin
 lrs-utils download_pdfjs
 ```
+After the user is created, you can manage other users with this user via the web interface.
 
 ---
 ## Docker Deployment
@@ -143,20 +144,13 @@ docker build -f ./docker/cluster.Dockerfile -t lires:latest .
 
 # create the container named 'lrs', 
 # please change the port mapping and volume mapping as needed
-docker run -d -p 8080:8080 -p 8081:8081 -v $HOME/.Lires:/root/.Lires --name lrs lires:latest
+docker run -d -p 8080:8080 -v $HOME/.Lires:/root/.Lires --name lrs lires:latest
 ```
 
 The container runs server cluster with configuration at `/root/.Lires/container-cluster-config.yaml` (Which should be mounted to the host).  
 You can edit the configuration file to change the server settings.
 
 **To maximize the compatibility, The container image by default does not use GPU for AI features.**  
-**It's suggested to disable iserver on the container by modifying the configuration file.**  
-
-Instead, we can set the server settings pointing to the shared LiresAI server outside of the container, maybe on the host machine / another machine with GPU, or on another container.  
-> This can be done by delete the `iserver` section in the configuration file.  
-> Then, set the `server -> ARGS -> iserver_*` section to point to the LiresAI server.
-> 
-> For example, if the LiresAI server is running on the host machine with IP address `192.168.3.6:8731`, then we can set the `iserver_host` to `192.168.3.6` and `iserver_port` to `8731`.
 
 ### On the first run
 The same as manual deployment, you need to add a user account and download the pdf.js viewer on the first run. 
