@@ -1,12 +1,9 @@
 """
 Interface for server connections,
-refer to lires.server for more information
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional, List, Literal, TypedDict
-from abc import abstractproperty
-import deprecated
+from typing import TYPE_CHECKING, Optional, List, TypedDict
 import requests, json
 from . import globalVar as G
 import sys
@@ -16,17 +13,10 @@ else:
     from collections.abc import Iterator
 
 if TYPE_CHECKING:
-    from lires.user import UserInfo
-    from lires.core.dataSearcher import StringSearchT
-    from lires.core.dataClass import DataTagT, DataPointSummary
-    from lires.core.dbConn import DBFileInfo
     from lires_ai.lmInterface import ConversationDictT, ChatStreamIterType
 
 class ConnectionBase:
-    @abstractproperty
-    def hash_key(self) -> str:
-        ...
-    
+
     @property
     def logger(self):
         return G.logger_lrs
@@ -43,104 +33,6 @@ class ConnectionBase:
         G.last_status_code = res.status_code
         return res.ok
 
-
-class ServerConn(ConnectionBase):
-    """
-    Connection to lires.server
-    This class is highly unfinished and untested, 
-    More features will be added in the future.
-    
-    **
-        There used to be an online mode using this class, with a GUI written in PyQt6,
-        now it is deprecated and the interface is not actively maintained.
-    **
-
-    """
-
-    def __init__(self, api_url: str, hash_key: str = "") -> None:
-        self.__hash_key = hash_key
-        self.__api_url = api_url
-    
-    @property
-    def hash_key(self) -> str:
-        return self.__hash_key
-    
-    @property
-    def SERVER_URL(self):
-        if self.__api_url.endswith("/"):
-            return self.__api_url[:-1]
-        return self.__api_url
-
-    def permission(self) -> Optional[UserInfo]:
-        post_url = self.SERVER_URL + "/auth"
-        post_args = { "key": self.hash_key, }
-        res = requests.post(post_url, data = post_args)
-        if not self._checkRes(res):
-            return None
-        else:
-            return json.loads(res.text)
-    
-    def search(self, method: str, kwargs: dict) -> Optional[StringSearchT]:
-        post_url = self.SERVER_URL + "/search"
-        post_args = {
-            "key": self.hash_key,
-            "method":method,
-            "kwargs": json.dumps(kwargs)
-        }
-        res = requests.post(post_url, data = post_args)
-        if not self._checkRes(res):
-            return None
-        else:
-            return json.loads(res.text)
-    
-    def summaries(self, tags: DataTagT = []) -> Optional[List[DataPointSummary]]:
-        post_url = self.SERVER_URL + "/filelist"
-        post_args = {
-            "key": self.hash_key,
-            "tags": json.dumps([ t for t in tags])
-        }
-        res = requests.post(post_url, data = post_args, timeout=5)
-        if not self._checkRes(res):
-            return None
-        else:
-            return json.loads(res.text)
-    
-    def reloadDB(self) -> bool:
-        post_url = self.SERVER_URL + "/reload-db"
-        res = requests.post(post_url, data = {"key": self.hash_key}, timeout=5)
-        if not self._checkRes(res):
-            return False
-        else:
-            return True
-        
-    def deleteTag(self, tag_to_be_deleted: str) -> bool:
-        post_url = self.SERVER_URL + "/dataman/tag-delete"
-        post_args = {
-            "key": self.hash_key,
-            "tag": tag_to_be_deleted
-        }
-        res = requests.post(post_url, data = post_args)
-        return self._checkRes(res)
-
-    def renameTag(self, src_tag: str, dst_tag: str) -> bool:
-        post_url = self.SERVER_URL + "/dataman/tag-rename"
-        post_args = {
-            "key": self.hash_key,
-            "oldTag": src_tag,
-            "newTag": dst_tag
-        }
-        res = requests.post(post_url, data = post_args)
-        return self._checkRes(res)
-    
-    def getDocURL(self, uid: str, dtype: Literal["pdf"]) -> str:
-        if dtype == "pdf":
-            return self.SERVER_URL + "/doc/{}".format(uid)
-        else:
-            raise NotImplementedError
-
-    def getNoteURL(self, uid: str) -> str:
-        return self.SERVER_URL + "/comment/{}/".format(uid)
-    
 class IServerConn(ConnectionBase):
     """Connection to lires_ai.server"""
 
@@ -191,20 +83,6 @@ class IServerConn(ConnectionBase):
         res = requests.post(post_url, json = post_args)
         if self._checkRes(res):
             return res.json()["feature"]
-        else:
-            return None
-    
-    _qFeatIndexT = TypedDict("_qFeatIndexT", {"uids": List[str], "scores": List[float]})
-    @deprecated.deprecated(version = "0.14.0", reason = "feature index should be stored via core module instead of iserver")
-    def queryFeatureIndex(self, text: str, n_return: int = 10) -> Optional[_qFeatIndexT]:
-        post_url = self.url + "/queryFeatureIndex"
-        post_args = {
-            "text": text,
-            "n_return": n_return
-        }
-        res = requests.post(post_url, json = post_args)
-        if self._checkRes(res):
-            return res.json()
         else:
             return None
     
