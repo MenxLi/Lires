@@ -113,9 +113,12 @@
         e.preventDefault();
         isInDrag.value = true;
     }
-    const __onDragDrop = (e: DragEvent) => {
+    const __onDragLeave = (e: DragEvent) => {
         e.preventDefault();
         isInDrag.value = false;
+    }
+    const __onDragDrop = (e: DragEvent) => {
+        e.preventDefault();
         const files = e.dataTransfer?.files;
         if (files && files.length > 0){
             const file = files[0];
@@ -136,9 +139,12 @@
         if (newShow){
             window.addEventListener("dragover", __onDragover);
             window.addEventListener("drop", __onDragDrop);
+            window.addEventListener("dragleave", __onDragLeave);
         }else{
+            isInDrag.value = false;     // reset on close
             window.removeEventListener("dragover", __onDragover);
             window.removeEventListener("drop", __onDragDrop);
+            window.removeEventListener("dragleave", __onDragLeave);
         }
     })
 </script>
