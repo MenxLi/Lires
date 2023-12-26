@@ -79,6 +79,10 @@ class LiresUser:
             "square": os.path.join(self.USER_AVATAR_DIR, f"{self._id}_square.png"),
         }
         if not all([os.path.exists(a_pth[k]) for k in a_pth]):
+            for k in a_pth:
+                # remove all if not all exist
+                if os.path.exists(a_pth[k]):
+                    os.remove(a_pth[k])
             return None
         else:
             return a_pth

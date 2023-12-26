@@ -137,7 +137,7 @@
         @on-accept="onEditUserOK" @on-cancel="()=>showEditUserDialog=false">
             <div id="user-editor-main">
                 <div class="horizontal">
-                    <img :src="`${getBackendURL()}/user/avatar/${editUserDialog_userInfo.username}?size=128`" alt="" class="avatar-big"/>
+                    <img :src="`${getBackendURL()}/user-avatar/${editUserDialog_userInfo.username}?size=128`" alt="" class="avatar-big"/>
                     <div id="user-editor">
                         <div class="horizontal">
                             <h2> {{editUserDialog_userInfo.name}} </h2> ({{editUserDialog_userInfo.username}})
@@ -222,7 +222,7 @@
                 </td>
                 <td> 
                     <div class="center full-width full-height">
-                        <img :src="`${getBackendURL()}/user/avatar/${user.username}?size=60`" alt="" class="avatar" /> 
+                        <img :src="`${getBackendURL()}/user-avatar/${user.username}?size=60`" alt="" class="avatar" /> 
                     </div>
                 </td>
                 <td class="username"> {{user.username}} </td>

@@ -1,5 +1,5 @@
 
-import json
+import json, os
 from io import BytesIO
 from PIL import Image
 from ._base import *
@@ -98,11 +98,8 @@ class UserAvatarHandler(RequestHandlerBase):
                 contents = output.getvalue()
             self.write(contents)
         
-
-class UserAvatarUploadHandler(RequestHandlerBase):
-
     @keyRequired
-    def post(self):
+    def put(self):
         user = self.user_pool.getUserByKey(self.user_info["enc_key"])
         assert user is not None, "User not found"   # should not happen
         
@@ -117,3 +114,16 @@ class UserAvatarUploadHandler(RequestHandlerBase):
         im = Image.open(BytesIO(file["body"]))
         user.setAvatar(im)
         self.write(json.dumps(user.info()))
+    
+    @keyRequired
+    def delete(self):
+        user = self.user_pool.getUserByKey(self.user_info["enc_key"])
+        assert user is not None, "User not found"
+
+        avatar_image_path = user.avatar_image_path
+        if avatar_image_path is None:
+            raise tornado.web.HTTPError(404, "User has no avatar")
+        else:
+            for k in avatar_image_path:
+                os.remove(avatar_image_path[k])
+            self.write(json.dumps(user.info()))

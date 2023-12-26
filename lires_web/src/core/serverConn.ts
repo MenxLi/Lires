@@ -555,8 +555,8 @@ export class ServerConn {
         const form = new FormData();
         form.append('file', file);
         form.append('key', this.settings.encKey)
-        const res = await fetch(`${this.apiURL()}/user/avatar-upload`, {
-            method: 'POST',
+        const res = await fetch(`${getBackendURL()}/user-avatar`, {
+            method: 'PUT',
             body: form,
         })
         if (res.ok){ return await res.json(); }

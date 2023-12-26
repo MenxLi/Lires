@@ -26,7 +26,7 @@
     const avatarUploadBtn = ref(null as HTMLInputElement | null);
     const avatarURL = computed(() => {
         console.log("avatarURL updated");
-        return `${getBackendURL()}/user/avatar/${props.userInfo.username}?t=${Date.now()}&size=256`
+        return `${getBackendURL()}/user-avatar/${props.userInfo.username}?t=${Date.now()}&size=256`
     });
     function onUploadAvatarImage(file: File){
         // check if the file is an image
