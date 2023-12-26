@@ -319,9 +319,6 @@ export class DataPoint {
         if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             return `${getBackendURL()}/doc/${uid}`;
         }
-        if (this.summary["has_file"] && this.summary["file_type"] == ".hpack"){
-            return `${getBackendURL()}/hdoc/${uid}/`
-        }
         if (!this.summary["has_file"] && this.summary["url"]){
             return this.summary.url;
         }
@@ -352,9 +349,6 @@ export class DataPoint {
             const pdfURL = `${getBackendURL()}/doc/${uid}`;
             ret = getPdfViewerURL(pdfURL);
         }
-        if (this.summary["has_file"] && this.summary["file_type"] == ".hpack"){
-            ret = `${getBackendURL()}/hdoc/${uid}/`
-        }
         if (!this.summary["has_file"] && this.summary["url"]){
             let fileURL = this.summary["url"];
             // maybe view pdf via pdfjs viewer if the url is a pdf
@@ -384,12 +378,9 @@ export class DataPoint {
         return `${getBackendURL()}/summary?uuid=${uid}&key=${useSettingsStore().encKey}`;
     }
 
-    docType(): "" | "pdf" | "url" | "hpack" | "unknown" {
+    docType(): "" | "pdf" | "url" | "unknown" {
         if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             return "pdf";
-        }
-        else if (this.summary["has_file"] && this.summary["file_type"] == ".hpack"){
-            return "hpack";
         }
         else if (!this.summary["has_file"] && this.summary["url"]){
             return "url";

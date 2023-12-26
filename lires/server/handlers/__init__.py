@@ -1,5 +1,5 @@
 from .dataInfo import *
-from .documents import DocHandler, HDocHandler
+from .documents import DocHandler
 from .auth import AuthHandler
 from .search import SearchHandler
 from .summary import SummaryHandler

@@ -132,11 +132,9 @@ class ServerConn(ConnectionBase):
         res = requests.post(post_url, data = post_args)
         return self._checkRes(res)
     
-    def getDocURL(self, uid: str, dtype: Literal["pdf, hpack"]) -> str:
+    def getDocURL(self, uid: str, dtype: Literal["pdf"]) -> str:
         if dtype == "pdf":
             return self.SERVER_URL + "/doc/{}".format(uid)
-        elif dtype == "hpack":
-            return self.SERVER_URL + "/hdoc/{}/".format(uid)
         else:
             raise NotImplementedError
 

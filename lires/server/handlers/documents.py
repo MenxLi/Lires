@@ -3,8 +3,7 @@ Get documents: document file / web page / comments
 """
 from ._base import *
 import os, json
-from lires.confReader import TMP_WEB, TMP_DIR, ACCEPTED_EXTENSIONS
-from lires.core.htmlTools import unpackHtmlTmp
+from lires.confReader import TMP_DIR, ACCEPTED_EXTENSIONS
 
 class DocHandler(RequestHandlerBase):
     def get(self, uuid):
@@ -84,35 +83,3 @@ class DocHandler(RequestHandlerBase):
             'datapoint_summary': dp.summary
         })
         self.write(json.dumps(dp.summary))
-
-class HDocHandler(tornado.web.StaticFileHandler, RequestHandlerMixin):
-    # handler for local web pages
-    def get(self, path, include_body = True):
-        self.allowCORS()
-        psplit = path.split("/")
-        uuid = psplit[0]
-
-        if len(path) == 37:
-            # uuid + "/"
-            html_p = self.getTmpHtmlPathByUUID(uuid)
-            # make sure we can find correct directory in subsequent requests
-            assert os.path.dirname(html_p) == os.path.join(TMP_WEB, uuid)
-            return super().get(path = html_p, include_body=True)
-
-        else:
-            # is this unsafe??
-            tmp_dir = os.path.join(TMP_WEB, uuid)
-            psplit = tmp_dir.split(os.sep) + psplit[1:]
-            if psplit[0] == "":
-                psplit = psplit[1:]
-            path = "/".join(psplit)
-            return super().get(path, include_body=True)
-
-    def getTmpHtmlPathByUUID(self, uuid: str):
-        dp = self.db[uuid]
-        if not dp.fm.file_extension == ".hpack":
-            return ""
-        file_p = dp.fm.file_p
-        assert file_p is not None
-        html_p = unpackHtmlTmp(file_p, tmp_dir_name = uuid)
-        return html_p

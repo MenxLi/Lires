@@ -38,7 +38,6 @@ class Application(tornado.web.Application):
 
             # # Simple Storage Service
             (r"/doc/(.*)", DocHandler),
-            (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
 
             # # APIs
             (r"/summary", SummaryHandler),

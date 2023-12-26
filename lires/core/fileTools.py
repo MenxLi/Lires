@@ -13,7 +13,6 @@ from .utils import TimeUtils
 from .utils import openFile as _openFile
 from ..confReader import DATABASE_DIR, ACCEPTED_EXTENSIONS
 from ..version import VERSION
-from .htmlTools import openTmp_hpack
 
 # from watchdog.observers import Observer
 # from watchdog.events import PatternMatchingEventHandler
@@ -166,7 +165,9 @@ class FileManipulator:
             return None
         file_path = os.path.join(self.conn.db_dir, self.uuid + self.file_extension)
         if not os.path.exists(file_path):
-            self.logger.warning("file {} not exists, but file extension exists".format(file_path))
+            self.logger.error("file {} not exists, but file extension exists".format(file_path))
+            self.file_extension = ""
+            self.logger.warning("cleared the file extension to auto-fix the problem")
             return None
         return file_path
 
@@ -203,8 +204,6 @@ class FileManipulator:
         # import pdb; pdb.set_trace()
         if self.file_p is None:
             return False
-        if self.file_extension == ".hpack":
-            openTmp_hpack(self.file_p)
         else:
             # Open file in MacOS will somehow be treated as a file modification
             # so temporarily ban file observer log modification time

@@ -25,8 +25,7 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # │   ├── vector.db [FEATURE_PATH]
 # │   └── summary [DOC_SUMMARY_DIR]
 # ├── Lires.cache [TMP_DIR]
-# │   ├── webpage [TMP_WEB]
-# │   └── notes_webpage [TMP_WEB_NOTES]
+# │   └── ...
 
 __this_file_path = os.path.abspath(os.path.realpath(__file__))
 
@@ -58,9 +57,8 @@ LOG_FILE = join(LRS_HOME, "default.txt")    # may deprecate this
 
 # things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
-TMP_WEB = os.path.join(TMP_DIR, "webpage")  # For unzip hpack cache
 
-ACCEPTED_EXTENSIONS = [".pdf", ".caj", ".html", ".hpack", ".md", ".pptx", ".ppt"]
+ACCEPTED_EXTENSIONS = [".pdf"]
 
 # Create directories if they don't exist
 if not os.path.exists(LRS_HOME):
@@ -69,8 +67,7 @@ for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 for _p in [
-    TMP_DIR, TMP_WEB,
-    INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR, 
+    TMP_DIR, INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR, 
     ]:
     if not os.path.exists(_p):
         os.mkdir(_p)
