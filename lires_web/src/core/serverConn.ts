@@ -438,8 +438,8 @@ export class ServerConn {
         const form = new FormData();
         form.append('file', file);
         form.append('key', this.settings.encKey)
-        const res = await fetch(`${getBackendURL()}/dataman/doc-upload/${uid}`, {
-            method: 'POST',
+        const res = await fetch(`${getBackendURL()}/doc/${uid}`, {
+            method: 'PUT',
             body: form,
         })
         if (res.ok){
@@ -456,8 +456,8 @@ export class ServerConn {
     async freeDocument(uid: string): Promise<DataInfoT>{
         const form = new FormData();
         form.append('key', this.settings.encKey)
-        const res = await fetch(`${getBackendURL()}/dataman/doc-free/${uid}`, {
-            method: 'POST',
+        const res = await fetch(`${getBackendURL()}/doc/${uid}`, {
+            method: 'DELETE',
             body: form,
         });
         if (res.ok){

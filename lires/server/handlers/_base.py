@@ -235,6 +235,15 @@ class RequestHandlerMixin():
         for i in __need_remove_idx[::-1]:
             self.connection_pool.pop(i)
 
+class RequestHandlerBase(tornado.web.RequestHandler, RequestHandlerMixin):
+    def set_default_headers(self):
+        self.allowCORS()
+
+    def options(self, *args, **kwargs):
+        # Handle preflight requests
+        self.set_status(204)
+        self.finish()
+
 def minResponseInterval(min_interval=0.1):
     """
     Decorator to limit the minimum interval between responses
@@ -257,6 +266,7 @@ def minResponseInterval(min_interval=0.1):
 __all__ = [
     "tornado",
     "RequestHandlerMixin",
+    "RequestHandlerBase",
     "G",
     "minResponseInterval",
     "keyRequired"

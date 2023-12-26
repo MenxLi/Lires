@@ -1,4 +1,4 @@
-import os, multiprocessing
+import os
 from typing import Union, TypedDict
 from lires_web import LRSWEB_SRC_ROOT
 from functools import partial
@@ -17,6 +17,11 @@ import ssl
 
 from .handlers import *
 
+
+class DefaultRequestHandler(tornado.web.RequestHandler, RequestHandlerMixin):
+    # TODO: to be implemented...
+    ...
+
 class FrontendApplication(tornado.web.Application):
     def __init__(self) -> None:
         handlers = [
@@ -26,17 +31,19 @@ class FrontendApplication(tornado.web.Application):
         super().__init__(handlers)      # type: ignore
 
 class Application(tornado.web.Application):
-    def __init__(self) -> None:
+    def __init__(self, debug = False) -> None:
         handlers = [
             # websocket
             (r'/ws', WebsocketHandler),
 
-            # # Backend
+            # # Simple Storage Service
+            (r"/doc/(.*)", DocHandler),
+            (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
+
+            # # APIs
             (r"/summary", SummaryHandler),
             (r"/status", StatusHandler),
             (r"/reload-db", ReloadDBHandler),
-            (r"/doc/(.*)", DocHandler),
-            (r"/hdoc/(.*)", HDocHandler, {"path": "/"}),
             (r"/auth", AuthHandler),
             (r"/search", SearchHandler),
 
@@ -52,8 +59,6 @@ class Application(tornado.web.Application):
             # data management
             (r"/dataman/delete", DataDeleteHandler),
             (r"/dataman/update", DataUpdateHandler),
-            (r"/dataman/doc-upload/(.*)", DocumentUploadHandler),
-            (r"/dataman/doc-free/(.*)", DocumentFreeHandler),
             (r"/dataman/tag-rename", TagRenameHandler),
             (r"/dataman/tag-delete", TagDeleteHandler),
 
@@ -87,7 +92,15 @@ class Application(tornado.web.Application):
             (r"/static/(.*)", StaticHandler),
 
         ]
-        super().__init__(handlers)
+        # https://www.tornadoweb.org/en/stable/web.html#tornado.web.Application.settings
+        settings = {
+            "debug": debug,
+            "websocket_ping_interval": 30,
+            "websocket_ping_timeout": 60,
+            "websocket_max_message_size": 100*1024*1024,
+            "default_handler_class": DefaultRequestHandler,
+        }
+        super().__init__(handlers, **settings)
 
 
 _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
