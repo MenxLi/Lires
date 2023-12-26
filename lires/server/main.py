@@ -61,10 +61,9 @@ class Application(tornado.web.Application):
 
             # public resources
             (r"/doc/(.*)", DocHandler),
+            (r"/img/(.*)", ImageHandler), 
             (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),
-            (r"/static/(.*)", StaticHandler),
-            (r"/img/(.*)", ImageHandler),            # deal with images under misc folder of each datapoint
-            (r"/user/avatar/(.*)", UserAvatarHandler),
+            (r"/user-avatar/(.*)", UserAvatarHandler),
 
             # APIs =================================================
             (r"/api/summary", SummaryHandler),
@@ -98,7 +97,6 @@ class Application(tornado.web.Application):
             (r"/api/user/list", UserListHandler),
             (r"/api/user/info/(.*)", UserInfoHandler),
             (r"/api/user/info-update", UserInfoUpdateHandler),
-            (r"/api/user/avatar-upload", UserAvatarUploadHandler),      # to be deprecated
             (r"/api/userman/create", UserCreateHandler),
             (r"/api/userman/delete", UserDeleteHandler),
             (r"/api/userman/modify", UserModifyHandler),
