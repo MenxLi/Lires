@@ -45,7 +45,6 @@ core = [
     "pybtex",
     "pylatexenc",
     "tornado",
-    "markdown",
     "PyMuPDF",
     "nbib",
     "tqdm",
