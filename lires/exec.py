@@ -101,10 +101,6 @@ def run():
         from .server.main import startServer
         startServer(args.port, args.iserver_host, args.iserver_port)
     
-    if args.subparser == "web":
-        from .server.main import startFrontendServer
-        startFrontendServer(args.port)
-    
     if args.subparser == "iserver":
         import subprocess
         call_args = ["python3", "-m", "lires_ai.server"]

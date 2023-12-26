@@ -65,12 +65,6 @@ lires iserver
 ```
 The LiresAI server is written with FastAPI, it provides additional AI features and is designed to be connected by the Lires server, so that the latter can provide AI features to the client.  
 
-**Start the LiresWeb:**  
-```bash
-lires web
-```
-LiresWeb is a Web-UI frontend.
-
 > <details> 
 > <summary>The reason to separate LiresAI server from Lires server</summary>  
 > - AI features may require more resources, so that the iserver can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the iserver and install the heavy AI dependencies.  <br>

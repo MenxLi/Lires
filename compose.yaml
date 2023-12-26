@@ -1,16 +1,6 @@
 
 services:
 
-  web:
-    container_name: lrs_web
-    build:
-      context: .
-      dockerfile: ./docker/web.Dockerfile
-    ports:
-      - "8081:80"
-    networks:
-      - lires_net
-
   server:
     container_name: lrs
     build:
@@ -24,13 +14,11 @@ services:
     networks:
       - lires_net
   
-  ai:
+  ai-server:
     container_name: lrs_ai
     build:
       context: .
       dockerfile: ./docker/iserver.Dockerfile
-    # ports:
-    #   - "8731:8731"
     volumes:
       - "$HOME/.Lires:/root/.Lires"
     environment:

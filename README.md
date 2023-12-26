@@ -7,10 +7,10 @@ The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** 
 
 Lires is designed to be deployed onto a server to provide a **self-hosted collaborative solution** for research literature management.
 
-The software mainly consists of three modules:  
-1. `lires`, the core server
-2. `lires-ai`, AI server for computational intelligence features  
-3. `lires-web`, the WebUI
+The software mainly consists of two modules:  
+1. `lires`, the core server, provide APIs for the client
+2. `lires-web`, the web client for user interaction
+3. `lires-ai`, a stateless AI server for computational intelligence features  
 
 ## Features
 📚 Shared database  
@@ -20,7 +20,7 @@ The software mainly consists of three modules:
 👥 Multi-user management  
 ✨ Artificial intelligence
 
-Currently, it supports PDF files and only provides above mentioned basic features, such as adding tags, notes, and searching. Some advanced features including semantic search, auto summarization and arxiv subscription are also avaliable.   
+Currently, it supports PDF file and provides above mentioned basic features, such as adding tags, notes, and searching. Some advanced features including semantic search, auto summarization and arxiv subscription are also avaliable.   
 **These should be enough for most use cases, more features will be added in the future.**
 
 # Getting started
@@ -38,7 +38,7 @@ docker compose up
 docker exec lrs lrs-user add <username> <password> --admin
 docker exec lrs lrs-utils download_pdfjs
 ```
-Now open the browser and visit the WebUI at `http://localhost:8081`.
+Now open the browser and visit the WebUI at `http://localhost:8080`.
 
 **Please refer to the documents for more details on [getting started](docs/gettingStarted.md).**
 

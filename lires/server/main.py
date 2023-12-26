@@ -38,14 +38,6 @@ class DefaultRequestHandler(RequestHandlerBase):
         """.format(version = VERSION)
         return self.write(html_page)
 
-class FrontendApplication(tornado.web.Application):
-    def __init__(self) -> None:
-        handlers = [
-            # Frontend
-            (r'/(.*)', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
-        ]
-        super().__init__(handlers)      # type: ignore
-
 class Application(tornado.web.Application):
     def __init__(self, debug = False) -> None:
         # will use simple storage service protocal (put, get, delete) to store data, when applicable
@@ -172,21 +164,6 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
 
     tornado.ioloop.IOLoop.current().start()
 
-def __startFrontendServer(port: Union[int, str] = 8081, ssl_config : _SSL_CONFIGT | None = None):
-    app = FrontendApplication()
-    ssl_ctx = None
-    logger = setupLogger("frontend")
-    if ssl_config is not None:
-        ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        ssl_ctx.load_cert_chain(certfile=ssl_config["certfile"], keyfile=ssl_config["keyfile"])
-    server = HTTPServer(app, ssl_options=ssl_ctx)
-    logger.info(f"Starting LiresWeb server at port: {port}")
-    server.listen(int(port))
-
-    tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
-    tornado.autoreload.start()
-    tornado.ioloop.IOLoop.current().start()
-
 # SSL config
 _ENV_CERTFILE = os.environ.get("LRS_SSL_CERTFILE")
 _ENV_KEYFILE = os.environ.get("LRS_SSL_KEYFILE")
@@ -203,10 +180,6 @@ def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[in
     # add ssl config
     p_startServer = partial(__startServer, ssl_config=SSL_CONFIG)
     p_startServer(port=port, iserver_host=iserver_host, iserver_port=iserver_port)
-
-def startFrontendServer(port: Union[int, str] = 8081) -> None:
-    p_startFrontendServer = partial(__startFrontendServer, ssl_config=SSL_CONFIG)
-    p_startFrontendServer(port=port)
 
 if __name__ == "__main__":
     __startServer(8080, "127.0.0.1", "8731")

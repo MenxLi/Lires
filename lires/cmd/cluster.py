@@ -19,9 +19,6 @@ server:         <--- this is the name of the subcommand for lires
     -
         ENVS:
         ....
-web:
-    ...
-
 iserver:
     ...
 ----------------------------------------------------
@@ -39,7 +36,6 @@ class ConfigEntryT(TypedDict):
 class ClusterConfigT(TypedDict):
     ENVS: dict
     server: list[ConfigEntryT]
-    web: list[ConfigEntryT]
     iserver: list[ConfigEntryT]
 
 def __getDefaultConfig()->ClusterConfigT:
@@ -60,14 +56,6 @@ def __getDefaultConfig()->ClusterConfigT:
                     "--port": 8080,
                     "--iserver_host": "localhost",
                     "--iserver_port": 8731,
-                },
-            }
-        ],
-        "web": [
-            {
-                "ENVS": {},
-                "ARGS": {
-                    "--port": 8081,
                 },
             }
         ],
@@ -109,7 +97,7 @@ def generateConfigFile(path:str):
 
 def loadConfigFile(path:str)->ClusterConfigT:
     with open(path, "r") as f:
-        config = yaml.safe_load(f)
+        config: ClusterConfigT = yaml.safe_load(f)
     
     ## Validate config...
 
@@ -118,15 +106,15 @@ def loadConfigFile(path:str)->ClusterConfigT:
         raise ValueError("Config file must be a dict")
 
     for k in config.keys():
-        assert k in ["ENVS", "server", "web", "iserver"], \
-            "Config file keys must be in : ENVS, server, web, iserver"
+        assert k in ["ENVS", "server", "iserver"], \
+            "Config file keys must be in : ENVS, server, iserver"
 
     # check if ENVS is valid
     if not isinstance(config["ENVS"], dict):
         raise ValueError("ENVS must be a dict")
 
-    # check if server, web, iserver are valid
-    for k in ["server", "web", "iserver"]:
+    # check if server, iserver are valid
+    for k in ["server", "iserver"]:
         if k not in config:
             config[k] = []
         if not isinstance(config[k], list):
@@ -182,9 +170,7 @@ def initProcesses(config: ClusterConfigT):
             else:
                 raise ValueError(f"Invalid value type for {k}: {type(v)}")
         
-        # print(f"Environment: {this_environ}")
-        # print(f"Executing: {' '.join(exec_args)}")
-        # print("\n")
+        print(f"{' '.join(exec_args)}")
 
         ps.append(
             mp.Process(
@@ -197,7 +183,7 @@ def initProcesses(config: ClusterConfigT):
     
     __parseEnv(config["ENVS"], g_environ)
 
-    for key in ["server", "web", "iserver"]:
+    for key in ["server", "iserver"]:
         for entry in config[key]:
             __execEntry(key, entry)
     
