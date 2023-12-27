@@ -5,13 +5,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview",
-    "app:build": "tauri build",
-    "app:dev": "tauri dev",
-    "tauri": "tauri"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.4.0",
     "fast-xml-parser": "^4.2.7",
     "md-editor-v3": "^4.4.0",
     "pinia": "^2.1.6",
@@ -20,7 +16,6 @@
     "vue-router": "^4.2.4"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.4.0",
     "@vitejs/plugin-vue": "^4.3.3",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
     "typescript": "^5.2.2",

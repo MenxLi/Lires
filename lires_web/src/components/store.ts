@@ -4,7 +4,6 @@ import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
 import { ServerConn } from '../core/serverConn'
 import { formatAuthorName } from '../libs/misc'
 export { formatAuthorName }
-import { platformType } from '../config'
 import type { SearchStatus, PopupStyle, TagStatus } from './interface'
 import type { UserInfo } from '../core/protocalT'
 
@@ -287,23 +286,9 @@ export const useSettingsStore = defineStore(
 function defaultBackendHost(){
     let BACKEND_PROTOCAL: 'http:' | 'https:' = window.location.protocol as 'http:' | 'https:';
     let HOSTNAME = window.location.hostname;
-    if (platformType() === "tauri"){
-        if (!import.meta.env.DEV){
-            // assume the backend is https in tauri production mode, 
-            // because we've used broswer fetch api for api requests
-            // however tauri use native webview, which can not access http backend
-            // the backend should be deployed on the server with ssl certificate
-            BACKEND_PROTOCAL = "https:";     
-        }
-    }
     return `${BACKEND_PROTOCAL}//${HOSTNAME}`;
 }
 
 function defaultBackendPort(){
-    if (platformType() === "tauri"){
-        if (!import.meta.env.DEV){
-            return "8080";
-        }
-    }
     return window.location.port;
 }

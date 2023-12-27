@@ -39,15 +39,7 @@ Install the servers
 ```bash
 git submodule update --init --recursive
 pip install ./packages/tiny_vectordb
-pip install ".[core,ai]"
-lrs-utils download_pdfjs                # download pdf.js viewer to serve pdf with the viewer in LiresWeb
-```
-**[Optional]** Compile client-side tauri GUI
-> **Prerequisites:**  Node.js, TypeScript, Rust
-```bash
-cd lires_web
-npm install
-npm run app:build
+pip install ".[all]"
 ```
 ---
 ### Server startup
@@ -83,7 +75,6 @@ LRS_HOME="your/path/here" lires ...
 Typically, the lires server can be started by binding a different port to each database and providing services to different users. Which can be achieved by setting the `$LRS_HOME` variable.  
 
 Additionally, SSL certificates can be configured using `$LRS_SSL_CERTFILE` and `$LRS_SSL_KEYFILE` to enable HTTPS 
-(we must serve in HTTPS for tauri GUI to connect - [reason](https://github.com/tauri-apps/tauri/issues/2002)).  
 
 Lastly, these servers can share the same 'iServer' for AI features, possibly on a different machine.  
 

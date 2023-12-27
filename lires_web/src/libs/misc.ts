@@ -1,6 +1,3 @@
-import { open as tauriOpen } from '@tauri-apps/api/shell';
-import { platformType } from '../config';
-
 // not used for now, a backup for the future
 export function resolveAbsoluteURL(url: string){
     const baseUrl = new URL(import.meta.url);
@@ -99,12 +96,7 @@ export async function copyToClipboard(textToCopy: string): Promise<boolean> {
   }
 
 export function openURLExternal(url: string){
-    if (platformType() == "tauri"){
-        tauriOpen(url);
-    }
-    else{
-        window.open(url, "_blank");
-    }
+    window.open(url, "_blank");
 }
 
 // Execute a function after a delay,
