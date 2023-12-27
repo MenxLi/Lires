@@ -4,7 +4,7 @@
     import Popup from './components/common/Popup.vue';
     import { useUIStateStore, useSettingsStore, useDataStore } from './components/store';
     import { useRouter } from 'vue-router';
-    import { settingsAuthentication, settingsLogout } from './core/auth';
+    import { settingsAuthentication } from './core/auth';
     import { getSessionConnection, registerServerEvenCallback } from './core/serverWebsocketConn';
     import LoadingPopout from './components/common/LoadingPopout.vue';
     import type { Event_Data, Event_Tag, Event_User } from './core/protocalT'
@@ -29,8 +29,13 @@
             // Since the default value of the flag is false, 
             // the watcher will not be triggered when loggedIn flag is set to the same value
             const __logoutAndRedirect = ()=>{
-                logout();
-                onLogout();
+                if (settingStore.loggedIn){
+                    // redirect will be triggered by the watcher
+                    settingStore.loggedIn = false;
+                }
+                else{
+                    redirectToLoginPage();
+                }
             }
             settingsAuthentication().then(
                 (userInfo)=>{if (!userInfo){ __logoutAndRedirect() }},
@@ -48,7 +53,6 @@
     const showConnectionHint = computed(()=>!__sessionConnected.value && !__isInLoginPage.value)
 
     // Authentication on load
-    const logout = settingsLogout;
     function onLogin(){
         // on login
         console.log("Logged in.")
@@ -59,7 +63,7 @@
         });
         uiState.reloadDatabase();
     }
-    function onLogout(){
+    function redirectToLoginPage(){
         console.log("Logged out from: ", router.currentRoute.value.fullPath);
         if (getSessionConnection().isOpen()){
             getSessionConnection().close();
@@ -76,7 +80,7 @@
         () => settingStore.loggedIn,
         (new_: boolean, _: boolean) => {
             if (new_){ onLogin() }
-            else{ onLogout(); }
+            else{ redirectToLoginPage(); }
         }
     )
 

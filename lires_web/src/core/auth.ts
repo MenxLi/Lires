@@ -24,6 +24,7 @@ export function checkSettingsLogout(){
     return !Boolean(useSettingsStore().encKey);
 }
 
+// completely remove the encKey, and set loggedIn to false
 export function settingsLogout(){
     saveAuthentication("", null, true);
 }
@@ -39,7 +40,7 @@ export async function settingsAuthentication(): Promise<UserInfo|null> {
         return userInfo;
     } catch (e){
         console.log("settingsAuthentication failed: ", e);
-        saveAuthentication("", null, true);
+        // settingsLogout();
         return null;
     }
 }
