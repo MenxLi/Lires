@@ -548,14 +548,17 @@ version_history:
     - Deprecation:
       - Drop support for webpage archive
       - Remove backend deprecated code
-  1.3.0a:
+  1.3.0:
     - Breaking changes:
       - API change - use /api/ prefix for all api endpoints
       - Remove lires web entry
+      - Remove tauri GUI
     - Features:
       - Lires server serve frontend files
       - Allow citation input from endnote and nbib
       - Drag and drop to input citation
-    - Refactor:
+      - Keep login token if authenication failed
+    - Refactor & Performance:
       - Use put and delete methods for avatar and image
       - Remove some unused handlers
+      - Improve file adding performance
