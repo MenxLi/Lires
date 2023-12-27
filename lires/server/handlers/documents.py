@@ -3,7 +3,7 @@ Get documents: document file / web page / comments
 """
 from ._base import *
 import os, json
-from lires.confReader import TMP_DIR, ACCEPTED_EXTENSIONS
+from lires.confReader import ACCEPTED_EXTENSIONS
 
 class DocHandler(RequestHandlerBase):
     def get(self, uuid):
@@ -40,21 +40,11 @@ class DocHandler(RequestHandlerBase):
         if ext not in ACCEPTED_EXTENSIONS:
             raise tornado.web.HTTPError(400, reason="File extension not allowed")
         
-        # save the file to a temporary location
-        tmp_file = os.path.join(TMP_DIR, "upload_" + uid + ext)
-        with open(tmp_file, "wb") as f:
-            f.write(file_data)
-        
         # add the file to the document
-        if not dp.fm.addFile(tmp_file):
-            # remove the temporary file
-            os.remove(tmp_file)
-            # existing file
+        if not dp.fm.addFileBlob(file_data, ext):
             raise tornado.web.HTTPError(409, reason="File already exists")
 
         dp.loadInfo()
-        os.remove(tmp_file)
-        
         d_summary = dp.summary
         self.logger.info(f"Document {uid} added")
         self.broadcastEventMessage({

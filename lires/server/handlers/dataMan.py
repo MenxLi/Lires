@@ -10,7 +10,6 @@ import json
 from lires.core.bibReader import checkBibtexValidity, BibConverter
 from lires.core.fileTools import addDocument
 from lires.core.dataClass import DataTags
-from lires.confReader import TMP_DIR, ACCEPTED_EXTENSIONS
 
 class DataDeleteHandler(RequestHandlerBase):
 

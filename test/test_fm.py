@@ -1,10 +1,9 @@
 
 
-import os
 from pprint import pprint
 from lires.initLogger import initDefaultLogger; initDefaultLogger()
 from lires.confReader import DATABASE_DIR
-from lires.core.fileTools import addDocument, DBConnection, FileManipulator
+from lires.core.fileTools import addDocument, FileManipulator
 from lires.core.dataClass import DataPoint, DataBase
 
 import logging
@@ -21,15 +20,9 @@ test_bibtex = """
 }
 """
 
-pdf_path = "/Users/monsoon/Downloads/Wynn_DiffusioNeRF_Regularizing_Neural_Radiance_Fields_With_Denoising_Diffusion_Models_CVPR_2023_paper.pdf"
-
-
-
+pdf_path = "/Users/monsoon/Downloads/2312.13469_compressed.pdf"
 
 def testFileManipulator(fm: FileManipulator):
-    conn = fm.conn
-    uid = addDocument(conn, test_bibtex, doc_src=pdf_path); assert uid
-
     assert fm.hasFile()
     assert fm.file_p
     assert fm.file_extension == ".pdf"
@@ -52,19 +45,19 @@ def testFileManipulator(fm: FileManipulator):
     fm.deleteDocument()
     # fm.openFile()
 
-db_pth = DATABASE_DIR
-conn = DBConnection(db_pth)
-uid = addDocument(conn, test_bibtex, doc_src=pdf_path); assert uid
-# fm = FileManipulator(uid, conn)
-fm = FileManipulator(uid, conn)
-dp = DataPoint(fm)
-# assert conn is fm.conn
+if __name__ == "__main__":
+  db_pth = DATABASE_DIR
+  db = DataBase().init(db_pth)
 
-assert fm.conn.db_dir == db_pth, (fm.conn.db_dir, db_pth)
+  conn = db.conn
+  uid = addDocument(conn, test_bibtex, doc_src=pdf_path); assert uid
+  fm = FileManipulator(uid, conn)
+  dp = DataPoint(fm)
 
-testFileManipulator(fm)
+  assert fm.conn.db_dir == db_pth, (fm.conn.db_dir, db_pth)
 
-pprint(dp.summary)
+  testFileManipulator(fm)
 
-db = DataBase().init(db_pth)
-print(db)
+  pprint(dp.summary)
+
+  print(db)

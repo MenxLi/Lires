@@ -32,14 +32,23 @@ def _getFileExt(fpath: str):
         ext = "." + ext
     return ext
 
+def _addDocumentFileBlob(db_conn: DBConnection, uid: str, file_blob: bytes, ext: str):
+    """
+    Create document in database directory
+    """
+    assert ext.startswith(".")
+    dst = os.path.join(db_conn.db_dir, uid + ext)
+    with open(dst, "wb") as f:
+        f.write(file_blob)
+    db_conn.setDocExt(uid, ext)
+
 def _addDocumentFile(db_conn: DBConnection, uid: str, src: str):
     """
     Copy document to database directory
     """
     ext = _getFileExt(src)
-    dst = os.path.join(db_conn.db_dir, uid + ext)
-    shutil.copyfile(src, dst)
-    db_conn.setDocExt(uid, ext)
+    with open(src, "rb") as f:
+        _addDocumentFileBlob(db_conn, uid, f.read(), ext)
 
 def addDocument(
         db_conn: DBConnection, 
@@ -260,15 +269,38 @@ class FileManipulator:
             return True
     
     def addFile(self, extern_file_p) -> bool:
+        """
+        add file to the database, will copy the file to the database directory
+        """
+        doc_ext = _getFileExt(extern_file_p)
         if self.hasFile():
             self.logger.warn("The file is already existing")
             return False
-        doc_ext = _getFileExt(extern_file_p)
         if doc_ext not in ACCEPTED_EXTENSIONS:
             self.logger.warn("The file extension is not supported")
             return False
-        _addDocumentFile(self.conn, self.uuid, extern_file_p)
-        self.logger.debug("(fm) addFile: {}".format(self.uuid))
+        with open(extern_file_p, "rb") as f:
+            file_blob = f.read()
+        return self.__addRawFileBlob(file_blob, doc_ext)
+    
+    def addFileBlob(self, file_blob: bytes, ext: str) -> bool:
+        """
+        add binary file to the database, will create the file in the database directory
+        """
+        if self.hasFile():
+            self.logger.warn("The file is already existing")
+            return False
+        if ext not in ACCEPTED_EXTENSIONS:
+            self.logger.warn("The file extension is not supported")
+            return False
+        return self.__addRawFileBlob(file_blob, ext)
+    
+    def __addRawFileBlob(self, file_blob: bytes, ext: str) -> bool:
+        """
+        add binary file to the database, without condition check
+        """
+        _addDocumentFileBlob(self.conn, self.uuid, file_blob, ext)
+        self.logger.debug("(fm) __addRawFileBlob: {}".format(self.uuid))
         self._log()
         return True
 
