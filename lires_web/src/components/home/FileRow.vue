@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 
-    import { ref, computed, onActivated, onDeactivated, watch } from 'vue';
+    import { ref, computed, watch } from 'vue';
     import FileRowMore from './FileRowMore.vue';
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
@@ -173,18 +173,27 @@
 
     // shortcut to edit datapoint information
     function shortcutEdit(event: KeyboardEvent){
-        if (event.code === "Space" && g_unfoldedIds.value.includes(props.datapoint.summary.uuid) && moreComponent.value?.shouldEnableEditDatapoint){
-            // not working sometimes ... ?
-            moreComponent.value?.editThisDatapoint();
-            event.preventDefault();
+        if (event.code === "Space" 
+            && g_unfoldedIds.value.includes(props.datapoint.summary.uuid)
+            && isDataCardHover.value
+            ){
+            if (moreComponent.value?.shouldEnableEditDatapoint){
+                moreComponent.value?.editThisDatapoint();
+                event.preventDefault();
+            }
         }
     }
-    onActivated(()=>{
-        window.addEventListener("keydown", shortcutEdit);
-    })
-    onDeactivated(()=>{
-        window.removeEventListener("keydown", shortcutEdit);
-    })
+    watch(
+        () => g_unfoldedIds.value,
+        (newVal) => {
+            if (newVal.includes(props.datapoint.summary.uuid)){
+                window.addEventListener("keydown", shortcutEdit);
+            }
+            else{
+                window.removeEventListener("keydown", shortcutEdit);
+            }
+        }
+    )
 </script>
 
 <template>
