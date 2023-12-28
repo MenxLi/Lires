@@ -176,6 +176,7 @@
         if (event.code === "Space" 
             && g_unfoldedIds.value.includes(props.datapoint.summary.uuid)
             && isDataCardHover.value
+            && document.activeElement === document.body
             ){
             if (moreComponent.value?.shouldEnableEditDatapoint){
                 moreComponent.value?.editThisDatapoint();
