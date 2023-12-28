@@ -6,9 +6,11 @@
 }
 body {
     font-family: "Microsoft YaHei", "微软雅黑", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    /* font-size: ; */
-    width: min(960px, 100%);
     line-height: 1.5;
+    width: min(960px, 90%);
+    left: auto;
+    right: auto;
+    text-align: justify;
 }
 h1 {
     font-size: 2em;
@@ -32,12 +34,22 @@ code{
 }
 
 div.aside{
+    padding: 5px;
     margin-top: 1em;
     margin-bottom: 1em;
-    padding: 0.5em;
     border: 1px solid #e1e4e8;
     border-radius: 3px;
     background-color: #f6f8fa;
-    width: 100%;
     color: #586069;
+}
+
+img{
+    margin-right: 10px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 2px 5px 10px -1px #555;
+    /* clip-path: inset(0 0 0 0 round 5px); */
+}
+img:hover{
+    box-shadow: 8px 8px 3px 0px #666;
 }
