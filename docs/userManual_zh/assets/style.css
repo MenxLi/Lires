@@ -30,3 +30,14 @@ code{
     margin-left: 1px;
     margin-right: 1px;
 }
+
+div.aside{
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding: 0.5em;
+    border: 1px solid #e1e4e8;
+    border-radius: 3px;
+    background-color: #f6f8fa;
+    width: 100%;
+    color: #586069;
+}
