@@ -37,7 +37,8 @@ function initElement() {
     }
 }
 
-function replaceKeyword() {
+async function replaceKeyword() {
+    const startTime = new Date().getTime();
     const keywordURL = {
         "数据卡片": "./datacard.html",
         "扩展数据卡": "./datacard.html",
@@ -58,6 +59,7 @@ function replaceKeyword() {
         "推动页面": "./route.html#sec-feed",
         "关于页面": "./route.html#sec-about",
 
+        "工具栏": "./toolbar.html",
     }
     // repace keyword with link
     const requiredSections = document.querySelectorAll('.init-keyword')
@@ -70,6 +72,13 @@ function replaceKeyword() {
         if (url === aim){
             continue;
         }
+
+        // make an async break, so that the page can be rendered first?
+        await new Promise((resolve)=>{
+            setTimeout(()=>{
+                resolve();
+            }, 0)
+        })
 
         requiredSections.forEach((item)=>{
             const candidateInnerHtml = item.innerHTML;
@@ -93,6 +102,7 @@ function replaceKeyword() {
             item.innerHTML = newInnerHtml;
         })
     }
+    console.log("Time for keyword replacement: ", new Date().getTime()-startTime, "ms")
 }
 
 window.onload = ()=>{

@@ -55,4 +55,6 @@ img{
 }
 img:hover{
     box-shadow: 8px 8px 3px 0px #666;
+    transform: scale(1.01);
+    /* cursor: zoom-in; */
 }
