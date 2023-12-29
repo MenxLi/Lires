@@ -51,15 +51,20 @@ async function replaceKeyword() {
         "添加文档": "./add-document.html",
         "删除文档": "./add-document.html",
 
-        "登陆页面": "./route.html#sec-login",
+        "登录页面": "./route.html#sec-login",
         "主界面": "./route.html#sec-main",
+        "主页面": "./route.html#sec-main",
         "主页": "./route.html#sec-main",
         "阅读器": "./route.html#sec-reader",
         "仪表盘": "./route.html#sec-dashboard",
-        "推动页面": "./route.html#sec-feed",
+        "推送页面": "./route.html#sec-feed",
         "关于页面": "./route.html#sec-about",
 
         "工具栏": "./toolbar.html",
+
+        "向量搜索": "./filter-entry.html#sec-vector-search",
+        "情境搜索": "./filter-entry.html#sec-vector-search",
+        "语义搜索": "./filter-entry.html#sec-vector-search",
     }
     // repace keyword with link
     const requiredSections = document.querySelectorAll('.init-keyword')
