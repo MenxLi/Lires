@@ -49,31 +49,48 @@ function replaceKeyword() {
         "添加和删除文档": "./add-document.html",
         "添加文档": "./add-document.html",
         "删除文档": "./add-document.html",
+
+        "登陆页面": "./route.html#sec-login",
+        "主界面": "./route.html#sec-main",
+        "主页": "./route.html#sec-main",
+        "阅读器": "./route.html#sec-reader",
+        "仪表盘": "./route.html#sec-dashboard",
+        "推动页面": "./route.html#sec-feed",
+        "关于页面": "./route.html#sec-about",
+
     }
     // repace keyword with link
-    const keywordSections = document.querySelectorAll('.init-keyword')
+    const requiredSections = document.querySelectorAll('.init-keyword')
     for (const keyword of Object.keys(keywordURL)){
-        // check if this is the url
-        if (keywordURL[keyword].endsWith(window.location.pathname)){
+        // check if this is the url (without hash and query)
+        const __url = window.location.href.split('#')[0].split('?')[0];
+        const url = __url.split('/').pop();
+        const __aim = keywordURL[keyword].split('#')[0].split('?')[0];
+        const aim = __aim.split('/').pop();
+        if (url === aim){
             continue;
         }
 
-        keywordSections.forEach((item)=>{
+        requiredSections.forEach((item)=>{
             const candidateInnerHtml = item.innerHTML;
-            if (candidateInnerHtml.includes(keyword)){
-
-                // check if keyword is in already part of a link
-                // const keywordPos = candidateInnerHtml.indexOf(keyword);
-                // if (candidateInnerHtml.slice(keywordPos-1, keywordPos) === '>'){ return; }
-                // if (candidateInnerHtml.slice(keywordPos+keyword.length, keywordPos+keyword.length+2) === '</a'){ return; }
-
-                // replace keyword with link
-                const newInnerHtml = candidateInnerHtml.replace(
-                    keyword,
-                    `<a href="${keywordURL[keyword]}">${keyword}</a>`
-                )
-                item.innerHTML = newInnerHtml;
+            // console.log(keyword, candidateInnerHtml, candidateInnerHtml.indexOf(keyword))
+            if (!candidateInnerHtml.includes(keyword)){
+                return;
             }
+
+            // check if keyword is in already part of a link
+            // const keywordPos = candidateInnerHtml.indexOf(keyword);
+            // if (candidateInnerHtml.slice(keywordPos-'class="keyword">'.length, keywordPos) === 'class="keyword">')
+            //     { return; }
+            // if (candidateInnerHtml.slice(keywordPos+keyword.length, keywordPos+keyword.length+4) === '</a>')
+            //     { return; }
+
+            // replace keyword with link
+            const newInnerHtml = candidateInnerHtml.replaceAll(
+                keyword,
+                `<a href="${keywordURL[keyword]}" class="keyword">${keyword}</a>`
+            )
+            item.innerHTML = newInnerHtml;
         })
     }
 }
