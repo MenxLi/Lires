@@ -40,8 +40,9 @@ docker exec lrs lrs-utils download_pdfjs
 ```
 Now open the browser and visit the WebUI at `http://localhost:8080`.
 
-**Please refer to the documents for more details on [getting started](docs/gettingStarted.md).**
+**Please refer to the documents for more details on [the deployment](docs/gettingStarted.md).**
 
 # Manuals and documentations
 - [Getting started](docs/gettingStarted.md)
 - [Development](docs/devGuide.md)
+- [User manual - 中文](docs/userManual_zh/index.html) (WIP...)
