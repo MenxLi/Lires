@@ -3,7 +3,7 @@ const nav = document.querySelector('#init-nav')
 if (nav){
     nav.innerHTML = `
         <div class="nav-container">
-            <a href="./index.html">返回首页</a>
+            <a href="./index.html">⬅️ 返回首页</a>
         </div>
     `
 }
@@ -17,13 +17,20 @@ function backToTop() {
 
 const footer = document.querySelector('#init-footer')
 if (footer){
+    const __thisFileName = window.location.pathname.split('/').pop()
+    const __thisFileURL = `https://github.com/MenxLi/Lires/blob/dev/docs/userManual_zh/${__thisFileName}`
     footer.innerHTML = `
+        <hr>
         <div class="footer-container">
-            ${
-            document.querySelector("body").clientHeight > window.innerHeight ?
-            '<a onclick="backToTop()" style="cursor: pointer;">返回顶部</a>': ''
-            }
-            <p>&copy; 2023 <a href="https://github.com/menxli">李梦寻</a></p>
+            <p>
+                <a href="${__thisFileURL}">编辑此页</a>
+                ${
+                document.querySelector("body").clientHeight > window.innerHeight ?
+                ' | <a onclick="backToTop()" style="cursor: pointer;">返回顶部</a>': ''
+                }
+                <br>
+                &copy; 2023 李梦寻
+            </p>
         </div>
     `
 }
