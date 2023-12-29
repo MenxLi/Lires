@@ -105,7 +105,15 @@ async function replaceKeyword() {
     console.log("Time for keyword replacement: ", new Date().getTime()-startTime, "ms")
 }
 
+function formatImage(){
+    const images = document.querySelectorAll('img');
+    for (const image of images){
+        image.style.maxWidth = "100%";
+    }
+}
+
 window.onload = ()=>{
     initElement();
     replaceKeyword();
+    formatImage();
 }
