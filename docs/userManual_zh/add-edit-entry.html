@@ -13,57 +13,63 @@
       <nav id="init-nav"></nav>
     </header>
 
-    <p>
-        通过点击主页右上角的<code>添加条目 (New)</code>按钮，或点击扩展数据卡中的<code>Edit</code>按钮，
-        可以进入条目编辑页面。条目编辑页面中可编辑包括文献信息、标签和URL在内的条目信息。<br>
-        <!--
-        <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-addEntryBtn.png" alt="addEntry" style="height:60px;" />
-        <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-editEntryBtn-v1.3.0.png" alt="editEntry" style="height:60px"/> <br>
-        -->
-    </p>
+    <section class="init-keyword">
+      <p>
+          通过点击主页右上角的<code>添加条目 (New)</code>按钮，或点击扩展数据卡中的<code>Edit</code>按钮，
+          可以进入条目编辑页面。条目编辑页面中可编辑包括文献信息、标签和URL在内的条目信息。<br>
+          <!--
+          <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-addEntryBtn.png" alt="addEntry" style="height:60px;" />
+          <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-editEntryBtn-v1.3.0.png" alt="editEntry" style="height:60px"/> <br>
+          -->
+      </p>
 
-    <p>
-        下方展示了条目编辑界面，在界面左侧可以输入文献信息（目前支持bibtex、endnote和nbib格式）和URL，右侧可以添加标签。<br>
-        <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-newEntry-v1.3.0.png" alt="newEntry" style="width:400px;" />
-    </p>
+      <p>
+          下方展示了条目编辑界面，在界面左侧可以输入文献信息（目前支持bibtex、endnote和nbib格式）和URL，右侧可以添加标签。<br>
+          <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-newEntry-v1.3.0.png" alt="newEntry" style="width:400px;" />
+      </p>
 
-    <div class="aside">
-      当数据卡片展开，并且鼠标悬停在数据卡片上时，可以使用空格键进入编辑界面
-    </div>
+      <div class="aside">
+        当数据卡片展开，并且鼠标悬停在数据卡片上时，可以使用空格键进入编辑界面
+      </div>
+    </section>
 
-    <h2>文献信息录入</h2>
-    <p>
-        当上述窗口打开时，除了手动粘贴录入文献信息，还可使用如下方式提升信息输入效率：
-        <ol>
-            <li>
-                向信息输入框内拖入文本文档（如bibtex文件），此时将会将文本文档内容读取并输入文献信息栏。<br>
-                <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-newEntryDrop-v1.3.0.png" style="width:200px"/>
-            </li>
-            <li>
-                当有文献索引号（如ArXiv ID、DOI）时，可以点击<code>Bibtex</code>标签旁的<code>from-source</code>按钮，此时将弹出如下界面，可使尝试使用文献索引号从网络获取文献信息。<br>
-                <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-bibtexFromSource-v1.3.0.png" alt="fromSource" style="width:200px;" />
-            </li>
-            <li>
-                当需要完全手动输入时，可以点击<code>Bibtex</code>标签旁的<code>template</code>，此时可以选择插入bibtex模版，以辅助录入<br>
-            </li>
-        </ol>
-    </p>
+    <section class="init-keyword">
+      <h2>文献信息录入</h2>
+      <p>
+          当上述窗口打开时，除了手动粘贴录入文献信息，还可使用如下方式提升信息输入效率：
+          <ol>
+              <li>
+                  向信息输入框内拖入文本文档（如bibtex文件），此时将会将文本文档内容读取并输入文献信息栏。<br>
+                  <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-newEntryDrop-v1.3.0.png" style="width:200px"/>
+              </li>
+              <li>
+                  当有文献索引号（如ArXiv ID、DOI）时，可以点击<code>Bibtex</code>标签旁的<code>from-source</code>按钮，此时将弹出如下界面，可使尝试使用文献索引号从网络获取文献信息。<br>
+                  <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-bibtexFromSource-v1.3.0.png" alt="fromSource" style="width:200px;" />
+              </li>
+              <li>
+                  当需要完全手动输入时，可以点击<code>Bibtex</code>标签旁的<code>template</code>，此时可以选择插入bibtex模版，以辅助录入<br>
+              </li>
+          </ol>
+      </p>
+    </section>
 
-    <h2>标签录入</h2>
-    <p>
-        通过右侧的标签栏即可选择现有标签或添加新标签。
-        标签栏选择框内显示标签为文献库中所有标签的集合，通过点击即可选择现有标签。
-        标签支持多级嵌套，当需要添加新的多级标签时，需要使用<code>-></code>符号将层级标签相连，如下图所示：<br>
-        <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-addTag-v1.3.0.png" style="width:200px"/> <br>
-        在输入新标签后，<code>ADD</code>按钮会高亮显示，点击即可添加新标签。
-    </p>
+    <section class="init-keyword">
+      <h2>标签录入</h2>
+      <p>
+          通过右侧的标签栏即可选择现有标签或添加新标签。
+          标签栏选择框内显示标签为文献库中所有标签的集合，通过点击即可选择现有标签。
+          标签支持多级嵌套，当需要添加新的多级标签时，需要使用<code>-></code>符号将层级标签相连，如下图所示：<br>
+          <img src="https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires-addTag-v1.3.0.png" style="width:200px"/> <br>
+          在输入新标签后，<code>ADD</code>按钮会高亮显示，点击即可添加新标签。
+      </p>
 
-    <h2>URL录入</h2>
-    <p>
-        通过在URL栏内输入即可添加URL。
-        URL的作用是作为条目的补充信息，或作为网页文献的替代品。
-        当没有上传文件时，将以URL作为文件的替代品。
-    </p>
+      <h2>URL录入</h2>
+      <p>
+          通过在URL栏内输入即可添加URL。
+          URL的作用是作为条目的补充信息，或作为网页文献的替代品。
+          当没有上传文件时，将以URL作为文件的替代品。
+      </p>
+    </section>
 
     <footer id='init-footer'></footer>
   </body>
