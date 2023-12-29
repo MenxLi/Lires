@@ -54,7 +54,6 @@ function replaceKeyword() {
     const keywordSections = document.querySelectorAll('.init-keyword')
     for (const keyword of Object.keys(keywordURL)){
         // check if this is the url
-        console.log(window.location.pathname)
         if (keywordURL[keyword].endsWith(window.location.pathname)){
             continue;
         }
