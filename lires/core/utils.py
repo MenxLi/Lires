@@ -303,3 +303,16 @@ class BCOLORS:
     LIGHTBLUE = '\033[94m'
     LIGHTMAGENTA = '\033[95m'
     LIGHTCYAN = '\033[96m'
+
+class UseTermColor:
+    def __init__(self, term_color: str):
+        try:
+            self._c = getattr(BCOLORS, term_color.upper())
+        except KeyError:
+            self._c = term_color
+    
+    def __enter__(self):
+        print(self._c, end = "")
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        print(BCOLORS.ENDC, end = "")

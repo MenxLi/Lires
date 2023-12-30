@@ -1,18 +1,19 @@
 import fitz     # PyMuPDF
 from typing import Optional
 import os
-import logging
 import requests, os, zipfile
 from tqdm import tqdm
+from .utils import UseTermColor
 from ..confReader import PDF_VIEWER_DIR, TMP_DIR
 
-# DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v3.0.279/pdfjs-3.0.279-dist.zip"
-DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v3.7.107/pdfjs-3.7.107-dist.zip"
+DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.0.269/pdfjs-4.0.269-dist.zip"
 
-def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL) -> bool:
-    if os.path.exists(PDF_VIEWER_DIR):
-        print("Should delete old pdf.js viewer first: ", PDF_VIEWER_DIR)
-        print("call: rm -rf {}".format(PDF_VIEWER_DIR))
+def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL, force: bool = False) -> bool:
+    print("Will download pdfjs and place it to: {}".format(PDF_VIEWER_DIR))
+    if not force and os.path.exists(PDF_VIEWER_DIR):
+        with UseTermColor("red"):
+            print("Should delete old pdf.js viewer first: ", PDF_VIEWER_DIR)
+            print("call: rm -rf {}".format(PDF_VIEWER_DIR))
         return False
     tmp_download = os.path.join(TMP_DIR, "pdfjs.zip")
     print("Downloading pdf.js from {}".format(download_url))
@@ -47,6 +48,11 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
     print("Finished. downloaded PDF.js to: {}".format(PDF_VIEWER_DIR))
     os.remove(tmp_download)
     return True
+
+if not os.path.exists(PDF_VIEWER_DIR) \
+    or os.listdir(PDF_VIEWER_DIR)==[] \
+    or not os.path.exists(os.path.join(PDF_VIEWER_DIR, "web", "viewer.html")):
+    downloadDefaultPDFjsViewer(force=True)
 
 # https://pymupdf.readthedocs.io/en/latest/index.html
 class PDFAnalyser:

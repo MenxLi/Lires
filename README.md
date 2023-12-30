@@ -33,10 +33,9 @@ git submodule update --init --recursive
 ```sh
 docker compose up
 
-# register a user and download pdf.js viewer on the first run 
+# register a user on the first run 
 # no need to run again if the container is re-created / re-started
 docker exec lrs lrs-user add <username> <password> --admin
-docker exec lrs lrs-utils download_pdfjs
 ```
 Now open the browser and visit the WebUI at `http://localhost:8080`.
 

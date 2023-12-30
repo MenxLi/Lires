@@ -16,6 +16,7 @@ venv
 .DS_Store
 .TempDir
 .cache
+lires/assets/pdf-viewer
 
 # building process generated
 **/package-lock.json

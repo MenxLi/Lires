@@ -108,11 +108,9 @@ The configuration file designates the environment variables, as well as the comm
 
 ### On the first run
 **On the first run** you need to create a user account, which can be done by running the `lrs-user` command in the container.
-and you also need to download the pdf.js viewer to serve pdf with the viewer in LiresWeb.
 ```sh
 # export LRS_HOME="..."
 lrs-user add <username> <password> --admin
-lrs-utils download_pdfjs
 ```
 After the user is created, you can manage other users with this user via the web interface.
 
@@ -144,11 +142,10 @@ You can edit the configuration file to change the server settings.
 **To maximize the compatibility, The container image by default does not use GPU for AI features.**  
 
 ### On the first run
-The same as manual deployment, you need to add a user account and download the pdf.js viewer on the first run. 
-The user information and pdf.js viewer will be stored in the volume mapping directory, so that they will not be lost when the container is removed.
+The same as manual deployment, you need to add a user account on the first run. 
+The user information will be stored in the volume mapping directory, so that they will not be lost when the container is removed.
 ```sh
 docker exec lrs lrs-user add <username> <password> --admin
-docker exec lrs lrs-utils download_pdfjs
 ```
 
 ---

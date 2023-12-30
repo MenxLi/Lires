@@ -11,7 +11,6 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 # a schematic ascii image of the file tree
 # LRS_HOME
 # ├── config.json
-# ├── pdf-viewer
 # ├── log
 # │   ├── core.log
 # │   └── server.log
@@ -30,6 +29,9 @@ WEBPAGE = "https://github.com/MenxLi/ResBibManager"
 __this_file_path = os.path.abspath(os.path.realpath(__file__))
 
 CURR_PATH = os.path.abspath(os.path.dirname(__this_file_path))
+ASSETS_DIR = join(CURR_PATH, "assets")
+PDF_VIEWER_DIR = join(ASSETS_DIR, "pdf-viewer")
+
 if "LRS_HOME" in os.environ:
     LRS_HOME = os.environ["LRS_HOME"]
 else:
@@ -51,7 +53,6 @@ INDEX_DIR = os.path.join(LRS_HOME, "index")      # For index cache
 VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
 DOC_SUMMARY_DIR = os.path.join(INDEX_DIR, "summary")
 
-PDF_VIEWER_DIR = join(LRS_HOME, "pdf-viewer")
 LOG_DIR = os.path.join(LRS_HOME, "log")          # For log files
 LOG_FILE = join(LRS_HOME, "default.txt")    # may deprecate this
 
