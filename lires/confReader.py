@@ -64,7 +64,7 @@ ACCEPTED_EXTENSIONS = [".pdf"]
 # Create directories if they don't exist
 if not os.path.exists(LRS_HOME):
     os.mkdir(LRS_HOME)
-for _p in [TMP_DIR]:
+for _p in [ASSETS_DIR, TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 for _p in [
