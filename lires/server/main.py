@@ -159,7 +159,7 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
         )
 
     # tornado.ioloop.IOLoop.current().add_callback(buildIndex)
-    pc = tornado.ioloop.PeriodicCallback(buildIndex, 60*60*1000)  # in milliseconds
+    pc = tornado.ioloop.PeriodicCallback(buildIndex, 12*60*60*1000)  # in milliseconds
     pc.start()
 
     tornado.ioloop.IOLoop.current().start()
