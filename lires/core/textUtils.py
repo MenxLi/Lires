@@ -41,16 +41,17 @@ def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -
 
 FeatureQueryResult = TypedDict("FeatureQueryResult", {"uids": list[str], "scores": list[float]})
 
+FeatureTextSourceT = TypedDict("FeatureTextSource", {
+            "text": str, 
+            "hash": str,
+            "type": Literal["abstract", "summary", "fulltext", "title"]},
+            )
 async def getFeatureTextSource(
         iconn: Optional[IServerConn], 
         dp: DataPoint, 
         max_words_per_doc: Optional[int] = None, 
         print_fn: Callable[[str], None] = lambda x: None
-        )-> TypedDict("FeatureTextSource", {
-            "text": str, 
-            "hash": str,
-            "type": Literal["abstract", "summary", "fulltext", "title"]},
-            ):
+        )-> FeatureTextSourceT:
     """
     Extract text source from a document for feature extraction.
     Priority: abstract > ai summary > fulltext > title
@@ -275,6 +276,7 @@ async def retrieveRelevantSections(
     if verbose: print(f"Query: {query_text}")
     query_text = query_text.replace("\n", " ")
     query_vec = iconn.featurize(query_text)
+    assert query_vec is not None
 
 
     __non_english_regex = re.compile(r'[^a-zA-Z0-9\s\.\,\;\:\!\?\-\'\"\(\)\[\]\{\}\&\%\$\#\@\!\~\`\+\=\_\\\/\*\^]+')
@@ -289,7 +291,9 @@ async def retrieveRelevantSections(
         if __containsNoneEnglish(sentence):
             continue
 
-        src_vec_dict[sentence] = iconn.featurize(sentence)
+        sentence_feat = iconn.featurize(sentence)
+        assert sentence_feat is not None
+        src_vec_dict[sentence] = sentence_feat
     
     # compute the similarity
     vec_col = tiny_vectordb.VectorCollection(None, "_feature", 768)
