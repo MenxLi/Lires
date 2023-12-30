@@ -1,6 +1,6 @@
 import fitz     # PyMuPDF
 from typing import Optional
-import os
+import os, time
 import requests, os, zipfile
 from tqdm import tqdm
 from .utils import UseTermColor
@@ -49,10 +49,23 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
     os.remove(tmp_download)
     return True
 
+__downloading_lock = os.path.join(os.path.dirname(PDF_VIEWER_DIR), "pdfjs_downloading.lock")
+while os.path.exists(__downloading_lock):
+    __this_pid = os.getpid()
+    print(f"[{__this_pid}] Waiting for other process to download pdfjs..."
+            f"lock file: {__downloading_lock}")
+    time.sleep(1)
 if not os.path.exists(PDF_VIEWER_DIR) \
     or os.listdir(PDF_VIEWER_DIR)==[] \
     or not os.path.exists(os.path.join(PDF_VIEWER_DIR, "web", "viewer.html")):
-    downloadDefaultPDFjsViewer(force=True)
+    open(__downloading_lock, "w").close()
+    try:
+        downloadDefaultPDFjsViewer(force=True)
+    except Exception as e:
+        with UseTermColor("red"):
+            print("ERROR: {}".format(e))
+    finally:
+        os.remove(__downloading_lock)
 
 # https://pymupdf.readthedocs.io/en/latest/index.html
 class PDFAnalyser:
