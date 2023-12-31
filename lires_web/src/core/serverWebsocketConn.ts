@@ -45,18 +45,22 @@ export function getSessionConnection(): ServerWebsocketConn{
 export class ServerWebsocketConn{
     declare ws: WebSocket
     declare sessionID: string
+    declare __remainingRetries: number
     declare __eventCallback_records: {
         onopenCallback: ()=>void,
         onmessageCallback: (arg: MessageEvent)=>void,
         oncloseCallback: ()=>void
+        onfailedToConnectCallback: ()=>void
     }
 
     constructor(){
+        this.resetRemainingRetries();
         this.sessionID = sha256(Date.now().toString()).slice(0, 16);
         this.__eventCallback_records = {
             onopenCallback: ()=>{},
             onmessageCallback: (_)=>{},
-            oncloseCallback: ()=>{}
+            oncloseCallback: ()=>{},
+            onfailedToConnectCallback: ()=>{}
         }
     }
 
@@ -64,19 +68,24 @@ export class ServerWebsocketConn{
         return useSettingsStore();
     }
 
+    private resetRemainingRetries=()=>{this.__remainingRetries = 100;}
+    private decreaseRemainingRetries=()=>{this.__remainingRetries -= 1;}
     public isOpen=()=>(this.ws)?(this.ws.readyState === WebSocket.OPEN):false;
+    public willTryReconnect=()=>this.__remainingRetries > 0;
 
     public init({
         onopenCallback = ()=>{},
         onmessageCallback = (_: MessageEvent)=>{},
-        oncloseCallback = ()=>{}
+        oncloseCallback = ()=>{},
+        onfailedToConnectCallback = ()=>{}
     } = {}
     ): ServerWebsocketConn{
         // keep a record of the callback functions, so that we can re-init the websocket connection
         this.__eventCallback_records = {
             onopenCallback,
             onmessageCallback,
-            oncloseCallback
+            oncloseCallback,
+            onfailedToConnectCallback,
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -107,19 +116,25 @@ export class ServerWebsocketConn{
         this.ws.onopen = () => {
             console.log("connected to server websocket");
             onopenCallback();
+            this.resetRemainingRetries()
         }
         this.ws.onclose = () => {
-            console.log("server websocket closed, will try to reconnect in 10 second");
+            console.log("server websocket closed, will try to reconnect in 3 second");
             oncloseCallback();
-            new Promise(r => setTimeout(r, 10000)).then(
-                () => {
-                    if (this.ws.readyState === WebSocket.CLOSED) this.init({
-                        onopenCallback,
-                        onmessageCallback,
-                        oncloseCallback
-                    })
-                }
-            )
+            if (this.willTryReconnect()){
+                this.decreaseRemainingRetries();
+                new Promise(r => setTimeout(r, 3000)).then(
+                    () => {
+                        if (this.ws.readyState === WebSocket.CLOSED) this.init({
+                            onopenCallback,
+                            onmessageCallback,
+                            oncloseCallback,
+                            onfailedToConnectCallback,
+                        })
+                    });
+            }else{
+                onfailedToConnectCallback();
+            }
         }
 
         return this;
@@ -139,6 +154,7 @@ export class ServerWebsocketConn{
         if (this.ws.readyState === WebSocket.OPEN){
             this.ws.close();
         }
+        this.resetRemainingRetries()
         this.init(this.__eventCallback_records);
     }
 

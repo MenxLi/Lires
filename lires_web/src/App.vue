@@ -46,11 +46,13 @@
 
     // session connection status hint
     const __sessionConnected = ref(false)
+    const __sessionFailed = ref(false)
     const __isInLoginPage = ref(window.location.hash.split('?')[0] === "#/login")
     router.afterEach((to, _) => {
         __isInLoginPage.value = to.path === "/login"
     })
-    const showConnectionHint = computed(()=>!__sessionConnected.value && !__isInLoginPage.value)
+    const showConnectionHint = computed(()=>!__sessionConnected.value && !__isInLoginPage.value && !__sessionFailed.value)
+    const showConnectionFailedHint = computed(()=>__sessionFailed.value && !__isInLoginPage.value)
 
     // Authentication on load
     function onLogin(){
@@ -58,8 +60,12 @@
         console.log("Logged in.")
         // initialize session connection if it's not been
         getSessionConnection().init({
-            onopenCallback: () => __sessionConnected.value = true,
+            onopenCallback: () => {
+                __sessionConnected.value = true
+                __sessionFailed.value = false
+            },
             oncloseCallback: () => __sessionConnected.value = false,
+            onfailedToConnectCallback: () => __sessionFailed.value = true,
         });
         uiState.reloadDatabase();
     }
@@ -142,6 +148,19 @@
         </Popup>
     </div>
     <LoadingPopout text="connecting..." v-if="showConnectionHint"></LoadingPopout>
+    <Popup v-if="showConnectionFailedHint" styleType="info" position="center">
+        <div style="display: flex; flex-direction: column; align-items: center; margin: 10px">
+            <div>
+                <div style="font-size: 2em; font-weight: bold; color: var(--color-red)">Failed to connect to server</div>
+                <div style="color: gray">Maximum retry exceeded</div>
+            </div>
+            <div style="font-size: 1.2em; margin-top: 10px;">
+                Please check if the server is running, 
+                make sure your network is working properly, 
+                and try to <b style="text-decoration:underline">reload the page</b>.
+            </div>
+        </div>
+    </Popup>
     <div id="app">
         <!-- https://stackoverflow.com/a/65619387/6775765 -->
         <router-view v-slot="{Component}">

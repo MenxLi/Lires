@@ -7,8 +7,10 @@
     
     const props=withDefaults(defineProps<{
         styleType?: PopupStyle
+        position?: "top-center" | "center"
     }>(),{
-        styleType: "info"
+        styleType: "info",
+        position: "top-center"
     })
 
     const stylePopup = computed(
@@ -47,10 +49,33 @@
         }
     )
 
+    const stylePopupPosition = computed(
+        ()=>{
+            if (props.position === "top-center"){
+                return {
+                    top: "30px",
+                    left: "50%",
+                    transform: "translate(-50%, 0)"
+                }
+            }
+            if (props.position === "center"){
+                return {
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)"
+                }
+            }
+            throw Error("Incorrect style.")
+        }
+    )
+
 </script>
 
 <template>
-    <div id="popup" :style="stylePopup">
+    <div id="popup" :style="{
+        ...stylePopup,
+        ...stylePopupPosition
+        }">
         <slot></slot>
     </div>
 </template>
@@ -68,9 +93,6 @@
     }
     #popup{
         position: fixed;
-        top: 30px;
-        left: 50%;
-        transform: translate(-50%, 0);
         z-index: 100;
 
         display: flex;
