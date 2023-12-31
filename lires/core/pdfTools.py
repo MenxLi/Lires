@@ -1,6 +1,6 @@
 import fitz     # PyMuPDF
 from typing import Optional
-import os, time
+import os, time, random
 import requests, os, zipfile
 from tqdm import tqdm
 from .utils import UseTermColor
@@ -49,23 +49,29 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
     os.remove(tmp_download)
     return True
 
-__downloading_lock = os.path.join(os.path.dirname(PDF_VIEWER_DIR), "pdfjs_downloading.lock")
-while os.path.exists(__downloading_lock):
-    __this_pid = os.getpid()
-    print(f"[{__this_pid}] Waiting for other process to download pdfjs..."
-            f"lock file: {__downloading_lock}")
-    time.sleep(1)
-if not os.path.exists(PDF_VIEWER_DIR) \
-    or os.listdir(PDF_VIEWER_DIR)==[] \
-    or not os.path.exists(os.path.join(PDF_VIEWER_DIR, "web", "viewer.html")):
-    open(__downloading_lock, "w").close()
+def initPDFViewer():
+    if os.path.exists(PDF_VIEWER_DIR) \
+        and not os.listdir(PDF_VIEWER_DIR)==[] \
+        and os.path.exists(os.path.join(PDF_VIEWER_DIR, "web", "viewer.html")):
+        return None
+
+    lock_file = os.path.join(os.path.dirname(PDF_VIEWER_DIR), "pdfjs_downloading.lock")
+    this_pid = os.getpid()
+    while os.path.exists(lock_file):
+        print(f"[{this_pid}] Waiting for other process to download pdfjs..."
+                f"lock file: {lock_file}")
+        time.sleep(3)
+
+    time.sleep(random.random()*0.01)   # to avoid resouce conflict
+    with open(lock_file, "w") as f:
+        f.write(str(this_pid))
     try:
         downloadDefaultPDFjsViewer(force=True)
     except Exception as e:
         with UseTermColor("red"):
             print("ERROR: {}".format(e))
     finally:
-        os.remove(__downloading_lock)
+        os.remove(lock_file)
 
 # https://pymupdf.readthedocs.io/en/latest/index.html
 class PDFAnalyser:
