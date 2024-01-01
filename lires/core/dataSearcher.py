@@ -3,8 +3,8 @@ Search database by certain criteria
 """
 
 import re
-from typing import Dict, Optional, TypedDict
-from .dataClass import DataCore, DataBase
+from typing import Dict, Optional, TypedDict, Literal
+from .dataClass import DataCore, DataBase, DataTagT, DataPoint
 from .textUtils import queryFeatureIndex
 from tiny_vectordb import VectorDatabase
 
@@ -110,3 +110,30 @@ class DataSearcher(DataCore):
     def _searchRegex(self, pattern: str, aim: str, ignore_case: bool):
         res = re.search(pattern, aim, re.IGNORECASE if ignore_case else 0)
         return res
+
+
+SortType = Literal["DEFAULT", "year", "time_added", "time_modified"]
+SearchType = Literal["general", "title", "author", "year", "publication", "Note", "feature"]
+_ReleventContextT = TypedDict("_ReleventContextT", {
+    "text": str,
+    "index": list[tuple[int, int]]
+})
+class DataFilterResT(TypedDict):
+    datapoint: DataPoint
+    score: Optional[float]
+    relevent_context: list[_ReleventContextT]
+class FilterConditionT(TypedDict):
+    search_by: SearchType
+    search_pattern: str
+    tags: DataTagT
+def filterData(
+        db: DataBase,
+        include_conditions: list[FilterConditionT] = [],
+        exclude_conditions: list[FilterConditionT] = [],
+        sort_by: SortType = "DEFAULT",
+    ) -> list[DataFilterResT]:
+    """
+    A unified way to get data from the database
+    """
+    # TODO: implement later...
+    ...
