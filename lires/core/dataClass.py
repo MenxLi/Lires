@@ -119,7 +119,7 @@ class TagRule(DataCore):
                 if stripped == t:
                     continue
                 tags.remove(t)
-                tags.add(stripped)
+                tags.add(stripped)  # type: ignore
         else:
             for i in range(len(tags)):
                 tags[i] = cls.stripTag(tags[i])
@@ -540,7 +540,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         data = self.getDataByTags(DataTags([tag_old]))
         tag_new = TagRule.stripTag(tag_new)
-        self.logger.info(f"Renaming local tag: {tag_old} -> {tag_new}")
+        self.logger.info(f"Rename tag: {tag_old} -> {tag_new}")
         for d in data:
             d: DataPoint
             t = d.tags
@@ -555,7 +555,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         return if success
         """
         data = self.getDataByTags(DataTags([tag]))
-        self.logger.info(f"Deleting local tag: {tag}")
+        self.logger.info(f"Delete tag: {tag}")
         for d in data:
             d: DataPoint
             ori_tags = d.tags
@@ -564,7 +564,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
                 d.changeTags(after_deleted)
         return True
 
-    def findSimilarByBib(self, bib_str: str) -> Union[None, DataPoint]:
+    def findSimilarByBib(self, bib_str: str) -> Optional[DataPoint]:
         """
         Check if similar file already exists.
         """

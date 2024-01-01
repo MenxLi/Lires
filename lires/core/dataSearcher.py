@@ -108,8 +108,5 @@ class DataSearcher(DataCore):
         return {uid: {"score": score, "match": None} for uid, score in zip(search_res["uids"], search_res["scores"])}
     
     def _searchRegex(self, pattern: str, aim: str, ignore_case: bool):
-        if ignore_case:
-            res = re.search(pattern, aim, re.IGNORECASE)
-        else:
-            res = re.search(pattern, aim)
+        res = re.search(pattern, aim, re.IGNORECASE if ignore_case else 0)
         return res
