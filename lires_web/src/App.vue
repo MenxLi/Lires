@@ -15,6 +15,7 @@
     const settingStore = useSettingsStore();
 
     router.isReady().then(()=>{
+        /** deal with url params **/
         // check if backend port and backend host is set via url query
         if (router.currentRoute.value.query.backendPort){
             useSettingsStore().setBackendPort(router.currentRoute.value.query.backendPort as string);
@@ -22,6 +23,12 @@
         if (router.currentRoute.value.query.backendHost){
             useSettingsStore().setBackendHost(router.currentRoute.value.query.backendHost as string);
         }
+        // check if credentials are set via url query
+        if (router.currentRoute.value.query.credential){
+            useSettingsStore().setEncKey(router.currentRoute.value.query.credential as string, null);
+        }
+
+        /** authentication **/
         // if not on login page, try to authenticate with saved token
         if (window.location.hash.split('?')[0] !== "#/login"){
             console.log("Authenticating...");
