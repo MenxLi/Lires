@@ -43,7 +43,7 @@ async function replaceKeyword() {
         "数据卡片": "./datacard.html",
         "扩展数据卡": "./datacard.html",
 
-        "编辑和添加条目信息": "./add-edit-entry.html",
+        "编辑和添加条目": "./add-edit-entry.html",
         "添加条目信息": "./add-edit-entry.html",
         "编辑条目信息": "./add-edit-entry.html",
 

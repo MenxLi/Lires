@@ -2,7 +2,7 @@
     import { ServerConn } from '../core/serverConn';
     import { ref, computed } from 'vue';
     import { type Changelog } from '../core/protocalT';
-    import { getBackendURL, FRONTENDURL } from '../config';
+    import { getBackendURL, manualURL_zh } from '../config';
     import Banner from './common/Banner.vue';
     import FloatingWindow from './common/FloatingWindow.vue';
     import { registerServerEvenCallback } from '../core/serverWebsocketConn';
@@ -61,9 +61,6 @@
 
     registerServerEvenCallback('login', ()=>serverInfo.value.numConnections++);
     registerServerEvenCallback('logout', ()=>serverInfo.value.numConnections--);
-
-    const manualURL_zh = `${FRONTENDURL}/docs/userManual_zh/index.html`
-    
 </script>
 
 <template>

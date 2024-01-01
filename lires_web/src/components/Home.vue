@@ -27,6 +27,7 @@ export default {
 
     import type { SearchStatus } from "./interface";
     import { lazify } from "../libs/misc";
+    import { manualURL_zh } from "../config";
 
     // get data
     const uiState = useUIStateStore();
@@ -106,7 +107,17 @@ export default {
                     ></FileRowContainer>
 
                     <div id="blankPlaceholder" v-else>
-                        <p v-if="dataStore.database.initialized">Nothing to show</p>
+                        <p v-if="dataStore.database.initialized" style="
+                            font-size: xx-large;
+                            font-weight: bold;
+                            user-select: none;
+                        ">
+                            Nothing to show
+                            <p style="font-size: medium">
+                                Add your first file following the 
+                                <a :href="manualURL_zh">documentation</a>.
+                            </p>
+                        </p>
                         <LoadingWidget v-else></LoadingWidget>
                     </div>
 
@@ -160,11 +171,8 @@ export default {
     }
     #blankPlaceholder p{
         color: var(--color-border);
-        font-size: xx-large;
-        font-weight: bold;
         text-align: center;
         margin: 10px;
-        user-select: none;
     }
     .fullHeight{
         height: calc(100%);
