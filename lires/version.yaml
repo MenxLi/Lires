@@ -562,3 +562,12 @@ version_history:
       - Use put and delete methods for avatar and image
       - Remove some unused handlers
       - Improve file adding performance
+  1.3.1:
+    - Features:
+      - Prompt reload page on reach failed connection limit
+      - Add user manual
+    - Fix:
+      - Space shortcut for open data editor window
+    - Development chores:
+      - Update dependencies
+      - Auto pdf.js download
