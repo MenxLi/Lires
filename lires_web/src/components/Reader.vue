@@ -65,10 +65,22 @@ export default {
     }
     function changeLayout(){
         if (window.innerWidth < 800){
-            // only two layouts for small screen
+            // only full screen layout on small screen
             layoutType.value = (layoutType.value + 1)%2
         } else {
-            layoutType.value = (layoutType.value + 1)%3
+            // since v1.3.1a, remove note-only layout on large screen
+            // only document full screen (0) or document side by side with note (2)
+            switch (layoutType.value){
+                case 0:
+                    layoutType.value = 2;
+                    break;
+                case 1:
+                    layoutType.value = 2;
+                    break;
+                case 2:
+                    layoutType.value = 0;
+                    break;
+            }
         }
     }
 
