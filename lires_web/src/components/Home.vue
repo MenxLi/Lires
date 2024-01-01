@@ -170,7 +170,7 @@ export default {
         height: 100%;
     }
     #blankPlaceholder p{
-        color: var(--color-border);
+        color: var(--color-text-soft);
         text-align: center;
         margin: 10px;
     }

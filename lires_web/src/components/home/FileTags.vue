@@ -120,7 +120,7 @@
     div#title-buttons{
         display: flex;
         gap: 5px;
-        opacity: 0.1;
+        opacity: 0.15;
         transition: opacity 0.5s;
         transition-delay: opacity 0.2s;
     }
