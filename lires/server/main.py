@@ -21,6 +21,8 @@ from .handlers import *
 
 class DefaultRequestHandler(RequestHandlerBase):
     def get(self, *args, **kwargs):
+        # print path
+        self.logger.debug(f"DEFAULT_HANDLER: {self.request.full_url()}")
         html_page = """
         <!DOCTYPE html>
         <html>
