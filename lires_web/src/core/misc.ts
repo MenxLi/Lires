@@ -46,9 +46,9 @@ export class ThemeMode{
 
   // set default color scheme to be in according to session storage or system color scheme
   static setDefaultDarkMode(){
-    const sessionStorageThemeMode = sessionStorage.getItem("themeMode");
-    if (sessionStorageThemeMode === "dark"){ ThemeMode.setDarkMode(true); }
-    else if(sessionStorageThemeMode == "light"){ ThemeMode.setDarkMode(false);}
+    const localStorageThemeMode = localStorage.getItem("themeMode");
+    if (localStorageThemeMode === "dark"){ ThemeMode.setDarkMode(true); }
+    else if(localStorageThemeMode == "light"){ ThemeMode.setDarkMode(false);}
     else{ // null
       if (ThemeMode.isDefaultDarkMode() && !ThemeMode.isDarkMode()){
         ThemeMode.toggleDarkMode();
@@ -66,7 +66,7 @@ export class ThemeMode{
       document.documentElement.classList.remove("dark")
       document.documentElement.classList.add("light")
     }
-    sessionStorage.setItem("themeMode", mode?"dark":"light");
+    localStorage.setItem("themeMode", mode?"dark":"light");
   }
 }
 
