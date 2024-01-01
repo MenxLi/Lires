@@ -2,7 +2,7 @@
     import { ServerConn } from '../core/serverConn';
     import { ref, computed } from 'vue';
     import { type Changelog } from '../core/protocalT';
-    import { getBackendURL } from '../config';
+    import { getBackendURL, FRONTENDURL } from '../config';
     import Banner from './common/Banner.vue';
     import FloatingWindow from './common/FloatingWindow.vue';
     import { registerServerEvenCallback } from '../core/serverWebsocketConn';
@@ -61,6 +61,8 @@
 
     registerServerEvenCallback('login', ()=>serverInfo.value.numConnections++);
     registerServerEvenCallback('logout', ()=>serverInfo.value.numConnections--);
+
+    const manualURL_zh = `${FRONTENDURL}/docs/userManual_zh/index.html`
     
 </script>
 
@@ -75,7 +77,7 @@
             <p>
                 Lires is a self-hosted web application for research literature management. <br>
                 It is open source and available at <a href="https://github.com/MenxLi/Lires" target="_blank">GitHub - MenxLi/Lires</a>. <br>
-                The client-side user manual is available at <a href="https://limengxun.com/files/lires/userManual_zh/index.html" target="_blank">here</a>.
+                The user manual is available at <a :href="manualURL_zh" target="_blank">here</a>.
             </p>
             <p>
                 <b>Server status: </b>

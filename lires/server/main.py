@@ -38,15 +38,23 @@ class DefaultRequestHandler(RequestHandlerBase):
         """.format(version = VERSION)
         return self.write(html_page)
 
+
+def cacheControlStaticFileHandlerFactory(cache_seconds):
+    class _CacheStaticFileHandler(tornado.web.StaticFileHandler):
+        def set_extra_headers(self, _):
+            self.set_header("Cache-Control", "max-age=" + str(cache_seconds))
+    return _CacheStaticFileHandler
+
 class Application(tornado.web.Application):
     def __init__(self, debug = False) -> None:
         # will use simple storage service protocal (put, get, delete) to store data, when applicable
         handlers = [
             # Frontend
             (r'/()', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
-            (r'/index.html()', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/favico()', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(index.html)', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(favico)', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
             (r'/(assets/.*)', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(docs/.*)', cacheControlStaticFileHandlerFactory(cache_seconds=600), {"path": LRSWEB_SRC_ROOT}),
 
             # websocket
             (r'/ws', WebsocketHandler),
