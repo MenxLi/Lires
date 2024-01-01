@@ -234,7 +234,7 @@ export const MenuAttached = defineComponent({
         // });
         return () => (
             <div>
-                <div ref={div} onClick={()=>showMenu.value = !showMenu.value} onKeydown={(event)=>{
+                <div ref={div} onClick={()=>showMenu.value = !showMenu.value} onKeydown={(event: KeyboardEvent)=>{
                     if (event.key === "Enter") {
                         event.preventDefault();
                         showMenu.value = !showMenu.value;
