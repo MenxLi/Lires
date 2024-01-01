@@ -1,4 +1,4 @@
-const fs = require('fs-extra');
+import fs from 'fs-extra';
 
 fs.copy('../docs', './dist/docs')
   .then(() => console.log('Documents copied successfully!'))
