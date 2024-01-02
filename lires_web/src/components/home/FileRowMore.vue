@@ -199,7 +199,7 @@ const showSummary = ref(false);
         overflow-y: hidden;
     }
     div#buttons{
-        gap: 15px
+        gap: 10px
     }
     label.hint {
         font-size: xx-small;
@@ -217,22 +217,21 @@ const showSummary = ref(false);
         text-align: center;
     }
 
-    #actions{
-        gap: 15px;
+    div#actions{
+        gap: 10px;
         background-color: var(--color-background-mute);
-        /* background-color: var(--color-background-theme-thin); */
-        /* width: 98%; */
-        /* min-width: 50%; */
         margin: 3px;
-        padding: 5px;
-        padding-left: 50px;
-        padding-right: 50px;
+        padding-block: 5px;
+        padding-inline: 50px;
         border-radius: 20px;
         box-shadow: inset 0px 1px 2px 0px var(--color-shadow);
     }
 
     :deep(a){
         cursor: pointer;
+        border-radius: 7px;
+        padding-inline: 5px;
+        user-select: none;
     }
     :deep(a.btn){
         text-decoration: underline;

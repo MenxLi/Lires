@@ -34,7 +34,7 @@ export const FileSelectButton = defineComponent({
         function click() { inputButton.value!.click() };
         context.expose({ click });
         return () => (
-            <div class="upload-button">
+            <div class="upload-button" style="display:flex">
                 <input type="file" id="upload-file" onChange={handleFile}
                     ref={inputButton} style={{display: 'none'}} />
                 {
