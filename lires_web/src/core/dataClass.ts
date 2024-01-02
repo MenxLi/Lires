@@ -330,7 +330,9 @@ export class DataPoint {
     }
 
     // will wrap the url with backend pdfjs viewer if the url is a pdf
-    getOpenDocURL(): string {
+    getOpenDocURL({
+        extraPDFViewerParams = {} as Record<string, string>,
+    } = {}): string {
         const uid = this.summary.uuid;
         const backendPdfjsviewer = `${getBackendURL()}/pdfjs/web/viewer.html`;
         function getPdfViewerURL(fURL: string, pdfjs: string = backendPdfjsviewer){
@@ -340,6 +342,9 @@ export class DataPoint {
                 pdfjsviewerParams.append("key", useSettingsStore().encKey)
             }
             pdfjsviewerParams.append("file", `${fURL}`);
+            for (const key in extraPDFViewerParams){
+                pdfjsviewerParams.append(key, extraPDFViewerParams[key]);
+            }
             return `${pdfjs}?${pdfjsviewerParams.toString()}`;
         }
         let ret = "about:blank";

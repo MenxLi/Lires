@@ -1,5 +1,12 @@
 
+const __themeChangeCallbacks: Array<Function> = [];
+
 export class ThemeMode{
+
+  static registerThemeChangeCallback(callback: Function){
+    __themeChangeCallbacks.push(callback);
+  }
+
   /*
   https://stackoverflow.com/a/68824350
   toggle to switch classes between .light and .dark
@@ -66,7 +73,13 @@ export class ThemeMode{
       document.documentElement.classList.remove("dark")
       document.documentElement.classList.add("light")
     }
-    localStorage.setItem("themeMode", mode?"dark":"light");
+    const _newMode = mode?"dark":"light";
+    if (localStorage.getItem("themeMode") !== _newMode){
+      localStorage.setItem("themeMode", mode?"dark":"light");
+      for (let callback of __themeChangeCallbacks){
+        callback(mode);
+      }  
+    }
   }
 }
 

@@ -6,7 +6,46 @@ from tqdm import tqdm
 from .utils import UseTermColor
 from ..confReader import PDF_VIEWER_DIR, TMP_DIR
 
-DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.0.269/pdfjs-4.0.269-dist.zip"
+DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.0.379/pdfjs-4.0.379-dist.zip"
+# DEFAULT_PDFJS_DOWNLOADING_URL = "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-4.0.379.tgz"
+__pdfviewer_code_snippet = """
+<script>
+    // A snippet to modify the default viewer options
+    // Added via automation with Lires.
+
+    /*
+    * @param { 'light' | 'dark' } name - The name of the color mode.
+    * @returns { string } The CSS class name.
+    */
+    function getColorModeClass(name){
+    switch (name) {
+        case 'light':
+        return 'is-light';
+        case 'dark':
+        return 'is-dark';
+        default:
+        return ' ';
+    }
+    }
+    const urlParams = (new URL(document.location)).searchParams;
+    if (urlParams.has('color-mode')) {
+    const colorMode = urlParams.get('color-mode');
+    if (colorMode && (colorMode === 'dark' || colorMode === 'light')) {
+        console.log('Setting color mode to ' + colorMode)
+        window.onload = function() {
+        // check if other color mode is already set
+        const otherColorMode = colorMode === 'dark' ? 'light' : 'dark';
+        const otherColorModeClass = getColorModeClass(otherColorMode);
+        if (document.documentElement.classList.contains(otherColorModeClass)) {
+            document.documentElement.classList.remove(otherColorModeClass);
+        }
+        // add color mode class
+        document.documentElement.classList.add(getColorModeClass(colorMode));
+        }
+    }
+    }
+</script>
+"""
 
 def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL, force: bool = False) -> bool:
     print("Will download pdfjs and place it to: {}".format(PDF_VIEWER_DIR))
@@ -15,7 +54,8 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
             print("Should delete old pdf.js viewer first: ", PDF_VIEWER_DIR)
             print("call: rm -rf {}".format(PDF_VIEWER_DIR))
         return False
-    tmp_download = os.path.join(TMP_DIR, "pdfjs.zip")
+    tmp_download = os.path.join(TMP_DIR, download_url.split("/")[-1])
+
     print("Downloading pdf.js from {}".format(download_url))
     # https://stackoverflow.com/a/37573701/6775765
     response = requests.get(download_url, stream=True)
@@ -43,10 +83,21 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
     
     print("Extracting to default viewer location...")
     os.mkdir(PDF_VIEWER_DIR)
+    assert tmp_download.endswith(".zip")
     with zipfile.ZipFile(tmp_download, "r", compression=zipfile.ZIP_DEFLATED) as zp:
         zp.extractall(path = PDF_VIEWER_DIR)
-    print("Finished. downloaded PDF.js to: {}".format(PDF_VIEWER_DIR))
+
+    print("Downloaded PDF.js to: {}".format(PDF_VIEWER_DIR))
     os.remove(tmp_download)
+    viewer_index_file = os.path.join(PDF_VIEWER_DIR, "web", "viewer.html")
+    # add a snippet to modify the default viewer options
+    print("Inject code snippet.")
+    with open(viewer_index_file, "r") as f:
+        viewer_index = f.read()
+        viewer_index = viewer_index.replace("</body>", __pdfviewer_code_snippet + "\n</body>")
+    with open(viewer_index_file, "w") as f:
+        f.write(viewer_index)
+    print("Done.")
     return True
 
 def initPDFViewer():
@@ -70,6 +121,8 @@ def initPDFViewer():
     except Exception as e:
         with UseTermColor("red"):
             print("ERROR: {}".format(e))
+        print("Failed to download pdfjs, exit.")
+        exit(1)
     finally:
         os.remove(lock_file)
 
