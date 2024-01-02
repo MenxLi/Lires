@@ -80,6 +80,14 @@
             color: 'white'
         }
     }
+    const theme = ref(ThemeMode.isDarkMode()?'dark':'light');
+    ThemeMode.registerThemeChangeCallback(()=>{
+        theme.value = ThemeMode.isDarkMode()?'dark':'light';
+        update();
+    })
+    const layout = computed(()=>{
+        return theme.value === 'dark'?darklayout:lightlayout;
+    })
 
     const config = {
         // Other buttons: ['zoom3d', 'pan3d', 'orbitRotation', 'tableRotation', \
@@ -101,7 +109,7 @@
 
         if (!plotlyChart.value){ return; }
 
-        Plotly.react(plotlyChart.value, pointsData.value, ThemeMode.isDarkMode()?darklayout:lightlayout, config);
+        Plotly.react(plotlyChart.value, pointsData.value, layout.value, config);
 
         // Restore the camera position after the update
         const currentScene = plotlyChart.value.layout.scene;
@@ -112,7 +120,7 @@
     defineExpose({update});
 
     onMounted(() => {
-        Plotly.newPlot(plotlyChart.value!, pointsData.value, ThemeMode.isDarkMode()?darklayout:lightlayout, config).then(
+        Plotly.newPlot(plotlyChart.value!, pointsData.value, layout.value, config).then(
             () => {
                 // plotlyChart.value!.on('plotly_relayouting', (e: any) =>{
                 plotlyChart.value!.on('plotly_relayout', (e: any) =>{
@@ -143,12 +151,12 @@
 </script>
 
 <template>
-    <div id='plotyChart' ref="plotlyChart">
+    <div id='ploty-chart' ref="plotlyChart">
     </div>
 </template>
 
 <style scoped>
-    div#plotyChart{
+    div#ploty-chart{
         width: 100%;
         height: 100%;
 

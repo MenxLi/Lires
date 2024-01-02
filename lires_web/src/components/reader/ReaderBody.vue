@@ -76,34 +76,31 @@
         console.log('layoutType changed:', oldLayoutType, "->", newLayoutType);
         setLayout(newLayoutType);
     });
+
+    const theme = ref(ThemeMode.isDarkMode()?'dark':'light' as 'dark'|'light')
+    ThemeMode.registerThemeChangeCallback(()=>theme.value = ThemeMode.isDarkMode()?'dark' : 'light')
+    const openDocURL = computed(()=>`${props.datapoint.getOpenDocURL({
+            extraPDFViewerParams: { "color-mode": theme.value, }
+        })}`)
     
     // auto set layout when mounted
     onMounted(() => {
         setLayout(props.layoutType);
     })
 
-    function getOpenDocURL(){
-        return `${props.datapoint.getOpenDocURL({
-            extraPDFViewerParams: { "color-mode": (ThemeMode.isDarkMode()? "dark" : "light"), }
-        })}`;
-    }
-    const openDocURL = ref(getOpenDocURL());
-    ThemeMode.registerThemeChangeCallback(()=>{
-        openDocURL.value = getOpenDocURL();
-    });
 </script>
 
 <template>
     <div id="body">
-        <div class="pane" id="leftPane" ref="leftPane">
+        <div class="pane" id="left-pane" ref="leftPane">
             <!-- pointer event should be none when moving splitter, otherwise the iframe will capture the mouse event -->
             <iframe :src="openDocURL" title="doc" frameborder="0"
                 :style="{'pointer-events': onMovingSplitter ? 'none' : 'auto'}"
             > </iframe>
         </div>
         <div id="splitter" ref="splitter" @mousedown="onStartMovingSplitter" @touchstart="onStartMovingSplitter" v-if="layoutType==2"> </div>
-        <div class="pane" id="rightPane" ref="rightPane">
-            <NoteEditor :datapoint="datapoint" ref="noteEditor"> </NoteEditor>
+        <div class="pane" id="right-pane" ref="rightPane">
+            <NoteEditor :datapoint="datapoint" :theme="theme" ref="noteEditor"> </NoteEditor>
         </div>
     </div>
 </template>
@@ -114,7 +111,6 @@ div#body{
     flex-direction: row;
     width: 100%;
     height: 100%;
-    /* 100% - bannerheight - banner padding bottom */
 }
 
 div.pane{

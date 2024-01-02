@@ -5,13 +5,15 @@
     import { ref, watch } from 'vue';
     import { DataPoint } from '../../core/dataClass';
     import { MdEditor, MdPreview } from 'md-editor-v3';
-    import { ThemeMode } from '../../core/misc';
     import 'md-editor-v3/lib/style.css';
     import { useUIStateStore } from '../store';
 
-    const props = defineProps<{
+    const props = withDefaults(defineProps<{
         datapoint: DataPoint
-    }>();
+        theme?: 'dark' | 'light'
+    }>(), {
+        theme: 'light'
+    });
 
     const mdText = ref<string>('');
     const mdEditor = ref<typeof MdEditor | null>(null);
@@ -87,7 +89,7 @@
                 v-model="mdText" 
                 :preview="false" 
                 language="en-US"
-                :theme="ThemeMode.isDarkMode() ? 'dark' : 'light'"
+                :theme=theme
                 @on-save="saveNote"
                 @on-upload-img="uploadImages"
                 :toolbars="[
@@ -115,7 +117,7 @@
                 ]"
             />
             <MdPreview v-else :model-value="mdText"
-                :theme="ThemeMode.isDarkMode()? 'dark':'light'"
+                :theme=theme
             />
         </div>
     </div>
