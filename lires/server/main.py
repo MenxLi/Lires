@@ -22,19 +22,16 @@ from .handlers import *
 class DefaultRequestHandler(RequestHandlerBase):
     def get(self, *args, **kwargs):
         # print path
-        self.logger.debug(f"DEFAULT_HANDLER: {self.request.full_url()}")
+        self.logger.debug(f"DEFAULT_HANDLER: {self.request.full_url()} ({self.request.remote_ip})")
+        # trace the source
         html_page = """
         <!DOCTYPE html>
         <html>
         <head> <title>Lires Server (v{version})</title> </head>
         <body>
         <h1>Lires Server</h1>
-        <p><b> Current request is not supported.  </b></p>
-        <p>
-        Lires is a self-hosted literature management system. <br>
-        The source code is available at <a href="
-        https://github.com/menxli/lires">Github - Menxli/Lires</a>.
-        </p>
+        <p><b> Current request is not supported. </b></p>
+        <p> Have a nice day :) </p>
         </body>
         </html>
         """.format(version = VERSION)
