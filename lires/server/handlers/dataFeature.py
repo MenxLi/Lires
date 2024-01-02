@@ -12,7 +12,7 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
     Query information of all 3d features
     """
     # TODO: may make a cache to avoid frequent dim reduce
-    # feat_3d_all: dict[str, Feat3DT] = {}
+    feat_3d_all: list[tuple[int, Feat3DT]] = []
 
     @keyRequired
     async def get(self, collection_name: str):
@@ -33,7 +33,7 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
         if len(all_feat) < 5:
             return self.write(json.dumps({}))
 
-        def runTSNE(perplexity: int):
+        def _runTSNE(perplexity: int):
             with Timer("TSNE", print_func=self.logger.debug):
                 self.logger.debug(f'Running TSNE with n_components={n_components}, perplexity={perplexity}, random_state={random_state}')
                 all_feat_tsne = TSNE(
@@ -45,7 +45,7 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
                     ).fit_transform(all_feat).astype(np.float16)
             return all_feat_tsne
         
-        def runPCA():
+        def _runPCA():
             with Timer("PCA", print_func=self.logger.debug):
                 self.logger.debug(f'Running PCA with n_components={n_components}, random_state={random_state}')
                 all_feat_tsne = PCA(
@@ -54,11 +54,17 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
                     ).fit_transform(all_feat).astype(np.float16)
             return all_feat_tsne
 
+        _feature_signature = hash(str(all_feat.tolist()) + str(n_components) + str(random_state) + str(perplexity))
+        for _old_signature, val in self.__class__.feat_3d_all:
+            if _old_signature==_feature_signature:
+                self.logger.debug("Use cached feature.")
+                return self.write(json.dumps(val))
+
         if int(perplexity) < 1:
             self.logger.debug(f'Perplexity set to {perplexity}, using PCA instead of TSNE')
-            all_feat_tsne: np.ndarray = await self.offloadTask(runPCA)
+            all_feat_tsne: np.ndarray = await self.offloadTask(_runPCA)
         else:
-            all_feat_tsne: np.ndarray = await self.offloadTask(runTSNE, int(perplexity))
+            all_feat_tsne: np.ndarray = await self.offloadTask(_runTSNE, int(perplexity))
 
         # normalize along each dimension
         # n_dim = all_feat_tsne.shape[1]
@@ -70,5 +76,9 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
         for i, uid in enumerate(_all_ids):
             feat_dict[uid] = all_feat_tsne[i]
         
+
+        self.__class__.feat_3d_all.append((_feature_signature, feat_dict))
+        if len(self.__class__.feat_3d_all)>3:
+            self.__class__.feat_3d_all.pop(0)
         self.write(json.dumps(feat_dict))
     
