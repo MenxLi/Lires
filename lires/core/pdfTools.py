@@ -1,6 +1,6 @@
 import fitz     # PyMuPDF
 from typing import Optional
-import os, time, random
+import os, time, random, shutil
 import requests, os, zipfile
 from tqdm import tqdm
 from .utils import UseTermColor
@@ -82,6 +82,8 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
         return False
     
     print("Extracting to default viewer location...")
+    if force and os.path.exists(PDF_VIEWER_DIR):
+        shutil.rmtree(PDF_VIEWER_DIR)
     os.mkdir(PDF_VIEWER_DIR)
     assert tmp_download.endswith(".zip")
     with zipfile.ZipFile(tmp_download, "r", compression=zipfile.ZIP_DEFLATED) as zp:
