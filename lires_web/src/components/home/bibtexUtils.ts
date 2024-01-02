@@ -1,6 +1,6 @@
 import { fetchArxivPaperByID, bibtexFromArxiv } from "../../core/arxivUtils";
 
-export type BibtexTypes = 'article' | 'inproceedings'
+export type BibtexTypes = 'article' | 'inproceedings' | 'webpage'
 export const getBibtexTemplate = (type: BibtexTypes) => {
         // generate a random bibtex entry
     const entry = Math.random().toString(36).substring(7);
@@ -10,6 +10,7 @@ export const getBibtexTemplate = (type: BibtexTypes) => {
         title = {},
         journal = {},
         year = {${new Date().getFullYear()}},
+        abstract = {},
         volume = {},
         number = {},
         pages = {},
@@ -23,12 +24,23 @@ export const getBibtexTemplate = (type: BibtexTypes) => {
         title = {},
         booktitle = {},
         year = {${new Date().getFullYear()}},
+        abstract = {},
         editor = {},
         volume = {},
         number = {},
         series = {},
         pages = {},
         }`.replace(/  /g, "");
+    }
+    else if (type == "webpage"){
+        return `@misc{${entry},
+        title = "{}",
+        author = "{}",
+        year = {${new Date().getFullYear()}},
+        url = "{}",
+        note = "{}"
+        }`.replace(/  /g, "");
+
     }
     else {
         return "";

@@ -163,6 +163,7 @@
         }">
             <Toggle @on-check="bibtexTemplateSelection='article'" :checked="bibtexTemplateSelection=='article'">Article</Toggle>
             <Toggle @on-check="bibtexTemplateSelection='inproceedings'" :checked="bibtexTemplateSelection=='inproceedings'">Inproceedings</Toggle>
+            <Toggle @on-check="bibtexTemplateSelection='webpage'" :checked="bibtexTemplateSelection=='webpage'">Webpage</Toggle>
         </div>
     </QueryDialog>
 
