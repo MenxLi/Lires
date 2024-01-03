@@ -222,8 +222,6 @@ export class DataPoint {
     fetchNote(): Promise<string> {
         return new Promise((resolve, reject) => {
             new ServerConn().reqDatapointNote(this.summary.uuid).then((data) => {
-                // parse the note, to replace ./misc/ with image url
-                data = data.replace(/\.\/misc\//g, `${getBackendURL()}/img/${this.summary.uuid}?fname=`);
                 this.supp.note = data;
                 resolve(data);
             }).catch((err) => {
@@ -257,13 +255,13 @@ export class DataPoint {
         })
     }
 
-    // return a list of image urls
+    // return a list of raw image urls
     uploadImages(images: File[]): Promise<string[]>{
         return new Promise((resolve, reject) => {
             new ServerConn().uploadImages(this.summary.uuid, images).then(
                 (data) => {
                     resolve(
-                        data.map((fname) => `${getBackendURL()}/img/${this.summary.uuid}?fname=${fname}`)
+                        data.map((fname) => `./misc/${fname}`)
                     )
                 },
                 (err) => {

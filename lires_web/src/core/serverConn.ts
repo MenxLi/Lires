@@ -228,14 +228,13 @@ export class ServerConn {
 
     async reqDatapointNoteUpdate( uid: string, content: string ): Promise<boolean>{
         const url = new URL(`${this.apiURL()}/fileinfo-supp/note-update/${uid}`);
-        url.searchParams.append("key", this.settings.encKey);
-        url.searchParams.append("content", content);
+        const body = new FormData();
+        body.append("key", this.settings.encKey);
+        body.append("content", content);
         const response = await fetch(url.toString(),
             {
                 method: "POST",
-                headers: {
-                    "Content-Type":"application/x-www-form-urlencoded"
-                },
+                body: body,
             }
         );
         if (response.ok){

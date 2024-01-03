@@ -2,11 +2,12 @@
 
 <script setup lang="ts">
     // https://github.com/imzbf/md-editor-v3
-    import { ref, watch } from 'vue';
+    import { computed, ref, watch } from 'vue';
     import { DataPoint } from '../../core/dataClass';
     import { MdEditor, MdPreview } from 'md-editor-v3';
     import 'md-editor-v3/lib/style.css';
     import { useUIStateStore } from '../store';
+    import { parseMarkdown } from '../../core/markdownParse';
 
     const props = withDefaults(defineProps<{
         datapoint: DataPoint
@@ -16,6 +17,9 @@
     });
 
     const mdText = ref<string>('');
+    const mdTextRender = computed(()=>parseMarkdown(mdText.value, {
+        datapoint: props.datapoint
+    }))
     const mdEditor = ref<typeof MdEditor | null>(null);
 
     function fetchNote(){
@@ -116,7 +120,7 @@
                     'catalog',
                 ]"
             />
-            <MdPreview v-else :model-value="mdText"
+            <MdPreview v-else :model-value="mdTextRender"
                 :theme=theme
             />
         </div>
