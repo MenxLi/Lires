@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from typing import Union, TypedDict
 from lires_web import LRSWEB_SRC_ROOT
 from functools import partial
@@ -37,11 +38,13 @@ class DefaultRequestHandler(RequestHandlerBase):
         """.format(version = VERSION)
         return self.write(html_page)
 
+class StaticFileHandler(tornado.web.StaticFileHandler, RequestHandlerMixin):
+    ...
 
-def cacheControlStaticFileHandlerFactory(cache_seconds):
-    class _CacheStaticFileHandler(tornado.web.StaticFileHandler):
-        def set_extra_headers(self, _):
-            self.set_header("Cache-Control", "max-age=" + str(cache_seconds))
+def cachedStaticFileHandlerFactory(cache_seconds):
+    class _CacheStaticFileHandler(StaticFileHandler):
+        def get_cache_time(self, path: str, modified: datetime | None, mime_type: str) -> int:
+            return cache_seconds
     return _CacheStaticFileHandler
 
 class Application(tornado.web.Application):
@@ -49,11 +52,11 @@ class Application(tornado.web.Application):
         # will use simple storage service protocal (put, get, delete) to store data, when applicable
         handlers = [
             # Frontend
-            (r'/()', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
-            (r'/(index.html)', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(favico)', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(assets/.*)', tornado.web.StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(docs/.*)', cacheControlStaticFileHandlerFactory(cache_seconds=600), {"path": LRSWEB_SRC_ROOT}),
+            (r'/()', StaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
+            (r'/(index.html)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(favico)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(assets/.*)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(docs/.*)', cachedStaticFileHandlerFactory(cache_seconds=600), {"path": LRSWEB_SRC_ROOT}),
 
             # websocket
             (r'/ws', WebsocketHandler),
