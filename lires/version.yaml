@@ -571,3 +571,17 @@ version_history:
     - Development chores:
       - Update dependencies
       - Auto pdf.js download
+  1.3.2:
+    - Features:
+      - Set credentials via url parameters
+      - Only two layout on reader page
+      - Webpage bibtex template
+    - UI:
+      - Datapoint button style update
+      - Add manual link when no data available
+      - Store theme mode to localstorage
+      - Theme mode change will affact reader, and trigger relevant events
+    - Development:
+      - Update pdf.js downloading script to inject url parameter hook
+    - Fix:
+      - Favicon.ico
