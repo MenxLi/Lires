@@ -1,12 +1,6 @@
 import type { DataPoint } from "./dataClass";
 import { getBackendURL } from "../config";
 
-function assert(condition: any, msg?: string): asserts condition {
-    if (!condition) {
-        throw new Error("Assertion failed: " + msg);
-    }
-}
-
 // parse raw markdown to mardown with proper html links
 export function parseMarkdown(content: string, context = {
     datapoint : null as null | DataPoint,
