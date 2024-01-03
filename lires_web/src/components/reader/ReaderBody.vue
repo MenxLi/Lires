@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { onMounted, ref, watch, computed } from 'vue';
+    import { useRouter } from 'vue-router';
     import NoteEditor from './NoteEditor.vue';
     import { useUIStateStore, useSettingsStore } from '../store';
     import { DataPoint } from '../../core/dataClass';
@@ -7,8 +8,16 @@
 
     const props = defineProps<{
         datapoint: DataPoint,
-        layoutType: number
-    }>();
+        layoutType: number,
+    }>()
+
+    const router = useRouter();
+    const urlHashMarkParam = computed(()=>{
+        const query = router.currentRoute.value.query;
+        const docHashMark = query['docHashMark'] as string | undefined;
+        if (docHashMark){ return docHashMark; }
+        return '';
+    });
 
     const leftPane = ref<HTMLElement | null>(null);
     const rightPane = ref<HTMLElement | null>(null);
@@ -80,7 +89,8 @@
     const theme = ref(ThemeMode.isDarkMode()?'dark':'light' as 'dark'|'light')
     ThemeMode.registerThemeChangeCallback(()=>theme.value = ThemeMode.isDarkMode()?'dark' : 'light')
     const openDocURL = computed(()=>`${props.datapoint.getOpenDocURL({
-            extraPDFViewerParams: { "color-mode": theme.value, }
+            extraPDFViewerParams: { "color-mode": theme.value, },
+            urlHashMark: urlHashMarkParam.value,
         })}`)
     
     // auto set layout when mounted

@@ -330,10 +330,11 @@ export class DataPoint {
     // will wrap the url with backend pdfjs viewer if the url is a pdf
     getOpenDocURL({
         extraPDFViewerParams = {} as Record<string, string>,
+        urlHashMark = "" as string,
     } = {}): string {
         const uid = this.summary.uuid;
         const backendPdfjsviewer = `${getBackendURL()}/pdfjs/web/viewer.html`;
-        function getPdfViewerURL(fURL: string, pdfjs: string = backendPdfjsviewer){
+        function _getPdfViewerURL(fURL: string, pdfjs: string = backendPdfjsviewer){
             const pdfjsviewerParams = new URLSearchParams();
             if (pdfjs === backendPdfjsviewer){
                 // use backend pdfjs viewer, need to pass key
@@ -345,6 +346,19 @@ export class DataPoint {
             }
             return `${pdfjs}?${pdfjsviewerParams.toString()}`;
         }
+
+        function _setHashMark(url: string): string{
+            if (!urlHashMark) return url
+
+            // check if the url already has a hash mark
+            const urlObj = new URL(url);
+            if (urlObj.hash){
+                // remove the hash mark
+                url = url.slice(0, url.indexOf("#"));
+            }
+            return `${url}#${urlHashMark}`;
+        }
+
         let ret = "about:blank";
 
         // Get the url of the document by its type
@@ -354,22 +368,10 @@ export class DataPoint {
         if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             // view pdf via backend pdfjs viewer
             const pdfURL = `${getBackendURL()}/doc/${uid}`;
-            ret = getPdfViewerURL(pdfURL);
+            ret = _getPdfViewerURL(_setHashMark(pdfURL));
         }
         if (!this.summary["has_file"] && this.summary["url"]){
-            let fileURL = this.summary["url"];
-            // maybe view pdf via pdfjs viewer if the url is a pdf
-            if (
-                fileURL.endsWith(".pdf") || 
-                fileURL.includes("arxiv.org/pdf/")
-                ){
-                // to implement later...
-                // ret = getPdfViewerURL(fileURL);
-                ret = fileURL
-            }
-            else{
-                ret = this.summary.url;
-            }
+            ret = _setHashMark(this.summary.url);
         }
         console.log("Open doc url: ", ret)
         return ret;
