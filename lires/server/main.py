@@ -54,7 +54,7 @@ class Application(tornado.web.Application):
             # Frontend
             (r'/()', StaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
             (r'/(index.html)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(favico)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(favicon.ico)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
             (r'/(assets/.*)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
             (r'/(docs/.*)', cachedStaticFileHandlerFactory(cache_seconds=600), {"path": LRSWEB_SRC_ROOT}),
 
