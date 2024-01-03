@@ -8,6 +8,7 @@
     import 'md-editor-v3/lib/style.css';
     import { useUIStateStore } from '../store';
     import { parseMarkdown } from '../../core/markdownParse';
+    import { useRouter } from 'vue-router';
 
     const props = withDefaults(defineProps<{
         datapoint: DataPoint
@@ -16,9 +17,11 @@
         theme: 'light'
     });
 
+    const router = useRouter();
     const mdText = ref<string>('');
     const mdTextRender = computed(()=>parseMarkdown(mdText.value, {
-        datapoint: props.datapoint
+        router: router,
+        datapoint: props.datapoint,
     }))
     const mdEditor = ref<typeof MdEditor | null>(null);
 
