@@ -27,7 +27,6 @@ export default {
 
     import type { SearchStatus } from "./interface";
     import { lazify } from "../libs/misc";
-    import { manualURL_zh } from "../config";
 
     // get data
     const uiState = useUIStateStore();
@@ -114,8 +113,16 @@ export default {
                         ">
                             Nothing to show
                             <p style="font-size: medium">
-                                Add your first file following the 
-                                <a :href="manualURL_zh">documentation</a>.
+                                Add your first enty by clicking the 
+                                <b><a @click="showAddingDataWindow = true" style="
+                                    cursor:pointer;
+                                    border-radius: 5px;
+                                    padding-inline: 3px;
+                                    /* border: 1px solid var(--color-border); */
+                                    background-color: var(--color-background-soft);
+                                    ">⊕ New</a></b> 
+                                button above.<br>
+                                <!-- Refer to the <a :href="manualURL_zh">documentation</a> for more information. -->
                             </p>
                         </p>
                         <LoadingWidget v-else></LoadingWidget>
