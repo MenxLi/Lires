@@ -60,7 +60,7 @@
     const datacardContainer = ref(null as HTMLDivElement | null);
     const pageIndicatorEditableParagrah = ref(null as any | null);
     const shownPage = ref(0);
-    const shownNumPerPage = ref(50);
+    const shownNumPerPage = ref(100);
     const shownDatapoints = computed(()=>{
         const startIdx = shownPage.value * shownNumPerPage.value;
         const endIdx = Math.min(startIdx + shownNumPerPage.value, datapoints.value.length);
