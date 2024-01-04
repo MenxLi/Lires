@@ -93,7 +93,7 @@
 
 <template>
     <div id="datacard-container-main">
-        <div id="datacard-container" :style="{gap: compact?'0px':'5px'}" ref="datacardContainer" @scroll="onScroll">
+        <div id="datacard-container" :style="{gap: compact?'0px':'5px'}" ref="datacardContainer" @scroll="onScroll" class="scrollable">
             <FileRow v-for="dp, idx in shownDatapoints" :datapoint="dp" 
                     v-model:unfolded-ids="unfoldedIds" v-model:hovered-ids="hoveredIds"
                     :line_number="idx" :compact="compact">
