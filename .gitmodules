@@ -1,3 +1,0 @@
-[submodule "packages/tiny_vectordb"]
-	path = packages/tiny_vectordb
-	url = https://github.com/MenxLi/tiny_vectordb

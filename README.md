@@ -24,10 +24,6 @@ Currently, it supports PDF file and provides above mentioned basic features, suc
 **These should be enough for most use cases, more features will be added in the future.**
 
 # Getting started
-**Fetch all submodules**
-```sh
-git submodule update --init --recursive
-```
 
 **Docker deployment**
 ```sh

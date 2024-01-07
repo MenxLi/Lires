@@ -42,17 +42,16 @@ dependencies = [
 [project.optional-dependencies]
 core = [
     "typing_extensions",
+    "tiny_vectordb",
     "pybtex",
     "pylatexenc",
     "tornado",
     "PyMuPDF",
     "nbib",
     "tqdm",
-    "numpy",
     "pillow",
+    "numpy",
     "scikit-learn",
-    "pybind11",
-    "ninja",
 ]
 ai = [
     "safetensors <= 0.3.2",     # 0.3.3 or higher seems requires rust installed
