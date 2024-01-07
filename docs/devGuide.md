@@ -56,7 +56,7 @@ cd lires_web && npm install && npm run build && cd ..
 lrs-utils update_pdfjs
 
 # build for distribution
-python setup.py sdist bdist_wheel
+python setup.py sdist
 ```
 
 
