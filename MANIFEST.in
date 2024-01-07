@@ -2,3 +2,6 @@ include README.md
 include lires/version.yaml *
 recursive-include lires/assets *
 recursive-include lires_web/dist *
+
+prune test
+prune compile_commands.json

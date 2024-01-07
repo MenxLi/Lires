@@ -1,21 +1,28 @@
 # Development Guide
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Development Guide](#development-guide)
+  - [Contribution](#contribution)
+  - [Naming convention](#naming-convention)
+  - [Build for distribution](#build-for-distribution)
+  - [Future plan](#future-plan)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
 ## Contribution
 Any contribution is welcome! 
 
 **But please fire an issue before you start working on it.** 
 This is to avoid duplicated work and make sure the changes are necessary.
 
-## Principles
-**Keep it simple and maintainable**
-
-Simple:
+The principle is to **Keep this project simple and maintainable**:
+- **Use type annotations whenever possible**
 - Adding features for common use cases
 - Minimal dependencies for each module
-
-Maintainable:
-- **Use type annotations whenever possible**
-- Abstract common logic into reusable pieces
 
 ## Naming convention
 **Python**
@@ -38,6 +45,19 @@ I follow Javascript naming convention, which is:
 **Http path**  
 
 use `lowercase-with-dash` for http path, e.g. `/api/v1/your-path`
+
+## Build for distribution
+Please run the following commands to build for the distribution:
+```bash
+# build fronted
+cd lires_web && npm install && npm run build && cd ..
+
+# fetch third party libs
+lrs-utils update_pdfjs
+
+# build for distribution
+python setup.py sdist bdist_wheel
+```
 
 
 ## Future plan
