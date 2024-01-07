@@ -585,3 +585,12 @@ version_history:
       - Update pdf.js downloading script to inject url parameter hook
     - Fix:
       - Favicon.ico
+  1.3.3:
+    - Features:
+      - Split entry cards to multiple pages for optimized rendering performance
+      - Support refer to doc section id in markdown note
+    - Perf:
+      - Cache feature visualization request
+    - Development:
+      - PyPi package
+      - Move tiny_vectordb to dependency
