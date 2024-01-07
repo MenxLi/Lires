@@ -1,6 +1,7 @@
 import argparse
 from .core import globalVar as G
 
+# a standalone parser for iserver, this is also used in lires_ai.server
 def prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument("--port", type=int, default=8731, help="port, default to 8731")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="host, default to 0.0.0.0")

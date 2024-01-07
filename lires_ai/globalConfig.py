@@ -4,7 +4,6 @@ import globalConfig as config
 ...
 """
 from __future__ import annotations
-import openai
 from typing import Optional, Literal, TYPE_CHECKING
 
 if TYPE_CHECKING:

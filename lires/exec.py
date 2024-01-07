@@ -2,6 +2,7 @@ import shutil
 import os
 from .core import globalVar as G
 from .parser import parseArgs
+from .cmd.generateDefaultConf import generateDefaultConf
 
 def run():
     parseArgs()
@@ -22,16 +23,12 @@ def run():
 
     NOT_RUN = False     # Indicates whether to run main program
 
-    def resetConf():
-        from lires.cmd.generateDefaultConf import generateDefaultConf
-        generateDefaultConf()
-
     if not os.path.exists(CONF_FILE_PATH):
         print("Generating default configuration...")
-        resetConf()
+        generateDefaultConf()
 
     if args.reset_conf:
-        resetConf()
+        generateDefaultConf()
         NOT_RUN = True
 
     if not os.path.exists(DATABASE_DIR):

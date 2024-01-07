@@ -63,7 +63,5 @@ ai = [
     "protobuf",
     "accelerate",
     "basaran",
-    # "auto-gptq[triton]",
-    # "bitsandbytes",
 ]
 all = ["Lires[core,ai]"]
