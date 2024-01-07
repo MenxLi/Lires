@@ -6,7 +6,7 @@
 
 - [Getting Started](#getting-started)
   - [Manual Deployment](#manual-deployment)
-    - [Server-side manual installation](#server-side-manual-installation)
+    - [Installation from source](#installation-from-source)
     - [Server startup](#server-startup)
       - [Basic entries](#basic-entries)
       - [More on starting the servers](#more-on-starting-the-servers)
@@ -25,7 +25,7 @@
 
 ## Manual Deployment
 
-### Server-side manual installation
+### Installation from source
 Compile frontend files
 > **Prerequisites:**  Node.js
 ```bash
@@ -47,7 +47,7 @@ pip install ".[all]"
 ```bash
 lires server
 ```
-Lires is a tornado server that provides API for the client (GUI & WebUI & CLI) to communicate with.
+Lires is a tornado server that provides API for the client (WebUI & CLI) to communicate with.
 
 **Start the LiresAI:**
 ```bash
@@ -87,6 +87,8 @@ The LiresAI server is usually started with OPENAI API keys, which can be set wit
 OPENAI_API_KEY="sk-xxxx" OPENAI_API_BASE="..." lires iserver
 ```
 
+---
+
 ### Cluster startup
 It will be laborious and error-prone to start multiple servers manually.  
 Especially when we want to start multiple servers with different configurations.  
@@ -103,6 +105,8 @@ lrs-cluster <your/configuration.yaml> --generate
 lrs-cluster <your/configuration.yaml>
 ```
 The configuration file designates the environment variables, as well as the command line arguments for each server.
+
+---
 
 ### On the first run
 **On the first run** you need to create a user account, which can be done by running the `lrs-user` command in the container.

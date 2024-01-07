@@ -24,18 +24,25 @@ Currently, it supports PDF file and provides above mentioned basic features, suc
 **These should be enough for most use cases, more features will be added in the future.**
 
 # Getting started
-
-**Docker deployment**
+Installation:
 ```sh
-docker compose up
-
-# register a user on the first run 
-# no need to run again if the container is re-created / re-started
-docker exec lrs lrs-user add <username> <password> --admin
+pip install 'Lires[all]'
 ```
+
+Register your first user, the admin user will be able to manage other users using the web interface:
+``` sh
+lrs-user add <username> <password> --admin
+```
+
+Start the servers:
+``` sh
+lires server    # start the core server
+lires iserver   # start the AI server
+```
+
 Now open the browser and visit the WebUI at `http://localhost:8080`.
 
-**Please refer to the documents for more details on [the deployment](docs/gettingStarted.md).**
+**Please refer to the documents for more details on [getting started](docs/gettingStarted.md)**.
 
 # Manuals and documentations
 - [Getting started](docs/gettingStarted.md)
