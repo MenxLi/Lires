@@ -44,7 +44,8 @@ def run():
                 elif isinstance(change, dict):
                     __only_key:str = list(change.keys())[0]
                     change_strings.append(f"{__only_key}: ")
-                    for item in change[__only_key] if isinstance(change[__only_key], list) else [change[__only_key]]:
+                    for item in change[__only_key] if isinstance(change[__only_key], list) else [change[__only_key]]:   # type: ignore
+                        item: str
                         change_strings.append("  "+item)
             print("v{version}: \n\t{history}".format(version = v, history = "\n\t".join(change_strings)))
         print("=====================================")

@@ -7,7 +7,7 @@ _yaml_version_file = os.path.join(__this_dir, "version.yaml")
 with open(_yaml_version_file, "r", encoding='utf-8') as fp:
     version_histories: Dict[str, list[dict[str, list[str]] | str]] = yaml.safe_load(fp)["version_history"]
 
-VERSION_HISTORIES: list[str, list[dict[str, list[str]] | str]] = []
+VERSION_HISTORIES: list[tuple[str, list[dict[str, list[str]] | str]]] = []
 for v, h in version_histories.items():
     # validity check, 
     # v should be string, h should be list
