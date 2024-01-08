@@ -14,7 +14,7 @@ def prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentPa
 def parseArgs() -> argparse.Namespace:
     _description = f"\
 Lires, a research bibliography manager. \
-For more info and source code, visit: https://github.com/MenxLi/ResBibManager\
+For more info and source code, visit: https://github.com/MenxLi/Lires\
     "
     parser = argparse.ArgumentParser(description=_description)
     parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")

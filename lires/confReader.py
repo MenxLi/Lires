@@ -6,7 +6,7 @@ logger_lrs = logging.getLogger("lires")
 
 join = os.path.join
 
-WEBPAGE = "https://github.com/MenxLi/ResBibManager"
+WEBPAGE = "https://github.com/MenxLi/Lires"
 
 # a schematic ascii image of the file tree
 # LRS_HOME
