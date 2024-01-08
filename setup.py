@@ -13,13 +13,8 @@ for v, h in version_histories.items():
     _VERSION_HISTORIES.append((v, h))
 VERSION, _ = _VERSION_HISTORIES[-1]
 
-_license_file = os.path.join(__this_dir, "LICENSE")
-with open(_license_file, "r", encoding='utf-8') as fp:
-    LICENSE = fp.read()
-
 setup(
     version=VERSION,
     packages=find_packages(),
     include_package_data = True,
-    license=LICENSE,
 )

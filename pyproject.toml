@@ -11,15 +11,15 @@ build-backend = "setuptools.build_meta"
 "lrs-cluster" = "lires.cmd.cluster:main"
 
 [project.urls]
-"Homepage" = "https://github.com/MenxLi/ResBibManager"
-"Bug Tracker" = "https://github.com/MenxLi/ResBibManager/issues"
+"Homepage" = "https://github.com/MenxLi/Lires"
+"Bug Tracker" = "https://github.com/MenxLi/Lires/issues"
 
 [project]
 name = "Lires"
 authors = [
   { name="Li, Mengxun", email="mengxunli@whu.edu.cn" },
 ]
-description = "A research bibliography manager"
+description = "A self-hosted literature management system."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -29,14 +29,13 @@ classifiers = [
 ]
 dynamic = [
     "version",
-    "license",
 ]
+license = { file = "LICENSE" }
 dependencies = [
     # for successful import from basic lires packages,
     # such as lires.version, lires.confReader
     "pyyaml",
     "requests",
-    "deprecated",
 ]
 
 [project.optional-dependencies]
