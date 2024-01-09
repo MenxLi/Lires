@@ -181,8 +181,7 @@ def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_p
     import atexit
     def __exitHook():
         tornado.ioloop.IOLoop.current().stop()
-        if G.hasGlobalAttr("server_db"):
-            G.getGlobalAttr("server_db").destroy()
+        g_storage.flush()
         G.logger_lrs.info("Server exited")
         with UseTermColor("green"):
             print("Exited, hook invoked.")

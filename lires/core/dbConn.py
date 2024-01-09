@@ -111,19 +111,22 @@ class DBConnection:
         """
         Create table if not exist
         """
-        with self.lock:
-            self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS files (
-                uuid TEXT PRIMARY KEY,
-                bibtex TEXT NOT NULL,
-                abstract TEXT NOT NULL,
-                comments TEXT NOT NULL,
-                info_str TEXT NOT NULL,
-                doc_ext TEXT NOT NULL,
-                misc_dir TEXT
-            )
-            """)
-            self.setModifiedFlag(True)
+        # check if table exists
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'")
+        if not self.cursor.fetchone():
+            with self.lock:
+                self.cursor.execute("""
+                CREATE TABLE IF NOT EXISTS files (
+                    uuid TEXT PRIMARY KEY,
+                    bibtex TEXT NOT NULL,
+                    abstract TEXT NOT NULL,
+                    comments TEXT NOT NULL,
+                    info_str TEXT NOT NULL,
+                    doc_ext TEXT NOT NULL,
+                    misc_dir TEXT
+                )
+                """)
+                self.setModifiedFlag(True)
     
     def close(self):
         self.commit()

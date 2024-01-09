@@ -1,3 +1,4 @@
+from ._base import g_storage
 from .dataInfo import *
 from .documents import DocHandler
 from .auth import AuthHandler

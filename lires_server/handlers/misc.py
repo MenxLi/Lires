@@ -8,14 +8,9 @@ from lires import VERSION
 import json, time
 
 class ReloadDBHandler(RequestHandlerBase):
-
     @keyRequired
     async def post(self):
-        user_info = self.user_info
-
-        self.logger.info(f"Reload DB, from {user_info['name']}({user_info['enc_key']})")
-        self.initdb()
-
+        self.logger.warn("Reload database is deprecated.")
         self.write("OK")
 
 class StatusHandler(RequestHandlerBase):
