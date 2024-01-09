@@ -14,6 +14,6 @@ from .user import *
 from .userMan import *
 from .pdfjs import *
 
-from ._misc import *
+from .misc import *
 
 from .websocket import *
