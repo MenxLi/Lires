@@ -3,8 +3,6 @@ To access and modify images under the misc folder of each datapoint
 """
 from ._base import *
 import os, uuid
-from tornado.httputil import HTTPFile
-
 
 class ImageHandler(RequestHandlerBase):
     """

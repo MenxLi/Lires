@@ -3,7 +3,6 @@ Get information about data
 """
 from typing import Union, List
 import json
-import tornado.web
 
 from lires.core.dataClass import DataList, DataTags, DataPoint, DataPointSummary
 from ._base import *

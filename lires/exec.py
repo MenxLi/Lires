@@ -96,7 +96,7 @@ def run():
         G.prog_parser.print_help()
 
     if args.subparser == "server":
-        from .server.main import startServer
+        from lires_server.main import startServer
         startServer(args.port, args.iserver_host, args.iserver_port)
     
     if args.subparser == "iserver":
