@@ -29,4 +29,4 @@ class GlobalStorage:
         self.vector_database.flush()
         self.vector_database.commit()
 
-        # self.user_pool.conn.commit()
+        self.user_pool.conn.commit()

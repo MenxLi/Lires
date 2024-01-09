@@ -1,8 +1,7 @@
-import os
 import sqlite3
-import json
+import os, json, time
 from functools import wraps
-from threading import Lock
+from threading import Lock, Thread
 
 from typing import TypedDict
 
@@ -38,15 +37,30 @@ class UsrDBConnection:
         if not os.path.exists(self.db_path):
             self.logger.info("Creating user database at: %s", self.db_path)
 
-        self.conn = sqlite3.connect(self.db_path)
+        # when check_same_thread=False, the connection can be used in multiple threads
+        # however, we have to ensure that only one thread is doing writing at the same time
+        # refer to: https://docs.python.org/3/library/sqlite3.html#sqlite3.connect
+        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.cursor = self.conn.cursor()
+        self.__modified = False
         self.__maybeCreateTables()
+
+        self.__saving_thread = SavingThread(self, interval=10.0)
+        self.__saving_thread.start()
     
     def close(self):
         self.conn.close()
     
+    def setModifiedFlag(self, flag: bool):
+        self.__modified = flag
+    
     @lock_required
     def __maybeCreateTables(self):
+        # check if the table exists
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+        res = self.cursor.fetchone()
+        if res is not None:
+            return
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,7 +74,7 @@ class UsrDBConnection:
         """)
         # TODO: Add more user-related tables
         # ...
-        self.conn.commit()
+        self.setModifiedFlag(True)
     
     @lock_required
     def insertUser(self, 
@@ -79,7 +93,7 @@ class UsrDBConnection:
                             VALUES (?, ?, ?, ?, ?)
                             """, 
                             (username, password, name, is_admin, json.dumps(mandatory_tags)))
-        self.conn.commit()
+        self.setModifiedFlag(True)
     
     @lock_required
     def deleteUser(self, query: str | int) -> None:
@@ -97,7 +111,7 @@ class UsrDBConnection:
             self.cursor.execute("DELETE FROM users WHERE id = ?", (query,))
         else:
             self.cursor.execute("DELETE FROM users WHERE username = ?", (query,))
-        self.conn.commit()
+        self.setModifiedFlag(True)
     
     @lock_required
     def updateUser(self, id_: int, **kwargs) -> None:
@@ -115,7 +129,7 @@ class UsrDBConnection:
                 v = json.dumps(v)
             self.cursor.execute(f"UPDATE users SET {k} = ? WHERE id = ?", (v, id_))
 
-        self.conn.commit()
+        self.setModifiedFlag(True)
     
     def getAllUserIDs(self) -> list[int]:
         self.cursor.execute("SELECT id FROM users")
@@ -139,3 +153,23 @@ class UsrDBConnection:
             "is_admin": bool(res[4]),
             "mandatory_tags": json.loads(res[5])
         }
+    
+    @lock_required
+    def commit(self):
+        if not self.__modified:
+            return
+        self.conn.commit()
+        self.setModifiedFlag(False)
+        self.logger.debug("Committed user database")
+
+
+class SavingThread(Thread):
+    def __init__(self, conn: UsrDBConnection, interval: float = 10.):
+        super().__init__(daemon=True)
+        self.conn = conn
+        self.interval = interval
+    
+    def run(self):
+        while True:
+            self.conn.commit()
+            time.sleep(self.interval)

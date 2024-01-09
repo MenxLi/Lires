@@ -294,7 +294,7 @@ class DBConnection:
         with self.lock:
             self.conn.commit()
             self.setModifiedFlag(False)
-        self.logger.debug("(db_conn) Committed")
+        self.logger.debug("Committed document database")
     
     def printData(self, uuid: str):
         if not self._ensureExist(uuid): return False
