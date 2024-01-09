@@ -348,7 +348,7 @@ class FileManipulator:
     def writeTags(self, tags: list[str] | DataTags):
         self.logger.debug("(fm) writeTags: {}".format(self.uuid))
         if not isinstance(tags, list):
-            tags = list(tags)
+            tags = tags.toOrderedList()
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.tags = tags

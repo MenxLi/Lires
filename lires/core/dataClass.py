@@ -65,6 +65,9 @@ class TagRule(DataCore):
                 else:
                     keep the tag same
         """
+        aim_tag = cls.stripTag(aim_tag)
+        new_tag = cls.stripTag(new_tag)
+
         if aim_tag not in src.withParents():
             return None
 
@@ -285,7 +288,7 @@ class DataPoint(DataCore):
         return self.fm.addFile(extern_file_p)
     
     def changeTags(self, new_tags: DataTags):
-        self.fm.writeTags(list(new_tags))
+        self.fm.writeTags(new_tags)
         self.tags = new_tags
     
     def stringInfo(self):
@@ -539,7 +542,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
         return if success
         """
         data = self.getDataByTags(DataTags([tag_old]))
-        tag_new = TagRule.stripTag(tag_new)
         self.logger.info(f"Rename tag: {tag_old} -> {tag_new}")
         for d in data:
             d: DataPoint
