@@ -1,7 +1,7 @@
 
 
 
-from typing import TypedDict, Literal, Optional, TYPE_CHECKING
+from typing import TypedDict, Literal, Optional
 from lires.types.dataT import DataPointSummary
 from lires.user import UserInfo
 

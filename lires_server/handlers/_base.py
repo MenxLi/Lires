@@ -13,9 +13,9 @@ from lires.core import globalVar as G
 from lires.core.dataClass import DataBase, DataTags
 from lires.confReader import USER_DIR, VECTOR_DB_PATH, getConf
 from lires.core.utils import BCOLORS
-from lires.types.eventT import Event
 from tiny_vectordb import VectorDatabase, VectorCollection
 
+from ..types import Event
 if TYPE_CHECKING:
     from .websocket import WebsocketHandler
 
