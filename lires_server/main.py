@@ -172,15 +172,24 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
     pc = tornado.ioloop.PeriodicCallback(buildIndex, 12*60*60*1000)  # in milliseconds
     pc.start()
 
+    # exit hooks
     import atexit
     def __exitHook():
         tornado.ioloop.IOLoop.current().stop()
         with UseTermColor("green"):
-            print("Exit gracefully...")
+            print("Exit hook invoked.")
         if G.hasGlobalAttr("server_db"):
             G.getGlobalAttr("server_db").destroy()
         G.logger_lrs.info("Server exited")
     atexit.register(__exitHook)
+    # catch keyboard interrupt
+    import signal
+    def __signalHandler(sig, frame):
+        tornado.ioloop.IOLoop.current().stop()
+        with UseTermColor("green"):
+            print("\nExit gracefully...")
+        exit(0)
+    signal.signal(signal.SIGINT, __signalHandler)
 
     tornado.ioloop.IOLoop.current().start()
 
