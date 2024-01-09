@@ -2,13 +2,13 @@
 To expose the interfaces as a server,
 thus the client don't need to install the heavy packages...
 """
-import asyncio, json
-
+import uvicorn
 import fastapi, openai
 from fastapi.responses import StreamingResponse
-
-import logging
 from pydantic import BaseModel
+
+import threading, os
+import logging, asyncio, json
 
 from . import initLogger
 from .utils import autoTorchDevice
@@ -66,22 +66,20 @@ def chatbot(req: ChatBotRequest):
     return StreamingResponse(_chatbot(), media_type="text/plain")
 
 
-def main():
-    import argparse, threading, os
-    import uvicorn
-    from lires.parser import prepareIServerParser
-
-    parser = argparse.ArgumentParser(description="LiresAI server")
-    parser = prepareIServerParser(parser)
-    args = parser.parse_args()
+def startServer(
+    host: str = "0.0.0.0",
+    port: int = 8731,
+    local_llm_chat: str = "",
+    openai_models: list[str] = [],
+):
 
     initLogger("info")
 
     # load config into global config
-    if args.local_llm_chat:
-        config.local_llm_name = args.local_llm_chat
-    if args.openai_models:
-        config.openai_api_chat_models = args.openai_models
+    if local_llm_chat:
+        config.local_llm_name = local_llm_chat
+    if openai_models:
+        config.openai_api_chat_models = openai_models
     
     if os.getenv("OPENAI_API_KEY") is None:
         logger.warning("OPENAI_API_KEY not set, please set it to use openai models")
@@ -90,7 +88,7 @@ def main():
             openai.api_key="sk-dummy__"
 
     def warmup():
-        logger.info("Warming up...")
+        logger.info("Warming up text encoder...")
         asyncio.run(lmFeaturize("Hello world!"))
         if config.local_llm_name is not None:
             getStreamIter("LOCAL")
@@ -102,12 +100,12 @@ def main():
 
     uvicorn.run(
         app,
-        host=args.host,
-        port=args.port,
+        host=host,
+        port=port,
         log_level="info",
         workers=1,
         )
 
 if __name__ == "__main__":
     logger.info("Starting LiresAI server...")
-    main()
+    startServer()
