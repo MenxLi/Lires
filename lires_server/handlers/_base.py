@@ -51,6 +51,9 @@ class RequestHandlerMixin():
     db_path: str = DATABASE_DIR
     logger = G.logger_lrs_server
 
+    # class settings
+    print_init_info = True
+
     # Set max_workers to larger than 1 will somehow cause blocking 
     # if iserver is running in a container (it's ok if runs on host), 
     # and we are sending offloaded featurize requests from the core server with multiple threads...
@@ -59,8 +62,13 @@ class RequestHandlerMixin():
     # (More tests needed ... )
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
+    def __init_subclass__(cls, print_init_info: bool = True, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)
+        cls.print_init_info = print_init_info
+
     def __init__(self, *args, **kwargs) -> None:
-        self.logger.debug(f"{BCOLORS.YELLOW} [init] :: {self.__class__.__name__} {BCOLORS.ENDC}")
+        if self.print_init_info:
+            self.logger.debug(f"{BCOLORS.YELLOW} [init] :: {self.__class__.__name__} {BCOLORS.ENDC}")
 
     @property
     def io_loop(self):

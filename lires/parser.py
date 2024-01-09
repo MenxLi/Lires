@@ -29,6 +29,7 @@ For more info and source code, visit: https://github.com/MenxLi/Lires\
 
     parser_server = sp.add_parser("server", help = "Start lires server")
     parser_server.add_argument("-p", "--port", action = "store", default = "8080", help = "port, default to 8080")
+    parser_server.add_argument("--host", action = "store", default = "0.0.0.0", help = "host, default to 0.0.0.0")
     parser_server.add_argument("--iserver_host", action = "store", default = "127.0.0.1", help = "host, default to 127.0.0.1")
     parser_server.add_argument("--iserver_port", action = "store", default = "8731", help = "port, default to 8731")
 

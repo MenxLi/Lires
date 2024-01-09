@@ -38,7 +38,7 @@ class DefaultRequestHandler(RequestHandlerBase):
         """.format(version = VERSION)
         return self.write(html_page)
 
-class StaticFileHandler(tornado.web.StaticFileHandler, RequestHandlerMixin):
+class StaticFileHandler(tornado.web.StaticFileHandler, RequestHandlerMixin, print_init_info = False):
     ...
 
 def cachedStaticFileHandlerFactory(cache_seconds):
@@ -118,7 +118,7 @@ class Application(tornado.web.Application):
 
 
 _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
-def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[int, str], ssl_config : _SSL_CONFIGT | None = None):
+def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_port: Union[int, str], ssl_config : _SSL_CONFIGT | None = None):
 
     # init loggers
     setupLogger(
@@ -144,14 +144,19 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
     G.iserver_port = iserver_port
 
     app = Application()
-    G.logger_lrs_server.info("Starting server at port: {}".format(port))
 
     ssl_ctx = None
     if ssl_config is not None:
         ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         ssl_ctx.load_cert_chain(certfile=ssl_config["certfile"], keyfile=ssl_config["keyfile"])
     server = HTTPServer(app, ssl_options=ssl_ctx)
-    server.listen(int(port))
+    server.listen(address = host, port = int(port))
+
+    # print info
+    __serve_url = f"{'https' if ssl_config is not None else 'http'}://{host}:{port}"
+    G.logger_lrs_server.info("Starting server at: {}".format(__serve_url))
+    with UseTermColor("lightgreen"):
+        print("Visit web interface at: {}".format(__serve_url.replace("0.0.0.0", "127.0.0.1")))
 
     tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
     tornado.autoreload.start()
@@ -176,11 +181,11 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
     import atexit
     def __exitHook():
         tornado.ioloop.IOLoop.current().stop()
-        with UseTermColor("green"):
-            print("Exit hook invoked.")
         if G.hasGlobalAttr("server_db"):
             G.getGlobalAttr("server_db").destroy()
         G.logger_lrs.info("Server exited")
+        with UseTermColor("green"):
+            print("Exited, hook invoked.")
     atexit.register(__exitHook)
     # catch keyboard interrupt
     import signal
@@ -206,13 +211,14 @@ else:
     SSL_CONFIG = None
 
 def startServer(
+        host: str, 
         port: int | str, 
         iserver_host: str, 
         iserver_port: int | str
         ) -> None:
     # add ssl config
     p_startServer = partial(__startServer, ssl_config=SSL_CONFIG)
-    p_startServer(port=port, iserver_host=iserver_host, iserver_port=iserver_port)
+    p_startServer(host = host, port=port, iserver_host=iserver_host, iserver_port=iserver_port)
 
 if __name__ == "__main__":
-    __startServer(8080, "127.0.0.1", "8731")
+    __startServer('127.0.0.1', 8080, "127.0.0.1", "8731")
