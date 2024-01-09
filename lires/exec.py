@@ -97,7 +97,12 @@ def run():
 
     if args.subparser == "server":
         from lires_server.main import startServer
-        startServer(args.port, args.iserver_host, args.iserver_port)
+        startServer(
+            host = args.host,
+            port = args.port, 
+            iserver_host = args.iserver_host, 
+            iserver_port = args.iserver_port
+            )
     
     if args.subparser == "iserver":
         import subprocess
