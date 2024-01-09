@@ -2,7 +2,7 @@
 Sqlite connection interface
 """
 from __future__ import annotations
-import json, os, threading, sqlite3, uuid
+import json, os, threading, sqlite3, uuid, time
 import typing
 from typing import TypedDict, Optional
 import dataclasses
@@ -87,6 +87,9 @@ class DBConnection:
 
         self.db_dir = db_dir
         self.db_path = db_path
+
+        self.__modified = False
+        self.__saving_thread = SavingThread(self, save_interval=10.0)
         self.init()
     
     def init(self):
@@ -99,25 +102,31 @@ class DBConnection:
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.cursor = self.conn.cursor()
         self.__maybeCreateTable()
+        self.__saving_thread.start()
+    
+    def setModifiedFlag(self, modified: bool):
+        self.__modified = modified
     
     def __maybeCreateTable(self):
         """
         Create table if not exist
         """
-        self.cursor.execute("""
-        CREATE TABLE IF NOT EXISTS files (
-            uuid TEXT PRIMARY KEY,
-            bibtex TEXT NOT NULL,
-            abstract TEXT NOT NULL,
-            comments TEXT NOT NULL,
-            info_str TEXT NOT NULL,
-            doc_ext TEXT NOT NULL,
-            misc_dir TEXT
-        )
-        """)
-        self.conn.commit()
+        with self.lock:
+            self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS files (
+                uuid TEXT PRIMARY KEY,
+                bibtex TEXT NOT NULL,
+                abstract TEXT NOT NULL,
+                comments TEXT NOT NULL,
+                info_str TEXT NOT NULL,
+                doc_ext TEXT NOT NULL,
+                misc_dir TEXT
+            )
+            """)
+            self.setModifiedFlag(True)
     
     def close(self):
+        self.commit()
         self.conn.close()
     
     def __enter__(self):
@@ -157,7 +166,7 @@ class DBConnection:
             self.cursor.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
                 item["uuid"], item["bibtex"], item["abstract"], item["comments"], item["info_str"], item["doc_ext"], None
             ))
-            self.conn.commit()
+            self.setModifiedFlag(True)
         return True
     
     @lock_required
@@ -225,7 +234,7 @@ class DBConnection:
             self.cursor.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
                 uid, bibtex, abstract, comments, doc_info.toString(), doc_ext, None
             ))
-            self.conn.commit()
+            self.setModifiedFlag(True)
         return uid
     
     def removeEntry(self, uuid: str) -> bool:
@@ -233,7 +242,7 @@ class DBConnection:
         self.logger.debug("(db_conn) Removing entry {}".format(uuid))
         with self.lock:
             self.cursor.execute("DELETE FROM files WHERE uuid=?", (uuid,))
-            self.conn.commit()
+            self.setModifiedFlag(True)
         self.logger.debug("Removed entry {}".format(uuid))
         return True
     
@@ -242,7 +251,7 @@ class DBConnection:
         self.logger.debug("(db_conn) Setting doc_ext for {} to {}".format(uuid, ext))
         with self.lock:
             self.cursor.execute("UPDATE files SET doc_ext=? WHERE uuid=?", (ext, uuid))
-            self.conn.commit()
+            self.setModifiedFlag(True)
         return True
     
     def updateInfo(self, uuid: str, info: DocInfo) -> bool:
@@ -250,7 +259,7 @@ class DBConnection:
         self.logger.debug("(db_conn) Updating info for {} - {}".format(uuid, info))
         with self.lock:
             self.cursor.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.toString(), uuid))
-            self.conn.commit()
+            self.setModifiedFlag(True)
         return True
     
     def updateBibtex(self, uuid: str, bibtex: str) -> bool:
@@ -258,7 +267,7 @@ class DBConnection:
         self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
         with self.lock:
             self.cursor.execute("UPDATE files SET bibtex=? WHERE uuid=?", (bibtex, uuid))
-            self.conn.commit()
+            self.setModifiedFlag(True)
         return True
     
     def updateComments(self, uuid: str, comments: str) -> bool:
@@ -266,7 +275,7 @@ class DBConnection:
         # self.logger.debug("(db_conn) Updating comments for {}".format(uuid))   # too verbose
         with self.lock:
             self.cursor.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
-            self.conn.commit()
+            self.setModifiedFlag(True)
         return True
     
     def updateAbstract(self, uuid: str, abstract: str) -> bool:
@@ -274,8 +283,15 @@ class DBConnection:
         # self.logger.debug("(db_conn) Updating abstract for {}".format(uuid))   # too verbose
         with self.lock:
             self.cursor.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
-            self.conn.commit()
+            self.setModifiedFlag(True)
         return True
+    
+    def commit(self):
+        if not self.__modified: return
+        with self.lock:
+            self.conn.commit()
+            self.setModifiedFlag(False)
+        self.logger.debug("(db_conn) Committed")
     
     def printData(self, uuid: str):
         if not self._ensureExist(uuid): return False
@@ -284,3 +300,17 @@ class DBConnection:
             row = self.cursor.fetchone()
         print(row)
 
+
+class SavingThread(threading.Thread):
+    """
+    A thread that save the database periodically
+    """
+    def __init__(self, db_conn: DBConnection, save_interval: float = 10.0):
+        super().__init__(daemon=True)
+        self.db_conn = db_conn
+        self.save_interval = save_interval
+    
+    def run(self):
+        while True:
+            self.db_conn.commit()
+            time.sleep(self.save_interval)

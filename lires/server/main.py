@@ -5,7 +5,7 @@ from lires_web import LRSWEB_SRC_ROOT
 from functools import partial
 from lires.version import VERSION
 from lires.core import globalVar as G
-from lires.core.utils import BCOLORS
+from lires.core.utils import BCOLORS, UseTermColor
 from lires.initLogger import setupLogger
 from lires.confReader import LOG_DIR
 
@@ -171,6 +171,16 @@ def __startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[
     # tornado.ioloop.IOLoop.current().add_callback(buildIndex)
     pc = tornado.ioloop.PeriodicCallback(buildIndex, 12*60*60*1000)  # in milliseconds
     pc.start()
+
+    import atexit
+    def __exitHook():
+        tornado.ioloop.IOLoop.current().stop()
+        with UseTermColor("green"):
+            print("Exit gracefully...")
+        if G.hasGlobalAttr("server_db"):
+            G.getGlobalAttr("server_db").destroy()
+        G.logger_lrs.info("Server exited")
+    atexit.register(__exitHook)
 
     tornado.ioloop.IOLoop.current().start()
 
