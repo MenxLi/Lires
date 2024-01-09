@@ -28,10 +28,6 @@ WEBPAGE = "https://github.com/MenxLi/Lires"
 
 __this_file_path = os.path.abspath(os.path.realpath(__file__))
 
-CURR_PATH = os.path.abspath(os.path.dirname(__this_file_path))
-ASSETS_DIR = join(CURR_PATH, "assets")
-PDF_VIEWER_DIR = join(ASSETS_DIR, "pdf-viewer")
-
 if "LRS_HOME" in os.environ:
     LRS_HOME = os.environ["LRS_HOME"]
 else:
@@ -59,7 +55,7 @@ ACCEPTED_EXTENSIONS = [".pdf"]
 # Create directories if they don't exist
 if not os.path.exists(LRS_HOME):
     os.mkdir(LRS_HOME)
-for _p in [ASSETS_DIR, TMP_DIR]:
+for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 for _p in [
@@ -88,7 +84,7 @@ __default_config: LiresConfT = {
     # maybe some fields for LLM configurations?
 }
 def getConf() -> LiresConfT:
-    global CONF_FILE_PATH, CURR_PATH, G
+    global CONF_FILE_PATH, G
     if not hasattr(G, "config"):
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
             read_conf = json.load(conf_file)

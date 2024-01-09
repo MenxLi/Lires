@@ -4,7 +4,7 @@ import os, time, random, shutil
 import requests, os, zipfile
 from tqdm import tqdm
 from .utils import UseTermColor
-from ..confReader import PDF_VIEWER_DIR, TMP_DIR
+from ..confReader import TMP_DIR
 
 DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.0.379/pdfjs-4.0.379-dist.zip"
 # DEFAULT_PDFJS_DOWNLOADING_URL = "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-4.0.379.tgz"
@@ -47,12 +47,15 @@ __pdfviewer_code_snippet = """
 </script>
 """
 
-def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL, force: bool = False) -> bool:
-    print("Will download pdfjs and place it to: {}".format(PDF_VIEWER_DIR))
-    if not force and os.path.exists(PDF_VIEWER_DIR):
+def downloadDefaultPDFjsViewer(
+        dst_dir: str,
+        download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL, 
+        force: bool = False) -> bool:
+    print("Will download pdfjs and place it to: {}".format(dst_dir))
+    if not force and os.path.exists(dst_dir):
         with UseTermColor("red"):
-            print("Should delete old pdf.js viewer first: ", PDF_VIEWER_DIR)
-            print("call: rm -rf {}".format(PDF_VIEWER_DIR))
+            print("Should delete old pdf.js viewer first: ", dst_dir)
+            print("call: rm -rf {}".format(dst_dir))
         return False
     tmp_download = os.path.join(TMP_DIR, download_url.split("/")[-1])
 
@@ -82,16 +85,16 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
         return False
     
     print("Extracting to default viewer location...")
-    if force and os.path.exists(PDF_VIEWER_DIR):
-        shutil.rmtree(PDF_VIEWER_DIR)
-    os.mkdir(PDF_VIEWER_DIR)
+    if force and os.path.exists(dst_dir):
+        shutil.rmtree(dst_dir)
+    os.mkdir(dst_dir)
     assert tmp_download.endswith(".zip")
     with zipfile.ZipFile(tmp_download, "r", compression=zipfile.ZIP_DEFLATED) as zp:
-        zp.extractall(path = PDF_VIEWER_DIR)
+        zp.extractall(path = dst_dir)
 
-    print("Downloaded PDF.js to: {}".format(PDF_VIEWER_DIR))
+    print("Downloaded PDF.js to: {}".format(dst_dir))
     os.remove(tmp_download)
-    viewer_index_file = os.path.join(PDF_VIEWER_DIR, "web", "viewer.html")
+    viewer_index_file = os.path.join(dst_dir, "web", "viewer.html")
     # add a snippet to modify the default viewer options
     print("Inject code snippet.")
     with open(viewer_index_file, "r") as f:
@@ -102,13 +105,13 @@ def downloadDefaultPDFjsViewer(download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL
     print("Done.")
     return True
 
-def initPDFViewer():
-    if os.path.exists(PDF_VIEWER_DIR) \
-        and not os.listdir(PDF_VIEWER_DIR)==[] \
-        and os.path.exists(os.path.join(PDF_VIEWER_DIR, "web", "viewer.html")):
+def initPDFViewer(dst_dir: str):
+    if os.path.exists(dst_dir) \
+        and not os.listdir(dst_dir)==[] \
+        and os.path.exists(os.path.join(dst_dir, "web", "viewer.html")):
         return None
 
-    lock_file = os.path.join(os.path.dirname(PDF_VIEWER_DIR), "pdfjs_downloading.lock")
+    lock_file = os.path.join(os.path.dirname(dst_dir), "pdfjs_downloading.lock")
     this_pid = os.getpid()
     while os.path.exists(lock_file):
         print(f"[{this_pid}] Waiting for other process to download pdfjs..."
@@ -119,7 +122,7 @@ def initPDFViewer():
     with open(lock_file, "w") as f:
         f.write(str(this_pid))
     try:
-        downloadDefaultPDFjsViewer(force=True)
+        downloadDefaultPDFjsViewer(force=True, dst_dir=dst_dir)
     except Exception as e:
         with UseTermColor("red"):
             print("ERROR: {}".format(e))

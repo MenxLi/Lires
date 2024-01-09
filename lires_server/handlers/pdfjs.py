@@ -3,10 +3,10 @@ Serve pdfjs files
 """
 
 from ._base import *
-from lires.confReader import PDF_VIEWER_DIR
+from ..config import PDF_VIEWER_DIR
 from lires.core.pdfTools import initPDFViewer
 
-initPDFViewer()
+initPDFViewer(PDF_VIEWER_DIR)
 class PdfJsHandler(tornado.web.StaticFileHandler, RequestHandlerMixin):
     root_dir = PDF_VIEWER_DIR
 
