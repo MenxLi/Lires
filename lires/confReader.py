@@ -37,12 +37,7 @@ if "LRS_HOME" in os.environ:
 else:
     LRS_HOME = os.path.join(os.path.expanduser("~"), ".Lires")
 
-if G.prog_args and G.prog_args.config_file:
-    CONF_FILE_PATH = os.path.abspath(G.prog_args.config_file)
-    if os.path.isdir(CONF_FILE_PATH):
-        CONF_FILE_PATH = os.path.join(CONF_FILE_PATH, "lrs-config.json")
-else:
-    CONF_FILE_PATH = join(LRS_HOME, "config.json")
+CONF_FILE_PATH = join(LRS_HOME, "config.json")
 
 ## Data entries
 DATABASE_DIR = join(LRS_HOME, "Database")

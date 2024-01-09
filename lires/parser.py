@@ -17,16 +17,14 @@ def _prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentP
         help="models that can be used with openai-api, you would typically specify a different openai-base if you change this")
     return parser
 
-def parseArgs() -> argparse.Namespace:
+def prepareParser() -> argparse.ArgumentParser:
     _description = f"\
-Lires, a research bibliography manager. \
+Lires, a self-hosted research literature manager. \
 For more info and source code, visit: https://github.com/MenxLi/Lires\
     "
     parser = argparse.ArgumentParser(description=_description)
     parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
     parser.add_argument("-l", "--print_log", action = "store_true", help = "Print log and exit")
-    parser.add_argument("-c", "--config_file", action = "store", help = "Configuration file path, \
-                        if not specified, use default configuration file in LRS_HOME", default = None)
     parser.add_argument("-H", "--show_home", action= "store_true", help = "Print LRS_HOME and exit")
     parser.add_argument("--clear_cache", action = "store_true", help = "clear cache and exit")
     parser.add_argument("--reset_conf", action = "store_true", help = "Reset configuration and exit")
@@ -39,9 +37,5 @@ For more info and source code, visit: https://github.com/MenxLi/Lires\
     parser_iserver = sp.add_parser("iserver", help = "Start LiresAI server")
     _prepareIServerParser(parser_iserver)
 
-    args = parser.parse_args()
-    G.prog_args = args
-    G.prog_parser = parser
-
-    return args
+    return parser
 

@@ -9,8 +9,6 @@ logger_lrs: logging.Logger
 logger_lrs_server: logging.Logger
 last_status_code: int   # a register for last connection status code
 
-prog_args: Optional[argparse.Namespace]     # set by lires.exec
-prog_parser: Optional[argparse.ArgumentParser]     # set by lires.exec
 config:  LiresConfT           # configuration, set by lires.confReader
 
 iserver_host: Optional[str] = None
@@ -23,7 +21,6 @@ def init():
     global logger_lrs_server
     global __initialized
     global last_status_code
-    global prog_args, prog_parser
     global __global_dict
 
     thismodule = sys.modules[__name__]
@@ -36,8 +33,6 @@ def init():
     logger_lrs = logging.getLogger("lires")
     logger_lrs_server = logging.getLogger("lires_server")
     last_status_code = 200
-    prog_args = None
-    prog_parser = None
     __global_dict = dict()
 
 def setGlobalAttr(key, val):

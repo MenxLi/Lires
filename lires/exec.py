@@ -1,12 +1,12 @@
 import shutil
 import os
 from .core import globalVar as G
-from .parser import parseArgs
+from .parser import prepareParser
 from .cmd.generateDefaultConf import generateDefaultConf
 
 def run():
-    parseArgs()
-    args = G.prog_args
+    parser = prepareParser()
+    args = parser.parse_args()
     assert args is not None     # type checking purpose
 
     # Read configuration file after parse agruments
@@ -92,8 +92,7 @@ def run():
 
     if args.subparser is None:
         # show help
-        assert G.prog_parser is not None
-        G.prog_parser.print_help()
+        parser.print_help()
 
     if args.subparser == "server":
         from lires_server.main import startServer
