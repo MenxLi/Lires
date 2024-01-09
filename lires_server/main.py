@@ -196,7 +196,11 @@ if _ENV_CERTFILE is not None:
 else:
     SSL_CONFIG = None
 
-def startServer(port: Union[int, str], iserver_host: str, iserver_port: Union[int, str]) -> None:
+def startServer(
+        port: int | str, 
+        iserver_host: str, 
+        iserver_port: int | str
+        ) -> None:
     # add ssl config
     p_startServer = partial(__startServer, ssl_config=SSL_CONFIG)
     p_startServer(port=port, iserver_host=iserver_host, iserver_port=iserver_port)

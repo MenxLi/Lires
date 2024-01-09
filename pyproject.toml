@@ -21,7 +21,7 @@ authors = [
 ]
 description = "A self-hosted literature management system."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"      # to support pep604 (structural pattern matching)
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
