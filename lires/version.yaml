@@ -605,3 +605,6 @@ version_history:
     - Fix:
       - Rename hierarchical tag with whitespace
       - Broswer token saving
+  1.3.5:
+    - Fix:
+      - User manage
