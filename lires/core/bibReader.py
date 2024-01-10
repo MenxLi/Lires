@@ -2,7 +2,6 @@ import pybtex.database
 from datetime import date
 from typing import TypedDict, Optional, Callable
 from . import refparser
-from .utils import randomAlphaNumeric
 from .customError import LiresDocTypeNotSupportedError
 import warnings, logging
 import nbib
@@ -10,6 +9,7 @@ from pybtex.database import BibliographyData, Entry
 import pybtex.scanner
 from pylatexenc import latex2text
 import multiprocessing as mp
+from ..utils import randomAlphaNumeric
 
 def checkBibtexValidity(bib_str: str, onerror: Optional[Callable[[str], None]] = None) -> bool:
     """

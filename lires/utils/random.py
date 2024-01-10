@@ -1,5 +1,5 @@
-import re, random, string
-import subprocess, os, platform
+import random
+import string
 from uuid import uuid4
 
 def sUUID() -> str:

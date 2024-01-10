@@ -7,8 +7,8 @@ from typing import Union, Optional
 # else:
 from typing_extensions import NotRequired, TypedDict  # for Python <3.11 with (Not)Required
 
+from lires.utils import randomAlphaNumeric
 from pybtex.database import BibliographyData, Entry
-from ..utils import randomAlphaNumeric
 from ..customError import LiresDocTypeNotSupportedError
 
 class RefDict(TypedDict):
