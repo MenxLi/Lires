@@ -7,6 +7,14 @@ if [ "$(ls -A $LRS_HOME)" ]; then
     exit 1
 fi
 
+# start the server and iserver
+nohup sh -c "lires server" > $LRS_HOME/nohup.out &
+nohup sh -c "lires iserver" > $LRS_HOME/nohup.out &
+
+# wait for the server to start
+echo "Waiting for the server to start..."
+sleep 3
+
 # run test cases
 echo "Running test cases..."
 python3 -m unittest discover -s test -p 'test_*.py'
