@@ -6,7 +6,7 @@ import argparse, asyncio
 from lires.confReader import DATABASE_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase
 from lires.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
-from lires.core.utils import MuteEverything
+from lires.utils import MuteEverything
 from lires.core import globalVar as G
 
 import tiny_vectordb

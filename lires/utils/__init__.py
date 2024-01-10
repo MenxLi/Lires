@@ -4,12 +4,14 @@ mostly without any external dependencies.
 """
 
 from .log import initDefaultLogger, setupLogger
-from .term import BCOLORS, UseTermColor
+from .term import BCOLORS, UseTermColor, MuteEverything
 from .time import TimeUtils, timedFunc, Timer
+from .fs import openFile, isWebURL
 
 
 __all__ = [
     "initDefaultLogger", "setupLogger",
-    "BCOLORS", "UseTermColor",
+    "BCOLORS", "UseTermColor", "MuteEverything",
     "TimeUtils", "timedFunc", "Timer",
+    "openFile", "isWebURL", 
 ]
