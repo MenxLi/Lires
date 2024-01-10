@@ -1,72 +1,7 @@
-import time, re, random, string, logging
-import subprocess, os, platform, sys, threading
-from typing import Callable, TypeVar
+import re, random, string
+import subprocess, os, platform
 from functools import wraps
 from uuid import uuid4
-
-CallVar = TypeVar("CallVar", bound = Callable)
-
-class MuteEverything:
-    def __init__(self, enable: bool = True):
-        self.stdout = None
-        self.stderr = None
-        self.enable = enable
-    def on(self):
-        self.__enter__()
-    def off(self):
-        self.__exit__(None, None, None)
-
-    def __enter__(self):
-        if not self.enable:
-            return
-        # Redirect stdout and stderr to /dev/null
-        self.stdout = sys.stdout
-        self.stderr = sys.stderr
-        sys.stdout = open(os.devnull, 'w')
-        sys.stderr = open(os.devnull, 'w')
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if not self.enable:
-            return
-        # Restore stdout and stderr
-        sys.stdout.close()
-        sys.stderr.close()
-        sys.stdout = self.stdout
-        sys.stderr = self.stderr
-
-def hintCall(func: CallVar) -> CallVar:
-    logger = logging.getLogger("lires")
-    @wraps(func)
-    def func_(*args, **kwargs):
-        logger.debug(f" [{func.__name__}] ")
-        return func(*args, **kwargs)
-    return func_    # type: ignore
-
-class ProgressBarCustom(object):
-    def __init__(self, n_total, call: Callable[[str], None]):
-        """
-        - callback: Callable[[progress_str], None]
-        """
-        self._call = call
-        self.n_toal = n_total
-        self.current = 0
-
-    @staticmethod
-    def progressBarString(current: int, total: int):
-        # To update later
-        decimals = 1
-        fill = '█'
-        length = 20
-        percent = ("{0:." + str(decimals) + "f}").format(100 * (current / float(total)))
-        filledLength = int(length * current // total)
-        bar = fill * filledLength + '-' * (length - filledLength)
-        #  return f"{current}/{total}"
-        return f"{percent}% | {bar}"
-
-    def next(self):
-        self.current += 1
-        to_show = self.progressBarString(self.current, self.n_toal)
-        self._call(to_show)
 
 def openFile(filepath):
     # https://stackoverflow.com/questions/434597/open-document-with-default-os-application-in-python-both-in-windows-and-mac-os

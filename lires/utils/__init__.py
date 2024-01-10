@@ -4,7 +4,7 @@ mostly without any external dependencies.
 """
 
 from .log import initDefaultLogger, setupLogger
-from .bcolors import BCOLORS, UseTermColor
+from .term import BCOLORS, UseTermColor
 from .time import TimeUtils, timedFunc, Timer
 
 

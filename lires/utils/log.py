@@ -5,7 +5,7 @@ from functools import wraps
 from typing import Optional
 from lires.confReader import LOG_FILE
 
-from .bcolors import BCOLORS
+from .term import BCOLORS
 from .time import TimeUtils
 
 def initDefaultLogger(log_level = "INFO") -> logging.Logger:
