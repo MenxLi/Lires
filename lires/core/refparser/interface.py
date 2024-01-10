@@ -7,9 +7,9 @@ from typing import Union, Optional
 # else:
 from typing_extensions import NotRequired, TypedDict  # for Python <3.11 with (Not)Required
 
+from lires.core import LiresError
 from lires.utils import randomAlphaNumeric
 from pybtex.database import BibliographyData, Entry
-from ..customError import LiresDocTypeNotSupportedError
 
 class RefDict(TypedDict):
     type: str
@@ -54,7 +54,7 @@ class ParserBase(ABC):
         elif data['type'].lower() == "thesis":
             doc_type = "phdthesis"
         else:
-            raise LiresDocTypeNotSupportedError("Not supported document type {}".format(data['type']))
+            raise LiresError.LiresDocTypeNotSupportedError("Not supported document type {}".format(data['type']))
         del data["type"]
 
         if "issue" in data:

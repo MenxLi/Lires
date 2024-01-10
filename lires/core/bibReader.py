@@ -3,7 +3,6 @@ from datetime import date
 from typing import TypedDict, Optional, Callable
 from . import refparser
 from .base import LiresBase
-from .customError import LiresDocTypeNotSupportedError
 import warnings, logging
 import nbib
 from pybtex.database import BibliographyData, Entry
@@ -159,7 +158,7 @@ class BibConverter(LiresBase):
                     self.logger.error("Could not find {} while parsing nbib".format(k[1]))
         else:
             # To change later
-            raise LiresDocTypeNotSupportedError("Not supported document type {}".format(parsed["publication_types"]))
+            raise self.Error.LiresDocTypeNotSupportedError("Not supported document type {}".format(parsed["publication_types"]))
 
         # try other format
         for k in ["journal", "journal_abbreviated", "abstract", "pages", "doi"]:

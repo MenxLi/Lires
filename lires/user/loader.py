@@ -4,7 +4,7 @@ from typing import Optional, Sequence
 
 from .object import LiresUser, UsrDBConnection
 from ..confReader import USER_DIR
-from ..core.customError import *
+from ..core import LiresError
 
 class UserPool(Sequence[LiresUser]):
 
@@ -48,14 +48,14 @@ class UserPool(Sequence[LiresUser]):
         try:
             user_id = self.conn.getUser(username)['id']
             return LiresUser(self.conn, user_id)
-        except LiresUserNotFoundError:
+        except LiresError.LiresUserNotFoundError:
             return None
     
     def getUserById(self, id: int) -> Optional[LiresUser]:
         try:
             self.conn.getUser(id)
             return LiresUser(self.conn, id)
-        except LiresUserNotFoundError:
+        except LiresError.LiresUserNotFoundError:
             return None
     
     def deleteUser(self, query: int|str):
@@ -68,7 +68,7 @@ class UserPool(Sequence[LiresUser]):
             raise ValueError("Invalid query type")
 
         if user is None:
-            raise LiresUserNotFoundError(f"User {query} not found")
+            raise LiresError.LiresUserNotFoundError(f"User {query} not found")
         
         # remove avatar image
         if user.avatar_image_path:

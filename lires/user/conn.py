@@ -2,12 +2,9 @@ import sqlite3
 import os, json, time
 from functools import wraps
 from threading import Lock, Thread
-
 from typing import TypedDict
 
-from ..core import globalVar as G
 from ..core.base import LiresBase
-from ..core.customError import *
 
 # a wrapper that marks an object instance needs lock,
 def lock_required(func):
@@ -86,7 +83,7 @@ class UsrDBConnection(LiresBase):
         self.cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         res = self.cursor.fetchone()
         if res is not None:
-            raise LiresUserDuplicationError(f"User {username} already exists")
+            raise self.Error.LiresUserDuplicationError(f"User {username} already exists")
         # insert the user
         self.cursor.execute("""
                             INSERT INTO users 
@@ -106,7 +103,7 @@ class UsrDBConnection(LiresBase):
         else: raise ValueError("Invalid query type")
         res = self.cursor.fetchone()
         if res is None:
-            raise LiresUserNotFoundError(f"User {query} not found")
+            raise self.Error.LiresUserNotFoundError(f"User {query} not found")
         # delete the user
         if isinstance(query, int):
             self.cursor.execute("DELETE FROM users WHERE id = ?", (query,))
@@ -120,7 +117,7 @@ class UsrDBConnection(LiresBase):
         self.cursor.execute("SELECT * FROM users WHERE id = ?", (id_,))
         res = self.cursor.fetchone()
         if res is None:
-            raise LiresUserNotFoundError(f"User {id_} not found")
+            raise self.Error.LiresUserNotFoundError(f"User {id_} not found")
 
         # update the user
         for k, v in kwargs.items():
@@ -145,7 +142,7 @@ class UsrDBConnection(LiresBase):
             raise ValueError("Invalid query type")
         res = self.cursor.fetchone()
         if res is None:
-            raise LiresUserNotFoundError(f"User {query} not found")
+            raise self.Error.LiresUserNotFoundError(f"User {query} not found")
         return {
             "id": res[0],
             "username": res[1],

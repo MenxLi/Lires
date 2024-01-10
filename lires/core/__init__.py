@@ -9,3 +9,7 @@ Responsibilities of the core modules are:
 - general utility functions
 - interface to the server side
 """
+
+from .base import LiresError
+
+__all__ = ['LiresError']
