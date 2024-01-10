@@ -19,5 +19,10 @@ sleep 3
 echo "Running test cases..."
 python3 -m unittest discover -s test -p 'test_*.py'
 
+
+echo "Cleaning up..."
+
+# kill all the processes
+kill $(ps aux | grep '[l]ires' | awk '{print $2}')
 # remove the directory
 rm -rf $LRS_HOME
