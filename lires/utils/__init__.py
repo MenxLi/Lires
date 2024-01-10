@@ -3,7 +3,7 @@ Helper functions for the main modules,
 mostly without any external dependencies.
 """
 
-from .initLogger import initDefaultLogger, setupLogger
+from .log import initDefaultLogger, setupLogger
 from .bcolors import BCOLORS, UseTermColor
 
 
