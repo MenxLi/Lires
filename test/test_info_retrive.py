@@ -3,7 +3,7 @@ import asyncio
 from lires.confReader import DATABASE_DIR, VECTOR_DB_PATH
 from lires.core.textUtils import retrieveRelevantSections
 from lires.core.pdfTools import getPDFText
-from lires.core.utils import BCOLORS
+from lires.utils import BCOLORS
 from lires.core.serverConn import IServerConn
 from lires.core.dataClass import DataBase
 from tiny_vectordb import VectorDatabase

@@ -1,7 +1,7 @@
 import logging, sys
 from logging.handlers import RotatingFileHandler
 from typing import Optional
-from lires.core.utils import BCOLORS
+from lires.utils import BCOLORS
 from lires.confReader import LOG_FILE
 
 def initDefaultLogger(log_level = "INFO") -> logging.Logger:

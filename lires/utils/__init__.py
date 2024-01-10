@@ -4,8 +4,10 @@ mostly without any external dependencies.
 """
 
 from .initLogger import initDefaultLogger, setupLogger
+from .bcolors import BCOLORS, UseTermColor
 
 
 __all__ = [
-    "initDefaultLogger", "setupLogger"
+    "initDefaultLogger", "setupLogger",
+    "BCOLORS", "UseTermColor",
 ]
