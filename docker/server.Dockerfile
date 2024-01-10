@@ -22,7 +22,6 @@ RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 # https://stackoverflow.com/a/75722775/6775765
 RUN python3 -m pip install --upgrade pip --break-system-packages
-RUN pip3 install /Lires/packages/tiny_vectordb --break-system-packages
 RUN pip3 install -e /Lires[core] --break-system-packages
 
 EXPOSE 8080
