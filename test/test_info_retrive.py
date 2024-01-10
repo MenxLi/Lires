@@ -4,7 +4,7 @@ from lires.confReader import DATABASE_DIR, VECTOR_DB_PATH
 from lires.core.textUtils import retrieveRelevantSections
 from lires.core.pdfTools import getPDFText
 from lires.utils import BCOLORS
-from lires.core.serverConn import IServerConn
+from lires.api import IServerConn
 from lires.core.dataClass import DataBase
 from tiny_vectordb import VectorDatabase
 from lires_ai.lmInterface import ChatStreamIterType

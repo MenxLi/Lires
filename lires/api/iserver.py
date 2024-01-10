@@ -5,7 +5,7 @@ Interface for server connections,
 from __future__ import annotations
 from lires.core.base import LiresBase
 from lires.core import globalVar as G
-from typing import TYPE_CHECKING, Optional, List, TypedDict
+from typing import TYPE_CHECKING, Optional, TypedDict
 import requests, json
 import sys
 if sys.version_info < (3, 9):
@@ -16,26 +16,10 @@ else:
 if TYPE_CHECKING:
     from lires_ai.lmInterface import ConversationDictT, ChatStreamIterType
 
-class ConnectionBase(LiresBase):
-
-    @property
-    def logger(self):
-        return LiresBase.loggers().core
-
-    def _checkRes(self, res: requests.Response) -> bool:
-        """
-        Check if response is valid
-        """
-        status_code = res.status_code
-        if status_code != 200:
-            self.logger.debug("Get response {}".format(res.status_code))
-        if status_code == 403:
-            self.logger.warning("Unauthorized access")
-        G.last_status_code = res.status_code
-        return res.ok
-
-class IServerConn(ConnectionBase):
+class IServerConn(LiresBase):
     """Connection to lires_ai.server"""
+
+    logger = LiresBase.loggers().core
 
     def __init__(self, host: str = "", port: str|int = "") -> None:
         super().__init__()

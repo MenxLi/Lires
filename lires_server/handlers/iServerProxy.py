@@ -1,7 +1,7 @@
 
 from ._base import *
 import json, sys, math
-from lires.core.serverConn import IServerConn
+from lires.api import IServerConn
 
 
 class IServerProxyHandler(RequestHandlerBase):

@@ -1,4 +1,4 @@
-from lires.core.serverConn import IServerConn
+from lires.api import IServerConn
 
 iconn = IServerConn(host="localhost")
 print(iconn.status)

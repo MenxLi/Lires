@@ -26,8 +26,6 @@ WEBPAGE = "https://github.com/MenxLi/Lires"
 # ├── Lires.cache [TMP_DIR]
 # │   └── ...
 
-__this_file_path = os.path.abspath(os.path.realpath(__file__))
-
 if "LRS_HOME" in os.environ:
     LRS_HOME = os.environ["LRS_HOME"]
 else:

@@ -9,7 +9,7 @@ from typing import TypedDict, Optional, Callable, Literal
 from lires.confReader import DOC_SUMMARY_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
-from lires.core.serverConn import IServerConn
+from lires.api import IServerConn
 from lires.utils import Timer
 import tiny_vectordb
 
