@@ -40,9 +40,9 @@ def run():
 
     args = parser.parse_args()
 
+    user_db_conn = UsrDBConnection(USER_DIR)
     if args.subparser == "add":
         assert args.password is not None, "Password is required"
-        user_db_conn = UsrDBConnection(USER_DIR)
         user_db_conn.insertUser(
             username=args.username, password=generateHexHash(args.password), name=args.name,
             is_admin=args.admin, mandatory_tags=DataTags(args.tags).toOrderedList()
@@ -50,7 +50,6 @@ def run():
     
     elif args.subparser == "update":
         assert args.username is not None, "Username is required"
-        user_db_conn = UsrDBConnection(USER_DIR)
         user_id = user_db_conn.getUser(args.username)["id"]
         if args.password is not None:
             user_db_conn.updateUser(user_id, password=generateHexHash(args.password))
@@ -62,7 +61,6 @@ def run():
             user_db_conn.updateUser(user_id, is_admin=args.admin)
 
     elif args.subparser == "delete":
-        user_db_conn = UsrDBConnection(USER_DIR)
         assert args.username is not None or args.id is not None, "Username or id is required"
         assert not (args.username is not None and args.id is not None), "Cannot specify both username and id"
         if args.username is not None:
@@ -78,6 +76,8 @@ def run():
 
     else:
         parser.print_usage()
+    
+    user_db_conn.commit()
 
 
 if __name__ == "__main__":
