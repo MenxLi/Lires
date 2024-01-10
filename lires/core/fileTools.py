@@ -9,7 +9,7 @@ import threading
 from . import globalVar as G
 from .dbConn import DBConnection, DocInfo
 from .bibReader import BibParser
-from .utils import TimeUtils
+from ..utils import TimeUtils
 from .utils import openFile as _openFile
 from ..confReader import DATABASE_DIR, ACCEPTED_EXTENSIONS
 from ..version import VERSION

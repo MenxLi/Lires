@@ -1,8 +1,12 @@
 import logging, sys
 from logging.handlers import RotatingFileHandler
+from io import TextIOWrapper
+from functools import wraps
 from typing import Optional
-from lires.utils import BCOLORS
 from lires.confReader import LOG_FILE
+
+from .bcolors import BCOLORS
+from .time import TimeUtils
 
 def initDefaultLogger(log_level = "INFO") -> logging.Logger:
     """
@@ -95,3 +99,37 @@ class LoggingLogger():
         if self.write_terminal:
             self.terminal.flush()
 
+
+## ----- Custom logger -----
+class Logger():
+    # https://cloud.tencent.com/developer/article/1643418
+    def __init__(self, file_obj: TextIOWrapper, write_to_terminal = True):
+        self.terminal = sys.stdout
+        self.log = file_obj
+        self.write_terminal = write_to_terminal
+ 
+    def write(self, message):
+        if self.write_terminal:
+            self.terminal.write(message)
+        self.log.write(message)
+ 
+    def flush(self):
+        if self.write_terminal:
+            self.terminal.flush()
+
+def logFunc(log_path = LOG_FILE):
+    def wapper(func):
+        @wraps(func)
+        def _func(*args, **kwargs):
+            std_out = sys.stdout
+            std_err = sys.stderr
+            with open(log_path, "a") as log_file:
+                sys.stdout = Logger(log_file)
+                sys.stderr = Logger(log_file)
+                print("{time}: {name}".format(time = TimeUtils.localNowStr(), name = func.__name__))
+                func(*args, **kwargs)
+            sys.stdout = std_out
+            sys.stderr = std_err
+        return _func
+    return wapper
+    

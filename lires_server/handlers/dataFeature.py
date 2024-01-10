@@ -4,7 +4,7 @@ from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import numpy as np
 import json
-from lires.core.utils import Timer
+from lires.utils import Timer
 
 Feat3DT = dict[str, list[float]] | None
 class DataFeatureTSNEHandler(RequestHandlerBase):

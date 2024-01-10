@@ -2,7 +2,7 @@ from __future__ import annotations
 import os
 from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar
 import difflib
-from .utils import Timer
+from ..utils import Timer
 try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable

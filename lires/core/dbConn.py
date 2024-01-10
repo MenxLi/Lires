@@ -10,7 +10,7 @@ import platform
 from functools import wraps
 
 from . import globalVar as G
-from .utils import TimeUtils
+from ..utils import TimeUtils
 from ..version import VERSION
 
 @dataclasses.dataclass
