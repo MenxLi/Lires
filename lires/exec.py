@@ -16,7 +16,7 @@ def run():
     # Init logger will import lires.core, 
     # May cause dependency error if only runs lires.ai
     try:
-        from .initLogger import initDefaultLogger
+        from .utils.initLogger import initDefaultLogger
         initDefaultLogger("DEBUG")
     except ImportError:
         pass

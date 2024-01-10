@@ -6,7 +6,7 @@ from functools import partial
 from lires.version import VERSION
 from lires.core import globalVar as G
 from lires.core.utils import BCOLORS, UseTermColor
-from lires.initLogger import setupLogger
+from lires.utils import setupLogger
 from lires.confReader import LOG_DIR
 
 import tornado

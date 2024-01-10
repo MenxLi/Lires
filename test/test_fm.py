@@ -1,7 +1,7 @@
 
 
 from pprint import pprint
-from lires.initLogger import initDefaultLogger; initDefaultLogger()
+from lires.utils import initDefaultLogger; initDefaultLogger()
 from lires.confReader import DATABASE_DIR
 from lires.core.fileTools import addDocument, FileManipulator
 from lires.core.dataClass import DataPoint, DataBase
