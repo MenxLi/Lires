@@ -25,8 +25,7 @@ class GlobalStorage:
         """
         self.database.conn.commit()
 
-        # TODO: change order...
-        self.vector_database.flush()
         self.vector_database.commit()
+        self.vector_database.flush()
 
         self.user_pool.conn.commit()
