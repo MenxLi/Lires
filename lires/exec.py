@@ -53,18 +53,20 @@ def run():
         NOT_RUN = True
 
     if args.print_log:
-        __find_log_fnames = []
-        for fname in ["log.txt", "core.log", "server.log"]:
-            if os.path.exists(os.path.join(LOG_DIR, fname)):
-                __find_log_fnames.append(fname)
-        if not __find_log_fnames: print("Log file not exits, run the program to create the log file")
-        else:
-            print("\n".join([f"{idx}. {f}" for idx, f in enumerate(__find_log_fnames)]))
-            __to_show_idx = input("Choose which log to show (default: 0): ")
-            if not __to_show_idx: __to_show_idx = 0
-            with open(os.path.join(LRS_HOME, __find_log_fnames[int(__to_show_idx)]), "r") as f:
-                print(f.read())
-        print("=======================Above is the log=======================")
+        _all_log_files = os.listdir(LOG_DIR)
+        _all_log_files.sort()
+        print("Find {} log files: ".format(len(_all_log_files)))
+        for i, log_file in enumerate(_all_log_files):
+            print("[{}] {}".format(i+1, log_file))
+        _sel = input("Select one to print: ")
+        try:
+            _sel = int(_sel)
+            assert _sel >= 1 and _sel <= len(_all_log_files)
+            with open(os.path.join(LOG_DIR, _all_log_files[_sel-1]), "r", encoding="utf-8") as fp:
+                print("=======================Below is the log=======================")
+                print(fp.read())
+        except Exception as e:
+            print("Error: ", e)
         NOT_RUN = True
 
     if args.show_home:

@@ -127,7 +127,7 @@ def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_p
         term_id_color=BCOLORS.OKBLUE,
         term_log_level="DEBUG",
         file_path = os.path.join(LOG_DIR, "server.log"),
-        file_log_level="INFO",
+        file_log_level="_ALL",
     )
     setupLogger(
         G.logger_lrs,
@@ -135,7 +135,7 @@ def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_p
         term_id_color=BCOLORS.OKGREEN,
         term_log_level="DEBUG",
         file_path = os.path.join(LOG_DIR, "core.log"),
-        file_log_level="INFO",
+        file_log_level="_ALL",
     )
 
     # set global variables of iServer
@@ -182,7 +182,7 @@ def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_p
     def __exitHook():
         tornado.ioloop.IOLoop.current().stop()
         g_storage.flush()
-        G.logger_lrs.info("Server exited")
+        G.logger_lrs_server.info("Server exited")
         with UseTermColor("green"):
             print("Exited, hook invoked.")
     atexit.register(__exitHook)

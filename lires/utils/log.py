@@ -2,7 +2,7 @@ import logging, sys
 from logging.handlers import RotatingFileHandler
 from io import TextIOWrapper
 from functools import wraps
-from typing import Optional
+from typing import Optional, Literal
 from lires.confReader import LOG_FILE
 
 from .term import BCOLORS
@@ -18,17 +18,18 @@ def initDefaultLogger(log_level = "INFO") -> logging.Logger:
         term_id_color = BCOLORS.OKGRAY,
         term_log_level=log_level,
         file_path=LOG_FILE,
-        file_log_level="DEBUG",
+        file_log_level="_ALL",
         attach_execption_hook=True
     )
 
+_FileLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "_ALL"]
 def setupLogger(
         _logger: str | logging.Logger, 
         term_id: Optional[str] = None, 
         term_id_color = BCOLORS.OKGRAY, 
         term_log_level = "INFO",
         file_path: Optional[str] = None,
-        file_log_level = "INFO",
+        file_log_level: _FileLogLevelT = "_ALL",
         attach_execption_hook = False
         ) -> logging.Logger:
     """
@@ -52,21 +53,57 @@ def setupLogger(
     # remove all other handlers
     logger.handlers.clear()
 
-    # get less critical log level and set it to be the level of logger
-    logger.setLevel(min(logging.getLevelName(term_log_level), logging.getLevelName(file_log_level)))
-
+    def __formatTermID(term_id: str) -> str:
+        fix_len = 8
+        if len(term_id) > fix_len:
+            return term_id[:fix_len-3] + "..."
+        else:
+            return term_id.rjust(fix_len)
+    # set up terminal handler
     _ch = logging.StreamHandler()
     _ch.setLevel(term_log_level)
-    _ch.setFormatter(logging.Formatter(term_id_color +f'[{term_id}]'+BCOLORS.OKCYAN + \
-                                       ' %(asctime)s - %(levelname)s - ' + BCOLORS.ENDC + ' %(message)s'))
+    _ch.setFormatter(logging.Formatter(term_id_color +f'[{__formatTermID(term_id)}]'
+                                       +BCOLORS.OKCYAN + ' %(asctime)s '
+                                       +BCOLORS.OKCYAN + '[%(levelname)s] ' + BCOLORS.ENDC + ' %(message)s'))
     logger.addHandler(_ch)
 
-    if file_path is not None:
-        _fh = logging.FileHandler(file_path)
-        _fh = RotatingFileHandler(file_path, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
-        _fh.setLevel(file_log_level)
-        _fh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logger.addHandler(_fh)
+    __file_fommatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
+    if file_log_level != "_ALL":
+        # get less critical log level and set it to be the level of logger
+        logger.setLevel(min(logging.getLevelName(term_log_level), logging.getLevelName(file_log_level)))
+
+        # set up file handler
+        if file_path is not None:
+            _fh = logging.FileHandler(file_path)
+            _fh = RotatingFileHandler(file_path, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
+            _fh.setLevel(file_log_level)
+            _fh.setFormatter(__file_fommatter)
+            logger.addHandler(_fh)
+    else:
+        # set up a file handler for each level!
+        class LevelFilter(logging.Filter):
+            def __init__(self, level):
+                self.level = level
+            def filter(self, record):
+                return record.levelno == self.level
+
+        logger.setLevel(logging.DEBUG)
+        if file_path is not None:
+            # set up file handlers
+            for _level in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+                _fh = logging.FileHandler(file_path + "." + _level.lower())
+                _fh = RotatingFileHandler(file_path + "." + _level.lower(), "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
+                _fh.setLevel(_level)
+                _fh.addFilter(LevelFilter(logging.getLevelName(_level)))
+                _fh.setFormatter(__file_fommatter)
+                logger.addHandler(_fh)
+            # set up a file handler for all levels
+            _fh = logging.FileHandler(file_path)
+            _fh = RotatingFileHandler(file_path, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
+            _fh.setLevel(logging.DEBUG)
+            _fh.setFormatter(__file_fommatter)
+            logger.addHandler(_fh)
+
     
     if attach_execption_hook:
         def handle_exception(exc_type, exc_value, exc_traceback):

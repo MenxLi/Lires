@@ -450,7 +450,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         Construct the DataBase (Add new entries to database)
          - vs: list of data uuids
         """
-        with Timer("Constructing database", self.logger.info):
+        with Timer("Constructing database", self.logger.debug):
             all_data: list[DataPoint] = []
             for v_ in vs:
                 fm = FileManipulator(v_, db_local=self.conn)
