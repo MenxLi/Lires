@@ -1,3 +1,7 @@
+"""
+WILL BE DEPRECATED!
+"""
+
 from __future__ import annotations
 import sys
 from typing import Optional, TYPE_CHECKING
@@ -27,22 +31,6 @@ def init():
 
     last_status_code = 200
     __global_dict = dict()
-
-def setGlobalAttr(key, val):
-    global __global_dict
-    __global_dict[key] = val
-
-def getGlobalAttr(key):
-    global __global_dict
-    return __global_dict[key]
-
-def deleteGlobalAttr(key):
-    global __global_dict
-    del __global_dict[key]
-
-def hasGlobalAttr(key):
-    global __global_dict
-    return key in __global_dict.keys()
 
 def resetGlobalConfVar():
     global config

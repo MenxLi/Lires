@@ -36,6 +36,7 @@ def keyRequired(func: FuncT) -> FuncT:
 
 # Server level global storage
 g_storage = GlobalStorage()
+_ws_connections = []
 
 class RequestHandlerMixin(LiresBase):
     get_argument: Callable
@@ -92,9 +93,7 @@ class RequestHandlerMixin(LiresBase):
     
     @property
     def connection_pool(self) -> list[WebsocketHandler]:
-        if not G.hasGlobalAttr('WSConnections'):
-            G.setGlobalAttr('WSConnections', [])
-        return G.getGlobalAttr('WSConnections')
+        return _ws_connections
     
     @property
     def enc_key(self) -> str:
