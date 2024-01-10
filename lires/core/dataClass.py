@@ -10,12 +10,13 @@ try:
     from .dbConn import DBFileInfo
 except (FileNotFoundError, KeyError):
     pass
+from .base import LiresBase
 from .bibReader import parseBibtex, parallelParseBibtex, ParsedRef
 from ..types.dataT import DataPointSummary
 from . import globalVar as G
 
-class DataCore:
-    logger = G.logger_lrs
+class DataCore(LiresBase):
+    logger = LiresBase.loggers().core
 
 class TagRule(DataCore):
     SEP = "->"
