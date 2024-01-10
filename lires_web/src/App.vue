@@ -25,7 +25,7 @@
         }
         // check if credentials are set via url query
         if (router.currentRoute.value.query.credential){
-            useSettingsStore().setEncKey(router.currentRoute.value.query.credential as string, null);
+            useSettingsStore().setEncKey(router.currentRoute.value.query.credential as string, false);
         }
 
         /** authentication **/

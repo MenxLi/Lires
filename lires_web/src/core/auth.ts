@@ -7,7 +7,7 @@ import { sha256 } from "../libs/sha256lib";
 export function saveAuthentication(
     encKey: string, 
     userInfo: UserInfo|null, 
-    stayLogin: boolean | null,
+    stayLogin: boolean,
     ){
         useSettingsStore().setEncKey(encKey, stayLogin);
 
@@ -36,7 +36,7 @@ export async function settingsAuthentication(): Promise<UserInfo|null> {
     const usrEncKey = useSettingsStore().encKey;
     try{
         const userInfo = await conn.authUsr(usrEncKey);
-        saveAuthentication( usrEncKey, userInfo, null);
+        saveAuthentication( usrEncKey, userInfo, true);
         return userInfo;
     } catch (e){
         console.log("settingsAuthentication failed: ", e);

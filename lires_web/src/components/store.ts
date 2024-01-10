@@ -214,7 +214,7 @@ export const useSettingsStore = defineStore(
     "settings", {
         state: () => {
             return {
-                __encKey: localStorage.getItem("encKey") || sessionStorage.getItem("encKey") || "",
+                __encKey: sessionStorage.getItem("encKey") || localStorage.getItem("encKey") || "",
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
@@ -250,16 +250,17 @@ export const useSettingsStore = defineStore(
             },
         },
         "actions": {
-            setEncKey(key: string, keep: boolean | null){
+            setEncKey(key: string, keep: boolean){
                 this.__encKey = key;
-                if (keep === true){
+                if ( keep === true){
                     localStorage.setItem("encKey", key);
                 }
-                else{
+                else {
+                    // clear the encKey in local storage if keep is false
                     if (localStorage.getItem("encKey")){
-                        // make sure it won't be obtained from local storage
                         localStorage.removeItem("encKey");
                     }
+                    // set the encKey in sessionStorage as a one-time token
                     sessionStorage.setItem("encKey", key);
                 }
             },
