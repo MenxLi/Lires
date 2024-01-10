@@ -7,7 +7,7 @@ from lires.core.fileTools import addDocument, FileManipulator
 from lires.core.dataClass import DataPoint, DataBase
 
 import logging
-logger = logging.getLogger("lires")
+logger = logging.getLogger("default")
 logger.info("Hi")
 
 test_bibtex = """

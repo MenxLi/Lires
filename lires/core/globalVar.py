@@ -1,12 +1,10 @@
 from __future__ import annotations
-import sys, logging, argparse
+import sys
 from typing import Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..types.configT import LiresConfT
 
 __initialized: bool
-logger_lrs: logging.Logger
-logger_lrs_server: logging.Logger
 last_status_code: int   # a register for last connection status code
 
 config:  LiresConfT           # configuration, set by lires.confReader
@@ -17,21 +15,16 @@ iserver_port: Optional[str] = None
 __global_dict: dict
 
 def init():
-    global logger_lrs
-    global logger_lrs_server
     global __initialized
     global last_status_code
     global __global_dict
 
     thismodule = sys.modules[__name__]
     if hasattr(thismodule, "__initialized") and __initialized:
-        logger_lrs.debug("Skipping re-initialization of globalVar")
         return
     else:
         __initialized = True
 
-    logger_lrs = logging.getLogger("lires")
-    logger_lrs_server = logging.getLogger("lires_server")
     last_status_code = 200
     __global_dict = dict()
 

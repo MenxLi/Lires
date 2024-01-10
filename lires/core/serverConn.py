@@ -3,9 +3,10 @@ Interface for server connections,
 """
 
 from __future__ import annotations
+from lires.core.base import LiresBase
+from lires.core import globalVar as G
 from typing import TYPE_CHECKING, Optional, List, TypedDict
 import requests, json
-from . import globalVar as G
 import sys
 if sys.version_info < (3, 9):
     from typing import Iterator
@@ -15,11 +16,11 @@ else:
 if TYPE_CHECKING:
     from lires_ai.lmInterface import ConversationDictT, ChatStreamIterType
 
-class ConnectionBase:
+class ConnectionBase(LiresBase):
 
     @property
     def logger(self):
-        return G.logger_lrs
+        return LiresBase.loggers().core
 
     def _checkRes(self, res: requests.Response) -> bool:
         """

@@ -1,6 +1,5 @@
 import shutil
-import os
-from .core import globalVar as G
+import os, logging
 from .parser import prepareParser
 from .cmd.generateDefaultConf import generateDefaultConf
 
@@ -33,7 +32,7 @@ def run():
 
     if not os.path.exists(DATABASE_DIR):
         os.mkdir(DATABASE_DIR)
-        G.logger_lrs.info("Database directory not exists, create new. ")
+        logging.getLogger('default').info("Database directory not exists, create new. ")
 
     if args.version:
         for v,change_list in VERSION_HISTORIES:

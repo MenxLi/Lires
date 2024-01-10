@@ -9,7 +9,7 @@ import dataclasses
 import platform
 from functools import wraps
 
-from . import globalVar as G
+from .base import LiresBase
 from ..utils import TimeUtils
 from ..version import VERSION
 
@@ -68,11 +68,11 @@ def lock_required(func):
         with self.lock:
             return func(self, *args, **kwargs)
     return wrapper
-class DBConnection:
+class DBConnection(LiresBase):
     """
     to manage database connection
     """
-    logger = G.logger_lrs
+    logger = LiresBase.loggers().core
     lock = threading.Lock()
 
     def __init__(self, db_dir: str, fname: str = "lrs.db") -> None:

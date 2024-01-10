@@ -10,6 +10,7 @@ import http.cookies
 from ._global_data import GlobalStorage
 from lires.user import UserInfo, UserPool
 from lires.core import globalVar as G
+from lires.core.base import LiresBase
 from lires.core.dataClass import DataBase, DataTags
 from lires.utils import BCOLORS
 from tiny_vectordb import VectorDatabase
@@ -33,13 +34,15 @@ def keyRequired(func: FuncT) -> FuncT:
             return func(self, *args, **kwargs)
     return wrapper  # type: ignore
 
+# Server level global storage
 g_storage = GlobalStorage()
-class RequestHandlerMixin():
+
+class RequestHandlerMixin(LiresBase):
     get_argument: Callable
     get_cookie: Callable[[str, Optional[str]], Optional[str]]
     set_header: Callable
     cookies: http.cookies.SimpleCookie
-    logger = G.logger_lrs_server
+    logger = LiresBase.loggers().server
 
     # class settings
     print_init_info = True

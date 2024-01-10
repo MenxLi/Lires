@@ -10,7 +10,6 @@ from pydantic import BaseModel
 import threading, os
 import logging, asyncio, json
 
-from . import initLogger
 from .utils import autoTorchDevice
 
 from .lmTools import EncoderT, _default_encoder
@@ -19,7 +18,7 @@ from .lmInterface import ChatStreamIterType, getStreamIter
 
 from . import globalConfig as config
 
-logger = logging.getLogger("LiresAI")
+logger = logging.getLogger("iserver")
 
 app = fastapi.FastAPI()
 
@@ -72,8 +71,6 @@ def startServer(
     local_llm_chat: str = "",
     openai_models: list[str] = [],
 ):
-
-    initLogger("info")
 
     # load config into global config
     if local_llm_chat:

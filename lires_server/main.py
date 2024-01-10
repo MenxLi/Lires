@@ -1,4 +1,4 @@
-import os
+import os, logging
 from datetime import datetime
 from typing import Union, TypedDict
 from lires_web import LRSWEB_SRC_ROOT
@@ -120,24 +120,6 @@ class Application(tornado.web.Application):
 _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
 def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_port: Union[int, str], ssl_config : _SSL_CONFIGT | None = None):
 
-    # init loggers
-    setupLogger(
-        G.logger_lrs_server,
-        term_id="server",
-        term_id_color=BCOLORS.OKBLUE,
-        term_log_level="DEBUG",
-        file_path = os.path.join(LOG_DIR, "server.log"),
-        file_log_level="_ALL",
-    )
-    setupLogger(
-        G.logger_lrs,
-        term_id="core",
-        term_id_color=BCOLORS.OKGREEN,
-        term_log_level="DEBUG",
-        file_path = os.path.join(LOG_DIR, "core.log"),
-        file_log_level="_ALL",
-    )
-
     # set global variables of iServer
     # so that when initializing iServerConn, it can get the correct host and port
     G.iserver_host = iserver_host
@@ -154,7 +136,7 @@ def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_p
 
     # print info
     __serve_url = f"{'https' if ssl_config is not None else 'http'}://{host}:{port}"
-    G.logger_lrs_server.info("Starting server at: {}".format(__serve_url))
+    logging.getLogger('server').info("Starting server at: {}".format(__serve_url))
     with UseTermColor("lightgreen"):
         print("Visit web interface at: {}".format(__serve_url.replace("0.0.0.0", "127.0.0.1")))
 
@@ -182,7 +164,7 @@ def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_p
     def __exitHook():
         tornado.ioloop.IOLoop.current().stop()
         g_storage.flush()
-        G.logger_lrs_server.info("Server exited")
+        logging.getLogger('server').info("Server exited")
         with UseTermColor("green"):
             print("Exited, hook invoked.")
     atexit.register(__exitHook)

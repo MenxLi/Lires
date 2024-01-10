@@ -9,5 +9,5 @@ try:
 
 except (FileNotFoundError, KeyError):
     # before configuration is created, or configuration file is outdated
-    from lires.core import globalVar as G
-    G.logger_lrs.warning("Configuration file not found, or outdated. Please run `lrs-resetconf` to initialize the configuration file")
+    import logging
+    logging.getLogger('default').warning("Configuration file not found, or outdated. Please run `lrs-resetconf` to initialize the configuration file")

@@ -2,7 +2,7 @@ import os, json, logging
 from .core import globalVar as G
 from .types.configT import *
 
-logger_lrs = logging.getLogger("lires")
+__logger = logging.getLogger("default")
 
 join = os.path.join
 
@@ -93,16 +93,16 @@ def getConf() -> LiresConfT:
         # TODO: may be replaced by a more elegant solution
         def compareObject(d1, d2):
             if not type(d1) == type(d2):
-                logger_lrs.debug(f"Type mismatch: {type(d1)} != {type(d2)}")
+                __logger.debug(f"Type mismatch: {type(d1)} != {type(d2)}")
                 return False
             if isinstance(d1, dict):
                 assert isinstance(d2, dict)
                 if not len(d1) == len(d2):
-                    logger_lrs.debug(f"Dict length mismatch: {d1.keys()} != {d2.keys()}")
+                    __logger.debug(f"Dict length mismatch: {d1.keys()} != {d2.keys()}")
                     return False
                 for k in d1:
                     if not k in d2:
-                        logger_lrs.debug(f"Key mismatch: {d1.keys()} != {d2.keys()}")
+                        __logger.debug(f"Key mismatch: {d1.keys()} != {d2.keys()}")
                         return False
                 for k in d1:
                     if not compareObject(d1[k], d2[k]):
@@ -110,7 +110,7 @@ def getConf() -> LiresConfT:
             return True
         # warn if the configuration file is outdated
         if not compareObject(read_conf, __default_config):
-            logger_lrs.warn("Configuration file outdated, "
+            __logger.warn("Configuration file outdated, "
             "default configuration will be used as fallback, if errors occur, "
             "please run `lrs-resetconf` to update the configuration file")
 

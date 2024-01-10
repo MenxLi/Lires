@@ -2,6 +2,7 @@ import pybtex.database
 from datetime import date
 from typing import TypedDict, Optional, Callable
 from . import refparser
+from .base import LiresBase
 from .customError import LiresDocTypeNotSupportedError
 import warnings, logging
 import nbib
@@ -34,8 +35,8 @@ def checkBibtexValidity(bib_str: str, onerror: Optional[Callable[[str], None]] =
         onerror("Error when parsing bib string: {}".format(e))
         return False
 
-class BibParser:
-    logger = logging.getLogger("lires")
+class BibParser(LiresBase):
+    logger = LiresBase.loggers().core
     def __init__(self, mode = "single"):
         self.mode = mode
     
@@ -130,8 +131,8 @@ def parallelParseBibtex(bib_strs: list[str]) -> list[ParsedRef]:
         return p.map(parseBibtex, bib_strs)
 
 
-class BibConverter:
-    logger = logging.getLogger("lires")
+class BibConverter(LiresBase):
+    logger = LiresBase.loggers().core
     def fromNBib(self, nb: str) -> str:
         parsed = nbib.read(nb.strip("\n") + "\n")
         if not parsed:

@@ -61,13 +61,14 @@ def getDateTimeStr():
 def strtimeToDatetime(t: str) -> datetime.datetime:
     return datetime.datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
 
-def timedFunc(func: CallVar) -> CallVar:
-    logger = logging.getLogger("lires")
-    @wraps(func)
-    def func_(*args, **kwargs):
-        with Timer(func.__name__, print_func=lambda x: logger.debug(x)) as timer:
-            return func(*args, **kwargs)
-    return func_    # type: ignore
+def timedFunc(logger: logging.Logger) -> Callable[[CallVar], CallVar]:
+    def _timedFunc(func: CallVar) -> CallVar:
+        @wraps(func)
+        def func_(*args, **kwargs):
+            with Timer(func.__name__, print_func=lambda x: logger.debug(x)) as timer:
+                return func(*args, **kwargs)
+        return func_    # type: ignore
+    return _timedFunc
 
 class Timer:
     def __init__(self, name: str = "", print_func: Callable[[str], None] = print):

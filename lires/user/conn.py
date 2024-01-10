@@ -6,6 +6,7 @@ from threading import Lock, Thread
 from typing import TypedDict
 
 from ..core import globalVar as G
+from ..core.base import LiresBase
 from ..core.customError import *
 
 # a wrapper that marks an object instance needs lock,
@@ -25,8 +26,8 @@ class RawUser(TypedDict):
     is_admin: bool
     mandatory_tags: list[str]
 
-class UsrDBConnection:
-    logger = G.logger_lrs
+class UsrDBConnection(LiresBase):
+    logger = LiresBase.loggers().core
 
     def __init__(self, db_dir: str, fname: str = "user.db"):
         self.lock = Lock()
