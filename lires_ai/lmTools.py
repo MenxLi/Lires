@@ -6,7 +6,8 @@ import asyncio, os
 from typing import Callable, Optional, Literal
 from .lmInterface import StreamData, Iterator
 from .lmInterface import getStreamIter, streamOutput, ChatStreamIterType
-from .utils import autoTorchDevice, MuteEverything, Timer
+from .utils import autoTorchDevice
+from lires.utils import MuteEverything, Timer
 
 import torch
 import torch.nn.functional as F

@@ -4,8 +4,7 @@ AI tools & GPU acceleration
 """
 
 
-from lires.version import VERSION
-from .utils import setupLogger
+from lires.utils import setupLogger
 
 def initLogger(level: str = "INFO"):
     level = level.upper()

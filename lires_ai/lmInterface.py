@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from typing import Any, TypedDict, Literal, Optional
 import dataclasses
-from .utils import Timer
 import enum
+from lires.utils import Timer
 
 # check python version
 import sys, os
