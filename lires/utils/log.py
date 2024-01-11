@@ -36,10 +36,13 @@ def setupLogger(
     - term_id: will be used as terminal prefix
     - term_id_color: color of identifier
     - term_log_level: log level of terminal
-    - file_path: file to save log
-    - file_log_level: log level of save_file
+    - file_path: file to save log, if specified, make sure it ends with .log, default to None (not save to file)
+    - file_log_level: log level of save_file, if "_ALL", will save all levels
     - attach_execption_hook: whether to redirect unhandled exceptions to the logger
     """
+    if file_path is not None:
+        assert file_path.endswith(".log"), "file_path must ends with .log, got: {}".format(file_path)
+
     if term_id is None:
         if isinstance(_logger, str):
             term_id = _logger
@@ -74,7 +77,6 @@ def setupLogger(
 
         # set up file handler
         if file_path is not None:
-            _fh = logging.FileHandler(file_path)
             _fh = RotatingFileHandler(file_path, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
             _fh.setLevel(file_log_level)
             _fh.setFormatter(__file_fommatter)
@@ -91,8 +93,10 @@ def setupLogger(
         if file_path is not None:
             # set up file handlers
             for _level in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-                _fh = logging.FileHandler(file_path + "." + _level.lower())
-                _fh = RotatingFileHandler(file_path + "." + _level.lower(), "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
+                # # e.g. filename.debug.log
+                assert file_path[-4:] == ".log"
+                __file_name = file_path[:-4] + "." + _level.lower() + file_path[-4:]
+                _fh = RotatingFileHandler(__file_name, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
                 _fh.setLevel(_level)
                 _fh.addFilter(LevelFilter(logging.getLevelName(_level)))
                 _fh.setFormatter(__file_fommatter)

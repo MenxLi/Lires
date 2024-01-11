@@ -43,7 +43,7 @@ VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
 DOC_SUMMARY_DIR = os.path.join(INDEX_DIR, "summary")
 
 LOG_DIR = os.path.join(LRS_HOME, "log")          # For log files
-LOG_FILE = join(LRS_HOME, "default.txt")    # may deprecate this
+LOG_FILE = join(LRS_HOME, "default.log")    # may deprecate this
 
 # things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
