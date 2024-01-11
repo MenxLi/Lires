@@ -42,6 +42,12 @@ class IServerConn(LiresBase):
     def url(self) -> str:
         return "http://{}:{}".format(self._host, self._port)
     
+    def _checkRes(self, res: requests.Response) -> bool:
+        if res.status_code != 200:
+            IServerConn.logger.error("Server returned {}".format(res.status_code))
+            return False
+        return True
+    
     _StatusReturnT = TypedDict("_StatusReturnT", {"status": bool, "device": str})
     @property
     def status(self) -> Optional[_StatusReturnT]:
