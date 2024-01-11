@@ -40,32 +40,34 @@ def initLoggers():
     import os
     from lires.confReader import LOG_DIR
     from lires.utils import setupLogger, BCOLORS
+
+    term_log_level = os.getenv("LRS_LOG_LEVEL", "INFO")
     # init loggers
     setupLogger(
         G.loggers.default,
         term_id_color=BCOLORS.OKGRAY,
-        term_log_level="DEBUG",
+        term_log_level=term_log_level,
         file_path = os.path.join(LOG_DIR, "default.log"),
         file_log_level="_ALL",
     )
     setupLogger(
         G.loggers.server,
         term_id_color=BCOLORS.OKBLUE,
-        term_log_level="DEBUG",
+        term_log_level=term_log_level,
         file_path = os.path.join(LOG_DIR, "server.log"),
         file_log_level="_ALL",
     )
     setupLogger(
         G.loggers.core,
         term_id_color=BCOLORS.OKGREEN,
-        term_log_level="DEBUG",
+        term_log_level=term_log_level,
         file_path = os.path.join(LOG_DIR, "core.log"),
         file_log_level="_ALL",
     )
     setupLogger(
         G.loggers.iserver,
         term_id_color=BCOLORS.WHITE,
-        term_log_level="DEBUG",
+        term_log_level=term_log_level,
         file_path = os.path.join(LOG_DIR, "iserver.log"),
         file_log_level="_ALL",
     )

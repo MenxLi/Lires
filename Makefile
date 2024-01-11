@@ -9,6 +9,9 @@ test-run:
 		-v ./test/_cache:/_cache \
 		$(DOCKER_IMAGE_NAME):test /bin/bash ./run_test.sh
 test-inspect:
-	docker run --rm -it -v ./:/Lires $(DOCKER_IMAGE_NAME):test /bin/bash
+	docker run --rm -it \
+		-v ./:/Lires \
+		-v ./test/_cache:/_cache \
+		$(DOCKER_IMAGE_NAME):test /bin/bash
 test-clean:
 	docker rmi $(DOCKER_IMAGE_NAME):test

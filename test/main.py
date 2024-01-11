@@ -1,5 +1,5 @@
 
-import subprocess, os, time, sys
+import subprocess, os, time
 
 def startSubprocess(cmd):
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -21,6 +21,9 @@ def watchForStartSign():
 
 if __name__ == "__main__":
 
+    # to disable log output
+    os.environ["LRS_LOG_LEVEL"] = "CRITICAL"
+
     startSubprocess("lires server")
     time.sleep(0.1)   # Wait for initialization, to avoid resource conflict
 
@@ -31,5 +34,3 @@ if __name__ == "__main__":
     
     _test_cmd = "python3 -m unittest discover -s test/cases -p 'test_*.py'"
     subprocess.check_call(_test_cmd, shell=True)
-
-
