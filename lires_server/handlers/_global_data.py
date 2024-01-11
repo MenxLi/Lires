@@ -24,8 +24,5 @@ class GlobalStorage:
         Commit and flush all changes to disk
         """
         self.database.conn.commit()
-
         self.vector_database.commit()
-        self.vector_database.flush()
-
         self.user_pool.conn.commit()
