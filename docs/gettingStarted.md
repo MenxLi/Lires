@@ -72,7 +72,8 @@ LRS_HOME="your/path/here" lires ...
 ```
 Typically, the lires server can be started by binding a different port to each database and providing services to different users. Which can be achieved by setting the `$LRS_HOME` variable.  
 
-Additionally, SSL certificates can be configured using `$LRS_SSL_CERTFILE` and `$LRS_SSL_KEYFILE` to enable HTTPS 
+Additionally, various environment variables can be set to customize the behavior of the application. 
+A detailed list of environment variables can be found at **[here](./enviromentVariables.md)**.
 
 Lastly, these servers can share the same 'iServer' for AI features, possibly on a different machine.  
 
@@ -80,11 +81,6 @@ Thus a more general command to start the server is:
 ```sh
 LRS_HOME="your/path/here" LRS_SSL_CERTFILE="your/cert/file" LRS_SSL_KEYFILE="your/key/file" lires server \
     --iserver_host "your/iserver/host" --iserver_port "youriserverport" --port "yourport"
-```
-
-The LiresAI server is usually started with OPENAI API keys, which can be set with environment variable:
-```sh
-OPENAI_API_KEY="sk-xxxx" OPENAI_API_BASE="..." lires iserver
 ```
 
 ---
