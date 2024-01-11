@@ -3,7 +3,7 @@ import os
 from typing import Generator
 from lires.api import IServerConn
 from lires.core.pdfTools import getPDFText
-from lires.confReader import DOC_SUMMARY_DIR
+from lires.config import DOC_SUMMARY_DIR
 
 class SummaryHandler(RequestHandlerBase):
 

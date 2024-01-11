@@ -24,7 +24,7 @@ iserver:
 ----------------------------------------------------
 """
 
-from lires.confReader import LRS_HOME
+from lires.config import LRS_HOME
 from typing import TypedDict
 import os, yaml, argparse, subprocess, signal, time, sys
 import multiprocessing as mp

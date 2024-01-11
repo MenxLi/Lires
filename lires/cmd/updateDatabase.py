@@ -10,7 +10,7 @@ def stripDataTags():
     """
     from lires.version import VERSION; assert VERSION < "0.12.0" and VERSION >= "0.8.0"
     from lires.core.dataClass import DataBase, DataPoint
-    from lires.confReader import getConf
+    from lires.config import getConf
 
     db = DataBase()
     db.init(getConf()["database"], force_offline=True)
@@ -27,7 +27,7 @@ def useSqliteStorage(old_db_dir: str) -> str:
     """
     import os, json, shutil, tqdm
     from lires.version import VERSION; assert VERSION >= "0.12.0"
-    from lires.confReader import getConf
+    from lires.config import getConf
     from lires.core._fileTools_old import FileManipulator as FM_old
 
     from lires.core.fileTools import FileManipulator as FM_new
@@ -89,7 +89,7 @@ def changeHomeStructure():
     Not work after 1.1.2
     """
     from lires.version import VERSION; assert VERSION >= "1.0.0"
-    from lires.confReader import TMP_DIR, INDEX_DIR, LRS_HOME, getConf
+    from lires.config import TMP_DIR, INDEX_DIR, LRS_HOME, getConf
     from lires.server import LRS_SERVER_HOME
     import os, shutil
 
@@ -130,7 +130,7 @@ def changeHomeStructure():
 
 
 if __name__ == "__main__":
-    from lires.confReader import LRS_HOME
+    from lires.config import LRS_HOME
     import sys
     print("Running script on $LRS_HOME={}".format(LRS_HOME))
 

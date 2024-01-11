@@ -3,7 +3,7 @@ Build search index for the database
 """
 import argparse, asyncio
 
-from lires.confReader import DATABASE_DIR, VECTOR_DB_PATH
+from lires.config import DATABASE_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase
 from lires.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
 from lires.utils import MuteEverything

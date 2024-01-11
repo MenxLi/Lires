@@ -1,7 +1,7 @@
 import argparse
 from lires.user import UsrDBConnection, UserPool
 from lires.core.encryptClient import generateHexHash
-from lires.confReader import USER_DIR
+from lires.config import USER_DIR
 from lires.core.dataClass import DataTags
 
 def str2bool(v):

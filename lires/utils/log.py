@@ -3,7 +3,7 @@ from logging.handlers import RotatingFileHandler
 from io import TextIOWrapper
 from functools import wraps
 from typing import Optional, Literal
-from lires.confReader import LOG_FILE
+from lires.config import LOG_FILE
 
 from .term import BCOLORS
 from .time import TimeUtils

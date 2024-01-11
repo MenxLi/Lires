@@ -6,7 +6,7 @@ import os, hashlib, re
 import asyncio
 import requests
 from typing import TypedDict, Optional, Callable, Literal
-from lires.confReader import DOC_SUMMARY_DIR, VECTOR_DB_PATH
+from lires.config import DOC_SUMMARY_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
 from lires.api import IServerConn

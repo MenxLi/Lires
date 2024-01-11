@@ -38,7 +38,7 @@ class LiresBase:
 def initLoggers():
     # May move to other place...
     import os
-    from lires.confReader import LOG_DIR
+    from lires.config import LOG_DIR
     from lires.utils import setupLogger, BCOLORS
 
     term_log_level = os.getenv("LRS_LOG_LEVEL", "INFO")

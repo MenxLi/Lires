@@ -7,7 +7,7 @@ from lires.version import VERSION
 from lires.core import globalVar as G
 from lires.utils import BCOLORS, UseTermColor
 from lires.utils import setupLogger
-from lires.confReader import LOG_DIR
+from lires.config import LOG_DIR
 
 import tornado
 import tornado.ioloop

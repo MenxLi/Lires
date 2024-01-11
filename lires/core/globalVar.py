@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 __initialized: bool
 last_status_code: int   # a register for last connection status code
 
-config:  LiresConfT           # configuration, set by lires.confReader
+config:  LiresConfT           # configuration, set by lires.config
 
 iserver_host: Optional[str] = None
 iserver_port: Optional[str] = None

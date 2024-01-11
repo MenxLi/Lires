@@ -1,4 +1,4 @@
-from ..confReader import generateDefaultConf
+from ..config import generateDefaultConf
 
 def run():
 	generateDefaultConf()

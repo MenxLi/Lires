@@ -2,7 +2,7 @@ import unittest
 import subprocess
 from lires.core import LiresError
 from lires.user.conn import UsrDBConnection
-from lires.confReader import USER_DIR
+from lires.config import USER_DIR
 
 class TestUserDBConnection(unittest.TestCase):
     def setUp(self) -> None:

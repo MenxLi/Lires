@@ -3,7 +3,7 @@ Get documents: document file / web page / comments
 """
 from ._base import *
 import os, json
-from lires.confReader import ACCEPTED_EXTENSIONS
+from lires.config import ACCEPTED_EXTENSIONS
 
 class DocHandler(RequestHandlerBase):
     def get(self, uuid):

@@ -4,7 +4,7 @@ import os, time, random, shutil
 import requests, os, zipfile
 from tqdm import tqdm
 from ..utils import UseTermColor
-from ..confReader import TMP_DIR
+from ..config import TMP_DIR
 
 DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.0.379/pdfjs-4.0.379-dist.zip"
 # DEFAULT_PDFJS_DOWNLOADING_URL = "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-4.0.379.tgz"

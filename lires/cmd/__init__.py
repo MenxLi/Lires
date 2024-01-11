@@ -1,6 +1,6 @@
 
 try:
-    from lires.confReader import getConf
+    from lires.config import getConf
     from tiny_vectordb import VectorCollection
 
     # as cmd module contains mostly standalone scripts, 

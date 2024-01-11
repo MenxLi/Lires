@@ -19,7 +19,7 @@ def main():
         from lires.core.pdfTools import downloadDefaultPDFjsViewer
         downloadDefaultPDFjsViewer(download_url=args.url, dst_dir=PDF_VIEWER_DIR, force=True)
     if args.subparser == "edit_config":
-        from lires.confReader import CONF_FILE_PATH
+        from lires.config import CONF_FILE_PATH
         from lires.utils import openFile
         import subprocess
         if args.use_editor:

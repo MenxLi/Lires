@@ -6,7 +6,7 @@ def startSubprocess(cmd):
     return process
 
 def watchForStartSign():
-    from lires.confReader import LOG_DIR
+    from lires.config import LOG_DIR
     _log_f = os.path.join(LOG_DIR, "iserver.log")
     while True:
         time.sleep(0.1)

@@ -33,7 +33,7 @@ dynamic = [
 license = { file = "LICENSE" }
 dependencies = [
     # for successful import from basic lires packages,
-    # such as lires.version, lires.confReader
+    # such as lires.version, lires.config
     "pyyaml",
     "requests",
 ]

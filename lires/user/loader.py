@@ -3,7 +3,7 @@ import os
 from typing import Optional, Sequence
 
 from .object import LiresUser, UsrDBConnection
-from ..confReader import USER_DIR
+from ..config import USER_DIR
 from ..core import LiresError
 
 class UserPool(Sequence[LiresUser]):

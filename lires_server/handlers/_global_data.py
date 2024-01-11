@@ -1,7 +1,7 @@
 import dataclasses
 
 from lires.core.dataClass import DataBase
-from lires.confReader import DATABASE_DIR, VECTOR_DB_PATH, USER_DIR, getConf
+from lires.config import DATABASE_DIR, VECTOR_DB_PATH, USER_DIR, getConf
 from lires.user import UserPool
 from tiny_vectordb import VectorDatabase
 
