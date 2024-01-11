@@ -1,4 +1,6 @@
 export LRS_HOME='./_test_home'
+echo "LRS_HOME: $LRS_HOME"
+echo "PWD: $PWD"
 
 # create, and assure that the directory is empty, otherwise exit
 mkdir -p $LRS_HOME
@@ -19,10 +21,8 @@ sleep 3
 echo "Running test cases..."
 python3 -m unittest discover -s test -p 'test_*.py'
 
+# wait for the user to press enter
+echo "Test cases finished. Will clean up..."
+read -p "Press enter to continue..."
 
-echo "Cleaning up..."
-
-# kill all the processes
-kill $(ps aux | grep '[l]ires' | awk '{print $2}')
-# remove the directory
 rm -rf $LRS_HOME
