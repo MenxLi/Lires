@@ -608,3 +608,12 @@ version_history:
   1.3.5:
     - Fix:
       - User manage
+  1.3.6a:
+    - Development:
+      - Better logging
+      - Test cases
+    - Refactor:
+      - lires.confReader -> lires.config
+    - Fix:
+      - Iserver connection error
+      - Tiny_vectordb not flush to disk
