@@ -12,14 +12,6 @@ def run():
     from .confReader import CONF_FILE_PATH, DATABASE_DIR, TMP_DIR, LOG_DIR, LRS_HOME
     from .version import VERSION, VERSION_HISTORIES
 
-    # Init logger will import lires.core, 
-    # May cause dependency error if only runs lires.ai
-    try:
-        from .utils import initDefaultLogger
-        initDefaultLogger("DEBUG")
-    except ImportError:
-        pass
-
     NOT_RUN = False     # Indicates whether to run main program
 
     if not os.path.exists(CONF_FILE_PATH):

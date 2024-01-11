@@ -8,20 +8,6 @@ from lires.confReader import LOG_FILE
 from .term import BCOLORS
 from .time import TimeUtils
 
-def initDefaultLogger(log_level = "INFO") -> logging.Logger:
-    """
-    Log will be recorded in LOG_FILE
-    """
-    return setupLogger(
-        _logger = "lires",
-        term_id = "default",
-        term_id_color = BCOLORS.OKGRAY,
-        term_log_level=log_level,
-        file_path=LOG_FILE,
-        file_log_level="_ALL",
-        attach_execption_hook=True
-    )
-
 _FileLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "_ALL"]
 def setupLogger(
         _logger: str | logging.Logger, 
