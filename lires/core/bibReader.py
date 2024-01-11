@@ -72,12 +72,14 @@ class BibParser(LiresBase):
         bibs = []
         for k in bib_data.entries.keys():
             _d = bib_data.entries[k]
+            assert "title" in _d.fields, "No title found in bib entry {} ({})".format(k, _d.fields)
+
             if not "year" in _d.fields:
-                self.logger.warning("No year found in bib entry {}".format(k))
+                self.logger.warning(f"No year found in bib entry {k} ({_d.fields['title']})")
                 _d.fields["year"] = date.today().year
             
             if not "author" in _d.persons:
-                self.logger.warning("No author found in bib entry {}".format(k))
+                self.logger.warning(f"No author found in bib entry {k} ({_d.fields['title']})")
                 _d.persons["author"] = ["_"]
 
             data = {
