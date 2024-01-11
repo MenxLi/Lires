@@ -6,22 +6,28 @@ There are various enviroment variables that can control the behavior of the serv
 
 **Common variables**
 Applies to all servers.
-|Variable|Description|Value|
+|Variable|Description|Default|
 |---|---|---|
-|`LRS_HOME`| The path to the directory where `Lires` stores its data. |  |
-|`LRS_LOG_LEVEL`| The logging level. | `"DEBUG"`, `"INFO"` (default) ...|
+|`LRS_HOME`| The path to the directory where `Lires` stores its data. | `~/.Lires` |
+|`LRS_LOG_LEVEL`| The logging level. | `INFO` |
 
-**lires server variables**
-|Variable|Description|Value|
+**`lires server` variables**
+|Variable|Description|Default|
 |---|---|---|
 |`LRS_SSL_KEYFILE`| The path to the SSL key file. (must be used with `LRS_SSL_CERTFILE`) |  |
 |`LRS_SSL_CERTFILE`| The path to the SSL certificate file. |  |
 |`TVDB_CACHE_DIR` | The path to the `tiny_vectordb` cache directory. | |
 
-**lires iserver variables**
-|Variable|Description|Value|
+**`lires iserver` variables**
+|Variable|Description|Default|
 |---|---|---|
-|`HF_HOME`| The path to the Hugging Face home directory. |  `~/.cache/huggingface` (default) |
-|`HF_ENDPONT`| The Hugging Face API endpoint. | `"https://huggingface.co"` (default) |
-|`OPENAI_API_BASE`| The OpenAI API base URL. | `"https://api.openai.com/v1` (default) |
+|`HF_HOME`| The path to the Hugging Face home directory. |  `~/.cache/huggingface` |
+|`HF_ENDPONT`| The Hugging Face API endpoint. | `"https://huggingface.co"` |
+|`OPENAI_API_BASE`| The OpenAI API base URL. | `"https://api.openai.com/v1` |
 |`OPENAI_API_KEY`| The OpenAI API key. |  |
+
+**Lires-web build variables**
+|Variable|Description|Default|
+|---|---|---|
+|`VITE_MAINTAINER_NAME`| The name of the maintainer. | |
+|`VITE_MAINTAINER_EMAIL`| The email of the maintainer. | |
