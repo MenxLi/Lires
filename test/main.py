@@ -24,9 +24,8 @@ if __name__ == "__main__":
     # to disable log output
     os.environ["LRS_LOG_LEVEL"] = "CRITICAL"
 
+    subprocess.check_call("lrs-resetconf", shell=True)
     startSubprocess("lires server")
-    time.sleep(0.1)   # Wait for initialization, to avoid resource conflict
-
     startSubprocess("lires iserver")
     
     print("Waiting for server to start...")
