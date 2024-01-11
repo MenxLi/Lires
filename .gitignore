@@ -54,4 +54,5 @@ logs
 *.sw?
 
 # test environment
-_test_home
+test/_test_home
+test/_cache

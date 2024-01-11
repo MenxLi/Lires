@@ -30,4 +30,9 @@ EXPOSE 8731
 WORKDIR /Lires
 
 ENV LRS_HOME=/root/.Lires
-ENV HF_HOME=/root/.Lires/hf_home
+# disable tqdm, otherwise it will block the subprocess pipe
+ENV TQDM_DISABLE=1
+# will be mapped to host
+RUN mkdir /_cache
+# set huggingface cache dir
+ENV HF_HOME=/_cache/huggingface
