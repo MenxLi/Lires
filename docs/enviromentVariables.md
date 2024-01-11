@@ -8,6 +8,7 @@ There are various enviroment variables that can control the behavior of the serv
 Applies to all servers.
 |Variable|Description|Value|
 |---|---|---|
+|`LRS_HOME`| The path to the directory where `Lires` stores its data. |  |
 |`LRS_LOG_LEVEL`| The logging level. | `"DEBUG"`, `"INFO"` (default) ...|
 
 **lires server variables**
