@@ -34,14 +34,14 @@ license = { file = "LICENSE" }
 dependencies = [
     # for successful import from basic lires packages,
     # such as lires.version, lires.config
+    "typing_extensions",
     "pyyaml",
     "requests",
+    "tiny_vectordb >= 0.1.5",
 ]
 
 [project.optional-dependencies]
 core = [
-    "typing_extensions",
-    "tiny_vectordb == 0.1.5",
     "pybtex",
     "pylatexenc",
     "tornado",

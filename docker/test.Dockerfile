@@ -34,5 +34,6 @@ ENV LRS_HOME=/root/.Lires
 ENV TQDM_DISABLE=1
 # will be mapped to host
 RUN mkdir /_cache
-# set huggingface cache dir
-ENV HF_HOME=/_cache/huggingface
+# set some cache dir
+ENV TVDB_CACHE_DIR=/_cache/tiny_vectordb
+ENV HF_HOME=/_cache/huggingface_cache

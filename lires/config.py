@@ -67,16 +67,10 @@ for _p in [
 # Also for backward compatibility, 
 # if the old config file exists, and does not contain some new fields,
 # the new fields will be added on top of the old config file on getConf()
+import tiny_vectordb
 __default_config: LiresConfT = {
     # jit compile configuration for tiny_vectordb
-    'tiny_vectordb_compile_config':{
-        'cxx': 'g++',
-        'additional_compile_flags': [
-            '-march=native',
-            '-mtune=native',
-        ],
-        'additional_link_flags': []
-    },
+    'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
 
     # TODO: add more fields in the future, 
     # maybe some fields for LLM configurations?
