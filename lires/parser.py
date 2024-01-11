@@ -37,5 +37,10 @@ For more info and source code, visit: https://github.com/MenxLi/Lires\
     parser_iserver = sp.add_parser("iserver", help = "Start LiresAI server")
     _prepareIServerParser(parser_iserver)
 
+    parser_clear = sp.add_parser("clear", help = "Remove data")
+    parser_clear.add_argument("--all", action = "store_true", help = "Remove all data! (including database, use with caution!)")
+    parser_clear.add_argument("--log", action = "store_true", help = "Remove log")
+    parser_clear.add_argument("--cache", action = "store_true", help = "Remove caches")
+
     return parser
 
