@@ -205,7 +205,6 @@ async def buildFeatureStorage(
         _to_record_uids.append(uid)
         _to_record_features.append(feature_item)
     vector_collection.setBlock(_to_record_uids, _to_record_features)
-    vector_db.flush()
     vector_db.commit()
     with open(text_src_hash_log, "w") as f:
         for uid, hash in text_src_hash_record.items():
