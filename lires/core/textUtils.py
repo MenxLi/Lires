@@ -13,7 +13,7 @@ from lires.api import IServerConn
 from lires.utils import Timer
 import tiny_vectordb
 
-def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
+async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
     summary = ""
     res = iconn.chat(
         conv_dict={
@@ -27,10 +27,8 @@ def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -
             f"Here is the paper: {text}",
         model_name = "DEFAULT"
     )
-    if not res:
-        return ""
     try:
-        for t in res:
+        async for t in res:
             summary += t
         if verbose:
             print(summary)
@@ -84,7 +82,7 @@ async def getFeatureTextSource(
         else:
             if iconn:
                 # if LLM is available, use it to create summary
-                summary = createSummaryWithLLM(iconn, pdf_text)
+                summary = await createSummaryWithLLM(iconn, pdf_text)
                 with open(_summary_cache_path, "w") as f:
                     f.write(summary)
                 if summary:
@@ -212,14 +210,14 @@ async def buildFeatureStorage(
     
     print(f"Saved feature index to {__vec_db_path}, source log to {text_src_hash_log}")
 
-def queryFeatureIndex(
+async def queryFeatureIndex(
         query: str, n_return: int = 16, 
         vector_collection: Optional[tiny_vectordb.VectorCollection] = None) -> FeatureQueryResult:
     if not vector_collection:
         with Timer("Loading vector db"):
             vector_collection = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])["doc_feature"]
     iconn = IServerConn()
-    query_vec = iconn.featurize(query) # [d_feature]
+    query_vec = await iconn.featurize(query) # [d_feature]
     assert query_vec is not None
 
     uids, scores = vector_collection.search(query_vec, n_return)
@@ -228,7 +226,7 @@ def queryFeatureIndex(
         "scores": scores
     }
 
-def queryFeatureIndexByUID(db: DataBase, query_uid: str, n_return: int = 16) -> FeatureQueryResult:
+async def queryFeatureIndexByUID(db: DataBase, query_uid: str, n_return: int = 16) -> FeatureQueryResult:
     """
     query the related documents of the given uid
     """
@@ -239,7 +237,7 @@ def queryFeatureIndexByUID(db: DataBase, query_uid: str, n_return: int = 16) -> 
         print("Warning: no pdf file found, use title only: {}".format(query_string))
     else:
         query_string = getPDFText(pdf_path, 4096)
-    return queryFeatureIndex(query_string, n_return)
+    return await queryFeatureIndex(query_string, n_return)
 
 
 async def retrieveRelevantSections(
@@ -274,7 +272,7 @@ async def retrieveRelevantSections(
     # split the text into sections
     if verbose: print(f"Query: {query_text}")
     query_text = query_text.replace("\n", " ")
-    query_vec = iconn.featurize(query_text)
+    query_vec = await iconn.featurize(query_text)
     assert query_vec is not None
 
 
@@ -290,7 +288,7 @@ async def retrieveRelevantSections(
         if __containsNoneEnglish(sentence):
             continue
 
-        sentence_feat = iconn.featurize(sentence)
+        sentence_feat = await iconn.featurize(sentence)
         assert sentence_feat is not None
         src_vec_dict[sentence] = sentence_feat
     

@@ -30,12 +30,12 @@ class DataSearcher(DataCore):
             "kwargs": kwargs
         }
     
-    def run(self) -> StringSearchT:
+    async def run(self) -> StringSearchT:
         assert self._run_config is not None, "setRunConfig before calling run()"
         method = getattr(self, self._run_config["method"])
-        return method(**self._run_config["kwargs"])
+        return await method(**self._run_config["kwargs"])
     
-    def searchStringInfo(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
+    async def searchStringInfo(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
         results: StringSearchT = {}
         for uid, dp in self.db.items():
             res = self._searchRegex(pattern, dp.stringInfo(), ignore_case)
@@ -43,7 +43,7 @@ class DataSearcher(DataCore):
                 results[uid] = {"score": None, "match": res}
         return results
     
-    def searchTitle(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
+    async def searchTitle(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
         results: StringSearchT = {}
         for uid, dp in self.db.items():
             res = self._searchRegex(pattern, dp.title, ignore_case)
@@ -51,7 +51,7 @@ class DataSearcher(DataCore):
                 results[uid] = {"score": None, "match": res}
         return results
 
-    def searchAuthor(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
+    async def searchAuthor(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
         results: StringSearchT = {}
         for uid, dp in self.db.items():
             to_search = ", ".join(dp.authors)
@@ -60,7 +60,7 @@ class DataSearcher(DataCore):
                 results[uid] = {"score": None, "match": res}
         return results
 
-    def searchYear(self, pattern: str) -> StringSearchT:
+    async def searchYear(self, pattern: str) -> StringSearchT:
         results: StringSearchT = {}
         for uid, dp in self.db.items():
             year = str(dp.year); pattern = str(pattern)
@@ -68,7 +68,7 @@ class DataSearcher(DataCore):
                 results[uid] = None
         return results
 
-    def searchPublication(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
+    async def searchPublication(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
         results: StringSearchT = {}
         for uid, dp in self.db.items():
             res = None
@@ -79,7 +79,7 @@ class DataSearcher(DataCore):
                 results[uid] = {"score": None, "match": res}
         return results
     
-    def searchNote(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
+    async def searchNote(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
         results: StringSearchT = {}
         uids = []
         all_res = []
@@ -93,13 +93,13 @@ class DataSearcher(DataCore):
                 results[uid] = {"score": None, "match": res}
         return results
     
-    def searchFeature(self, pattern: str, n_return = 999, vec_db:Optional[ VectorDatabase ] = None) -> StringSearchT:
+    async def searchFeature(self, pattern: str, n_return = 999, vec_db:Optional[ VectorDatabase ] = None) -> StringSearchT:
         if pattern.strip() == "":
             return {uid: None for uid in self.db.keys()}
         if vec_db:
-            search_res = queryFeatureIndex(pattern, n_return=n_return, vector_collection=vec_db.getCollection("doc_feature"))
+            search_res = await queryFeatureIndex(pattern, n_return=n_return, vector_collection=vec_db.getCollection("doc_feature"))
         else:
-            search_res = queryFeatureIndex(pattern, n_return=n_return)
+            search_res = await queryFeatureIndex(pattern, n_return=n_return)
 
         if search_res is None:
             self.logger.error("Error connecting to iserver, return empty result")

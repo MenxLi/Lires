@@ -26,7 +26,7 @@ class SummaryHandler(RequestHandlerBase):
                 return
 
         iconn = IServerConn()
-        istatus = iconn.status
+        istatus = await iconn.status
         if not (istatus and istatus['status']):
             self.write("ERROR: LiresAI server not running.")
             return
@@ -92,9 +92,7 @@ class SummaryHandler(RequestHandlerBase):
         # summary_txt += f"<h3>Title: {dp.title}</h3>"
         self.write(summary_txt)
 
-        # Wrap the generator in an asynchronous iterator
-        res: Generator[str, None, None]
-        async for msg in self.wrapAsyncIter(res):
+        async for msg in res:
             summary_txt += msg      # save to cache
             self.write(msg)
             self.flush()  # Flush the response buffer to send the chunk immediately

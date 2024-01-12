@@ -59,7 +59,7 @@ class TestUserDBConnection:
         user3 = userdb.getUser("test3_username")
         assert user3['name'] == "test3_new_name"
     
-    def test_userPool(self, user_pool: UserPool, userdb: UsrDBConnection):
+    def test_userPool(self, user_pool: UserPool):
         _n_base_user = 2
         assert len(user_pool) == 3 + _n_base_user
         assert user_pool[0 + _n_base_user].info()['username'] == "test0_username"

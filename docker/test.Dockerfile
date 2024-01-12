@@ -1,17 +1,7 @@
-## First stage, build the web app
-FROM node:20 as webapp-build
+FROM python:3.11-bookworm
 
-RUN mkdir /Lires
-WORKDIR /
-
+# not build web app, as this directory will be mapped to host during testing
 COPY . /Lires
-WORKDIR /Lires/lires_web 
-RUN npm install -g cnpm
-RUN cnpm install && cnpm run build
-
-## Second stage, build the server
-FROM python:3.11-bookworm as server-build
-COPY --from=webapp-build /Lires /Lires
 WORKDIR /
 
 # mirrors

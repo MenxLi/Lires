@@ -5,7 +5,7 @@ import json
 class SearchHandler(RequestHandlerBase):
 
     @keyRequired
-    def post(self):
+    async def post(self):
 
         method = self.get_argument("method")
         kwargs = json.loads(self.get_argument("kwargs"))
@@ -14,7 +14,7 @@ class SearchHandler(RequestHandlerBase):
         if method == "searchFeature":
             kwargs["vec_db"] = self.vec_db
         searcher.setRunConfig(method, kwargs)
-        res = searcher.run()
+        res = await searcher.run()
         for k in res.keys():
             this_res = res[k]
             if this_res is not None:

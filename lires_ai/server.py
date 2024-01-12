@@ -37,9 +37,7 @@ class FeaturizeRequest(BaseModel):
 @app.post("/featurize")
 def featurize(req: FeaturizeRequest):
     feat = asyncio.run(lmFeaturize(req.text, req.word_chunk, req.model_name, req.dim_reduce))
-    return {
-        "feature": feat.tolist(),
-    }
+    return feat.tolist()
 
 class ChatBotRequest(BaseModel):
     prompt: str

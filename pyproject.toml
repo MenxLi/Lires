@@ -46,6 +46,7 @@ core = [
     "pybtex",
     "pylatexenc",
     "tornado",
+    "aiohttp",
     "PyMuPDF",
     "nbib",
     "tqdm",
@@ -69,4 +70,5 @@ dev = [
     "Lires[all]",
     "pytest",
     "pytest-html",
+    "pytest-asyncio",
 ]
