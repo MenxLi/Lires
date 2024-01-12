@@ -280,13 +280,13 @@ class DataPoint(DataCore):
         self.reload()
         return ret
     
-    def addFile(self, extern_file_p: str) -> bool:
+    async def addFile(self, extern_file_p: str) -> bool:
         """
         Add document to this data, 
         Will only work if the file is in local and not have document file
         return if success
         """
-        return self.fm.addFile(extern_file_p)
+        return await self.fm.addFile(extern_file_p)
     
     def changeTags(self, new_tags: DataTags):
         self.fm.writeTags(new_tags)

@@ -3,23 +3,23 @@ Get documents: document file / web page / comments
 """
 from ._base import *
 import os, json
+import aiofiles
 from lires.config import ACCEPTED_EXTENSIONS
 
 class DocHandler(RequestHandlerBase):
-    def get(self, uuid):
+    async def get(self, uuid):
         file_p = self.db[uuid].fm.file_p
         if isinstance(file_p, str):
             if file_p.endswith(".pdf"):
-                with open(file_p, "rb") as f:
+                async with aiofiles.open(file_p, "rb") as f:
                     self.set_header("Content-Type", 'application/pdf; charset="utf-8"')
                     self.set_header("Content-Disposition", "inline; filename={}.pdf".format(uuid))
-                    # self.set_header("Access-Control-Allow-Origin", "*")
-                    self.write(f.read())
+                    self.write(await f.read())
                     return
         self.write("The file not exist or is not PDF file.")
     
     @keyRequired
-    def put(self, uid):
+    async def put(self, uid):
         """
         Upload document file
         """
@@ -41,7 +41,7 @@ class DocHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(400, reason="File extension not allowed")
         
         # add the file to the document
-        if not dp.fm.addFileBlob(file_data, ext):
+        if not await dp.fm.addFileBlob(file_data, ext):
             raise tornado.web.HTTPError(409, reason="File already exists")
 
         dp.loadInfo()
@@ -55,7 +55,7 @@ class DocHandler(RequestHandlerBase):
         self.write(json.dumps(d_summary))
     
     @keyRequired
-    def delete(self, uid):
+    async def delete(self, uid):
         """
         Free a document from a file
         """

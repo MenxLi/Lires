@@ -5,6 +5,7 @@ from __future__ import annotations
 import os, shutil, platform, time, sys
 from typing import List, TypedDict, Optional, TYPE_CHECKING, Any
 import threading
+import aiofiles
 
 from .base import G, LiresBase
 from .dbConn import DBConnection, DocInfo
@@ -32,25 +33,27 @@ def _getFileExt(fpath: str):
         ext = "." + ext
     return ext
 
-def _addDocumentFileBlob(db_conn: DBConnection, uid: str, file_blob: bytes, ext: str):
+async def _addDocumentFileBlob(db_conn: DBConnection, uid: str, file_blob: bytes, ext: str):
     """
     Create document in database directory
     """
     assert ext.startswith(".")
     dst = os.path.join(db_conn.db_dir, uid + ext)
-    with open(dst, "wb") as f:
-        f.write(file_blob)
+    # with open(dst, "wb") as f:
+    #     f.write(file_blob)
+    async with aiofiles.open(dst, "wb") as f:
+        await f.write(file_blob)
     db_conn.setDocExt(uid, ext)
 
-def _addDocumentFile(db_conn: DBConnection, uid: str, src: str):
+async def _addDocumentFile(db_conn: DBConnection, uid: str, src: str):
     """
     Copy document to database directory
     """
     ext = _getFileExt(src)
-    with open(src, "rb") as f:
-        _addDocumentFileBlob(db_conn, uid, f.read(), ext)
+    async with aiofiles.open(src, "rb") as f:
+        await _addDocumentFileBlob(db_conn, uid, await f.read(), ext)
 
-def addDocument(
+async def addDocument(
         db_conn: DBConnection, 
         citation: str, abstract: str = "", 
         comments: str = "", 
@@ -111,7 +114,7 @@ def addDocument(
 
     # copy document
     if doc_src is not None:
-        _addDocumentFile(db_conn, uid, doc_src)
+        await _addDocumentFile(db_conn, uid, doc_src)
     return uid
     
 
@@ -268,7 +271,7 @@ class FileManipulator(LiresBase):
         else:
             return True
     
-    def addFile(self, extern_file_p) -> bool:
+    async def addFile(self, extern_file_p) -> bool:
         """
         add file to the database, will copy the file to the database directory
         """
@@ -281,9 +284,9 @@ class FileManipulator(LiresBase):
             return False
         with open(extern_file_p, "rb") as f:
             file_blob = f.read()
-        return self.__addRawFileBlob(file_blob, doc_ext)
+        return await self.__addRawFileBlob(file_blob, doc_ext)
     
-    def addFileBlob(self, file_blob: bytes, ext: str) -> bool:
+    async def addFileBlob(self, file_blob: bytes, ext: str) -> bool:
         """
         add binary file to the database, will create the file in the database directory
         """
@@ -293,13 +296,13 @@ class FileManipulator(LiresBase):
         if ext not in ACCEPTED_EXTENSIONS:
             self.logger.warn("The file extension is not supported")
             return False
-        return self.__addRawFileBlob(file_blob, ext)
+        return await self.__addRawFileBlob(file_blob, ext)
     
-    def __addRawFileBlob(self, file_blob: bytes, ext: str) -> bool:
+    async def __addRawFileBlob(self, file_blob: bytes, ext: str) -> bool:
         """
         add binary file to the database, without condition check
         """
-        _addDocumentFileBlob(self.conn, self.uuid, file_blob, ext)
+        await _addDocumentFileBlob(self.conn, self.uuid, file_blob, ext)
         self.logger.debug("(fm) __addRawFileBlob: {}".format(self.uuid))
         self._log()
         return True

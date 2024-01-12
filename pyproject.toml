@@ -47,6 +47,7 @@ core = [
     "pylatexenc",
     "tornado",
     "aiohttp",
+    "aiofiles",
     "PyMuPDF",
     "nbib",
     "tqdm",
