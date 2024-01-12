@@ -1,8 +1,19 @@
 
-import subprocess, os, time, shutil
+import subprocess, os, time, shutil, threading
 
 def startSubprocess(cmd):
+    # import sys
+    # process = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, shell=True)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+    def watchProcess():
+        while True:
+            time.sleep(0.1)
+            if process.poll() is not None:
+                print("ERROR: subprocess exited unexpectedly ({})".format(cmd))
+                return
+
+    threading.Thread(target=watchProcess, daemon=True).start()
     return process
 
 def watchForStartSign():
@@ -31,6 +42,10 @@ if __name__ == "__main__":
     # prepare for test
     subprocess.check_call("lrs-resetconf", shell=True)
     startSubprocess("lires server")
+    # to avoid resource conflict!
+    # during initialization, the server will try to create some files
+    # and if the file simultaneously being used by other process, it will fail
+    time.sleep(0.1)
     startSubprocess("lires iserver")
     print("Waiting for server to start...")
     watchForStartSign()
