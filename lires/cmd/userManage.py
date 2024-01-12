@@ -1,6 +1,6 @@
 import argparse
 from lires.user import UsrDBConnection, UserPool
-from lires.core.encryptClient import generateHexHash
+from lires.user.encrypt import generateHexHash
 from lires.config import USER_DIR
 from lires.core.dataClass import DataTags
 
