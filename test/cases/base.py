@@ -7,7 +7,7 @@ class BaseConfig:
         return {
             "username": "admin",
             "password": "admin_password",
-            "token": encrypt.encryptKey("admin", "admin_password")
+            "token": encrypt.encryptKey("admin", encrypt.generateHexHash("admin_password"))
         }
     
     @property
@@ -15,7 +15,7 @@ class BaseConfig:
         return {
             "username": "normal",
             "password": "normal_password",
-            "token": encrypt.encryptKey("normal", "normal_password")
+            "token": encrypt.encryptKey("normal", encrypt.generateHexHash("normal_password"))
         }
 
 __all__ = [

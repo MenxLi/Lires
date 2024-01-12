@@ -33,6 +33,9 @@ class UserPool(Sequence[LiresUser]):
                 return True
         return False
     
+    def __str__(self):
+        return f"<UserPool: {len(self)} users>"
+    
     def destroy(self):
         self.conn.close()
         del self._conn

@@ -19,6 +19,7 @@ class StatusHandler(RequestHandlerBase):
     _init_time = time.time()
 
     async def _respond(self):
+        self.set_header("Content-Type", "application/json")
         status: ServerStatus = {
             "status": "online",
             "version": VERSION,
