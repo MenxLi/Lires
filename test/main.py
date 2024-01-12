@@ -1,5 +1,5 @@
 
-import subprocess, os, time
+import subprocess, os, time, shutil
 
 def startSubprocess(cmd):
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -21,15 +21,24 @@ def watchForStartSign():
 
 if __name__ == "__main__":
 
+    # it's important to set LRS_HOME!
+    __this_dir = os.path.dirname(os.path.abspath(__file__))
+    LRS_HOME = os.path.join(__this_dir, "_test_home")
+    os.environ["LRS_HOME"] = LRS_HOME
     # to disable log output
     os.environ["LRS_LOG_LEVEL"] = "CRITICAL"
 
+    # prepare for test
     subprocess.check_call("lrs-resetconf", shell=True)
     startSubprocess("lires server")
     startSubprocess("lires iserver")
-    
     print("Waiting for server to start...")
     watchForStartSign()
     
     _test_cmd = "python3 -m unittest discover -s test/cases -p 'test_*.py'"
     subprocess.check_call(_test_cmd, shell=True)
+
+    # clean up
+    print("Test done, cleaning up.")
+    input("Press enter to continue...")
+    shutil.rmtree(LRS_HOME)

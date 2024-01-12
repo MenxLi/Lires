@@ -17,7 +17,6 @@ WORKDIR /
 # mirrors
 RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/debian.sources
 RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-ENV HF_ENDPOINT=https://hf-mirror.com
 
 RUN python3 -m pip install --upgrade pip --break-system-packages
 RUN pip3 install -e /Lires[all] --break-system-packages
@@ -29,11 +28,12 @@ EXPOSE 8731
 
 WORKDIR /Lires
 
-ENV LRS_HOME=/root/.Lires
-# disable tqdm, otherwise it will block the subprocess pipe
-ENV TQDM_DISABLE=1
 # will be mapped to host
 RUN mkdir /_cache
-# set some cache dir
+
+ENV LRS_HOME=/root/.Lires
+ENV HF_ENDPOINT=https://hf-mirror.com
 ENV TVDB_CACHE_DIR=/_cache/tiny_vectordb
-ENV HF_HOME=/_cache/huggingface_cache
+ENV HF_HOME=/_cache/huggingface
+# disable tqdm, otherwise it may block the subprocess pipe for testing
+ENV TQDM_DISABLE=1
