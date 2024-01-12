@@ -25,3 +25,10 @@ class Event_User(EventBase):
 
 Event = Event_Data | Event_Tag | Event_User
 
+
+class ServerStatus(TypedDict):
+    status: Literal['online', 'offline', 'maintenance']
+    version: str
+    uptime: float
+    n_data: int
+    n_connections: int

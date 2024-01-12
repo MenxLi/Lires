@@ -1,6 +1,6 @@
 
 export interface ServerStatus {
-    status: 'OK';
+    status: 'online' | 'offline' | 'maintenance';
     version: string;
     n_data: number;
     n_connections: number;

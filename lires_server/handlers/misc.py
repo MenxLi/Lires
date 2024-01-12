@@ -5,6 +5,7 @@ some small handlers that are not worth putting in a separate file
 
 from ._base import *
 from lires import VERSION
+from lires_server.types import ServerStatus
 import json, time
 
 class ReloadDBHandler(RequestHandlerBase):
@@ -18,13 +19,14 @@ class StatusHandler(RequestHandlerBase):
     _init_time = time.time()
 
     async def _respond(self):
-        self.write(json.dumps({
-            "status": "OK",
+        status: ServerStatus = {
+            "status": "online",
             "version": VERSION,
             "uptime": time.time() - self._init_time,
             "n_data": len(self.db),
             "n_connections": len(self.connection_pool)
-        }))
+        }
+        self.write(json.dumps(status))
 
     @keyRequired
     async def get(self):
