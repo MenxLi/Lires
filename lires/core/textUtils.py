@@ -189,7 +189,7 @@ async def buildFeatureStorage(
     feature_list = []
     for text in text_list:
         await asyncio.sleep(operation_interval)
-        feature_list.append(iconn.featurize(text))
+        feature_list.append(await iconn.featurize(text))
 
     _to_record_uids = []
     _to_record_features = []

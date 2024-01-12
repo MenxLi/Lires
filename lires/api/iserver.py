@@ -80,13 +80,12 @@ class IServerConn(LiresBase):
                 else:
                     return None
     
-    _ChatReturnT = AsyncIterator[str]
     async def chat(
             self, 
             prompt: str, 
             conv_dict: Optional[ConversationDictT] = None, 
             model_name: Optional[ChatStreamIterType] = None,
-            ) -> _ChatReturnT:    # type: ignore
+            ) -> AsyncIterator[str]:    # type: ignore
         """
         return empty string if error
         """
