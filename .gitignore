@@ -56,3 +56,4 @@ logs
 # test environment
 test/_test_home
 test/_cache
+.pytest_cache
