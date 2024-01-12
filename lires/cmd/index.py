@@ -35,7 +35,7 @@ def parseArgs() -> argparse.Namespace:
         exit()
     return args
 
-async def main():
+def main():
     args = parseArgs()
     with MuteEverything():
         db = DataBase().init(DATABASE_DIR)
@@ -51,9 +51,9 @@ async def main():
 
     elif args.subparser == "query":
         if args.input_uid:
-            res = await queryFeatureIndexByUID(db, args.aim, args.n_return)
+            res = asyncio.run(queryFeatureIndexByUID(db, args.aim, args.n_return))
         else:
-            res = await queryFeatureIndex(args.aim, args.n_return)
+            res = asyncio.run(queryFeatureIndex(args.aim, args.n_return))
         print("-----------------------------------")
         print(f"Query: {args.aim if not args.input_uid else '[' + db[args.aim].title + ']'}")
         print("Top results:")
@@ -67,4 +67,4 @@ async def main():
         ...
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
