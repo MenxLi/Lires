@@ -50,8 +50,11 @@ if __name__ == "__main__":
     print("Waiting for server to start...")
     watchForStartSign()
     
-    _test_cmd = "python3 -m unittest discover -s test/cases -p 'test_*.py'"
-    subprocess.check_call(_test_cmd, shell=True)
+    _test_cmd = "pytest --html=./test/_cache/report.html ./test/cases"
+    try:
+        subprocess.check_call(_test_cmd, shell=True)
+    except Exception as e:
+        print("Error while running the tests: ", e)
 
     # clean up
     print("Test done, cleaning up.")

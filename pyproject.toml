@@ -65,3 +65,8 @@ ai = [
     "basaran",
 ]
 all = ["Lires[core,ai]"]
+dev = [
+    "Lires[all]",
+    "pytest",
+    "pytest-html",
+]
