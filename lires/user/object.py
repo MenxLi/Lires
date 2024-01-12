@@ -72,6 +72,11 @@ class LiresUser:
     def __repr__(self) -> str:
         return f"<LiresUser: {str(self)}>"
     
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, LiresUser):
+            return False
+        return self.info() == o.info()
+    
     @property
     def avatar_image_path(self) -> Optional[AvatarPath]:
         a_pth: AvatarPath = {
