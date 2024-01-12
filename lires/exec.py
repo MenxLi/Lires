@@ -91,32 +91,5 @@ def run():
             openai_models = args.openai_models,
         )
 
-    if args.subparser == "clear":
-        if args.all:
-            prompt_msgs = [
-                "This action is going to ALL DATA in: {}".format(LRS_HOME),
-                "Please make sure that the application is not running",
-                "Proceed? (y/[else]): "
-            ]
-            if input("\n".join(prompt_msgs)) == "y":
-                if os.path.exists(LRS_HOME):
-                    shutil.rmtree(LRS_HOME)
-                print("success.")
-            else:
-                print("abort.")
-
-        elif args.cache:
-            if os.path.exists(TMP_DIR):
-                shutil.rmtree(TMP_DIR)
-                print("success.")
-        
-        elif args.log:
-            if os.path.exists(LOG_DIR):
-                shutil.rmtree(LOG_DIR)
-                print("success.")
-        else:
-            print("Nothing to do. Use --help to see more options.")
-
-
 if __name__=="__main__":
     run()
