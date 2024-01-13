@@ -13,7 +13,6 @@ except (FileNotFoundError, KeyError):
 from .base import LiresBase
 from .bibReader import parseBibtex, parallelParseBibtex, ParsedRef
 from ..types.dataT import DataPointSummary
-from . import globalVar as G
 
 class DataCore(LiresBase):
     logger = LiresBase.loggers().core

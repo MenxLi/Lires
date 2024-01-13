@@ -9,7 +9,6 @@ import time, json
 import http.cookies
 from ._global_data import GlobalStorage
 from lires.user import UserInfo, UserPool
-from lires.core import globalVar as G
 from lires.core.base import LiresBase
 from lires.core.dataClass import DataBase, DataTags
 from lires.utils import BCOLORS
@@ -226,7 +225,6 @@ __all__ = [
     "tornado",
     "RequestHandlerMixin",
     "RequestHandlerBase",
-    "G",
     "minResponseInterval",
     "keyRequired"
     ]

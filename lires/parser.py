@@ -1,5 +1,4 @@
 import argparse
-from .core import globalVar as G
 
 def _prepareServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument("-p", "--port", action = "store", default = "8080", help = "port, default to 8080")

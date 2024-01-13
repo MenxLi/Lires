@@ -7,7 +7,6 @@ from lires.config import DATABASE_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase
 from lires.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
 from lires.utils import MuteEverything
-from lires.core import globalVar as G
 from lires.api import IServerConn
 
 import tiny_vectordb
