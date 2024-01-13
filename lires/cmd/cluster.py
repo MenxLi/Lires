@@ -14,8 +14,7 @@ server:         <--- this is the name of the subcommand for lires
             LRS_HOME: /path/to/lrs/home
         ARGS:      <--- command to run
             port : 8080
-            iserver_host: localhost
-            iserver_port: 8081
+            iserver-endpoint: http://localhost:8731
     -
         ENVS:
         ....
@@ -54,8 +53,7 @@ def __getDefaultConfig()->ClusterConfigT:
                 },
                 "ARGS": {
                     "--port": 8080,
-                    "--iserver_host": "localhost",
-                    "--iserver_port": 8731,
+                    "--iserver-endpoint": "http://localhost:8731",
                 },
             }
         ],
@@ -68,7 +66,7 @@ def __getDefaultConfig()->ClusterConfigT:
                 },
                 "ARGS": {
                     "--port": 8731,
-                    "--host": "0.0.0.0",
+                    "--host": "localhost",
                     "--local-llm-chat": "",
                     "--openai-models": ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k"],
                 },
@@ -79,7 +77,7 @@ def __getDefaultConfig()->ClusterConfigT:
 def generateConfigFile(path:str):
     config = __getDefaultConfig()
     with open(path, "w") as f:
-        yaml.safe_dump(config, f)
+        yaml.safe_dump(config, f, indent=1)
     
     comments = [
         "This is config file for lires cluster",

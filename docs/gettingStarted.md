@@ -79,8 +79,8 @@ Lastly, these servers can share the same 'iServer' for AI features, possibly on 
 
 Thus a more general command to start the server is:
 ```sh
-LRS_HOME="your/path/here" LRS_SSL_CERTFILE="your/cert/file" LRS_SSL_KEYFILE="your/key/file" lires server \
-    --iserver_host "your/iserver/host" --iserver_port "youriserverport" --port "yourport"
+LRS_HOME="your/path/here" LRS_SSL_CERTFILE="your/cert/file" LRS_SSL_KEYFILE="your/key/file" \
+lires server --iserver-endpoint "http://your/iserver/host:port"
 ```
 
 ---
