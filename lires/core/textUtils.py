@@ -2,16 +2,18 @@
 Build and query text features of each document.
 AI method shoud go through IServerConn interface.
 """
+from __future__ import annotations
 import os, hashlib, re
 import asyncio
 import requests
-from typing import TypedDict, Optional, Callable, Literal
+from typing import TypedDict, Optional, Callable, Literal, TYPE_CHECKING
 from lires.config import DOC_SUMMARY_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
-from lires.api import IServerConn
 from lires.utils import Timer
 import tiny_vectordb
+if TYPE_CHECKING:
+    from lires.api import IServerConn
 
 async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
     summary = ""
