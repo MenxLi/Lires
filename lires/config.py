@@ -1,5 +1,5 @@
 import os, json, logging
-from .core import globalVar as G
+from typing import Optional
 from .types.configT import *
 
 __logger = logging.getLogger("default")
@@ -75,9 +75,10 @@ __default_config: LiresConfT = {
     # TODO: add more fields in the future, 
     # maybe some fields for LLM configurations?
 }
+__g_config: Optional[LiresConfT] = None
 def getConf() -> LiresConfT:
-    global CONF_FILE_PATH, G
-    if not hasattr(G, "config"):
+    global __g_config, CONF_FILE_PATH
+    if __g_config is None:
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
             read_conf = json.load(conf_file)
         
@@ -107,13 +108,14 @@ def getConf() -> LiresConfT:
             "please run `lrs-resetconf` to update the configuration file")
 
         conf: LiresConfT = {**__default_config, **read_conf}   # type: ignore
-        G.config = conf
+        __g_config = conf
 
     # Configuration saved at global buffer
     # To not repeatedly reading/parsing configuration file
-    return G.config
+    return __g_config
 
 def saveToConf(**kwargs):
+    global __g_config
     try:
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
             conf_ori = json.load(conf_file)
@@ -125,8 +127,8 @@ def saveToConf(**kwargs):
         json.dump(conf_ori, conf_file, indent=1)
 
     # Reset global configuration buffer
-    # So that next time the configuration will be read from file by getConf/getConfV
-    G.resetGlobalConfVar()
+    # So that next time the configuration will be read from file by getConf
+    __g_config = None
 
 def generateDefaultConf():
     """
