@@ -36,3 +36,12 @@ class TestServer(BaseConfig):
     async def test_status(self, server_admin: ServerConn):
         status = await server_admin.status()
         assert status["status"] == "online"
+    
+    async def test_auth(self, server_admin: ServerConn, server_normal: ServerConn):
+        user_info = await server_admin.authorize()
+        assert user_info["username"] == self.admin_user["username"]
+        assert user_info["is_admin"] == True
+
+        user_info = await server_normal.authorize()
+        assert user_info["username"] == self.normal_user["username"]
+        assert user_info["is_admin"] == False
