@@ -96,6 +96,10 @@ class RequestHandlerMixin(LiresBase):
         return _ws_connections
     
     @property
+    def iconn(self):
+        return g_storage.iconn
+    
+    @property
     def enc_key(self) -> str:
         try:
             enc_key = self.get_argument("key", "")

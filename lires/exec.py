@@ -1,4 +1,3 @@
-import shutil
 import os, logging
 from .parser import prepareParser
 from .cmd.generateDefaultConf import generateDefaultConf
@@ -78,13 +77,12 @@ def run():
         startServer(
             host = args.host,
             port = args.port, 
-            iserver_host = args.iserver_host, 
-            iserver_port = args.iserver_port
+            iserver_endpoint = args.iserver_endpoint,
             )
     
     if args.subparser == "iserver":
-        from lires_ai.server import startServer
-        startServer(
+        from lires_ai.server import startServer as startIServer
+        startIServer(
             host = args.host,
             port = args.port, 
             local_llm_chat = args.local_llm_chat,

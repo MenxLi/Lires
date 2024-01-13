@@ -8,14 +8,14 @@ from lires.core.dataClass import DataBase
 from lires.core.textUtils import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
 from lires.utils import MuteEverything
 from lires.core import globalVar as G
+from lires.api import IServerConn
 
 import tiny_vectordb
 
 
 def parseArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build search index for the database")
-    parser.add_argument("--iserver-host", action="store", type=str, default="127.0.0.1", help="iserver host")
-    parser.add_argument("--iserver-port", action="store", type=int, default=8731, help="iserver port")
+    parser.add_argument("--iserver-endpoint", action="store", type=str, default="http://127.0.0.1:8731", help="iserver endpoint")
     subparsers = parser.add_subparsers(dest="subparser", help="sub-command help")
 
     sp_feat = subparsers.add_parser("build", help="build the index")
@@ -40,20 +40,29 @@ def main():
     with MuteEverything():
         db = DataBase().init(DATABASE_DIR)
 
-    # set global variables of iServer
-    # so that when initializing iServerConn, it can get the correct host and port
-    G.iserver_host = args.iserver_host
-    G.iserver_port = args.iserver_port
+    iconn = IServerConn(args.iserver_endpoint)
 
     if args.subparser == "build":
         vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
-        asyncio.run(buildFeatureStorage(db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words))
+        asyncio.run(buildFeatureStorage(iconn, db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words))
 
     elif args.subparser == "query":
+        vector_collection = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])["doc_feature"]
         if args.input_uid:
-            res = asyncio.run(queryFeatureIndexByUID(db, args.aim, args.n_return))
+            res = asyncio.run(queryFeatureIndexByUID(
+                db = db, 
+                iconn = iconn,
+                vector_collection = vector_collection,
+                query_uid = args.aim,
+                n_return = args.n_return
+                ))
         else:
-            res = asyncio.run(queryFeatureIndex(args.aim, args.n_return))
+            res = asyncio.run(queryFeatureIndex(
+                iconn = iconn,
+                vector_collection = vector_collection,
+                query = args.aim,
+                n_return = args.n_return
+                ))
         print("-----------------------------------")
         print(f"Query: {args.aim if not args.input_uid else '[' + db[args.aim].title + ']'}")
         print("Top results:")

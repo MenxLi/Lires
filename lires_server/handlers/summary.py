@@ -1,7 +1,5 @@
 from ._base import *
 import os
-from typing import Generator
-from lires.api import IServerConn
 from lires.core.pdfTools import getPDFText
 from lires.config import DOC_SUMMARY_DIR
 
@@ -25,8 +23,7 @@ class SummaryHandler(RequestHandlerBase):
                 self.write("ERROR: Permission denied.")
                 return
 
-        iconn = IServerConn()
-        istatus = await iconn.status
+        istatus = await self.iconn.status
         if not (istatus and istatus['status']):
             self.write("ERROR: LiresAI server not running.")
             return
@@ -69,7 +66,7 @@ class SummaryHandler(RequestHandlerBase):
             return
 
         summary_txt = ""
-        res = iconn.chat(
+        res = self.iconn.chat(
             conv_dict={
                 "system": "A conversation between a human and an AI research assistant. "\
                     "The AI gives short and conscise response in academic literature style. ",

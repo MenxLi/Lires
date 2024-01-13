@@ -4,6 +4,7 @@ Search database by certain criteria
 
 import re
 from typing import Dict, Optional, TypedDict, Literal
+from lires.api import IServerConn
 from .dataClass import DataCore, DataBase, DataTagT, DataPoint
 from .textUtils import queryFeatureIndex
 from tiny_vectordb import VectorDatabase
@@ -93,13 +94,15 @@ class DataSearcher(DataCore):
                 results[uid] = {"score": None, "match": res}
         return results
     
-    async def searchFeature(self, pattern: str, n_return = 999, vec_db:Optional[ VectorDatabase ] = None) -> StringSearchT:
+    async def searchFeature(self, iconn: IServerConn, vec_db: VectorDatabase, pattern: str, n_return = 999, ) -> StringSearchT:
         if pattern.strip() == "":
             return {uid: None for uid in self.db.keys()}
-        if vec_db:
-            search_res = await queryFeatureIndex(pattern, n_return=n_return, vector_collection=vec_db.getCollection("doc_feature"))
-        else:
-            search_res = await queryFeatureIndex(pattern, n_return=n_return)
+        search_res = await queryFeatureIndex(
+            iconn = iconn, 
+            query = pattern, 
+            n_return=n_return, 
+            vector_collection=vec_db.getCollection("doc_feature")
+            )
 
         if search_res is None:
             self.logger.error("Error connecting to iserver, return empty result")

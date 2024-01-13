@@ -12,6 +12,7 @@ class SearchHandler(RequestHandlerBase):
 
         searcher = DataSearcher(self.db)
         if method == "searchFeature":
+            kwargs["iconn"] = self.iconn
             kwargs["vec_db"] = self.vec_db
         searcher.setRunConfig(method, kwargs)
         res = await searcher.run()

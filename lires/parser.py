@@ -4,8 +4,7 @@ from .core import globalVar as G
 def _prepareServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument("-p", "--port", action = "store", default = "8080", help = "port, default to 8080")
     parser.add_argument("--host", action = "store", default = "0.0.0.0", help = "host, default to 0.0.0.0")
-    parser.add_argument("--iserver_host", action = "store", default = "127.0.0.1", help = "host, default to 127.0.0.1")
-    parser.add_argument("--iserver_port", action = "store", default = "8731", help = "port, default to 8731")
+    parser.add_argument("--iserver_endpoint", action = "store", default = "http://127.0.0.1:8731", help = "host, default to http://127.0.0.1:8731")
     return parser
 
 def _prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:

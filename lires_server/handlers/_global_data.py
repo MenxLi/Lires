@@ -3,6 +3,7 @@ import dataclasses
 from lires.core.dataClass import DataBase
 from lires.config import DATABASE_DIR, VECTOR_DB_PATH, USER_DIR, getConf
 from lires.user import UserPool
+from lires.api import IServerConn
 from tiny_vectordb import VectorDatabase
 
 @dataclasses.dataclass(frozen=True)
@@ -18,6 +19,8 @@ class GlobalStorage:
         }],
         compile_config=getConf()["tiny_vectordb_compile_config"]
     )
+
+    iconn = IServerConn()   # temporary, the endpoint will be set when server starts
 
     def flush(self):
         """

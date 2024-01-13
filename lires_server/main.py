@@ -4,10 +4,7 @@ from typing import Union, TypedDict
 from lires_web import LRSWEB_SRC_ROOT
 from functools import partial
 from lires.version import VERSION
-from lires.core import globalVar as G
-from lires.utils import BCOLORS, UseTermColor
-from lires.utils import setupLogger
-from lires.config import LOG_DIR
+from lires.utils import UseTermColor
 
 import tornado
 import tornado.ioloop
@@ -118,12 +115,14 @@ class Application(tornado.web.Application):
 
 
 _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
-def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_port: Union[int, str], ssl_config : _SSL_CONFIGT | None = None):
+def __startServer(
+        host: str, 
+        port: Union[int, str], 
+        iserver_endpoint: str,
+        ssl_config : _SSL_CONFIGT | None = None):
 
-    # set global variables of iServer
-    # so that when initializing iServerConn, it can get the correct host and port
-    G.iserver_host = iserver_host
-    G.iserver_port = iserver_port
+    # initialize global iserver connection
+    g_storage.iconn.setEndpoint(iserver_endpoint)
 
     app = Application()
 
@@ -149,6 +148,7 @@ def __startServer(host: str, port: Union[int, str], iserver_host: str, iserver_p
 
         base_request_handler = RequestHandlerMixin()
         await buildFeatureStorage(
+            iconn = g_storage.iconn,
             db = base_request_handler.db,
             vector_db = base_request_handler.vec_db,
             use_llm = False,
@@ -194,12 +194,14 @@ else:
 def startServer(
         host: str, 
         port: int | str, 
-        iserver_host: str, 
-        iserver_port: int | str
+        iserver_endpoint: str,
         ) -> None:
     # add ssl config
-    p_startServer = partial(__startServer, ssl_config=SSL_CONFIG)
-    p_startServer(host = host, port=port, iserver_host=iserver_host, iserver_port=iserver_port)
+    partial(__startServer, ssl_config=SSL_CONFIG)(
+        host = host, 
+        port = port, 
+        iserver_endpoint = iserver_endpoint,
+    )
 
 if __name__ == "__main__":
-    __startServer('127.0.0.1', 8080, "127.0.0.1", "8731")
+    __startServer('127.0.0.1', 8080, "http://127.0.0.1:8731")

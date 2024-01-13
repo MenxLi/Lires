@@ -115,6 +115,7 @@ async def getFeatureTextSource(
         }
 
 async def buildFeatureStorage(
+        iconn: IServerConn,
         db: DataBase, 
         vector_db: tiny_vectordb.VectorDatabase,
         max_words_per_doc: int = 2048, 
@@ -127,7 +128,6 @@ async def buildFeatureStorage(
         set this to a positive value to avoid blocking the main event loop
     """
     # vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
-    iconn = IServerConn()
     vector_collection = vector_db.getCollection("doc_feature")
 
     # check if iserver is running
@@ -211,12 +211,13 @@ async def buildFeatureStorage(
     print(f"Saved feature index to {__vec_db_path}, source log to {text_src_hash_log}")
 
 async def queryFeatureIndex(
+        iconn: IServerConn,
+        vector_collection: tiny_vectordb.VectorCollection,
         query: str, n_return: int = 16, 
-        vector_collection: Optional[tiny_vectordb.VectorCollection] = None) -> FeatureQueryResult:
+        ) -> FeatureQueryResult:
     if not vector_collection:
         with Timer("Loading vector db"):
             vector_collection = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])["doc_feature"]
-    iconn = IServerConn()
     query_vec = await iconn.featurize(query) # [d_feature]
     assert query_vec is not None
 
@@ -226,7 +227,13 @@ async def queryFeatureIndex(
         "scores": scores
     }
 
-async def queryFeatureIndexByUID(db: DataBase, query_uid: str, n_return: int = 16) -> FeatureQueryResult:
+async def queryFeatureIndexByUID(
+    db: DataBase, 
+    iconn: IServerConn,
+    vector_collection: tiny_vectordb.VectorCollection,
+    query_uid: str, 
+    n_return: int = 16
+    ) -> FeatureQueryResult:
     """
     query the related documents of the given uid
     """
@@ -237,10 +244,16 @@ async def queryFeatureIndexByUID(db: DataBase, query_uid: str, n_return: int = 1
         print("Warning: no pdf file found, use title only: {}".format(query_string))
     else:
         query_string = getPDFText(pdf_path, 4096)
-    return await queryFeatureIndex(query_string, n_return)
+    return await queryFeatureIndex(
+        iconn=iconn,
+        vector_collection=vector_collection,
+        query=query_string, 
+        n_return=n_return
+        )
 
 
 async def retrieveRelevantSections(
+        iconn: IServerConn,
         query_text: str, 
         src_text: str, 
         n_max_return = 5,
@@ -248,7 +261,6 @@ async def retrieveRelevantSections(
         min_score = 0.2,
         verbose = False
         ) -> list[tuple[str, float]]:
-    iconn = IServerConn()
     assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
 
     if verbose: print("Querying relevent sections...")

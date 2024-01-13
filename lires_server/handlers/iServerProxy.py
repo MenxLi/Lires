@@ -1,7 +1,6 @@
 
 from ._base import *
 import json, sys, math
-from lires.api import IServerConn
 
 
 class IServerProxyHandler(RequestHandlerBase):
@@ -22,7 +21,7 @@ class IServerProxyHandler(RequestHandlerBase):
                         self.write(json.dumps(_cache[1]))
                         return
 
-            ret: list[float] | None = await IServerConn().featurize(text)
+            ret: list[float] | None = await self.iconn.featurize(text)
             if ret is None:
                 raise tornado.web.HTTPError(500, "iServer error")
 

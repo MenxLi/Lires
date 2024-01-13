@@ -5,7 +5,6 @@ Interface for server connections,
 from __future__ import annotations
 import aiohttp
 from lires.core.base import LiresBase
-from lires.core import globalVar as G
 from typing import TYPE_CHECKING, Optional, TypedDict, AsyncIterator
 import json
 import sys
@@ -22,26 +21,18 @@ class IServerConn(LiresBase):
 
     logger = LiresBase.loggers().core
 
-    def __init__(self, host: str = "", port: str|int = "") -> None:
+    def __init__(self, endpoint: Optional[str] = None) -> None:
         super().__init__()
-        if host == "":
-            if G.iserver_host:
-                host = G.iserver_host
-            else:
-                host = "127.0.0.1"
-
-        if port == "":
-            if G.iserver_port:
-                port = G.iserver_port
-            else:
-                port = 8731
-
-        self._host = host
-        self._port = str(port)
+        self._endpoint = endpoint
+    
+    def setEndpoint(self, endpoint: str) -> None:
+        self._endpoint = endpoint
 
     @property
     def url(self) -> str:
-        return "http://{}:{}".format(self._host, self._port)
+        if self._endpoint is None:
+            raise RuntimeError("Endpoint not set!")
+        return self._endpoint
     
     def _checkRes(self, res: aiohttp.ClientResponse) -> bool:
         if res.status != 200:
