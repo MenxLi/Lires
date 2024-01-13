@@ -2,6 +2,7 @@ import fitz     # PyMuPDF
 from typing import Optional
 import os, time, random, shutil
 import requests, os, zipfile
+import aiofiles
 from tqdm import tqdm
 from ..utils import UseTermColor
 from ..config import TMP_DIR
@@ -144,6 +145,14 @@ class PDFAnalyser:
     def __exit__(self, exc_type, exc_value, traceback):
         self.doc.close()
 
+    async def __aenter__(self):
+        async with aiofiles.open(self.fpath, "rb") as f:
+            self.doc = fitz.open(stream = await f.read(), filetype="pdf") # type: ignore
+        return self
+    
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        self.doc.close()
+
     def getText(self, no_new_line = True, smaller_space = True) -> str:
         text = chr(12).join([page.get_text() for page in self.doc]) # type: ignore
         if no_new_line:
@@ -153,13 +162,13 @@ class PDFAnalyser:
             text = " ".join(text.split())
         return text
 
-def getPDFText(pdf_path: str, max_word: Optional[int] = None, possible_offset: int = 0) -> str:
+async def getPDFText(pdf_path: str, max_word: Optional[int] = None, possible_offset: int = 0) -> str:
     """
     possible_offset: if the pdf has more words than max_word, 
         then the offset will be used to get the text from the start of the pdf. 
         then actual offset will be calculated based on the number of words in the pdf.
     """
-    with PDFAnalyser(pdf_path) as doc:
+    async with PDFAnalyser(pdf_path) as doc:
         pdf_text_ori = doc.getText()
 
     n_words = len(pdf_text_ori.split())

@@ -7,7 +7,7 @@ except ImportError:
 from ..lmTools import summarize, structuredSummerize, featurize
 from ..lmInterface import streamOutput
 
-def main():
+async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('pdf_path', type=str, help='path to pdf file')
     parser.add_argument('--structured', action='store_true', help='structured summarization')
@@ -15,7 +15,7 @@ def main():
     parser.add_argument("--max-length", type=int, default=-1, help="max length of the input text, the rest will be truncated")
 
     args = parser.parse_args()
-    with PDFAnalyser(args.pdf_path) as doc:
+    async with PDFAnalyser(args.pdf_path) as doc:
         pdf_text = doc.getText()
 
     max_len = args.max_length
@@ -34,8 +34,7 @@ def main():
         print("Get vectorized result: ", vec.shape)
     else:
         streamOutput(summarize(txt))
-
         
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

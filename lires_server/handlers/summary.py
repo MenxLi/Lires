@@ -60,7 +60,7 @@ class SummaryHandler(RequestHandlerBase):
             __max_words = 4096
         else:
             __max_words = 2048
-        pdf_txt = getPDFText(dp.file_path, __max_words)
+        pdf_txt = await getPDFText(dp.file_path, __max_words)
         if len(pdf_txt) < 100:
             self.write("ERROR: Not enough content in the paper.")
             return
