@@ -1,5 +1,5 @@
 
-import subprocess, os, time, shutil, threading
+import subprocess, os, time, shutil, threading, argparse
 
 EXITING = False
 def startSubprocess(cmd):
@@ -41,6 +41,11 @@ def watchForStartSign():
 
 
 if __name__ == "__main__":
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', "--verbose", action="store_true")
+    parser.add_argument("--no-server", action="store_true")
+    args = parser.parse_args()
 
     __this_dir = os.path.dirname(os.path.abspath(__file__))
     __project_dir = os.path.dirname(__this_dir)
@@ -50,23 +55,24 @@ if __name__ == "__main__":
     LRS_HOME = os.path.join(__this_dir, "_test_home")
     os.environ["LRS_HOME"] = LRS_HOME
     # to disable log output
-    os.environ["LRS_LOG_LEVEL"] = "CRITICAL"
+    os.environ["LRS_LOG_LEVEL"] = "CRITICAL" if not args.verbose else "DEBUG"
 
     # prepare for test
     procs = []
-    subprocess.check_call("lrs-resetconf", shell=True)
-    procs.append(startSubprocess("lires server"))
-    # to avoid resource conflict!
-    # during initialization, the server will try to create some files
-    # and if the file simultaneously being used by other process, it will fail
-    time.sleep(0.1)
-    procs.append(startSubprocess("lires iserver"))
-    print("Waiting for server to start...")
-    watchForStartSign()
+    if not args.no_server:
+        subprocess.check_call("lrs-resetconf", shell=True)
+        procs.append(startSubprocess("lires server"))
+        # to avoid resource conflict!
+        # during initialization, the server will try to create some files
+        # and if the file simultaneously being used by other process, it will fail
+        time.sleep(0.1)
+        procs.append(startSubprocess("lires iserver"))
+        print("Waiting for server to start...")
+        watchForStartSign()
     
     _report_file = os.path.join(__this_dir, "_cache", "output", "report.html")
     _test_case_dir = os.path.join(__this_dir, "cases")
-    _test_cmd = f"pytest --html={_report_file} {_test_case_dir}"
+    _test_cmd = f"pytest {'-s' if args.verbose else ''} --html={_report_file} {_test_case_dir}"
     try:
         subprocess.check_call(_test_cmd, shell=True)
     except Exception as e:

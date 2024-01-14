@@ -40,12 +40,15 @@ class DataUpdateHandler(RequestHandlerBase):
         arguments:
             uuid: uuid of the data entry (None for new entry)
             tags: list[str], bibtex: str, url: str
+        return:
+            summary of the data entry
         """
+        self.set_header("Content-Type", "application/json")
         permission = self.user_info
 
         __info = [] # for logging
 
-        uuid = json.loads(self.get_argument("uuid"))
+        uuid = json.loads(self.get_argument("uuid", 'null'))
         assert uuid is None or isinstance(uuid, str)
 
         # optional arguments (set to None) if uuid is present
