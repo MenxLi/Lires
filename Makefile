@@ -7,11 +7,13 @@ test-run:
 	docker run --rm -it \
 		-v ./:/Lires \
 		-v ./test/_cache:/_cache \
+		-e LRS_HOME=/Lires/test/_test_home \
 		$(DOCKER_IMAGE_NAME):test /usr/local/bin/python3 ./test/main.py
 test-inspect:
 	docker run --rm -it \
 		-v ./:/Lires \
 		-v ./test/_cache:/_cache \
-		$(DOCKER_IMAGE_NAME):test /bin/bash
+		-e LRS_HOME=/Lires/test/_test_home \
+		$(DOCKER_IMAGE_NAME):test tmux
 test-clean:
 	docker rmi $(DOCKER_IMAGE_NAME):test
