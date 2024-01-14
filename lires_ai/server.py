@@ -98,7 +98,6 @@ def startServer(
         host=host,
         port=port,
         log_level="info",
-        workers=1,
         )
 
 if __name__ == "__main__":
