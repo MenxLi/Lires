@@ -38,7 +38,7 @@ dependencies = [
     "typing_extensions",
     "pyyaml",
     "requests",
-    "tiny_vectordb >= 0.1.5",
+    "tiny_vectordb >= 0.1.7",
 ]
 
 [project.optional-dependencies]
