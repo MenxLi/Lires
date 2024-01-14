@@ -20,7 +20,7 @@ class DataDeleteHandler(RequestHandlerBase):
         if not self.user_info["is_admin"]:
             self.checkTagPermission(self.db[uuid].tags, self.user_info["mandatory_tags"])
 
-        if self.db.delete(uuid):
+        if await self.db.delete(uuid):
             self.logger.info(f"Deleted {uuid}")
         
         self.broadcastEventMessage({
@@ -93,7 +93,7 @@ class DataUpdateHandler(RequestHandlerBase):
             assert tags is not None
             assert url is not None
 
-            uuid = addDocument(self.db.conn, bibtex, check_duplicate=True)
+            uuid = await addDocument(self.db.conn, bibtex, check_duplicate=True)
             if uuid is None:
                 # most likely a duplicate
                 raise tornado.web.HTTPError(409)

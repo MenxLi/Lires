@@ -481,7 +481,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         self[data.uuid] = data
         return data
     
-    def delete(self, uuid: str) -> bool:
+    async def delete(self, uuid: str) -> bool:
         """
         Delete a DataPoint by uuid,
         will delete remote data if in online mode and remote data exists
@@ -490,7 +490,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         if uuid in self.keys():
             dp: DataPoint = self[uuid]
             dp.fm.setWatch(False)
-            res = dp.fm.deleteEntry()
+            res = await dp.fm.deleteEntry()
             del self[uuid]
             return res
         return False

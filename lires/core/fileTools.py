@@ -400,7 +400,7 @@ class FileManipulator(LiresBase):
         if self.hasMisc():
             _openFile(self._misc_dir)
     
-    def deleteEntry(self, create_backup = True) -> bool:
+    async def deleteEntry(self, create_backup = True) -> bool:
         """
         Will delete the entry from the database, and delete the file and misc folder if exist.
         if create_backup is True, will create a backup of the document
@@ -422,7 +422,7 @@ class FileManipulator(LiresBase):
                     )
                 if _success:    # otherwise, maybe duplicate entry
                     if self.hasFile():
-                        _addDocumentFile(trash_db, self.uuid, self.file_p)  # type: ignore
+                        await _addDocumentFile(trash_db, self.uuid, self.file_p)  # type: ignore
                     if self.hasMisc():
                         shutil.copytree(self._misc_dir, os.path.join(_backup_dir, self.uuid))
             self.logger.debug("(fm) deleteEntry: {} (backup created)".format(self.uuid))
