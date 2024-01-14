@@ -5,8 +5,8 @@ import json, sys, math
 
 class IServerProxyHandler(RequestHandlerBase):
 
-    # @minResponseInterval(1e-2)
     CACHE_TEXT_FEATURE: list[tuple[str, list[float]]] = []
+    @minResponseInterval(1e-2)  # 100 requests per second, to reduce concurrent requests
     @keyRequired
     async def post(self, key):
 
