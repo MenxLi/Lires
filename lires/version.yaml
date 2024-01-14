@@ -623,3 +623,8 @@ version_history:
     - Fix:
       - Iserver connection error
       - Tiny_vectordb not flush to disk
+  1.3.7:
+    - Chore:
+      - Update tiny_vectordb to 0.1.7
+    - Fix:
+      - Async add and remove entry
