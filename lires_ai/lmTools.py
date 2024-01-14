@@ -1,7 +1,7 @@
 
 """Language Model Tools"""
 
-import asyncio, os
+import os
 
 from typing import Callable, Optional, Literal
 from .lmInterface import StreamData, Iterator
@@ -47,7 +47,7 @@ EncoderT = Literal["distilbert-base-uncased", "yikuan8/Clinical-Longformer", "al
 _default_encoder = "sentence-transformers/all-mpnet-base-v2"
 # reference: https://huggingface.co/sentence-transformers/all-mpnet-base-v2
 @torch.inference_mode()
-async def vectorize(
+def vectorize(
     txt: str, 
     model_name: EncoderT = _default_encoder,
     max_len: Optional[int] = None, 
@@ -111,7 +111,7 @@ async def vectorize(
             print("Warning<vectorize>: input text is too long, truncated.")
     return sentence_embeddings
 
-async def featurize(
+def featurize(
         txt: str, 
         word_chunk: int = 256, 
         model_name: EncoderT = _default_encoder, 
@@ -125,8 +125,7 @@ async def featurize(
     assert txt != "", "txt cannot be empty"
     txt_split = txt.split()
     txt_chunks = [" ".join(txt_split[i:i+word_chunk]) for i in range(0, len(txt_split), word_chunk)]
-    _vec_chunk_tasks = [vectorize(chunk, verbose=verbose, model_name=model_name) for chunk in txt_chunks]
-    vec_chunks: list[torch.Tensor] = await asyncio.gather(*_vec_chunk_tasks)
+    vec_chunks: list[torch.Tensor] = [vectorize(chunk, verbose=verbose, model_name=model_name) for chunk in txt_chunks]
     feats = torch.cat(vec_chunks, dim=0)    # [n, d_feature]
 
     if not dim_reduce:

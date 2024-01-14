@@ -30,7 +30,7 @@ async def main():
 
     if args.structured:
         res = asyncio.run(structuredSummerize(txt, print_func=print, model=args.model))
-        vec = asyncio.run(featurize(res))
+        vec = featurize(res)
         print("Get vectorized result: ", vec.shape)
     else:
         streamOutput(summarize(txt))

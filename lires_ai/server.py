@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 import threading, os
-import logging, asyncio, json
+import logging, json
 
 from .utils import autoTorchDevice
 
@@ -36,7 +36,7 @@ class FeaturizeRequest(BaseModel):
     dim_reduce: bool = False
 @app.post("/featurize")
 def featurize(req: FeaturizeRequest):
-    feat = asyncio.run(lmFeaturize(req.text, req.word_chunk, req.model_name, req.dim_reduce))
+    feat = lmFeaturize(req.text, req.word_chunk, req.model_name, req.dim_reduce)
     return feat.tolist()
 
 class ChatBotRequest(BaseModel):
@@ -84,7 +84,7 @@ def startServer(
 
     def warmup():
         logger.info("Warming up text encoder...")
-        asyncio.run(lmFeaturize("Hello world!"))
+        lmFeaturize("Hello world!")
         if config.local_llm_name is not None:
             getStreamIter("LOCAL")
 
