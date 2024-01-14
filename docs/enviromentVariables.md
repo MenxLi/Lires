@@ -17,6 +17,7 @@ Applies to all servers.
 |`LRS_SSL_KEYFILE`| The path to the SSL key file. (must be used with `LRS_SSL_CERTFILE`) |  |
 |`LRS_SSL_CERTFILE`| The path to the SSL certificate file. |  |
 |`TVDB_CACHE_DIR` | The path to the `tiny_vectordb` cache directory. | |
+|`TVDB_BACKEND` | The `tiny_vectordb` backend to use, can be set to `numpy` if error occurs. | `cxx` |
 
 **`lires iserver` variables**
 |Variable|Description|Default|
