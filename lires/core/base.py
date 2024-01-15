@@ -44,9 +44,11 @@ def initLoggers():
     import os
     from lires.config import LOG_DIR
     from lires.utils import setupLogger, BCOLORS
+    from lires.utils.log import FileLogLevelT, TermLogLevelT
 
-    term_log_level = os.getenv("LRS_LOG_LEVEL", "INFO").upper()
-    file_log_level = os.getenv("LRS_FILE_LOG_LEVEL", "_ALL").upper()
+    term_log_level: TermLogLevelT = os.getenv("LRS_LOG_LEVEL", "INFO").upper()          # type: ignore
+    file_log_level: FileLogLevelT = os.getenv("LRS_FILE_LOG_LEVEL", "_ALL").upper()     # type: ignore
+
     # init loggers
     setupLogger(
         G.loggers.default,

@@ -8,14 +8,15 @@ from lires.config import LOG_FILE
 from .term import BCOLORS
 from .time import TimeUtils
 
-_FileLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "_ALL"]
+TermLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+FileLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "_ALL"]
 def setupLogger(
         _logger: str | logging.Logger, 
         term_id: Optional[str] = None, 
         term_id_color = BCOLORS.OKGRAY, 
-        term_log_level = "INFO",
+        term_log_level: TermLogLevelT = "INFO",
         file_path: Optional[str] = None,
-        file_log_level: _FileLogLevelT = "_ALL",
+        file_log_level: FileLogLevelT = "_ALL",
         attach_execption_hook = False
         ) -> logging.Logger:
     """
@@ -92,7 +93,7 @@ def setupLogger(
                 _mh = MemoryHandler(__mem_buffer_size, target=_fh, flushOnClose=True)
                 logger.addHandler(_mh)
             # set up a file handler for all levels
-            _fh = logging.FileHandler(__file_name, "a", encoding = "utf-8")
+            _fh = logging.FileHandler(file_path, "a", encoding = "utf-8")
             _fh.setLevel(logging.DEBUG)
             _fh.setFormatter(__file_fommatter)
             # use a memory handler as a cache buffer
