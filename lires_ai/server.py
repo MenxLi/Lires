@@ -19,13 +19,13 @@ from .lmInterface import ChatStreamIterType, getStreamIter
 from . import globalConfig as config
 
 logger = logging.getLogger("iserver")
-
+g_warmup = False
 app = fastapi.FastAPI()
 
 @app.get("/status")
 def status():
     return {
-        "status": "ok",
+        "status": "ok" if g_warmup else "warming up",
         "device": autoTorchDevice(),
         }
 
@@ -83,12 +83,14 @@ def startServer(
             openai.api_key="sk-dummy__"
 
     def warmup():
+        global g_warmup
         logger.info("Warming up text encoder...")
         lmFeaturize("Hello world!")
         if config.local_llm_name is not None:
             getStreamIter("LOCAL")
-
         logger.info("Warmup done!")
+        g_warmup = True
+
     threading.Thread(target = warmup, daemon=True).start()
 
     logger.info("Using device: {}".format(autoTorchDevice()))

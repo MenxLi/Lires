@@ -6,11 +6,6 @@ from __future__ import annotations
 import aiohttp
 from typing import TYPE_CHECKING, Optional, TypedDict, AsyncIterator
 import json
-import sys
-if sys.version_info < (3, 9):
-    from typing import Iterator
-else:
-    from collections.abc import Iterator
 from .common import LiresAPIBase
 
 if TYPE_CHECKING:

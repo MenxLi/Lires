@@ -22,20 +22,18 @@ def startSubprocess(cmd):
     return process
 
 def watchForStartSign():
-    time.sleep(5)
-    return 
-
-    # TODO: implement this...
-    from lires.config import LOG_DIR
+    from lires.core import LiresError
+    from lires.api import IServerConn
+    import asyncio
 
     def isIserverReady():
-        _log_f = os.path.join(LOG_DIR, "iserver.log")
-        if not os.path.exists(_log_f):
-            return False
-
-        with open(_log_f, "r") as f:
-            if "Warmup done!" in f.read():
+        iconn = IServerConn("http://localhost:8731")
+        try:
+            status = asyncio.run(iconn.status)
+            if status["status"] == 'ok': 
                 return True
+        except LiresError.LiresConnectionError:
+            ...
         return False
 
     while True:
@@ -72,6 +70,7 @@ if __name__ == "__main__":
         time.sleep(0.1)
         procs.append(startSubprocess("lires iserver"))
         print("Waiting for server to start...")
+        time.sleep(3)
         watchForStartSign()
     
     _report_file = os.path.join(__this_dir, "_cache", "output", "report.html")
