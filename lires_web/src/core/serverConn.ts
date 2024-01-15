@@ -274,17 +274,16 @@ export class ServerConn {
     // =============================================
 
     async featurize(text: string, requireCache: boolean = false): Promise<number[]>{
-        const params = new URLSearchParams();
-        params.set("key", this.settings.encKey);
-        params.set("text", text);
-        params.set("require_cache", requireCache.toString());
 
-        const response = await fetch(`${this.apiURL()}/iserver/textFeature?${params.toString()}`,
+        const body = new FormData();
+        body.append("key", this.settings.encKey);
+        body.append("text", text);
+        body.append("require_cache", requireCache.toString());
+
+        const response = await fetch(`${this.apiURL()}/iserver/textFeature`,
             {
                 method: "POST",
-                headers: {
-                    "Content-Type":"application/x-www-form-urlencoded"
-                },
+                body: body,
             }
         );
 
