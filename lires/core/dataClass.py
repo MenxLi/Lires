@@ -172,6 +172,9 @@ DataTagT = Union[DataTags, List[str], Set[str]]
 DataTagT_G = TypeVar('DataTagT_G', bound=DataTagT)
 
 class DataPoint(DataCore):
+    """
+    A buffer that holds parsed information of a single data
+    """
     MAX_AUTHOR_ABBR = 36
     def __init__(self, fm: FileManipulator, parse_bibtex: bool = True):
         """
@@ -181,14 +184,7 @@ class DataPoint(DataCore):
             if False, the bibtex should be parsed manually later, maybe with parallel processing
         """
         self.fm = fm
-        self.__parent_db: DataBase
         self.loadInfo(parse_bibtex=parse_bibtex)
-    
-    def __del__(self):
-        """
-        Make sure the associated FileManipulator is deleted
-        """
-        del self.fm
     
     @property
     def summary(self) -> DataPointSummary:
@@ -219,22 +215,11 @@ class DataPoint(DataCore):
     @property
     def d_info(self) -> DBFileInfo:
         """
-        Return the DBFileInfo object (Raw sqlite database data information) if the data is in local database
+        Return the DBFileInfo object (Raw sqlite database data information)
         """
         d_info = self.fm.conn[self.uuid]
         assert d_info is not None
         return d_info
-    
-    @property
-    def par_db(self) -> DataBase:
-        return self.__parent_db
-    
-    @par_db.setter
-    def par_db(self, db: DataBase):
-        if not hasattr(self, "__parent_db"):
-            self.__parent_db = db
-        else:
-            self.par_db.logger.warn("Can't re-assign database for datapoint: {}".format(self))
     
     @property
     def file_path(self) -> Optional[str]:
@@ -313,26 +298,6 @@ class DataPoint(DataCore):
             return "\u2726"
         else:
             return "\u2727"
-
-    def stringCitation(self):
-        """
-        Generate citation string, should be adapted to more formats in the future
-        """
-        bib = self.bib
-        title = bib["title"]
-        year = bib["year"]
-        # string = f"{self.getAuthorsAbbr()} {title}. ({year})"
-        source: str = ""
-        if "journal" in bib:
-            source = bib["journal"][0]
-            if source.endswith("."):
-                source = source[:len(source)-1]
-        elif "booktitle" in bib:
-            source = bib["booktitle"][0]
-        elif "publisher" in bib:
-            source = bib["publisher"][0]
-        string = f"{self.getAuthorsAbbr()}, {source} ({year})"
-        return string
 
     def getAuthorsAbbr(self):
         """
@@ -477,7 +442,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
             # uid of the data
             fm = FileManipulator(data, db_local = self.conn)
             data = DataPoint(fm)
-        data.par_db = self
         self[data.uuid] = data
         return data
     

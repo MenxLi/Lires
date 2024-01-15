@@ -22,13 +22,17 @@ def startSubprocess(cmd):
     return process
 
 def watchForStartSign():
+    time.sleep(5)
+    return 
+
+    # TODO: implement this...
     from lires.config import LOG_DIR
 
     def isIserverReady():
         _log_f = os.path.join(LOG_DIR, "iserver.log")
         if not os.path.exists(_log_f):
-            print("Error: log file not found")
-            exit(1)
+            return False
+
         with open(_log_f, "r") as f:
             if "Warmup done!" in f.read():
                 return True
