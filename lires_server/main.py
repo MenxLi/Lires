@@ -166,7 +166,7 @@ def __startServer(
         g_storage.flush()
         logging.getLogger('server').info("Server exited")
         with UseTermColor("green"):
-            print("Exited, hook invoked.")
+            print("Hook invoked.")
     atexit.register(__exitHook)
     # catch keyboard interrupt
     import signal

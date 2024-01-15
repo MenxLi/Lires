@@ -1,5 +1,5 @@
 import logging, sys
-from logging.handlers import RotatingFileHandler
+from logging.handlers import MemoryHandler
 from io import TextIOWrapper
 from functools import wraps
 from typing import Optional, Literal
@@ -57,16 +57,18 @@ def setupLogger(
     logger.addHandler(_ch)
 
     __file_fommatter = logging.Formatter('%(asctime)s [%(levelname)s] - %(message)s')
+    __mem_buffer_size = 1024    # 1 KB
     if file_log_level != "_ALL":
         # get less critical log level and set it to be the level of logger
         logger.setLevel(min(logging.getLevelName(term_log_level), logging.getLevelName(file_log_level)))
 
         # set up file handler
         if file_path is not None:
-            _fh = RotatingFileHandler(file_path, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
+            _fh = logging.FileHandler(file_path, "a", encoding = "utf-8")
             _fh.setLevel(file_log_level)
             _fh.setFormatter(__file_fommatter)
-            logger.addHandler(_fh)
+            _mh = MemoryHandler(__mem_buffer_size, target=_fh, flushOnClose=True)
+            logger.addHandler(_mh)
     else:
         # set up a file handler for each level!
         class LevelFilter(logging.Filter):
@@ -82,18 +84,20 @@ def setupLogger(
                 # # e.g. filename.debug.log
                 assert file_path[-4:] == ".log"
                 __file_name = file_path[:-4] + "." + _level.lower() + file_path[-4:]
-                _fh = RotatingFileHandler(__file_name, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
+                _fh = logging.FileHandler(__file_name, "a", encoding = "utf-8")
                 _fh.setLevel(_level)
                 _fh.addFilter(LevelFilter(logging.getLevelName(_level)))
                 _fh.setFormatter(__file_fommatter)
-                logger.addHandler(_fh)
+                # use a memory handler as a cache buffer
+                _mh = MemoryHandler(__mem_buffer_size, target=_fh, flushOnClose=True)
+                logger.addHandler(_mh)
             # set up a file handler for all levels
-            _fh = logging.FileHandler(file_path)
-            _fh = RotatingFileHandler(file_path, "a", maxBytes = 1024*1024, backupCount = 1, encoding = "utf-8")
+            _fh = logging.FileHandler(__file_name, "a", encoding = "utf-8")
             _fh.setLevel(logging.DEBUG)
             _fh.setFormatter(__file_fommatter)
-            logger.addHandler(_fh)
-
+            # use a memory handler as a cache buffer
+            _mh = MemoryHandler(__mem_buffer_size, target=_fh, flushOnClose=True)
+            logger.addHandler(_mh)
     
     if attach_execption_hook:
         def handle_exception(exc_type, exc_value, exc_traceback):
