@@ -7,7 +7,7 @@ from typing import Callable, Optional, Literal
 from .lmInterface import StreamData, Iterator
 from .lmInterface import getStreamIter, streamOutput, ChatStreamIterType
 from .utils import autoTorchDevice
-from lires.utils import MuteEverything, Timer
+from lires.utils import Timer
 
 import torch
 import torch.nn.functional as F
@@ -106,9 +106,10 @@ def vectorize(
     sentence_embeddings = F.normalize(sentence_embeddings, p=2, dim=1)
 
     # import pdb; pdb.set_trace()
-    with MuteEverything(enable=not verbose):
-        if len(encoded_input['input_ids'][0]) == max_len:   # type: ignore
-            print("Warning<vectorize>: input text is too long, truncated.")
+    # with MuteEverything(enable=not verbose):
+    #     # may cause error on concurrent requests
+    #     if len(encoded_input['input_ids'][0]) == max_len:   # type: ignore
+    #         print("Warning<vectorize>: input text is too long, truncated.")
     return sentence_embeddings
 
 def featurize(
