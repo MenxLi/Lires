@@ -198,9 +198,9 @@ async def buildFeatureStorage(
     for uid, feature_item in zip(uid_list, feature_list):
         # traverse the result and record the feature source hash
         # also filter out failed featurization
-        if feature_item is None:
-            print(f"Warning: failed to featurize {uid}")
-            continue
+        # if feature_item is None:
+        #     print(f"Warning: failed to featurize {uid}")
+        #     continue
         text_src_hash_record[uid] = text_src_hash[uid] 
         _to_record_uids.append(uid)
         _to_record_features.append(feature_item)
@@ -287,8 +287,6 @@ async def retrieveRelevantSections(
     if verbose: print(f"Query: {query_text}")
     query_text = query_text.replace("\n", " ")
     query_vec = await iconn.featurize(query_text)
-    assert query_vec is not None
-
 
     __non_english_regex = re.compile(r'[^a-zA-Z0-9\s\.\,\;\:\!\?\-\'\"\(\)\[\]\{\}\&\%\$\#\@\!\~\`\+\=\_\\\/\*\^]+')
     def __containsNoneEnglish(sentence):
@@ -303,7 +301,6 @@ async def retrieveRelevantSections(
             continue
 
         sentence_feat = await iconn.featurize(sentence)
-        assert sentence_feat is not None
         src_vec_dict[sentence] = sentence_feat
     
     # compute the similarity

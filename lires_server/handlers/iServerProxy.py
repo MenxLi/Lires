@@ -6,9 +6,10 @@ import json, sys, math
 class IServerProxyHandler(RequestHandlerBase):
 
     CACHE_TEXT_FEATURE: list[tuple[str, list[float]]] = []
-    @minResponseInterval(1e-2)  # 100 requests per second, to reduce concurrent requests
+    # @minResponseInterval(5e-2)  # 20 requests per second, to reduce concurrent requests
     @keyRequired
     async def post(self, key):
+        self.set_header("Content-Type", "application/json")
 
         if key == "textFeature":
             text = self.get_argument("text")
@@ -21,9 +22,7 @@ class IServerProxyHandler(RequestHandlerBase):
                         self.write(json.dumps(_cache[1]))
                         return
 
-            ret: list[float] | None = await self.iconn.featurize(text)
-            if ret is None:
-                raise tornado.web.HTTPError(500, "iServer error")
+            ret: list[float] = await self.iconn.featurize(text)
 
             if require_cache:
                 # add the result to the cache buffer
@@ -34,7 +33,6 @@ class IServerProxyHandler(RequestHandlerBase):
                     self.CACHE_TEXT_FEATURE = self.CACHE_TEXT_FEATURE[__n_to_remove:]
 
             self.write(json.dumps(ret))
-            return
         
         else:
             raise tornado.web.HTTPError(404, "Unknown key")
