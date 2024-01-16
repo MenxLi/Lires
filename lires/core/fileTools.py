@@ -13,9 +13,6 @@ from ..utils import TimeUtils
 from ..config import DATABASE_DIR, ACCEPTED_EXTENSIONS
 from ..version import VERSION
 
-# from watchdog.observers import Observer
-# from watchdog.events import PatternMatchingEventHandler
-
 if TYPE_CHECKING:
     from .dataClass import DataTags
 
@@ -152,16 +149,6 @@ class FileManipulator(LiresBase):
         assert d_info is not None, "uuid {} not exists".format(self.uuid)
         return d_info["doc_ext"]
     
-    @file_extension.setter
-    def file_extension(self, new_ext):
-        file_pth = self.file_p
-        file_existance = os.path.exists(file_pth) if file_pth is not None else False
-        if new_ext == "":
-            assert not file_existance, "should not set file extension to empty string when file exists"
-        else:
-            assert file_existance, "should not set file extension to none existent file"
-        self.conn.setDocExt(self.uuid, new_ext)
-    
     @property
     def file_p(self) -> Optional[str]:
         """Document file path, None if not exists"""
@@ -170,7 +157,7 @@ class FileManipulator(LiresBase):
         file_path = os.path.join(self.conn.db_dir, self.uuid + self.file_extension)
         if not os.path.exists(file_path):
             self.logger.error("file {} not exists, but file extension exists".format(file_path))
-            self.file_extension = ""
+            self.conn.setDocExt(self.uuid, "")
             self.logger.warning("cleared the file extension to auto-fix the problem")
             return None
         return file_path
