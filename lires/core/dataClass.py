@@ -1,6 +1,6 @@
 from __future__ import annotations
 import os
-from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar
+from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar, Literal
 import difflib
 from ..utils import Timer
 try:
@@ -324,50 +324,19 @@ class DataPoint(DataCore):
     
     __repr__ = __str__
 
-class DataList(List[DataPoint], DataCore):
-    SORT_YEAR = "Year"
-    SORT_AUTHOR = "Author"
-    SORT_TIMEADDED = "Time added"
-    SORT_TIMEOPENED = "Time opened"
-    TB_HEADER = {
-        0: "Year",
-        1: "Author",
-        2: "Title"
-    }
-    TB_FUNCS = {
-        0: lambda x: x.year,
-        1: lambda x: x.getAuthorsAbbr(),
-        2: lambda x: x.title
-    }
-    def __init__(self, *args, **kwargs):
-        return super().__init__(*args, **kwargs)
 
-    def sortBy(self, mode: str | list[str], reverse: bool = False):
-        """
-        Mode can be a list of uuid or a string indicating the sorting mode
-        """
-        if isinstance(mode, list):
-            # sort by uuid list
-            index_dict = {uuid: i for i, uuid in enumerate(mode)}
-            def sortKey(x):
-                if x.uuid not in index_dict:
-                    return -1
-                return index_dict[x.uuid]
-            return self.sort(key = sortKey)
-        if mode == self.SORT_AUTHOR:
-            return self.sort(key = lambda x: x.authors[0], reverse = reverse)
-        elif mode == self.SORT_YEAR:
-            return self.sort(key = lambda x: int(x.year), reverse = reverse)
-        elif mode == self.SORT_TIMEADDED:
-            return self.sort(key = lambda x: x.time_added, reverse = reverse)
-        elif mode == self.SORT_TIMEOPENED:
-            return self.sort(key = lambda x: x.time_modified, reverse = reverse)
-
-    def reloadFromFile(self, idx):
-        self[idx].reload()
-    
-    def getTable(self):
-        pass
+SortType = Literal["year", "author", "time_added", "time_opened"]
+def sortDataList(data_list: List[DataPoint], sort_by: SortType) -> List[DataPoint]:
+    if sort_by == "year":
+        return sorted(data_list, key = lambda x: int(x.year))
+    elif sort_by == "author":
+        return sorted(data_list, key = lambda x: x.authors[0])
+    elif sort_by == "time_added":
+        return sorted(data_list, key = lambda x: x.time_added)
+    elif sort_by == "time_opened":
+        return sorted(data_list, key = lambda x: x.time_modified)
+    else:
+        raise ValueError("Unknown sort type")
 
 class DataBase(Dict[str, DataPoint], DataCore):
     def __init__(self, local_path: Optional[str] = None):
@@ -487,8 +456,8 @@ class DataBase(Dict[str, DataPoint], DataCore):
     def uuids(self) -> List[str]:
         return list(self.keys())
     
-    def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> DataList:
-        datalist = DataList()
+    def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[DataPoint]:
+        datalist = []
         for data in self.values():
             if not from_uids is None:
                 # filter by uids (for searching purposes)

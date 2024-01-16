@@ -4,7 +4,7 @@ Get information about data
 from typing import Union, List
 import json
 
-from lires.core.dataClass import DataList, DataTags, DataPoint, DataPointSummary
+from lires.core.dataClass import DataTags, DataPoint, DataPointSummary, sortDataList, SortType
 from ._base import *
 
 class DataListHandler(RequestHandlerBase):
@@ -42,9 +42,9 @@ class DataListHandler(RequestHandlerBase):
         self.write(json.dumps(data_info))
         return
 
-    def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by = DataList.SORT_TIMEADDED) -> List[DataPointSummary]:
+    def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by:SortType = "time_added") -> List[DataPointSummary]:
         dl = self.db.getDataByTags(tags)
-        dl.sortBy(sort_by)
+        dl = sortDataList(dl, sort_by = sort_by)
         return [d.summary for d in dl]
 
 class DataListStreamHandler(DataListHandler):
