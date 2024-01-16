@@ -43,20 +43,8 @@ def run():
         NOT_RUN = True
 
     if args.print_log:
-        _all_log_files = os.listdir(LOG_DIR)
-        _all_log_files.sort()
-        print("Find {} log files: ".format(len(_all_log_files)))
-        for i, log_file in enumerate(_all_log_files):
-            print("[{}] {}".format(i+1, log_file))
-        _sel = input("Select one to print: ")
-        try:
-            _sel = int(_sel)
-            assert _sel >= 1 and _sel <= len(_all_log_files)
-            with open(os.path.join(LOG_DIR, _all_log_files[_sel-1]), "r", encoding="utf-8") as fp:
-                print("=======================Below is the log=======================")
-                print(fp.read())
-        except Exception as e:
-            print("Error: ", e)
+        from .cmd.log import main as showLog
+        showLog()
         NOT_RUN = True
 
     if args.show_home:
