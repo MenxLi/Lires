@@ -2,11 +2,11 @@
 import subprocess, os, time, shutil, threading, argparse
 
 EXITING = False
-def startSubprocess(cmd):
+def startSubprocess(cmd, std_stream=subprocess.PIPE):
     global EXITING
     # import sys
     # process = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, shell=True)
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    process = subprocess.Popen(cmd, stdout=std_stream, stderr=std_stream, shell=True)
 
     def watchProcess():
         while True:
@@ -24,7 +24,7 @@ def startSubprocess(cmd):
 def watchForStartSign():
     from lires.core import LiresError
     from lires.api import IServerConn
-    import asyncio
+    import asyncio, aiohttp.client_exceptions
 
     def isIserverReady():
         iconn = IServerConn("http://localhost:8731")
@@ -32,7 +32,7 @@ def watchForStartSign():
             status = asyncio.run(iconn.status)
             if status["status"] == 'ok': 
                 return True
-        except LiresError.LiresConnectionError:
+        except (LiresError.LiresConnectionError, aiohttp.client_exceptions.ClientConnectorError):
             ...
         return False
 
@@ -57,20 +57,15 @@ if __name__ == "__main__":
     LRS_HOME = os.path.join(__this_dir, "_test_home")
     os.environ["LRS_HOME"] = LRS_HOME
     # to disable log output
-    os.environ["LRS_LOG_LEVEL"] = "CRITICAL" if not args.verbose else "DEBUG"
+    os.environ["LRS_LOG_LEVEL"] = "DEBUG"
 
     # prepare for test
     procs = []
     if not args.no_server:
         subprocess.check_call("lrs-resetconf", shell=True)
         procs.append(startSubprocess("lires server"))
-        # to avoid resource conflict!
-        # during initialization, the server will try to create some files
-        # and if the file simultaneously being used by other process, it will fail
-        time.sleep(0.1)
         procs.append(startSubprocess("lires iserver"))
         print("Waiting for server to start...")
-        time.sleep(3)
         watchForStartSign()
     
     _report_file = os.path.join(__this_dir, "_cache", "output", "report.html")
