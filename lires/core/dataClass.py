@@ -226,9 +226,6 @@ class DataPoint(DataCore):
         return self.fm.file_p
 
     def reload(self):
-        if self.fm.is_watched:
-            self.fm.setWatch(False)
-            self.fm.setWatch(True)
         self.loadInfo()
 
     def loadInfo(self, parse_bibtex=True):
@@ -350,7 +347,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         Make sure all datapoint is deleted from database
         """
-        self.watchFileChange([])
         for k in self.uuids:
             del self[k]
         self.logger.debug("Closing DataBase's DBConnection")
@@ -422,28 +418,10 @@ class DataBase(Dict[str, DataPoint], DataCore):
         self.logger.info("Deleting {}".format(uuid))
         if uuid in self.keys():
             dp: DataPoint = self[uuid]
-            dp.fm.setWatch(False)
             res = await dp.fm.deleteEntry()
             del self[uuid]
             return res
         return False
-
-    def watchFileChange(self, v: List[Union[DataPoint, str]]):
-        """
-        Watch file status change
-        Will restrict watch only to the input, unwatch all others
-         - v: list of uuid or DataPoint
-        """
-        for uuid, dp in self.items():
-            dp: DataPoint
-            if dp.fm.is_watched:
-                dp.fm.setWatch(False)
-        for v_ in v:
-            if isinstance(v_, DataPoint):
-                v_.fm.setWatch(True)
-            else:
-                self[v_].fm.setWatch(True)
-        return
 
     @property
     def total_tags(self) -> DataTags:

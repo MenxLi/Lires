@@ -121,8 +121,6 @@ async def addDocument(
 class FileManipulator(LiresBase):
     logger = LiresBase.loggers().core
 
-    # LOG_TOLERANCE_INTERVAL = 0.5
-
     @staticmethod
     def getDatabaseConnection(db_dir: str) -> DBConnection:
         return DBConnection(db_dir)
@@ -207,11 +205,6 @@ class FileManipulator(LiresBase):
             "fname": selected_fname,
         }
     
-
-    @property
-    def is_watched(self) -> bool:
-        return hasattr(self, "file_ob")
-
     def openFile(self) -> bool:
         # import pdb; pdb.set_trace()
         if self.file_p is None:
@@ -442,9 +435,3 @@ class FileManipulator(LiresBase):
         self.logger.debug("(fm) deleteDocument: {}".format(self.uuid))
         self._log()
         return True
-
-    def setWatch(self, status: bool = False):
-        """
-        Watch the file for changes, and update timestamp if changed.
-        """
-        self.logger.warn("TODO: implement setWatch")
