@@ -6,13 +6,17 @@ __all_log_files = os.listdir(LOG_DIR)
 __all_log_files.sort()
 __g_files = {}
 def show(stdscr: curses.window):
-
-    # Turn off cursor blinking
     curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_YELLOW)
-    curses.curs_set(0)
+
     current_row = 0
+    # Turn off cursor blinking
+    curses.curs_set(0)
+    # hint reading log files
+    curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    stdscr.addstr(0, 0, "Loading log files...", curses.color_pair(4))
+
     for _, row in enumerate(__all_log_files):
         if not row in __g_files:
             with open(os.path.join(LOG_DIR, row), "r", encoding="utf-8") as fp:
@@ -46,7 +50,8 @@ def print_menu(stdscr: curses.window, row, n_lines_dict: dict[str, int]):
     stdscr.clear()
     LEN = 48
     h, w = stdscr.getmaxyx()
-    stdscr.addstr(1, w//2 - LEN//2 - 1, "Press 'q' to exit")
+    assert h > 1 + len(n_lines_dict), "Terminal too small"
+    stdscr.addstr(1, 1, "Press 'q' to exit")
     for idx, v in enumerate(n_lines_dict.items()):
         key, n_lines = v
         to_show = f"{key}"
@@ -58,7 +63,8 @@ def print_menu(stdscr: curses.window, row, n_lines_dict: dict[str, int]):
             to_show = to_show[:LEN-__n_count-3] + "..."
         to_show = f"{'' if idx != row else '>'} {to_show} ({n_lines})"
         
-        x = w//2 - LEN//2 - 1
+        # x = w//2 - LEN//2 - 1
+        x = 1
         y = h//2 - len(n_lines_dict)//2 + idx - 1
 
         if idx == row:
