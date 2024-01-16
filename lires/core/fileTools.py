@@ -2,16 +2,14 @@
 The tools that deals with files in the database
 """
 from __future__ import annotations
-import os, shutil, platform, time, sys
+import os, shutil, platform
 from typing import List, TypedDict, Optional, TYPE_CHECKING, Any
-import threading
 import aiofiles
 
 from .base import G, LiresBase
 from .dbConn import DBConnection, DocInfo
 from .bibReader import BibParser
 from ..utils import TimeUtils
-from ..utils import openFile as _openFile
 from ..config import DATABASE_DIR, ACCEPTED_EXTENSIONS
 from ..version import VERSION
 
@@ -139,10 +137,6 @@ class FileManipulator(LiresBase):
         else:
             self._conn = db_local
 
-        self._time_last_log = 0
-        # a switch to trigger the logging of file modification time
-        self._enable_log_modification_timestamp = True
-
     @property
     def conn(self) -> DBConnection:
         return self._conn
@@ -205,47 +199,18 @@ class FileManipulator(LiresBase):
             "fname": selected_fname,
         }
     
-    def openFile(self) -> bool:
-        # import pdb; pdb.set_trace()
-        if self.file_p is None:
-            return False
-        else:
-            # Open file in MacOS will somehow be treated as a file modification
-            # so temporarily ban file observer log modification time
-            if sys.platform == "darwin":
-                self._enable_log_modification_timestamp = False
-
-            _openFile(self.file_p)
-
-            # maybe re-enable file observer log modification time
-            def _restartLoggingModification():
-                # relax some time to open the file
-                time.sleep(2)
-                self._enable_log_modification_timestamp = True
-            if sys.platform == "darwin":
-                threading.Thread(target=_restartLoggingModification, args=(), daemon=True).start()
-        return True
-    
     def _log(self) -> bool:
         """
         log the modification time to the info file,
         the log should be triggered last in case of other updateInfo overwrite the modification time
         """
         self.logger.debug("(fm) _log: {}".format(self.uuid))
-        if not self._enable_log_modification_timestamp:
-            return False
-        time_now = time.time()
-        # if time_now - self._time_last_log < self.LOG_TOLERANCE_INTERVAL:
-        #     # Prevent multiple log at same time
-        #     return False
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.time_modify = TimeUtils.nowStamp()
         info.device_modify = platform.node()
         info.version_modify = VERSION
         assert self.conn.updateInfo(self.uuid, info), "Failed to update info when logging modification time"
-
-        self._time_last_log = time_now
         return True
     
     # miscelaneous files directory
@@ -388,10 +353,6 @@ class FileManipulator(LiresBase):
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         return info.version_modify
-    
-    def openMiscDir(self):
-        if self.hasMisc():
-            _openFile(self._misc_dir)
     
     async def deleteEntry(self, create_backup = True) -> bool:
         """
