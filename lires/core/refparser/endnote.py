@@ -69,4 +69,4 @@ class EndnoteParser(ParserBase):
         assert "authors" in res
         res["author"] = " and ".join(res["authors"])
         
-        return res
+        return res  # type: ignore
