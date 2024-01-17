@@ -45,7 +45,7 @@ class DocHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(409, reason="File already exists")
 
         dp.loadInfo()
-        d_summary = dp.summary
+        d_summary = dp.summary.json()
         self.logger.info(f"Document {uid} added")
         self.broadcastEventMessage({
             "type": 'update_entry',
@@ -70,6 +70,6 @@ class DocHandler(RequestHandlerBase):
         self.broadcastEventMessage({
             "type": 'update_entry',
             'uuid': uid,
-            'datapoint_summary': dp.summary
+            'datapoint_summary': dp.summary.json()
         })
-        self.write(json.dumps(dp.summary))
+        self.write(json.dumps(dp.summary.json()))

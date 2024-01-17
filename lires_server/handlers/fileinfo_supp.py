@@ -40,7 +40,7 @@ class NoteUpdateHandler(RequestHandlerBase):
         self.broadcastEventMessage({
             'type': 'update_entry',
             'uuid': uid,
-            'datapoint_summary': dp.summary
+            'datapoint_summary': dp.summary.json()
         })
         self.write("OK")
 
@@ -82,6 +82,6 @@ class AbstractUpdateHandler(RequestHandlerBase):
         self.broadcastEventMessage({
             'type': 'update_entry',
             'uuid': uid,
-            'datapoint_summary': dp.summary
+            'datapoint_summary': dp.summary.json()
         })
         self.write("OK")

@@ -191,7 +191,7 @@ class DataPoint(DataCore):
         """
         Generate datapoint info
         """
-        return {
+        return DataPointSummary(**{
             "has_file":self.fm.hasFile(),
             "file_type": self.fm.file_extension,
             "year":self.year,
@@ -204,13 +204,11 @@ class DataPoint(DataCore):
             "url":self.fm.getWebUrl(),
             "time_added": self.fm.getTimeAdded(),
             "time_modified": self.fm.getTimeModified(),
-
             "bibtex": self.fm.readBib(),
             "doc_size": self.fm.getDocSize(),
-
             "note_linecount": len([line for line in self.fm.readComments().split("\n") if line.strip() != ""]),
             "has_abstract": (abs_ := self.fm.readAbstract().strip()) != "" and abs_ != "<Not avaliable>",
-        }
+        })
     
     @property
     def d_info(self) -> DBFileInfo:

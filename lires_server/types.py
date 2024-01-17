@@ -2,7 +2,6 @@
 
 
 from typing import TypedDict, Literal, Optional
-from lires.types.dataT import DataPointSummary
 from lires.user import UserInfo
 
 class EventBase(TypedDict, total=False):
@@ -11,7 +10,7 @@ class EventBase(TypedDict, total=False):
 class Event_Data(EventBase):
     type: Literal['delete_entry', 'add_entry', 'update_entry']
     uuid: str
-    datapoint_summary: Optional[DataPointSummary]
+    datapoint_summary: Optional[dict]
 
 class Event_Tag(EventBase):
     type: Literal['delete_tag', 'update_tag']

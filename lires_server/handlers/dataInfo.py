@@ -42,10 +42,10 @@ class DataListHandler(RequestHandlerBase):
         self.write(json.dumps(data_info))
         return
 
-    def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by:SortType = "time_added") -> List[DataPointSummary]:
+    def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by:SortType = "time_added") -> List[dict]:
         dl = self.db.getDataByTags(tags)
         dl = sortDataList(dl, sort_by = sort_by)
-        return [d.summary for d in dl]
+        return [d.summary.json() for d in dl]
 
 class DataListStreamHandler(DataListHandler):
 
@@ -67,5 +67,5 @@ class DataInfoHandler(RequestHandlerBase):
     @keyRequired
     async def get(self, uid:str):
         dp: DataPoint = self.db[uid]
-        self.write(json.dumps(dp.summary))
+        self.write(json.dumps(dp.summary.json()))
         return

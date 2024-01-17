@@ -109,7 +109,7 @@ class DataUpdateHandler(RequestHandlerBase):
             self.broadcastEventMessage({
                 'type': 'add_entry',
                 'uuid': uuid, 
-                'datapoint_summary': dp.summary
+                'datapoint_summary': dp.summary.json()
             })
         else:
             dp = self.db[uuid]
@@ -128,11 +128,11 @@ class DataUpdateHandler(RequestHandlerBase):
             self.broadcastEventMessage({
                 'type': 'update_entry',
                 'uuid': uuid,
-                'datapoint_summary': dp.summary
+                'datapoint_summary': dp.summary.json()
             })
 
         self.logger.info(", ".join(__info))
-        self.write(json.dumps(dp.summary))
+        self.write(json.dumps(dp.summary.json()))
         return 
 
 class TagRenameHandler(RequestHandlerBase):
