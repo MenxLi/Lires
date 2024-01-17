@@ -42,8 +42,8 @@ INDEX_DIR = os.path.join(LRS_HOME, "index")      # For index cache
 VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
 DOC_SUMMARY_DIR = os.path.join(INDEX_DIR, "summary")
 
-LOG_DIR = os.path.join(LRS_HOME, "log")          # For log files
-LOG_FILE = join(LRS_HOME, "default.log")    # may deprecate this
+# for log files
+LOG_DIR = os.path.join(LRS_HOME, "log")
 
 # things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")

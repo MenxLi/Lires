@@ -1,12 +1,8 @@
 import logging, sys
 from logging.handlers import MemoryHandler
 from io import TextIOWrapper
-from functools import wraps
 from typing import Optional, Literal
-from lires.config import LOG_FILE
-
 from .term import BCOLORS
-from .time import TimeUtils
 
 TermLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 FileLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "_ALL"]
@@ -148,20 +144,3 @@ class Logger():
     def flush(self):
         if self.write_terminal:
             self.terminal.flush()
-
-def logFunc(log_path = LOG_FILE):
-    def wapper(func):
-        @wraps(func)
-        def _func(*args, **kwargs):
-            std_out = sys.stdout
-            std_err = sys.stderr
-            with open(log_path, "a") as log_file:
-                sys.stdout = Logger(log_file)
-                sys.stderr = Logger(log_file)
-                print("{time}: {name}".format(time = TimeUtils.localNowStr(), name = func.__name__))
-                func(*args, **kwargs)
-            sys.stdout = std_out
-            sys.stderr = std_err
-        return _func
-    return wapper
-    
