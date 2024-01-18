@@ -14,6 +14,10 @@
         middleAlign: false,
     })
 
+    const emit = defineEmits<{
+        (e: "clickOnBubble", tag: string): void
+    }>()
+
 </script>
 
 <template>
@@ -22,7 +26,11 @@
             maxWidth: `${(props.maxWidth?props.maxWidth:999)-10}px`,
             justifyContent: props.middleAlign?'center':'flex-start',
             }">
-        <TagBubble v-for="tag in props.tags" :tag="tag" :highlight="props.highlightTags? props.highlightTags.has(tag) : false"></TagBubble>
+        <TagBubble v-for="tag in props.tags" 
+            @click="()=>emit('clickOnBubble', tag)"
+            :tag="tag" 
+            :highlight="props.highlightTags? props.highlightTags.has(tag) : false">
+        </TagBubble>
     </div>
 </template>
 

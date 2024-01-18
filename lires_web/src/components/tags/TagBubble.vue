@@ -10,6 +10,10 @@
         highlight: false,
     })
 
+    const emit = defineEmits<{
+        (e: "click"): void
+    }>()
+
     const tagComponents = computed(() => {
         const sp_tag = props.tag.split(TAG_SEP);
         if (sp_tag.length == 1){
@@ -21,7 +25,7 @@
 </script>
 
 <template>
-    <div :class="`bubble${highlight? ' highlight' : ''}`">
+    <div :class="`bubble${highlight? ' highlight' : ''}`" @click="()=>emit('click')">
         <div class="prefix" v-if="tagComponents[0]">
             {{ tagComponents[0] }}
         </div>
@@ -44,6 +48,7 @@ div.bubble{
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: default;
 }
 
 div.highlight{

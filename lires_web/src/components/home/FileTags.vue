@@ -94,7 +94,12 @@
             <hr>
         </div>
         <TagSelector @onCheck="(status: TagStatus) => emit('onCheck', status)" v-model:tagStatus="uiState.tagStatus"></TagSelector>
-        <TagBubbleContainer v-if="currentSelectedDatapoint" 
+        <TagBubbleContainer v-if="currentSelectedDatapoint"  
+            @click-on-bubble="(tag: string) => {
+                if (uiState.tagStatus.checked.has(tag)){ uiState.tagStatus.checked.delete(tag); }
+                else{ uiState.tagStatus.checked.add(tag); }
+                uiState.updateShownData();
+            }"
             :tags="currentSelectedDatapoint.tags" 
             :highlightTags="highlightTags" 
             :maxWidth="ftPanel? ftPanel.clientWidth : null">
