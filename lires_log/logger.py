@@ -56,8 +56,8 @@ class DatabaseLogger:
         async with self.lock:
             if self.db is None:
                 await self.connect()
-                await self.create_table(name)
 
+        await self.create_table(name)
         async with self.lock:
             await self.db.execute(
                 f"""

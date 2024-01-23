@@ -25,7 +25,7 @@ iserver:
 
 from lires.config import LRS_HOME
 from typing import TypedDict
-import os, yaml, argparse, subprocess, signal, time, sys
+import os, yaml, argparse, subprocess, signal, time
 import multiprocessing as mp
 
 class ConfigEntryT(TypedDict):
@@ -36,6 +36,8 @@ class ClusterConfigT(TypedDict):
     ENVS: dict
     server: list[ConfigEntryT]
     iserver: list[ConfigEntryT]
+    lserver: list[ConfigEntryT]
+allowed_entries = ["ENVS", "server", "iserver", "lserver"]
 
 def __getDefaultConfig()->ClusterConfigT:
     ssl_certfile = os.environ.get("LRS_SSL_CERTFILE")
@@ -57,12 +59,24 @@ def __getDefaultConfig()->ClusterConfigT:
                 },
             }
         ],
+        "lserver": [
+            # {
+            #     "ENVS": {
+            #         "LRS_HOME": LRS_HOME,
+            #     },
+            #     "ARGS": {
+            #         "--file": "",
+            #         "--port": 8730,
+            #     },
+            # }
+        ],
         "iserver": [
             {
                 "ENVS": {
                     "OPENAI_API_KEY": "sk-xxxxx",
                     "OPENAI_API_BASE": "https://api.openai.com/v1",
                     "HF_DATASETS_OFFLINE": "1",
+                    "HF_ENDPOINT": "https://hf-mirror.com",
                 },
                 "ARGS": {
                     "--port": 8731,
@@ -104,8 +118,8 @@ def loadConfigFile(path:str)->ClusterConfigT:
         raise ValueError("Config file must be a dict")
 
     for k in config.keys():
-        assert k in ["ENVS", "server", "iserver"], \
-            "Config file keys must be in : ENVS, server, iserver"
+        assert k in allowed_entries, \
+            "Config file keys must be in : ENVS, server, iserver, lserver"
 
     # check if ENVS is valid
     if not isinstance(config["ENVS"], dict):
@@ -181,7 +195,9 @@ def initProcesses(config: ClusterConfigT):
     
     __parseEnv(config["ENVS"], g_environ)
 
-    for key in ["server", "iserver"]:
+    for key in allowed_entries:
+        if key == "ENVS":
+            continue
         for entry in config[key]:
             __execEntry(key, entry)
     

@@ -16,7 +16,7 @@ def _prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentP
     return parser
 
 def _prepareLogServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
-    parser.add_argument("--file", default=None, help="The log file path")
+    parser.add_argument("--file", default="", help="The log file path")
     parser.add_argument("--host", default="127.0.0.1", help="The host to listen")
     parser.add_argument("--port", default=8730, type=int, help="The port to listen")
     return parser

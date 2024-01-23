@@ -41,6 +41,10 @@ def periodicCommit():
     
 async def startLoggerServer(file: str, host: str, port: int):
     global logger
+    if not file:
+        import os, time
+        from lires.config import LOG_DIR
+        file = os.path.join(LOG_DIR, "lires-log_{}.sqlite".format(time.strftime("%Y-%m-%d_%H-%M-%S")))
 
     # the logger
     logger = DatabaseLogger(file)
