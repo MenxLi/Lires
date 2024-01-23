@@ -15,20 +15,20 @@ class LServerConnection(LiresAPIBase):
     Connect to log server
     """
     def __init__(self, endpoint: str = "http://localhost:8730", ignore_connection_error: bool = False):
-        self.session = aiohttp.ClientSession()
         self.url = f"{endpoint}/log"
         self.ignore_connection_error = ignore_connection_error
     
     async def log(self, logger_name: str, level: levelT, message: str):
         try:
-            async with self.session.post(
-                self.url + "/" + logger_name, 
-                json = {
-                    "level": level,
-                    "message": message,
-                }
-            ) as res:
-                self.ensureRes(res)
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    self.url + "/" + logger_name, 
+                    json = {
+                        "level": level,
+                        "message": message,
+                    }
+                ) as res:
+                    self.ensureRes(res)
         except Exception as e:
             if self.ignore_connection_error and isinstance(e, aiohttp.ClientConnectionError):
                 # maybe server is not ready
@@ -51,9 +51,6 @@ class LServerConnection(LiresAPIBase):
                     pass
                 else:
                     raise e
-    
-    async def close(self):
-        await self.session.close()
 
 class ClientHandler(logging.Handler):
     """
@@ -70,9 +67,6 @@ class ClientHandler(logging.Handler):
             level_name, 
             record.getMessage()
             )
-
-    def close(self):
-        asyncio.run(self.conn.close())
 
 def setupRemoteLogger(
         _logger: str | logging.Logger, 
