@@ -1,7 +1,7 @@
 import argparse
 
 def _prepareRegistryServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
-    parser.add_argument("--host", default="127.0.0.1", help="The host to listen")
+    parser.add_argument("--host", default="localhost", help="The host to listen")
     parser.add_argument("--port", default=8700, type=int, help="The port to listen")
     return parser
 

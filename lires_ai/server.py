@@ -69,6 +69,13 @@ def startServer(
     local_llm_chat: str = "",
     openai_models: list[str] = [],
 ):
+    from lires.api import RegistryConn
+    RegistryConn().register_sync({
+        "name": "ai",
+        "endpoint": f"http://{host}:{port}",
+        "description": "LiresAI server",
+        "group": None
+    })
 
     # load config into global config
     if local_llm_chat:

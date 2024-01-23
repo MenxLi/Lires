@@ -1,6 +1,7 @@
 import aiohttp.web
 import aiohttp.web_exceptions
 import asyncio
+from lires.api import RegistryConn
 from .logger import DatabaseLogger, NAME_LEVEL
 
 logger: DatabaseLogger
@@ -61,4 +62,11 @@ async def startLoggerServer(file: str, host: str, port: int):
     await site.start()
     print("======== Logger server started at {}========".format(site.name))
     print("Database file: {}".format(file))
+
+    await RegistryConn().register({
+        "name": "log",
+        "endpoint": f"http://{host}:{port}",
+        "description": "Log server",
+        "group": None,
+    })
     await asyncio.Event().wait()

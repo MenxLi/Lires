@@ -26,6 +26,7 @@ def status():
 
 @app.post("/register")
 def register(req: RegisterRequest):
+    print(req)
     g_store.register(req.name, req.endpoint, req.description, req.group)
     return {
         "status": "ok",
@@ -37,20 +38,11 @@ def get(req: GetRequest):
     if info is None:
         raise HTTPException(status_code=404, detail="Service not found")
     else:
-        return {
-            "endpoint": info["endpoint"],
-            "description": info["description"],
-        }
+        return info
 
 def startServer(host: str, port: int):
     global g_store
     g_store = RegistryStore()
     uvicorn.run(
-        app, host=host, port=port, log_level="info", workers=1,
+        app, host=host, port=port, log_level="debug", workers=1,
     )
-
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--host", default="127.0.0.1", help="The host to listen")
-    parser.add_argument("--port", default=8700, type=int, help="The port to listen")

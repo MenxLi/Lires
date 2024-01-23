@@ -2,6 +2,42 @@ import os, logging
 from .parser import prepareParser
 from .cmd.generateDefaultConf import generateDefaultConf
 
+def initLoggers():
+    # May move to other place...
+    import os
+    from lires.utils import setupLogger, BCOLORS
+    from lires.api.lserver import setupRemoteLogger
+    from lires.utils.log import TermLogLevelT
+    from .core.base import G
+
+    term_log_level: TermLogLevelT = os.getenv("LRS_LOG_LEVEL", "INFO").upper()          # type: ignore
+
+    # init loggers for wild usage
+    setupLogger(
+        'default',
+        term_id_color=BCOLORS.OKGRAY,
+        term_log_level=term_log_level,
+    )
+    # init global loggers
+    setupRemoteLogger(
+        G.loggers.server,
+        term_id_color=BCOLORS.OKBLUE,
+        term_log_level=term_log_level,
+        remote_log_level="DEBUG",
+    )
+    setupRemoteLogger(
+        G.loggers.core,
+        term_id_color=BCOLORS.OKGREEN,
+        term_log_level=term_log_level,
+        remote_log_level="DEBUG",
+    )
+    setupRemoteLogger(
+        G.loggers.iserver,
+        term_id_color=BCOLORS.WHITE,
+        term_log_level=term_log_level,
+        remote_log_level="DEBUG",
+    )
+
 def run():
     parser = prepareParser()
     args = parser.parse_args()
@@ -10,6 +46,7 @@ def run():
     # Read configuration file after parse agruments
     from .config import CONF_FILE_PATH, DATABASE_DIR, LRS_HOME
     from .version import VERSION, VERSION_HISTORIES
+    initLoggers()
 
     NOT_RUN = False     # Indicates whether to run main program
 

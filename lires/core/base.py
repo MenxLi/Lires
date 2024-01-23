@@ -37,39 +37,3 @@ class LiresBase:
     @staticmethod
     def loggers():
         return G.loggers
-
-def initLoggers():
-    # May move to other place...
-    import os
-    from lires.utils import setupLogger, BCOLORS
-    from lires.api.lserver import setupRemoteLogger
-    from lires.utils.log import TermLogLevelT
-
-    term_log_level: TermLogLevelT = os.getenv("LRS_LOG_LEVEL", "INFO").upper()          # type: ignore
-
-    # init loggers for wild usage
-    setupLogger(
-        'default',
-        term_id_color=BCOLORS.OKGRAY,
-        term_log_level=term_log_level,
-    )
-    # init global loggers
-    setupRemoteLogger(
-        G.loggers.server,
-        term_id_color=BCOLORS.OKBLUE,
-        term_log_level=term_log_level,
-        remote_log_level="DEBUG",
-    )
-    setupRemoteLogger(
-        G.loggers.core,
-        term_id_color=BCOLORS.OKGREEN,
-        term_log_level=term_log_level,
-        remote_log_level="DEBUG",
-    )
-    setupRemoteLogger(
-        G.loggers.iserver,
-        term_id_color=BCOLORS.WHITE,
-        term_log_level=term_log_level,
-        remote_log_level="DEBUG",
-    )
-initLoggers()
