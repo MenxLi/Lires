@@ -37,20 +37,15 @@ class LServerConnection(LiresAPIBase):
                 raise e
     
     def log_sync(self, logger_name: str, level: levelT, message: str):
-        # try to run in current loop, if not, create a new one
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            asyncio.run_coroutine_threadsafe(self.log(logger_name, level, message), loop)
-        else:
-            try:
-                loop.run_until_complete(self.log(logger_name, level, message))
-            except RuntimeError as e:
-                if 'Event loop stopped before Future completed.' in str(e):
-                    # ignore this error, it should be caused by the loop is closed on exiting
-                    # may cause some log loss, but it's ok
-                    pass
-                else:
-                    raise e
+        try:
+            self.run_sync(self.log(logger_name, level, message))
+        except RuntimeError as e:
+            if 'Event loop stopped before Future completed.' in str(e):
+                # ignore this error, it should be caused by the loop is closed on exiting
+                # may cause some log loss, but it's ok
+                pass
+            else:
+                raise e
 
 class ClientHandler(logging.Handler):
     """

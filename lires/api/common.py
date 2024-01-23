@@ -1,5 +1,5 @@
 from lires.core.base import LiresBase
-import aiohttp
+import aiohttp, asyncio
 
 class LiresAPIBase(LiresBase):
     logger = LiresBase.loggers().core
@@ -24,3 +24,10 @@ class LiresAPIBase(LiresBase):
         raise self.Error.LiresConnectionError(
             "Server returned {}.".format(res.status)
         )
+    
+    def run_sync(self, coro):
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            return asyncio.run_coroutine_threadsafe(coro, loop).result()
+        else:
+            return loop.run_until_complete(coro)
