@@ -65,6 +65,7 @@ if __name__ == "__main__":
         subprocess.check_call("lrs-resetconf", shell=True)
         procs.append(startSubprocess("lires server"))
         procs.append(startSubprocess("lires iserver"))
+        procs.append(startSubprocess("lires lserver"))
         print("Waiting for server to start...")
         watchForStartSign()
     

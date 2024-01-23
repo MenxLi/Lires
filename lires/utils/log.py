@@ -2,61 +2,7 @@ from __future__ import annotations
 import logging, sys, datetime
 from logging.handlers import MemoryHandler
 from typing import Optional, Literal
-import threading
 from .term import BCOLORS
-import sqlite3
-
-class DatabaseHandler(logging.Handler):
-    """
-    A logger that saves log to a database
-    """
-    _locks: dict[str, threading.Lock] = {}
-    def __init__(self, name: str, db_path: str, db_level = "INFO"):
-        super().__init__(level=logging.getLevelName(db_level))
-        self.db_conn = sqlite3.connect(db_path, check_same_thread=False)
-        self.db_table = name
-        self.db_path = db_path
-        self.db_level = db_level
-        self.db_cursor = self.db_conn.cursor()
-        with self.shared_lock:
-            self.db_cursor.execute(
-                f"CREATE TABLE IF NOT EXISTS {self.db_table} "
-                """
-                (
-                    date TEXT,
-                    time TEXT, 
-                    logger TEXT, 
-                    level INTEGER, 
-                    message TEXT
-                )
-                """
-                )
-            self.db_conn.commit()
-    
-    @property
-    def shared_lock(self):
-        return self.__class__._locks.setdefault(self.db_path, threading.Lock())
-    
-    def emit(self, record):
-        with self.shared_lock:
-            now_time = datetime.datetime.now()
-            self.db_cursor.execute(
-                f"INSERT INTO {self.db_table} VALUES (?, ?, ?, ?, ?)", 
-                (
-                    now_time.strftime('%Y-%m-%d'),
-                    now_time.strftime('%I:%M:%S:%f %p'),
-                    record.name,
-                    record.levelno,
-                    record.getMessage()
-                ))
-            self.db_conn.commit()
-    
-    def close(self):
-        with self.shared_lock:
-            self.db_conn.close()
-    
-    def __del__(self):
-        self.close()
 
 # ---- Main entry ----
 TermLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -79,8 +25,7 @@ def setupLogger(
     - attach_execption_hook: whether to redirect unhandled exceptions to the logger
     """
     if file_path is not None:
-        assert file_path.endswith(".log") or file_path.endswith(".db"), \
-        "file_path must ends with .log or .db, got: {}".format(file_path)
+        assert file_path.endswith(".log"), "file_path must ends with .log, got: {}".format(file_path)
 
     if term_id is None:
         if isinstance(_logger, str):
@@ -127,18 +72,6 @@ def setupLogger(
             _fh.addFilter(LevelFilter(logging.getLevelName(file_log_level)))
         _mh = MemoryHandler(__mem_buffer_size, target=_fh, flushOnClose=True)
         logger.addHandler(_mh)
-    def _setupDatabaseHandle(file_path: str, file_log_level: str, only_this_level = False):
-        # set up file handler
-        _dh = DatabaseHandler(
-            logger.name,
-            db_path=file_path, 
-            db_level=file_log_level
-            )
-        _dh.setLevel(file_log_level)
-        _dh.setFormatter(__file_fommatter)
-        if only_this_level:
-            _dh.addFilter(LevelFilter(logging.getLevelName(file_log_level)))
-        logger.addHandler(_dh)
 
     # set up file handler
     if file_log_level != "_ALL":
@@ -146,8 +79,6 @@ def setupLogger(
         logger.setLevel(min(logging.getLevelName(term_log_level), logging.getLevelName(file_log_level)))
         if file_path is not None and file_path.endswith(".log"):
             _setupFileHandle(file_path, file_log_level)
-        if file_path is not None and file_path.endswith(".db"):
-            _setupDatabaseHandle(file_path, file_log_level)
     else:
         logger.setLevel(logging.DEBUG)
         if file_path is not None and file_path.endswith(".log"):
@@ -158,8 +89,6 @@ def setupLogger(
                 _setupFileHandle(__file_name, _level, only_this_level=True)
             # set up a file handler for all levels
             _setupFileHandle(file_path, "DEBUG")
-        if file_path is not None and file_path.endswith(".db"):
-            _setupDatabaseHandle(file_path, "DEBUG")
     
     if attach_execption_hook:
         def handle_exception(exc_type, exc_value, exc_traceback):

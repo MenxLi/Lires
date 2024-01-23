@@ -76,6 +76,16 @@ def run():
             local_llm_chat = args.local_llm_chat,
             openai_models = args.openai_models,
         )
+    
+    if args.subparser == "lserver":
+        from lires_log.server import startLoggerServer
+        if args.file is None:
+            args.file = "lires_log.db"
+        startLoggerServer(
+            file = args.file,
+            host = args.host,
+            port = args.port,
+        )
 
 if __name__=="__main__":
     run()

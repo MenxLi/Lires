@@ -3,5 +3,6 @@ Connect to peripherals and provide an API to interact with them.
 """
 from .iserver import IServerConn
 from .server import ServerConn
+from .lserver import LServerConnection
 
-__all__ = ["IServerConn", "ServerConn"]
+__all__ = ["IServerConn", "ServerConn", "LServerConnection"]

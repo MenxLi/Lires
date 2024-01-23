@@ -15,6 +15,12 @@ def _prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentP
         help="models that can be used with openai-api, you would typically specify a different openai-base if you change this")
     return parser
 
+def _prepareLogServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument("--file", default=None, help="The log file path")
+    parser.add_argument("--host", default="127.0.0.1", help="The host to listen")
+    parser.add_argument("--port", default=8730, type=int, help="The port to listen")
+    return parser
+
 def prepareParser() -> argparse.ArgumentParser:
     _description = f"\
 Lires, a self-hosted research literature manager. \
@@ -33,6 +39,9 @@ For more info and source code, visit: https://github.com/MenxLi/Lires\
 
     parser_iserver = sp.add_parser("iserver", help = "Start LiresAI server")
     _prepareIServerParser(parser_iserver)
+
+    parser_lserver = sp.add_parser("lserver", help = "Start Lires log server")
+    _prepareLogServerParser(parser_lserver)
 
     return parser
 

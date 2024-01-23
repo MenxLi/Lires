@@ -49,6 +49,7 @@ core = [
     "tornado",
     "aiohttp",
     "aiofiles",
+    "aiosqlite",
     "PyMuPDF",
     "nbib",
     "tqdm",
