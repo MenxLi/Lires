@@ -6,7 +6,7 @@ from .logger import DatabaseLogger, NAME_LEVEL
 logger: DatabaseLogger
 
 async def log(request: aiohttp.web.Request):
-    global logger, __is_database_uptodate
+    global logger
     logger_name = request.match_info["logger"]
     assert logger_name != "__log_server__", "logger name cannot be __log_server__"
 
