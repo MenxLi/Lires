@@ -5,9 +5,9 @@
 
     const props = withDefaults(defineProps<{
         tag: string,
-        highlight?: boolean
+        tStyle: "" | "highlight" | "muted"
     }>(), {
-        highlight: false,
+        tStyle: "",
     })
 
     const emit = defineEmits<{
@@ -25,7 +25,7 @@
 </script>
 
 <template>
-    <div :class="`bubble${highlight? ' highlight' : ''}`" @click="()=>emit('click')">
+    <div :class="`bubble${tStyle? ' '+tStyle : ''}`" @click="()=>emit('click')">
         <div class="prefix" v-if="tagComponents[0]">
             {{ tagComponents[0] }}
         </div>
@@ -54,7 +54,9 @@ div.bubble{
 div.highlight{
     background-color: rgba(248, 54, 255, 0.247);
     box-shadow: 0 0 5px var(--color-shadow);
-    transition: all 0.2s;
+}
+div.muted{
+    opacity: 0.35;
 }
 
 div.prefix{

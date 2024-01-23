@@ -39,6 +39,13 @@
             return ret
         }
     });
+    const mutedTags = computed(() => {
+        const ret = uiState.tagStatus.checked.copy();
+        if (currentSelectedDatapoint.value !== null){
+            ret.pop_ifcontains_(currentSelectedDatapoint.value.tags);
+        }
+        return ret
+    });
 
     function clearTagSelection(){
         uiState.tagStatus.checked = new DataTags();
@@ -94,15 +101,17 @@
             <hr>
         </div>
         <TagSelector @onCheck="(status: TagStatus) => emit('onCheck', status)" v-model:tagStatus="uiState.tagStatus"></TagSelector>
-        <TagBubbleContainer v-if="currentSelectedDatapoint"  
+        <hr>
+        <TagBubbleContainer 
             @click-on-bubble="(tag: string) => {
                 if (uiState.tagStatus.checked.has(tag)){ uiState.tagStatus.checked.delete(tag); }
                 else{ uiState.tagStatus.checked.add(tag); }
                 uiState.updateShownData();
             }"
-            :tags="currentSelectedDatapoint.tags" 
-            :highlightTags="highlightTags" 
-            :maxWidth="ftPanel? ftPanel.clientWidth : null">
+            :tags="currentSelectedDatapoint? currentSelectedDatapoint.tags : uiState.tagStatus.checked"
+            :highlight-tags="highlightTags" 
+            :muted-tags="mutedTags"
+            :max-width="ftPanel? ftPanel.clientWidth : null">
         </TagBubbleContainer>
         <div class="buttons">
             <button id="btnClear" class="green" @click="clearTagSelection">CLEAR SELECTION</button>

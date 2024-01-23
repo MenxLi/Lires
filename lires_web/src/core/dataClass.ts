@@ -30,6 +30,9 @@ export class DataTags extends Set<string>{
         _tags.forEach((tag) => { return DataTags.removeSpaces(tag); })
         super(_tags);
     }
+    copy(){
+        return new DataTags(this);
+    }
     add(tag: string){
         return super.add(DataTags.removeSpaces(tag));
     }
@@ -52,6 +55,10 @@ export class DataTags extends Set<string>{
     }
     pop_(tags: DataTags){
         tags.forEach((value) => this.delete(value));
+        return this;
+    }
+    pop_ifcontains_( tags: DataTags){
+        tags.forEach((value)=>{ if (this.has(value)){ this.delete(value); } })
         return this;
     }
     issubset(tags: DataTags){
