@@ -79,9 +79,10 @@ def run():
     
     if args.subparser == "lserver":
         from lires_log.server import startLoggerServer
-        import asyncio
+        from .config import LOG_DIR
+        import asyncio, time
         if args.file is None:
-            args.file = "lires_log.db"
+            args.file = os.path.join(LOG_DIR, "lires-log_{}.sqlite".format(time.strftime("%Y-%m-%d_%H-%M-%S")))
         asyncio.run(startLoggerServer(
             file = args.file,
             host = args.host,

@@ -42,7 +42,7 @@ def periodicCommit():
 async def startLoggerServer(file: str, host: str, port: int):
     global logger
 
-    # the singleton logger
+    # the logger
     logger = DatabaseLogger(file)
     await logger.connect()
 
@@ -56,4 +56,5 @@ async def startLoggerServer(file: str, host: str, port: int):
     site = aiohttp.web.TCPSite(runner, host, port)
     await site.start()
     print("======== Logger server started at {}========".format(site.name))
+    print("Database file: {}".format(file))
     await asyncio.Event().wait()

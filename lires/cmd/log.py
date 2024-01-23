@@ -19,10 +19,15 @@ def show(stdscr: curses.window):
 
     for _, row in enumerate(__all_log_files):
         if not row in __g_files:
-            with open(os.path.join(LOG_DIR, row), "r", encoding="utf-8") as fp:
-                n_lines = len(fp.readlines())
-            # if n_lines > 0:
-            __g_files[row] = n_lines
+            if row.endswith(".log"):
+                with open(os.path.join(LOG_DIR, row), "r", encoding="utf-8") as fp:
+                    n_content = f"{len(fp.readlines())} lines"
+            elif row.endswith(".sqlite") or row.endswith(".db"):
+                # use size
+                n_content = f"{os.path.getsize(os.path.join(LOG_DIR, row))/1024:.2f} KB"
+            else:
+                raise Exception(f"Unknown log file type: {row}")
+            __g_files[row] = n_content
     # Print the menu
     print_menu(stdscr, current_row, __g_files)
     while True:
@@ -46,7 +51,7 @@ def show(stdscr: curses.window):
         print_menu(stdscr, current_row, __g_files)
 
 
-def print_menu(stdscr: curses.window, row, n_lines_dict: dict[str, int]):
+def print_menu(stdscr: curses.window, row, n_lines_dict: dict[str, str]):
     stdscr.clear()
     LEN = 48
     h, w = stdscr.getmaxyx()
@@ -71,7 +76,9 @@ def print_menu(stdscr: curses.window, row, n_lines_dict: dict[str, int]):
             stdscr.attron(curses.color_pair(3))
             stdscr.addstr(y, x, to_show)
             stdscr.attroff(curses.color_pair(3))
-        elif n_lines == 0:
+        elif (n_lines.endswith("KB") and float(n_lines[:-2]) < 10) \
+            or (n_lines.endswith("lines") and int(n_lines[:-6]) < 100):
+            # too small
             stdscr.attron(curses.color_pair(2))
             stdscr.addstr(y, x, to_show)
             stdscr.attroff(curses.color_pair(2))
@@ -84,10 +91,19 @@ def print_menu(stdscr: curses.window, row, n_lines_dict: dict[str, int]):
 
 def openWithTerm(log_file: str):
     import platform, subprocess
-    if platform.system() == "Windows":
-        subprocess.call(["more", os.path.join(LOG_DIR, log_file)])
-    else:
-        subprocess.call(["less", os.path.join(LOG_DIR, log_file)])
+    if log_file.endswith(".log"):
+        if platform.system() == "Windows":
+            subprocess.call(["more", os.path.join(LOG_DIR, log_file)])
+        else:
+            subprocess.call(["less", os.path.join(LOG_DIR, log_file)])
+    elif log_file.endswith(".sqlite") or log_file.endswith(".db"):
+        # open with default sqlite viewer
+        if platform.system() == "Windows":
+            subprocess.call(["start", os.path.join(LOG_DIR, log_file)])
+        elif platform.system() == "Darwin":
+            subprocess.call(["open", os.path.join(LOG_DIR, log_file)])
+        else:
+            subprocess.call(["sqlite3", os.path.join(LOG_DIR, log_file)])
 
 def main():
     curses.wrapper(show)

@@ -26,6 +26,10 @@ class DatabaseLogger:
         self.db: aiosqlite.Connection
         self.__is_uptodate = True
 
+        # assure singleton
+        assert not hasattr(self.__class__, "_logger_init_done"), "DatabaseLogger should be a singleton"
+        setattr(self.__class__, "_logger_init_done", True)
+
     async def connect(self):
         self.db = await aiosqlite.connect(self.db_path)
     
