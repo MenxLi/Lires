@@ -7,7 +7,7 @@ import fastapi, openai
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-import threading, os
+import os
 import logging, json
 
 from .utils import autoTorchDevice
@@ -91,9 +91,10 @@ def startServer(
         logger.info("Warmup done!")
         g_warmup = True
 
-    threading.Thread(target = warmup, daemon=True).start()
 
     logger.info("Using device: {}".format(autoTorchDevice()))
+
+    warmup()
 
     uvicorn.run(
         app,
