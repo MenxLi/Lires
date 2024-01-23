@@ -1,5 +1,10 @@
 import argparse
 
+def _prepareRegistryServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument("--host", default="127.0.0.1", help="The host to listen")
+    parser.add_argument("--port", default=8700, type=int, help="The port to listen")
+    return parser
+
 def _prepareServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument("-p", "--port", action = "store", default = "8080", help = "port, default to 8080")
     parser.add_argument("--host", action = "store", default = "0.0.0.0", help = "host, default to 0.0.0.0")
@@ -33,6 +38,9 @@ For more info and source code, visit: https://github.com/MenxLi/Lires\
     parser.add_argument("--reset_conf", action = "store_true", help = "Reset configuration and exit")
 
     sp = parser.add_subparsers(dest = "subparser", help = "Sub-commands")
+
+    parser_registry = sp.add_parser("registry", help = "Start Lires registry server")
+    _prepareRegistryServerParser(parser_registry)
 
     parser_server = sp.add_parser("server", help = "Start lires server")
     _prepareServerParser(parser_server)

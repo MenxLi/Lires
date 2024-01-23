@@ -59,6 +59,13 @@ def run():
     if args.subparser is None:
         # show help
         parser.print_help()
+    
+    if args.subparser == "registry":
+        from lires_service.registry.server import startServer as startRegistryServer
+        startRegistryServer(
+            host = args.host,
+            port = args.port,
+        )
 
     if args.subparser == "server":
         from lires_server.main import startServer
