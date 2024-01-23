@@ -4,7 +4,6 @@ import dataclasses
 
 @dataclasses.dataclass(frozen=True)
 class LoggerStorage:
-    default = logging.getLogger('default')
     core = logging.getLogger("core")
     server = logging.getLogger("server")
     iserver = logging.getLogger("iserver")
@@ -49,33 +48,35 @@ def initLoggers():
     term_log_level: TermLogLevelT = os.getenv("LRS_LOG_LEVEL", "INFO").upper()          # type: ignore
     file_log_level: FileLogLevelT = os.getenv("LRS_FILE_LOG_LEVEL", "_ALL").upper()     # type: ignore
 
-    # init loggers
+    # init loggers for wild usage
     setupLogger(
-        G.loggers.default,
+        'default',
         term_id_color=BCOLORS.OKGRAY,
         term_log_level=term_log_level,
-        file_path = os.path.join(LOG_DIR, "default.log"),
-        file_log_level=file_log_level,
     )
+    # init global loggers
     setupLogger(
         G.loggers.server,
         term_id_color=BCOLORS.OKBLUE,
         term_log_level=term_log_level,
-        file_path = os.path.join(LOG_DIR, "server.log"),
+        # file_path = os.path.join(LOG_DIR, "server.log"),
+        file_path = os.path.join(LOG_DIR, "log.db"),
         file_log_level=file_log_level,
     )
     setupLogger(
         G.loggers.core,
         term_id_color=BCOLORS.OKGREEN,
         term_log_level=term_log_level,
-        file_path = os.path.join(LOG_DIR, "core.log"),
+        # file_path = os.path.join(LOG_DIR, "core.log"),
+        file_path = os.path.join(LOG_DIR, "log.db"),
         file_log_level=file_log_level,
     )
     setupLogger(
         G.loggers.iserver,
         term_id_color=BCOLORS.WHITE,
         term_log_level=term_log_level,
-        file_path = os.path.join(LOG_DIR, "iserver.log"),
+        # file_path = os.path.join(LOG_DIR, "iserver.log"),
+        file_path = os.path.join(LOG_DIR, "log.db"),
         file_log_level=file_log_level,
     )
 initLoggers()
