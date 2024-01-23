@@ -41,12 +41,11 @@ class LiresBase:
 def initLoggers():
     # May move to other place...
     import os
-    from lires.config import LOG_DIR
     from lires.utils import setupLogger, BCOLORS
-    from lires.utils.log import FileLogLevelT, TermLogLevelT
+    from lires.api.lserver import setupRemoteLogger
+    from lires.utils.log import TermLogLevelT
 
     term_log_level: TermLogLevelT = os.getenv("LRS_LOG_LEVEL", "INFO").upper()          # type: ignore
-    file_log_level: FileLogLevelT = os.getenv("LRS_FILE_LOG_LEVEL", "_ALL").upper()     # type: ignore
 
     # init loggers for wild usage
     setupLogger(
@@ -55,28 +54,22 @@ def initLoggers():
         term_log_level=term_log_level,
     )
     # init global loggers
-    setupLogger(
+    setupRemoteLogger(
         G.loggers.server,
         term_id_color=BCOLORS.OKBLUE,
         term_log_level=term_log_level,
-        file_path = os.path.join(LOG_DIR, "server.log"),
-        # file_path = os.path.join(LOG_DIR, "log.db"),
-        file_log_level=file_log_level,
+        remote_log_level="DEBUG",
     )
-    setupLogger(
+    setupRemoteLogger(
         G.loggers.core,
         term_id_color=BCOLORS.OKGREEN,
         term_log_level=term_log_level,
-        file_path = os.path.join(LOG_DIR, "core.log"),
-        # file_path = os.path.join(LOG_DIR, "log.db"),
-        file_log_level=file_log_level,
+        remote_log_level="DEBUG",
     )
-    setupLogger(
+    setupRemoteLogger(
         G.loggers.iserver,
         term_id_color=BCOLORS.WHITE,
         term_log_level=term_log_level,
-        file_path = os.path.join(LOG_DIR, "iserver.log"),
-        # file_path = os.path.join(LOG_DIR, "log.db"),
-        file_log_level=file_log_level,
+        remote_log_level="DEBUG",
     )
 initLoggers()

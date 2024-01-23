@@ -14,19 +14,23 @@ NAME_LEVEL = {v: k for k, v in LEVEL_NAME.items()}
 import aiosqlite
 import asyncio
 
-
 class DatabaseLogger:
     """
     A logger that saves log to a database
     Should be a singleton
     """
 
+    lock = asyncio.Lock()
     def __init__(self, db_path: str):
         self.db_path = db_path
         self.db: aiosqlite.Connection
+        self.__is_uptodate = True
 
     async def connect(self):
         self.db = await aiosqlite.connect(self.db_path)
+    
+    def isUpToDate(self):
+        return self.__is_uptodate
 
     async def create_table(self, name: str):
         async with self.db.execute(
@@ -43,24 +47,30 @@ class DatabaseLogger:
             pass
 
     async def log(self, name: str, level: int, level_name: str, message: str):
-        if self.db is None:
-            await self.connect()
-
-        await self.create_table(name)
-
         time = TimeUtils.nowStamp()
         time_str = TimeUtils.toStr(TimeUtils.stamp2Local(time))
-        await self.db.execute(
-            f"""
-            INSERT INTO {name} VALUES (?, ?, ?, ?, ?)
-            """,
-            (time, time_str, level, level_name, message),
-        )
+        async with self.lock:
+            if self.db is None:
+                await self.connect()
+                await self.create_table(name)
+
+        async with self.lock:
+            await self.db.execute(
+                f"""
+                INSERT INTO {name} VALUES (?, ?, ?, ?, ?)
+                """,
+                (time, time_str, level, level_name, message),
+            )
+
+        self.__is_uptodate = False
 
     async def commit(self):
-        await self.db.commit()
+        async with self.lock:
+            await self.db.commit()
+            self.__is_uptodate = True
 
     async def close(self):
+        print("-------- Closing database... --------")
         await self.commit()
         await self.db.close()
 
