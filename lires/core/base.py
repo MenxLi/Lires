@@ -59,24 +59,24 @@ def initLoggers():
         G.loggers.server,
         term_id_color=BCOLORS.OKBLUE,
         term_log_level=term_log_level,
-        # file_path = os.path.join(LOG_DIR, "server.log"),
-        file_path = os.path.join(LOG_DIR, "log.db"),
+        file_path = os.path.join(LOG_DIR, "server.log"),
+        # file_path = os.path.join(LOG_DIR, "log.db"),
         file_log_level=file_log_level,
     )
     setupLogger(
         G.loggers.core,
         term_id_color=BCOLORS.OKGREEN,
         term_log_level=term_log_level,
-        # file_path = os.path.join(LOG_DIR, "core.log"),
-        file_path = os.path.join(LOG_DIR, "log.db"),
+        file_path = os.path.join(LOG_DIR, "core.log"),
+        # file_path = os.path.join(LOG_DIR, "log.db"),
         file_log_level=file_log_level,
     )
     setupLogger(
         G.loggers.iserver,
         term_id_color=BCOLORS.WHITE,
         term_log_level=term_log_level,
-        # file_path = os.path.join(LOG_DIR, "iserver.log"),
-        file_path = os.path.join(LOG_DIR, "log.db"),
+        file_path = os.path.join(LOG_DIR, "iserver.log"),
+        # file_path = os.path.join(LOG_DIR, "log.db"),
         file_log_level=file_log_level,
     )
 initLoggers()
