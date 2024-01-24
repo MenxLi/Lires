@@ -34,6 +34,7 @@ class RegistryStore:
         )
     def __init__(self):
         self._data: dict[str, list[Registration]] = {}
+        self._ping_failed_count: dict[str, int] = {}
 
         # assure singleton
         assert not hasattr(self.__class__, "_registry_init_done"), "Register should be a singleton"
@@ -106,5 +107,10 @@ class RegistryStore:
         for name in self._data:
             for info in self._data[name]:
                 if not await pingEndpoint(info["endpoint"]):
-                    self.logger.info("Service {}-{} is dead".format(info["name"], info["endpoint"]))
+                    self._ping_failed_count[info["endpoint"]] = self._ping_failed_count.setdefault(info["endpoint"], 0) + 1
+                else:
+                    self._ping_failed_count[info["endpoint"]] = 0
+
+                if self._ping_failed_count[info["endpoint"]] >= 3:
+                    self.logger.info("Withdraw service: {}".format(formatRegistration(info)))
                     self._data[name].remove(info)
