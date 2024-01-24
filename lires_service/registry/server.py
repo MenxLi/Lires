@@ -32,8 +32,8 @@ def register(req: RegisterRequest):
         "status": "ok",
         }
 
-@app.post("/get")
-def get(req: GetRequest):
+@app.post("/query")
+def query(req: GetRequest):
     info = g_store.get(req.name, req.group)
     if info is None:
         raise HTTPException(status_code=404, detail="Service not found")

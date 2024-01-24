@@ -26,7 +26,7 @@ class RegistryConn(LiresAPIBase):
     async def get(self, name: ServiceName, group: Optional[str] = None) -> Registration:
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                self.url + "/get",
+                self.url + "/query",
                 json = {
                     "name": name,
                     "group": group,
