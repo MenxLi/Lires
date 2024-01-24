@@ -1,14 +1,8 @@
 from __future__ import annotations
-import logging
+from .logger import LoggerStorage
 import dataclasses
 
 @dataclasses.dataclass(frozen=True)
-class LoggerStorage:
-    core = logging.getLogger("core")
-    server = logging.getLogger("server")
-    iserver = logging.getLogger("iserver")
-
-@dataclasses.dataclass
 class GlobalVar:
     loggers: LoggerStorage
 
@@ -33,7 +27,6 @@ class LiresBase:
     The base class of all classes in lires
     """
     Error = LiresError
-    
     @staticmethod
     def loggers():
         return G.loggers

@@ -2,7 +2,6 @@ from lires.core.base import LiresBase
 import aiohttp, asyncio
 
 class LiresAPIBase(LiresBase):
-    logger = LiresBase.loggers().core
     _commonErrors = {
         400: "Bad request",
         401: "Invalid token",

@@ -18,7 +18,9 @@ from .lmInterface import ChatStreamIterType, getStreamIter
 
 from . import globalConfig as config
 
-logger = logging.getLogger("iserver")
+from lires.core.base import G
+
+logger = G.loggers.get("iserver")
 g_warmup = False
 app = fastapi.FastAPI()
 
