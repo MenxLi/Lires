@@ -1,5 +1,5 @@
 
-import subprocess, os, time, shutil, threading, argparse
+import subprocess, os, time, shutil, threading, argparse, asyncio
 
 EXITING = False
 def startSubprocess(cmd, std_stream=subprocess.PIPE):
@@ -41,6 +41,23 @@ def watchForStartSign():
         if isIserverReady():
             return
 
+def StartRegistry():
+    from lires.api import RegistryConn
+    from lires.core import LiresError
+    import aiohttp.client_exceptions
+
+    proc = startSubprocess("lires registry")
+
+    while True:
+        time.sleep(0.1)
+        try:
+            reg = RegistryConn()
+            status = asyncio.run(reg.status())
+            if status["status"] == 'ok': 
+                return proc
+        except (LiresError.LiresConnectionError, aiohttp.client_exceptions.ClientConnectorError) as e:
+            pass
+
 
 if __name__ == "__main__":
     
@@ -62,6 +79,7 @@ if __name__ == "__main__":
     # prepare for test
     procs = []
     if not args.no_server:
+        procs.append(StartRegistry())
         subprocess.check_call("lrs-resetconf", shell=True)
         procs.append(startSubprocess("lires server"))
         procs.append(startSubprocess("lires iserver"))

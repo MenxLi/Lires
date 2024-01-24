@@ -26,7 +26,15 @@ class LiresAPIBase(LiresBase):
         )
     
     def run_sync(self, coro):
-        loop = asyncio.get_event_loop()
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError as e:
+            if 'There is no current event loop in thread' in str(e):
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            else:
+                raise e
+
         if loop.is_running():
             return asyncio.run_coroutine_threadsafe(coro, loop).result()
         else:
