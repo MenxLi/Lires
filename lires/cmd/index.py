@@ -39,7 +39,7 @@ def main():
     with MuteEverything():
         db = DataBase().init(DATABASE_DIR)
 
-    iconn = IServerConn(args.iserver_endpoint)
+    iconn = IServerConn()
 
     if args.subparser == "build":
         vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])

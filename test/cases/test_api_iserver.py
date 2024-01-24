@@ -4,9 +4,7 @@ import pytest
 
 @pytest.fixture(scope="module")
 def iconn():
-    return IServerConn(
-        endpoint="http://localhost:8731"
-    )
+    return IServerConn()
 class TestIServer(BaseConfig):
     async def test_status(self, iconn: IServerConn):
         status = await iconn.status

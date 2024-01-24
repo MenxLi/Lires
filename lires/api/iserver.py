@@ -7,6 +7,7 @@ import aiohttp
 from typing import TYPE_CHECKING, Optional, TypedDict, AsyncIterator
 import json
 from .common import LiresAPIBase
+from .registry import RegistryConn
 
 if TYPE_CHECKING:
     from lires_service.ai.lmInterface import ConversationDictT, ChatStreamIterType
@@ -21,17 +22,16 @@ class IServerConn(LiresAPIBase):
     def setEndpoint(self, endpoint: str) -> None:
         self._endpoint = endpoint
 
-    @property
-    def url(self) -> str:
+    async def url(self) -> str:
         if self._endpoint is None:
-            raise RuntimeError("Endpoint not set!")
+            return (await RegistryConn().get("ai"))["endpoint"]
         return self._endpoint
     
     _StatusReturnT = TypedDict("_StatusReturnT", {"status": bool, "device": str})
     @property
     async def status(self) -> _StatusReturnT:
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.url + "/status") as res:
+            async with session.get(await self.url() + "/status") as res:
                 try:
                     self.ensureRes(res)
                     return await res.json()
@@ -45,7 +45,7 @@ class IServerConn(LiresAPIBase):
             # model_name: EncoderT = "bert-base-uncased",
             dim_reduce: bool = True
             ) -> list:
-        post_url = self.url + "/featurize"
+        post_url = await self.url() + "/featurize"
         post_args = {
             "text": text,
             # "word_chunk": word_chunk,
@@ -66,7 +66,7 @@ class IServerConn(LiresAPIBase):
         """
         return empty string if error
         """
-        post_url = self.url + "/chatbot"
+        post_url = await self.url() + "/chatbot"
         post_args = {
             "prompt": prompt
         }

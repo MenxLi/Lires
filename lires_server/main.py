@@ -118,11 +118,7 @@ _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
 def __startServer(
         host: str, 
         port: Union[int, str], 
-        iserver_endpoint: str,
         ssl_config : _SSL_CONFIGT | None = None):
-
-    # initialize global iserver connection
-    g_storage.iconn.setEndpoint(iserver_endpoint)
 
     app = Application()
 
@@ -194,14 +190,12 @@ else:
 def startServer(
         host: str, 
         port: int | str, 
-        iserver_endpoint: str,
         ) -> None:
     # add ssl config
     partial(__startServer, ssl_config=SSL_CONFIG)(
         host = host, 
         port = port, 
-        iserver_endpoint = iserver_endpoint,
     )
 
 if __name__ == "__main__":
-    __startServer('127.0.0.1', 8080, "http://127.0.0.1:8731")
+    __startServer('127.0.0.1', 8080)

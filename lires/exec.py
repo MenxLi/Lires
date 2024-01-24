@@ -109,7 +109,6 @@ def run():
         startServer(
             host = args.host,
             port = args.port, 
-            iserver_endpoint = args.iserver_endpoint,
             )
     
     if args.subparser == "iserver":

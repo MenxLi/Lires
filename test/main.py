@@ -27,7 +27,7 @@ def watchForStartSign():
     import asyncio, aiohttp.client_exceptions
 
     def isIserverReady():
-        iconn = IServerConn("http://localhost:8731")
+        iconn = IServerConn()
         try:
             status = asyncio.run(iconn.status)
             if status["status"] == 'ok': 
