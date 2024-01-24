@@ -13,10 +13,14 @@ class Registration(TypedDict):
     """
     Register information
     """
+    uid: str
     name: ServiceName
     endpoint: str
     description: str
     group: Optional[str]        # group name, specifies which database the service is using
+
+def formatRegistration(reg: Registration):
+    return f"[{reg['name'].rjust(6)} | {reg['uid'][:8]}] {reg['endpoint']} (g: {reg['group']})"
 
 class RegistryStore:
     """
@@ -39,20 +43,15 @@ class RegistryStore:
     def data(self):
         return self._data
     
-    def register(self, name: ServiceName, endpoint: str, description: str, group: Optional[str] = None):
+    def register(self, info: Registration):
         """
         Register a service
         """
-        info: Registration = {
-            "name": name,
-            "endpoint": endpoint,
-            "description": description,
-            "group": group,
-        }
+        name = info["name"]
         if name not in self._data:
             self._data[name] = []
         self._data[name].append(info)
-        self.logger.info("Registered service: " + " | ".join([name, endpoint, description, str(group)]))
+        self.logger.info("Registered service: " + formatRegistration(info))
     
     def get(self, name: ServiceName, require_group: Optional[str] = None) -> Optional[Registration]:
         """
@@ -73,8 +72,9 @@ class RegistryStore:
             self.logger.debug("Service {} not found".format(name))
             return None
         else:
-            self.logger.debug("Get service {}-{} (group: {})".format(name, eligible_service[0]["endpoint"], eligible_service[0]["group"]))
-            return random.choice(eligible_service)
+            ret = random.choice(eligible_service)
+            self.logger.debug("Get service {}".format(formatRegistration(ret)))
+            return ret
     
     async def ping(self):
         """

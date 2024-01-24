@@ -77,7 +77,9 @@ def startServer(
         port = spare_port
 
     from lires.api import RegistryConn
+    import uuid
     RegistryConn().register_sync({
+        "uid": uuid.uuid4().hex,
         "name": "ai",
         "endpoint": f"http://{host}:{port}",
         "description": "LiresAI server",

@@ -78,7 +78,9 @@ def startLoggerServer(file: str, host: str, port: int):
     logger = DatabaseLogger(file)
     print("Logging to {}".format(file))
 
+    import uuid
     RegistryConn().register_sync({
+        "uid": uuid.uuid4().hex,
         "name": "log",
         "endpoint": f"http://{host}:{port}",
         "description": "Log server",

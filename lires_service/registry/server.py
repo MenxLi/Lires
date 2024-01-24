@@ -11,6 +11,7 @@ g_store: RegistryStore
 app = FastAPI()
 
 class RegisterRequest(BaseModel):
+    uid: str
     name: ServiceName
     endpoint: str
     description: str
@@ -27,7 +28,7 @@ def status():
 
 @app.post("/register")
 def register(req: RegisterRequest):
-    g_store.register(req.name, req.endpoint, req.description, req.group)
+    g_store.register(req.dict())    # type: ignore
     return {
         "status": "ok",
         }
