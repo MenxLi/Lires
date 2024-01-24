@@ -1,5 +1,6 @@
 from lires.core.base import LiresBase
-import aiohttp, asyncio
+import aiohttp, asyncio, sys
+import asyncio.coroutines
 
 class LiresAPIBase(LiresBase):
     _commonErrors = {
@@ -25,16 +26,20 @@ class LiresAPIBase(LiresBase):
         )
     
     def run_sync(self, coro):
-        try:
+        NEED_CLOSE = False
+        if sys.version_info < (3, 10):
             loop = asyncio.get_event_loop()
-        except RuntimeError as e:
-            if 'There is no current event loop in thread' in str(e):
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-            else:
-                raise e
-
-        if loop.is_running():
-            return asyncio.run_coroutine_threadsafe(coro, loop).result()
         else:
-            return loop.run_until_complete(coro)
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError as e:
+                if 'There is no current event loop in thread' in str(e) \
+                    or 'no running event loop' in str(e):
+                    loop = asyncio.new_event_loop()
+                    NEED_CLOSE = True
+                else:
+                    raise e
+        res = loop.run_until_complete(coro)
+        if NEED_CLOSE:
+            loop.close()
+        return res

@@ -5,7 +5,7 @@ Connect to log server
 
 import aiohttp
 import logging
-from lires.utils import BCOLORS
+import concurrent.futures
 from typing import Literal, Optional
 from .common import LiresAPIBase
 from .registry import RegistryConn
@@ -47,33 +47,8 @@ class LServerConn(LiresAPIBase):
                 raise e
     
     def log_sync(self, logger_name: str, level: levelT, message: str):
-        import requests
-        try:
-            requests.post(
-                # debug
-                "http://127.0.0.1:27515" + "/log/" + logger_name, 
-                json = {
-                    "level": level,
-                    "message": message,
-                },
-            )
-        except Exception as e:
-            if self.ignore_connection_error \
-                and (isinstance(e, requests.ConnectionError) or isinstance(e, requests.ConnectTimeout)):
-                # maybe server is not ready
-                pass
-            else:
-                raise e
-        return 
-        # try:
-        #     self.run_sync(self.log(logger_name, level, message))
-        # except RuntimeError as e:
-        #     if 'Event loop stopped before Future completed.' in str(e):
-        #         # ignore this error, it should be caused by the loop is closed on exiting
-        #         # may cause some log loss, but it's ok
-        #         pass
-        #     else:
-        #         raise e
+        self.run_sync(self.log(logger_name, level, message))
+        return
 
 class ClientHandler(logging.Handler):
     """
@@ -85,8 +60,15 @@ class ClientHandler(logging.Handler):
         self.conn = LServerConn(endpoint=None, ignore_connection_error=True)
     def emit(self, record: logging.LogRecord):
         level_name: levelT = record.levelname # type: ignore
-        self.conn.log_sync(
-            self.logger_name, 
-            level_name, 
-            record.getMessage()
+        # self.conn.log_sync( self.logger_name, level_name, record.getMessage())
+        # use multi-threading to further accelerate
+        with concurrent.futures.ThreadPoolExecutor(
+                max_workers=4,
+                thread_name_prefix="client_logger"
+            ) as executor:
+            executor.submit(
+                self.conn.log_sync,
+                self.logger_name,
+                level_name,
+                record.getMessage()
             )
