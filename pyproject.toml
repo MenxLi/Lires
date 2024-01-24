@@ -57,6 +57,8 @@ core = [
     "pillow",
     "numpy",
     "scikit-learn",
+    "fastapi",
+    "uvcorn[standard]",
 ]
 ai = [
     "safetensors",
