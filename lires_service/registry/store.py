@@ -1,6 +1,10 @@
 
 from typing import TypedDict, Literal, Optional
+import asyncio
+import aiohttp
+import aiohttp.client_exceptions
 import random
+from lires.utils import setupLogger
 
 # will add more service in the future
 ServiceName = Literal["ai", "log"]
@@ -16,8 +20,14 @@ class Registration(TypedDict):
 
 class RegistryStore:
     """
-    A service registry that stores all services' information, should be a singleton
+    A service registry that stores all services' information, should be a singleton,
+    Periodically ping the registry server to update the registry
     """
+    logger = setupLogger(
+        "registry-store",
+        term_id = "registry",
+        term_log_level="DEBUG",
+        )
     def __init__(self):
         self._data: dict[str, list[Registration]] = {}
 
@@ -42,12 +52,14 @@ class RegistryStore:
         if name not in self._data:
             self._data[name] = []
         self._data[name].append(info)
+        self.logger.info("Registered service: " + " | ".join([name, endpoint, description, str(group)]))
     
     def get(self, name: ServiceName, require_group: Optional[str] = None) -> Optional[Registration]:
         """
         Get a service's information
         """
         if name not in self._data:
+            self.logger.debug("Service {} not found".format(name))
             return None
         eligible_service = []
         if require_group is None:
@@ -58,6 +70,41 @@ class RegistryStore:
                 if info["group"] == require_group:
                     eligible_service.append(info)
         if len(eligible_service) == 0:
+            self.logger.debug("Service {} not found".format(name))
             return None
         else:
+            self.logger.debug("Get service {}-{} (group: {})".format(name, eligible_service[0]["endpoint"], eligible_service[0]["group"]))
             return random.choice(eligible_service)
+    
+    async def ping(self):
+        """
+        Ping the registry server to update the registry
+        """
+        async def pingEndpoint(endpoint: str) -> bool:
+            try:
+                timeout = 5
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(
+                            endpoint + "/status",
+                            timeout = timeout
+                        ) as res:
+                        if res.status == 200:
+                            return True
+                        elif res.status == 404:
+                            self.logger.warning("Service {} should implement /status endpoint".format(endpoint))
+                            return True
+                        elif res.status == 401 or res.status == 403:
+                            self.logger.warning("Service {} requires authentication".format(endpoint))
+                            return True
+                        else:
+                            self.logger.debug("Ping {} failed (status code: {})".format(endpoint, res.status))
+                            return False
+            except (aiohttp.ClientConnectorError, aiohttp.client_exceptions.ClientConnectorError, asyncio.TimeoutError) as e:
+                self.logger.debug("Ping {} failed due to exception".format(endpoint))
+                return False
+
+        for name in self._data:
+            for info in self._data[name]:
+                if not await pingEndpoint(info["endpoint"]):
+                    self.logger.info("Service {}-{} is dead".format(info["name"], info["endpoint"]))
+                    self._data[name].remove(info)

@@ -32,6 +32,9 @@ async def log(request: aiohttp.web.Request):
     print(f"[{logger_name}] {level_name}: {data['message']}")
     return aiohttp.web.Response(status=200)
 
+async def status(_: aiohttp.web.Request):
+    return aiohttp.web.Response(status=200)
+
 DATABASE_COMMIT_INTERVAL = 10
 def periodicCommit():
     global logger
@@ -53,6 +56,7 @@ async def startLoggerServer(file: str, host: str, port: int):
 
     app = aiohttp.web.Application()
     app.add_routes([aiohttp.web.post("/log/{logger}", log)])
+    app.add_routes([aiohttp.web.get("/status", status)])
     # aiohttp.web.run_app( app, host=host, port=port,)
 
     asyncio.get_event_loop().call_later(3, periodicCommit)

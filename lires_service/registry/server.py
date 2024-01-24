@@ -1,6 +1,7 @@
 
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
+import asyncio
 import uvicorn
 from pydantic import BaseModel
 from typing import Optional
@@ -26,7 +27,6 @@ def status():
 
 @app.post("/register")
 def register(req: RegisterRequest):
-    print(req)
     g_store.register(req.name, req.endpoint, req.description, req.group)
     return {
         "status": "ok",
@@ -40,9 +40,20 @@ def query(req: GetRequest):
     else:
         return info
 
+@app.on_event("startup")
+async def startup_event():
+    # ping the registry server periodically
+    interval = 10
+    def ping():
+        asyncio.create_task(g_store.ping())
+        asyncio.get_event_loop().call_later(interval, ping)
+    asyncio.get_event_loop().call_later(interval, ping)
+
 def startServer(host: str, port: int):
+
     global g_store
     g_store = RegistryStore()
+
     uvicorn.run(
-        app, host=host, port=port, log_level="debug", workers=1,
+        app, host=host, port=port, log_level="debug", access_log=False
     )
