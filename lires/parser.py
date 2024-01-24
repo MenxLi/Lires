@@ -11,7 +11,7 @@ def _prepareServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentPa
     return parser
 
 def _prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
-    parser.add_argument("-p", "--port", type=int, default=8731, help="port, default to 8731")
+    parser.add_argument("-p", "--port", type=int, default=0, help="port, default to 8731")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="host, default to 0.0.0.0")
     parser.add_argument("--local-llm-chat", type=str, default="", 
         help = "name of the local llm chat model, default is not using local llm chat")
@@ -22,7 +22,7 @@ def _prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentP
 def _prepareLogServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument("--file", default="", help="The log file path")
     parser.add_argument("--host", default="127.0.0.1", help="The host to listen")
-    parser.add_argument("--port", default=8730, type=int, help="The port to listen")
+    parser.add_argument("--port", default=0, type=int, help="The port to listen")
     return parser
 
 def prepareParser() -> argparse.ArgumentParser:

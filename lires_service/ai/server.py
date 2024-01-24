@@ -69,6 +69,11 @@ def startServer(
     local_llm_chat: str = "",
     openai_models: list[str] = [],
 ):
+    if port <= 0:
+        from lires.utils import getLocalIP
+        _, spare_port = getLocalIP()
+        port = spare_port
+
     from lires.api import RegistryConn
     RegistryConn().register_sync({
         "name": "ai",

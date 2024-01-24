@@ -49,6 +49,11 @@ async def startLoggerServer(file: str, host: str, port: int):
         import os, time
         from lires.config import LOG_DIR
         file = os.path.join(LOG_DIR, "lires-log_{}.sqlite".format(time.strftime("%Y-%m-%d_%H-%M-%S")))
+    
+    if port <= 0:
+        from lires.utils import getLocalIP
+        _, spare_port = getLocalIP()
+        port = spare_port
 
     # the logger
     logger = DatabaseLogger(file)
