@@ -57,17 +57,10 @@ def __getDefaultConfig()->ClusterConfigT:
                 },
             }
         ],
-        "lserver": [
-            # {
-            #     "ENVS": {
-            #         "LRS_HOME": LRS_HOME,
-            #     },
-            #     "ARGS": {
-            #         "--file": "",
-            #         "--port": 8730,
-            #     },
-            # }
-        ],
+        "lserver": [{
+            "ARGS": {},
+            "ENVS": {},
+        }],
         "iserver": [
             {
                 "ENVS": {
@@ -77,8 +70,6 @@ def __getDefaultConfig()->ClusterConfigT:
                     "HF_ENDPOINT": "https://hf-mirror.com",
                 },
                 "ARGS": {
-                    "--port": 8731,
-                    "--host": "localhost",
                     "--local-llm-chat": "",
                     "--openai-models": ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k"],
                 },
