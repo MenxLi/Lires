@@ -113,7 +113,7 @@ def run():
             )
     
     if args.subparser == "iserver":
-        from lires_ai.server import startServer as startIServer
+        from lires_service.ai.server import startServer as startIServer
         startIServer(
             host = args.host,
             port = args.port, 

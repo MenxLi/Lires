@@ -9,7 +9,7 @@ import json
 from .common import LiresAPIBase
 
 if TYPE_CHECKING:
-    from lires_ai.lmInterface import ConversationDictT, ChatStreamIterType
+    from lires_service.ai.lmInterface import ConversationDictT, ChatStreamIterType
 
 class IServerConn(LiresAPIBase):
     """Connection to lires_ai.server"""
