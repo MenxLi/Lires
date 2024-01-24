@@ -1,7 +1,7 @@
 from __future__ import annotations
-import asyncio
 from typing import TYPE_CHECKING, Optional
 import aiohttp
+import aiohttp.client_exceptions
 from .common import LiresAPIBase
 if TYPE_CHECKING:
     from lires_service.registry import ServiceName, Registration
@@ -37,7 +37,11 @@ class RegistryConn(LiresAPIBase):
     
     async def register(self, info: Registration, ensure_status: bool = True):
         if ensure_status:
-            await self.status()
+            try:
+                await self.status()
+            except aiohttp.client_exceptions.ClientConnectorError:
+                exit("ERROR: Registry server not running")
+
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 self.url + "/register",
@@ -47,5 +51,9 @@ class RegistryConn(LiresAPIBase):
     
     def register_sync(self, info: Registration, ensure_status: bool = True):
         if ensure_status:
-            self.run_sync(self.status())
+            try:
+                self.run_sync(self.status())
+            except aiohttp.client_exceptions.ClientConnectorError:
+                exit("ERROR: Registry server not running")
+
         self.run_sync(self.register(info, ensure_status))
