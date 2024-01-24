@@ -10,7 +10,7 @@ def _prepareServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentPa
     parser.add_argument("--host", action = "store", default = "0.0.0.0", help = "host, default to 0.0.0.0")
     return parser
 
-def _prepareIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+def _prepareAIServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument("-p", "--port", type=int, default=0, help="port, default to 8731")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="host, default to 0.0.0.0")
     parser.add_argument("--local-llm-chat", type=str, default="", 
@@ -38,16 +38,16 @@ For more info and source code, visit: https://github.com/MenxLi/Lires\
 
     sp = parser.add_subparsers(dest = "subparser", help = "Sub-commands")
 
-    parser_registry = sp.add_parser("registry", help = "Start Lires registry server")
+    parser_registry = sp.add_parser("registry", help = "Start lires registry server")
     _prepareRegistryServerParser(parser_registry)
 
     parser_server = sp.add_parser("server", help = "Start lires server")
     _prepareServerParser(parser_server)
 
-    parser_iserver = sp.add_parser("iserver", help = "Start LiresAI server")
-    _prepareIServerParser(parser_iserver)
+    parser_iserver = sp.add_parser("iserver", help = "Start lires ai server")
+    _prepareAIServerParser(parser_iserver)
 
-    parser_lserver = sp.add_parser("lserver", help = "Start Lires log server")
+    parser_lserver = sp.add_parser("lserver", help = "Start lires log server")
     _prepareLogServerParser(parser_lserver)
 
     return parser
