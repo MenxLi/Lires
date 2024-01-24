@@ -14,7 +14,6 @@ server:         <--- this is the name of the subcommand for lires
             LRS_HOME: /path/to/lrs/home
         ARGS:      <--- command to run
             port : 8080
-            iserver-endpoint: http://localhost:8731
     -
         ENVS:
         ....
@@ -55,7 +54,6 @@ def __getDefaultConfig()->ClusterConfigT:
                 },
                 "ARGS": {
                     "--port": 8080,
-                    "--iserver-endpoint": "http://localhost:8731",
                 },
             }
         ],
@@ -231,12 +229,36 @@ def main():
         print("Config file does not exist, use --generate to generate one")
         exit(1)
     
+    ## Start registry -------------------------------
+    procs = []
+    print("Starting registry...")
+    p0 = mp.Process(
+        target=subprocess.run,
+        args = (['lires', 'registry'],),
+        kwargs = {"env": os.environ.copy()},
+    )
+    p0.start()
+    procs.append(p0)
+    # waiting for it to be functional
+    import asyncio, aiohttp.client_exceptions
+    from lires.api import RegistryConn
+    _rconn = RegistryConn()
+    while (True):
+        try:
+            asyncio.run(_rconn.status())
+            break
+        except aiohttp.client_exceptions.ClientConnectorError:
+            time.sleep(0.1)
+    
+    ## Start servers -------------------------------
     config = loadConfigFile(args.path)
-    procs =  initProcesses(config)
-    print(f"Starting {len(procs)} processes...")
+    _procs = initProcesses(config)
+    print(f"Starting {len(_procs)} processes...")
 
-    for p in procs:
+    for p in _procs:
         p.start()
+    
+    procs += _procs
 
     # handle SIGINT
     def sigintHandler(sig, frame):
