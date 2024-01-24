@@ -50,7 +50,8 @@ class LServerConn(LiresAPIBase):
         import requests
         try:
             requests.post(
-                "http://127.0.0.1" + "/log/" + logger_name, 
+                # debug
+                "http://127.0.0.1:27515" + "/log/" + logger_name, 
                 json = {
                     "level": level,
                     "message": message,

@@ -77,6 +77,3 @@ class DatabaseLogger:
         print("-------- Closing database... --------")
         await self.commit()
         await self.db.close()
-
-    def __del__(self):
-        asyncio.run(self.close())

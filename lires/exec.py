@@ -102,12 +102,11 @@ def run():
     
     if args.subparser == "lserver":
         from lires_service.log.server import startLoggerServer
-        import asyncio
-        asyncio.run(startLoggerServer(
+        startLoggerServer(
             file = args.file,
             host = args.host,
             port = args.port,
-        ))
+        )
 
 if __name__=="__main__":
     run()

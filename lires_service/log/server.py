@@ -1,18 +1,25 @@
-import aiohttp.web
-import aiohttp.web_exceptions
+from fastapi import FastAPI
+from pydantic import BaseModel
+import uvicorn
+
 import asyncio
 from lires.api import RegistryConn
 from .logger import DatabaseLogger, NAME_LEVEL
 
+app = FastAPI()
 logger: DatabaseLogger
 
-async def log(request: aiohttp.web.Request):
+class LogRequest(BaseModel):
+    level: str
+    message: str
+@app.post("/log/{logger_path}")
+async def log(logger_path, request: LogRequest):
     global logger
-    logger_name = request.match_info["logger"]
+    logger_name = logger_path
     assert logger_name != "__log_server__", "logger name cannot be __log_server__"
 
     try:
-        data = await request.json()
+        data = request.dict()
     except Exception as _excp:
         # connection reset by peer, maybe
         logger_name = "__log_server__"
@@ -30,20 +37,32 @@ async def log(request: aiohttp.web.Request):
         message = data["message"]
         )
     print(f"[{logger_name}] {level_name}: {data['message']}")
-    return aiohttp.web.Response(status=200)
+    return 
 
-async def status(_: aiohttp.web.Request):
-    return aiohttp.web.Response(status=200)
+@app.get("/status")
+async def status():
+    return {"status": "ok"}
 
 DATABASE_COMMIT_INTERVAL = 10
-def periodicCommit():
+async def periodicCommit():
     global logger
     if not logger.isUpToDate():
         print("-------- Commit --------")
         asyncio.create_task(logger.commit())
-    asyncio.get_event_loop().call_later(DATABASE_COMMIT_INTERVAL, periodicCommit)
+    asyncio.get_event_loop().call_later(DATABASE_COMMIT_INTERVAL, asyncio.create_task, periodicCommit())
+
+@app.on_event("startup")
+async def startup():
+    global logger
+    await logger.connect()
+    await periodicCommit()
+
+@app.on_event("shutdown")
+async def shutdown():
+    global logger
+    await logger.close()
     
-async def startLoggerServer(file: str, host: str, port: int):
+def startLoggerServer(file: str, host: str, port: int):
     global logger
     if not file:
         import os, time
@@ -55,27 +74,21 @@ async def startLoggerServer(file: str, host: str, port: int):
         _, spare_port = getLocalIP()
         port = spare_port
 
-    # the logger
+    # initialize the logger
     logger = DatabaseLogger(file)
-    await logger.connect()
+    print("Logging to {}".format(file))
 
-    app = aiohttp.web.Application()
-    app.add_routes([aiohttp.web.post("/log/{logger}", log)])
-    app.add_routes([aiohttp.web.get("/status", status)])
-    # aiohttp.web.run_app( app, host=host, port=port,)
-
-    asyncio.get_event_loop().call_later(3, periodicCommit)
-    runner = aiohttp.web.AppRunner(app)
-    await runner.setup()
-    site = aiohttp.web.TCPSite(runner, host, port)
-    await site.start()
-    print("======== Logger server started at {}========".format(site.name))
-    print("Database file: {}".format(file))
-
-    await RegistryConn().register({
+    RegistryConn().register_sync({
         "name": "log",
         "endpoint": f"http://{host}:{port}",
         "description": "Log server",
         "group": None,
     })
-    await asyncio.Event().wait()
+
+    uvicorn.run(
+        app,
+        host=host,
+        port=port,
+        workers=1,
+        access_log=False,
+    )
