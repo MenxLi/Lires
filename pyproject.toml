@@ -10,6 +10,7 @@ build-backend = "setuptools.build_meta"
 "lrs-user" = "lires.cmd.userManage:run"
 "lrs-index" = "lires.cmd.index:main"
 "lrs-cluster" = "lires.cmd.cluster:main"
+"lrs-status" = "lires.cmd.status:main"
 
 [project.urls]
 "Homepage" = "https://github.com/MenxLi/Lires"
