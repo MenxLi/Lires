@@ -35,7 +35,7 @@
             return;
         }
         useUIStateStore().showPopup('Uploading avatar...');
-        new ServerConn().uploadUserAvatar(file).then(
+        new ServerConn().uploadUserAvatar( props.userInfo.username, file).then(
             (new_userInfo: UserInfo) => {
                 emit("update:userInfo", new_userInfo);
             },

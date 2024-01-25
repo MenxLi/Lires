@@ -549,11 +549,11 @@ export class ServerConn {
         else { throw new Error(`Got response: ${res.status}`) }
     }
 
-    async uploadUserAvatar(file: File): Promise<UserInfo>{
+    async uploadUserAvatar(username: string, file: File): Promise<UserInfo>{
         const form = new FormData();
         form.append('file', file);
         form.append('key', this.settings.encKey)
-        const res = await fetch(`${getBackendURL()}/user-avatar`, {
+        const res = await fetch(`${getBackendURL()}/user-avatar/${username}`, {
             method: 'PUT',
             body: form,
         })
