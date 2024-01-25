@@ -32,7 +32,6 @@ For more info and source code, visit: https://github.com/MenxLi/Lires\
     "
     parser = argparse.ArgumentParser(description=_description)
     parser.add_argument("-v", "--version", action = "store_true", help = "Show version histories and current version and exit")
-    parser.add_argument("-l", "--print_log", action = "store_true", help = "Print log and exit")
     parser.add_argument("-H", "--show_home", action= "store_true", help = "Print LRS_HOME and exit")
     parser.add_argument("--reset_conf", action = "store_true", help = "Reset configuration and exit")
 

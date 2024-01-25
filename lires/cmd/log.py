@@ -1,112 +1,154 @@
-import os
-import curses
+
+import argparse
+import sqlite3
+import glob
+from typing import Optional
 from lires.config import LOG_DIR
+from lires.utils import BCOLORS
 
-__all_log_files = os.listdir(LOG_DIR)
-__all_log_files.sort()
-__g_files = {}
-def show(stdscr: curses.window):
-    curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
-    curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
-    curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_YELLOW)
+# f"""
+# CREATE TABLE IF NOT EXISTS {name} (
+#     time REAL, 
+#     time_str TEXT,
+#     level INTEGER,
+#     level_name TEXT,
+#     message TEXT
+# )
+# """
+class LogDBReader:
+    
+    def __init__(self, db_file: str) -> None:
 
-    current_row = 0
-    # Turn off cursor blinking
-    curses.curs_set(0)
-    # hint reading log files
-    curses.init_pair(4, curses.COLOR_BLACK, curses.COLOR_WHITE)
-    stdscr.addstr(0, 0, "Loading log files...", curses.color_pair(4))
-
-    for _, row in enumerate(__all_log_files):
-        if not row in __g_files:
-            if row.endswith(".log"):
-                with open(os.path.join(LOG_DIR, row), "r", encoding="utf-8") as fp:
-                    n_content = f"{len(fp.readlines())} lines"
-            elif row.endswith(".sqlite") or row.endswith(".db"):
-                # use size
-                n_content = f"{os.path.getsize(os.path.join(LOG_DIR, row))/1024:.2f} KB"
-            else:
-                raise Exception(f"Unknown log file type: {row}")
-            __g_files[row] = n_content
-    # Print the menu
-    print_menu(stdscr, current_row, __g_files)
-    while True:
-        key = stdscr.getch()
-        if key == curses.KEY_UP or key == ord('k') and current_row > 0:
-            current_row -= 1
-        elif key == curses.KEY_DOWN or key == ord('j') and current_row < len(__g_files)-1:
-            current_row += 1
-        elif key == curses.KEY_ENTER or key in [10, 13]:
-            openWithTerm(__all_log_files[current_row])
-            exit(0)
-        elif key == curses.KEY_BACKSPACE or key == curses.KEY_LEFT or key == ord('q') or key == 27:
-            exit(0)
-        elif key == ord('G'):
-            current_row = len(__all_log_files)-1
-        elif key == ord('g'):
-            # TODO: support gg
-            current_row = 0
+        self.conn = sqlite3.connect(db_file)
+        self.cur = self.conn.cursor()
+    
+    def getTableNames(self) -> list[str]:
+        self.cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        return [x[0] for x in self.cur.fetchall()]
+    
+    def hasTable(self, table_name: str) -> bool:
+        self.cur.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';")
+        return len(self.cur.fetchall()) > 0
+    
+    def getMessagesFromTable(
+        self, 
+        table_name: str, 
+        level_name: Optional[str] = None,
+        limit: int = 9999999) -> list[tuple]:
+        if level_name is None:
+            self.cur.execute(f"SELECT * FROM {table_name} ORDER BY time DESC LIMIT {limit}")
         else:
-            pass
-        print_menu(stdscr, current_row, __g_files)
+            self.cur.execute(f"SELECT * FROM {table_name} WHERE level_name='{level_name}' ORDER BY time DESC LIMIT {limit}")
+        return self.cur.fetchall()
 
+__color_level = {
+    "DEBUG": BCOLORS.OKBLUE,
+    "INFO": BCOLORS.OKGREEN,
+    "WARNING": BCOLORS.WARNING,
+    "ERROR": BCOLORS.FAIL,
+    "CRITICAL": BCOLORS.FAIL,
+}
+def formatLine(line: tuple) -> str:
+    time = line[1]
+    level_name = line[3]
+    message = line[4]
+    return f"{BCOLORS.OKCYAN}{time}{BCOLORS.ENDC} {__color_level[level_name]}{level_name}{BCOLORS.ENDC}: {message}"
 
-def print_menu(stdscr: curses.window, row, n_lines_dict: dict[str, str]):
-    stdscr.clear()
-    LEN = 48
-    h, w = stdscr.getmaxyx()
-    assert h > 1 + len(n_lines_dict), "Terminal too small"
-    stdscr.addstr(1, 1, "Press 'q' to exit")
-    for idx, v in enumerate(n_lines_dict.items()):
-        key, n_lines = v
-        to_show = f"{key}"
-        __n_count = len(str(n_lines))
-        # format to same length
-        if len(to_show) + __n_count < LEN:
-            to_show = to_show + " " * (LEN - len(to_show) - __n_count)
-        else:
-            to_show = to_show[:LEN-__n_count-3] + "..."
-        to_show = f"{'' if idx != row else '>'} {to_show} ({n_lines})"
-        
-        # x = w//2 - LEN//2 - 1
-        x = 1
-        y = h//2 - len(n_lines_dict)//2 + idx - 1
-
-        if idx == row:
-            stdscr.attron(curses.color_pair(3))
-            stdscr.addstr(y, x, to_show)
-            stdscr.attroff(curses.color_pair(3))
-        elif (n_lines.endswith("KB") and float(n_lines[:-2]) < 10) \
-            or (n_lines.endswith("lines") and int(n_lines[:-6]) < 100):
-            # too small
-            stdscr.attron(curses.color_pair(2))
-            stdscr.addstr(y, x, to_show)
-            stdscr.attroff(curses.color_pair(2))
-        else:
-            stdscr.attron(curses.color_pair(1))
-            stdscr.addstr(y, x, to_show)
-            stdscr.attroff(curses.color_pair(1))
-    stdscr.refresh()
-
-
-def openWithTerm(log_file: str):
-    import platform, subprocess
-    if log_file.endswith(".log"):
-        if platform.system() == "Windows":
-            subprocess.call(["more", os.path.join(LOG_DIR, log_file)])
-        else:
-            subprocess.call(["less", os.path.join(LOG_DIR, log_file)])
-    elif log_file.endswith(".sqlite") or log_file.endswith(".db"):
-        # open with default sqlite viewer
-        if platform.system() == "Windows":
-            subprocess.call(["start", os.path.join(LOG_DIR, log_file)])
-        elif platform.system() == "Darwin":
-            subprocess.call(["open", os.path.join(LOG_DIR, log_file)])
-        else:
-            subprocess.call(["sqlite3", os.path.join(LOG_DIR, log_file)])
+def sortLines(lines: list[tuple]) -> list[tuple]:
+    return sorted(lines, key=lambda x: x[0], reverse=True)
 
 def main():
-    curses.wrapper(show)
+    parser = argparse.ArgumentParser(description='Log tools')
+    sp = parser.add_subparsers(dest='subparser_name', help='sub-command help')
+    sp_view = sp.add_parser('view', help='View log, output to stdout')
+    sp_view.add_argument('-i', '--inputs', type=str, dest='files',
+                        nargs='+', default=glob.glob(f"{LOG_DIR}/*.sqlite"), 
+                        help='Log database files')
+    sp_view.add_argument('-l', '--level', type=str, help='Log level', default=None)
+    sp_view.add_argument('-t', '--table', type=str, help='Table name', default=None)
+    sp_view.add_argument('--limit', type=int, help='Limit number of lines', default=9999)
 
-if __name__ == '__main__':
+    sp_check = sp.add_parser('check', help='Check log table, output to stdout')
+    sp_check.add_argument('-i', "--inputs", dest = "files",
+                        type=str, nargs='+', default=glob.glob(f"{LOG_DIR}/*.sqlite"), 
+                        help='Log database files')
+    sp_check.add_argument('-l', '--level', type=str, help='Log level', default=None)
+
+    
+    args = parser.parse_args()
+
+    if not args.subparser_name:
+        parser.print_help()
+        return
+    
+    def getAllTableNames(files) -> list[str]:
+        __all_table_names = []
+        for file in files:
+            reader = LogDBReader(file)
+            __all_table_names.extend(reader.getTableNames())
+        return sorted(list(set(__all_table_names)))
+    
+    if args.subparser_name == 'view':
+        __all_lines = []
+        table_name = args.table
+        __all_table_names = getAllTableNames(args.files)
+        if table_name is None or table_name == "":
+            for table_name in __all_table_names:
+                print("- " + table_name)
+            print("The table name is not specified, please choose one from above with '-t' option")
+            exit(1)
+        
+        if table_name not in __all_table_names:
+            # try to find a potential table name
+            pot_names = []
+            for name in __all_table_names:
+                if name.startswith(table_name):
+                    pot_names.append(name)
+            if len(pot_names) == 0:
+                print(f"Cannot find table name {table_name}")
+                exit(1)
+            elif len(pot_names) > 1:
+                print(f"Multiple table names found: {pot_names}")
+                exit(1)
+            else:
+                table_name = pot_names[0]
+
+        for file in args.files:
+            reader = LogDBReader(file)
+            if not reader.hasTable(table_name):
+                continue
+            lines = reader.getMessagesFromTable(table_name, args.level, limit=args.limit)
+            __all_lines.extend(lines)
+        __all_lines = sortLines(__all_lines)
+        for line in __all_lines:
+            print(formatLine(line))
+        print('\n'+'-' * 80)
+        print(f"Total {len(__all_lines)} lines, from table {table_name}")
+
+    elif args.subparser_name == 'check':
+        # get size of each table
+        all_tables = getAllTableNames(args.files)
+        count = {}
+        for file in args.files:
+            reader = LogDBReader(file)
+            for table_name in all_tables:
+                if not reader.hasTable(table_name):
+                    continue
+                lines = reader.getMessagesFromTable(table_name, level_name=args.level)
+                count[table_name] = len(lines)
+        # print
+        max_len = max([len(x) for x in all_tables])
+        digit_len = max(len(str(max(count.values()))), 5)
+        line_len = max_len + digit_len + 3
+        print("+" + "-" * (line_len-2) + "+")
+        print( "|TABLE_NAME".ljust(max_len + 1, ' ') + f"|{'COUNT'.ljust(digit_len)}|")
+        print( "|"+"-"*max_len + f"|{'-'*digit_len}|")
+        for table_name in all_tables:
+            print(f"|{table_name:<{max_len}}|{count[table_name].__str__().ljust(digit_len, ' ')}|")
+        print("+" + "-" * (line_len-2) + "+")
+        
+    else:
+        raise ValueError(f"Unknown subparser name: {args.subparser_name}")
+
+if __name__ == "__main__":
     main()

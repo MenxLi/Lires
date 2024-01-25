@@ -59,11 +59,6 @@ def run():
         print("Current version: ", VERSION)
         NOT_RUN = True
 
-    if args.print_log:
-        from .cmd.log import main as showLog
-        showLog()
-        NOT_RUN = True
-
     if args.show_home:
         print(LRS_HOME)
         NOT_RUN = True
