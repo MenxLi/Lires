@@ -5,7 +5,6 @@ AI method shoud go through IServerConn interface.
 from __future__ import annotations
 import os, hashlib, re
 import asyncio
-import requests
 from typing import TypedDict, Optional, Callable, Literal, TYPE_CHECKING
 from lires.config import DOC_SUMMARY_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase, DataPoint
@@ -34,8 +33,9 @@ async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = Fa
             summary += t
         if verbose:
             print(summary)
-    except requests.exceptions.ChunkedEncodingError:
+    except Exception as e:
         # may be caused by too long response
+        print("Warning: failed to create summary: {}".format(e))
         return ""
     return summary
 

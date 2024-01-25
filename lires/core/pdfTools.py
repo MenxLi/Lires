@@ -1,7 +1,7 @@
 import fitz     # PyMuPDF
 from typing import Optional
-import os, time, random, shutil
-import requests, os, zipfile
+import os, random, shutil
+import aiohttp, os, zipfile, asyncio
 import aiofiles
 from tqdm import tqdm
 from ..utils import UseTermColor
@@ -48,7 +48,7 @@ __pdfviewer_code_snippet = """
 </script>
 """
 
-def downloadDefaultPDFjsViewer(
+async def downloadDefaultPDFjsViewer(
         dst_dir: str,
         download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL, 
         force: bool = False) -> bool:
@@ -61,23 +61,35 @@ def downloadDefaultPDFjsViewer(
     tmp_download = os.path.join(TMP_DIR, download_url.split("/")[-1])
 
     print("Downloading pdf.js from {}".format(download_url))
-    # https://stackoverflow.com/a/37573701/6775765
-    response = requests.get(download_url, stream=True)
-    total_size_in_bytes= int(response.headers.get('content-length', 0))
-    block_size = 1024 #1 Kibibyte
-    progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
-    with open(tmp_download, 'wb') as file:
-        for data in response.iter_content(block_size):
-            progress_bar.update(len(data))
-            file.write(data)
-    progress_bar.close()
 
+    # use aiohttp instead
     SUCCESS = True
-    if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
-        print("ERROR, something went wrong")
-        SUCCESS = False
-    if response.status_code != 200:
-        print("ERROR ({})".format(response.status_code))
+    def ensureRes(response: aiohttp.ClientResponse):
+        if response.status != 200 and response.status != 302:
+            raise RuntimeError("({})".format(response.status))
+        return True
+    try:
+        async with aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(ssl=False),
+                timeout=aiohttp.ClientTimeout(total=60),
+                trust_env=True      # for proxy
+            ) as session:
+            async with session.head(download_url) as response:
+                ensureRes(response)
+                total_size_in_bytes = int(response.headers["Content-Length"])
+            progress_bar = tqdm(total=total_size_in_bytes, unit='B', unit_scale=True, desc="Downloading PDF.js")
+            async with session.get(download_url) as response:
+                ensureRes(response)
+                with open(tmp_download, "wb") as f:
+                    async for data in response.content.iter_chunked(1024):
+                        f.write(data)
+                        progress_bar.update(len(data))
+            if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+                print("ERROR, something went wrong")
+                SUCCESS = False
+    except RuntimeError as e:
+        with UseTermColor("red"):
+            print("ERROR: {}".format(e))
         SUCCESS = False
 
     if not SUCCESS:
@@ -106,7 +118,7 @@ def downloadDefaultPDFjsViewer(
     print("Done.")
     return True
 
-def initPDFViewer(dst_dir: str):
+async def initPDFViewer(dst_dir: str):
     if os.path.exists(dst_dir) \
         and not os.listdir(dst_dir)==[] \
         and os.path.exists(os.path.join(dst_dir, "web", "viewer.html")):
@@ -117,13 +129,13 @@ def initPDFViewer(dst_dir: str):
     while os.path.exists(lock_file):
         print(f"[{this_pid}] Waiting for other process to download pdfjs..."
                 f"lock file: {lock_file}")
-        time.sleep(3)
+        await asyncio.sleep(3)
 
-    time.sleep(random.random()*0.01)   # to avoid resouce conflict
+    await asyncio.sleep(random.random()*0.01)   # to avoid resouce conflict
     with open(lock_file, "w") as f:
         f.write(str(this_pid))
     try:
-        downloadDefaultPDFjsViewer(force=True, dst_dir=dst_dir)
+        await downloadDefaultPDFjsViewer(force=True, dst_dir=dst_dir)
     except Exception as e:
         with UseTermColor("red"):
             print("ERROR: {}".format(e))

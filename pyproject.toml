@@ -35,12 +35,12 @@ dynamic = [
 license = { file = "LICENSE" }
 dependencies = [
     # for successful import from basic lires packages,
-    # such as lires.version, lires.config
+    # such as lires.version, lires.config, 
+    # and use lires.api
     "typing_extensions",
-    "pyyaml",
-    "chardet",      # needed by requests
-    "requests",
     "tiny_vectordb >= 0.1.7",
+    "pyyaml",
+    "aiohttp",
 ]
 
 [project.optional-dependencies]
@@ -48,7 +48,6 @@ core = [
     "pybtex",
     "pylatexenc",
     "tornado",
-    "aiohttp",
     "aiofiles",
     "aiosqlite",
     "PyMuPDF",
