@@ -45,10 +45,10 @@ def query(req: GetRequest):
 async def startup_event():
     # ping the registry server periodically
     interval = 10
-    def ping():
+    def _ping():
         asyncio.create_task(g_store.ping())
-        asyncio.get_event_loop().call_later(interval, ping)
-    asyncio.get_event_loop().call_later(interval, ping)
+        asyncio.get_event_loop().call_later(interval, _ping)
+    asyncio.get_event_loop().call_later(interval, _ping)
 
 def startServer(host: str, port: int):
 

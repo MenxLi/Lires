@@ -49,6 +49,13 @@ class RegistryStore:
         Register a service
         """
         name = info["name"]
+        # check if the same ip is already registered, 
+        # if so, remove the old one, as it should be a restart / update
+        for _name_all in self._data:
+            for _info in self._data[_name_all]:
+                if _info["endpoint"] == info["endpoint"]:
+                    self.logger.info("Service {} already registered, will be replaced".format(formatRegistration(info)))
+                    self._data[_name_all].remove(_info)
         if name not in self._data:
             self._data[name] = []
         self._data[name].append(info)
@@ -79,7 +86,7 @@ class RegistryStore:
     
     async def ping(self):
         """
-        Ping the registry server to update the registry
+        Ping the registry server and update the registry
         """
         async def pingEndpoint(endpoint: str) -> bool:
             try:
