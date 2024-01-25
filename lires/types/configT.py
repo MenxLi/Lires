@@ -12,10 +12,18 @@ class LiresConfT(TypedDict):
     changed in v1.1.2:
         - Almost all fields are moved as static fields of lires.config, May add some fields in the future.
     """
+    ## Should contain no optional or ambiguous type fields!!
 
-    # Should contain no optional or ambiguous type fields!!
-    # as we will use __default_config to compare with the configuration file in config.py
+    # An unique id for the LRS_HOME directory,
+    # used for identifying different LRS_HOME directories
+    database_id: str
 
+    # Random port range for microservices, 
+    # if the port is specified as 0, will use a random port in this range
+    # otherwise, will use the specified port
+    service_port_range: list[int]
+
+    # jit compile configuration for tiny_vectordb
     tiny_vectordb_compile_config: TinyVectordbCompileConfig
 
 __all__ = ["LiresConfT"]

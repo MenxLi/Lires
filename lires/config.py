@@ -68,14 +68,13 @@ for _p in [
 # if the old config file exists, and does not contain some new fields,
 # the new fields will be added on top of the old config file on getConf()
 import tiny_vectordb
+import uuid
 __default_config: LiresConfT = {
-    # jit compile configuration for tiny_vectordb
+    'database_id': uuid.uuid4().hex,
+    'service_port_range': [21000, 22000],
     'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
-
-    # TODO: add more fields in the future, 
-    # maybe some fields for LLM configurations?
 }
-__g_config: Optional[LiresConfT] = None
+__g_config: Optional[LiresConfT] = None     # buffer
 def getConf() -> LiresConfT:
     global __g_config, CONF_FILE_PATH
     if __g_config is None:
@@ -107,7 +106,14 @@ def getConf() -> LiresConfT:
             "default configuration will be used as fallback, if errors occur, "
             "please run `lrs-resetconf` to update the configuration file")
 
+        # merge the default configuration and the configuration file
         conf: LiresConfT = {**__default_config, **read_conf}   # type: ignore
+
+        # eligibility check
+        assert len(conf["service_port_range"]) == 2 and \
+            conf["service_port_range"][0] < conf["service_port_range"][1], \
+            "Invalid service port range: {}".format(conf["service_port_range"])
+        
         __g_config = conf
 
     # Configuration saved at global buffer
