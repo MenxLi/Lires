@@ -113,6 +113,8 @@ def getConf() -> LiresConfT:
         assert len(conf["service_port_range"]) == 2 and \
             conf["service_port_range"][0] < conf["service_port_range"][1], \
             "Invalid service port range: {}".format(conf["service_port_range"])
+        assert conf["database_id"].replace("_", "").isalnum(), \
+            "Invalid database id: {}".format(conf["database_id"]) + ", must be alphanumeric or underscore"
         
         __g_config = conf
 
