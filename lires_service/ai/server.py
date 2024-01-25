@@ -72,9 +72,8 @@ def startServer(
     openai_models: list[str] = [],
 ):
     if port <= 0:
-        from lires.utils import getLocalIP
-        _, spare_port = getLocalIP()
-        port = spare_port
+        from .. import avaliablePort
+        port = avaliablePort()
 
     from lires.api import RegistryConn
     import uuid
