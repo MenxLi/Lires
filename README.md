@@ -7,10 +7,11 @@ The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** 
 
 Lires is designed to be deployed onto a server to provide a **self-hosted collaborative solution** for research literature management.
 
-The software mainly consists of two modules:  
-1. `lires`, the core server, provide APIs for the client
-2. `lires-web`, the web client for user interaction
-3. `lires-ai`, a stateless AI server for computational intelligence features  
+The software mainly consists of four modules:  
+1. `lires`, the global resource module.
+2. `lires-server`, the main entry point for the client.
+3. `lires-service`, microservices for enhanced scalability. 
+4. `lires-web`, a web-based interface for user interaction.
 
 ## Features
 📚 Shared database  
@@ -19,9 +20,7 @@ The software mainly consists of two modules:
 📝 Markdown notes  
 👥 Multi-user management  
 ✨ Artificial intelligence
-
-Currently, it supports PDF file and provides above mentioned basic features, such as adding tags, notes, and searching. Some advanced features including semantic search, auto summarization and arxiv subscription are also avaliable.   
-**These should be enough for most use cases, more features will be added in the future.**
+🚀 Scalable deployment
 
 # Getting started
 Installation:
@@ -34,10 +33,9 @@ Register your first user, the admin user will be able to manage other users usin
 lrs-user add <username> <password> --admin
 ```
 
-Start the servers:
-``` sh
-lires server    # start the core server
-lires iserver   # start the AI server
+Start the servers with cluter manager
+```sh
+lrs-cluster -i ./config.yaml
 ```
 
 Now open the browser and visit the WebUI at `http://localhost:8080`.

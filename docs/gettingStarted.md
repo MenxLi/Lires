@@ -1,5 +1,9 @@
 # Getting Started
 
+<div style="border: 2px solid gray; padding: 10px; margin: 10px; font-size: 18px; font-weight: bold;">
+<b style="color: red"> This document is for version 1.3.9, needs update.  </b>
+</div>
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**

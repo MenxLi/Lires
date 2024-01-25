@@ -10,7 +10,6 @@ Applies to all servers.
 |---|---|---|
 |`LRS_HOME`| The path to the directory where `Lires` stores its data. | `~/.Lires` |
 |`LRS_LOG_LEVEL`| The terminal logging level. | `INFO` |
-|`LRS_FILE_LOG_LEVEL` | The file logging level | `_ALL` |
 
 **`lires server` variables**
 |Variable|Description|Default|

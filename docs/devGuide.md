@@ -69,6 +69,7 @@ as these are the key features that really leverages the power of the server-side
 - [ ] Move all data filtering to backend; frontend use partial async data loading to optimize bandwidth and rendering speed.
 - [ ] Add a discussion board, anyone can post a topic and discuss with others, the topic can be linked to a paper or a tag. The data can be stored in the user database as table `posts`, and refer to the paper by id. 
 - [ ] Record user activities, e.g. who added/edited/removed a tag/note/paper, the reading history of a paper, etc. The data can be stored in the user database as table `activities`.
+- [ ] Moving to microservice paradigm
 
 
 <details>
