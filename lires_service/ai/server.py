@@ -37,7 +37,9 @@ class FeaturizeRequest(BaseModel):
     model_name: EncoderT = _default_encoder
     dim_reduce: bool = False
 @app.post("/featurize")
-def featurize(req: FeaturizeRequest):
+async def featurize(req: FeaturizeRequest):
+    # logger.debug(f"Featurize request: {req.model_name} | {req.text[:20]}")    # some how this will cause error
+    print(f"Featurize request: {req.model_name} | {req.text[:20]}")
     feat = lmFeaturize(req.text, req.word_chunk, req.model_name, req.dim_reduce)
     return feat.tolist()
 
@@ -51,6 +53,7 @@ class ChatBotRequest(BaseModel):
     }'
 @app.post("/chatbot")
 def chatbot(req: ChatBotRequest):
+    logger.debug(f"Chatbot request: {req.model_name} | {req.conv_dict[:20]}")
     if req.model_name == "DEFAULT":
         req.model_name = config.defaultChatModel()
 
@@ -117,6 +120,7 @@ def startServer(
         port=port,
         log_level="info",
         workers=1,
+        access_log=False,
         )
 
 if __name__ == "__main__":
