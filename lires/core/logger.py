@@ -8,34 +8,38 @@ if TYPE_CHECKING:
 
 class LiresLogger(logging.Logger):
 
+    def __init__(self, name: str, level = 0) -> None:
+        super().__init__(name, level)
+        self.__log_server = LServerConn(ignore_connection_error=True)
+
     async def debug(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.DEBUG):
-            await LServerConn().log(self.name, "DEBUG", msg)
+            await self.__log_server.log(self.name, "DEBUG", msg)
         return super().debug(msg, *args, **kwargs)
     
     async def info(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.INFO):
-            await LServerConn().log(self.name, "INFO", msg)
+            await self.__log_server.log(self.name, "INFO", msg)
         return super().info(msg, *args, **kwargs)
     
     async def warning(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.WARNING):
-            await LServerConn().log(self.name, "WARNING", msg)
+            await self.__log_server.log(self.name, "WARNING", msg)
         return super().warning(msg, *args, **kwargs)
     
     async def error(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.ERROR):
-            await LServerConn().log(self.name, "ERROR", msg)
+            await self.__log_server.log(self.name, "ERROR", msg)
         return super().error(msg, *args, **kwargs)
     
     async def critical(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.CRITICAL):
-            await LServerConn().log(self.name, "CRITICAL", msg)
+            await self.__log_server.log(self.name, "CRITICAL", msg)
         return super().critical(msg, *args, **kwargs)
     
     async def log(self, level: int, msg: str, *args, **kwargs):
         if self.isEnabledFor(level):
-            await LServerConn().log(self.name, logging.getLevelName(level), msg)
+            await self.__log_server.log(self.name, logging.getLevelName(level), msg)
         return super().log(level, msg, *args, **kwargs)
 
 

@@ -40,7 +40,8 @@ class LServerConn(LiresAPIBase):
                 ) as res:
                     self.ensureRes(res)
         except Exception as e:
-            if self.ignore_connection_error and isinstance(e, aiohttp.ClientConnectionError):
+            if self.ignore_connection_error and \
+                isinstance(e, aiohttp.ClientConnectionError) or isinstance(e, self.Error.LiresResourceNotFoundError):
                 # maybe server is not ready
                 pass
             else:

@@ -16,6 +16,16 @@ class LiresAPIBase:
     def ensureRes(self, res: aiohttp.ClientResponse):
         if res.status == 200:
             return True
+        
+        if res.status == 404:
+            raise self.Error.LiresResourceNotFoundError(
+                "Server returned 404 ({}).".format(self._commonErrors[res.status])
+            )
+        
+        if res.status == 401 or res.status == 403:
+            raise self.Error.LiresConnectionAuthError(
+                "Server returned {} ({}).".format(res.status, self._commonErrors[res.status])
+            )
 
         if res.status in self._commonErrors:
             raise self.Error.LiresConnectionError(
