@@ -68,9 +68,11 @@ class ServerConn(LiresAPIBase):
             "url": url if url is not None else json.dumps(None),
         }
 
+        # avoid circular import
+        from lires.core.dataClass import DataPointSummary
         async with aiohttp.ClientSession() as session:
             async with session.post(f"{self.api_url}/api/dataman/update",
                                     data=params,
                                     headers={"Content-Type": "application/x-www-form-urlencoded"}) as response:
                 self.ensureRes(response)
-                return await response.json()
+                return DataPointSummary(**(await response.json()))

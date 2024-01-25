@@ -47,12 +47,12 @@ class TestServer(BaseConfig):
                 )
             
             b_parser = BibParser()
-            assert b_parser(d_info["bibtex"])[0] == b_parser(bibtex)[0]
-            assert set(d_info["tags"]) == set(tags)
-            assert d_info["url"] == url
+            assert (await b_parser(d_info.bibtex))[0] == (await b_parser(bibtex))[0]
+            assert set(d_info.tags) == set(tags)
+            assert d_info.url == url
 
             # update entry randomly
-            uid = d_info["uuid"]
+            uid = d_info.uuid
 
             new_bibtex = pybtex.database.parse_string(bibtex, bib_format="bibtex")
             _key = list(new_bibtex.entries.keys())[0]
@@ -84,7 +84,7 @@ class TestServer(BaseConfig):
                 url=new_url
                 )
 
-            assert set(d_info_update["tags"]) == set(new_tags)
+            assert set(d_info_update.tags) == set(new_tags)
 
         __this_dir = os.path.dirname(os.path.abspath(__file__))
         bibtex_case_file = os.path.join(__this_dir, "bibtex_cases.bib")
