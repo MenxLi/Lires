@@ -7,8 +7,8 @@ import fastapi, openai
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-import os
-import logging, json
+import os, asyncio
+import json
 
 from .utils import autoTorchDevice
 
@@ -52,8 +52,8 @@ class ChatBotRequest(BaseModel):
         "conversations": []\
     }'
 @app.post("/chatbot")
-def chatbot(req: ChatBotRequest):
-    logger.debug(f"Chatbot request: {req.model_name} | {req.conv_dict[:20]}")
+async def chatbot(req: ChatBotRequest):
+    await logger.debug(f"Chatbot request: {req.model_name} | {req.conv_dict[:20]}")
     if req.model_name == "DEFAULT":
         req.model_name = config.defaultChatModel()
 
@@ -94,25 +94,25 @@ def startServer(
     if openai_models:
         config.openai_api_chat_models = openai_models
     
+    new_loop = asyncio.new_event_loop()
     if os.getenv("OPENAI_API_KEY") is None:
-        logger.warning("OPENAI_API_KEY not set, please set it to use openai models")
+        new_loop.run_until_complete(logger.warning("OPENAI_API_KEY not set, please set it to use openai models"))
         if os.getenv("OPENAI_API_BASE"):
             # set a dummy key, so that openai api will not raise error
             openai.api_key="sk-dummy__"
 
     def warmup():
         global g_warmup
-        logger.info("Warming up text encoder...")
+        new_loop.run_until_complete(logger.info("Warming up text encoder..."))
         lmFeaturize("Hello world!")
         if config.local_llm_name is not None:
             getStreamIter("LOCAL")
-        logger.info("Warmup done!")
+        new_loop.run_until_complete(logger.info("Warming up text encoder done!"))
         g_warmup = True
-
-
-    logger.info("Using device: {}".format(autoTorchDevice()))
-
+    new_loop.run_until_complete(logger.info("Using device: {}".format(autoTorchDevice())))
     warmup()
+
+    new_loop.close()
 
     uvicorn.run(
         app,
@@ -124,5 +124,4 @@ def startServer(
         )
 
 if __name__ == "__main__":
-    logger.info("Starting LiresAI server...")
     startServer()

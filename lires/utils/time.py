@@ -1,5 +1,5 @@
 import datetime, logging, time, threading
-from typing import Callable, TypeVar
+from typing import Callable, TypeVar, Awaitable
 from functools import wraps
 
 CallVar = TypeVar("CallVar", bound = Callable)
@@ -71,7 +71,7 @@ def timedFunc(logger: logging.Logger) -> Callable[[CallVar], CallVar]:
     return _timedFunc
 
 class Timer:
-    def __init__(self, name: str = "", print_func: Callable[[str], None] = print):
+    def __init__(self, name: str = "", print_func: Callable[[str], None] | Callable[[str], Awaitable[None]] = print):
         self.name = name
         self.start = time.time()
         self.end = None
@@ -80,12 +80,18 @@ class Timer:
 
     def __enter__(self):
         return self
+    
+    def __aenter__(self):
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end = time.time()
         self.duration = self.end - self.start
         if self.name:
             self.print_func(f"{self.name} finished in {self.duration:.3f} seconds")
+    
+    def __aexit__(self, exc_type, exc_val, exc_tb):
+        self.__exit__(exc_type, exc_val, exc_tb)
 
 def delay_exec(func: Callable, delay_time: float, *args, **kwargs):
     def _func():

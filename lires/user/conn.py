@@ -31,9 +31,8 @@ class UsrDBConnection(LiresBase):
         self.db_path = os.path.join(db_dir, fname)
         if not os.path.exists(db_dir):
             os.mkdir(db_dir)
-            self.logger.info("Creating user database directory at: %s", db_dir)
         if not os.path.exists(self.db_path):
-            self.logger.info("Creating user database at: %s", self.db_path)
+            ...
 
         # when check_same_thread=False, the connection can be used in multiple threads
         # however, we have to ensure that only one thread is doing writing at the same time
@@ -158,7 +157,7 @@ class UsrDBConnection(LiresBase):
             return
         self.conn.commit()
         self.setModifiedFlag(False)
-        self.logger.debug("Committed user database")
+        print("User database saved")
 
 
 class SavingThread(Thread):

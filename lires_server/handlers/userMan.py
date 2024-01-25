@@ -7,9 +7,9 @@ import json
 class UserCreateHandler(RequestHandlerBase):
 
     @keyRequired
-    def post(self):
+    async def post(self):
         # only admin access
-        if not self.user_info["is_admin"]:
+        if not (await self.userInfo())["is_admin"]:
             raise tornado.web.HTTPError(403)
         
         username = self.get_argument("username")
@@ -35,7 +35,7 @@ class UserCreateHandler(RequestHandlerBase):
         to_send = user.info()
         to_send["enc_key"] = "__HIDDEN__"
 
-        self.broadcastEventMessage({
+        await self.broadcastEventMessage({
             'type': 'add_user',
             'username': to_send["username"],
             'user_info': to_send
@@ -46,9 +46,9 @@ class UserCreateHandler(RequestHandlerBase):
 class UserDeleteHandler(RequestHandlerBase):
 
     @keyRequired
-    def post(self):
+    async def post(self):
         # only admin access
-        if not self.user_info["is_admin"]:
+        if not (await self.userInfo())["is_admin"]:
             raise tornado.web.HTTPError(403)
         
         username = self.get_argument("username")
@@ -56,7 +56,7 @@ class UserDeleteHandler(RequestHandlerBase):
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         self.user_pool.deleteUser(user.info()["id"])
-        self.broadcastEventMessage({
+        await self.broadcastEventMessage({
             'type': 'delete_user',
             'username': username,
             'user_info': None
@@ -65,9 +65,9 @@ class UserDeleteHandler(RequestHandlerBase):
 
 class UserModifyHandler(RequestHandlerBase):
     @keyRequired
-    def post(self):
+    async def post(self):
         # only admin access
-        if not self.user_info["is_admin"]:
+        if not (await self.userInfo())["is_admin"]:
             raise tornado.web.HTTPError(403)
         
         username = self.get_argument("username")
@@ -84,7 +84,7 @@ class UserModifyHandler(RequestHandlerBase):
             user.conn.updateUser(user.info()["id"], mandatory_tags=DataTags(new_mandatory_tags).toOrderedList())
         
         _user_info_desens = user.info_desensitized()
-        self.broadcastEventMessage({
+        await self.broadcastEventMessage({
             'type': 'update_user',
             'username': _user_info_desens["username"],
             'user_info': _user_info_desens

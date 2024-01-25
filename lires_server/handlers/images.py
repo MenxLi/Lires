@@ -50,15 +50,15 @@ class ImageHandler(RequestHandlerBase):
     async def put(self, uid: str):
         # permission check
         dp = self.db[uid]
-        if not self.user_info["is_admin"]:
-            self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
+        if not (await self.userInfo())["is_admin"]:
+            await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
 
         file_info = self.request.files['file'][0]  # Get the file information
         original_filename = file_info['filename']
 
         file_data = file_info['body']  # Get the file data
         file_size = len(file_data)
-        self.logger.info(f"Received file: {original_filename} ({file_size} bytes)")
+        await self.logger.info(f"Received file: {original_filename} ({file_size} bytes)")
 
         # Generate a unique filename for the uploaded file
         filename = str(uuid.uuid4()) + os.path.splitext(original_filename)[1]

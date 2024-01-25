@@ -13,8 +13,8 @@ class NoteGetHandler(RequestHandlerBase):
             uid (str): uuid of the datapoint
         """
         dp = self.db[uid]
-        self.logger.debug("Get notes of: {}".format(dp))
-        self.write(dp.fm.readComments())
+        await self.logger.debug("Get notes of: {}".format(dp))
+        self.write(await dp.fm.readComments())
 
 class NoteUpdateHandler(RequestHandlerBase):
     """
@@ -26,18 +26,19 @@ class NoteUpdateHandler(RequestHandlerBase):
         Args:
             uid (str): uuid of the datapoint
         """
-        user_info = self.user_info
+        user_info = await self.userInfo()
         note = self.get_argument("content")
 
         dp = self.db[uid]
         if not user_info["is_admin"]:
             tags = dp.tags
-            self.checkTagPermission(tags, user_info["mandatory_tags"])
+            await self.checkTagPermission(tags, user_info["mandatory_tags"])
         
-        self.logger.info("Update notes of: {}".format(dp))
+        await self.logger.info("Update notes of: {}".format(dp))
 
-        dp.fm.writeComments(note)
-        self.broadcastEventMessage({
+        await dp.fm.writeComments(note)
+        await dp.loadInfo()
+        await self.broadcastEventMessage({
             'type': 'update_entry',
             'uuid': uid,
             'datapoint_summary': dp.summary.json()
@@ -54,7 +55,7 @@ class AbstractGetHandler(RequestHandlerBase):
             uid (str): uuid of the datapoint
         """
         dp = self.db[uid]
-        self.logger.debug("Get abstract of: {}".format(dp))
+        await self.logger.debug("Get abstract of: {}".format(dp))
         self.write(dp.fm.readAbstract())
     
 
@@ -68,18 +69,18 @@ class AbstractUpdateHandler(RequestHandlerBase):
         Args:
             uid (str): uuid of the datapoint
         """
-        user_info = self.user_info
+        user_info = await self.userInfo()
         abstract = self.get_argument("content")
 
         dp = self.db[uid]
         if not user_info["is_admin"]:
             tags = dp.tags
-            self.checkTagPermission(tags, user_info["mandatory_tags"])
+            await self.checkTagPermission(tags, user_info["mandatory_tags"])
         
-        self.logger.info("Update abstract of: {}".format(dp))
+        await self.logger.info("Update abstract of: {}".format(dp))
 
-        dp.fm.writeAbstract(abstract)
-        self.broadcastEventMessage({
+        await dp.fm.writeAbstract(abstract)
+        await self.broadcastEventMessage({
             'type': 'update_entry',
             'uuid': uid,
             'datapoint_summary': dp.summary.json()

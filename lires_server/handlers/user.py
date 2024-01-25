@@ -24,8 +24,8 @@ class UserInfoUpdateHandler(RequestHandlerBase):
     Admin should update any user's settings using handers in userMan.py
     """
     @keyRequired
-    def post(self):
-        user = self.user_pool.getUserByKey(self.user_info["enc_key"])
+    async def post(self):
+        user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
         assert user is not None, "User not found"   # should not happen
         id_ = user.info()["id"]
 
@@ -38,7 +38,7 @@ class UserInfoUpdateHandler(RequestHandlerBase):
             user.conn.updateUser(id_, password=new_password)
         
         _user_info = user.info()
-        self.broadcastEventMessage({
+        await self.broadcastEventMessage({
             'type': 'update_user',
             'username': _user_info["username"],
             'user_info': user.info_desensitized()
@@ -99,8 +99,8 @@ class UserAvatarHandler(RequestHandlerBase):
             self.write(contents)
         
     @keyRequired
-    def put(self):
-        user = self.user_pool.getUserByKey(self.user_info["enc_key"])
+    async def put(self):
+        user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
         assert user is not None, "User not found"   # should not happen
         
         if not self.request.files:
@@ -108,7 +108,7 @@ class UserAvatarHandler(RequestHandlerBase):
         
         file = self.request.files["file"][0]
         if file["content_type"] != "image/png" and file["content_type"] != "image/jpeg":
-            self.logger.debug("File type not supported: {}".format(file["content_type"]))
+            await self.logger.debug("File type not supported: {}".format(file["content_type"]))
             raise tornado.web.HTTPError(400, "File type not supported")
         
         im = Image.open(BytesIO(file["body"]))
@@ -116,8 +116,8 @@ class UserAvatarHandler(RequestHandlerBase):
         self.write(json.dumps(user.info()))
     
     @keyRequired
-    def delete(self):
-        user = self.user_pool.getUserByKey(self.user_info["enc_key"])
+    async def delete(self):
+        user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
         assert user is not None, "User not found"
 
         avatar_image_path = user.avatar_image_path

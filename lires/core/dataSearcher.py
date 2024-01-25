@@ -39,7 +39,7 @@ class DataSearcher(DataCore):
     async def searchStringInfo(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
         results: StringSearchT = {}
         for uid, dp in self.db.items():
-            res = self._searchRegex(pattern, dp.stringInfo(), ignore_case)
+            res = self._searchRegex(pattern, await dp.stringInfo(), ignore_case)
             if not res is None:
                 results[uid] = {"score": None, "match": res}
         return results
@@ -85,7 +85,7 @@ class DataSearcher(DataCore):
         uids = []
         all_res = []
         for uid, dp in self.db.items():
-            comments = dp.fm.readComments()
+            comments = await dp.fm.readComments()
             res = self._searchRegex(pattern, comments, ignore_case)
             uids.append(uid)
             all_res.append(res)
@@ -105,7 +105,7 @@ class DataSearcher(DataCore):
             )
 
         if search_res is None:
-            self.logger.error("Error connecting to iserver, return empty result")
+            await self.logger.error("Error connecting to iserver, return empty result")
             return {uid: None for uid in self.db.keys()}
 
         return {uid: {"score": score, "match": None} for uid, score in zip(search_res["uids"], search_res["scores"])}

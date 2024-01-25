@@ -11,7 +11,7 @@ try:
 except (FileNotFoundError, KeyError):
     pass
 from .base import LiresBase
-from .bibReader import parseBibtex, parallelParseBibtex, ParsedRef
+from .bibReader import parseBibtex, ParsedRef
 from ..types.dataT import DataPointSummary
 
 class DataCore(LiresBase):
@@ -176,40 +176,22 @@ class DataPoint(DataCore):
     A buffer that holds parsed information of a single data
     """
     MAX_AUTHOR_ABBR = 36
-    def __init__(self, fm: FileManipulator, parse_bibtex: bool = True):
+    def __init__(self, fm: FileManipulator):
         """
         The basic data structure that holds single data
         fm - FileManipulator, data completeness should be confirmed ahead (use fm.screen())
-        parse_bibtex - whether to parse bibtex file on initialization, 
-            if False, the bibtex should be parsed manually later, maybe with parallel processing
         """
         self.fm = fm
-        self.loadInfo(parse_bibtex=parse_bibtex)
+        self.__summary: DataPointSummary | None = None
     
     @property
     def summary(self) -> DataPointSummary:
         """
         Generate datapoint info
         """
-        return DataPointSummary(**{
-            "has_file":self.fm.hasFile(),
-            "file_type": self.fm.file_extension,
-            "year":self.year,
-            "title":self.title,
-            "author":self.getAuthorsAbbr(),
-            "authors": self.authors,
-            "publication": self.publication,
-            "tags":list(self.tags),
-            "uuid":self.uuid,
-            "url":self.fm.getWebUrl(),
-            "time_added": self.fm.getTimeAdded(),
-            "time_modified": self.fm.getTimeModified(),
-            "bibtex": self.fm.readBib(),
-            "doc_size": self.fm.getDocSize(),
-            "note_linecount": len([line for line in self.fm.readComments().split("\n") if line.strip() != ""]),
-            "has_abstract": (abs_ := self.fm.readAbstract().strip()) != "" and abs_ != "<Not avaliable>",
-        })
-    
+        assert self.__summary is not None
+        return self.__summary
+
     @property
     def d_info(self) -> DBFileInfo:
         """
@@ -219,26 +201,46 @@ class DataPoint(DataCore):
         assert d_info is not None
         return d_info
     
-    @property
-    def file_path(self) -> Optional[str]:
-        return self.fm.file_p
+    async def filePath(self) -> Optional[str]:
+        return await self.fm.filePath()
 
-    def reload(self):
-        self.loadInfo()
+    async def reload(self):
+        await self.loadInfo()
 
-    def loadInfo(self, parse_bibtex=True):
+    async def loadInfo(self, parse_bibtex=True) -> DataPoint:
         """
         Parse bibtex and other info into the memory
         """
-        self.has_file = self.fm.hasFile()
+        self.has_file = await self.fm.hasFile()
         self.uuid = self.fm.uuid
         self.tags = DataTags(self.fm.getTags())
 
-        self.time_added = self.fm.getTimeAdded()
-        self.time_modified = self.fm.getTimeModified()
+        self.time_added = await self.fm.getTimeAdded()
+        self.time_modified = await self.fm.getTimeModified()
 
         if parse_bibtex:
-            self.loadParsedBibtex_(parseBibtex(self.fm.readBib()))
+            self.loadParsedBibtex_(await parseBibtex(await self.fm.readBib()))
+
+        self.__summary = DataPointSummary(**{
+            "has_file": self.has_file,
+            "file_type": self.fm.file_extension,
+            "year":self.year,
+            "title":self.title,
+            "author":self.getAuthorsAbbr(),
+            "authors": self.authors,
+            "publication": self.publication,
+            "tags":list(self.tags),
+            "uuid":self.uuid,
+            "url":await self.fm.getWebUrl(),
+            "time_added": await self.fm.getTimeAdded(),
+            "time_modified": await self.fm.getTimeModified(),
+            "bibtex": await self.fm.readBib(),
+            "doc_size": await self.fm.getDocSize(),
+            "note_linecount": len([line for line in (await self.fm.readComments()).split("\n") if line.strip() != ""]),
+            "has_abstract": (abs_ := self.fm.readAbstract().strip()) != "" and abs_ != "<Not avaliable>",
+        })
+        return self
+    
     
     def loadParsedBibtex_(self, parsed_bibtex: ParsedRef):
         self.bib = parsed_bibtex["bib"]
@@ -248,15 +250,15 @@ class DataPoint(DataCore):
         self.publication = parsed_bibtex["publication"]
 
 
-    def changeBib(self, bib_str: str) -> bool:
+    async def changeBib(self, bib_str: str) -> bool:
         """
         Change bibtex info
         - bib_str: bibtex string
         return if success
         """
-        ret = bool(self.fm.writeBib(bib_str))
+        ret = bool(await self.fm.writeBib(bib_str))
         # update datapoint
-        self.reload()
+        await self.reload()
         return ret
     
     async def addFile(self, extern_file_p: str) -> bool:
@@ -267,11 +269,11 @@ class DataPoint(DataCore):
         """
         return await self.fm.addFile(extern_file_p)
     
-    def changeTags(self, new_tags: DataTags):
-        self.fm.writeTags(new_tags)
+    async def changeTags(self, new_tags: DataTags):
+        await self.fm.writeTags(new_tags)
         self.tags = new_tags
     
-    def stringInfo(self):
+    async def stringInfo(self):
         bib = self.bib
 
         info_txt = \
@@ -281,7 +283,7 @@ class DataPoint(DataCore):
         elif "booktitle" in bib:
             info_txt = info_txt + "{icon} {booktitle}".format(icon = u"\U0001F56e", booktitle = bib["booktitle"][0])
         if self.has_file:
-            info_txt = info_txt + "\nFile size: {}M".format(self.fm.getDocSize())
+            info_txt = info_txt + "\nFile size: {}M".format(await self.fm.getDocSize())
         info_txt = "--{}--\n".format(bib["type"]) + info_txt
         return info_txt
     
@@ -338,21 +340,18 @@ class DataBase(Dict[str, DataPoint], DataCore):
         super().__init__()
         self.__conn = None
 
-        if local_path is not None:
-            self.init(local_path)
-    
-    def destroy(self):
+    async def destroy(self):
         """
         Make sure all datapoint is deleted from database
         """
         for k in self.uuids:
             del self[k]
-        self.logger.debug("Closing DataBase's DBConnection")
+        await self.logger.debug("Closing DataBase's DBConnection")
         if self.__conn is not None:
-            self.__conn.close()
+            await self.__conn.close()
             del self.__conn
             self.__conn = None
-        self.logger.debug("Deleted DataBase object")
+        await self.logger.debug("Deleted DataBase object")
 
     @property
     def conn(self):
@@ -360,42 +359,39 @@ class DataBase(Dict[str, DataPoint], DataCore):
             raise RuntimeError("Database not initialized")
         return self.__conn
     
-    def init(self, db_local: str) -> DataBase:
+    async def init(self, db_local: str) -> DataBase:
         """ An abstraction of self.construct """
         if not os.path.exists(db_local):
             os.mkdir(db_local)
         conn = FileManipulator.getDatabaseConnection(db_local) 
         self.__conn = conn      # set database-wise connection instance
-        self.logger.debug("Initializing new DataBase's DBConnection")
+        await self.logger.debug("Initializing new DataBase's DBConnection")
         if db_local:
             # when load database is provided
-            to_load = conn.keys()
-            self.constuct(to_load)
+            to_load = await conn.keys()
+            await self.constuct(to_load)
         return self     # enable chaining initialization
 
-    def constuct(self, vs: List[str]):
+    async def constuct(self, vs: List[str]):
         """
         Construct the DataBase (Add new entries to database)
          - vs: list of data uuids
         """
-        with Timer("Constructing database", self.logger.debug):
-            all_data: list[DataPoint] = []
-            for v_ in vs:
-                fm = FileManipulator(v_, db_local=self.conn)
-                data = DataPoint(fm, parse_bibtex=False)
-                all_data.append(data)
+        all_data: list[DataPoint] = []
+        for v_ in vs:
+            fm = FileManipulator(v_, db_local=self.conn)
+            data = await DataPoint(fm).loadInfo()
+            all_data.append(data)
 
-            _all_bibtex = [d.fm.readBib() for d in all_data]
-            with Timer("Parsing bibtex", self.logger.debug):
-                _all_parsed_bibtex = parallelParseBibtex(_all_bibtex)
-            for d, parsed_bib in zip(all_data, _all_parsed_bibtex):
-                d.loadParsedBibtex_(parsed_bib)
+            # _all_parsed_bibtex = parallelParseBibtex(_all_bibtex)
+            # for d, parsed_bib in zip(all_data, _all_parsed_bibtex):
+            #     d.loadParsedBibtex_(parsed_bib)
         # add to database
         for d_ in all_data:
             if d_ is not None:
-                self.add(d_)
+                await self.add(d_)
 
-    def add(self, data: Union[DataPoint, str]) -> DataPoint:
+    async def add(self, data: Union[DataPoint, str]) -> DataPoint:
         """
         Add a data to the DataBase
          - data: DataPoint or uid
@@ -404,7 +400,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         if isinstance(data, str):
             # uid of the data
             fm = FileManipulator(data, db_local = self.conn)
-            data = DataPoint(fm)
+            data = await DataPoint(fm).loadInfo()
         self[data.uuid] = data
         return data
     
@@ -413,7 +409,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         Delete a DataPoint by uuid,
         will delete remote data if in online mode and remote data exists
         """
-        self.logger.info("Deleting {}".format(uuid))
+        await self.logger.info("Deleting {}".format(uuid))
         if uuid in self.keys():
             dp: DataPoint = self[uuid]
             res = await dp.fm.deleteEntry()
@@ -445,42 +441,42 @@ class DataBase(Dict[str, DataPoint], DataCore):
                 datalist.append(data)
         return datalist
     
-    def renameTag(self, tag_old: str, tag_new: str) -> bool:
+    async def renameTag(self, tag_old: str, tag_new: str) -> bool:
         """
         Rename a tag for the entire database
         return if success
         """
         data = self.getDataByTags(DataTags([tag_old]))
-        self.logger.info(f"Rename tag: {tag_old} -> {tag_new}")
+        await self.logger.info(f"Rename tag: {tag_old} -> {tag_new}")
         for d in data:
             d: DataPoint
             t = d.tags
             t = TagRule.renameTag(t, tag_old, tag_new)
             if t is not None:
-                d.changeTags(t)
+                await d.changeTags(t)
         return True
     
-    def deleteTag(self, tag: str) -> bool:
+    async def deleteTag(self, tag: str) -> bool:
         """
         Delete a tag for the entire database
         return if success
         """
         data = self.getDataByTags(DataTags([tag]))
-        self.logger.info(f"Delete tag: {tag}")
+        await self.logger.info(f"Delete tag: {tag}")
         for d in data:
             d: DataPoint
             ori_tags = d.tags
             after_deleted = TagRule.deleteTag(ori_tags, tag)
             if after_deleted is not None:
-                d.changeTags(after_deleted)
+                await d.changeTags(after_deleted)
         return True
 
-    def findSimilarByBib(self, bib_str: str) -> Optional[DataPoint]:
+    async def findSimilarByBib(self, bib_str: str) -> Optional[DataPoint]:
         """
         Check if similar file already exists.
         """
         # Check if the file already exists
-        t2 = parseBibtex(bib_str)["title"]
+        t2 = (await parseBibtex(bib_str))["title"]
         for _, v in self.items():
             t1 = v.title
             similarity = difflib.SequenceMatcher(a = t1, b = t2).ratio()

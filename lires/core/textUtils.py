@@ -66,9 +66,9 @@ async def getFeatureTextSource(
             "hash": hashlib.sha256(_text.encode()).hexdigest(),
             "type": "abstract"
         }
-    elif dp.fm.hasFile() and dp.fm.file_extension == ".pdf":
+    elif await dp.fm.hasFile() and dp.fm.file_extension == ".pdf":
         # if has pdf, try to create a summary
-        pdf_path = dp.fm.file_p; assert pdf_path
+        pdf_path = await dp.fm.filePath(); assert pdf_path
         pdf_text = await getPDFText(pdf_path, max_words_per_doc)
 
         _summary_cache_path = os.path.join(DOC_SUMMARY_DIR, uid + ".txt")
@@ -235,7 +235,7 @@ async def queryFeatureIndexByUID(
     query the related documents of the given uid
     """
     # read the document with the given uid
-    pdf_path = db[query_uid].file_path
+    pdf_path = await db[query_uid].filePath()
     if pdf_path is None:
         query_string: str = db[query_uid].title
         print("Warning: no pdf file found, use title only: {}".format(query_string))

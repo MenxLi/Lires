@@ -15,7 +15,7 @@ class IServerProxyHandler(RequestHandlerBase):
             text = self.get_argument("text")
             require_cache = self.get_argument('require_cache', None) == 'true'
 
-            self.logger.debug("textFeature request - " + ("cached" if require_cache else "not cached"))
+            await self.logger.debug("textFeature request - " + ("cached" if require_cache else "not cached"))
             if require_cache:
                 for _cache in self.CACHE_TEXT_FEATURE:
                     if _cache[0] == text:

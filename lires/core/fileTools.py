@@ -38,7 +38,7 @@ async def _addDocumentFileBlob(db_conn: DBConnection, uid: str, file_blob: bytes
     #     f.write(file_blob)
     async with aiofiles.open(dst, "wb") as f:
         await f.write(file_blob)
-    db_conn.setDocExt(uid, ext)
+    await db_conn.setDocExt(uid, ext)
 
 async def _addDocumentFile(db_conn: DBConnection, uid: str, src: str):
     """
@@ -70,15 +70,15 @@ async def addDocument(
     import pybtex.scanner
     parser = BibParser(mode = "single")
     try:
-        bib = parser(citation)[0]   # check if citation is valid
+        bib = (await parser(citation))[0]   # check if citation is valid
     except IndexError as e:
-        G.loggers.core.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
+        await G.loggers.core.warning(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
         return 
     except pybtex.scanner.PrematureEOF:
-        G.loggers.core.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
+        await G.loggers.core.warning(f"PrematureEOF while parsing bibtex, invalid bibtex")
         return 
     except KeyError:
-        G.loggers.core.warning(f"KeyError. (Author year and title must be provided)")
+        await G.loggers.core.warning(f"KeyError. (Author year and title must be provided)")
         return 
 
     if "abstract" in bib and abstract == "":
@@ -92,18 +92,19 @@ async def addDocument(
         # check if duplicate
         def getSearchStr(bib: dict[str, Any]) -> str:
             return f"title:{bib['title'].lower()} AND year:{bib['year']}"
-        bib = parser(citation)[0]
+        bib = (await parser(citation))[0]
         search_str = getSearchStr(bib)
         # traverse all entries in the database and check if there is duplicate
-        for _uid in db_conn.keys():
+        for _uid in await db_conn.keys():
             d_file_info = db_conn[_uid]
-            aim_bib = parser(d_file_info["bibtex"])[0] # type: ignore
+            assert d_file_info is not None  # type checking purpose
+            aim_bib = (await parser(d_file_info["bibtex"]))[0]
             aim_search_str = getSearchStr(aim_bib)
             if search_str == aim_search_str:
-                G.loggers.core.warning(f"Duplicate entry found: {_uid}")
+                await G.loggers.core.warning(f"Duplicate entry found: {_uid}")
                 return None
 
-    uid = db_conn.addEntry(citation, abstract, comments, doc_info = doc_info)
+    uid = await db_conn.addEntry(citation, abstract, comments, doc_info = doc_info)
     if uid is None:
         return None
 
@@ -149,24 +150,23 @@ class FileManipulator(LiresBase):
         assert d_info is not None, "uuid {} not exists".format(self.uuid)
         return d_info["doc_ext"]
     
-    @property
-    def file_p(self) -> Optional[str]:
+    async def filePath(self) -> Optional[str]:
         """Document file path, None if not exists"""
         if self.file_extension == "":
             return None
         file_path = os.path.join(self.conn.db_dir, self.uuid + self.file_extension)
         if not os.path.exists(file_path):
-            self.logger.error("file {} not exists, but file extension exists".format(file_path))
-            self.conn.setDocExt(self.uuid, "")
-            self.logger.warning("cleared the file extension to auto-fix the problem")
+            await self.logger.error("file {} not exists, but file extension exists".format(file_path))
+            await self.conn.setDocExt(self.uuid, "")
+            await self.logger.warning("cleared the file extension to auto-fix the problem")
             return None
         return file_path
 
-    def hasFile(self):
-        return self.file_p is not None
+    async def hasFile(self):
+        return (await self.filePath()) is not None
 
     ValidFileT = TypedDict("ValidFileT", {"root": str, "fname": List[str]})
-    def gatherFiles(self) -> ValidFileT:
+    async def gatherFiles(self) -> ValidFileT:
         """
         gather all files associated with this datapoint,
         may include: document and misc files
@@ -174,8 +174,8 @@ class FileManipulator(LiresBase):
         """
         # get selected files
         selected_files = []
-        if self.hasFile():
-            selected_files.append(self.file_p)
+        if await self.hasFile():
+            selected_files.append(await self.filePath())
         if self.hasMisc():
             selected_files.append(self.getMiscDir())
         for f in selected_files:
@@ -186,18 +186,18 @@ class FileManipulator(LiresBase):
             "fname": selected_fname,
         }
     
-    def _log(self) -> bool:
+    async def _log(self) -> bool:
         """
         log the modification time to the info file,
         the log should be triggered last in case of other updateInfo overwrite the modification time
         """
-        self.logger.debug("(fm) _log: {}".format(self.uuid))
+        await self.logger.debug("(fm) _log: {}".format(self.uuid))
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.time_modify = TimeUtils.nowStamp()
         info.device_modify = platform.node()
         info.version_modify = VERSION
-        assert self.conn.updateInfo(self.uuid, info), "Failed to update info when logging modification time"
+        assert await self.conn.updateInfo(self.uuid, info), "Failed to update info when logging modification time"
         return True
     
     # miscelaneous files directory
@@ -221,11 +221,11 @@ class FileManipulator(LiresBase):
         add file to the database, will copy the file to the database directory
         """
         doc_ext = _getFileExt(extern_file_p)
-        if self.hasFile():
-            self.logger.warn("The file is already existing")
+        if await self.hasFile():
+            await self.logger.warning("The file is already existing")
             return False
         if doc_ext not in ACCEPTED_EXTENSIONS:
-            self.logger.warn("The file extension is not supported")
+            await self.logger.warning("The file extension is not supported")
             return False
         with open(extern_file_p, "rb") as f:
             file_blob = f.read()
@@ -235,11 +235,11 @@ class FileManipulator(LiresBase):
         """
         add binary file to the database, will create the file in the database directory
         """
-        if self.hasFile():
-            self.logger.warn("The file is already existing")
+        if await self.hasFile():
+            await self.logger.warning("The file is already existing")
             return False
         if ext not in ACCEPTED_EXTENSIONS:
-            self.logger.warn("The file extension is not supported")
+            await self.logger.warning("The file extension is not supported")
             return False
         return await self.__addRawFileBlob(file_blob, ext)
     
@@ -248,75 +248,76 @@ class FileManipulator(LiresBase):
         add binary file to the database, without condition check
         """
         await _addDocumentFileBlob(self.conn, self.uuid, file_blob, ext)
-        self.logger.debug("(fm) __addRawFileBlob: {}".format(self.uuid))
-        self._log()
+        await self.logger.debug("(fm) __addRawFileBlob: {}".format(self.uuid))
+        await self._log()
         return True
 
-    def getDocSize(self) -> float:
-        if not self.hasFile():
+    async def getDocSize(self) -> float:
+        if not await self.hasFile():
             return 0.0
             # return None
-        assert self.file_p      # make sure file_p is not None, type check
-        size = os.path.getsize(self.file_p)
+        _f_path = await self.filePath()
+        assert _f_path is not None
+        size = os.path.getsize(_f_path)
         size = size/(1048576)   # byte to M
         return round(size, 2)
 
-    def readBib(self) -> str:
+    async def readBib(self) -> str:
         db_data = self.conn[self.uuid]; assert db_data
         return db_data["bibtex"]
 
-    def writeBib(self, bib: str):
-        self.logger.debug("(fm) writeBib: {}".format(self.uuid))
-        self._log()
+    async def writeBib(self, bib: str):
+        await self.logger.debug("(fm) writeBib: {}".format(self.uuid))
+        await self._log()
         return self.conn.updateBibtex(self.uuid, bib)
     
     def readAbstract(self) -> str:
         db_data = self.conn[self.uuid]; assert db_data
         return db_data["abstract"]
     
-    def writeAbstract(self, abstract: str):
-        self.logger.debug("(fm) writeAbstract: {}".format(self.uuid))
-        self._log()
-        return self.conn.updateAbstract(self.uuid, abstract)
+    async def writeAbstract(self, abstract: str):
+        await self.logger.debug("(fm) writeAbstract: {}".format(self.uuid))
+        await self._log()
+        return await self.conn.updateAbstract(self.uuid, abstract)
     
-    def readComments(self) -> str:
+    async def readComments(self) -> str:
         db_data = self.conn[self.uuid]; assert db_data
         return db_data["comments"]
     
-    def writeComments(self, comments: str):
-        self.logger.debug("(fm) writeComments: {}".format(self.uuid))
-        self.conn.updateComments(self.uuid, comments)
-        self._log()
+    async def writeComments(self, comments: str):
+        await self.logger.debug("(fm) writeComments: {}".format(self.uuid))
+        await self.conn.updateComments(self.uuid, comments)
+        await self._log()
     
     def getTags(self) -> list[str]:
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         return info.tags
     
-    def writeTags(self, tags: list[str] | DataTags):
-        self.logger.debug("(fm) writeTags: {}".format(self.uuid))
+    async def writeTags(self, tags: list[str] | DataTags):
+        await self.logger.debug("(fm) writeTags: {}".format(self.uuid))
         if not isinstance(tags, list):
             tags = tags.toOrderedList()
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.tags = tags
-        assert self.conn.updateInfo(self.uuid, info), "Failed to update info when setting tags"
-        self._log()
+        assert await self.conn.updateInfo(self.uuid, info), "Failed to update info when setting tags"
+        await self._log()
     
-    def getWebUrl(self) -> str:
+    async def getWebUrl(self) -> str:
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         return info.url
     
-    def setWebUrl(self, url: str):
-        self.logger.debug("(fm) setWebUrl: {}".format(self.uuid))
+    async def setWebUrl(self, url: str):
+        await self.logger.debug("(fm) setWebUrl: {}".format(self.uuid))
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.url = url
-        assert self.conn.updateInfo(self.uuid, info), "Failed to update info when setting url"
-        self._log()
+        assert await self.conn.updateInfo(self.uuid, info), "Failed to update info when setting url"
+        await self._log()
     
-    def getTimeAdded(self) -> float:
+    async def getTimeAdded(self) -> float:
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         record_added = info.time_import
@@ -326,7 +327,7 @@ class FileManipulator(LiresBase):
         else:
             return float(record_added)
     
-    def getTimeModified(self) -> float:
+    async def getTimeModified(self) -> float:
         db_data = self.conn[self.uuid]; assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         record_modified = info.time_modify
@@ -353,7 +354,7 @@ class FileManipulator(LiresBase):
                 os.mkdir(_backup_dir)
             old_entry = self.conn[self.uuid]    # must be called in advance to prevent dead lock
             assert old_entry
-            with DBConnection(_backup_dir) as trash_db:
+            async with DBConnection(_backup_dir) as trash_db:
                 _success = trash_db.addEntry(
                     old_entry["bibtex"], 
                     old_entry["abstract"], 
@@ -362,24 +363,24 @@ class FileManipulator(LiresBase):
                     doc_info = DocInfo.fromString(old_entry["info_str"])
                     )
                 if _success:    # otherwise, maybe duplicate entry
-                    if self.hasFile():
-                        await _addDocumentFile(trash_db, self.uuid, self.file_p)  # type: ignore
+                    if await self.hasFile():
+                        await _addDocumentFile(trash_db, self.uuid, await self.filePath())  # type: ignore
                     if self.hasMisc():
                         shutil.copytree(self._misc_dir, os.path.join(_backup_dir, self.uuid))
-            self.logger.debug("(fm) deleteEntry: {} (backup created)".format(self.uuid))
+            await self.logger.debug("(fm) deleteEntry: {} (backup created)".format(self.uuid))
         
-        if self.hasFile():
-            self.deleteDocument()
+        if await self.hasFile():
+            await self.deleteDocument()
         if os.path.exists(self._misc_dir):
             shutil.rmtree(self._misc_dir)
-        return self.conn.removeEntry(self.uuid)
+        return await self.conn.removeEntry(self.uuid)
     
-    def deleteDocument(self) -> bool:
-        if not self.hasFile():
+    async def deleteDocument(self) -> bool:
+        if not await self.hasFile():
             return False
-        file_p = self.file_p; assert file_p is not None
+        file_p = await self.filePath(); assert file_p is not None
         os.remove(file_p)
-        self.conn.setDocExt(self.uuid, "")
-        self.logger.debug("(fm) deleteDocument: {}".format(self.uuid))
-        self._log()
+        await self.conn.setDocExt(self.uuid, "")
+        await self.logger.debug("(fm) deleteDocument: {}".format(self.uuid))
+        await self._log()
         return True

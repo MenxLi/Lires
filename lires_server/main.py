@@ -18,9 +18,9 @@ from .handlers import *
 
 
 class DefaultRequestHandler(RequestHandlerBase):
-    def get(self, *args, **kwargs):
+    async def get(self, *args, **kwargs):
         # print path
-        self.logger.debug(f"DEFAULT_HANDLER: {self.request.full_url()} ({self.request.remote_ip})")
+        await self.logger.debug(f"DEFAULT_HANDLER: {self.request.full_url()} ({self.request.remote_ip})")
         # trace the source
         html_page = """
         <!DOCTYPE html>
@@ -36,7 +36,8 @@ class DefaultRequestHandler(RequestHandlerBase):
         return self.write(html_page)
 
 class StaticFileHandler(tornado.web.StaticFileHandler, RequestHandlerMixin, print_init_info = False):
-    ...
+    async def get(self, *args, **kwargs):
+        return await super().get(*args, **kwargs)
 
 def cachedStaticFileHandlerFactory(cache_seconds):
     class _CacheStaticFileHandler(StaticFileHandler):
@@ -160,8 +161,10 @@ def __startServer(
     # exit hooks
     import atexit
     def __exitHook():
+
+        # flush storage
+        asyncio.get_event_loop().run_until_complete(g_storage.flush())
         tornado.ioloop.IOLoop.current().stop()
-        g_storage.flush()
         logging.getLogger('server').info("Server exited")
         with UseTermColor("green"):
             print("Hook invoked.")

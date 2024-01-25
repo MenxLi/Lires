@@ -11,7 +11,7 @@ import json, time
 class ReloadDBHandler(RequestHandlerBase):
     @keyRequired
     async def post(self):
-        self.logger.warn("Reload database is deprecated.")
+        await self.logger.warning("Reload database is deprecated.")
         self.write("OK")
 
 class StatusHandler(RequestHandlerBase):

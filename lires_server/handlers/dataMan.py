@@ -17,13 +17,13 @@ class DataDeleteHandler(RequestHandlerBase):
     async def post(self):
         uuid = self.get_argument("uuid")
         # check tag permission
-        if not self.user_info["is_admin"]:
-            self.checkTagPermission(self.db[uuid].tags, self.user_info["mandatory_tags"])
+        if not (await self.userInfo())["is_admin"]:
+            await self.checkTagPermission(self.db[uuid].tags, (await self.userInfo())["mandatory_tags"])
 
         if await self.db.delete(uuid):
-            self.logger.info(f"Deleted {uuid}")
+            await self.logger.info(f"Deleted {uuid}")
         
-        self.broadcastEventMessage({
+        await self.broadcastEventMessage({
             'type': 'delete_entry',
             'uuid': uuid, 
             'datapoint_summary': None
@@ -44,7 +44,7 @@ class DataUpdateHandler(RequestHandlerBase):
             summary of the data entry
         """
         self.set_header("Content-Type", "application/json")
-        permission = self.user_info
+        permission = await self.userInfo()
 
         __info = [] # for logging
 
@@ -59,36 +59,36 @@ class DataUpdateHandler(RequestHandlerBase):
         if not permission["is_admin"]:
             if uuid is None:
                 # if the uuid is not provided, check tag validity using new tags
-                self.checkTagPermission(tags, permission["mandatory_tags"])
+                await self.checkTagPermission(tags, permission["mandatory_tags"])
             else:
                 # if the uuid is provided, check tag validity using old tags
                 old_tags = self.db[uuid].tags
-                self.checkTagPermission(old_tags, permission["mandatory_tags"])
+                await self.checkTagPermission(old_tags, permission["mandatory_tags"])
 
-        if bibtex is not None and not checkBibtexValidity(bibtex, self.logger.error):
+        if bibtex is not None and not await checkBibtexValidity(bibtex, self.logger.error):
             # check if it is other format
             # TODO: find a more elegant way to do this...
             bib_converter = BibConverter()
             __c_bibtex = None
             if not __c_bibtex:
                 try:
-                    __c_bibtex = bib_converter.fromNBib(bibtex)
-                    self.logger.debug("Obtained bibtex from nbib")
+                    __c_bibtex = await bib_converter.fromNBib(bibtex)
+                    await self.logger.debug("Obtained bibtex from nbib")
                 except Exception as e:
-                    self.logger.debug(f"Failed to convert from nbib: {e}")
+                    await self.logger.debug(f"Failed to convert from nbib: {e}")
             
             if not __c_bibtex:
                 try:
                     __c_bibtex = bib_converter.fromEndNote(bibtex)
-                    self.logger.debug("Obtained bibtex from endnote")
+                    await self.logger.debug("Obtained bibtex from endnote")
                 except:
-                    self.logger.debug("Failed to convert from endnote")
+                    await self.logger.debug("Failed to convert from endnote")
 
             if __c_bibtex and checkBibtexValidity(__c_bibtex, self.logger.error):
                 # successfully converted from other format
                 bibtex = __c_bibtex
             else:
-                self.logger.warning("Invalid bibtex")
+                await self.logger.warning("Invalid bibtex")
                 raise tornado.web.HTTPError(400)
         
         if uuid is None:
@@ -101,12 +101,12 @@ class DataUpdateHandler(RequestHandlerBase):
                 # most likely a duplicate
                 raise tornado.web.HTTPError(409)
             __info.append("new entry created [{}]".format(uuid))
-            dp = self.db.add(uuid)
-            dp.fm.writeTags(tags)
-            dp.fm.setWebUrl(url)
+            dp = await self.db.add(uuid)
+            await dp.fm.writeTags(tags)
+            await dp.fm.setWebUrl(url)
 
-            dp.loadInfo()   # update the cached info
-            self.broadcastEventMessage({
+            await dp.loadInfo()   # update the cached info
+            await self.broadcastEventMessage({
                 'type': 'add_entry',
                 'uuid': uuid, 
                 'datapoint_summary': dp.summary.json()
@@ -114,41 +114,41 @@ class DataUpdateHandler(RequestHandlerBase):
         else:
             dp = self.db[uuid]
             __info.append("update entry [{}]".format(uuid))
-            if bibtex is not None and dp.fm.readBib() != bibtex:
-                dp.fm.writeBib(bibtex)
+            if bibtex is not None and await dp.fm.readBib() != bibtex:
+                await dp.fm.writeBib(bibtex)
                 __info.append("bibtex updated")
             if tags is not None and DataTags(dp.tags) != DataTags(tags):
-                dp.fm.writeTags(DataTags(tags).toOrderedList())
+                await dp.fm.writeTags(DataTags(tags).toOrderedList())
                 __info.append("tags updated")
-            if url is not None and dp.fm.getWebUrl() != url:
-                dp.fm.setWebUrl(url)
+            if url is not None and await dp.fm.getWebUrl() != url:
+                await dp.fm.setWebUrl(url)
                 __info.append("url updated")
             
-            dp.loadInfo()   # update the cached info
-            self.broadcastEventMessage({
+            await dp.loadInfo()   # update the cached info
+            await self.broadcastEventMessage({
                 'type': 'update_entry',
                 'uuid': uuid,
                 'datapoint_summary': dp.summary.json()
             })
 
-        self.logger.info(", ".join(__info))
+        await self.logger.info(", ".join(__info))
         self.write(json.dumps(dp.summary.json()))
         return 
 
 class TagRenameHandler(RequestHandlerBase):
     @keyRequired
-    def post(self):
+    async def post(self):
         """
         Rename a tag
         """
         old_tag = self.get_argument("oldTag")
         new_tag = self.get_argument("newTag")
-        if not self.user_info["is_admin"]:
+        if not (await self.userInfo())["is_admin"]:
             # only admin can rename tags
             raise tornado.web.HTTPError(403)
-        self.db.renameTag(old_tag, new_tag)
-        self.logger.info(f"Tag [{old_tag}] renamed to [{new_tag}] by [{self.user_info['name']}]")
-        self.broadcastEventMessage({
+        await self.db.renameTag(old_tag, new_tag)
+        await self.logger.info(f"Tag [{old_tag}] renamed to [{new_tag}] by [{(await self.userInfo())['name']}]")
+        await self.broadcastEventMessage({
             'type': 'update_tag',
             'src_tag': old_tag,
             'dst_tag': new_tag
@@ -157,17 +157,17 @@ class TagRenameHandler(RequestHandlerBase):
 
 class TagDeleteHandler(RequestHandlerBase):
     @keyRequired
-    def post(self):
+    async def post(self):
         """
         Delete a tag
         """
         tag = self.get_argument("tag")
-        if not self.user_info["is_admin"]:
+        if not (await self.userInfo())["is_admin"]:
             # only admin can delete tags
             raise tornado.web.HTTPError(403)
-        self.db.deleteTag(tag)
-        self.logger.info(f"Tag [{tag}] deleted by [{self.user_info['name']}]")
-        self.broadcastEventMessage({
+        await self.db.deleteTag(tag)
+        await self.logger.info(f"Tag [{tag}] deleted by [{(await self.userInfo())['name']}]")
+        await self.broadcastEventMessage({
             'type': 'delete_tag',
             'src_tag': tag,
             'dst_tag': None

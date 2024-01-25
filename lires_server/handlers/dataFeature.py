@@ -33,35 +33,33 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
         if len(all_feat) < 5:
             return self.write(json.dumps({}))
 
-        def _runTSNE(perplexity: int):
-            with Timer("TSNE", print_func=self.logger.debug):
-                self.logger.debug(f'Running TSNE with n_components={n_components}, perplexity={perplexity}, random_state={random_state}')
-                all_feat_tsne = TSNE(
-                    n_components=int(n_components), 
-                    random_state=int(random_state), 
-                    perplexity=perplexity, 
-                    n_jobs=None,
-                    n_iter=5000,
-                    ).fit_transform(all_feat).astype(np.float16)
+        async def _runTSNE(perplexity: int):
+            await self.logger.debug(f'Running TSNE with n_components={n_components}, perplexity={perplexity}, random_state={random_state}')
+            all_feat_tsne = TSNE(
+                n_components=int(n_components), 
+                random_state=int(random_state), 
+                perplexity=perplexity, 
+                n_jobs=None,
+                n_iter=5000,
+                ).fit_transform(all_feat).astype(np.float16)
             return all_feat_tsne
         
-        def _runPCA():
-            with Timer("PCA", print_func=self.logger.debug):
-                self.logger.debug(f'Running PCA with n_components={n_components}, random_state={random_state}')
-                all_feat_tsne = PCA(
-                    n_components=int(n_components), 
-                    random_state=int(random_state), 
-                    ).fit_transform(all_feat).astype(np.float16)
+        async def _runPCA():
+            await self.logger.debug(f'Running PCA with n_components={n_components}, random_state={random_state}')
+            all_feat_tsne = PCA(
+                n_components=int(n_components), 
+                random_state=int(random_state), 
+                ).fit_transform(all_feat).astype(np.float16)
             return all_feat_tsne
 
         _feature_signature = hash(str(all_feat.tolist()) + str(n_components) + str(random_state) + str(perplexity))
         for _old_signature, val in self.__class__.feat_3d_all:
             if _old_signature==_feature_signature:
-                self.logger.debug("Use cached feature.")
+                await self.logger.debug("Use cached feature.")
                 return self.write(json.dumps(val))
 
         if int(perplexity) < 1:
-            self.logger.debug(f'Perplexity set to {perplexity}, using PCA instead of TSNE')
+            await self.logger.debug(f'Perplexity set to {perplexity}, using PCA instead of TSNE')
             all_feat_tsne: np.ndarray = await self.offloadTask(_runPCA)
         else:
             all_feat_tsne: np.ndarray = await self.offloadTask(_runTSNE, int(perplexity))

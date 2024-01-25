@@ -6,7 +6,24 @@ if TYPE_CHECKING:
     from lires.api.lserver import levelT
 
 class LiresLogger(logging.Logger):
-    ...
+
+    async def debug(self, msg: str, *args, **kwargs):
+        super().debug(msg, *args, **kwargs)
+    
+    async def info(self, msg: str, *args, **kwargs):
+        super().info(msg, *args, **kwargs)
+    
+    async def warning(self, msg: str, *args, **kwargs):
+        super().warning(msg, *args, **kwargs)
+    
+    async def error(self, msg: str, *args, **kwargs):
+        super().error(msg, *args, **kwargs)
+    
+    async def critical(self, msg: str, *args, **kwargs):
+        super().critical(msg, *args, **kwargs)
+    
+    async def log(self, level: int, msg: str, *args, **kwargs):
+        super().log(level, msg, *args, **kwargs)
 
 
 def setupRemoteLogger(
@@ -80,6 +97,9 @@ class LoggerStorage:
             logger = self.initLogger(name)
             self._logger_dict[name] = logger
         return self._logger_dict[name]
+    
+    def getdefault(self) -> logging.Logger:
+        return logging.getLogger("default")
 
     def initLogger(self, name: str) -> LiresLogger:
         term_log_level: levelT = os.getenv("LRS_LOG_LEVEL", "INFO")     # type: ignore

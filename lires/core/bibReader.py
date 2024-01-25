@@ -1,6 +1,6 @@
 import pybtex.database
 from datetime import date
-from typing import TypedDict, Optional, Callable
+from typing import TypedDict, Optional, Callable, Awaitable
 from . import refparser
 from .base import LiresBase
 import warnings, logging
@@ -11,27 +11,32 @@ from pylatexenc import latex2text
 import multiprocessing as mp
 from ..utils import randomAlphaNumeric
 
-def checkBibtexValidity(bib_str: str, onerror: Optional[Callable[[str], None]] = None) -> bool:
+async def checkBibtexValidity(
+    bib_str: str, 
+    onerror: Optional[Callable[[str], Awaitable[None]]] = None
+    ) -> bool:
     """
     Check if the bib string is valid
     """
     if onerror is None:
-        onerror = lambda x: None
+        async def _dummy(s):
+            pass
+        onerror = _dummy
     try:
         bib_parser = BibParser()
-        _ = bib_parser(bib_str)[0]
+        _ = (await bib_parser(bib_str))[0]
         return True
     except IndexError as e:
-        onerror(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
+        await onerror(f"IndexError while parsing bibtex, check if your bibtex info is empty: {e}")
         return False
     except pybtex.scanner.PrematureEOF:
-        onerror(f"PrematureEOF while parsing bibtex, invalid bibtex")
+        await onerror(f"PrematureEOF while parsing bibtex, invalid bibtex")
         return False
     except KeyError:
-        onerror(f"KeyError. (Year and title must be provided)")
+        await onerror(f"KeyError. (Year and title must be provided)")
         return False
     except Exception as e:
-        onerror("Error when parsing bib string: {}".format(e))
+        await onerror("Error when parsing bib string: {}".format(e))
         return False
 
 class BibParser(LiresBase):
@@ -50,7 +55,7 @@ class BibParser(LiresBase):
                 bib_data.entries[k].fields.pop("abstract")
         return bib_data.to_string("bibtex")
     
-    def __call__(self, bib_str: str):
+    async def __call__(self, bib_str: str) -> list[dict]:
         """
             datapoint: {
                 "entry": <str>,
@@ -75,11 +80,11 @@ class BibParser(LiresBase):
             assert "title" in _d.fields, "No title found in bib entry {} ({})".format(k, _d.fields)
 
             if not "year" in _d.fields:
-                self.logger.warning(f"No year found in bib entry {k} ({_d.fields['title']})")
+                await self.logger.warning(f"No year found in bib entry {k} ({_d.fields['title']})")
                 _d.fields["year"] = date.today().year
             
             if not "author" in _d.persons:
-                self.logger.warning(f"No author found in bib entry {k} ({_d.fields['title']})")
+                await self.logger.warning(f"No author found in bib entry {k} ({_d.fields['title']})")
                 _d.persons["author"] = ["_"]
 
             data = {
@@ -102,11 +107,11 @@ class ParsedRef(TypedDict):
     year: str
     authors: list[str]
     publication: Optional[str]
-def parseBibtex(bib_single: str) -> ParsedRef:
+async def parseBibtex(bib_single: str) -> ParsedRef:
     """
     parse bibtex and extract useful entries
     """
-    parsed = BibParser()(bib_single)[0]
+    parsed = (await BibParser()(bib_single))[0]
     publication = None
     for k in ["journal", "booktitle", "eprint"]:
         if k in parsed:
@@ -124,20 +129,20 @@ def parseBibtex(bib_single: str) -> ParsedRef:
         "authors": [ latex2text.latex2text(au) for au in parsed["authors"] ],
         "publication": publication
     }
-def parallelParseBibtex(bib_strs: list[str]) -> list[ParsedRef]:
-    N_PROC = mp.cpu_count()-1
-    if N_PROC > 8:
-        N_PROC = 8
-    with mp.Pool(N_PROC) as p:
-        return p.map(parseBibtex, bib_strs)
+# def parallelParseBibtex(bib_strs: list[str]) -> list[ParsedRef]:
+#     N_PROC = mp.cpu_count()-1
+#     if N_PROC > 8:
+#         N_PROC = 8
+#     with mp.Pool(N_PROC) as p:
+#         return p.map(parseBibtex, bib_strs)
 
 
 class BibConverter(LiresBase):
     logger = LiresBase.loggers().core
-    def fromNBib(self, nb: str) -> str:
+    async def fromNBib(self, nb: str) -> str:
         parsed = nbib.read(nb.strip("\n") + "\n")
         if not parsed:
-            self.logger.error("Error while parsing nbib")
+            await self.logger.error("Error while parsing nbib")
             return ""
         assert len(parsed) == 1, "Only 1 nbib assumed"
         parsed = parsed[0]
@@ -157,7 +162,7 @@ class BibConverter(LiresBase):
                 try:
                     data_dict[k[0]] = parsed[k[1]]
                 except:
-                    self.logger.error("Could not find {} while parsing nbib".format(k[1]))
+                    await self.logger.error("Could not find {} while parsing nbib".format(k[1]))
         else:
             # To change later
             raise self.Error.LiresDocTypeNotSupportedError("Not supported document type {}".format(parsed["publication_types"]))
@@ -167,7 +172,7 @@ class BibConverter(LiresBase):
             try:
                 data_dict[k] = parsed[k]
             except:
-                self.logger.error("Could not find key {} while parsing nbib".format(k))
+                await self.logger.error("Could not find key {} while parsing nbib".format(k))
 
         data = []
         for k, v in data_dict.items():

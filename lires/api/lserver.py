@@ -60,7 +60,7 @@ class ClientHandler(logging.Handler):
         self.conn = LServerConn(endpoint=None, ignore_connection_error=True)
     def emit(self, record: logging.LogRecord):
         level_name: levelT = record.levelname # type: ignore
-        # self.conn.log_sync( self.logger_name, level_name, record.getMessage())
+        # self.conn.log_sync( await self.logger_name, level_name, record.getMessage())
         # use multi-threading to further accelerate
         with concurrent.futures.ThreadPoolExecutor(
                 max_workers=4,

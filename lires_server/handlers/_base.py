@@ -25,7 +25,7 @@ def keyRequired(func: FuncT) -> FuncT:
     Decorator to check if user is logged in
     """
     async def wrapper(self: RequestHandlerMixin, *args, **kwargs):
-        self.checkKey()
+        await self.checkKey()
         # check async 
         if asyncio.iscoroutinefunction(func):
             return await func(self, *args, **kwargs)
@@ -61,7 +61,9 @@ class RequestHandlerMixin(LiresBase):
 
     def __init__(self, *args, **kwargs) -> None:
         if self.print_init_info:
-            self.logger.debug(f"{BCOLORS.YELLOW} [init] :: {self.__class__.__name__} {BCOLORS.ENDC}")
+            async def _print_init_info():
+                await self.logger.debug(f"{BCOLORS.YELLOW} [init] :: {self.__class__.__name__} {BCOLORS.ENDC}")
+            tornado.ioloop.IOLoop.current().spawn_callback(_print_init_info)
 
     @property
     def io_loop(self):
@@ -112,27 +114,25 @@ class RequestHandlerMixin(LiresBase):
             assert isinstance(enc_key, str), "Not found key in params or cookies"
         return enc_key
     
-    @property
-    def user_info(self) -> UserInfo:
+    async def userInfo(self) -> UserInfo:
         try:
             # use cached permission, from checkKey()
             return self.__account_info
         except AttributeError:
-            return self.checkKey()
+            return await self.checkKey()
     
-    @property
-    def user_info_desensitized(self) -> UserInfo:
-        info = self.user_info
+    async def userInfoDesensitized(self) -> UserInfo:
+        info = await self.userInfo()
         info["enc_key"] = "__HIDDEN__"
         return info
     
-    def checkKey(self) -> UserInfo:
+    async def checkKey(self) -> UserInfo:
         """
         Authenticates key from params, then cookies
         Will raise HTTPError if key is invalid
         """
         enc_key = self.enc_key
-        self.logger.debug(f"check key: {enc_key}")
+        await self.logger.debug(f"check key: {enc_key}")
         if not enc_key:
             raise tornado.web.HTTPError(403) 
 
@@ -148,13 +148,13 @@ class RequestHandlerMixin(LiresBase):
         return user_info
     
     @staticmethod
-    def checkTagPermission(_tags: List[str] | DataTags, _mandatory_tags: List[str], raise_error=True) -> bool:
+    async def checkTagPermission(_tags: List[str] | DataTags, _mandatory_tags: List[str], raise_error=True) -> bool:
         """
         Check if tags are dominated by mandatory_tags
         """
         tags = DataTags(_tags)
         mandatory_tags = DataTags(_mandatory_tags)
-        RequestHandlerMixin.logger.debug(f"check tags: {tags} vs {mandatory_tags}")
+        await RequestHandlerMixin.logger.debug(f"check tags: {tags} vs {mandatory_tags}")
         if not mandatory_tags.issubset(tags.withParents()):
             if raise_error:
                 raise tornado.web.HTTPError(403)
@@ -169,11 +169,11 @@ class RequestHandlerMixin(LiresBase):
         self.set_header("Access-Control-Allow-Headers", "*")
         self.set_header("Access-Control-Expose-Headers", "*")
 
-    def broadcastEventMessage(self, event: Event):
+    async def broadcastEventMessage(self, event: Event):
         """
         Inform all connected clients about an event
         """
-        self.logger.debug("Broadcast message - " + str(event))
+        await self.logger.debug("Broadcast message - " + str(event))
 
         # there will somehow exists closed connections in the pool
         # we need to remove them, otherwise they will block the function and slow down the server
@@ -188,7 +188,7 @@ class RequestHandlerMixin(LiresBase):
                         "content": event
                     }))
                 except tornado.websocket.WebSocketClosedError as e:
-                    self.logger.error("Failed to broadcast to closed socket (s: {})".format(conn.session_id))
+                    await self.logger.error("Failed to broadcast to closed socket (s: {})".format(conn.session_id))
                     __need_remove_idx.append(i)
         for i in __need_remove_idx[::-1]:
             self.connection_pool.pop(i)

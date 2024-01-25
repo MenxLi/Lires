@@ -1,5 +1,6 @@
 import dataclasses
 
+import asyncio
 from lires.core.dataClass import DataBase
 from lires.config import DATABASE_DIR, VECTOR_DB_PATH, USER_DIR, getConf
 from lires.user import UserPool
@@ -9,7 +10,7 @@ from tiny_vectordb import VectorDatabase
 @dataclasses.dataclass(frozen=True)
 class GlobalStorage:
     """Global storage for all handlers"""
-    database = DataBase(DATABASE_DIR)
+    database = asyncio.run(DataBase().init(DATABASE_DIR))
     user_pool = UserPool(USER_DIR)
     vector_database = VectorDatabase(
         path = VECTOR_DB_PATH, 
@@ -22,10 +23,10 @@ class GlobalStorage:
 
     iconn = IServerConn()   # temporary, the endpoint will be set when server starts
 
-    def flush(self):
+    async def flush(self):
         """
         Commit and flush all changes to disk
         """
-        self.database.conn.commit()
+        await self.database.conn.commit()
         self.vector_database.commit()
         self.user_pool.conn.commit()

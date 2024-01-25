@@ -16,9 +16,9 @@ class SummaryHandler(RequestHandlerBase):
         force = self.get_argument("force", "false").lower() == "true"
         model_name = self.get_argument("model", "DEFAULT")
 
-        user_info = self.user_info
+        user_info = await self.userInfo()
         if not user_info["is_admin"]:
-            is_allowed = self.checkTagPermission(self.db[uuid].tags, user_info["mandatory_tags"], raise_error=False)
+            is_allowed = await self.checkTagPermission(self.db[uuid].tags, user_info["mandatory_tags"], raise_error=False)
             if not is_allowed:
                 self.write("ERROR: Permission denied.")
                 return
@@ -33,7 +33,7 @@ class SummaryHandler(RequestHandlerBase):
             return
         
         dp = self.db[uuid]
-        if not (dp.file_path and dp.fm.file_extension == ".pdf"):
+        if not (await dp.filePath() and dp.fm.file_extension == ".pdf"):
             self.write("ERROR: No pdf file.")
             return
 
@@ -49,7 +49,7 @@ class SummaryHandler(RequestHandlerBase):
             self.finish()
             return
         
-        assert dp.file_path
+        assert await dp.filePath()
         if "16k" in model_name:
             __max_words = 16384
         elif "32k" in model_name:
@@ -60,7 +60,7 @@ class SummaryHandler(RequestHandlerBase):
             __max_words = 4096
         else:
             __max_words = 2048
-        pdf_txt = await getPDFText(dp.file_path, __max_words)
+        pdf_txt = await getPDFText(await dp.filePath(), __max_words)   # type: ignore
         if len(pdf_txt) < 100:
             self.write("ERROR: Not enough content in the paper.")
             return
@@ -78,14 +78,14 @@ class SummaryHandler(RequestHandlerBase):
                 f"Here is the paper: {pdf_txt}",
             model_name = model_name # type: ignore
         )
-        self.logger.debug(f"PDFtext: {pdf_txt}")
+        await self.logger.debug(f"PDFtext: {pdf_txt}")
 
         if res is None:
             self.write("ERROR: LiresAI server error.")
             return
         
         assert res is not None
-        self.logger.info(f"Generating summary for {dp.title} ...")
+        await self.logger.info(f"Generating summary for {dp.title} ...")
         # summary_txt += f"<h3>Title: {dp.title}</h3>"
         self.write(summary_txt)
 
@@ -95,7 +95,7 @@ class SummaryHandler(RequestHandlerBase):
             self.flush()  # Flush the response buffer to send the chunk immediately
 
         with open(summary_txt_path, "w", encoding='utf-8') as fp:
-            self.logger.info(f"Saving summary to {summary_txt_path} ...")
+            await self.logger.info(f"Saving summary to {summary_txt_path} ...")
             fp.write(summary_txt)
         
         self.finish()  # Signal the end of the response

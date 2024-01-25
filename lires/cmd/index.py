@@ -37,7 +37,7 @@ def parseArgs() -> argparse.Namespace:
 def main():
     args = parseArgs()
     with MuteEverything():
-        db = DataBase().init(DATABASE_DIR)
+        db = asyncio.run(DataBase().init(DATABASE_DIR))
 
     iconn = IServerConn()
 

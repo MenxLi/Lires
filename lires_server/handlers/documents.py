@@ -8,7 +8,7 @@ from lires.config import ACCEPTED_EXTENSIONS
 
 class DocHandler(RequestHandlerBase):
     async def get(self, uuid):
-        file_p = self.db[uuid].fm.file_p
+        file_p = await self.db[uuid].fm.filePath()
         if isinstance(file_p, str):
             if file_p.endswith(".pdf"):
                 async with aiofiles.open(file_p, "rb") as f:
@@ -25,15 +25,15 @@ class DocHandler(RequestHandlerBase):
         """
         # permission check
         dp = self.db[uid]
-        if not self.user_info["is_admin"]:
-            self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
+        if not (await self.userInfo())["is_admin"]:
+            await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
 
         file_info = self.request.files['file'][0]  # Get the file information
         file_data = file_info['body']  # Get the file data
         
         original_filename = file_info['filename']
         file_size = len(file_data)
-        self.logger.info(f"Received file: {original_filename} ({file_size} bytes)")
+        await self.logger.info(f"Received file: {original_filename} ({file_size} bytes)")
 
         #check file extension
         ext = os.path.splitext(original_filename)[1]
@@ -44,10 +44,10 @@ class DocHandler(RequestHandlerBase):
         if not await dp.fm.addFileBlob(file_data, ext):
             raise tornado.web.HTTPError(409, reason="File already exists")
 
-        dp.loadInfo()
+        await dp.loadInfo()
         d_summary = dp.summary.json()
-        self.logger.info(f"Document {uid} added")
-        self.broadcastEventMessage({
+        await self.logger.info(f"Document {uid} added")
+        await self.broadcastEventMessage({
             "type": 'update_entry',
             'uuid': uid,
             'datapoint_summary': d_summary
@@ -60,14 +60,14 @@ class DocHandler(RequestHandlerBase):
         Free a document from a file
         """
         dp = self.db[uid]
-        if not self.user_info["is_admin"]:
-            self.checkTagPermission(dp.tags, self.user_info["mandatory_tags"])
+        if not (await self.userInfo())["is_admin"]:
+            await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
 
-        if not dp.fm.deleteDocument():
+        if not await dp.fm.deleteDocument():
             raise tornado.web.HTTPError(500, reason="Failed to delete file")
-        self.logger.info(f"Document {uid} freed")
-        dp.loadInfo()
-        self.broadcastEventMessage({
+        await self.logger.info(f"Document {uid} freed")
+        await dp.loadInfo()
+        await self.broadcastEventMessage({
             "type": 'update_entry',
             'uuid': uid,
             'datapoint_summary': dp.summary.json()
