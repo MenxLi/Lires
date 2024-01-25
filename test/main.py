@@ -80,7 +80,7 @@ if __name__ == "__main__":
     procs = []
     if not args.no_server:
         procs.append(StartRegistry())
-        subprocess.check_call("lrs-resetconf", shell=True)
+        subprocess.check_call("lrs-reset", shell=True)
         procs.append(startSubprocess("lires server"))
         procs.append(startSubprocess("lires iserver"))
         procs.append(startSubprocess("lires lserver"))

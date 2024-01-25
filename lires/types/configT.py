@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 class LiresConfT(TypedDict):
     """
-    Refer to lrs-resetconf 
+    Refer to lrs-reset
     for the generation of default configuration file,
 
     changed in v1.1.2:
