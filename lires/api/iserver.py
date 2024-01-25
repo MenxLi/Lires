@@ -77,8 +77,10 @@ class IServerConn(LiresAPIBase):
 
         async with aiohttp.ClientSession() as session:
             async with session.post(post_url, json = post_args) as res:
-                if self.ensureRes(res):
+                try:
+                    self.ensureRes(res)
                     async for chunk in res.content.iter_chunked(128):
                         if chunk:
                             yield chunk.decode("utf-8")
-                else: yield ""
+                except self.Error.LiresConnectionError:
+                    yield ""

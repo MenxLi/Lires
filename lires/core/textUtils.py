@@ -28,15 +28,10 @@ async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = Fa
             f"Here is the paper: {text}",
         model_name = "DEFAULT"
     )
-    try:
-        async for t in res:
-            summary += t
+    async for t in res:
+        summary += t
         if verbose:
             print(summary)
-    except Exception as e:
-        # may be caused by too long response
-        print("Warning: failed to create summary: {}".format(e))
-        return ""
     return summary
 
 FeatureQueryResult = TypedDict("FeatureQueryResult", {"uids": list[str], "scores": list[float]})
