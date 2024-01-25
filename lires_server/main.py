@@ -118,6 +118,7 @@ _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
 def __startServer(
         host: str, 
         port: Union[int, str], 
+        auto_reload: bool = False,
         ssl_config : _SSL_CONFIGT | None = None):
 
     app = Application()
@@ -135,8 +136,9 @@ def __startServer(
     with UseTermColor("lightgreen"):
         print("Visit web interface at: {}".format(__serve_url.replace("0.0.0.0", "127.0.0.1")))
 
-    tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
-    tornado.autoreload.start()
+    if auto_reload:
+        tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
+        tornado.autoreload.start()
 
     async def buildIndex(op_interval = 0.05):
         print("Periodically build index")
@@ -192,7 +194,11 @@ def startServer(
         port: int | str, 
         ) -> None:
     # add ssl config
-    partial(__startServer, ssl_config=SSL_CONFIG)(
+    partial(
+        __startServer, 
+        ssl_config = SSL_CONFIG, 
+        auto_reload = os.environ.get("LRS_DEV", "0") == "1"
+        )(
         host = host, 
         port = port, 
     )
