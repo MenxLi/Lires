@@ -19,8 +19,8 @@ The software mainly consists of four modules:
 🏷️ Cascading tags    
 📝 Markdown notes  
 👥 Multi-user management  
-✨ Artificial intelligence
-🚀 Scalable deployment
+✨ Artificial intelligence  
+🚀 Scalable deployment  
 
 # Getting started
 Installation:
