@@ -3,12 +3,13 @@ To access and modify images under the misc folder of each datapoint
 """
 from ._base import *
 import os, uuid
+import aiofiles
 
 class ImageHandler(RequestHandlerBase):
     """
     Get image from misc folder
     """
-    def get(self, uid:str):
+    async def get(self, uid:str):
         """
         Args:
             uid (str): uuid of the datapoint
@@ -16,9 +17,9 @@ class ImageHandler(RequestHandlerBase):
 
         # self.setDefaultHeader()
         fname = self.get_argument("fname")
-        self.emitImage(uid, fname)
+        await self.emitImage(uid, fname)
 
-    def emitImage(self, uid: str, fname: str):
+    async def emitImage(self, uid: str, fname: str):
         """
         Args:
             uid (str): uuid of the datapoint
@@ -37,14 +38,13 @@ class ImageHandler(RequestHandlerBase):
         if not any([fpath.endswith(ext) for ext in allowed_ext]):
             raise tornado.web.HTTPError(404)
         
-        with open(fpath, "rb") as f:
+        async with aiofiles.open(fpath, "rb") as f:
             # set header to be image
             if fpath.endswith(".png"):
                 self.set_header("Content-Type", "image/png")
             elif fpath.endswith(".jpg") or fpath.endswith(".jpeg"):
                 self.set_header("Content-Type", "image/jpeg")
-
-            self.write(f.read())
+            self.write(await f.read())
 
     @keyRequired
     async def put(self, uid: str):
@@ -65,8 +65,8 @@ class ImageHandler(RequestHandlerBase):
 
         dp = self.db[uid]
         fpath = os.path.join(dp.fm.getMiscDir(create=True), filename)
-        with open(fpath, "wb") as f:
-            f.write(file_data)
+        async with aiofiles.open(fpath, "wb") as f:
+            await f.write(file_data)
         
         # You can send a response back to the client if needed.
         # self.write("File uploaded successfully")

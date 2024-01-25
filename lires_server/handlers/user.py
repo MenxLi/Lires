@@ -2,6 +2,7 @@
 import json, os
 from io import BytesIO
 from PIL import Image
+import aiofiles
 from ._base import *
 
 class UserInfoHandler(RequestHandlerBase):
@@ -61,7 +62,7 @@ class UserListHandler(RequestHandlerBase):
 
 class UserAvatarHandler(RequestHandlerBase):
 
-    def get(self, username: str):
+    async def get(self, username: str):
         im_size = int(self.get_argument("size", "512"))
         if im_size > 512 or im_size < 1:
             raise tornado.web.HTTPError(400, "Invalid size, must be [1, 512]")
@@ -91,7 +92,8 @@ class UserAvatarHandler(RequestHandlerBase):
             # self.set_header("Cache-Control", "max-age=86400")
             self.set_header("Cache-Control", "max-age=60")
 
-            img = Image.open(avatar_path["square"])
+            async with aiofiles.open(avatar_path["square"], "rb") as fp:
+                img = Image.open(BytesIO(await fp.read()))
             img.thumbnail((im_size, im_size))
             with BytesIO() as output:
                 img.save(output, format="PNG")
@@ -99,10 +101,17 @@ class UserAvatarHandler(RequestHandlerBase):
             self.write(contents)
         
     @keyRequired
-    async def put(self):
-        user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
-        assert user is not None, "User not found"   # should not happen
-        
+    async def put(self, username: str):
+        user = self.user_pool.getUserByUsername(username)
+
+        req_user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
+        if user is None:
+            raise tornado.web.HTTPError(404, "User not found")
+        assert req_user is not None, "User not found"   # should not happen
+        if not (req_user.info()["is_admin"] or req_user.info()["id"] == user.info()["id"]):
+            # if not admin, only allow user to modify their own avatar
+            raise tornado.web.HTTPError(403, "Permission denied")
+
         if not self.request.files:
             raise tornado.web.HTTPError(400, "No file uploaded")
         
@@ -116,9 +125,15 @@ class UserAvatarHandler(RequestHandlerBase):
         self.write(json.dumps(user.info()))
     
     @keyRequired
-    async def delete(self):
-        user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
-        assert user is not None, "User not found"
+    async def delete(self, username):
+        req_user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
+        user = self.user_pool.getUserByUsername(username)
+        if user is None:
+            raise tornado.web.HTTPError(404, "User not found")
+        assert req_user is not None, "User not found"
+        if not (req_user.info()["is_admin"] or req_user.info()["id"] == user.info()["id"]):
+            # if not admin, only allow user to delete their own avatar
+            raise tornado.web.HTTPError(403, "Permission denied")
 
         avatar_image_path = user.avatar_image_path
         if avatar_image_path is None:
