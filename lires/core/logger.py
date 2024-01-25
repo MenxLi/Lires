@@ -17,6 +17,7 @@ def setupRemoteLogger(
         remote_log_level: levelT | None = "DEBUG",
         ) -> LiresLogger:
     from lires.api.lserver import ClientHandler
+    PREFIX_LEN = 12
 
     if term_id is None:
         if isinstance(_logger, str):
@@ -38,11 +39,10 @@ def setupRemoteLogger(
     # remove all other handlers
     logger.handlers.clear()
     def __formatTermID(term_id: str) -> str:
-        fix_len = 12
-        if len(term_id) > fix_len:
-            return term_id[:fix_len-3] + "..."
+        if len(term_id) > PREFIX_LEN:
+            return term_id[:PREFIX_LEN-1] + "-"
         else:
-            return term_id.rjust(fix_len)
+            return term_id.rjust(PREFIX_LEN)
     # set up terminal handler
     _ch = logging.StreamHandler()
     _ch.setLevel(term_log_level)
@@ -71,7 +71,9 @@ class LoggerStorage:
     def server(self):
         return self.get("server")
 
-    def get(self, name: str) -> LiresLogger:
+    def get(self, _name: str) -> LiresLogger:
+        from lires.config import getConf
+        name = f"{_name}.{getConf()['database_id']}"
         if not name in self._logger_dict:
             logger = self.initLogger(name)
             self._logger_dict[name] = logger
