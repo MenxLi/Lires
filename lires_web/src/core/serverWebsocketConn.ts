@@ -68,7 +68,7 @@ export class ServerWebsocketConn{
         return useSettingsStore();
     }
 
-    private resetRemainingRetries=()=>{this.__remainingRetries = 100;}
+    private resetRemainingRetries=()=>{this.__remainingRetries = 20;}
     private decreaseRemainingRetries=()=>{this.__remainingRetries -= 1;}
     public isOpen=()=>(this.ws)?(this.ws.readyState === WebSocket.OPEN):false;
     public willTryReconnect=()=>this.__remainingRetries > 0;
