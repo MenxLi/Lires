@@ -1,6 +1,7 @@
 from __future__ import annotations
 from .logger import LoggerStorage
 import dataclasses
+from .error import LiresError
 
 @dataclasses.dataclass(frozen=True)
 class GlobalVar:
@@ -10,17 +11,6 @@ class GlobalVar:
 G = GlobalVar(
     loggers=LoggerStorage()
 )
-
-class LiresError:
-    class LiresErrorBase(Exception): ...
-    class LiresUserDuplicationError(LiresErrorBase):...
-    class LiresUserNotFoundError(LiresErrorBase):...
-
-    class LiresToBeImplementedError(LiresErrorBase, NotImplementedError):...
-    class LiresDocTypeNotSupportedError(LiresToBeImplementedError):...
-
-    class LiresConnectionError(LiresErrorBase):...
-    class LiresConnectionAuthError(LiresConnectionError):...
 
 class LiresBase:
     """

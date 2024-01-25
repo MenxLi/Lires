@@ -1,8 +1,9 @@
-from lires.core.base import LiresBase
 import aiohttp, asyncio, sys
 import asyncio.coroutines
+from lires.core.error import LiresError
 
-class LiresAPIBase(LiresBase):
+class LiresAPIBase:
+    Error = LiresError
     _commonErrors = {
         400: "Bad request",
         401: "Invalid token",

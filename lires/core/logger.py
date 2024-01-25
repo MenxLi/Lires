@@ -2,28 +2,41 @@ from __future__ import annotations
 import logging, os
 from typing import Optional, TYPE_CHECKING
 from lires.utils import BCOLORS
+from lires.api import LServerConn
 if TYPE_CHECKING:
     from lires.api.lserver import levelT
 
 class LiresLogger(logging.Logger):
 
     async def debug(self, msg: str, *args, **kwargs):
-        super().debug(msg, *args, **kwargs)
+        if self.isEnabledFor(logging.DEBUG):
+            await LServerConn().log(self.name, "DEBUG", msg)
+        return super().debug(msg, *args, **kwargs)
     
     async def info(self, msg: str, *args, **kwargs):
-        super().info(msg, *args, **kwargs)
+        if self.isEnabledFor(logging.INFO):
+            await LServerConn().log(self.name, "INFO", msg)
+        return super().info(msg, *args, **kwargs)
     
     async def warning(self, msg: str, *args, **kwargs):
-        super().warning(msg, *args, **kwargs)
+        if self.isEnabledFor(logging.WARNING):
+            await LServerConn().log(self.name, "WARNING", msg)
+        return super().warning(msg, *args, **kwargs)
     
     async def error(self, msg: str, *args, **kwargs):
-        super().error(msg, *args, **kwargs)
+        if self.isEnabledFor(logging.ERROR):
+            await LServerConn().log(self.name, "ERROR", msg)
+        return super().error(msg, *args, **kwargs)
     
     async def critical(self, msg: str, *args, **kwargs):
-        super().critical(msg, *args, **kwargs)
+        if self.isEnabledFor(logging.CRITICAL):
+            await LServerConn().log(self.name, "CRITICAL", msg)
+        return super().critical(msg, *args, **kwargs)
     
     async def log(self, level: int, msg: str, *args, **kwargs):
-        super().log(level, msg, *args, **kwargs)
+        if self.isEnabledFor(level):
+            await LServerConn().log(self.name, logging.getLevelName(level), msg)
+        return super().log(level, msg, *args, **kwargs)
 
 
 def setupRemoteLogger(
@@ -33,7 +46,6 @@ def setupRemoteLogger(
         term_log_level: levelT = "INFO",
         remote_log_level: levelT | None = "DEBUG",
         ) -> LiresLogger:
-    from lires.api.lserver import ClientHandler
     PREFIX_LEN = 12
 
     if term_id is None:
@@ -67,11 +79,6 @@ def setupRemoteLogger(
                                        +BCOLORS.OKCYAN + ' %(asctime)s '
                                        +BCOLORS.OKCYAN + '[%(levelname)s] ' + BCOLORS.ENDC + ' %(message)s'))
     logger.addHandler(_ch)
-
-    if remote_log_level:
-        _rh = ClientHandler(logger.name)
-        _rh.setLevel(remote_log_level)
-        logger.addHandler(_rh)
     return logger
 
 class LoggerStorage:
