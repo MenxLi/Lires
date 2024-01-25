@@ -355,7 +355,7 @@ class FileManipulator(LiresBase):
             old_entry = self.conn[self.uuid]    # must be called in advance to prevent dead lock
             assert old_entry
             async with DBConnection(_backup_dir) as trash_db:
-                _success = trash_db.addEntry(
+                _success = await trash_db.addEntry(
                     old_entry["bibtex"], 
                     old_entry["abstract"], 
                     old_entry["comments"], 
