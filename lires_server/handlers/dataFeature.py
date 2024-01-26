@@ -35,22 +35,22 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
 
         async def _runTSNE(perplexity: int):
             await self.logger.debug(f'Running TSNE with n_components={n_components}, perplexity={perplexity}, random_state={random_state}')
-            all_feat_tsne = TSNE(
+            all_feat_tsne: np.ndarray = await self.offloadTask(TSNE(
                 n_components=int(n_components), 
                 random_state=int(random_state), 
                 perplexity=perplexity, 
                 n_jobs=None,
                 n_iter=5000,
-                ).fit_transform(all_feat).astype(np.float16)
-            return all_feat_tsne
+                ).fit_transform, all_feat)
+            return all_feat_tsne.astype(np.float16)
         
         async def _runPCA():
             await self.logger.debug(f'Running PCA with n_components={n_components}, random_state={random_state}')
-            all_feat_tsne = PCA(
+            all_feat_tsne: np.ndarray = await self.offloadTask(PCA(
                 n_components=int(n_components), 
                 random_state=int(random_state), 
-                ).fit_transform(all_feat).astype(np.float16)
-            return all_feat_tsne
+                ).fit_transform, all_feat)
+            return all_feat_tsne.astype(np.float16)
 
         _feature_signature = hash(str(all_feat.tolist()) + str(n_components) + str(random_state) + str(perplexity))
         for _old_signature, val in self.__class__.feat_3d_all:
@@ -60,9 +60,9 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
 
         if int(perplexity) < 1:
             await self.logger.debug(f'Perplexity set to {perplexity}, using PCA instead of TSNE')
-            all_feat_tsne: np.ndarray = await self.offloadTask(_runPCA)
+            all_feat_tsne: np.ndarray = await _runPCA()
         else:
-            all_feat_tsne: np.ndarray = await self.offloadTask(_runTSNE, int(perplexity))
+            all_feat_tsne: np.ndarray = await _runTSNE(int(perplexity))
 
         # normalize along each dimension
         # n_dim = all_feat_tsne.shape[1]

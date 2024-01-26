@@ -74,7 +74,9 @@ class RequestHandlerMixin(LiresBase):
         Offload a blocking task to a thread pool
         """
         if asyncio.iscoroutinefunction(func):
+            # This may not be a good idea, as it will block the event loop
             return asyncio.create_task(func(*args, **kwargs))
+            
         return self.io_loop.run_in_executor(self.executor, func, *args, **kwargs)
     
     async def wrapAsyncIter(self, gen: Generator[T, None, Any] | list[T]) -> AsyncGenerator[T, None]:
