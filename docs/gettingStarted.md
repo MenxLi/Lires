@@ -8,6 +8,9 @@
 **Table of Contents**
 
 - [Getting Started](#getting-started)
+  - [Introduction](#introduction)
+    - [Features](#features)
+  - [Quick Start](#quick-start)
   - [Manual Deployment](#manual-deployment)
     - [Installation from source](#installation-from-source)
     - [Server startup](#server-startup)
@@ -24,6 +27,37 @@
     - [Build search index](#build-search-index)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Introduction
+
+The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** is the French word for '***Read***'.
+
+![LiresWeb-GUI](https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/liresweb1.1.3v0.png)
+
+Lires is designed to be deployed onto a server to provide a **self-hosted collaborative solution** for research literature management.
+
+The software mainly consists of four modules:  
+1. `lires`, the global resource module.
+2. `lires-server`, the main entry point for the client.
+3. `lires-service`, microservices for enhanced scalability. 
+4. `lires-web`, a web-based interface for user interaction.
+
+### Features
+📚 Shared database  
+🔄 Cross-platform  
+🏷️ Cascading tags    
+📝 Markdown notes  
+👥 Multi-user management  
+✨ Artificial intelligence  
+🚀 Scalable deployment  
+
+## Quick Start
+
+```sh
+pip install 'Lires[all]'
+lrs-user add <username> <password> --admin
+lrs-cluster -i ~/.Lires/cluster-config.yaml
+```
 
 
 ## Manual Deployment

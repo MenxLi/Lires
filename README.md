@@ -1,2 +1,1 @@
-# Lires 
-A self-hosted research literature manager!
+Lires - A self-hosted research literature manager.
