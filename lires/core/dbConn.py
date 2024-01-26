@@ -80,9 +80,8 @@ class DBConnection(LiresBase):
 
         self.__modified = False
         self.__saving_thread = SavingThread(self, save_interval=10.0)
-        self.init()
     
-    def init(self):
+    async def init(self) -> DBConnection:
         """
         May call this function to re-init the connection after close
         """
@@ -93,6 +92,15 @@ class DBConnection(LiresBase):
         self.cursor = self.conn.cursor()
         self.__maybeCreateTable()
         self.__saving_thread.start()
+        return self
+    
+    def isInitialized(self) -> bool:
+        try:
+            if self.conn is None:
+                return False
+            return True
+        except AttributeError:
+            return False
     
     def setModifiedFlag(self, modified: bool):
         self.__modified = modified

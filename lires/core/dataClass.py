@@ -354,7 +354,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """ An abstraction of self.construct """
         if not os.path.exists(db_local):
             os.mkdir(db_local)
-        conn = FileManipulator.getDatabaseConnection(db_local) 
+        conn = await FileManipulator.getDatabaseConnection(db_local) 
         self.__conn = conn      # set database-wise connection instance
         await self.logger.debug("Initializing new DataBase's DBConnection")
         if db_local:
@@ -370,7 +370,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         all_data: list[DataPoint] = []
         for v_ in vs:
-            fm = FileManipulator(v_, db_local=self.conn)
+            fm = await FileManipulator(v_).init(self.conn)
             data = await DataPoint(fm).loadInfo()
             all_data.append(data)
 
@@ -390,7 +390,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         if isinstance(data, str):
             # uid of the data
-            fm = FileManipulator(data, db_local = self.conn)
+            fm = await FileManipulator(data).init(self.conn)
             data = await DataPoint(fm).loadInfo()
         self[data.uuid] = data
         return data

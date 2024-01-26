@@ -118,22 +118,17 @@ class FileManipulator(LiresBase):
     logger = LiresBase.loggers().core
 
     @staticmethod
-    def getDatabaseConnection(db_dir: str) -> DBConnection:
-        return DBConnection(db_dir)
+    async def getDatabaseConnection(db_dir: str) -> DBConnection:
+        return await DBConnection(db_dir).init()
 
-    def __init__(self, uid: str, db_local: Optional[DBConnection | str] = None):
+    def __init__(self, uid: str):
         self._uid = uid
 
-        # Common init for subclasses should be implementd in self.init
-        self.init(db_local)
-    
-    def init(self, db_local: Optional[DBConnection | str] = None):
-        if db_local is None:
-            self._conn = DBConnection(DATABASE_DIR)
-        elif isinstance(db_local, str):
-            self._conn = DBConnection(db_local)
-        else:
-            self._conn = db_local
+    async def init(self, db_local: DBConnection) -> FileManipulator:
+        self._conn = db_local
+        if not db_local.isInitialized():
+            await db_local.init()
+        return self
 
     @property
     def conn(self) -> DBConnection:
@@ -354,7 +349,7 @@ class FileManipulator(LiresBase):
                 os.mkdir(_backup_dir)
             old_entry = await self.conn.get(self.uuid)
             assert old_entry
-            async with DBConnection(_backup_dir) as trash_db:
+            async with (await DBConnection(_backup_dir).init()) as trash_db:
                 _success = await trash_db.addEntry(
                     old_entry["bibtex"], 
                     old_entry["abstract"], 
