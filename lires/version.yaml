@@ -647,3 +647,16 @@ version_history:
       - Remove leftover code
     - Fix:
       - Log file naming
+  1.4.0:
+    - Breaking changes:
+      - Archetecture change - use micro-service
+      - Rename lrs-resetconf -> lrs-reset
+      - lrs-log and lrs-status commands
+      - Include port range and database name in configuration file
+    - Performance:
+      - Async logging with log server
+      - Async document database
+      - Async image io
+      - Limit torch max thread number
+    - Fix:
+      - Upload user avatar
