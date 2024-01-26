@@ -4,10 +4,19 @@ import uvicorn
 
 import asyncio
 from lires.api import RegistryConn
+from lires.utils import BCOLORS
 from .logger import DatabaseLogger, NAME_LEVEL
 
 app = FastAPI()
 logger: DatabaseLogger
+
+ERROR_COLOR_MAP = {
+    "DEBUG": BCOLORS.CYAN,
+    "INFO": BCOLORS.GREEN,
+    "WARNING": BCOLORS.YELLOW,
+    "ERROR": BCOLORS.RED,
+    "CRITICAL": BCOLORS.RED,
+}
 
 class LogRequest(BaseModel):
     level: str
@@ -36,7 +45,9 @@ async def log(logger_path, request: LogRequest):
         level_name=level_name,
         message = data["message"]
         )
-    print(f"[{logger_name}] {level_name}: {data['message']}")
+    print(f"[{logger_name[:20]}]"
+          f"{ERROR_COLOR_MAP.get(level_name, BCOLORS.WHITE)}{level_name}{BCOLORS.ENDC}: "
+          f"{data['message']}")
     return 
 
 @app.get("/status")
