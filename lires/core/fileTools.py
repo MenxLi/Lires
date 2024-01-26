@@ -126,7 +126,7 @@ class FileManipulator(LiresBase):
 
     async def init(self, db_local: DBConnection) -> FileManipulator:
         self._conn = db_local
-        if not db_local.isInitialized():
+        if not await db_local.isInitialized():
             await db_local.init()
         return self
 
