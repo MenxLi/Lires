@@ -116,7 +116,7 @@ class Application(tornado.web.Application):
 
 
 _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
-def __startServer(
+async def __startServer(
         host: str, 
         port: Union[int, str], 
         auto_reload: bool = False,
@@ -141,7 +141,7 @@ def __startServer(
         tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
         tornado.autoreload.start()
 
-    async def buildIndex(op_interval = 0.05):
+    async def buildIndex(op_interval: float = 0.05):
         print("Periodically build index")
         from lires.core.textUtils import buildFeatureStorage
 
@@ -153,32 +153,35 @@ def __startServer(
             use_llm = False,
             operation_interval=op_interval,
         )
-
-    # tornado.ioloop.IOLoop.current().add_callback(buildIndex)
-    pc = tornado.ioloop.PeriodicCallback(buildIndex, 12*60*60*1000)  # in milliseconds
-    pc.start()
+    
+    tornado.ioloop.PeriodicCallback(buildIndex, 12*60*60*1000).start()  # in milliseconds
+    tornado.ioloop.PeriodicCallback(g_storage.database.conn.commit, 5*1000).start()
 
     # exit hooks
-    import atexit
-    def __exitHook():
-
-        # flush storage
-        asyncio.get_event_loop().run_until_complete(g_storage.flush())
-        tornado.ioloop.IOLoop.current().stop()
+    import signal
+    async def __exitHook():
+        
         logging.getLogger('server').info("Server exited")
+        await g_storage.finalize()
         with UseTermColor("green"):
             print("Hook invoked.")
-    atexit.register(__exitHook)
+        
     # catch keyboard interrupt
-    import signal
-    def __signalHandler(sig, frame):
-        tornado.ioloop.IOLoop.current().stop()
+    async def __signalHandler(*args, **kwargs):
         with UseTermColor("green"):
             print("\nExit gracefully...")
-        exit(0)
-    signal.signal(signal.SIGINT, __signalHandler)
+        await __exitHook()
+        # send event to stop the loop, 
+        # somehow raise "Event loop stopped before Future completed"
+        ioloop = tornado.ioloop.IOLoop.current()
+        ioloop.add_callback(ioloop.stop)
 
-    tornado.ioloop.IOLoop.current().start()
+    loop = asyncio.get_event_loop()
+    # https://stackoverflow.com/questions/23313720/asyncio-how-can-coroutines-be-used-in-signal-handlers
+    for signame in ('SIGINT', 'SIGTERM'):
+        loop.add_signal_handler(getattr(signal, signame),
+                                lambda: asyncio.ensure_future(__signalHandler()))
+    await asyncio.Event().wait()
 
 # SSL config
 _ENV_CERTFILE = os.environ.get("LRS_SSL_CERTFILE")
@@ -196,15 +199,14 @@ def startServer(
         host: str, 
         port: int | str, 
         ) -> None:
-    # add ssl config
-    partial(
-        __startServer, 
-        ssl_config = SSL_CONFIG, 
-        auto_reload = os.environ.get("LRS_DEV", "0") == "1"
-        )(
-        host = host, 
-        port = port, 
+    asyncio.run(
+        __startServer(
+            host = host, 
+            port = port, 
+            ssl_config = SSL_CONFIG, 
+            auto_reload = os.environ.get("LRS_DEV", "0") == "1"
+        )
     )
 
 if __name__ == "__main__":
-    __startServer('127.0.0.1', 8080)
+    startServer('127.0.0.1', 8080)

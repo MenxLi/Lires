@@ -2,7 +2,7 @@
 Sqlite connection interface
 """
 from __future__ import annotations
-import json, os, uuid, asyncio, threading
+import json, os, uuid
 import typing
 from typing import TypedDict, Optional
 import dataclasses
@@ -77,9 +77,7 @@ class DBConnection(LiresBase):
 
         self.db_dir = db_dir
         self.db_path = db_path
-
         self.__modified = False
-        self.__saving_thread = SavingThread(self, save_interval=10.0)
     
     async def init(self) -> DBConnection:
         """
@@ -88,7 +86,6 @@ class DBConnection(LiresBase):
         self.conn = await aiosqlite.connect(self.db_path)
         self.cursor = await self.conn.cursor()
         await self.__maybeCreateTable()
-        self.__saving_thread.start()
         return self
     
     async def isInitialized(self) -> bool:
@@ -99,7 +96,7 @@ class DBConnection(LiresBase):
         except AttributeError:
             return False
     
-    def setModifiedFlag(self, modified: bool):
+    async def setModifiedFlag(self, modified: bool):
         self.__modified = modified
     
     async def __maybeCreateTable(self):
@@ -120,7 +117,7 @@ class DBConnection(LiresBase):
                 misc_dir TEXT
             )
             """)
-            self.setModifiedFlag(True)
+            await self.setModifiedFlag(True)
     
     async def close(self):
         await self.commit()
@@ -181,7 +178,7 @@ class DBConnection(LiresBase):
         await self.cursor.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
             item["uuid"], item["bibtex"], item["abstract"], item["comments"], item["info_str"], item["doc_ext"], None
         ))
-        self.setModifiedFlag(True)
+        await self.setModifiedFlag(True)
         return True
     
     async def keys(self) -> list[str]:
@@ -247,14 +244,14 @@ class DBConnection(LiresBase):
         await self.cursor.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
             uid, bibtex, abstract, comments, doc_info.toString(), doc_ext, None
         ))
-        self.setModifiedFlag(True)
+        await self.setModifiedFlag(True)
         return uid
     
     async def removeEntry(self, uuid: str) -> bool:
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Removing entry {}".format(uuid))
         await self.cursor.execute("DELETE FROM files WHERE uuid=?", (uuid,))
-        self.setModifiedFlag(True)
+        await self.setModifiedFlag(True)
         await self.logger.debug("Removed entry {}".format(uuid))
         return True
     
@@ -262,41 +259,44 @@ class DBConnection(LiresBase):
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Setting doc_ext for {} to {}".format(uuid, ext))
         await self.cursor.execute("UPDATE files SET doc_ext=? WHERE uuid=?", (ext, uuid))
-        self.setModifiedFlag(True)
+        await self.setModifiedFlag(True)
         return True
     
     async def updateInfo(self, uuid: str, info: DocInfo) -> bool:
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Updating info for {} - {}".format(uuid, info))
         await self.cursor.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.toString(), uuid))
-        self.setModifiedFlag(True)
+        await self.setModifiedFlag(True)
         return True
     
     async def updateBibtex(self, uuid: str, bibtex: str) -> bool:
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
         await self.cursor.execute("UPDATE files SET bibtex=? WHERE uuid=?", (bibtex, uuid))
-        self.setModifiedFlag(True)
+        await self.setModifiedFlag(True)
         return True
     
     async def updateComments(self, uuid: str, comments: str) -> bool:
         if not await self._ensureExist(uuid): return False
         # await self.logger.debug("(db_conn) Updating comments for {}".format(uuid))   # too verbose
         await self.cursor.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
-        self.setModifiedFlag(True)
+        await self.setModifiedFlag(True)
         return True
     
     async def updateAbstract(self, uuid: str, abstract: str) -> bool:
         if not await self._ensureExist(uuid): return False
         # await self.logger.debug("(db_conn) Updating abstract for {}".format(uuid))   # too verbose
         await self.cursor.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
-        self.setModifiedFlag(True)
+        await self.setModifiedFlag(True)
         return True
     
     async def commit(self):
+        """
+        Be sure to register this function to the event loop!
+        """
         if not self.__modified: return
         await self.conn.commit()
-        self.setModifiedFlag(False)
+        await self.setModifiedFlag(False)
         await self.logger.debug("Committed document database")
     
     async def printData(self, uuid: str):
@@ -304,28 +304,3 @@ class DBConnection(LiresBase):
         await self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
         row = self.cursor.fetchone()
         print(row)
-
-
-class SavingThread(threading.Thread):
-    """
-    A thread that save the database periodically
-    """
-    def __init__(self, db_conn: DBConnection, save_interval: float = 10.0):
-        super().__init__(daemon=True)
-        self.db_conn = db_conn
-        self.save_interval = save_interval
-    
-    def run(self):
-        import time
-        async def _commit():
-            await asyncio.sleep(self.save_interval)
-            await self.db_conn.commit()
-        # TODO: register to main loop instead of using threading
-        while True:
-            try:
-                loop = asyncio.get_running_loop()
-                loop.call_later(0, asyncio.create_task, _commit())
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                loop.call_later(0, asyncio.create_task, _commit())
-                loop.run_forever()

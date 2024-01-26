@@ -42,9 +42,6 @@ class UsrDBConnection(LiresBase):
         self.__modified = False
         self.__maybeCreateTables()
 
-        self.__saving_thread = SavingThread(self, interval=10.0)
-        self.__saving_thread.start()
-    
     def close(self):
         self.conn.close()
     
@@ -158,15 +155,3 @@ class UsrDBConnection(LiresBase):
         self.conn.commit()
         self.setModifiedFlag(False)
         print("User database saved")
-
-
-class SavingThread(Thread):
-    def __init__(self, conn: UsrDBConnection, interval: float = 10.):
-        super().__init__(daemon=True)
-        self.conn = conn
-        self.interval = interval
-    
-    def run(self):
-        while True:
-            self.conn.commit()
-            time.sleep(self.interval)

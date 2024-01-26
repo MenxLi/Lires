@@ -30,3 +30,11 @@ class GlobalStorage:
         await self.database.conn.commit()
         self.vector_database.commit()
         self.user_pool.conn.commit()
+    
+    async def finalize(self):
+        """
+        Finalize the storage
+        """
+        await self.flush()
+        await self.database.conn.close()
+        print("-------- Database closed --------")
