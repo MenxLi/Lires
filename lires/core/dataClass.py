@@ -192,15 +192,6 @@ class DataPoint(DataCore):
         assert self.__summary is not None
         return self.__summary
 
-    @property
-    def d_info(self) -> DBFileInfo:
-        """
-        Return the DBFileInfo object (Raw sqlite database data information)
-        """
-        d_info = self.fm.conn[self.uuid]
-        assert d_info is not None
-        return d_info
-    
     async def filePath(self) -> Optional[str]:
         return await self.fm.filePath()
 
@@ -213,7 +204,7 @@ class DataPoint(DataCore):
         """
         self.has_file = await self.fm.hasFile()
         self.uuid = self.fm.uuid
-        self.tags = DataTags(self.fm.getTags())
+        self.tags = DataTags(await self.fm.getTags())
 
         self.time_added = await self.fm.getTimeAdded()
         self.time_modified = await self.fm.getTimeModified()
@@ -223,7 +214,7 @@ class DataPoint(DataCore):
 
         self.__summary = DataPointSummary(**{
             "has_file": self.has_file,
-            "file_type": self.fm.file_extension,
+            "file_type": await self.fm.fileExt(),
             "year":self.year,
             "title":self.title,
             "author":self.getAuthorsAbbr(),
@@ -237,7 +228,7 @@ class DataPoint(DataCore):
             "bibtex": await self.fm.readBib(),
             "doc_size": await self.fm.getDocSize(),
             "note_linecount": len([line for line in (await self.fm.readComments()).split("\n") if line.strip() != ""]),
-            "has_abstract": (abs_ := self.fm.readAbstract().strip()) != "" and abs_ != "<Not avaliable>",
+            "has_abstract": (abs_ := (await self.fm.readAbstract()).strip()) != "" and abs_ != "<Not avaliable>",
         })
         return self
     

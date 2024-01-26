@@ -56,7 +56,7 @@ class AbstractGetHandler(RequestHandlerBase):
         """
         dp = self.db[uid]
         await self.logger.debug("Get abstract of: {}".format(dp))
-        self.write(dp.fm.readAbstract())
+        self.write(await dp.fm.readAbstract())
     
 
 class AbstractUpdateHandler(RequestHandlerBase):

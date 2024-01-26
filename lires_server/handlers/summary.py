@@ -33,7 +33,7 @@ class SummaryHandler(RequestHandlerBase):
             return
         
         dp = self.db[uuid]
-        if not (await dp.filePath() and dp.fm.file_extension == ".pdf"):
+        if not (await dp.filePath() and dp.summary.file_type == ".pdf"):
             self.write("ERROR: No pdf file.")
             return
 

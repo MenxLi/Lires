@@ -55,7 +55,7 @@ async def getFeatureTextSource(
     - max_words_per_doc: int, if set to None, will not truncate the text
     - print_fn: Callable[[str], None], a function to print the progress
     """
-    abstract = dp.fm.readAbstract()
+    abstract = await dp.fm.readAbstract()
     uid = dp.uuid
     title_text: str = "Title: " + dp.title + "\n"
     if abstract:
@@ -66,7 +66,7 @@ async def getFeatureTextSource(
             "hash": hashlib.sha256(_text.encode()).hexdigest(),
             "type": "abstract"
         }
-    elif await dp.fm.hasFile() and dp.fm.file_extension == ".pdf":
+    elif await dp.fm.hasFile() and dp.summary.file_type == ".pdf":
         # if has pdf, try to create a summary
         pdf_path = await dp.fm.filePath(); assert pdf_path
         pdf_text = await getPDFText(pdf_path, max_words_per_doc)

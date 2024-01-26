@@ -128,15 +128,7 @@ class DBConnection(LiresBase):
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self.close()
     
-    def __getitem__(self, uuid: str) -> Optional[DBFileInfo]:
-        """
-        Get file info by uuid
-        """
-        # TODO: make a cache for this to reduce db access
-        self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
-        row = self.cursor.fetchone()
-        if row is None:
-            return None
+    def __formatRow(self, row: tuple) -> DBFileInfo:
         return {
             "uuid": row[0],
             "bibtex": row[1],
@@ -146,12 +138,33 @@ class DBConnection(LiresBase):
             "doc_ext": row[5],
         }
     
+    async def get(self, uuid: str) -> Optional[DBFileInfo]:
+        """
+        Get file info by uuid
+        """
+        self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
+        row = self.cursor.fetchone()
+        if row is None:
+            return None
+        return self.__formatRow(row)
+    
+    async def getMany(self, uuids: list[str]) -> list[DBFileInfo]:
+        """
+        Get file info by uuid
+        """
+        self.cursor.execute("SELECT * FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids)
+        rows = self.cursor.fetchall()
+        if len(rows) != len(uuids):
+            raise ValueError("Some uuids not found")
+        ret = [self.__formatRow(row) for row in rows]
+        return ret
+    
     async def insertItem(self, item: DBFileInfo) -> bool:
         """
         Insert item into database, will overwrite if uuid already exists
         """
         await self.logger.debug("(db_conn) Inserting item {}".format(item["uuid"]))
-        if self[item["uuid"]] is not None:
+        if await self.get(item["uuid"]) is not None:
             # if uuid already exists, delete it first
             self.cursor.execute("DELETE FROM files WHERE uuid=?", (item["uuid"],))
         with self.lock:
@@ -169,7 +182,7 @@ class DBConnection(LiresBase):
         return [row[0] for row in self.cursor.fetchall()]
     
     async def _ensureExist(self, uuid: str) -> bool:
-        if self[uuid] is None:
+        if await self.get(uuid) is None:
             await self.logger.error("uuid {} not exists".format(uuid))
             return False
         return True
@@ -216,7 +229,7 @@ class DBConnection(LiresBase):
             
         uid = doc_info.uuid
         # check if uuid already exists
-        if self[uid] is not None:
+        if await self.get(uid) is not None:
             await self.logger.error("uuid {} already exists".format(uid))
             return None
         # insert

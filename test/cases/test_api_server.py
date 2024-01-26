@@ -39,7 +39,7 @@ class TestServer(BaseConfig):
     async def test_updateEntry(self, server_admin: ServerConn):
 
         async def _testOneEntry(bibtex: str, tags: list, url: str):
-            d_info = await server_admin.updateEntry(
+            d_summary = await server_admin.updateEntry(
                 None,
                 bibtex=bibtex,
                 tags=tags,
@@ -47,12 +47,12 @@ class TestServer(BaseConfig):
                 )
             
             b_parser = BibParser()
-            assert (await b_parser(d_info.bibtex))[0] == (await b_parser(bibtex))[0]
-            assert set(d_info.tags) == set(tags)
-            assert d_info.url == url
+            assert (await b_parser(d_summary.bibtex))[0] == (await b_parser(bibtex))[0]
+            assert set(d_summary.tags) == set(tags)
+            assert d_summary.url == url
 
             # update entry randomly
-            uid = d_info.uuid
+            uid = d_summary.uuid
 
             new_bibtex = pybtex.database.parse_string(bibtex, bib_format="bibtex")
             _key = list(new_bibtex.entries.keys())[0]
@@ -77,14 +77,14 @@ class TestServer(BaseConfig):
             new_url = randomAlphaNumeric(10) if random.random() > 0.5 else None
                 
             # test update
-            d_info_update = await server_admin.updateEntry(
+            d_summary_update = await server_admin.updateEntry(
                 uid,
                 bibtex=bibtex,
                 tags=new_tags,
                 url=new_url
                 )
 
-            assert set(d_info_update.tags) == set(new_tags)
+            assert set(d_summary_update.tags) == set(new_tags)
 
         __this_dir = os.path.dirname(os.path.abspath(__file__))
         bibtex_case_file = os.path.join(__this_dir, "bibtex_cases.bib")

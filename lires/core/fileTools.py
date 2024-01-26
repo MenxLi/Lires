@@ -96,7 +96,7 @@ async def addDocument(
         search_str = getSearchStr(bib)
         # traverse all entries in the database and check if there is duplicate
         for _uid in await db_conn.keys():
-            d_file_info = db_conn[_uid]
+            d_file_info = await db_conn.get(_uid)
             assert d_file_info is not None  # type checking purpose
             aim_bib = (await parser(d_file_info["bibtex"]))[0]
             aim_search_str = getSearchStr(aim_bib)
@@ -143,18 +143,18 @@ class FileManipulator(LiresBase):
     def uuid(self) -> str:
         return self._uid
     
-    @property
-    def file_extension(self) -> str:
+    async def fileExt(self) -> str:
         """Document file extension, empty string if not exists"""
-        d_info = self.conn[self.uuid]
+        d_info = await self.conn.get(self.uuid)
         assert d_info is not None, "uuid {} not exists".format(self.uuid)
         return d_info["doc_ext"]
     
     async def filePath(self) -> Optional[str]:
         """Document file path, None if not exists"""
-        if self.file_extension == "":
+        file_ext = await self.fileExt()
+        if file_ext == "":
             return None
-        file_path = os.path.join(self.conn.db_dir, self.uuid + self.file_extension)
+        file_path = os.path.join(self.conn.db_dir, self.uuid + file_ext)
         if not os.path.exists(file_path):
             await self.logger.error("file {} not exists, but file extension exists".format(file_path))
             await self.conn.setDocExt(self.uuid, "")
@@ -192,7 +192,7 @@ class FileManipulator(LiresBase):
         the log should be triggered last in case of other updateInfo overwrite the modification time
         """
         await self.logger.debug("(fm) _log: {}".format(self.uuid))
-        db_data = self.conn[self.uuid]; assert db_data
+        db_data = await self.conn.get(self.uuid); assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.time_modify = TimeUtils.nowStamp()
         info.device_modify = platform.node()
@@ -263,7 +263,7 @@ class FileManipulator(LiresBase):
         return round(size, 2)
 
     async def readBib(self) -> str:
-        db_data = self.conn[self.uuid]; assert db_data
+        db_data = await self.conn.get(self.uuid); assert db_data
         return db_data["bibtex"]
 
     async def writeBib(self, bib: str):
@@ -271,8 +271,8 @@ class FileManipulator(LiresBase):
         await self._log()
         return self.conn.updateBibtex(self.uuid, bib)
     
-    def readAbstract(self) -> str:
-        db_data = self.conn[self.uuid]; assert db_data
+    async def readAbstract(self) -> str:
+        db_data = await self.conn.get(self.uuid); assert db_data
         return db_data["abstract"]
     
     async def writeAbstract(self, abstract: str):
@@ -281,7 +281,7 @@ class FileManipulator(LiresBase):
         return await self.conn.updateAbstract(self.uuid, abstract)
     
     async def readComments(self) -> str:
-        db_data = self.conn[self.uuid]; assert db_data
+        db_data = await self.conn.get(self.uuid); assert db_data
         return db_data["comments"]
     
     async def writeComments(self, comments: str):
@@ -289,8 +289,8 @@ class FileManipulator(LiresBase):
         await self.conn.updateComments(self.uuid, comments)
         await self._log()
     
-    def getTags(self) -> list[str]:
-        db_data = self.conn[self.uuid]; assert db_data
+    async def getTags(self) -> list[str]:
+        db_data = await self.conn.get(self.uuid); assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         return info.tags
     
@@ -298,27 +298,27 @@ class FileManipulator(LiresBase):
         await self.logger.debug("(fm) writeTags: {}".format(self.uuid))
         if not isinstance(tags, list):
             tags = tags.toOrderedList()
-        db_data = self.conn[self.uuid]; assert db_data
+        db_data = await self.conn.get(self.uuid); assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.tags = tags
         assert await self.conn.updateInfo(self.uuid, info), "Failed to update info when setting tags"
         await self._log()
     
     async def getWebUrl(self) -> str:
-        db_data = self.conn[self.uuid]; assert db_data
+        db_data = await self.conn.get(self.uuid); assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         return info.url
     
     async def setWebUrl(self, url: str):
         await self.logger.debug("(fm) setWebUrl: {}".format(self.uuid))
-        db_data = self.conn[self.uuid]; assert db_data
+        db_data = await self.conn.get(self.uuid); assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         info.url = url
         assert await self.conn.updateInfo(self.uuid, info), "Failed to update info when setting url"
         await self._log()
     
     async def getTimeAdded(self) -> float:
-        db_data = self.conn[self.uuid]; assert db_data
+        db_data = await self.conn.get(self.uuid); assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         record_added = info.time_import
         if isinstance(record_added, str):
@@ -328,7 +328,7 @@ class FileManipulator(LiresBase):
             return float(record_added)
     
     async def getTimeModified(self) -> float:
-        db_data = self.conn[self.uuid]; assert db_data
+        db_data = await self.conn.get(self.uuid); assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         record_modified = info.time_modify
         if isinstance(record_modified, str):
@@ -337,8 +337,8 @@ class FileManipulator(LiresBase):
         else:
             return float(record_modified)
     
-    def getVersionModify(self) -> str:
-        db_data = self.conn[self.uuid]; assert db_data
+    async def getVersionModify(self) -> str:
+        db_data = await self.conn.get(self.uuid); assert db_data
         info = DocInfo.fromString(db_data["info_str"])
         return info.version_modify
     
@@ -352,7 +352,7 @@ class FileManipulator(LiresBase):
             _backup_dir = os.path.join(_conn_dir, ".trash")
             if not os.path.exists(_backup_dir):
                 os.mkdir(_backup_dir)
-            old_entry = self.conn[self.uuid]    # must be called in advance to prevent dead lock
+            old_entry = await self.conn.get(self.uuid)
             assert old_entry
             async with DBConnection(_backup_dir) as trash_db:
                 _success = await trash_db.addEntry(

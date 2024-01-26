@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class DataPointSummary():
     has_file: bool
-    file_type: str
+    file_type: str  # pdf, epub, etc.
     year: Any
     title: str
     author: str
