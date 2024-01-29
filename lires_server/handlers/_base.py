@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Callable, Optional, List, Generator, AsyncGenerator, TypeVar, Any, TYPE_CHECKING
 import tornado.web, tornado.websocket
 import asyncio
-import time, json
+import json
 
 import http.cookies
 from ._global_data import GlobalStorage
@@ -186,30 +186,9 @@ class RequestHandlerBase(tornado.web.RequestHandler, RequestHandlerMixin):
         self.set_status(204)
         self.finish()
 
-def minResponseInterval(min_interval=0.1):
-    """
-    Decorator to limit the minimum interval between responses
-    """
-    last_response_time = 0
-    def decorator(func: FuncT) -> FuncT:
-        assert asyncio.iscoroutinefunction(func), "minResponseInterval only works with async functions"
-        async def wrapper(*args, **kwargs):
-            nonlocal last_response_time
-            while True:
-                now = time.time()
-                if now - last_response_time < min_interval:
-                    await asyncio.sleep(min_interval - (now - last_response_time))
-                else:
-                    break
-            last_response_time = time.time()
-            return await func(*args, **kwargs)
-        return wrapper  # type: ignore
-    return decorator
-
 __all__ = [
     "tornado",
     "RequestHandlerMixin",
     "RequestHandlerBase",
-    "minResponseInterval",
     "keyRequired"
     ]

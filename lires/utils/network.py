@@ -1,4 +1,5 @@
-import socket, random
+import socket, random, asyncio, time
+from typing import TypeVar, Callable, Coroutine
 
 def getLocalIP() -> tuple[str, int]:
     """
@@ -29,3 +30,24 @@ def getFreePort(low: int = 0, high: int = 65535) -> int:
             else:
                 print("Port {} is not available, try again... ({})".format(port, e))
                 max_try -= 1
+
+FuncT = TypeVar("FuncT", bound=Callable[..., Coroutine])
+def minResponseInterval(min_interval=0.1):
+    """
+    Decorator to limit the minimum interval between responses
+    """
+    last_response_time = 0
+    def decorator(func: FuncT) -> FuncT:
+        assert asyncio.iscoroutinefunction(func), "minResponseInterval only works with async functions"
+        async def wrapper(*args, **kwargs):
+            nonlocal last_response_time
+            while True:
+                now = time.time()
+                if now - last_response_time < min_interval:
+                    await asyncio.sleep(min_interval - (now - last_response_time))
+                else:
+                    break
+            last_response_time = time.time()
+            return await func(*args, **kwargs)
+        return wrapper  # type: ignore
+    return decorator
