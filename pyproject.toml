@@ -39,7 +39,7 @@ dependencies = [
     # such as lires.version, lires.config, 
     # and use lires.api
     "typing_extensions",
-    "tiny_vectordb >= 0.1.7",
+    "tiny_vectordb >= 0.1.9",
     "pyyaml",
     "aiohttp",
 ]
