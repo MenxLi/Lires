@@ -19,7 +19,7 @@ class UserCreateHandler(RequestHandlerBase):
         is_admin = json.loads(self.get_argument("is_admin", default="false"))
 
         # check if username exists
-        if self.user_pool.getUserByUsername(username) is not None:
+        if await self.user_pool.getUserByUsername(username) is not None:
             raise tornado.web.HTTPError(409, "Username already exists")
         
         self.user_pool.conn.insertUser(
@@ -30,10 +30,9 @@ class UserCreateHandler(RequestHandlerBase):
             mandatory_tags=mandatory_tags,
             )
         
-        user = self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.getUserByUsername(username)
         assert user is not None, "User not found"   # should not happen
-        to_send = user.info()
-        to_send["enc_key"] = "__HIDDEN__"
+        to_send = await user.info_desensitized()
 
         await self.broadcastEventMessage({
             'type': 'add_user',
@@ -52,10 +51,10 @@ class UserDeleteHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(403)
         
         username = self.get_argument("username")
-        user = self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.getUserByUsername(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
-        self.user_pool.deleteUser(user.info()["id"])
+        await self.user_pool.deleteUser((await user.info())["id"])
         await self.broadcastEventMessage({
             'type': 'delete_user',
             'username': username,
@@ -71,19 +70,20 @@ class UserModifyHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(403)
         
         username = self.get_argument("username")
-        user = self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.getUserByUsername(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
+        user_info = await user.info()
         
         new_admin_status = json.loads(self.get_argument("is_admin", default='null'))
         if new_admin_status is not None:
-            user.conn.updateUser(user.info()["id"], is_admin=new_admin_status)
+            user.conn.updateUser(user_info["id"], is_admin=new_admin_status)
         
         new_mandatory_tags = json.loads(self.get_argument("mandatory_tags", default='null'))
         if new_mandatory_tags is not None:
-            user.conn.updateUser(user.info()["id"], mandatory_tags=DataTags(new_mandatory_tags).toOrderedList())
+            user.conn.updateUser(user_info["id"], mandatory_tags=DataTags(new_mandatory_tags).toOrderedList())
         
-        _user_info_desens = user.info_desensitized()
+        _user_info_desens = await user.info_desensitized()
         await self.broadcastEventMessage({
             'type': 'update_user',
             'username': _user_info_desens["username"],

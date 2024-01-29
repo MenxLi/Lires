@@ -45,7 +45,7 @@ class UsrDBConnection(LiresBase):
         self.__maybeCreateTables()
         return self
 
-    def close(self):
+    async def close(self):
         self.conn.close()
     
     def setModifiedFlag(self, flag: bool):
@@ -128,11 +128,11 @@ class UsrDBConnection(LiresBase):
 
         self.setModifiedFlag(True)
     
-    def getAllUserIDs(self) -> list[int]:
+    async def getAllUserIDs(self) -> list[int]:
         self.cursor.execute("SELECT id FROM users")
         return [res[0] for res in self.cursor.fetchall()]
     
-    def getUser(self, query: str | int) -> RawUser:
+    async def getUser(self, query: str | int) -> RawUser:
         if isinstance(query, str):
             self.cursor.execute("SELECT * FROM users WHERE username = ?", (query,))
         elif isinstance(query, int):

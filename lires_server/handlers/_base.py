@@ -139,14 +139,14 @@ class RequestHandlerMixin(LiresBase):
         if not enc_key:
             raise tornado.web.HTTPError(403) 
 
-        res = self.user_pool.getUserByKey(enc_key)
+        res = await self.user_pool.getUserByKey(enc_key)
         if res is None:
             # unauthorized or user not found
             print("Reject key ({}), abort".format(enc_key))
             raise tornado.web.HTTPError(403) 
         
         # Set a cached permission, requires it via property
-        user_info = res.info()
+        user_info = await res.info()
         self.__account_info = user_info
         return user_info
     

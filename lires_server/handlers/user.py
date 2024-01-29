@@ -8,16 +8,11 @@ from ._base import *
 class UserInfoHandler(RequestHandlerBase):
 
     # @keyRequired
-    def post(self, username):
-
-        user = self.user_pool.getUserByUsername(username)
+    async def post(self, username):
+        user = await self.user_pool.getUserByUsername(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
-        
-        to_send = user.info()
-        to_send["enc_key"] = "__HIDDEN__"
-        
-        self.write(json.dumps(to_send))
+        self.write(json.dumps(await user.info_desensitized()))
 
 class UserInfoUpdateHandler(RequestHandlerBase):
     """
@@ -26,9 +21,9 @@ class UserInfoUpdateHandler(RequestHandlerBase):
     """
     @keyRequired
     async def post(self):
-        user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
+        user = await self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
         assert user is not None, "User not found"   # should not happen
-        id_ = user.info()["id"]
+        id_ = (await user.info())["id"]
 
         new_name = self.get_argument("name", None)
         if new_name is not None:
@@ -38,11 +33,11 @@ class UserInfoUpdateHandler(RequestHandlerBase):
         if new_password is not None:
             user.conn.updateUser(id_, password=new_password)
         
-        _user_info = user.info()
+        _user_info = await user.info()
         await self.broadcastEventMessage({
             'type': 'update_user',
             'username': _user_info["username"],
-            'user_info': user.info_desensitized()
+            'user_info': await user.info_desensitized()
         })
         
         self.write(json.dumps(_user_info))
@@ -51,12 +46,13 @@ class UserInfoUpdateHandler(RequestHandlerBase):
 class UserListHandler(RequestHandlerBase):
 
     # @keyRequired
-    def post(self):
+    async def post(self):
         to_send = []
-        for user in self.user_pool:
-            u_info = user.info()
-            u_info["enc_key"] = "__HIDDEN__"
-            to_send.append(u_info)
+        all_ids = await self.user_pool.conn.getAllUserIDs()
+        for id_ in all_ids:
+            user = await self.user_pool.getUserById(id_)
+            assert user is not None, "User not found"   # should not happen
+            to_send.append(await user.info_desensitized())
         
         self.write(json.dumps(to_send))
 
@@ -67,7 +63,7 @@ class UserAvatarHandler(RequestHandlerBase):
         if im_size > 512 or im_size < 1:
             raise tornado.web.HTTPError(400, "Invalid size, must be [1, 512]")
 
-        user = self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.getUserByUsername(username)
         if user is None or user.avatar_image_path is None:
             self.set_header("Content-Type", "image/png")
             self.set_header("Content-Disposition", "inline")    
@@ -102,13 +98,14 @@ class UserAvatarHandler(RequestHandlerBase):
         
     @keyRequired
     async def put(self, username: str):
-        user = self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.getUserByUsername(username)
 
-        req_user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
+        req_user = await self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         assert req_user is not None, "User not found"   # should not happen
-        if not (req_user.info()["is_admin"] or req_user.info()["id"] == user.info()["id"]):
+        req_user_info = await req_user.info()
+        if not (req_user_info["is_admin"] or req_user_info["id"] == (await user.info())["id"]):
             # if not admin, only allow user to modify their own avatar
             raise tornado.web.HTTPError(403, "Permission denied")
 
@@ -126,12 +123,13 @@ class UserAvatarHandler(RequestHandlerBase):
     
     @keyRequired
     async def delete(self, username):
-        req_user = self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
-        user = self.user_pool.getUserByUsername(username)
+        req_user = await self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
+        user = await self.user_pool.getUserByUsername(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         assert req_user is not None, "User not found"
-        if not (req_user.info()["is_admin"] or req_user.info()["id"] == user.info()["id"]):
+        req_user_info = await req_user.info()
+        if not (req_user_info["is_admin"] or req_user_info["id"] == (await user.info())["id"]):
             # if not admin, only allow user to delete their own avatar
             raise tornado.web.HTTPError(403, "Permission denied")
 

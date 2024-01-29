@@ -50,7 +50,7 @@ async def _run():
     
     elif args.subparser == "update":
         assert args.username is not None, "Username is required"
-        user_id = user_db_conn.getUser(args.username)["id"]
+        user_id = (await user_db_conn.getUser(args.username))["id"]
         if args.password is not None:
             user_db_conn.updateUser(user_id, password=generateHexHash(args.password))
         if args.name is not None:
@@ -71,8 +71,8 @@ async def _run():
     
     elif args.subparser == "list":
         user_pool = await UserPool().init()
-        for user in user_pool:
-            print(user)
+        for user in await user_pool.all():
+            print(await user.toString())
 
     else:
         parser.print_usage()

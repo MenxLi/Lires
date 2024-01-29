@@ -37,14 +37,13 @@ class LiresUser:
     def conn(self) -> UsrDBConnection:
         return self._conn
     
-    @property
-    def raw(self) -> RawUser:
+    async def raw(self) -> RawUser:
         """The user information in the database"""
-        return self.conn.getUser(self._id)
+        return await self.conn.getUser(self._id)
     
-    def info(self) -> UserInfo:
+    async def info(self) -> UserInfo:
         """For json serialization"""
-        raw = self.raw
+        raw = await self.raw()
         enc_key = encryptKey(raw["username"], raw["password"])
         return {
             "id": raw["id"],
@@ -56,26 +55,23 @@ class LiresUser:
             "has_avatar": self.avatar_image_path is not None,
         }
     
-    def info_desensitized(self) -> UserInfo:
+    async def info_desensitized(self) -> UserInfo:
         """For json serialization"""
-        ret = self.info()
+        ret = await self.info()
         ret["enc_key"] = "__HIDDEN__"
         return ret
     
-    def __str__(self) -> str:
-        info = self.info()
+    async def toString(self) -> str:
+        info = await self.info()
         out = f"[{info['id']}] {info['username']} ({info['name']}), {info['enc_key']}"
         if info["is_admin"]:
             out += ", admin"
         return out
     
-    def __repr__(self) -> str:
-        return f"<LiresUser: {str(self)}>"
-    
-    def __eq__(self, o: object) -> bool:
+    async def equal(self, o: object) -> bool:
         if not isinstance(o, LiresUser):
             return False
-        return self.info() == o.info()
+        return await self.info() == await o.info()
     
     @property
     def avatar_image_path(self) -> Optional[AvatarPath]:

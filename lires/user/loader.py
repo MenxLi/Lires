@@ -1,12 +1,12 @@
 from __future__ import annotations
 import os
-from typing import Optional, Sequence
+from typing import Optional
 
 from .object import LiresUser, UsrDBConnection
 from ..config import USER_DIR
 from ..core import LiresError
 
-class UserPool(Sequence[LiresUser]):
+class UserPool():
 
     def __init__(self) -> None:
         super().__init__()
@@ -19,57 +19,48 @@ class UserPool(Sequence[LiresUser]):
     def conn(self) -> UsrDBConnection:
         return self._conn
     
-    def __len__(self) -> int:
-        return len(self._conn.getAllUserIDs())
+    async def size(self) -> int:
+        return len(await self.conn.getAllUserIDs())
     
-    def __getitem__(self, index: int) -> LiresUser:
-        return LiresUser(self.conn, self.conn.getAllUserIDs()[index])
+    async def all(self) -> list[LiresUser]:
+        all_ids = await self.conn.getAllUserIDs()
+        return [LiresUser(self.conn, user_id) for user_id in all_ids]
     
-    def __iter__(self):
-        for id in self.conn.getAllUserIDs():
-            yield LiresUser(self.conn, id)
-    
-    def __contains__(self, item: LiresUser) -> bool:
-        user_id = item.raw['id']
-        if user_id in self.conn.getAllUserIDs():
-            if item.raw == self.conn.getUser(user_id):
-                return True
-        return False
-    
-    def __str__(self):
-        return f"<UserPool: {len(self)} users>"
-    
-    def destroy(self):
-        self.conn.close()
+    async def destroy(self):
+        await self.conn.close()
         del self._conn
         del self
 
-    def getUserByKey(self, key: str) -> Optional[LiresUser]:
-        for user in self:
-            if user.info()['enc_key'] == key:
+    async def getUserByKey(self, key: str) -> Optional[LiresUser]:
+        all_ids = await self.conn.getAllUserIDs()
+        for user_id in all_ids:
+            user = await self.getUserById(user_id)
+            if user is None:
+                continue
+            if (await user.info())['enc_key'] == key:
                 return user
         return None
     
-    def getUserByUsername(self, username: str) -> Optional[LiresUser]:
+    async def getUserByUsername(self, username: str) -> Optional[LiresUser]:
         try:
-            user_id = self.conn.getUser(username)['id']
+            user_id = (await self.conn.getUser(username))['id']
             return LiresUser(self.conn, user_id)
         except LiresError.LiresUserNotFoundError:
             return None
     
-    def getUserById(self, id: int) -> Optional[LiresUser]:
+    async def getUserById(self, id: int) -> Optional[LiresUser]:
         try:
-            self.conn.getUser(id)
+            await self.conn.getUser(id)
             return LiresUser(self.conn, id)
         except LiresError.LiresUserNotFoundError:
             return None
     
-    def deleteUser(self, query: int|str):
+    async def deleteUser(self, query: int|str):
         user: Optional[LiresUser] = None
         if isinstance(query, str):
-            user = self.getUserByUsername(query)
+            user = await self.getUserByUsername(query)
         elif isinstance(query, int):
-            user = self.getUserById(query)
+            user = await self.getUserById(query)
         else:
             raise ValueError("Invalid query type")
 
