@@ -119,7 +119,7 @@ class UserAvatarHandler(RequestHandlerBase):
         
         im = Image.open(BytesIO(file["body"]))
         await user.setAvatar(im)
-        self.write(json.dumps(user.info()))
+        self.write(json.dumps(await user.info_desensitized()))
     
     @keyRequired
     async def delete(self, username):
@@ -139,4 +139,4 @@ class UserAvatarHandler(RequestHandlerBase):
         else:
             for k in avatar_image_path:
                 os.remove(avatar_image_path[k])
-            self.write(json.dumps(user.info()))
+            self.write(json.dumps(await user.info_desensitized()))
