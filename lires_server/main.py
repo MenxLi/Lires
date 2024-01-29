@@ -2,7 +2,6 @@ import os, logging
 from datetime import datetime
 from typing import Union, TypedDict
 from lires_web import LRSWEB_SRC_ROOT
-from functools import partial
 from lires.version import VERSION
 from lires.utils import UseTermColor
 
@@ -160,28 +159,26 @@ async def __startServer(
     # exit hooks
     import signal
     async def __exitHook():
-        
-        logging.getLogger('server').info("Server exited")
         await g_storage.finalize()
-        with UseTermColor("green"):
-            print("Hook invoked.")
+        await RequestHandlerBase.logger.info("Server shutdown")
         
+    shutdown_event = asyncio.Event()
     # catch keyboard interrupt
     async def __signalHandler(*args, **kwargs):
         with UseTermColor("green"):
             print("\nExit gracefully...")
         await __exitHook()
+        with UseTermColor("green"):
+            print("Hook invoked.")
         # send event to stop the loop, 
-        # somehow raise "Event loop stopped before Future completed"
-        ioloop = tornado.ioloop.IOLoop.current()
-        ioloop.add_callback(ioloop.stop)
+        shutdown_event.set()
 
-    loop = asyncio.get_event_loop()
     # https://stackoverflow.com/questions/23313720/asyncio-how-can-coroutines-be-used-in-signal-handlers
+    loop = asyncio.get_event_loop()
     for signame in ('SIGINT', 'SIGTERM'):
         loop.add_signal_handler(getattr(signal, signame),
                                 lambda: asyncio.ensure_future(__signalHandler()))
-    await asyncio.Event().wait()
+    await shutdown_event.wait()
 
 # SSL config
 _ENV_CERTFILE = os.environ.get("LRS_SSL_CERTFILE")

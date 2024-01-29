@@ -37,4 +37,3 @@ class GlobalStorage:
         """
         await self.flush()
         await self.database.conn.close()
-        print("-------- Database closed --------")
