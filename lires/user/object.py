@@ -1,6 +1,8 @@
 from __future__ import annotations
 import os
+from io import BytesIO
 import PIL.Image as Image
+import aiofiles
 from typing import Optional, TypedDict
 from .conn import RawUser, UsrDBConnection
 from .encrypt import encryptKey
@@ -111,9 +113,12 @@ class LiresUser:
         else:
             raise TypeError("image must be str or PIL.Image.Image")
 
-        # TODO: use async
         # save original
-        img.save(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_original.png"))
+        # img.save(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_original.png"))
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        async with aiofiles.open(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_original.png"), "wb") as fp:
+            await fp.write(buffer.getbuffer())
 
         # crop to square
         if img.width > img.height:
@@ -127,5 +132,9 @@ class LiresUser:
 
         # resize to 512x512
         img_sq = img.resize((512, 512))
-        img_sq.save(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_square.png"))
+        # img_sq.save(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_square.png"))
+        buffer = BytesIO()
+        img_sq.save(buffer, format="PNG")
+        async with aiofiles.open(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_square.png"), "wb") as fp:
+            await fp.write(buffer.getbuffer())
         return 
