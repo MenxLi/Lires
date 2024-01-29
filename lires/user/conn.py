@@ -25,7 +25,6 @@ class UsrDBConnection(LiresBase):
     
     async def init(self) -> UsrDBConnection:
         self.conn = await aiosqlite.connect(self.db_path)
-        self.cursor = await self.conn.cursor()
         self.__modified = False
         await self.__maybeCreateTables()
         return self
@@ -38,11 +37,11 @@ class UsrDBConnection(LiresBase):
     
     async def __maybeCreateTables(self):
         # check if the table exists
-        await self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
-        res = await self.cursor.fetchone()
+        async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'") as cursor:
+            res = await cursor.fetchone()
         if res is not None:
             return
-        await self.cursor.execute("""
+        await self.conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL,
@@ -62,12 +61,12 @@ class UsrDBConnection(LiresBase):
                 is_admin: bool, mandatory_tags: list[str]
                 ) -> None:
         # check if the user already exists
-        await self.cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-        res = await self.cursor.fetchone()
-        if res is not None:
-            raise self.Error.LiresUserDuplicationError(f"User {username} already exists")
+        async with self.conn.execute("SELECT * FROM users WHERE username = ?", (username,)) as cursor:
+            res = await cursor.fetchone()
+            if res is not None:
+                raise self.Error.LiresUserDuplicationError(f"User {username} already exists")
         # insert the user
-        await self.cursor.execute("""
+        await self.conn.execute("""
                             INSERT INTO users 
                             (username, password, name, is_admin, mandatory_tags)
                             VALUES (?, ?, ?, ?, ?)
@@ -75,29 +74,33 @@ class UsrDBConnection(LiresBase):
                             (username, password, name, is_admin, json.dumps(mandatory_tags)))
         self.setModifiedFlag(True)
     
-    async def deleteUser(self, query: str | int) -> None:
-        # check if the user exists
+    async def __ensureUserExists(self, query: str | int) -> aiosqlite.Row:
         if isinstance(query, str):
-            await self.cursor.execute("SELECT * FROM users WHERE username = ?", (query,))
+            async with self.conn.execute("SELECT * FROM users WHERE username = ?", (query,)) as cursor:
+                res = await cursor.fetchone()
         elif isinstance(query, int):
-            await self.cursor.execute("SELECT * FROM users WHERE id = ?", (query,))
+            async with self.conn.execute("SELECT * FROM users WHERE id = ?", (query,)) as cursor:
+                res = await cursor.fetchone()
         else: raise ValueError("Invalid query type")
-        res = await self.cursor.fetchone()
         if res is None:
             raise self.Error.LiresUserNotFoundError(f"User {query} not found")
+        return res
+    
+    async def deleteUser(self, query: str | int) -> None:
+        await self.__ensureUserExists(query)
         # delete the user
         if isinstance(query, int):
-            await self.cursor.execute("DELETE FROM users WHERE id = ?", (query,))
+            await self.conn.execute("DELETE FROM users WHERE id = ?", (query,))
         else:
-            await self.cursor.execute("DELETE FROM users WHERE username = ?", (query,))
+            await self.conn.execute("DELETE FROM users WHERE username = ?", (query,))
         self.setModifiedFlag(True)
     
     async def updateUser(self, id_: int, **kwargs) -> None:
         # check if the user exists
-        await self.cursor.execute("SELECT * FROM users WHERE id = ?", (id_,))
-        res = await self.cursor.fetchone()
-        if res is None:
-            raise self.Error.LiresUserNotFoundError(f"User {id_} not found")
+        async with self.conn.execute("SELECT * FROM users WHERE id = ?", (id_,)) as cursor:
+            res = await cursor.fetchone()
+            if res is None:
+                raise self.Error.LiresUserNotFoundError(f"User {id_} not found")
 
         # update the user
         for k, v in kwargs.items():
@@ -105,24 +108,17 @@ class UsrDBConnection(LiresBase):
             assert k != "id", "Cannot update user id"
             if k == "mandatory_tags":
                 v = json.dumps(v)
-            await self.cursor.execute(f"UPDATE users SET {k} = ? WHERE id = ?", (v, id_))
+            await self.conn.execute(f"UPDATE users SET {k} = ? WHERE id = ?", (v, id_))
 
         self.setModifiedFlag(True)
     
     async def getAllUserIDs(self) -> list[int]:
-        await self.cursor.execute("SELECT id FROM users")
-        return [res[0] for res in await self.cursor.fetchall()]
+        async with self.conn.execute("SELECT id FROM users") as cursor:
+            res = await cursor.fetchall()
+        return [i[0] for i in res]
     
     async def getUser(self, query: str | int) -> RawUser:
-        if isinstance(query, str):
-            await self.cursor.execute("SELECT * FROM users WHERE username = ?", (query,))
-        elif isinstance(query, int):
-            await self.cursor.execute("SELECT * FROM users WHERE id = ?", (query,))
-        else:
-            raise ValueError("Invalid query type")
-        res = await self.cursor.fetchone()
-        if res is None:
-            raise self.Error.LiresUserNotFoundError(f"User {query} not found")
+        res = await self.__ensureUserExists(query)
         return {
             "id": res[0],
             "username": res[1],

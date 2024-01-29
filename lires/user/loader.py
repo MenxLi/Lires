@@ -30,7 +30,8 @@ class UserPool():
         all_ids = await self.conn.getAllUserIDs()
         for user_id in all_ids:
             user = await self.getUserById(user_id)
-            assert user is not None
+            if user is None:
+                continue
             if (await user.info())['enc_key'] == key:
                 return user
         return None
