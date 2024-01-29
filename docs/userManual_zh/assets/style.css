@@ -54,11 +54,6 @@ img{
     box-shadow: 2px 5px 10px -1px #555;
     /* clip-path: inset(0 0 0 0 round 5px); */
 }
-img:hover{
-    box-shadow: 8px 8px 3px 0px #666;
-    /* transform: scale(1.01); */
-    /* cursor: zoom-in; */
-}
 
 @keyframes floatInAnim{
     0%{
