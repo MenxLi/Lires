@@ -84,7 +84,6 @@ class DBConnection(LiresBase):
         May call this function to re-init the connection after close
         """
         self.conn = await aiosqlite.connect(self.db_path)
-        self.cursor = await self.conn.cursor()
         await self.__maybeCreateTable()
         return self
     
@@ -104,20 +103,20 @@ class DBConnection(LiresBase):
         Create table if not exist
         """
         # check if table exists
-        await self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'")
-        if not await self.cursor.fetchone():
-            await self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS files (
-                uuid TEXT PRIMARY KEY,
-                bibtex TEXT NOT NULL,
-                abstract TEXT NOT NULL,
-                comments TEXT NOT NULL,
-                info_str TEXT NOT NULL,
-                doc_ext TEXT NOT NULL,
-                misc_dir TEXT
-            )
-            """)
-            await self.setModifiedFlag(True)
+        async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'") as cursor:
+            if not await cursor.fetchone():
+                await cursor.execute("""
+                CREATE TABLE IF NOT EXISTS files (
+                    uuid TEXT PRIMARY KEY,
+                    bibtex TEXT NOT NULL,
+                    abstract TEXT NOT NULL,
+                    comments TEXT NOT NULL,
+                    info_str TEXT NOT NULL,
+                    doc_ext TEXT NOT NULL,
+                    misc_dir TEXT
+                )
+                """)
+                await self.setModifiedFlag(True)
     
     async def close(self):
         await self.commit()
@@ -147,10 +146,10 @@ class DBConnection(LiresBase):
         # self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
         # row = self.cursor.fetchone()
 
-        await self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
-        row = await self.cursor.fetchone()
-        if row is None:
-            return None
+        async with self.conn.execute("SELECT * FROM files WHERE uuid=?", (uuid,)) as cursor:
+            row = await cursor.fetchone()
+            if row is None:
+                return None
         return self.__formatRow(row)
     
     async def getMany(self, uuids: list[str]) -> list[DBFileInfo]:
@@ -160,8 +159,8 @@ class DBConnection(LiresBase):
         # self.cursor.execute("SELECT * FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids)
         # rows = self.cursor.fetchall()
 
-        await self.cursor.execute("SELECT * FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids)
-        rows = await self.cursor.fetchall()
+        async with self.conn.execute("SELECT * FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids) as cursor:
+            rows = await cursor.fetchall()
         if len(list(rows)) != len(uuids):
             raise ValueError("Some uuids not found")
         ret = [self.__formatRow(row) for row in rows]
@@ -174,8 +173,8 @@ class DBConnection(LiresBase):
         await self.logger.debug("(db_conn) Inserting item {}".format(item["uuid"]))
         if await self.get(item["uuid"]) is not None:
             # if uuid already exists, delete it first
-            await self.cursor.execute("DELETE FROM files WHERE uuid=?", (item["uuid"],))
-        await self.cursor.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
+            await self.conn.execute("DELETE FROM files WHERE uuid=?", (item["uuid"],))
+        await self.conn.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
             item["uuid"], item["bibtex"], item["abstract"], item["comments"], item["info_str"], item["doc_ext"], None
         ))
         await self.setModifiedFlag(True)
@@ -185,8 +184,8 @@ class DBConnection(LiresBase):
         """
         Return all uuids
         """
-        await self.cursor.execute("SELECT uuid FROM files")
-        return [row[0] for row in await self.cursor.fetchall()]
+        async with self.conn.execute("SELECT uuid FROM files") as cursor:
+            return [row[0] for row in await cursor.fetchall()]
     
     async def _ensureExist(self, uuid: str) -> bool:
         if await self.get(uuid) is None:
@@ -241,7 +240,7 @@ class DBConnection(LiresBase):
             return None
         # insert
         await self.logger.debug("(db_conn) Adding entry {}".format(uid))
-        await self.cursor.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
+        await self.conn.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
             uid, bibtex, abstract, comments, doc_info.toString(), doc_ext, None
         ))
         await self.setModifiedFlag(True)
@@ -250,7 +249,7 @@ class DBConnection(LiresBase):
     async def removeEntry(self, uuid: str) -> bool:
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Removing entry {}".format(uuid))
-        await self.cursor.execute("DELETE FROM files WHERE uuid=?", (uuid,))
+        await self.conn.execute("DELETE FROM files WHERE uuid=?", (uuid,))
         await self.setModifiedFlag(True)
         await self.logger.debug("Removed entry {}".format(uuid))
         return True
@@ -258,35 +257,35 @@ class DBConnection(LiresBase):
     async def setDocExt(self, uuid: str, ext: Optional[str]) -> bool:
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Setting doc_ext for {} to {}".format(uuid, ext))
-        await self.cursor.execute("UPDATE files SET doc_ext=? WHERE uuid=?", (ext, uuid))
+        await self.conn.execute("UPDATE files SET doc_ext=? WHERE uuid=?", (ext, uuid))
         await self.setModifiedFlag(True)
         return True
     
     async def updateInfo(self, uuid: str, info: DocInfo) -> bool:
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Updating info for {} - {}".format(uuid, info))
-        await self.cursor.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.toString(), uuid))
+        await self.conn.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.toString(), uuid))
         await self.setModifiedFlag(True)
         return True
     
     async def updateBibtex(self, uuid: str, bibtex: str) -> bool:
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
-        await self.cursor.execute("UPDATE files SET bibtex=? WHERE uuid=?", (bibtex, uuid))
+        await self.conn.execute("UPDATE files SET bibtex=? WHERE uuid=?", (bibtex, uuid))
         await self.setModifiedFlag(True)
         return True
     
     async def updateComments(self, uuid: str, comments: str) -> bool:
         if not await self._ensureExist(uuid): return False
         # await self.logger.debug("(db_conn) Updating comments for {}".format(uuid))   # too verbose
-        await self.cursor.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
+        await self.conn.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
         await self.setModifiedFlag(True)
         return True
     
     async def updateAbstract(self, uuid: str, abstract: str) -> bool:
         if not await self._ensureExist(uuid): return False
         # await self.logger.debug("(db_conn) Updating abstract for {}".format(uuid))   # too verbose
-        await self.cursor.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
+        await self.conn.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
         await self.setModifiedFlag(True)
         return True
     
@@ -301,6 +300,6 @@ class DBConnection(LiresBase):
     
     async def printData(self, uuid: str):
         if not await self._ensureExist(uuid): return False
-        await self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
-        row = self.cursor.fetchone()
+        async with self.conn.execute("SELECT * FROM files WHERE uuid=?", (uuid,)) as cursor:
+            row = cursor.fetchone()
         print(row)
