@@ -15,14 +15,14 @@ async def userdb() -> UsrDBConnection:
 
 class TestUserDBConnection:
     async def test_insert(self, userdb: UsrDBConnection):
-        userdb.insertUser(
+        await userdb.insertUser(
             username="test0_username", 
             password="test0_password",
             name="test0_name",
             is_admin=False,
             mandatory_tags=['tag0']
             )
-        userdb.insertUser(
+        await userdb.insertUser(
             username="test1_username", 
             password="test1_password",
             name="test1_name",
@@ -34,14 +34,14 @@ class TestUserDBConnection:
         assert await userdb.getUser("test1_username") is not None
 
         with pytest.raises(LiresError.LiresUserDuplicationError):
-            userdb.insertUser(
+            await userdb.insertUser(
                 username="test0_username", 
                 password="test0_password",
                 name="test0_name",
                 is_admin=False,
                 mandatory_tags=['tag0']
             )
-        userdb.commit()
+        await userdb.commit()
     
     async def test_cmd(self, userdb: UsrDBConnection):
         subprocess.check_call(["lrs-user", "add", "test2_username", "test2_password", "--admin", "--tags", "tag3", "tag4"])
@@ -72,3 +72,7 @@ class TestUserDBConnection:
         user1_info = await user1.info()
         assert await user1.equal(await user_pool.getUserById(user1_info['id']))
         assert await user1.equal(await user_pool.getUserByKey(user1_info['enc_key']))
+
+    async def test_finalize(self, user_pool: UserPool, userdb: UsrDBConnection):
+        await user_pool.conn.close()
+        await userdb.close()

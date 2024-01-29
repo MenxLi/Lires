@@ -22,7 +22,7 @@ class UserCreateHandler(RequestHandlerBase):
         if await self.user_pool.getUserByUsername(username) is not None:
             raise tornado.web.HTTPError(409, "Username already exists")
         
-        self.user_pool.conn.insertUser(
+        await self.user_pool.conn.insertUser(
             username=username,
             password=password,
             name=name,
@@ -77,11 +77,11 @@ class UserModifyHandler(RequestHandlerBase):
         
         new_admin_status = json.loads(self.get_argument("is_admin", default='null'))
         if new_admin_status is not None:
-            user.conn.updateUser(user_info["id"], is_admin=new_admin_status)
+            await user.conn.updateUser(user_info["id"], is_admin=new_admin_status)
         
         new_mandatory_tags = json.loads(self.get_argument("mandatory_tags", default='null'))
         if new_mandatory_tags is not None:
-            user.conn.updateUser(user_info["id"], mandatory_tags=DataTags(new_mandatory_tags).toOrderedList())
+            await user.conn.updateUser(user_info["id"], mandatory_tags=DataTags(new_mandatory_tags).toOrderedList())
         
         _user_info_desens = await user.info_desensitized()
         await self.broadcastEventMessage({

@@ -28,8 +28,8 @@ class GlobalStorage:
         Commit and flush all changes to disk
         """
         await self.database.conn.commit()
+        await self.user_pool.conn.commit()
         self.vector_database.commit()
-        self.user_pool.conn.commit()
     
     async def finalize(self):
         """
@@ -37,3 +37,4 @@ class GlobalStorage:
         """
         await self.flush()
         await self.database.conn.close()
+        await self.user_pool.conn.close()

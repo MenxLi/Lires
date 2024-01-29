@@ -1,20 +1,9 @@
 from __future__ import annotations
-import sqlite3
+import aiosqlite
 import os, json
-from functools import wraps
-from threading import Lock
 from typing import TypedDict
 
 from ..core.base import LiresBase
-
-# a wrapper that marks an object instance needs lock,
-def lock_required(func):
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        assert hasattr(self, "lock"), "The object does not have a lock attribute"
-        with self.lock:
-            return func(self, *args, **kwargs)
-    return wrapper
 
 class RawUser(TypedDict):
     id: int
@@ -28,7 +17,6 @@ class UsrDBConnection(LiresBase):
     logger = LiresBase.loggers().core
 
     def __init__(self, db_dir: str, fname: str = "user.db"):
-        self.lock = Lock()
         self.db_path = os.path.join(db_dir, fname)
         if not os.path.exists(db_dir):
             os.mkdir(db_dir)
@@ -36,29 +24,25 @@ class UsrDBConnection(LiresBase):
             ...
     
     async def init(self) -> UsrDBConnection:
-        # when check_same_thread=False, the connection can be used in multiple threads
-        # however, we have to ensure that only one thread is doing writing at the same time
-        # refer to: https://docs.python.org/3/library/sqlite3.html#sqlite3.connect
-        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
-        self.cursor = self.conn.cursor()
+        self.conn = await aiosqlite.connect(self.db_path)
+        self.cursor = await self.conn.cursor()
         self.__modified = False
-        self.__maybeCreateTables()
+        await self.__maybeCreateTables()
         return self
 
     async def close(self):
-        self.conn.close()
+        await self.conn.close()
     
     def setModifiedFlag(self, flag: bool):
         self.__modified = flag
     
-    @lock_required
-    def __maybeCreateTables(self):
+    async def __maybeCreateTables(self):
         # check if the table exists
-        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
-        res = self.cursor.fetchone()
+        await self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+        res = await self.cursor.fetchone()
         if res is not None:
             return
-        self.cursor.execute("""
+        await self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL,
@@ -73,18 +57,17 @@ class UsrDBConnection(LiresBase):
         # ...
         self.setModifiedFlag(True)
     
-    @lock_required
-    def insertUser(self, 
+    async def insertUser(self, 
                 username: str, password: str, name: str,
                 is_admin: bool, mandatory_tags: list[str]
                 ) -> None:
         # check if the user already exists
-        self.cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-        res = self.cursor.fetchone()
+        await self.cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        res = await self.cursor.fetchone()
         if res is not None:
             raise self.Error.LiresUserDuplicationError(f"User {username} already exists")
         # insert the user
-        self.cursor.execute("""
+        await self.cursor.execute("""
                             INSERT INTO users 
                             (username, password, name, is_admin, mandatory_tags)
                             VALUES (?, ?, ?, ?, ?)
@@ -92,29 +75,27 @@ class UsrDBConnection(LiresBase):
                             (username, password, name, is_admin, json.dumps(mandatory_tags)))
         self.setModifiedFlag(True)
     
-    @lock_required
-    def deleteUser(self, query: str | int) -> None:
+    async def deleteUser(self, query: str | int) -> None:
         # check if the user exists
         if isinstance(query, str):
-            self.cursor.execute("SELECT * FROM users WHERE username = ?", (query,))
+            await self.cursor.execute("SELECT * FROM users WHERE username = ?", (query,))
         elif isinstance(query, int):
-            self.cursor.execute("SELECT * FROM users WHERE id = ?", (query,))
+            await self.cursor.execute("SELECT * FROM users WHERE id = ?", (query,))
         else: raise ValueError("Invalid query type")
-        res = self.cursor.fetchone()
+        res = await self.cursor.fetchone()
         if res is None:
             raise self.Error.LiresUserNotFoundError(f"User {query} not found")
         # delete the user
         if isinstance(query, int):
-            self.cursor.execute("DELETE FROM users WHERE id = ?", (query,))
+            await self.cursor.execute("DELETE FROM users WHERE id = ?", (query,))
         else:
-            self.cursor.execute("DELETE FROM users WHERE username = ?", (query,))
+            await self.cursor.execute("DELETE FROM users WHERE username = ?", (query,))
         self.setModifiedFlag(True)
     
-    @lock_required
-    def updateUser(self, id_: int, **kwargs) -> None:
+    async def updateUser(self, id_: int, **kwargs) -> None:
         # check if the user exists
-        self.cursor.execute("SELECT * FROM users WHERE id = ?", (id_,))
-        res = self.cursor.fetchone()
+        await self.cursor.execute("SELECT * FROM users WHERE id = ?", (id_,))
+        res = await self.cursor.fetchone()
         if res is None:
             raise self.Error.LiresUserNotFoundError(f"User {id_} not found")
 
@@ -124,22 +105,22 @@ class UsrDBConnection(LiresBase):
             assert k != "id", "Cannot update user id"
             if k == "mandatory_tags":
                 v = json.dumps(v)
-            self.cursor.execute(f"UPDATE users SET {k} = ? WHERE id = ?", (v, id_))
+            await self.cursor.execute(f"UPDATE users SET {k} = ? WHERE id = ?", (v, id_))
 
         self.setModifiedFlag(True)
     
     async def getAllUserIDs(self) -> list[int]:
-        self.cursor.execute("SELECT id FROM users")
-        return [res[0] for res in self.cursor.fetchall()]
+        await self.cursor.execute("SELECT id FROM users")
+        return [res[0] for res in await self.cursor.fetchall()]
     
     async def getUser(self, query: str | int) -> RawUser:
         if isinstance(query, str):
-            self.cursor.execute("SELECT * FROM users WHERE username = ?", (query,))
+            await self.cursor.execute("SELECT * FROM users WHERE username = ?", (query,))
         elif isinstance(query, int):
-            self.cursor.execute("SELECT * FROM users WHERE id = ?", (query,))
+            await self.cursor.execute("SELECT * FROM users WHERE id = ?", (query,))
         else:
             raise ValueError("Invalid query type")
-        res = self.cursor.fetchone()
+        res = await self.cursor.fetchone()
         if res is None:
             raise self.Error.LiresUserNotFoundError(f"User {query} not found")
         return {
@@ -151,10 +132,9 @@ class UsrDBConnection(LiresBase):
             "mandatory_tags": json.loads(res[5])
         }
     
-    @lock_required
-    def commit(self):
+    async def commit(self):
         if not self.__modified:
             return
-        self.conn.commit()
+        await self.conn.commit()
         self.setModifiedFlag(False)
         print("User database saved")

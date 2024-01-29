@@ -40,44 +40,49 @@ async def _run():
 
     args = parser.parse_args()
 
-    user_db_conn = await UsrDBConnection(USER_DIR).init()
-    if args.subparser == "add":
-        assert args.password is not None, "Password is required"
-        user_db_conn.insertUser(
-            username=args.username, password=generateHexHash(args.password), name=args.name,
-            is_admin=args.admin, mandatory_tags=DataTags(args.tags).toOrderedList()
-        )
-    
-    elif args.subparser == "update":
-        assert args.username is not None, "Username is required"
-        user_id = (await user_db_conn.getUser(args.username))["id"]
-        if args.password is not None:
-            user_db_conn.updateUser(user_id, password=generateHexHash(args.password))
-        if args.name is not None:
-            user_db_conn.updateUser(user_id, name=args.name)
-        if args.tags is not None:
-            user_db_conn.updateUser(user_id, mandatory_tags=DataTags(args.tags).toOrderedList())
-        if args.admin is not None:
-            user_db_conn.updateUser(user_id, is_admin=args.admin)
+    user_pool = await UserPool().init()
+    user_db_conn = user_pool.conn
+    try:
+        if args.subparser == "add":
+            assert args.password is not None, "Password is required"
+            await user_db_conn.insertUser(
+                username=args.username, password=generateHexHash(args.password), name=args.name,
+                is_admin=args.admin, mandatory_tags=DataTags(args.tags).toOrderedList()
+            )
+        
+        elif args.subparser == "update":
+            assert args.username is not None, "Username is required"
+            user_id = (await user_db_conn.getUser(args.username))["id"]
+            if args.password is not None:
+                await user_db_conn.updateUser(user_id, password=generateHexHash(args.password))
+            if args.name is not None:
+                await user_db_conn.updateUser(user_id, name=args.name)
+            if args.tags is not None:
+                await user_db_conn.updateUser(user_id, mandatory_tags=DataTags(args.tags).toOrderedList())
+            if args.admin is not None:
+                await user_db_conn.updateUser(user_id, is_admin=args.admin)
 
-    elif args.subparser == "delete":
-        assert args.username is not None or args.id is not None, "Username or id is required"
-        assert not (args.username is not None and args.id is not None), "Cannot specify both username and id"
-        if args.username is not None:
-            user_db_conn.deleteUser(args.username)
-        if args.id is not None:
-            assert args.username is None
-            user_db_conn.deleteUser(args.id)
-    
-    elif args.subparser == "list":
-        user_pool = await UserPool().init()
-        for user in await user_pool.all():
-            print(await user.toString())
+        elif args.subparser == "delete":
+            assert args.username is not None or args.id is not None, "Username or id is required"
+            assert not (args.username is not None and args.id is not None), "Cannot specify both username and id"
+            if args.username is not None:
+                await user_db_conn.deleteUser(args.username)
+            if args.id is not None:
+                assert args.username is None
+                await user_db_conn.deleteUser(args.id)
+        
+        elif args.subparser == "list":
+            for user in await user_pool.all():
+                print(await user.toString())
 
-    else:
-        parser.print_usage()
-    
-    user_db_conn.commit()
+        else:
+            parser.print_usage()
+        
+        await user_db_conn.commit()
+    except Exception as e:
+        print("Error: ", e)
+    finally:
+        await user_db_conn.close()
 
 def run():
     import asyncio

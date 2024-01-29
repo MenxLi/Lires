@@ -26,17 +26,11 @@ class UserPool():
         all_ids = await self.conn.getAllUserIDs()
         return [LiresUser(self.conn, user_id) for user_id in all_ids]
     
-    async def destroy(self):
-        await self.conn.close()
-        del self._conn
-        del self
-
     async def getUserByKey(self, key: str) -> Optional[LiresUser]:
         all_ids = await self.conn.getAllUserIDs()
         for user_id in all_ids:
             user = await self.getUserById(user_id)
-            if user is None:
-                continue
+            assert user is not None
             if (await user.info())['enc_key'] == key:
                 return user
         return None
@@ -74,4 +68,4 @@ class UserPool():
                 if os.path.exists(pth):
                     os.remove(pth)
 
-        self.conn.deleteUser(query)
+        await self.conn.deleteUser(query)
