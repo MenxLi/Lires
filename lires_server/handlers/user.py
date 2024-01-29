@@ -118,7 +118,7 @@ class UserAvatarHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(400, "File type not supported")
         
         im = Image.open(BytesIO(file["body"]))
-        user.setAvatar(im)
+        await user.setAvatar(im)
         self.write(json.dumps(user.info()))
     
     @keyRequired

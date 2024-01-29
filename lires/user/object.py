@@ -88,7 +88,7 @@ class LiresUser:
         else:
             return a_pth
     
-    def setAvatar(self, image: Optional[str | Image.Image]) -> None:
+    async def setAvatar(self, image: Optional[str | Image.Image]) -> None:
         """
         Read image from image_path,
         resize, and save it to USER_AVATAR_DIR.
@@ -111,6 +111,7 @@ class LiresUser:
         else:
             raise TypeError("image must be str or PIL.Image.Image")
 
+        # TODO: use async
         # save original
         img.save(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_original.png"))
 
