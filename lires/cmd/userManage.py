@@ -14,7 +14,7 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
-def run():
+async def _run():
     parser = argparse.ArgumentParser()
     sp = parser.add_subparsers(dest = "subparser", help = "Key management")
 
@@ -40,7 +40,7 @@ def run():
 
     args = parser.parse_args()
 
-    user_db_conn = UsrDBConnection(USER_DIR)
+    user_db_conn = await UsrDBConnection(USER_DIR).init()
     if args.subparser == "add":
         assert args.password is not None, "Password is required"
         user_db_conn.insertUser(
@@ -70,7 +70,7 @@ def run():
             user_db_conn.deleteUser(args.id)
     
     elif args.subparser == "list":
-        user_pool = UserPool()
+        user_pool = await UserPool().init()
         for user in user_pool:
             print(user)
 
@@ -79,6 +79,9 @@ def run():
     
     user_db_conn.commit()
 
+def run():
+    import asyncio
+    asyncio.run(_run())
 
 if __name__ == "__main__":
     run()

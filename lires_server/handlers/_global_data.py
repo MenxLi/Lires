@@ -11,7 +11,7 @@ from tiny_vectordb import VectorDatabase
 class GlobalStorage:
     """Global storage for all handlers"""
     database = asyncio.run(DataBase().init(DATABASE_DIR))
-    user_pool = UserPool(USER_DIR)
+    user_pool = asyncio.run(UserPool().init(USER_DIR))
     vector_database = VectorDatabase(
         path = VECTOR_DB_PATH, 
         collection_configs = [{

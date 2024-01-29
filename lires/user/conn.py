@@ -1,7 +1,8 @@
+from __future__ import annotations
 import sqlite3
-import os, json, time
+import os, json
 from functools import wraps
-from threading import Lock, Thread
+from threading import Lock
 from typing import TypedDict
 
 from ..core.base import LiresBase
@@ -33,7 +34,8 @@ class UsrDBConnection(LiresBase):
             os.mkdir(db_dir)
         if not os.path.exists(self.db_path):
             ...
-
+    
+    async def init(self) -> UsrDBConnection:
         # when check_same_thread=False, the connection can be used in multiple threads
         # however, we have to ensure that only one thread is doing writing at the same time
         # refer to: https://docs.python.org/3/library/sqlite3.html#sqlite3.connect
@@ -41,6 +43,7 @@ class UsrDBConnection(LiresBase):
         self.cursor = self.conn.cursor()
         self.__modified = False
         self.__maybeCreateTables()
+        return self
 
     def close(self):
         self.conn.close()

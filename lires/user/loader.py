@@ -1,4 +1,4 @@
-
+from __future__ import annotations
 import os
 from typing import Optional, Sequence
 
@@ -8,9 +8,12 @@ from ..core import LiresError
 
 class UserPool(Sequence[LiresUser]):
 
-    def __init__(self, user_dir: str = USER_DIR) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self._conn = UsrDBConnection(user_dir)
+    
+    async def init(self, user_dir: str = USER_DIR) -> UserPool:
+        self._conn = await UsrDBConnection(user_dir).init()
+        return self
 
     @property
     def conn(self) -> UsrDBConnection:

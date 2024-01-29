@@ -6,15 +6,15 @@ from lires.config import USER_DIR
 
 
 @pytest.fixture(scope="module")
-def user_pool() -> UserPool:
-    return UserPool(USER_DIR)
+async def user_pool() -> UserPool:
+    return await UserPool().init(USER_DIR)
 
 @pytest.fixture(scope="module")
-def userdb() -> UsrDBConnection:
-    return UsrDBConnection(USER_DIR)
+async def userdb() -> UsrDBConnection:
+    return await UsrDBConnection(USER_DIR).init()
 
 class TestUserDBConnection:
-    def test_insert(self, userdb: UsrDBConnection):
+    async def test_insert(self, userdb: UsrDBConnection):
         userdb.insertUser(
             username="test0_username", 
             password="test0_password",
@@ -43,7 +43,7 @@ class TestUserDBConnection:
             )
         userdb.commit()
     
-    def test_cmd(self, userdb: UsrDBConnection):
+    async def test_cmd(self, userdb: UsrDBConnection):
         subprocess.check_call(["lrs-user", "add", "test2_username", "test2_password", "--admin", "--tags", "tag3", "tag4"])
         user2 = userdb.getUser("test2_username")
         assert user2 is not None
@@ -59,7 +59,7 @@ class TestUserDBConnection:
         user3 = userdb.getUser("test3_username")
         assert user3['name'] == "test3_new_name"
     
-    def test_userPool(self, user_pool: UserPool):
+    async def test_userPool(self, user_pool: UserPool):
         _n_base_user = 2
         assert len(user_pool) == 3 + _n_base_user
         assert user_pool[0 + _n_base_user].info()['username'] == "test0_username"
