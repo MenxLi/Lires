@@ -154,7 +154,7 @@ async def __startServer(
         )
     
     tornado.ioloop.PeriodicCallback(buildIndex, 12*60*60*1000).start()  # in milliseconds
-    tornado.ioloop.PeriodicCallback(g_storage.database.conn.commit, 5*1000).start()
+    tornado.ioloop.PeriodicCallback(g_storage.flush, 5*1000).start()    # periodically flush the database
 
     # exit hooks
     import signal
