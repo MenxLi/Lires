@@ -7,6 +7,10 @@ import fastapi, openai
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+import numpy as np
+from sklearn.manifold import TSNE 
+from sklearn.decomposition import PCA
+
 import os, asyncio
 import json
 
@@ -67,6 +71,35 @@ async def chatbot(req: ChatBotRequest):
             yield piece["text"]
     return StreamingResponse(_chatbot(), media_type="text/plain")
 
+
+class DimReduceTSNERequest(BaseModel):
+    data: list[list[float]]
+    n_components: int = 3
+    perplexity: int = 30
+    random_state: int = 100
+    n_iter: int = 5000
+@app.get("/dim-reduce/tsne")
+def tsne(req: DimReduceTSNERequest):
+    res = TSNE(
+        n_components=req.n_components, 
+        random_state=req.random_state, 
+        perplexity=req.perplexity, 
+        n_jobs=None, 
+        n_iter=5000
+        ).fit_transform(np.array(req.data)).astype(np.float16)
+    return res.tolist()
+
+class DimReducePCARequest(BaseModel):
+    data: list[list[float]]
+    n_components: int = 3
+    random_state: int = 100
+@app.get("/dim-reduce/pca")
+def pca(req: DimReducePCARequest):
+    res = PCA(
+        n_components=req.n_components, 
+        random_state=req.random_state, 
+        ).fit_transform(np.array(req.data)).astype(np.float16)
+    return res.tolist()
 
 def startServer(
     host: str = "0.0.0.0",

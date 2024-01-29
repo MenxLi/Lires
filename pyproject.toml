@@ -58,9 +58,9 @@ core = [
     "tqdm",
     "pillow",
     "numpy",
-    "scikit-learn",
 ]
 ai = [
+    "scikit-learn",
     "safetensors",
     "torch",
     "openai",

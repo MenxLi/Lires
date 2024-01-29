@@ -84,3 +84,40 @@ class IServerConn(LiresAPIBase):
                             yield chunk.decode("utf-8")
                 except self.Error.LiresConnectionError:
                     yield ""
+    
+    async def tsne(self, 
+        data: list[list[float]],
+        n_components: int = 3,
+        perplexity: int = 30,
+        random_state: int = 100,
+        n_iter: int = 1000,
+        ) -> list[list[float]]:
+        post_url = await self.url() + "/dim-reduce/tsne"
+        post_args = {
+            "data": data,
+            "n_components": n_components,
+            "perplexity": perplexity,
+            "random_state": random_state,
+            "n_iter": n_iter,
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.get(post_url, json = post_args) as res:
+                self.ensureRes(res)
+                return await res.json()
+    
+    async def pca(self, 
+        data: list[list[float]],
+        n_components: int = 3,
+        random_state: int = 100,
+        ) -> list[list[float]]:
+        post_url = await self.url() + "/dim-reduce/pca"
+        post_args = {
+            "data": data,
+            "n_components": n_components,
+            "random_state": random_state,
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.get(post_url, json = post_args) as res:
+                self.ensureRes(res)
+                return await res.json()
+            

@@ -1,8 +1,7 @@
 from __future__ import annotations
-from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator, TypeVar, Any, TYPE_CHECKING
+from typing import Callable, Optional, List, Generator, AsyncGenerator, TypeVar, Any, TYPE_CHECKING
 import tornado.web, tornado.websocket
 import asyncio
-import concurrent.futures
 import time, json
 
 import http.cookies
@@ -46,14 +45,6 @@ class RequestHandlerMixin(LiresBase):
     # class settings
     print_init_info = True
 
-    # Set max_workers to larger than 1 will somehow cause blocking 
-    # if iserver is running in a container (it's ok if runs on host), 
-    # and we are sending offloaded featurize requests from the core server with multiple threads...
-    # (Happened on MacOS with Docker version 24.0.5, build ced0996)
-    # (Not observed on OpenSUSE-leap 15 with Docker version 23.0.6-ce, build 9dbdbd4b6d76)
-    # (More tests needed ... )
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
-
     def __init_subclass__(cls, print_init_info: bool = True, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
         cls.print_init_info = print_init_info
@@ -67,16 +58,6 @@ class RequestHandlerMixin(LiresBase):
     @property
     def io_loop(self):
         return asyncio.get_event_loop()
-    
-    def offloadTask(self, func, *args, **kwargs) -> Awaitable:
-        """
-        Offload a blocking task to a thread pool
-        """
-        if asyncio.iscoroutinefunction(func):
-            # This may not be a good idea, as it will block the event loop
-            return asyncio.create_task(func(*args, **kwargs))
-            
-        return self.io_loop.run_in_executor(self.executor, func, *args, **kwargs)
     
     async def wrapAsyncIter(self, gen: Generator[T, None, Any] | list[T]) -> AsyncGenerator[T, None]:
         for item in gen:
@@ -211,6 +192,7 @@ def minResponseInterval(min_interval=0.1):
     """
     last_response_time = 0
     def decorator(func: FuncT) -> FuncT:
+        assert asyncio.iscoroutinefunction(func), "minResponseInterval only works with async functions"
         async def wrapper(*args, **kwargs):
             nonlocal last_response_time
             while True:

@@ -1,10 +1,7 @@
 
 from ._base import *
-from sklearn.manifold import TSNE 
-from sklearn.decomposition import PCA
-import numpy as np
 import json
-from lires.utils import Timer
+from lires.api.iserver import IServerConn
 
 Feat3DT = dict[str, list[float]] | None
 class DataFeatureTSNEHandler(RequestHandlerBase):
@@ -16,8 +13,6 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
 
     @keyRequired
     async def get(self, collection_name: str):
-        self.allowCORS()
-
         n_components = self.get_argument("n_components", default="3")
         perplexity = self.get_argument("perplexity", default="-1")
         random_state = self.get_argument("random_state", default="100")
@@ -28,52 +23,37 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(405, f"Collection {collection_name} not found")
         
         _all_ids = vector_collection.keys()
-        _all_feat = vector_collection.getBlock(_all_ids)
-        all_feat = np.array(_all_feat)
+        all_feat = vector_collection.getBlock(_all_ids)
         if len(all_feat) < 5:
             return self.write(json.dumps({}))
 
-        async def _runTSNE(perplexity: int):
-            await self.logger.debug(f'Running TSNE with n_components={n_components}, perplexity={perplexity}, random_state={random_state}')
-            all_feat_tsne: np.ndarray = await self.offloadTask(TSNE(
-                n_components=int(n_components), 
-                random_state=int(random_state), 
-                perplexity=perplexity, 
-                n_jobs=None,
-                n_iter=5000,
-                ).fit_transform, all_feat)
-            return all_feat_tsne.astype(np.float16)
-        
-        async def _runPCA():
-            await self.logger.debug(f'Running PCA with n_components={n_components}, random_state={random_state}')
-            all_feat_tsne: np.ndarray = await self.offloadTask(PCA(
-                n_components=int(n_components), 
-                random_state=int(random_state), 
-                ).fit_transform, all_feat)
-            return all_feat_tsne.astype(np.float16)
-
-        _feature_signature = hash(str(all_feat.tolist()) + str(n_components) + str(random_state) + str(perplexity))
+        _feature_signature = hash(str(all_feat) + str(n_components) + str(random_state) + str(perplexity))
         for _old_signature, val in self.__class__.feat_3d_all:
             if _old_signature==_feature_signature:
                 await self.logger.debug("Use cached feature.")
                 return self.write(json.dumps(val))
 
+        iconn = IServerConn()
         if int(perplexity) < 1:
             await self.logger.debug(f'Perplexity set to {perplexity}, using PCA instead of TSNE')
-            all_feat_tsne: np.ndarray = await _runPCA()
+            all_feat_tsne = await iconn.pca(
+                data=all_feat,
+                n_components=int(n_components),
+                random_state=int(random_state),
+            )
         else:
-            all_feat_tsne: np.ndarray = await _runTSNE(int(perplexity))
+            await self.logger.debug(f'Running TSNE with n_components={n_components}, perplexity={perplexity}, random_state={random_state}')
+            all_feat_tsne = await iconn.tsne(
+                data=all_feat,
+                n_components=int(n_components),
+                perplexity=int(perplexity),
+                random_state=int(random_state),
+                n_iter=5000,
+            )
 
-        # normalize along each dimension
-        # n_dim = all_feat_tsne.shape[1]
-        # for i in range(n_dim):
-        #     all_feat_tsne[:,i] = (all_feat_tsne[:,i] - all_feat_tsne[:,i].min()) / (all_feat_tsne[:,i].max() - all_feat_tsne[:,i].min()) - 0.5
-
-        all_feat_tsne = all_feat_tsne.tolist()
         feat_dict:Feat3DT = {}
         for i, uid in enumerate(_all_ids):
             feat_dict[uid] = all_feat_tsne[i]
-        
 
         self.__class__.feat_3d_all.append((_feature_signature, feat_dict))
         if len(self.__class__.feat_3d_all)>3:
