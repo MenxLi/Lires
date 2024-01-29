@@ -660,3 +660,14 @@ version_history:
       - Limit torch max thread number
     - Fix:
       - Upload user avatar
+  1.4.1:
+    - Performace:
+      - Async user database
+      - Offload dimension reduction to iserver
+    - Chore:
+      - Colorize log server output
+      - Bump tiny_vectordb version
+    - Fix:
+      - Server shutdown gracefully
+      - User avatar update emit event
+      - Database operations use dedicated cursor
