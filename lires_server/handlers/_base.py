@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import Callable, Optional, List, Awaitable, Generator, AsyncGenerator, TypeVar, Any, TYPE_CHECKING
 import tornado.web, tornado.websocket
-from tornado.ioloop import IOLoop
 import asyncio
 import concurrent.futures
 import time, json
@@ -63,11 +62,11 @@ class RequestHandlerMixin(LiresBase):
         if self.print_init_info:
             async def _print_init_info():
                 await self.logger.debug(f"{BCOLORS.YELLOW} [init] :: {self.__class__.__name__} {BCOLORS.ENDC}")
-            tornado.ioloop.IOLoop.current().spawn_callback(_print_init_info)
+            self.io_loop.create_task(_print_init_info())
 
     @property
     def io_loop(self):
-        return IOLoop.current()
+        return asyncio.get_event_loop()
     
     def offloadTask(self, func, *args, **kwargs) -> Awaitable:
         """
