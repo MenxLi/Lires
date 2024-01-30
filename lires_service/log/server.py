@@ -8,6 +8,7 @@ from lires.utils import BCOLORS
 from .logger import DatabaseLogger, NAME_LEVEL
 
 app = FastAPI()
+registry = RegistryConn()
 logger: DatabaseLogger
 
 ERROR_COLOR_MAP = {
@@ -64,13 +65,17 @@ async def periodicCommit():
 
 @app.on_event("startup")
 async def startup():
-    global logger
+    global logger, registry
+    async def onHeartbeatFail(msg: str):
+        print(f"{BCOLORS.RED}ERROR: {msg}{BCOLORS.ENDC}")
+    await registry.startHeartbeatThread(on_fail=onHeartbeatFail)
     await logger.connect()
     await periodicCommit()
 
 @app.on_event("shutdown")
 async def shutdown():
     global logger
+    await registry.withdraw()
     await logger.close()
     
 def startLoggerServer(file: str, host: str, port: int):
@@ -89,7 +94,7 @@ def startLoggerServer(file: str, host: str, port: int):
     print("Logging to {}".format(file))
 
     import uuid
-    RegistryConn().register_sync({
+    registry.register_sync({
         "uid": uuid.uuid4().hex,
         "name": "log",
         "endpoint": f"http://{host}:{port}",

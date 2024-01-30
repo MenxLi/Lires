@@ -23,10 +23,12 @@ from .lmInterface import ChatStreamIterType, getStreamIter
 from . import globalConfig as config
 
 from lires.core.base import G
+from lires.api import RegistryConn
 
 logger = G.loggers.get("iserver")
 g_warmup = False
 app = fastapi.FastAPI()
+registry = RegistryConn()
 
 @app.get("/status")
 def status():
@@ -102,6 +104,14 @@ def pca(req: DimReducePCARequest):
         ).fit_transform(np.array(req.data)).astype(np.float16)
     return res.tolist()
 
+@app.on_event("startup")
+async def startup():
+    await registry.startHeartbeatThread(on_fail=logger.warning)
+
+@app.on_event("shutdown")
+async def shutdown():
+    await registry.withdraw()
+
 def startServer(
     host: str = "0.0.0.0",
     port: int = 8731,
@@ -112,9 +122,8 @@ def startServer(
         from .. import avaliablePort
         port = avaliablePort()
 
-    from lires.api import RegistryConn
     import uuid
-    RegistryConn().register_sync({
+    registry.register_sync({
         "uid": uuid.uuid4().hex,
         "name": "ai",
         "endpoint": f"http://{host}:{port}",
