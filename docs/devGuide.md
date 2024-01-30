@@ -69,12 +69,11 @@ as these are the key features that really leverages the power of the server-side
 - [ ] Move all data filtering to backend; frontend use partial async data loading to optimize bandwidth and rendering speed.
 - [ ] Add a discussion board, anyone can post a topic and discuss with others, the topic can be linked to a paper or a tag. The data can be stored in the user database as table `posts`, and refer to the paper by id. 
 - [ ] Record user activities, e.g. who added/edited/removed a tag/note/paper, the reading history of a paper, etc. The data can be stored in the user database as table `activities`.
-- [ ] Moving to microservice paradigm
-
 
 <details>
 <summary>Finished</summary>
 
 - [x] Long connection between the server and the client, so that the client can receive notifications when there are new activities. This may be done by using [Websocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) or [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
+- [x] Moving to microservice paradigm
 
 </details>
