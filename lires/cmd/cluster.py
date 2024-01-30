@@ -4,7 +4,7 @@ It reads a yaml config file and starts the servers.
 
 config file format:
 ----------------------------------------------------
-ENVS:           <--- set global environment variables
+GLOBAL_ENVS:           <--- set global environment variables
     LRS_HOME: /path/to/lrs/home
     LRS_SSL_CERTFILE: /path/to/ssl/certfile | None
     LRS_SSL_KEYFILE: /path/to/ssl/keyfile | None
@@ -27,51 +27,48 @@ from typing import TypedDict
 import os, yaml, argparse, subprocess, signal, time
 import multiprocessing as mp
 
-class ConfigEntryT(TypedDict):
+class ConfigEntryT(TypedDict, total=False):
     ENVS: dict
     ARGS: dict
 
 class ClusterConfigT(TypedDict):
-    ENVS: dict
+    GLOBAL_ENVS: dict
     server: list[ConfigEntryT]
     iserver: list[ConfigEntryT]
     lserver: list[ConfigEntryT]
-allowed_entries = ["ENVS", "server", "iserver", "lserver"]
+allowed_entries = ["GLOBAL_ENVS", "server", "iserver", "lserver"]
+exec_entries = allowed_entries[1:]
 
 def __getDefaultConfig()->ClusterConfigT:
     ssl_certfile = os.environ.get("LRS_SSL_CERTFILE")
     ssl_keyfile = os.environ.get("LRS_SSL_KEYFILE")
     return {
-        "ENVS": {
+        "GLOBAL_ENVS": {
             "LRS_HOME": LRS_HOME,
-            "LRS_SSL_CERTFILE": ssl_certfile,
-            "LRS_SSL_KEYFILE": ssl_keyfile,
         },
         "server": [
             {
                 "ENVS": {
                     "LRS_HOME": LRS_HOME,
+                    "LRS_SSL_CERTFILE": ssl_certfile,
+                    "LRS_SSL_KEYFILE": ssl_keyfile,
                 },
                 "ARGS": {
                     "--port": 8080,
                 },
             }
         ],
-        "lserver": [{
-            "ARGS": {},
-            "ENVS": {},
-        }],
+        "lserver": [{}],
         "iserver": [
             {
                 "ENVS": {
                     "OPENAI_API_KEY": "sk-xxxxx",
                     "OPENAI_API_BASE": "https://api.openai.com/v1",
-                    "HF_DATASETS_OFFLINE": "1",
                     "HF_ENDPOINT": "https://hf-mirror.com",
                 },
                 "ARGS": {
                     "--local-llm-chat": "",
-                    "--openai-models": ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k"],
+                    "--openai-models": ["gpt-3.5-turbo", "gpt-4"],
                 },
             }
         ],
@@ -85,8 +82,8 @@ def generateConfigFile(path:str):
     comments = [
         "This is config file for lires cluster",
         "It serves as a script for starting multiple servers with different configurations",
-        "The ENV variables are set globally, and can be overridden by the entries",
-        "The entry name is the subcommand for `lires`",
+        "The GLOBAL_ENV variables are set globally, and can be overridden by the entries",
+        "The entry names are the subcommands for `lires`",
         "Please refer to the `lires -h` for more information on the subcommands",
     ]
     # inject comments onto the top of the file
@@ -108,14 +105,14 @@ def loadConfigFile(path:str)->ClusterConfigT:
 
     for k in config.keys():
         assert k in allowed_entries, \
-            "Config file keys must be in : ENVS, server, iserver, lserver"
+            "Config file keys must be in : GLOBAL_ENVS, server, iserver, lserver"
 
     # check if ENVS is valid
-    if not isinstance(config["ENVS"], dict):
-        raise ValueError("ENVS must be a dict")
+    if not isinstance(config["GLOBAL_ENVS"], dict):
+        raise ValueError("GLOBAL_ENVS must be a dict")
 
-    # check if server, iserver are valid
-    for k in ["server", "iserver"]:
+    # check if service entries are valid
+    for k in exec_entries:
         if k not in config:
             config[k] = []
         if not isinstance(config[k], list):
@@ -158,6 +155,8 @@ def initProcesses(config: ClusterConfigT):
                 dst[k] = v
     def __execEntry(subcommand: str, entry: ConfigEntryT):
         this_environ = g_environ.copy()
+        assert "ENVS" in entry, "Config entry must have ENVS"
+        assert "ARGS" in entry, "Config entry must have ARGS"
         __parseEnv(entry["ENVS"], this_environ)
         exec_args = ["lires", subcommand]
         for k, v in entry["ARGS"].items():
@@ -182,11 +181,8 @@ def initProcesses(config: ClusterConfigT):
             )
         )
     
-    __parseEnv(config["ENVS"], g_environ)
-
-    for key in allowed_entries:
-        if key == "ENVS":
-            continue
+    __parseEnv(config["GLOBAL_ENVS"], g_environ)
+    for key in exec_entries:
         for entry in config[key]:
             __execEntry(key, entry)
     
