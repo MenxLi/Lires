@@ -89,9 +89,10 @@ class RegistryStore:
             self.logger.debug("Get service {}".format(formatRegistration(ret)))
             return ret
     
-    async def touch(self, uid: str):
+    async def touch(self, uid: str) -> bool:
         """
         Touch a service, update the last activation time
+        return if the service is alive (if the service is not registered, return False)
         """
         self.logger.debug("Heartbeat from service {}".format(uid))
         self._last_activation_time[uid] = asyncio.get_running_loop().time()
@@ -99,6 +100,11 @@ class RegistryStore:
             # restore the service
             info = self._dead_data.pop(uid)
             await self.register(info)
+        for name in self._data:
+            for info in self._data[name]:
+                if info["uid"] == uid:
+                    return True
+        return False
     
     async def _getInactive(self, timeout: float) -> list[str]:
         """

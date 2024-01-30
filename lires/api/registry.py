@@ -11,6 +11,7 @@ class RegistryConn(LiresAPIBase):
 
     def __init__(self):
         self._uid: str | None = None
+        self.__register_info: Registration | None = None
         self.__do_heartbeat = False
         self.__heatbeat_thread: Optional[threading.Thread] = None
     
@@ -56,6 +57,7 @@ class RegistryConn(LiresAPIBase):
                 json = info
             ) as res:
                 self.ensureRes(res)
+        self.__register_info = info
     
     def register(self, info: Registration, ensure_status: bool = True, start_heartbeat: bool = True):
         if ensure_status:
@@ -78,6 +80,10 @@ class RegistryConn(LiresAPIBase):
                     }
                 ) as res:
                     self.ensureRes(res)
+        except self.Error.LiresResourceNotFoundError as e:
+            # registry server restarted, re-register
+            assert self.__register_info is not None
+            await self._register(self.__register_info, ensure_status=False)
         except Exception as e:
             if on_fail is not None:
                 if asyncio.iscoroutinefunction(on_fail):

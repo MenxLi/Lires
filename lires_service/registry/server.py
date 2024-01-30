@@ -37,8 +37,11 @@ async def register(req: RegisterRequest):
 
 @app.post("/heartbeat")
 async def heartbeat(req: HeartbeatRequest):
-    await g_store.touch(req.uid)
-    return { "status": "ok", }
+    is_alive = await g_store.touch(req.uid)
+    if is_alive:
+        return { "status": "ok", }
+    else:
+        raise HTTPException(status_code=404, detail="Service not found")
 
 @app.post("/query")
 async def query(req: GetRequest):
