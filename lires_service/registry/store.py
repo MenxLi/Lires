@@ -1,10 +1,9 @@
 
 from typing import TypedDict, Literal, Optional
 import asyncio
-import aiohttp
-import aiohttp.client_exceptions
 import random
 from lires.utils import setupLogger
+from lires.api import RegistryConn
 
 # will add more service in the future
 ServiceName = Literal["ai", "log"]
@@ -38,7 +37,7 @@ class RegistryStore:
 
         # last activation time of each service, key: registration uid, value: timestamp
         self._last_activation_time: dict[str, float] = {}
-        self._inactive_timeout = 60
+        self._inactive_timeout = RegistryConn.HEARTBEAT_INTERVAL * 3
 
         # assure singleton
         assert not hasattr(self.__class__, "_registry_init_done"), "Register should be a singleton"
@@ -128,17 +127,25 @@ class RegistryStore:
                     self._data[service_name].remove(info)
                     if backup:
                         self._dead_data[uid] = info
-                    self.logger.info("Remove service: {} | {}".format(formatRegistration(info), "inactive" if backup else "dead"))
-
+                    self.logger.info("Remove {} service: {}".format("inactive" if backup else "dead", formatRegistration(info)))
+    
+    async def _cleanDead(self, long_inactive_uid):
+        """
+        Clean inactive services
+        """
+        await self._remove(long_inactive_uid, backup=False)
+        for uid in long_inactive_uid:
+            if uid in self._dead_data:
+                self.logger.info("Remove dead service: {}".format(formatRegistration(self._dead_data[uid])))
+                self._dead_data.pop(uid)
             if uid in self._last_activation_time:
                 self._last_activation_time.pop(uid)
     
     async def autoClean(self):
         __all_inactive = await self._getInactive(self._inactive_timeout)
         await self._remove(__all_inactive, backup=True)
-
-        __all_long_inactive = await self._getInactive(self._inactive_timeout * 10)
-        await self._remove(__all_long_inactive, backup=False)
+        __all_long_inactive = await self._getInactive(self._inactive_timeout * 5)
+        await self._cleanDead(__all_long_inactive)
 
     async def withdraw(self, uid: str):
         """

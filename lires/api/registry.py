@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
     
 class RegistryConn(LiresAPIBase):
-
+    HEARTBEAT_INTERVAL = 5
     def __init__(self):
         self._uid: str | None = None
         self.__register_info: Registration | None = None
@@ -94,12 +94,11 @@ class RegistryConn(LiresAPIBase):
                 raise e
     
     def startHeartbeatThread(self, on_fail: Optional[Callable[[str], Any]] = None):
-        interval = 3
         self.__do_heartbeat = True
         def heartbeatThread():
             while self.__do_heartbeat:
                 self.run_sync(self.heartbeat(on_fail))
-                time.sleep(interval)
+                time.sleep(self.HEARTBEAT_INTERVAL)
         threading.Thread(target=heartbeatThread, daemon=True).start()
     
     async def withdraw(self):
