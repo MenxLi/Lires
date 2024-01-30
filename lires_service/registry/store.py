@@ -30,7 +30,7 @@ class RegistryStore:
     logger = setupLogger(
         "registry-store",
         term_id = "registry",
-        term_log_level="INFO",
+        term_log_level="DEBUG",
         )
     def __init__(self):
         self._data: dict[str, list[Registration]] = {}  # key: service name, value: list of registrations

@@ -42,7 +42,7 @@ class RegistryConn(LiresAPIBase):
                 self.ensureRes(res)
                 return await res.json()
     
-    async def register(self, info: Registration, ensure_status: bool = True):
+    async def _register(self, info: Registration, ensure_status: bool = True):
         if ensure_status:
             try:
                 await self.status()
@@ -57,14 +57,16 @@ class RegistryConn(LiresAPIBase):
             ) as res:
                 self.ensureRes(res)
     
-    def register_sync(self, info: Registration, ensure_status: bool = True):
+    def register(self, info: Registration, ensure_status: bool = True, start_heartbeat: bool = True):
         if ensure_status:
             try:
                 self.run_sync(self.status())
             except aiohttp.client_exceptions.ClientConnectorError:
                 exit("ERROR: Registry server not running")
 
-        self.run_sync(self.register(info, ensure_status))
+        self.run_sync(self._register(info, ensure_status))
+        if start_heartbeat:
+            self.startHeartbeatThread(on_fail=lambda e: print("ERROR: Failed to heartbeat: {}".format(e)))
     
     async def heartbeat(self, on_fail: Optional[Callable[[str], Any]] = None):
         try:
@@ -85,7 +87,7 @@ class RegistryConn(LiresAPIBase):
             else:
                 raise e
     
-    async def startHeartbeatThread(self, on_fail: Optional[Callable[[str], Any]] = None):
+    def startHeartbeatThread(self, on_fail: Optional[Callable[[str], Any]] = None):
         interval = 3
         self.__do_heartbeat = True
         def heartbeatThread():

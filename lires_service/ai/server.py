@@ -104,10 +104,6 @@ def pca(req: DimReducePCARequest):
         ).fit_transform(np.array(req.data)).astype(np.float16)
     return res.tolist()
 
-@app.on_event("startup")
-async def startup():
-    await registry.startHeartbeatThread(on_fail=logger.warning)
-
 @app.on_event("shutdown")
 async def shutdown():
     await registry.withdraw()
@@ -123,7 +119,7 @@ def startServer(
         port = avaliablePort()
 
     import uuid
-    registry.register_sync({
+    registry.register({
         "uid": uuid.uuid4().hex,
         "name": "ai",
         "endpoint": f"http://{host}:{port}",

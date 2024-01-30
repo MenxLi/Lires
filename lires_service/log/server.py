@@ -66,9 +66,6 @@ async def periodicCommit():
 @app.on_event("startup")
 async def startup():
     global logger, registry
-    async def onHeartbeatFail(msg: str):
-        print(f"{BCOLORS.RED}ERROR: {msg}{BCOLORS.ENDC}")
-    await registry.startHeartbeatThread(on_fail=onHeartbeatFail)
     await logger.connect()
     await periodicCommit()
 
@@ -94,7 +91,7 @@ def startLoggerServer(file: str, host: str, port: int):
     print("Logging to {}".format(file))
 
     import uuid
-    registry.register_sync({
+    registry.register({
         "uid": uuid.uuid4().hex,
         "name": "log",
         "endpoint": f"http://{host}:{port}",
