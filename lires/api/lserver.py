@@ -4,8 +4,6 @@ Connect to log server
 """
 
 import aiohttp
-import logging
-import concurrent.futures
 from typing import Literal, Optional
 from .common import LiresAPIBase
 from .registry import RegistryConn
@@ -46,30 +44,3 @@ class LServerConn(LiresAPIBase):
                 pass
             else:
                 raise e
-    
-    def log_sync(self, logger_name: str, level: levelT, message: str):
-        self.run_sync(self.log(logger_name, level, message))
-        return
-
-class ClientHandler(logging.Handler):
-    """
-    A logging handler that sends log to log server
-    """
-    def __init__(self, logger_name):
-        super().__init__()
-        self.logger_name = logger_name
-        self.conn = LServerConn(endpoint=None, ignore_connection_error=True)
-    def emit(self, record: logging.LogRecord):
-        level_name: levelT = record.levelname # type: ignore
-        # self.conn.log_sync( await self.logger_name, level_name, record.getMessage())
-        # use multi-threading to further accelerate
-        with concurrent.futures.ThreadPoolExecutor(
-                max_workers=4,
-                thread_name_prefix="client_logger"
-            ) as executor:
-            executor.submit(
-                self.conn.log_sync,
-                self.logger_name,
-                level_name,
-                record.getMessage()
-            )
