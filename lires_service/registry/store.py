@@ -1,6 +1,6 @@
 
 from typing import TypedDict, Literal, Optional
-import asyncio
+import asyncio, os
 import random
 from lires.utils import setupLogger
 from lires.api import RegistryConn
@@ -29,7 +29,7 @@ class RegistryStore:
     logger = setupLogger(
         "registry-store",
         term_id = "registry",
-        term_log_level="DEBUG",
+        term_log_level=os.getenv("LIRES_LOG_LEVEL", "INFO").upper(),    # type: ignore
         )
     def __init__(self):
         self._data: dict[str, list[Registration]] = {}  # key: service name, value: list of registrations
