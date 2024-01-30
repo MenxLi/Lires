@@ -142,6 +142,7 @@
         }
     })
 
+    const __reloadPage = ()=>{ window.location.reload(); }
 
 </script>
 
@@ -164,7 +165,7 @@
             <div style="font-size: 1.2em; margin-top: 10px;">
                 Please check if the server is running, 
                 make sure your network is working properly, 
-                and try to <b style="text-decoration:underline">reload the page</b>.
+                and try to <a style="text-decoration:underline; cursor: pointer;" @click="__reloadPage">reload the page</a>.
             </div>
         </div>
     </Popup>

@@ -68,7 +68,7 @@ export class ServerWebsocketConn{
         return useSettingsStore();
     }
 
-    private resetRemainingRetries=()=>{this.__remainingRetries = 20;}
+    private resetRemainingRetries=()=>{this.__remainingRetries = 10;}
     private decreaseRemainingRetries=()=>{this.__remainingRetries -= 1;}
     public isOpen=()=>(this.ws)?(this.ws.readyState === WebSocket.OPEN):false;
     public willTryReconnect=()=>this.__remainingRetries > 0;
@@ -119,11 +119,11 @@ export class ServerWebsocketConn{
             this.resetRemainingRetries()
         }
         this.ws.onclose = () => {
-            console.log("server websocket closed, will try to reconnect in 3 second");
+            console.log("server websocket closed, will try to reconnect in 1 second");
             oncloseCallback();
             if (this.willTryReconnect()){
                 this.decreaseRemainingRetries();
-                new Promise(r => setTimeout(r, 3000)).then(
+                new Promise(r => setTimeout(r, 1000)).then(
                     () => {
                         if (this.ws.readyState === WebSocket.CLOSED) this.init({
                             onopenCallback,
