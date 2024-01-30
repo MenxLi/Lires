@@ -21,11 +21,11 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
     def session_id(self):
         return self._session_id
 
-    # def check_origin(self, origin):
-    #     # allowing alternate origins
-    #     parsed_origin = urllib.parse.urlparse(origin)
-    #     await self.logger.debug(f"check origin: {parsed_origin.netloc}")
-    #     return True
+    def check_origin(self, _):
+        # allowing alternate origins
+        # for now, we allow all origins for development, 
+        # may change in the future
+        return True
 
     @keyRequired
     async def open(self):

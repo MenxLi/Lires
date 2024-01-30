@@ -116,14 +116,14 @@ class RequestHandlerMixin(LiresBase):
         Will raise HTTPError if key is invalid
         """
         enc_key = self.enc_key
-        await self.logger.debug(f"check key: {enc_key}")
         if not enc_key:
+            await self.logger.debug("No key found, abort")
             raise tornado.web.HTTPError(403) 
 
         res = await self.user_pool.getUserByKey(enc_key)
         if res is None:
             # unauthorized or user not found
-            print("Reject key ({}), abort".format(enc_key))
+            await self.logger.debug("Reject key ({})".format(enc_key))
             raise tornado.web.HTTPError(403) 
         
         # Set a cached permission, requires it via property

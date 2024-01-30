@@ -295,5 +295,17 @@ function defaultBackendHost(){
 }
 
 function defaultBackendPort(){
-    return window.location.port;
+    const windowPort = window.location.port;
+    if (windowPort === "1420"){
+        // Development mode.
+        // the backend is separated from the frontend in development mode
+        // by default, the backend is running on port 8080
+        // the frontend is running on port 1420 with `npm run dev`
+        return "8080";
+    }
+    else{
+        // Production mode.
+        // the backend is running on the same port as the frontend
+        return windowPort;
+    }
 }
