@@ -42,8 +42,7 @@ class FeaturizeRequest(BaseModel):
     dim_reduce: bool = False
 @app.post("/featurize")
 async def featurize(req: FeaturizeRequest):
-    # logger.debug(f"Featurize request: {req.model_name} | {req.text[:20]}")    # some how this will cause error
-    print(f"Featurize request: {req.model_name} | {req.text[:20]}")
+    await logger.debug(f"Featurize request: {req.model_name} | {req.text[:20]}")
     feat = lmFeaturize(req.text, req.word_chunk, req.model_name, req.dim_reduce)
     return feat.tolist()
 
@@ -80,6 +79,7 @@ class DimReduceTSNERequest(BaseModel):
     n_iter: int = 5000
 @app.get("/dim-reduce/tsne")
 def tsne(req: DimReduceTSNERequest):
+    asyncio.run(logger.info(f"TSNE request: data - {len(req.data)} "))
     res = TSNE(
         n_components=req.n_components, 
         random_state=req.random_state, 
@@ -95,6 +95,7 @@ class DimReducePCARequest(BaseModel):
     random_state: int = 100
 @app.get("/dim-reduce/pca")
 def pca(req: DimReducePCARequest):
+    asyncio.run(logger.info(f"PCA request: data - {len(req.data)}"))
     res = PCA(
         n_components=req.n_components, 
         random_state=req.random_state, 
