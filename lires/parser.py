@@ -40,14 +40,14 @@ For more info and source code, visit: https://github.com/MenxLi/Lires\
     parser_registry = sp.add_parser("registry", help = "Start lires registry server")
     _prepareRegistryServerParser(parser_registry)
 
-    parser_server = sp.add_parser("server", help = "Start lires server")
+    parser_server = sp.add_parser("server", help = "Start lires main server")
     _prepareServerParser(parser_server)
 
-    parser_iserver = sp.add_parser("iserver", help = "Start lires ai server")
-    _prepareAIServerParser(parser_iserver)
+    parser_ai = sp.add_parser("ai", help = "Start lires ai server")
+    _prepareAIServerParser(parser_ai)
 
-    parser_lserver = sp.add_parser("lserver", help = "Start lires log server")
-    _prepareLogServerParser(parser_lserver)
+    parser_log = sp.add_parser("log", help = "Start lires log server")
+    _prepareLogServerParser(parser_log)
 
     return parser
 

@@ -105,7 +105,7 @@ class DataSearcher(DataCore):
             )
 
         if search_res is None:
-            await self.logger.error("Error connecting to iserver, return empty result")
+            await self.logger.error("Error connecting to ai server, return empty result")
             return {uid: None for uid in self.db.keys()}
 
         return {uid: {"score": score, "match": None} for uid, score in zip(search_res["uids"], search_res["scores"])}

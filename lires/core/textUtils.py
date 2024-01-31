@@ -127,7 +127,7 @@ async def buildFeatureStorage(
     # vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
     vector_collection = vector_db.getCollection("doc_feature")
 
-    # check if iserver is running
+    # check if ai server is running
     assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
 
     # a file to store the source text hash, to avoid repeated featurization

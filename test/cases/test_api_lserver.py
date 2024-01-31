@@ -1,4 +1,4 @@
-from lires.api.lserver import LServerConn
+from lires.api.log import LServerConn
 from .base import *
 
 class TestAPI_LServer():

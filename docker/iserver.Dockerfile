@@ -18,4 +18,4 @@ ENV TVDB_BACKEND=numpy
 ENV LRS_HOME=/root/.Lires
 ENV HF_HOME=/root/.Lires/hf_home
 ENV HF_ENDPOINT=https://hf-mirror.com
-ENTRYPOINT [ "lires", "iserver" ]
+ENTRYPOINT [ "lires", "ai" ]

@@ -17,7 +17,7 @@ server:         <--- this is the name of the subcommand for lires
     -
         ENVS:
         ....
-iserver:
+ai:
     ...
 ----------------------------------------------------
 """
@@ -34,9 +34,9 @@ class ConfigEntryT(TypedDict, total=False):
 class ClusterConfigT(TypedDict):
     GLOBAL_ENVS: dict
     server: list[ConfigEntryT]
-    iserver: list[ConfigEntryT]
-    lserver: list[ConfigEntryT]
-allowed_entries = ["GLOBAL_ENVS", "server", "iserver", "lserver"]
+    ai: list[ConfigEntryT]
+    log: list[ConfigEntryT]
+allowed_entries = ["GLOBAL_ENVS", "server", "ai", "log"]
 exec_entries = allowed_entries[1:]
 
 def __getDefaultConfig()->ClusterConfigT:
@@ -58,8 +58,8 @@ def __getDefaultConfig()->ClusterConfigT:
                 },
             }
         ],
-        "lserver": [{}],
-        "iserver": [
+        "log": [{}],
+        "ai": [
             {
                 "ENVS": {
                     "OPENAI_API_KEY": "sk-xxxxx",
@@ -105,7 +105,7 @@ def loadConfigFile(path:str)->ClusterConfigT:
 
     for k in config.keys():
         assert k in allowed_entries, \
-            "Config file keys must be in : GLOBAL_ENVS, server, iserver, lserver"
+            "Config file keys must be in : GLOBAL_ENVS, server, ai, log"
 
     # check if ENVS is valid
     if not isinstance(config["GLOBAL_ENVS"], dict):

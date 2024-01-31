@@ -88,15 +88,15 @@ Lires is a tornado server that provides API for the client (WebUI & CLI) to comm
 
 **Start the LiresAI:**
 ```bash
-lires iserver
+lires ai
 ```
 The LiresAI server is written with FastAPI, it provides additional AI features and is designed to be connected by the Lires server, so that the latter can provide AI features to the client.  
 
 > <details> 
 > <summary>The reason to separate LiresAI server from Lires server</summary>  
-> - AI features may require more resources, so that the iserver can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the iserver and install the heavy AI dependencies.  <br>
-> - Allocating resources to the iserver and Lires server separately can be more flexible. For example, the iserver may need more GPU memory, we can launch multiple Lires servers pointing to different `$LRS_HOME`, while sharing the same iserver. <br>
-> -  It is also possible that the iserver needs a proxy to access the internet, while the Lires server does not.   
+> - AI features may require more resources, so that the ai server can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the ai server and install the heavy AI dependencies.  <br>
+> - Allocating resources to the ai server and Lires server separately can be more flexible. For example, the ai server may need more GPU memory, we can launch multiple Lires servers pointing to different `$LRS_HOME`, while sharing the same ai server. <br>
+> -  It is also possible that the ai server needs a proxy to access the internet, while the Lires server does not.   
 </details>
 
 #### More on starting the servers
@@ -112,12 +112,9 @@ Typically, the lires server can be started by binding a different port to each d
 Additionally, various environment variables can be set to customize the behavior of the application. 
 A detailed list of environment variables can be found at **[here](./enviromentVariables.md)**.
 
-Lastly, these servers can share the same 'iServer' for AI features, possibly on a different machine.  
-
 Thus a more general command to start the server is:
 ```sh
-LRS_HOME="your/path/here" LRS_SSL_CERTFILE="your/cert/file" LRS_SSL_KEYFILE="your/key/file" \
-lires server --iserver-endpoint "http://your/iserver/host:port"
+LRS_HOME="your/path/here" LRS_SSL_CERTFILE="your/cert/file" LRS_SSL_KEYFILE="your/key/file" lires server -p <port>
 ```
 
 ---

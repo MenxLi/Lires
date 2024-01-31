@@ -19,7 +19,7 @@ Applies to all servers.
 |`TVDB_CACHE_DIR` | The path to the `tiny_vectordb` cache directory. | |
 |`TVDB_BACKEND` | The `tiny_vectordb` backend to use, can be set to `numpy` if error occurs. | `cxx` |
 
-**`lires iserver` variables**
+**`lires ai` variables**
 |Variable|Description|Default|
 |---|---|---|
 |`HF_HOME`| The path to the Hugging Face home directory. |  `~/.cache/huggingface` |

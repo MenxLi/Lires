@@ -86,7 +86,7 @@ def run():
             port = args.port, 
             )
     
-    if args.subparser == "iserver":
+    if args.subparser == "ai":
         from lires_service.ai.server import startServer as startIServer
         startIServer(
             host = args.host,
@@ -95,7 +95,7 @@ def run():
             openai_models = args.openai_models,
         )
     
-    if args.subparser == "lserver":
+    if args.subparser == "log":
         from lires_service.log.server import startLoggerServer
         startLoggerServer(
             file = args.file,

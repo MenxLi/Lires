@@ -4,7 +4,7 @@ from typing import Optional, TYPE_CHECKING
 from lires.utils import BCOLORS
 from lires.api import LServerConn
 if TYPE_CHECKING:
-    from lires.api.lserver import levelT
+    from lires.api.log import levelT
 
 class LiresLogger(logging.Logger):
 

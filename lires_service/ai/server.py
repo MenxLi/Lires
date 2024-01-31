@@ -25,7 +25,7 @@ from . import globalConfig as config
 from lires.core.base import G
 from lires.api import RegistryConn
 
-logger = G.loggers.get("iserver")
+logger = G.loggers.get("ai")
 g_warmup = False
 app = fastapi.FastAPI()
 registry = RegistryConn()

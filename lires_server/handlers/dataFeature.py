@@ -1,7 +1,7 @@
 
 from ._base import *
 import json
-from lires.api.iserver import IServerConn
+from lires.api.ai import IServerConn
 
 Feat3DT = dict[str, list[float]] | None
 class DataFeatureTSNEHandler(RequestHandlerBase):
