@@ -1,4 +1,4 @@
-import os, logging
+import os, logging, asyncio
 from .parser import prepareParser
 from .cmd.generateDefaultConf import generateDefaultConf
 
@@ -74,10 +74,10 @@ def run():
     
     if args.subparser == "registry":
         from lires_service.registry.server import startServer as startRegistryServer
-        startRegistryServer(
+        asyncio.run(startRegistryServer(
             host = args.host,
             port = args.port,
-        )
+        ))
 
     if args.subparser == "server":
         from lires_server.main import startServer
@@ -88,20 +88,20 @@ def run():
     
     if args.subparser == "ai":
         from lires_service.ai.server import startServer as startIServer
-        startIServer(
+        asyncio.run(startIServer(
             host = args.host,
             port = args.port, 
             local_llm_chat = args.local_llm_chat,
             openai_models = args.openai_models,
-        )
+        ))
     
     if args.subparser == "log":
         from lires_service.log.server import startLoggerServer
-        startLoggerServer(
+        asyncio.run(startLoggerServer(
             file = args.file,
             host = args.host,
             port = args.port,
-        )
+        ))
 
 if __name__=="__main__":
     run()

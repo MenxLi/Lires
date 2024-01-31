@@ -59,14 +59,14 @@ class RegistryConn(LiresAPIBase):
                 self.ensureRes(res)
         self.__register_info = info
     
-    def register(self, info: Registration, ensure_status: bool = True, start_heartbeat: bool = True):
+    async def register(self, info: Registration, ensure_status: bool = True, start_heartbeat: bool = True):
         if ensure_status:
             try:
-                self.run_sync(self.status())
+                await self.status()
             except aiohttp.client_exceptions.ClientConnectorError:
                 exit("ERROR: Registry server not running")
 
-        self.run_sync(self._register(info, ensure_status))
+            await self._register(info, ensure_status)
         if start_heartbeat:
             self.startHeartbeatThread(on_fail=lambda e: print("ERROR: Failed to heartbeat: {}".format(e)))
     

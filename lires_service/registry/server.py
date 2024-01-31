@@ -5,6 +5,7 @@ import asyncio
 import uvicorn
 from pydantic import BaseModel
 from typing import Optional
+from ..entry import startService
 from .store import RegistryStore, ServiceName
 
 g_store: RegistryStore
@@ -64,11 +65,11 @@ async def startup_event():
         asyncio.get_event_loop().call_later(interval, _autoClean)
     asyncio.get_event_loop().call_later(interval, _autoClean)
 
-def startServer(host: str, port: int):
-
+async def startServer(host: str, port: int):
     global g_store
     g_store = RegistryStore()
-
-    uvicorn.run(
-        app, host=host, port=port, log_level="debug", access_log=False
+    await startService(
+        app = app,
+        host = host,
+        port = port,
     )

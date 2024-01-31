@@ -6,6 +6,7 @@ import asyncio
 from lires.api import RegistryConn
 from lires.utils import BCOLORS
 from .logger import DatabaseLogger, NAME_LEVEL
+from ..entry import startService
 
 app = FastAPI()
 registry = RegistryConn()
@@ -77,7 +78,7 @@ async def shutdown():
     await registry.withdraw()
     await logger.close()
     
-def startLoggerServer(file: str, host: str, port: int):
+async def startLoggerServer(file: str, host: str, port: int):
     global logger
     if not file:
         import os, time
@@ -93,18 +94,17 @@ def startLoggerServer(file: str, host: str, port: int):
     print("Logging to {}".format(file))
 
     import uuid
-    registry.register({
+    await registry.register({
         "uid": uuid.uuid4().hex,
         "name": "log",
         "endpoint": f"http://{host}:{port}",
         "description": "Log server",
         "group": None,
     })
-
-    uvicorn.run(
-        app,
-        host=host,
-        port=port,
-        workers=1,
-        access_log=False,
+    
+    # start the server
+    await startService(
+        app = app,
+        host = host,
+        port = port,
     )

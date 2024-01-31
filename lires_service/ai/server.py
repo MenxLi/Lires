@@ -21,6 +21,7 @@ from .lmTools import featurize as lmFeaturize
 from .lmInterface import ChatStreamIterType, getStreamIter
 
 from . import globalConfig as config
+from ..entry import startService
 
 from lires.core.base import G
 from lires.api import RegistryConn
@@ -108,7 +109,7 @@ def pca(req: DimReducePCARequest):
 async def shutdown():
     await registry.withdraw()
 
-def startServer(
+async def startServer(
     host: str = "0.0.0.0",
     port: int = 8731,
     local_llm_chat: str = "",
@@ -119,7 +120,7 @@ def startServer(
         port = avaliablePort()
 
     import uuid
-    registry.register({
+    await registry.register({
         "uid": uuid.uuid4().hex,
         "name": "ai",
         "endpoint": f"http://{host}:{port}",
@@ -133,34 +134,26 @@ def startServer(
     if openai_models:
         config.openai_api_chat_models = openai_models
     
-    new_loop = asyncio.new_event_loop()
     if os.getenv("OPENAI_API_KEY") is None:
-        new_loop.run_until_complete(logger.warning("OPENAI_API_KEY not set, please set it to use openai models"))
+        await logger.warning("OPENAI_API_KEY not set, please set it to use openai models")
         if os.getenv("OPENAI_API_BASE"):
             # set a dummy key, so that openai api will not raise error
             openai.api_key="sk-dummy__"
 
-    def warmup():
+    async def warmup():
         global g_warmup
-        new_loop.run_until_complete(logger.info("Warming up text encoder..."))
+        await logger.info("Warming up text encoder...")
         lmFeaturize("Hello world!")
         if config.local_llm_name is not None:
             getStreamIter("LOCAL")
-        new_loop.run_until_complete(logger.info("Warming up text encoder done!"))
+        await logger.info("Warming up text encoder done!")
         g_warmup = True
-    new_loop.run_until_complete(logger.info("Using device: {}".format(autoTorchDevice())))
-    warmup()
+    await logger.info("Using device: {}".format(autoTorchDevice()))
+    await warmup()
+    await startService(
+        app = app,
+        host = host,
+        port = port,
+        logger=logger,
+    )
 
-    new_loop.close()
-
-    uvicorn.run(
-        app,
-        host=host,
-        port=port,
-        log_level="info",
-        workers=1,
-        access_log=False,
-        )
-
-if __name__ == "__main__":
-    startServer()
