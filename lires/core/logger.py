@@ -42,6 +42,19 @@ class LiresLogger(logging.Logger):
             await self.__log_server.log(self.name, logging.getLevelName(level), msg)
         return super().log(level, msg, *args, **kwargs)
 
+def getFormatter(
+    term_id: str = "default",
+    term_id_color = BCOLORS.OKGRAY,
+    ):
+    PREFIX_LEN = 12
+    def __formatTermID(term_id: str) -> str:
+        if len(term_id) > PREFIX_LEN:
+            return term_id[:PREFIX_LEN-1] + "-"
+        else:
+            return term_id.rjust(PREFIX_LEN)
+    return term_id_color +f'[{__formatTermID(term_id)}]' \
+            + BCOLORS.OKCYAN + ' %(asctime)s ' \
+            + BCOLORS.OKCYAN + '[%(levelname)s] ' + BCOLORS.ENDC + ' %(message)s'
 
 def setupRemoteLogger(
         _logger: str | LiresLogger, 
@@ -50,7 +63,6 @@ def setupRemoteLogger(
         term_log_level: levelT = "INFO",
         remote_log_level: levelT | None = "DEBUG",
         ) -> LiresLogger:
-    PREFIX_LEN = 12
 
     # check log level name
     assert term_log_level in logging._nameToLevel, f"Invalid log level name: {term_log_level}"
@@ -78,17 +90,10 @@ def setupRemoteLogger(
 
     # remove all other handlers
     logger.handlers.clear()
-    def __formatTermID(term_id: str) -> str:
-        if len(term_id) > PREFIX_LEN:
-            return term_id[:PREFIX_LEN-1] + "-"
-        else:
-            return term_id.rjust(PREFIX_LEN)
     # set up terminal handler
     _ch = logging.StreamHandler()
     _ch.setLevel(term_log_level)
-    _ch.setFormatter(logging.Formatter(term_id_color +f'[{__formatTermID(term_id)}]'
-                                       +BCOLORS.OKCYAN + ' %(asctime)s '
-                                       +BCOLORS.OKCYAN + '[%(levelname)s] ' + BCOLORS.ENDC + ' %(message)s'))
+    _ch.setFormatter(logging.Formatter(getFormatter(term_id, term_id_color)))
     logger.addHandler(_ch)
     return logger
 
