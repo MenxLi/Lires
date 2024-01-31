@@ -52,6 +52,13 @@ def setupRemoteLogger(
         ) -> LiresLogger:
     PREFIX_LEN = 12
 
+    # check log level name
+    assert term_log_level in logging._nameToLevel, f"Invalid log level name: {term_log_level}"
+    assert remote_log_level in logging._nameToLevel, f"Invalid log level name: {remote_log_level}"
+
+    if logging._nameToLevel[term_log_level] < logging._nameToLevel[remote_log_level]:
+        print(f"{BCOLORS.WARNING}WARNING: Remote log level must be less critical than terminal log level{BCOLORS.ENDC}")
+
     if term_id is None:
         if isinstance(_logger, str):
             term_id = _logger
@@ -113,12 +120,12 @@ class LoggerStorage:
         return logging.getLogger("default")
 
     def initLogger(self, name: str) -> LiresLogger:
-        term_log_level: levelT = os.getenv("LRS_LOG_LEVEL", "INFO")     # type: ignore
+        term_log_level: levelT = os.getenv("LRS_TERM_LOG_LEVEL", "INFO").upper()     # type: ignore
         logger = setupRemoteLogger(
             name,
             term_id=name,
             term_log_level=term_log_level,
-            remote_log_level="DEBUG",
+            remote_log_level=os.getenv("LRS_LOG_LEVEL", "DEBUG").upper()     # type: ignore
         )
         return logger
 

@@ -45,6 +45,8 @@ def __getDefaultConfig()->ClusterConfigT:
     return {
         "GLOBAL_ENVS": {
             "LRS_HOME": LRS_HOME,
+            # disable logging to terminal, as it will be messy if the log server are also running
+            "LRS_TERM_LOG_LEVEL": "CRITICAL",   
         },
         "server": [
             {

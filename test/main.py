@@ -74,6 +74,7 @@ if __name__ == "__main__":
     LRS_HOME = os.path.join(__this_dir, "_test_home")
     os.environ["LRS_HOME"] = LRS_HOME
     # to disable log output
+    os.environ["LRS_TERM_LOG_LEVEL"] = "DEBUG"
     os.environ["LRS_LOG_LEVEL"] = "DEBUG"
 
     # prepare for test

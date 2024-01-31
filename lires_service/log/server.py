@@ -61,7 +61,7 @@ DATABASE_COMMIT_INTERVAL = 10
 async def periodicCommit():
     global logger
     if not logger.isUpToDate():
-        print("-------- Commit --------")
+        # print("-------- Commit --------")
         asyncio.create_task(logger.commit())
     asyncio.get_event_loop().call_later(DATABASE_COMMIT_INTERVAL, asyncio.create_task, periodicCommit())
 
