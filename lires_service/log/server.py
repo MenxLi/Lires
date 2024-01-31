@@ -40,15 +40,17 @@ async def log(logger_path, request: LogRequest):
 
     level_name = data["level"].upper()
     level = NAME_LEVEL[level_name]
-    await logger.log(
+    res = await logger.log(
         name = logger_name, 
         level = level, 
         level_name=level_name,
         message = data["message"]
         )
-    print(f"[{logger_name[:20]}]"
-          f"{ERROR_COLOR_MAP.get(level_name, BCOLORS.WHITE)}{level_name}{BCOLORS.ENDC}: "
-          f"{data['message']}")
+    time = res[1]
+    name_fmt = \
+    f"{BCOLORS.BOLD}{BCOLORS.BLUE}{time}{BCOLORS.ENDC} {ERROR_COLOR_MAP.get(level_name, BCOLORS.WHITE)}{level_name}{BCOLORS.ENDC} " + \
+    f"[{BCOLORS.DARKGRAY}{logger_name[:20].ljust(20)}{BCOLORS.ENDC}]"
+    print(f"{name_fmt}: {data['message']}")
     return 
 
 @app.get("/status")

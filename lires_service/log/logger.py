@@ -50,7 +50,7 @@ class DatabaseLogger:
         ):
             pass
 
-    async def log(self, name: str, level: int, level_name: str, message: str):
+    async def log(self, name: str, level: int, level_name: str, message: str) -> tuple:
         time = TimeUtils.nowStamp()
         time_str = TimeUtils.toStr(TimeUtils.stamp2Local(time))
         async with self.lock:
@@ -63,10 +63,10 @@ class DatabaseLogger:
                 f"""
                 INSERT INTO {name} VALUES (?, ?, ?, ?, ?)
                 """,
-                (time, time_str, level, level_name, message),
+                entry := (time, time_str, level, level_name, message)
             )
-
         self.__is_uptodate = False
+        return entry
 
     async def commit(self):
         async with self.lock:
