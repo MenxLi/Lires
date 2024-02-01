@@ -30,6 +30,12 @@ class RegistryConn(LiresAPIBase):
             async with session.get(self.url + "/status") as res:
                 self.ensureRes(res)
                 return await res.json()
+        
+    async def view(self):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.url + "/view") as res:
+                self.ensureRes(res)
+                return await res.json()
     
     async def get(self, name: ServiceName, group: Optional[str] = None) -> Registration:
         async with aiohttp.ClientSession() as session:

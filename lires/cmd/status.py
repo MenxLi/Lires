@@ -1,4 +1,4 @@
-import argparse
+import argparse, asyncio
 
 def main():
     parser = argparse.ArgumentParser(description="Query status of lires")
@@ -29,8 +29,10 @@ def main():
             print(f"{idx}. {pid}: {p.name()}\n{' '.join(p.cmdline())}\n")
     
     elif args.registry:
-        print("To be implemented.")
-        exit(1)
+        from lires.api import RegistryConn
+        rconn = RegistryConn()
+        for reg in asyncio.run(rconn.view()):
+            print(reg)
         
     else:
         parser.print_help()

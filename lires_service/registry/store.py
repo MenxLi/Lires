@@ -32,8 +32,8 @@ class RegistryStore:
         term_log_level=os.getenv("LIRES_LOG_LEVEL", "INFO").upper(),    # type: ignore
         )
     def __init__(self):
-        self._data: dict[str, list[Registration]] = {}  # key: service name, value: list of registrations
-        self._dead_data: dict[str, Registration] = {}   # key: service uid, value: registration
+        self._data: dict[ServiceName, list[Registration]] = {}  # key: service name, value: list of registrations
+        self._data_inactive: dict[str, Registration] = {}   # key: service uid, value: registration
 
         # last activation time of each service, key: registration uid, value: timestamp
         self._last_activation_time: dict[str, float] = {}
@@ -46,6 +46,32 @@ class RegistryStore:
     @property
     def data(self):
         return self._data
+    
+    def view(self) -> list[dict]:
+        """
+        Return all services' information
+        """
+        ret = []
+        lastActive = lambda uid: asyncio.get_running_loop().time() - self._last_activation_time[uid]
+        for uid in self._last_activation_time:
+            if uid in self._data_inactive:
+                ret.append({
+                    "status": "inactive",
+                    "last_active": lastActive(uid),
+                    "info": self._data_inactive[uid],
+                })
+            else:
+                for name in self.data:
+                    for info in self.data[name]:
+                        if info["uid"] != uid:
+                            continue
+                        ret.append({
+                            "status": "active",
+                            "last_active": lastActive(uid),
+                            "info": info, 
+                        })
+        return ret
+        
     
     async def register(self, info: Registration):
         """
@@ -95,9 +121,9 @@ class RegistryStore:
         """
         self.logger.debug("Heartbeat from service {}".format(uid))
         self._last_activation_time[uid] = asyncio.get_running_loop().time()
-        if uid in self._dead_data:
+        if uid in self._data_inactive:
             # restore the service
-            info = self._dead_data.pop(uid)
+            info = self._data_inactive.pop(uid)
             await self.register(info)
         for name in self._data:
             for info in self._data[name]:
@@ -126,7 +152,7 @@ class RegistryStore:
                         continue
                     self._data[service_name].remove(info)
                     if backup:
-                        self._dead_data[uid] = info
+                        self._data_inactive[uid] = info
                     self.logger.info("Remove {} service: {}".format("inactive" if backup else "dead", formatRegistration(info)))
     
     async def _cleanDead(self, long_inactive_uid):
@@ -135,9 +161,9 @@ class RegistryStore:
         """
         await self._remove(long_inactive_uid, backup=False)
         for uid in long_inactive_uid:
-            if uid in self._dead_data:
-                self.logger.info("Remove dead service: {}".format(formatRegistration(self._dead_data[uid])))
-                self._dead_data.pop(uid)
+            if uid in self._data_inactive:
+                self.logger.info("Remove dead service: {}".format(formatRegistration(self._data_inactive[uid])))
+                self._data_inactive.pop(uid)
             if uid in self._last_activation_time:
                 self._last_activation_time.pop(uid)
     
@@ -151,6 +177,6 @@ class RegistryStore:
         """
         Withdraw a service
         """
-        if uid in self._dead_data:
-            self._dead_data.pop(uid)
+        if uid in self._data_inactive:
+            self._data_inactive.pop(uid)
         await self._remove([uid], backup=False)

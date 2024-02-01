@@ -31,6 +31,10 @@ class WithdrawRequest(BaseModel):
 def status():
     return { "status": "ok", }
 
+@app.get("/view")
+async def view():
+    return g_store.view()
+
 @app.post("/register")
 async def register(req: RegisterRequest):
     await g_store.register(req.dict())    # type: ignore
