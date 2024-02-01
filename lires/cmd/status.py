@@ -1,4 +1,4 @@
-import argparse, asyncio
+import argparse, asyncio, json
 
 def main():
     parser = argparse.ArgumentParser(description="Query status of lires")
@@ -31,8 +31,8 @@ def main():
     elif args.registry:
         from lires.api import RegistryConn
         rconn = RegistryConn()
-        for reg in asyncio.run(rconn.view()):
-            print(reg)
+        res = asyncio.run(rconn.view())
+        print(json.dumps(res, indent=4))
         
     else:
         parser.print_help()
