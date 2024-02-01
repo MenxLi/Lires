@@ -671,3 +671,22 @@ version_history:
       - Server shutdown gracefully
       - User avatar update emit event
       - Database operations use dedicated cursor
+  1.4.2:
+    - UI:
+      - Clickble reload button on connection lost
+    - Rename:
+      - lires iserver -> lires ai
+      - lires lserver -> lires log
+    - Performace:
+      - Logging without waiting
+    - Features:
+      - Check registry status
+      - Registry auto cleanup and re-register
+      - Terminal log level environment variable
+    - Improvement:
+      - Cluster graceful shutdown
+      - Better format for log server output
+    - Fix:
+      - Filename conflict if start multiple log servers simultaneously
+      - Allow cross-cite websocket connection
+      - Log server concurrent log timestamp
