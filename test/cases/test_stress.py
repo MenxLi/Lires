@@ -26,4 +26,4 @@ class TestStress:
             ret = await asyncio.gather(*[makeRequest(serverConn) for _ in range(n_req)])
         
         success = ret.count(True)
-        assert success/len(ret) >= 0.9
+        assert success/len(ret) == 1.0, f"Success rate: {success}/{len(ret)}"
