@@ -1,5 +1,5 @@
 from __future__ import annotations
-import logging, os
+import logging, os, asyncio
 from typing import Optional, TYPE_CHECKING
 from lires.utils import BCOLORS
 from lires.api import LServerConn
@@ -11,30 +11,34 @@ class LiresLogger(logging.Logger):
     def __init__(self, name: str, level = 0) -> None:
         super().__init__(name, level)
         self.__log_server = LServerConn(ignore_connection_error=True)
+    
+    async def __log(self, level: levelT, msg: str):
+        # a coroutine that will not block the main thread
+        asyncio.ensure_future(self.__log_server.log(self.name, level, msg))
 
     async def debug(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.DEBUG):
-            await self.__log_server.log(self.name, "DEBUG", msg)
+            await self.__log("DEBUG", msg)
         return super().debug(msg, *args, **kwargs)
     
     async def info(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.INFO):
-            await self.__log_server.log(self.name, "INFO", msg)
+            await self.__log("INFO", msg)
         return super().info(msg, *args, **kwargs)
     
     async def warning(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.WARNING):
-            await self.__log_server.log(self.name, "WARNING", msg)
+            await self.__log("WARNING", msg)
         return super().warning(msg, *args, **kwargs)
     
     async def error(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.ERROR):
-            await self.__log_server.log(self.name, "ERROR", msg)
+            await self.__log("ERROR", msg)
         return super().error(msg, *args, **kwargs)
     
     async def critical(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.CRITICAL):
-            await self.__log_server.log(self.name, "CRITICAL", msg)
+            await self.__log("CRITICAL", msg)
         return super().critical(msg, *args, **kwargs)
     
     async def log(self, level: int, msg: str, *args, **kwargs):
