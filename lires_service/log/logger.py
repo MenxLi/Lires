@@ -1,5 +1,6 @@
 
 from lires.utils import TimeUtils
+from typing import Optional
 import aiosqlite
 
 LEVEL_NAME = {
@@ -50,9 +51,10 @@ class DatabaseLogger:
         ):
             pass
 
-    async def log(self, name: str, level: int, level_name: str, message: str) -> tuple:
-        time = TimeUtils.nowStamp()
-        time_str = TimeUtils.toStr(TimeUtils.stamp2Local(time))
+    async def log(self, name: str, level: int, level_name: str, message: str, timestamp: Optional[float] = None) -> tuple:
+        if timestamp is None:
+            timestamp = TimeUtils.nowStamp()
+        time_str = TimeUtils.toStr(TimeUtils.stamp2Local(timestamp))
         async with self.lock:
             if self.db is None:
                 await self.connect()
@@ -63,7 +65,7 @@ class DatabaseLogger:
                 f"""
                 INSERT INTO {name} VALUES (?, ?, ?, ?, ?)
                 """,
-                entry := (time, time_str, level, level_name, message)
+                entry := (timestamp, time_str, level, level_name, message)
             )
         self.__is_uptodate = False
         return entry

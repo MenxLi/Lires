@@ -23,6 +23,7 @@ ERROR_COLOR_MAP = {
 class LogRequest(BaseModel):
     level: str
     message: str
+    timestamp: float
 @app.post("/log/{logger_path}")
 async def log(logger_path, request: LogRequest):
     global logger
@@ -37,6 +38,7 @@ async def log(logger_path, request: LogRequest):
         data = {
             "level": "ERROR",
             "message": "Failed to parse json: " + str(_excp),
+            "timestamp": None,
         }
 
     level_name = data["level"].upper()
@@ -45,7 +47,8 @@ async def log(logger_path, request: LogRequest):
         name = logger_name, 
         level = level, 
         level_name=level_name,
-        message = data["message"]
+        message = data["message"],
+        timestamp = data["timestamp"],
         )
     time = res[1]
     name_fmt = \

@@ -26,7 +26,7 @@ class LServerConn(LiresAPIBase):
             return reg["endpoint"]
         return self._url
     
-    async def log(self, logger_name: str, level: levelT, message: str):
+    async def log(self, logger_name: str, level: levelT, message: str, timestamp: float):
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -34,6 +34,7 @@ class LServerConn(LiresAPIBase):
                     json = {
                         "level": level,
                         "message": message,
+                        "timestamp": timestamp,
                     },
                 ) as res:
                     self.ensureRes(res)

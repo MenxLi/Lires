@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging, os, asyncio
 from typing import Optional, TYPE_CHECKING
-from lires.utils import BCOLORS
+from lires.utils import BCOLORS, TimeUtils
 from lires.api import LServerConn
 if TYPE_CHECKING:
     from lires.api.log import levelT
@@ -14,7 +14,10 @@ class LiresLogger(logging.Logger):
     
     async def __log(self, level: levelT, msg: str):
         # a coroutine that will not block the main thread
-        asyncio.ensure_future(self.__log_server.log(self.name, level, msg))
+        # set timestamp to now, as the sending time may be postponed
+        asyncio.ensure_future(
+            self.__log_server.log(self.name, level, msg, timestamp=TimeUtils.nowStamp())
+            )
 
     async def debug(self, msg: str, *args, **kwargs):
         if self.isEnabledFor(logging.DEBUG):
@@ -43,7 +46,7 @@ class LiresLogger(logging.Logger):
     
     async def log(self, level: int, msg: str, *args, **kwargs):
         if self.isEnabledFor(level):
-            await self.__log_server.log(self.name, logging.getLevelName(level), msg)
+            await self.__log(logging.getLevelName(level), msg)
         return super().log(level, msg, *args, **kwargs)
 
 def getFormatter(
