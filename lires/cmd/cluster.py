@@ -23,6 +23,7 @@ ai:
 """
 
 from lires.config import LRS_HOME
+from lires.utils import BCOLORS
 from typing import TypedDict
 import os, yaml, argparse, subprocess, signal, time
 import multiprocessing as mp
@@ -100,19 +101,13 @@ def loadConfigFile(path:str)->ClusterConfigT:
         config: ClusterConfigT = yaml.safe_load(f)
     
     ## Validate config...
-
-    # check if config is valid
     if not isinstance(config, dict):
         raise ValueError("Config file must be a dict")
-
+    if not isinstance(config["GLOBAL_ENVS"], dict):
+        raise ValueError("GLOBAL_ENVS must be a dict")
     for k in config.keys():
         assert k in allowed_entries, \
             "Config file keys must be in : GLOBAL_ENVS, server, ai, log"
-
-    # check if ENVS is valid
-    if not isinstance(config["GLOBAL_ENVS"], dict):
-        raise ValueError("GLOBAL_ENVS must be a dict")
-
     # check if service entries are valid
     for k in exec_entries:
         if k not in config:
@@ -140,12 +135,14 @@ def loadConfigFile(path:str)->ClusterConfigT:
     return config
 
 
+def cprint(*args):
+    """ Custom print function """
+    print(BCOLORS.LIGHTMAGENTA + "[cluster] " + " ".join(map(str, args)) + BCOLORS.ENDC)
+
 ## Multi-processes
 def initProcesses(config: ClusterConfigT):
-    """
-    Execute the config file
-    """
-    ps: list[mp.Process] = []
+    """ Execute the config file """
+    ps: list[subprocess.Popen] = []
     g_environ = os.environ.copy()
 
     def __parseEnv(env:dict, dst: dict):
@@ -172,14 +169,14 @@ def initProcesses(config: ClusterConfigT):
             else:
                 raise ValueError(f"Invalid value type for {k}: {type(v)}")
         
-        print(f"{' '.join(exec_args)}")
+        # print the command
+        cprint(f"{' '.join(exec_args)}")
 
         ps.append(
-            mp.Process(
-                target=subprocess.run, 
-                args = (exec_args,),
-                kwargs = {"env": this_environ},
-                daemon=True
+            subprocess.Popen(
+                exec_args,
+                env = this_environ,
+                start_new_session=True,     # a new session makes the process independent from the parent, thus we can control it with SIGINT
             )
         )
     
@@ -202,32 +199,26 @@ def main():
 
     if args.generate:
         if os.path.exists(args.path) and not args.overwrite:
-            print("Config file already exists, use --overwrite to overwrite")
+            cprint("Config file already exists, use --overwrite to overwrite")
             exit(1)
         generateConfigFile(args.path)
         exit(0)
     
     if args.overwrite and not args.generate:
-        print("--overwrite can only be used with --generate")
+        cprint("--overwrite can only be used with --generate")
         exit(1)
     
     if not os.path.exists(args.path) and args.init_if_not_exist:
         generateConfigFile(args.path)
     
     if not os.path.exists(args.path):
-        print("Config file does not exist, use --generate to generate one")
+        cprint("Config file does not exist, use --generate to generate one")
         exit(1)
     
     ## Start registry -------------------------------
-    procs = []
-    print("Starting registry...")
-    p0 = mp.Process(
-        target=subprocess.run,
-        args = (['lires', 'registry'],),
-        kwargs = {"env": os.environ.copy()},
-    )
-    p0.start()
-    procs.append(p0)
+    cprint("Starting registry...")
+    p0 = subprocess.Popen(["lires", "registry"], env=os.environ, start_new_session=True)
+
     # waiting for it to be functional
     import asyncio, aiohttp.client_exceptions
     from lires.api import RegistryConn
@@ -241,30 +232,32 @@ def main():
     
     ## Start servers -------------------------------
     config = loadConfigFile(args.path)
-    _procs = initProcesses(config)
-    print(f"Starting {len(_procs)} processes...")
-
-    for p in _procs:
-        p.start()
-    
-    procs += _procs
+    procs = initProcesses(config)
 
     # handle SIGINT
     def sigintHandler(sig, frame):
-        print("SIGINT received, terminating...")
+        print("")   # print a newline
+        cprint("{} received, terminating...".format(signal.Signals(sig).name))
+
+        # terminate all processes
         for p in procs:
             p.terminate()
         # wait for all processes to terminate
         for p in procs:
-            p.join()
-        # somehow this is needed to make the terminal not messy...
-        time.sleep(1)
+            p.wait()
+        
+        # lastly, terminate the registry
+        p0.terminate()
+        p0.wait()
+
+        cprint("All processes terminated, exit.")
         exit(0)
 
     signal.signal(signal.SIGINT, sigintHandler)
+    signal.signal(signal.SIGTERM, sigintHandler)
     
-    for p in procs:
-        p.join()
+    while True:
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
