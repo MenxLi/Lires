@@ -86,7 +86,21 @@ async def startLoggerServer(file: str, host: str, port: int):
     if not file:
         import os, time
         from lires.config import LOG_DIR
+        # default to "lires-log_2024-12-31_23-59-59.sqlite[.<a-z>]"
         file = os.path.join(LOG_DIR, "lires-log_{}.sqlite".format(time.strftime("%Y-%m-%d_%H-%M-%S")))
+        while True:
+            if not os.path.exists(file):
+                # touch file in advance, so less resource compete
+                open(file, "w").close()
+                break
+
+            if file.endswith(".sqlite"):
+                file += ".a"
+            else:
+                if file[-1] == "z":
+                    file = file[:-1] + "a"
+                else:
+                    file = file[:-1] + chr(ord(file[-1]) + 1)
     
     if port <= 0:
         from .. import avaliablePort
