@@ -59,18 +59,18 @@ async def status():
     return {"status": "ok"}
 
 DATABASE_COMMIT_INTERVAL = 10
-async def periodicCommit():
+def scheduleNextCommit():
     global logger
     if not logger.isUpToDate():
         # print("-------- Commit --------")
-        asyncio.create_task(logger.commit())
-    asyncio.get_event_loop().call_later(DATABASE_COMMIT_INTERVAL, asyncio.create_task, periodicCommit())
+        asyncio.ensure_future(logger.commit())
+    asyncio.get_event_loop().call_later(DATABASE_COMMIT_INTERVAL, scheduleNextCommit)
 
 @app.on_event("startup")
 async def startup():
     global logger, registry
     await logger.connect()
-    await periodicCommit()
+    scheduleNextCommit()
 
 @app.on_event("shutdown")
 async def shutdown():
