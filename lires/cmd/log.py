@@ -2,7 +2,7 @@
 import argparse
 import sqlite3
 import glob
-from typing import Optional
+from typing import Optional, Generator
 from lires.config import LOG_DIR
 from lires.utils import BCOLORS
 
@@ -63,6 +63,9 @@ def formatLine(line: tuple) -> str:
     level_name = line[3]
     message = line[4]
     return f"{BCOLORS.OKCYAN}{time}{BCOLORS.ENDC} {__color_level[level_name]}{level_name}{BCOLORS.ENDC}: {message}"
+def formatLines(lines: list[tuple]) -> Generator[str, None, None]:
+    for i in range(0, len(lines)):
+        yield formatLine(lines[i])
 
 def sortLines(lines: list[tuple]) -> list[tuple]:
     return sorted(lines, key=lambda x: x[0], reverse=True)
@@ -103,10 +106,17 @@ def main():
         table_name = args.table
         __all_table_names = getAllTableNames(args.files)
         if table_name is None or table_name == "":
-            for table_name in __all_table_names:
-                print("- " + table_name)
-            print("The table name is not specified, please choose one from above with '-t' option")
-            exit(1)
+            for idx, table_name in enumerate(__all_table_names):
+                print(f"[{idx}] {table_name}")
+            print(
+                "The table name is not specified, please choose one from above, "
+                "or start the command with '-t' option"
+                )
+            inp = input("Choose a table: ")
+            if inp.isdigit():
+                table_name = __all_table_names[int(inp)]
+            else:
+                exit(1)
         
         if table_name not in __all_table_names:
             # try to find a potential table name
@@ -130,8 +140,8 @@ def main():
             lines = reader.getMessagesFromTable(table_name, args.level, limit=args.limit)
             __all_lines.extend(lines)
         __all_lines = sortLines(__all_lines)
-        for line in __all_lines:
-            print(formatLine(line))
+        for line in formatLines(__all_lines):
+            print(line)
         print('\n'+'-' * 80)
         print(f"Total {len(__all_lines)} lines, from table {table_name}")
 
