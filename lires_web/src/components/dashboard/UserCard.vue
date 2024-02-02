@@ -1,8 +1,8 @@
 
 <script setup lang="ts">
-    import type { UserInfo } from '../../core/protocalT';
+    import type { UserInfo } from '../../api/protocalT';
     import { useSettingsStore, useUIStateStore, useDataStore } from '../store';
-    import { ServerConn } from '../../core/serverConn';
+    import { ServerConn } from '../../api/serverConn';
     import { ref, computed } from 'vue';
     import { CircularImage, FileSelectButton } from '../common/fragments.tsx';
     import { getBackendURL } from '../../config';
@@ -247,4 +247,4 @@
         width: 300px;
         background-color: var(--color-background);
     }
-</style>../../utils/sha256lib.ts
+</style>../../utils/sha256lib.ts../../api/protocalT.ts../../api/serverConn.ts

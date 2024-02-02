@@ -1,5 +1,5 @@
-import type { DataInfoT, SearchResultant } from "./protocalT";
-import { ServerConn } from "./serverConn";
+import type { DataInfoT, SearchResultant } from "../api/protocalT";
+import { ServerConn } from "../api/serverConn";
 import { getBackendURL } from "../config";
 import type { SearchStatus } from "../components/interface";
 import { useSettingsStore, useDataStore, formatAuthorName } from "../components/store";

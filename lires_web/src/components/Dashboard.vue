@@ -5,10 +5,10 @@
     import UsersWiget from './dashboard/UsersWidget.vue';
     import { ref, computed, onActivated } from 'vue';
     import { useRoute } from 'vue-router';
-    import { ServerConn } from '../core/serverConn';
+    import { ServerConn } from '../api/serverConn';
     import { useUIStateStore, useDataStore } from './store';
-    import { registerServerEvenCallback } from '../core/serverWebsocketConn';
-    import type { UserInfo, Event_User } from '../core/protocalT';
+    import { registerServerEvenCallback } from '../api/serverWebsocketConn';
+    import type { UserInfo, Event_User } from '../api/protocalT';
 
     const route = useRoute();
     const conn = new ServerConn();
@@ -76,4 +76,4 @@
         width: calc(100vw - 20px);
         gap: 20px;
     }
-</style>
+</style>../api/serverConn../api/serverWebsocketConn../api/protocalT

@@ -2,10 +2,10 @@
 <script setup lang="ts">
     import { getBackendURL } from '../../config';
     import { useDataStore } from '../store';
-    import type { UserInfo, Event_User } from '../../core/protocalT';
-    import { ServerConn } from '../../core/serverConn';
+    import type { UserInfo, Event_User } from '../../api/protocalT';
+    import { ServerConn } from '../../api/serverConn';
     import { ref, computed, onMounted } from 'vue';
-    import { registerServerEvenCallback } from '../../core/serverWebsocketConn';
+    import { registerServerEvenCallback } from '../../api/serverWebsocketConn';
 
     import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
     import QueryDialog from '../common/QueryDialog.vue';
@@ -441,4 +441,4 @@
         background-color: var(--color-background);
         min-width: 200px;
     }
-</style>
+</style>../../api/protocalT../../api/serverConn../../api/serverWebsocketConn

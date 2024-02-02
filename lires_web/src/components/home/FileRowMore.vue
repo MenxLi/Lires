@@ -8,7 +8,7 @@ import {FileSelectButton} from '../common/fragments.tsx'
 import { copyToClipboard } from '../../utils/misc.ts'
 import { EditableParagraph } from '../common/fragments.tsx'
 import DataSummary from './DataSummary.vue';
-import { ServerConn } from '../../core/serverConn';
+import { ServerConn } from '../../api/serverConn';
 
 const props = defineProps<{
     datapoint: DataPoint
@@ -295,4 +295,4 @@ const showSummary = ref(false);
         /* animation: expand 0.1s reverse; */
         animation: contract .2s ease-in-out;
     }
-</style>../../utils/misc.ts
+</style>../../utils/misc.ts../../api/serverConn.ts

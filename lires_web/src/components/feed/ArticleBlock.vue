@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { bibtexFromArxiv } from '../../core/arxivUtils';
-    import { ServerConn } from '../../core/serverConn';
+    import { ServerConn } from '../../api/serverConn';
     import { useDataStore, formatAuthorName, useUIStateStore } from '../store';
     import { DataPoint, DataSearcher, DataTags } from '../../core/dataClass';
     import FileRowContainer from '../home/FileRowContainer.vue';
@@ -233,4 +233,4 @@
     }
 </style>
     
-../../utils/misc
+../../utils/misc../../api/serverConn

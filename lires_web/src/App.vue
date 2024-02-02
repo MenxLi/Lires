@@ -5,9 +5,9 @@
     import { useUIStateStore, useSettingsStore, useDataStore } from './components/store';
     import { useRouter } from 'vue-router';
     import { settingsAuthentication } from './core/auth';
-    import { getSessionConnection, registerServerEvenCallback } from './core/serverWebsocketConn';
+    import { getSessionConnection, registerServerEvenCallback } from './api/serverWebsocketConn';
     import LoadingPopout from './components/common/LoadingPopout.vue';
-    import type { Event_Data, Event_Tag, Event_User } from './core/protocalT'
+    import type { Event_Data, Event_Tag, Event_User } from './api/protocalT'
     import { DataTags } from './core/dataClass';
 
     const router = useRouter();
@@ -184,4 +184,4 @@
     margin: 0px;
     padding: 0px;
 }
-</style>
+</style>./api/serverWebsocketConn./api/protocalT

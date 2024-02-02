@@ -9,7 +9,7 @@
     import Banner from './common/Banner.vue';
     import LoadingWidget from './common/LoadingWidget.vue'
 
-    import { ServerConn } from '../core/serverConn';
+    import { ServerConn } from '../api/serverConn';
     import { lazify } from '../utils/misc';
 
 
@@ -181,4 +181,4 @@
     img.icon:hover{
         filter: invert(0.5) opacity(0.75) drop-shadow(0 0 0 var(--color-theme)) ;
     }
-</style>../utils/misc.ts
+</style>../utils/misc.ts../api/serverConn.ts

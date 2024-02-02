@@ -1,11 +1,11 @@
 <script setup lang="ts">
-    import { ServerConn } from '../core/serverConn';
+    import { ServerConn } from '../api/serverConn';
     import { ref, computed } from 'vue';
-    import { type Changelog } from '../core/protocalT';
+    import { type Changelog } from '../api/protocalT';
     import { getBackendURL, manualURL_zh } from '../config';
     import Banner from './common/Banner.vue';
     import FloatingWindow from './common/FloatingWindow.vue';
-    import { registerServerEvenCallback } from '../core/serverWebsocketConn';
+    import { registerServerEvenCallback } from '../api/serverWebsocketConn';
 
     const changelog = ref<Changelog>([]);
     const showChangelog = ref(false);
@@ -159,4 +159,4 @@
         border: 1px solid var(--color-border);
         border-top: none;
     }
-</style>
+</style>../api/serverConn../api/protocalT../api/serverWebsocketConn

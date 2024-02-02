@@ -3,8 +3,8 @@
     import { ref, onMounted, computed } from 'vue';
     import { DataPoint } from '../../core/dataClass';
     import { DataSearcher } from '../../core/dataClass';
-    import type { SearchResultant } from '../../core/protocalT';
-    import { ServerConn } from '../../core/serverConn';
+    import type { SearchResultant } from '../../api/protocalT';
+    import { ServerConn } from '../../api/serverConn';
     import FileRowContainer from './FileRowContainer.vue';
     import { useDataStore, formatAuthorName } from '../store';
 
@@ -273,4 +273,4 @@
         transform: translateY(-10%);
         opacity: 0;
     }
-</style>
+</style>../../api/protocalT../../api/serverConn

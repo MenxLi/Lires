@@ -4,10 +4,10 @@
     import LoadingWidget from '../common/LoadingWidget.vue';
     import { ref, computed } from 'vue';
     import { useDataStore, useUIStateStore, useSettingsStore } from '../store';
-    import { ServerConn } from '../../core/serverConn';
+    import { ServerConn } from '../../api/serverConn';
     import { deepCopy } from '../../core/misc';
     import { ThemeMode } from '../../core/misc';
-    import type { DatabaseFeature } from '../../core/protocalT';
+    import type { DatabaseFeature } from '../../api/protocalT';
     import type { PlotPoints3D } from '../interface';
 
     const dataStore = useDataStore();
@@ -236,4 +236,4 @@
             height: 260px;
         }
     }
-</style>
+</style>../../api/serverConn../../api/protocalT

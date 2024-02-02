@@ -1,11 +1,11 @@
 
 import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
-import { ServerConn } from '../core/serverConn'
+import { ServerConn } from '../api/serverConn'
 import { formatAuthorName } from '../utils/misc'
 export { formatAuthorName }
 import type { SearchStatus, PopupStyle, TagStatus } from './interface'
-import type { UserInfo } from '../core/protocalT'
+import type { UserInfo } from '../api/protocalT'
 
 interface PopupValue {
     content: string,

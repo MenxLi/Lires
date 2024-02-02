@@ -5,7 +5,7 @@
     import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
     import { useUIStateStore } from '../store';
     import { DataTags } from '../../core/dataClass';
-    import { ServerConn } from '../../core/serverConn';
+    import { ServerConn } from '../../api/serverConn';
     import type { DataPoint } from '../../core/dataClass';
     import type { TagStatus } from '../interface';
     import Toggle from '../common/Toggle.vue';
@@ -330,4 +330,4 @@
         gap: 5px;
     }
 
-</style>
+</style>../../api/serverConn

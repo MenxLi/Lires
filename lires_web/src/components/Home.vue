@@ -12,7 +12,7 @@ export default {
     import { useUIStateStore, useDataStore, useSettingsStore } from "./store";
     import { useRouter } from "vue-router";
     import { DataTags } from "../core/dataClass";
-    import { getSessionConnection } from "../core/serverWebsocketConn";
+    import { getSessionConnection } from "../api/serverWebsocketConn";
     import FileTags from "./home/FileTags.vue";
     import FileRowContainer from "./home/FileRowContainer.vue";
     import Banner from "./common/Banner.vue";
@@ -240,4 +240,4 @@ export default {
             border-right: none;
         }
     }
-</style>../utils/misc
+</style>../utils/misc../api/serverWebsocketConn

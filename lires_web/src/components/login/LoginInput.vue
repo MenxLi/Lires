@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue';
-import { ServerConn } from '../../core/serverConn';
+import { ServerConn } from '../../api/serverConn';
 import { useRouter } from 'vue-router';
 import { saveAuthentication, getEncKey } from '../../core/auth.js'
 import { useSettingsStore } from '../store';
@@ -154,3 +154,4 @@ details input{
 }
 
 </style>
+../../api/serverConn.js
