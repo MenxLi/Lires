@@ -62,7 +62,7 @@ def main():
     sp = parser.add_subparsers(dest='subparser_name', help='sub-command help')
     sp_view = sp.add_parser('view', help='View log, output to stdout')
     sp_view.add_argument('-i', '--inputs', type=str, dest='files',
-                        nargs='+', default=glob.glob(f"{LOG_DIR}/*.sqlite"), 
+                        nargs='+', default=glob.glob(f"{LOG_DIR}/*.sqlite*"), 
                         help='Log database files')
     sp_view.add_argument('-l', '--level', type=str, help='Log level', default=None)
     sp_view.add_argument('-t', '--table', type=str, help='Table name', default=None)
