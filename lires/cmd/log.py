@@ -40,6 +40,16 @@ class LogDBReader:
         else:
             self.cur.execute(f"SELECT * FROM {table_name} WHERE level_name='{level_name}' ORDER BY time DESC LIMIT {limit}")
         return self.cur.fetchall()
+    
+    def getCountFromTable(
+        self, 
+        table_name: str, 
+        level_name: Optional[str] = None) -> int:
+        if level_name is None:
+            self.cur.execute(f"SELECT COUNT(*) FROM {table_name}")
+        else:
+            self.cur.execute(f"SELECT COUNT(*) FROM {table_name} WHERE level_name='{level_name}'")
+        return self.cur.fetchone()[0]
 
 __color_level = {
     "DEBUG": BCOLORS.OKBLUE,
@@ -134,8 +144,8 @@ def main():
             for table_name in all_tables:
                 if not reader.hasTable(table_name):
                     continue
-                lines = reader.getMessagesFromTable(table_name, level_name=args.level)
-                count[table_name] = len(lines)
+                lines = reader.getCountFromTable(table_name, level_name=args.level)
+                count[table_name] = count.setdefault(table_name, 0) + lines
         # print
         max_len = max([len(x) for x in all_tables])
         digit_len = max(len(str(max(count.values()))), 5)
