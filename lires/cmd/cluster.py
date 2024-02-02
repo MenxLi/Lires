@@ -1,32 +1,14 @@
 """
 Server clustering script.
-It reads a yaml config file and starts the servers.
-
-config file format:
-----------------------------------------------------
-GLOBAL_ENVS:           <--- set global environment variables
-    LRS_HOME: /path/to/lrs/home
-    LRS_SSL_CERTFILE: /path/to/ssl/certfile | None
-    LRS_SSL_KEYFILE: /path/to/ssl/keyfile | None
-server:         <--- this is the name of the subcommand for lires
-    -
-        ENVS:     <--- set environment variables
-            LRS_HOME: /path/to/lrs/home
-        ARGS:      <--- command to run
-            port : 8080
-    -
-        ENVS:
-        ....
-ai:
-    ...
-----------------------------------------------------
+It reads a toml config file and starts the servers.
 """
 
+from lires.version import VERSION
 from lires.config import LRS_HOME
 from lires.utils import BCOLORS
 from typing import TypedDict
-import os, yaml, argparse, subprocess, signal, time
-import multiprocessing as mp
+import os, argparse, subprocess, signal, time
+import tomlkit
 
 class ConfigEntryT(TypedDict, total=False):
     ENVS: dict
@@ -41,8 +23,8 @@ allowed_entries = ["GLOBAL_ENVS", "server", "ai", "log"]
 exec_entries = allowed_entries[1:]
 
 def __getDefaultConfig()->ClusterConfigT:
-    ssl_certfile = os.environ.get("LRS_SSL_CERTFILE")
-    ssl_keyfile = os.environ.get("LRS_SSL_KEYFILE")
+    ssl_certfile = os.environ.get("LRS_SSL_CERTFILE", "")
+    ssl_keyfile = os.environ.get("LRS_SSL_KEYFILE", "")
     return {
         "GLOBAL_ENVS": {
             "LRS_HOME": LRS_HOME,
@@ -80,10 +62,10 @@ def __getDefaultConfig()->ClusterConfigT:
 def generateConfigFile(path:str):
     config = __getDefaultConfig()
     with open(path, "w") as f:
-        yaml.safe_dump(config, f, indent=1)
+        tomlkit.dump(config, f)
     
     comments = [
-        "This is config file for lires cluster",
+        "This is config file for lires cluster - version {}".format(VERSION),
         "It serves as a script for starting multiple servers with different configurations",
         "The GLOBAL_ENV variables are set globally, and can be overridden by the entries",
         "The entry names are the subcommands for `lires`",
@@ -98,7 +80,7 @@ def generateConfigFile(path:str):
 
 def loadConfigFile(path:str)->ClusterConfigT:
     with open(path, "r") as f:
-        config: ClusterConfigT = yaml.safe_load(f)
+        config: ClusterConfigT = tomlkit.parse(f.read()) # type: ignore
     
     ## Validate config...
     if not isinstance(config, dict):

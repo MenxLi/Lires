@@ -181,13 +181,13 @@ async def __startServer(
     await shutdown_event.wait()
 
 # SSL config
-_ENV_CERTFILE = os.environ.get("LRS_SSL_CERTFILE")
-_ENV_KEYFILE = os.environ.get("LRS_SSL_KEYFILE")
+_ENV_CERTFILE = os.environ.get("LRS_SSL_CERTFILE", "")
+_ENV_KEYFILE = os.environ.get("LRS_SSL_KEYFILE", "")
 SSL_CONFIG: _SSL_CONFIGT | None
 if bool(_ENV_CERTFILE) != bool(_ENV_KEYFILE):
     # if only one of them is set
     raise ValueError("LRS_SSL_CERTFILE and LRS_SSL_KEYFILE must be both set or both not set")
-if _ENV_CERTFILE is not None:
+if _ENV_CERTFILE:
     SSL_CONFIG = {"certfile": _ENV_CERTFILE, "keyfile": _ENV_KEYFILE} # type: ignore
 else:
     SSL_CONFIG = None

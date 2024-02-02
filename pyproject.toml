@@ -70,7 +70,10 @@ ai = [
     "accelerate",
     "basaran",
 ]
-all = ["Lires[core,ai]"]
+all = [
+    "Lires[core,ai]",
+    "tomlkit", 
+]
 dev = [
     "Lires[all]",
     "pytest",
