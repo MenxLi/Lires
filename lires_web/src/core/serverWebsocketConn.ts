@@ -1,7 +1,7 @@
 
 import { getBackendURL } from "../config";
 import { useSettingsStore } from "../components/store";
-import { sha256 } from "../libs/sha256lib";
+import { sha256 } from "../utils/sha256lib";
 import type { Event } from "./protocalT";
 
 // Declare the global object

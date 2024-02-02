@@ -5,7 +5,7 @@ import DataEditor from './DataEditor.vue';
 import { useUIStateStore } from '../store';
 import FloatingWindow from '../common/FloatingWindow.vue';
 import {FileSelectButton} from '../common/fragments.tsx'
-import { copyToClipboard } from '../../libs/misc.ts'
+import { copyToClipboard } from '../../utils/misc.ts'
 import { EditableParagraph } from '../common/fragments.tsx'
 import DataSummary from './DataSummary.vue';
 import { ServerConn } from '../../core/serverConn';
@@ -295,4 +295,4 @@ const showSummary = ref(false);
         /* animation: expand 0.1s reverse; */
         animation: contract .2s ease-in-out;
     }
-</style>
+</style>../../utils/misc.ts

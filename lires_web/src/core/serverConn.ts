@@ -4,7 +4,7 @@
 import {getBackendURL} from "../config.js";
 import { useSettingsStore } from "../components/store.js";
 import type { DataInfoT, UserInfo, SearchResult, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
-import { sha256 } from "../libs/sha256lib.js";
+import { sha256 } from "../utils/sha256lib.js";
 
 export class ServerConn {
     constructor(){

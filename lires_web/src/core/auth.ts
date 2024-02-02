@@ -2,7 +2,7 @@
 import { ServerConn } from "./serverConn";
 import { useSettingsStore, useDataStore } from "../components/store";
 import type { UserInfo } from "./protocalT";
-import { sha256 } from "../libs/sha256lib";
+import { sha256 } from "../utils/sha256lib";
 
 export function saveAuthentication(
     encKey: string, 

@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
 import { ServerConn } from '../core/serverConn'
-import { formatAuthorName } from '../libs/misc'
+import { formatAuthorName } from '../utils/misc'
 export { formatAuthorName }
 import type { SearchStatus, PopupStyle, TagStatus } from './interface'
 import type { UserInfo } from '../core/protocalT'

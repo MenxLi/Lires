@@ -10,7 +10,7 @@
     import LoadingWidget from './common/LoadingWidget.vue'
 
     import { ServerConn } from '../core/serverConn';
-    import { lazify } from '../libs/misc';
+    import { lazify } from '../utils/misc';
 
 
     export interface ArxivArticleWithFeatures extends ArxivArticle{
@@ -181,4 +181,4 @@
     img.icon:hover{
         filter: invert(0.5) opacity(0.75) drop-shadow(0 0 0 var(--color-theme)) ;
     }
-</style>
+</style>../utils/misc.ts

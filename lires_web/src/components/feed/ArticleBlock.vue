@@ -10,7 +10,7 @@
     import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
     import QueryDialog from '../common/QueryDialog.vue';
     import { computed, ref } from 'vue';
-    import { openURLExternal } from '../../libs/misc';
+    import { openURLExternal } from '../../utils/misc';
     import type { TagStatus } from '../interface';
 
     const props = defineProps<{
@@ -233,3 +233,4 @@
     }
 </style>
     
+../../utils/misc

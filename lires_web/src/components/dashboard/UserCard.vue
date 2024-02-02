@@ -6,7 +6,7 @@
     import { ref, computed } from 'vue';
     import { CircularImage, FileSelectButton } from '../common/fragments.tsx';
     import { getBackendURL } from '../../config';
-    import { sha256 } from '../../libs/sha256lib';
+    import { sha256 } from '../../utils/sha256lib';
 
     import QueryDialog from '../common/QueryDialog.vue';
     import EditSquareIcon from '../../assets/icons/edit_square.svg'
@@ -247,4 +247,4 @@
         width: 300px;
         background-color: var(--color-background);
     }
-</style>
+</style>../../utils/sha256lib.ts

@@ -5,7 +5,7 @@
     import FileRowMore from './FileRowMore.vue';
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
-    import { openURLExternal } from '../../libs/misc';
+    import { openURLExternal } from '../../utils/misc';
     import { ServerConn } from '../../core/serverConn';
     import { useUIStateStore } from '../store';
 
@@ -380,4 +380,4 @@
             flex-wrap: wrap;
         }
     }
-</style>
+</style>../../utils/misc

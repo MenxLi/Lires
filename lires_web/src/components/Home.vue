@@ -26,7 +26,7 @@ export default {
     import FilterVis from "./visfeat/FilterVis.vue";
 
     import type { SearchStatus } from "./interface";
-    import { lazify } from "../libs/misc";
+    import { lazify } from "../utils/misc";
 
     // get data
     const uiState = useUIStateStore();
@@ -240,4 +240,4 @@ export default {
             border-right: none;
         }
     }
-</style>
+</style>../utils/misc
