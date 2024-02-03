@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
-    import { bibtexFromArxiv } from '../../core/arxivUtils';
+    import { bibtexFromArxiv } from '../../utils/arxiv';
     import { ServerConn } from '../../api/serverConn';
     import { useDataStore, formatAuthorName, useUIStateStore } from '../store';
     import { DataPoint, DataSearcher, DataTags } from '../../core/dataClass';
@@ -232,5 +232,3 @@
         background-color: var(--color-background-theme-highlight);
     }
 </style>
-    
-../../utils/misc../../api/serverConn

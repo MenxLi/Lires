@@ -1,4 +1,4 @@
-import { fetchArxivPaperByID, bibtexFromArxiv } from "../../core/arxivUtils";
+import { fetchArxivPaperByID, bibtexFromArxiv } from "../../utils/arxiv";
 
 export type BibtexTypes = 'article' | 'inproceedings' | 'webpage'
 export const getBibtexTemplate = (type: BibtexTypes) => {

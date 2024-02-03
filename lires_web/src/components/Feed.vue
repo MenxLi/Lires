@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue';
-    import { fetchArxivFeed, ArxivArticle } from '../core/arxivUtils.ts';
+    import { fetchArxivFeed, ArxivArticle } from '../utils/arxiv.ts';
     import ArticleBlock from './feed/ArticleBlock.vue';
     import { useRouter } from 'vue-router';
     import RefreshIcon from '../assets/icons/refresh.svg'
@@ -181,4 +181,4 @@
     img.icon:hover{
         filter: invert(0.5) opacity(0.75) drop-shadow(0 0 0 var(--color-theme)) ;
     }
-</style>../utils/misc.ts../api/serverConn.ts
+</style>
