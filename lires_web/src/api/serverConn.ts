@@ -214,6 +214,7 @@ export class ServerConn {
         if (uid !== null) params["uuid"] = JSON.stringify(uid);
         if (bibtex !== null ) params["bibtex"] = bibtex;
         if (tags !== null) params["tags"] = JSON.stringify(tags);
+        if (url !== null) params["url"] = url;
         return await this.fetcher.post(`/api/dataman/update`, params).then(res=>res.json());
     }
 
