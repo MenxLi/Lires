@@ -8,7 +8,7 @@
     import { getSessionConnection, registerServerEvenCallback } from './api/serverWebsocketConn';
     import LoadingPopout from './components/common/LoadingPopout.vue';
     import type { Event_Data, Event_Tag, Event_User } from './api/protocalT'
-    import { DataTags } from './core/dataClass';
+    import { DataTags } from './core/tag';
 
     const router = useRouter();
     const uiState = useUIStateStore();

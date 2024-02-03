@@ -11,7 +11,7 @@ export default {
     import type { Ref } from "vue";
     import { useUIStateStore, useDataStore, useSettingsStore } from "./store";
     import { useRouter } from "vue-router";
-    import { DataTags } from "../core/dataClass";
+    import { DataTags } from "../core/tag";
     import { getSessionConnection } from "../api/serverWebsocketConn";
     import FileTags from "./home/FileTags.vue";
     import FileRowContainer from "./home/FileRowContainer.vue";

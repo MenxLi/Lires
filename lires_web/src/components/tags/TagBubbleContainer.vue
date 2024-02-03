@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import { DataTags } from '../../core/dataClass';
+    import { DataTags } from '../../core/tag';
     import TagBubble from './TagBubble.vue';
     import { computed } from 'vue';
 

@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import { watch, ref } from 'vue';
-    import { DataTags } from '../../core/dataClass';
+    import { DataTags } from '../../core/tag';
     import { ServerConn } from '../../api/serverConn';
     import { computed } from 'vue';
     import TagSelector from '../tags/TagSelector.vue';

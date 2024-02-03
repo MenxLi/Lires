@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import { TAG_SEP } from '../../core/dataClass';
+    import { TAG_SEP } from '../../core/tag';
     import { computed } from 'vue';
 
     const props = withDefaults(defineProps<{

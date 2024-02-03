@@ -4,7 +4,8 @@
     import { bibtexFromArxiv } from '../../utils/arxiv';
     import { ServerConn } from '../../api/serverConn';
     import { useDataStore, formatAuthorName, useUIStateStore } from '../store';
-    import { DataPoint, DataSearcher, DataTags } from '../../core/dataClass';
+    import { DataPoint, DataSearcher } from '../../core/dataClass';
+    import { DataTags } from '../../core/tag';
     import FileRowContainer from '../home/FileRowContainer.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
     import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';

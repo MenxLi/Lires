@@ -5,8 +5,7 @@
     import {ref, computed, onActivated, onDeactivated} from "vue";
     import Toggle from "../common/Toggle.vue";
     import TagCollapsibleToggle from "./TagCollapsibleToggle.vue"
-    import { TAG_SEP } from '../../core/dataClass';
-    import type { TagHierarchy } from "../../core/dataClass";
+    import { TAG_SEP, type TagHierarchy } from '../../core/tag';
     import type { TagStatus } from "../interface";
 
     const props = withDefaults(defineProps<{

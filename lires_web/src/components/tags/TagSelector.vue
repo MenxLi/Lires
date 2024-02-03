@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { computed} from 'vue';
-    import { TagRule, TAG_SEP } from '../../core/dataClass';
+    import { TagRule, TAG_SEP } from '../../core/tag';
     import TagCollapsibleToggle from './TagCollapsibleToggle.vue';
     import { TagStatus } from '../interface';
 

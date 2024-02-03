@@ -1,6 +1,6 @@
 // Type definitions across components
 
-import type { DataTags } from "../core/dataClass"
+import type { DataTags } from "../core/tag"
 
 export interface TagStatus{
     checked: DataTags,

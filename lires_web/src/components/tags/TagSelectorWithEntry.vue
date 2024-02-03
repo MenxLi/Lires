@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import TagSelector from './TagSelector.vue';
     import type { TagStatus } from '../interface';
-    import { TagRule } from '../../core/dataClass';
+    import { TagRule } from '../../core/tag';
     import { watch, computed, ref } from 'vue';
 
     const props = withDefaults(defineProps<{

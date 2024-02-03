@@ -4,7 +4,7 @@
     import QueryDialog from '../common/QueryDialog.vue';
     import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
     import { useUIStateStore } from '../store';
-    import { DataTags } from '../../core/dataClass';
+    import { DataTags } from '../../core/tag';
     import { ServerConn } from '../../api/serverConn';
     import type { DataPoint } from '../../core/dataClass';
     import type { TagStatus } from '../interface';

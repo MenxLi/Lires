@@ -1,6 +1,7 @@
 
 import { defineStore } from 'pinia'
-import { DataBase, DataSearcher, DataPoint, DataTags } from '../core/dataClass'
+import { DataBase, DataSearcher, DataPoint } from '../core/dataClass'
+import { DataTags } from '../core/tag'
 import { ServerConn } from '../api/serverConn'
 import { formatAuthorName } from '../utils/misc'
 export { formatAuthorName }
