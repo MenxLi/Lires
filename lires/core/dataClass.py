@@ -1,5 +1,5 @@
 from __future__ import annotations
-import os
+import os, asyncio
 from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar, Literal
 import difflib
 from ..utils import Timer
@@ -262,7 +262,7 @@ class DataPoint(DataCore):
     
     async def changeTags(self, new_tags: DataTags):
         await self.fm.writeTags(new_tags)
-        self.tags = new_tags
+        await self.reload()
     
     async def stringInfo(self):
         bib = self.bib
@@ -438,13 +438,16 @@ class DataBase(Dict[str, DataPoint], DataCore):
         return if success
         """
         data = self.getDataByTags(DataTags([tag_old]))
-        await self.logger.info(f"Rename tag: {tag_old} -> {tag_new}")
+        await self.logger.info(f"Rename tag: {tag_old} -> {tag_new} [count: {len(data)}]")
+        tasks = []
         for d in data:
             d: DataPoint
             t = d.tags
             t = TagRule.renameTag(t, tag_old, tag_new)
             if t is not None:
-                await d.changeTags(t)
+                # await d.changeTags(t)
+                tasks.append(d.changeTags(t))
+        await asyncio.gather(*tasks)
         return True
     
     async def deleteTag(self, tag: str) -> bool:
@@ -454,12 +457,14 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         data = self.getDataByTags(DataTags([tag]))
         await self.logger.info(f"Delete tag: {tag}")
+        tasks = []
         for d in data:
             d: DataPoint
             ori_tags = d.tags
             after_deleted = TagRule.deleteTag(ori_tags, tag)
             if after_deleted is not None:
-                await d.changeTags(after_deleted)
+                tasks.append(d.changeTags(after_deleted))
+        await asyncio.gather(*tasks)
         return True
 
     async def findSimilarByBib(self, bib_str: str) -> Optional[DataPoint]:
