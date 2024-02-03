@@ -5,10 +5,14 @@ import {getBackendURL} from "../config.js";
 import { useSettingsStore } from "../components/store.js";
 import type { DataInfoT, UserInfo, SearchResult, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
 import { sha256 } from "../utils/sha256lib.js";
+import Fetcher from "./fetcher.js";
 
 export class ServerConn {
+    declare fetcher: Fetcher;
     constructor(){
-        // this.settings = useSettingsStore();
+        this.fetcher = new Fetcher();
+        this.fetcher.setBaseUrlGetter(()=>`${getBackendURL()}`)
+        this.fetcher.setCredentialGetter(()=>useSettingsStore().encKey);
     }
     get settings(){
         return useSettingsStore();
@@ -17,57 +21,19 @@ export class ServerConn {
         return getBackendURL() + "/api";
     }
     async authUsr( encKey: string ): Promise<UserInfo>{
-            const params = new URLSearchParams();
-            params.set("key", encKey);
-
-            const response = await fetch(`${this.apiURL()}/auth`, 
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type":"application/x-www-form-urlencoded"
-                    },
-                    body: params.toString()
-                })
-            if (response.ok && response.status === 200) {
-                return JSON.parse(await response.text());
-            }
-            else{
-                throw new Error(`Got response: ${response.status}`);
-            }
+        return await this.fetcher.post(`/api/auth`, {
+            key: encKey,
+        }).then(res=>res.json());
     }
 
     async status(): Promise<ServerStatus>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey);
-
-        const response = await fetch(`${this.apiURL()}/status`, {
-            method: 'POST',
-            body: form,
-        });
-        console.log(response);
-        if (response.ok){
-            return JSON.parse(await response.text());
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`)
-        }
+        return await this.fetcher.get(`/api/status`).then(res=>res.json());
     }
     
     async reqFileList( tags: string[] ): Promise<DataInfoT[]>{
-        const concatTags = tags.join("&&");
-        const url = new URL(`${this.apiURL()}/filelist`);
-        url.searchParams.append("tags", concatTags);
-        url.searchParams.append("key", this.settings.encKey);
-
-        const response = await fetch(url.toString());
-        if (response.ok){
-            const resObj = await response.json();
-            const DataInfoList: DataInfoT[] = resObj;
-            return DataInfoList;
-        }
-        else {
-            throw new Error(`Got response: ${response.status}`)
-        }
+        return await this.fetcher.get(`/api/filelist`,
+            { tags: tags.join("&&"), }
+        ).then(res=>res.json());
     };
 
     // get the file list in a streaming way
@@ -76,15 +42,9 @@ export class ServerConn {
         onReceive: (data_: DataInfoT, nCurrent_: number, nTotal_: number)=>void = ()=>{},
         ){
 
-        const concatTags = tags.join("&&");
-        const url = new URL(`${this.apiURL()}/filelist-stream`);
-        url.searchParams.append("tags", concatTags);
-        url.searchParams.append("key", this.settings.encKey);
-
-        const response = await fetch(url.toString());
-        if (!response.ok){
-            throw new Error(`Got response: ${response.status}`)
-        };
+        const response = await this.fetcher.get(`/api/filelist-stream`, {
+            tags: tags.join("&&"),
+        });
 
         const _nTotal = response.headers.get("totalDataCount");
         const nTotal = _nTotal?parseInt(_nTotal):-1;
@@ -137,136 +97,46 @@ export class ServerConn {
     }
 
     async reqDatabaseFeatureTSNE(collectionName = "doc_feature", nComponent = 3, perplexity = 10): Promise<DatabaseFeature>{
-        const url = new URL(`${this.apiURL()}/datafeat/tsne/${collectionName}`);
-        url.searchParams.append("key", this.settings.encKey);
-        url.searchParams.append("n_component", nComponent.toString());
-        url.searchParams.append("perplexity", perplexity.toString());
-        // url.searchParams.append("random_state", Math.floor(Math.random()*1000).toString());
-
-        const response = await fetch(url.toString());
-        if (response.ok){
-            const resObj = await response.json();
-            const DataFeatList: DatabaseFeature = resObj;
-            return DataFeatList;
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`)
-        }
+        return await this.fetcher.get(`/api/datafeat/tsne/${collectionName}`, {
+            n_component: nComponent.toString(),
+            perplexity: perplexity.toString(),
+        }).then(res=>res.json());
     }
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
-        const url = new URL(`${this.apiURL()}/fileinfo/${uid}`);
-        url.searchParams.append("key", this.settings.encKey);
-
-        const response = await fetch(url.toString());
-        if (response.ok){
-            const resObj = await response.json();
-            const DataInfo: DataInfoT = resObj;
-            return DataInfo;
-        }
-        else {
-            throw new Error(`Got response: ${response.status}`)
-        }
+        return await this.fetcher.get(`/api/fileinfo/${uid}`).then(res=>res.json());
     }
 
     async reqReloadDB(): Promise<boolean>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-        const res = await fetch(`${this.apiURL()}/reload-db`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){
-            return true;
-        }
-        else{
-            throw new Error(`Got response: ${res.status}`)
-        }
+        return await this.fetcher.post(`/api/reload-db`).then(_=>true);
     }
 
     async reqDatapointAbstract(uid: string): Promise<string>{
-        const params = new URLSearchParams();
-        params.set("key", this.settings.encKey);
-        const response = await fetch(`${this.apiURL()}/fileinfo-supp/abstract/${uid}`);
-        if (response.ok && response.status === 200) {
-            const res: string = await response.text();
-            return res
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`);
-        }
+        return await this.fetcher.get(`/api/fileinfo-supp/abstract/${uid}`).then(res=>res.text());
     }
 
     async reqDatapointAbstractUpdate(uid: string, content: string): Promise<boolean>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-        form.append('content', content)
-        const res = await fetch(`${this.apiURL()}/fileinfo-supp/abstract-update/${uid}`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){
-            return true;
-        }
-        else{
-            throw new Error(`Got response: ${res.status}`)
-        }
+        return await this.fetcher.post(`/api/fileinfo-supp/abstract-update/${uid}`, {
+            content: content,
+        }).then((_) => true);
     }
 
     async reqDatapointNote( uid: string ): Promise<string>{
-        const url = new URL(`${this.apiURL()}/fileinfo-supp/note/${uid}`);
-        url.searchParams.append("key", this.settings.encKey);
-        const response = await fetch(url.toString());
-        if (response.ok){
-            const resObj = await response.text();
-            return resObj;
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`)
-        }
+        return await this.fetcher.get(`/api/fileinfo-supp/note/${uid}`).then(res=>res.text());
     }
 
     async reqDatapointNoteUpdate( uid: string, content: string ): Promise<boolean>{
-        const url = new URL(`${this.apiURL()}/fileinfo-supp/note-update/${uid}`);
-        const body = new FormData();
-        body.append("key", this.settings.encKey);
-        body.append("content", content);
-        const response = await fetch(url.toString(),
-            {
-                method: "POST",
-                body: body,
-            }
-        );
-        if (response.ok){
-            return true;
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`)
-        }
+        return await this.fetcher.post(`/api/fileinfo-supp/note-update/${uid}`, {
+            content: content,
+        }).then((_) => true);
+        
     }
 
     async search(method: string, kwargs: any): Promise<SearchResult>{
-        const params = new URLSearchParams();
-
-        params.set("key", this.settings.encKey);
-        params.set("method", method);
-        params.set("kwargs", JSON.stringify(kwargs));
-        const response = await fetch(`${this.apiURL()}/search`, 
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":"application/x-www-form-urlencoded"
-                },
-                body: params.toString(),
-            })
-        if (response.ok && response.status === 200) {
-            const res: SearchResult = JSON.parse(await response.text());
-            return res
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`);
-        }
-
+        return await this.fetcher.post(`/api/search`, {
+            method: method,
+            kwargs: JSON.stringify(kwargs),
+        }).then(res=>res.json());
     }
 
     // =============================================
@@ -274,27 +144,10 @@ export class ServerConn {
     // =============================================
 
     async featurize(text: string, requireCache: boolean = false): Promise<number[]>{
-
-        const body = new FormData();
-        body.append("key", this.settings.encKey);
-        body.append("text", text);
-        body.append("require_cache", requireCache.toString());
-
-        const response = await fetch(`${this.apiURL()}/iserver/textFeature`,
-            {
-                method: "POST",
-                body: body,
-            }
-        );
-
-        if (response.ok && response.status === 200) {
-            const txt = await response.text();
-            const res: number[] = JSON.parse(txt);
-            return res
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`);
-        }
+        return await this.fetcher.post(`/api/iserver/textFeature`, {
+            text: text,
+            require_cache: requireCache,
+        }).then(res=>res.json());
     }
 
     reqAISummary(
@@ -304,16 +157,11 @@ export class ServerConn {
         force: boolean = true,
         model = "DEFAULT"
         ): void{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-        form.append('force', force.toString())
-        form.append('uuid', uid)
-        form.append('model', model)
-        const res = fetch(`${this.apiURL()}/summary`, {
-            method: 'POST',
-            body: form,
-        })
-        res.then(response => {
+        this.fetcher.post(`/api/summary`, {
+            force: force,
+            uuid: uid,
+            model: model,
+        }).then(response => {
             if (!response.ok) {
                 onStreamComing("(Error: " + response.status + ")");
                 throw new Error("HTTP error " + response.status);
@@ -337,8 +185,6 @@ export class ServerConn {
                 return reader.read().then(processTextData as any);
             };
             return reader.read().then(processTextData as any);
-        }).catch(error => {
-            console.error(error);
         })
     }
 
@@ -347,23 +193,9 @@ export class ServerConn {
     // =============================================
 
     async deleteData(uid: string): Promise<boolean>{
-        const url = new URL(`${this.apiURL()}/dataman/delete`);
-        url.searchParams.append("key", this.settings.encKey);
-        url.searchParams.append("uuid", uid);
-
-        const response = await fetch(url.toString(),
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":"application/x-www-form-urlencoded"
-                },
-            }
-        );
-        if (response.ok && response.status === 200) {
-            return true;
-        } else {
-            throw new Error(`Got response: ${response.status}`);
-        }
+        return await this.fetcher.post(`/api/dataman/delete`, {
+            uuid: uid,
+        }).then(()=>true);
     }
     
     async editData(
@@ -378,29 +210,11 @@ export class ServerConn {
                 throw new Error("uid is null, other fields should be complete");
             }
         }
-        const params = new URLSearchParams();
-        if (!uid){ uid = null; }
-        params.set("key", this.settings.encKey);
-        params.set("uuid", JSON.stringify(uid))
-        if (bibtex !== null ) params.set("bibtex", bibtex);
-        if (tags !== null) params.set("tags", JSON.stringify(tags));
-        if (url !== null) params.set("url", url);
-        const response = await fetch(`${this.apiURL()}/dataman/update`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":"application/x-www-form-urlencoded"
-                },
-                body: params.toString(),
-            }
-        );
-        if (response.ok && response.status === 200) {
-            const res: DataInfoT = JSON.parse(await response.text());
-            return res
-        }
-        else{
-            throw new Error(`Got response: ${response.status}`);
-        }
+        const params = {} as Record<string, any>;
+        if (uid !== null) params["uuid"] = JSON.stringify(uid);
+        if (bibtex !== null ) params["bibtex"] = bibtex;
+        if (tags !== null) params["tags"] = JSON.stringify(tags);
+        return await this.fetcher.post(`/api/dataman/update`, params).then(res=>res.json());
     }
 
     /* upload images to the misc folder and return the file names */
@@ -409,22 +223,9 @@ export class ServerConn {
             files.map((file) => {
                 // file is an object of File class: https://developer.mozilla.org/en-US/docs/Web/API/File
                 return new Promise((resolve, reject) => {
-                    const form = new FormData();
-                    form.append('file', file);
-                    form.append('key', this.settings.encKey)
-                    
-                    fetch(`${getBackendURL()}/img/${uid}`, {
-                        method: 'PUT',
-                        body: form,
-                    })
-                    .then((response) => {
-                        if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then((data) => resolve(data))
-                    .catch((error) => reject(error));
+                    this.fetcher.put(`/img/${uid}`, {
+                        file: file,
+                    }).then(res=>res.json()).then(resolve).catch(reject);
                 });
             })
         );
@@ -433,66 +234,27 @@ export class ServerConn {
 
     /* upload document and return the new datapoint summary */
     async uploadDocument(uid: string, file: File): Promise<DataInfoT>{
-        const form = new FormData();
-        form.append('file', file);
-        form.append('key', this.settings.encKey)
-        const res = await fetch(`${getBackendURL()}/doc/${uid}`, {
-            method: 'PUT',
-            body: form,
-        })
-        if (res.ok){
-            const resObj = await res.json();
-            const DataInfo: DataInfoT = resObj;
-            return DataInfo;
-        }
-        else{
-            throw new Error(`Got response: ${res.status}`)
-        }
+        return await this.fetcher.put(`/doc/${uid}`, {
+            file: file,
+        }).then(res=>res.json());
     }
 
     /* free document and return the new datapoint summary */
     async freeDocument(uid: string): Promise<DataInfoT>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-        const res = await fetch(`${getBackendURL()}/doc/${uid}`, {
-            method: 'DELETE',
-            body: form,
-        });
-        if (res.ok){
-            const resObj = await res.json();
-            const DataInfo: DataInfoT = resObj;
-            return DataInfo;
-        }
-        else{
-            throw new Error(`Got response: ${res.status}`)
-        }
+        return await this.fetcher.delete(`/doc/${uid}`).then(res=>res.json());
     }
 
     async renameTag(oldTag: string, newTag: string): Promise<boolean>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-        form.append('oldTag', oldTag)
-        form.append('newTag', newTag)
-
-        const res = await fetch(`${this.apiURL()}/dataman/tag-rename`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){ return true; }
-        else{ throw new Error(`Got response: ${res.status}`) }
+        return await this.fetcher.post(`/api/dataman/tag-rename`, {
+            oldTag: oldTag,
+            newTag: newTag,
+        }).then(()=>true);
     }
 
     async deleteTag(tag: string): Promise<boolean>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-        form.append('tag', tag)
-
-        const res = await fetch(`${this.apiURL()}/dataman/tag-delete`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){ return true; }
-        else{ throw new Error(`Got response: ${res.status}`) }
+        return await this.fetcher.post(`/api/dataman/tag-delete`, {
+            tag: tag,
+        }).then(()=>true);
     }
 
     // =============================================
@@ -500,129 +262,63 @@ export class ServerConn {
     // =============================================
 
     async reqUserInfo(username: string): Promise<UserInfo>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-
-        const res = await fetch(`${this.apiURL()}/user/info/${username}`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){ return await res.json(); }
-        else { throw new Error(`Got response: ${res.status}`) }
+        // TODO: use get
+        return await this.fetcher.post(`/api/user/info/${username}`).then(res=>res.json());
     }
 
     async updateUserNickname(name: string): Promise<UserInfo>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey) // the user is identified by the key
-        form.append('name', name)
-
-        const res = await fetch(`${this.apiURL()}/user/info-update`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){ return await res.json(); }
-        else { throw new Error(`Got response: ${res.status}`) }
+        // the user is identified by the key
+        return await this.fetcher.post(`/api/user/info-update`, {
+            name: name,
+        }).then(res=>res.json());
     }
 
     async updateUserPassword(newPassword: string): Promise<UserInfo>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey) // the user is identified by the key
-        form.append('password', sha256(newPassword))
-        
-        const res = await fetch(`${this.apiURL()}/user/info-update`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){ return await res.json(); }
-        else { throw new Error(`Got response: ${res.status}`) }
+        // the user is identified by the key
+        return await this.fetcher.post(`/api/user/info-update`, {
+            password: sha256(newPassword),
+        }).then(res=>res.json());
     }
 
     async reqUserList(): Promise<UserInfo[]>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-
-        const res = await fetch(`${this.apiURL()}/user/list`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){ return await res.json(); }
-        else { throw new Error(`Got response: ${res.status}`) }
+        return await this.fetcher.post(`/api/user/list`, {}).then(res=>res.json());
     }
 
     async uploadUserAvatar(username: string, file: File): Promise<UserInfo>{
-        const form = new FormData();
-        form.append('file', file);
-        form.append('key', this.settings.encKey)
-        const res = await fetch(`${getBackendURL()}/user-avatar/${username}`, {
-            method: 'PUT',
-            body: form,
-        })
-        if (res.ok){ return await res.json(); }
-        else { throw new Error(`Got response: ${res.status}`) }
+        return await this.fetcher.put(`/user-avatar/${username}`, {
+            file: file,
+        }).then(res=>res.json());
     }
 
+    // User management
     async setUserAccess(username: string, setAdmin: boolean | null, setMandatoryTags: string[] | null): Promise<UserInfo>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-        form.append('username', username)
-        if (setAdmin !== null) form.append('is_admin', setAdmin.toString())
-        if (setMandatoryTags !== null) form.append('mandatory_tags', JSON.stringify(setMandatoryTags))
-
-        const res = await fetch(`${this.apiURL()}/userman/modify`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){ return await res.json(); }
-        else { throw new Error(`Got response: ${res.status}`) }
+        const formObj = {} as Record<string, any>;
+        formObj.username = username;
+        if (setAdmin !== null) 
+            formObj.is_admin = setAdmin.toString();
+        if (setMandatoryTags !== null) 
+            formObj.mandatory_tags = JSON.stringify(setMandatoryTags);
+        return await this.fetcher.post(`/api/userman/modify`, formObj).then(res=>res.json());
     }
 
     async createUser(username: string, name: string, password: string, isAdmin: boolean, mandatoryTags: string[]): Promise<UserInfo>{
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-        form.append('username', username)
-        form.append('name', name)
-        form.append('password', sha256(password))
-        form.append('is_admin', isAdmin.toString())
-        form.append('mandatory_tags', JSON.stringify(mandatoryTags))
-
-        const res = await fetch(`${this.apiURL()}/userman/create`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){ return await res.json(); }
-        else { throw new Error(`Got response: ${res.status}`) }
+        return await this.fetcher.post(`/api/userman/create`, {
+            username: username,
+            name: name,
+            password: sha256(password),
+            is_admin: isAdmin.toString(),
+            mandatory_tags: JSON.stringify(mandatoryTags),
+        }).then(res=>res.json());
     }
 
     async deleteUser(username: string){
-        const form = new FormData();
-        form.append('key', this.settings.encKey)
-        form.append('username', username)
-
-        const res = await fetch(`${this.apiURL()}/userman/delete`, {
-            method: 'POST',
-            body: form,
-        });
-        if (res.ok){ return true; }
-        else { throw new Error(`Got response: ${res.status}`) }
+        return await this.fetcher.post(`/api/userman/delete`, {
+            username: username,
+        }).then(()=>true);
     }
 
     // ---- info ----
     async changelog(): Promise<Changelog>{
-        const url = new URL(`${this.apiURL()}/info/changelog`);
-        url.searchParams.append("key", this.settings.encKey);
-        const response = await fetch(url.toString(),
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type":"application/x-www-form-urlencoded"
-                },
-            }
-        );
-        if (response.ok && response.status === 200) {
-            const res = JSON.parse(await response.text());
-            return res;
-        } else {
-            throw new Error(`Got response: ${response.status}`);
-        }
+        return await this.fetcher.get(`/api/info/changelog`).then(res=>res.json());
     }
 }
