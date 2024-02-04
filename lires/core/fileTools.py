@@ -264,7 +264,7 @@ class FileManipulator(LiresBase):
     async def writeBib(self, bib: str):
         await self.logger.debug("(fm) writeBib: {}".format(self.uuid))
         await self._log()
-        return self.conn.updateBibtex(self.uuid, bib)
+        return await self.conn.updateBibtex(self.uuid, bib)
     
     async def readAbstract(self) -> str:
         db_data = await self.conn.get(self.uuid); assert db_data
