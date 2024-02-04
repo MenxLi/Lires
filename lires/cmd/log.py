@@ -1,5 +1,5 @@
 
-import argparse
+import argparse, os, sys
 import sqlite3
 import glob
 from typing import Optional, Generator
@@ -140,10 +140,19 @@ def main():
             lines = reader.getMessagesFromTable(table_name, args.level, limit=args.limit)
             __all_lines.extend(lines)
         __all_lines = sortLines(__all_lines)
-        for line in formatLines(__all_lines):
-            print(line)
-        print('\n'+'-' * 80)
-        print(f"Total {len(__all_lines)} lines, from table {table_name}")
+        try:
+            for line in formatLines(__all_lines):
+                print(line)
+            print('\n'+'-' * 80)
+            print(f"Total {len(__all_lines)} lines, from table {table_name}")
+        except BrokenPipeError:
+            # https://stackoverflow.com/a/58517082
+            # Python flushes standard streams on exit; redirect remaining output
+            # to devnull to avoid another BrokenPipeError at shutdown
+            devnull = os.open(os.devnull, os.O_WRONLY)
+            os.dup2(devnull, sys.stdout.fileno())
+            sys.exit(1)  # Python exits with error code 1 on EPIPE
+
 
     elif args.subparser_name == 'check':
         # get size of each table
