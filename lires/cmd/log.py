@@ -68,7 +68,8 @@ def formatLines(lines: list[tuple]) -> Generator[str, None, None]:
         yield formatLine(lines[i])
 
 def sortLines(lines: list[tuple]) -> list[tuple]:
-    return sorted(lines, key=lambda x: x[0], reverse=True)
+    # in the order of time
+    return sorted(lines, key=lambda x: x[0], reverse=False)
 
 def main():
     parser = argparse.ArgumentParser(description='Log tools')
