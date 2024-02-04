@@ -21,6 +21,10 @@ export const FileSelectButton = defineComponent({
             type: Function,
             required: true
         },
+        style: {
+            type: Object,
+            default: () => ({})
+        }
     },
     setup(props, context: SetupContext) {
         const inputButton = ref<HTMLInputElement | null>(null);
@@ -34,16 +38,27 @@ export const FileSelectButton = defineComponent({
         function click() { inputButton.value!.click() };
         context.expose({ click });
         return () => (
-            <div class="upload-button" style="display:flex">
+            <>
                 <input type="file" id="upload-file" onChange={handleFile}
                     ref={inputButton} style={{display: 'none'}} />
                 {
                     props.asLink ?
-                    <a class="btn upload-btn" rel="noopener noreferrer" onClick={() => inputButton.value!.click()}>{props.text}</a>
+                    <a class="btn upload-btn" 
+                        rel="noopener noreferrer" 
+                        onClick={() => inputButton.value!.click()}
+                        style={props.style}
+                    >
+                        {props.text}
+                    </a>
                     :
-                    <button type="button" class="btn upload-btn" onClick={() => inputButton.value!.click()}>{props.text}</button>
+                    <button type="button" class="btn upload-btn" 
+                        onClick={() => inputButton.value!.click()}
+                        style={props.style}
+                    >
+                        {props.text}
+                    </button>
                 }
-            </div>
+            </>
         )
     }
 })
