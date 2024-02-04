@@ -37,11 +37,10 @@ class Fetcher {
         });
     }
 
-    public async put(path: string, body: Record<string, any> = {}): Promise<Response> {
+    public async put(path: string, file: File): Promise<Response> {
         const form = new FormData();
-        for (const key in body) {
-            form.append(key, body[key]);
-        }
+        form.append('key', this._tokenGetter());
+        form.append('file', file);
         return await this._fetch(`${this._baseUrlGetter()}${path}`, 
         {
             method: 'PUT',
@@ -49,11 +48,9 @@ class Fetcher {
         });
     }
 
-    public async delete(path: string, body: Record<string, any> = {}): Promise<Response> {
+    public async delete(path: string): Promise<Response> {
         const form = new FormData();
-        for (const key in body) {
-            form.append(key, body[key]);
-        }
+        form.append('key', this._tokenGetter());
         return await this._fetch(`${this._baseUrlGetter()}${path}`, 
         {
             method: 'DELETE',

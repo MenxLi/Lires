@@ -224,9 +224,10 @@ export class ServerConn {
             files.map((file) => {
                 // file is an object of File class: https://developer.mozilla.org/en-US/docs/Web/API/File
                 return new Promise((resolve, reject) => {
-                    this.fetcher.put(`/img/${uid}`, {
-                        file: file,
-                    }).then(res=>res.json()).then(resolve).catch(reject);
+                    this.fetcher.put(`/img/${uid}`, file)
+                        .then(res=>res.json())
+                        .then(resolve)
+                        .catch(reject);
                 });
             })
         );
@@ -235,9 +236,7 @@ export class ServerConn {
 
     /* upload document and return the new datapoint summary */
     async uploadDocument(uid: string, file: File): Promise<DataInfoT>{
-        return await this.fetcher.put(`/doc/${uid}`, {
-            file: file,
-        }).then(res=>res.json());
+        return await this.fetcher.put(`/doc/${uid}`, file).then(res=>res.json());
     }
 
     /* free document and return the new datapoint summary */
@@ -286,9 +285,7 @@ export class ServerConn {
     }
 
     async uploadUserAvatar(username: string, file: File): Promise<UserInfo>{
-        return await this.fetcher.put(`/user-avatar/${username}`, {
-            file: file,
-        }).then(res=>res.json());
+        return await this.fetcher.put(`/user-avatar/${username}`, file).then(res=>res.json());
     }
 
     // User management

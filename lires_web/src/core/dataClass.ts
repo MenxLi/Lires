@@ -338,6 +338,11 @@ export class DataBase {
         return this.data[uuid];
     }
 
+    async aget(_: string): Promise<DataPoint>{
+        // will shift to async get in the future
+        throw new Error("Not implemented");
+    }
+
     getMany(uuids: string[]): DataPoint[]{
         const ret = [];
         for (const uid of uuids){
