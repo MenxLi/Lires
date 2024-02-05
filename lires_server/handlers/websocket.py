@@ -36,18 +36,21 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
             'user_info': await self.userInfoDesensitized(),
         })
 
-    async def on_close(self):
-        await self.logger.info("WebSocket closed from {} (s: {})".format((await self.userInfo())['username'], self.session_id))
-        await self.broadcastEventMessage({
-            'type': 'logout',
-            'username': (await self.userInfo())['username'],
-            'user_info': await self.userInfoDesensitized(),
-        })
-        try:
-            # unregister from global connection pool
-            self.connection_pool.remove(self)
-        except IndexError:
-            await self.logger.error("WebSocket connection not found in connection pool, skipped")
+    def on_close(self):
+        # in the current version of tornado, on_close is not called as a coroutine
+        async def _on_close():
+            await self.logger.info("WebSocket closed from {} (s: {})".format((await self.userInfo())['username'], self.session_id))
+            await self.broadcastEventMessage({
+                'type': 'logout',
+                'username': (await self.userInfo())['username'],
+                'user_info': await self.userInfoDesensitized(),
+            })
+            try:
+                # unregister from global connection pool
+                self.connection_pool.remove(self)
+            except IndexError:
+                await self.logger.error("WebSocket connection not found in connection pool, skipped")
+        tornado.ioloop.IOLoop.current().add_callback(_on_close)
 
     async def on_message(self, message):
         # TODO: to deal with user interactions
