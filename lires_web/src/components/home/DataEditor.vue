@@ -143,7 +143,7 @@
         )
     }
 
-    // Drag and drop to insert bibtex
+    // Drag and drop to insert bibtex or file
     const isInDrag = ref(false);
     const dataEditorComponent = ref<HTMLDivElement | null>(null);
     const __onDragover = (e: DragEvent) => {
@@ -157,7 +157,7 @@
     const __onDragDrop = (e: DragEvent) => {
         e.preventDefault();
         const files = e.dataTransfer?.files;
-        if (files && files.length > 0){
+        if (files && files.length > 0 && files[0].type === "text/plain"){
             const file = files[0];
             if (file.size < 64*1024){
                 const reader = new FileReader();
@@ -170,6 +170,9 @@
             else{
                 uiState.showPopup("File too large", "error");
             }
+        }
+        else if (files && files.length > 0){
+            file_.value = files[0];
         }
         isInDrag.value = false;
     }
@@ -256,11 +259,12 @@
                         ></TagSelectorWithEntry>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: center; margin-left: 13px;" v-if="datapoint_===null">
-                    <div>
-                        <FileSelectButton text="Select document" :action="(f: File)=>{file_=f}" :as-link="true" style="cursor:pointer; padding: 2px; border-radius: 3px;" v-if="!file_"/>
-                        <a @click="file_=null" style="cursor: pointer; padding: 2px; border-radius: 3px;" v-else>Remove: </a>
+                <div style="display: flex; justify-content: center;" v-if="datapoint_===null">
+                    <div style="margin-top: 5px">
+                        <!-- file selection -->
                         {{ file_?file_.name:"" }}
+                        <FileSelectButton text="Select document" :action="(f: File)=>{file_=f}" :as-link="true" style="cursor:pointer; padding: 3px; border-radius: 5px;" v-if="!file_"/>
+                        <a @click="file_=null" style="cursor: pointer; padding: 3px; border-radius: 5px;" v-else> (Remove) </a>
                     </div>
                 </div>
             </div>
@@ -270,7 +274,7 @@
                     /* height: 470px; width: 630px */
                     height: 430px; width: 590px; border: 5px dashed var(--color-border); border-radius: 10px; margin: 15px;
                 ">
-                    <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Drop to insert citation</div>
+                    <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Drop to insert citation or document</div>
                     <div style="font-size: 12px; opacity: 0.5;">(only support bibtex/enw/nbib)</div>
                 </div>
             </div>
