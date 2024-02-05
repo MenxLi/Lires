@@ -51,7 +51,7 @@
         datapoint: DataPoint | null,
         bibtex: string | null,
         url: string | null,
-        tags: DataTags | null
+        tags: DataTags | null | string[]
     }){
         if (datapoint!==null){
             datapoint_.value = datapoint;
@@ -62,6 +62,7 @@
         if (bibtex!==null){ bibtex_.value = bibtex; }
         if (url!==null){ url_.value = url; }
         if (tags!==null){
+            if (Array.isArray(tags)){ tags = new DataTags(tags); }
             tagStatus_.value = {
                 all: new DataTags(uiState.tagStatus.all).union(tags),
                 checked: tags,
