@@ -61,7 +61,13 @@ export default {
     const lazyOnSearchChanged = lazify(onSearchChanged, 200);
 
     // adding new data
-    const showAddingDataWindow = ref(false);
+    const dataEditor = ref(null as null | typeof DataEditor);
+
+    function showBlankAddingDataWindow(){
+        dataEditor.value!.show({
+            datapoint : null,
+        });
+    }
 
     function reloadProg(){
         uiState.reloadDatabase();
@@ -71,11 +77,11 @@ export default {
 </script>
 
 <template>
-    <DataEditor :datapoint="null" v-model:show="showAddingDataWindow"></DataEditor>
+    <DataEditor ref="dataEditor"></DataEditor>
     <Banner :return-home="false">
         <div id="bannerAddons">
             <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
-                @click="showAddingDataWindow = true" shortcut="ctrl+n"></BannerIcon>
+                @click="showBlankAddingDataWindow" shortcut="ctrl+n"></BannerIcon>
             <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"
                 @click="()=>settingsStore.setShowTagPanel(!settingsStore.showTagPanel)"></BannerIcon>
             <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
@@ -114,7 +120,7 @@ export default {
                             Nothing to show
                             <p style="font-size: medium">
                                 Add your first enty by clicking the 
-                                <b><a @click="showAddingDataWindow = true" style="
+                                <b><a @click="showBlankAddingDataWindow" style="
                                     cursor:pointer;
                                     border-radius: 5px;
                                     padding-inline: 3px;

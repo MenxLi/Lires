@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import { ref, computed, watch } from 'vue';
+    import { ref, computed } from 'vue';
     import QueryDialog from '../common/QueryDialog.vue';
     import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
     import { useUIStateStore } from '../store';
@@ -12,25 +12,14 @@
     import { getBibtexTemplate, type BibtexTypes } from './bibtexUtils';
     import { BibtexCollector } from './bibtexUtils';
 
-    const props = defineProps<{
-        datapoint: DataPoint | null,
-        show: boolean,
-    }>();
-
-    const emits = defineEmits<{
-        (e: "update:show", show: boolean): void
-    }>();
-
-    const show = computed({
-        get: () => props.show,
-        set: (newShow: boolean) => emits("update:show", newShow) 
-    });
 
     const uiState = useUIStateStore();
-    // data ref
-    const bibtex = ref("");
-    const url = ref("");
-    const tagStatus = ref<TagStatus>({
+    // internal states that control the dialog
+    const show_ = ref(false);
+    const datapoint_ = ref<DataPoint | null>(null);
+    const bibtex_ = ref("");
+    const url_ = ref("");
+    const tagStatus_ = ref<TagStatus>({
         all: new DataTags(),
         checked: new DataTags(),
         unfolded: new DataTags(),
@@ -39,12 +28,12 @@
     // methods
     function save(){
         let uuid = null;
-        if (props.datapoint){
-            uuid = props.datapoint.summary.uuid;
+        if (datapoint_.value){
+            uuid = datapoint_.value.summary.uuid;
         }
-        show.value = false;
+        show_.value = false;
         uiState.showPopup("Saving entry...", "info")
-        new ServerConn().editData(uuid, bibtex.value, Array.from(tagStatus.value.checked), url.value).then(
+        new ServerConn().editData(uuid, bibtex_.value, Array.from(tagStatus_.value.checked), url_.value).then(
             (_) => {
                 uiState.showPopup("Saved", "success");
             },
@@ -53,24 +42,58 @@
     }
     const newTagInput = ref("");
 
-    watch(show, (newShow) => {
-        // init data on every showup!
-        if (newShow){
-            if (props.datapoint){ bibtex.value = props.datapoint.summary.bibtex; }
-            else { bibtex.value = "";}
-            if (props.datapoint){ url.value = props.datapoint.summary.url; }
-            else { url.value = "";}
-            tagStatus.value = {
-                all: new DataTags(uiState.tagStatus.all),
-                checked: props.datapoint? new DataTags(props.datapoint.summary.tags) : new DataTags(uiState.tagStatus.checked),
-                unfolded: props.datapoint? 
-                        new DataTags(props.datapoint.summary.tags).allParents():
-                        new DataTags(uiState.tagStatus.unfolded)
-            };
-            newTagInput.value = "";
-            isInDrag.value = false;
+    function show({
+        datapoint = null, 
+        bibtex = null, 
+        url = null, 
+        tags = null,
+    }: {
+        datapoint: DataPoint | null,
+        bibtex: string | null,
+        url: string | null,
+        tags: DataTags | null
+    }){
+        if (datapoint!==null){
+            datapoint_.value = datapoint;
+            bibtex_.value = datapoint.summary.bibtex;
+            url_.value = datapoint.summary.url;
+            if (tags === null) tags = new DataTags(datapoint.summary.tags);
         }
-    })
+        if (bibtex!==null){ bibtex_.value = bibtex; }
+        if (url!==null){ url_.value = url; }
+        if (tags!==null){
+            tagStatus_.value = {
+                all: new DataTags(uiState.tagStatus.all).union(tags),
+                checked: tags,
+                unfolded: tags.allParents()
+            }}
+        else{
+            tagStatus_.value = {
+                all: new DataTags(uiState.tagStatus.all),
+                checked: new DataTags(uiState.tagStatus.checked),
+                unfolded: new DataTags(uiState.tagStatus.unfolded)
+            }
+        }
+        show_.value = true;
+    }
+    function close(){
+        // clear all states
+        show_.value = false;
+        datapoint_.value = null;
+        bibtex_.value = "";
+        url_.value = "";
+        tagStatus_.value = {
+            all: new DataTags(uiState.tagStatus.all),
+            checked: new DataTags(uiState.tagStatus.checked),
+            unfolded: new DataTags(uiState.tagStatus.unfolded)
+        }
+        newTagInput.value = "";
+        isInDrag.value = false;
+    }
+    function isShown(){
+        return show_.value;
+    }
+    defineExpose({ show, close, isShown })
 
     const showBibtexTemplate = ref(false);
     const bibtexTemplateSelection = ref("article" as BibtexTypes);
@@ -97,8 +120,8 @@
         __bibSourceMap[bibSourceType.value](src).then(
             (res) => {
                 uiState.showPopup("Obtained bibtex from source", "success");
-                bibtex.value = res.bibtex;
-                url.value = res.url
+                bibtex_.value = res.bibtex;
+                url_.value = res.url
             },
             () => {
                 uiState.showPopup("Failed to fetch from source", "error");
@@ -126,7 +149,7 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const content = e.target?.result as string;
-                    bibtex.value = content;
+                    bibtex_.value = content;
                 }
                 reader.readAsText(file);
             }
@@ -140,7 +163,7 @@
 
 <template>
     <QueryDialog v-model:show="showBibtexTemplate" 
-    @on-accept="()=>{bibtex=bibtexTemplate; showBibtexTemplate=false}" 
+    @on-accept="()=>{bibtex_=bibtexTemplate; showBibtexTemplate=false}" 
     @on-cancel="showBibtexTemplate=false" :z-index=102 title="Select template">
         <div :style="{
             display: 'flex',
@@ -187,8 +210,8 @@
     </QueryDialog>
 
     <QueryDialog 
-        v-model:show="show" :title="datapoint?datapoint.authorAbbr():'new'" :show-cancel="false"
-        @on-accept="save" @on-cancel="() => show=false"
+        v-model:show="show_" :title="datapoint_?datapoint_.authorAbbr():'new'" :show-cancel="false"
+        @on-accept="save" @on-cance="close" @on-close="close"
     >
         <div 
             id="data-editor-main" ref="dataEditorComponent" 
@@ -205,16 +228,16 @@
                                     <div class="button" @click="showBibSourceInput=true">from-source</div>
                                 </div>
                             </div>
-                            <textarea id="bibtex" v-model="bibtex" placeholder="bibtex / enw / nbib"></textarea>
+                            <textarea id="bibtex" v-model="bibtex_" placeholder="bibtex / enw / nbib"></textarea>
                         </div>
                         <div id="urlArea">
                             <label for="url">URL: </label>
-                            <input id="url" v-model="url" placeholder="url" type="text">
+                            <input id="url" v-model="url_" placeholder="url" type="text">
                         </div>
                     </div>
                     <div id="inputRight">
                         <TagSelectorWithEntry 
-                            v-model:tag-status="tagStatus"
+                            v-model:tag-status="tagStatus_"
                             v-model:tag-input-value="newTagInput"
                         ></TagSelectorWithEntry>
                     </div>
@@ -322,4 +345,4 @@
         gap: 5px;
     }
 
-</style>../../api/serverConn
+</style>

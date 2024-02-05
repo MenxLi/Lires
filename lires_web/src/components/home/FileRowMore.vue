@@ -85,18 +85,19 @@ function deleteThisDatapoint(){
 }
 
 // editor
-const showEditor = ref(false);
+const dataEditor = ref<typeof DataEditor | null>(null);
 function editThisDatapoint(){
-    // uiState.showPopup("Not implemented yet", "warning");
-    showEditor.value = true;
+    dataEditor.value!.show({
+        datapoint : props.datapoint,
+    });
 }
 // a trigger to enable edit datapoint via shortcut, can be called by parent component
 // not enable edit shortcut when editor is shown or abstract paragraph is focused
 const shouldEnableEditDatapoint = computed(()=> {
     if (abstractParagraph.value === null){
-        return !showEditor.value;
+        return !dataEditor.value!.isShown();
     }
-    return (!showEditor.value) && (!abstractParagraph.value.hasFocus())
+    return (!dataEditor.value!.isShown()) && (!abstractParagraph.value.hasFocus())
 });
 defineExpose({
     editThisDatapoint,
@@ -147,7 +148,7 @@ const showSummary = ref(false);
             <hr v-if="index !== 5">
         </div>
     </FloatingWindow>
-    <DataEditor v-model:show="showEditor" :datapoint="datapoint"></DataEditor>
+    <DataEditor ref="dataEditor"></DataEditor>
     <Transition name="expand-transition">
     <div id="moreMain" v-if="show">
         <div class="row" id="buttons">
