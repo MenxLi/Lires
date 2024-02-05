@@ -68,6 +68,7 @@
                         new DataTags(uiState.tagStatus.unfolded)
             };
             newTagInput.value = "";
+            isInDrag.value = false;
         }
     })
 
@@ -78,11 +79,10 @@
     type BibSourceT = 'arxiv' | 'doi' | 'webpage'
     const showBibSourceInput = ref(false);
     const bibSourceType = ref("arxiv" as BibSourceT);
-    const __bibCollector = new BibtexCollector();
     const __bibSourceMap: Record<BibSourceT, (src: string) => Promise<{bibtex: string, url: string}>> = {
-        arxiv: (src: string) => __bibCollector.fromArxiv(src),
-        doi: (src: string) => __bibCollector.fromDoi(src),
-        webpage: (src: string) => __bibCollector.fromWebpage(src),
+        arxiv: (src: string) => BibtexCollector.fromArxiv(src),
+        doi: (src: string) => BibtexCollector.fromDoi(src),
+        webpage: (src: string) => BibtexCollector.fromWebpage(src),
     }
     const __bibSourceHintMap: Record<BibSourceT, string> = {
         arxiv: "e.g. 2106.00001",
@@ -113,7 +113,7 @@
         e.preventDefault();
         isInDrag.value = true;
     }
-    const __onDragLeave = (e: DragEvent) => {
+    const __onDragEnd = (e: DragEvent) => {
         e.preventDefault();
         isInDrag.value = false;
     }
@@ -134,19 +134,8 @@
                 uiState.showPopup("File too large", "error");
             }
         }
+        isInDrag.value = false;
     }
-    watch(show, (newShow) => {
-        if (newShow){
-            window.addEventListener("dragover", __onDragover);
-            window.addEventListener("drop", __onDragDrop);
-            window.addEventListener("dragleave", __onDragLeave);
-        }else{
-            isInDrag.value = false;     // reset on close
-            window.removeEventListener("dragover", __onDragover);
-            window.removeEventListener("drop", __onDragDrop);
-            window.removeEventListener("dragleave", __onDragLeave);
-        }
-    })
 </script>
 
 <template>
@@ -201,7 +190,10 @@
         v-model:show="show" :title="datapoint?datapoint.authorAbbr():'new'" :show-cancel="false"
         @on-accept="save" @on-cancel="() => show=false"
     >
-        <div id="data-editor-main" ref="dataEditorComponent">
+        <div 
+            id="data-editor-main" ref="dataEditorComponent" 
+            @dragover="__onDragover" @drop="__onDragDrop" @dragend="__onDragEnd"
+        >
             <div v-if="!isInDrag">
                 <div id="inputDiv">
                     <div id="inputLeft">

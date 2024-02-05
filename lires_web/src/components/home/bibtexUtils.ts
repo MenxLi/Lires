@@ -53,7 +53,7 @@ interface CollectRes{
     url: string
 }
 export class BibtexCollector{
-    async fromArxiv(query: string): Promise<CollectRes>{
+    static async fromArxiv(query: string): Promise<CollectRes>{
         let _id = query.toLowerCase();
         if (_id.startsWith("arxiv:")){
             _id = _id.split("arxiv:")[1];
@@ -70,7 +70,7 @@ export class BibtexCollector{
             url: paper.link
         }
     }
-    async fromWebpage(url: string): Promise<CollectRes>{
+    static async fromWebpage(url: string): Promise<CollectRes>{
         // Fetch webpage content
         // const response = await fetch(url, { method: 'GET', });
         const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
@@ -91,7 +91,7 @@ export class BibtexCollector{
             url: url
         }
     };
-    async fromDoi(doi: string): Promise<CollectRes>{
+    static async fromDoi(doi: string): Promise<CollectRes>{
         const url = `https://api.crossref.org/works/${doi}/transform/application/x-bibtex`;
         const response = await fetch(url, { method: 'GET', });
         const bibtex = await response.text();
