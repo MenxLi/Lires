@@ -11,6 +11,7 @@
     import Toggle from '../common/Toggle.vue';
     import { getBibtexTemplate, type BibtexTypes } from './bibtexUtils';
     import { BibtexCollector } from './bibtexUtils';
+    import { FileSelectButton } from '../common/fragments';
 
 
     const uiState = useUIStateStore();
@@ -19,6 +20,7 @@
     const datapoint_ = ref<DataPoint | null>(null);
     const bibtex_ = ref("");
     const url_ = ref("");
+    const file_ = ref<File | null>(null);
     const tagStatus_ = ref<TagStatus>({
         all: new DataTags(),
         checked: new DataTags(),
@@ -34,8 +36,15 @@
         show_.value = false;
         uiState.showPopup("Saving entry...", "info")
         new ServerConn().editData(uuid, bibtex_.value, Array.from(tagStatus_.value.checked), url_.value).then(
-            (_) => {
-                uiState.showPopup("Saved", "success");
+            (dSummary) => {
+                if (!file_.value){ uiState.showPopup("Saved", "success"); }
+                else{
+                    uiState.showPopup("Uploading document...", "info");
+                    new ServerConn().uploadDocument(dSummary.uuid, file_.value).then(
+                        (_) => { uiState.showPopup("Saved", "success"); },
+                        () => uiState.showPopup("Failed to upload document", "error")
+                    )
+                }
             },
             () => uiState.showPopup("Failed to save", "error")
         )
@@ -88,6 +97,7 @@
             checked: new DataTags(uiState.tagStatus.checked),
             unfolded: new DataTags(uiState.tagStatus.unfolded)
         }
+        file_.value = null;
         newTagInput.value = "";
         isInDrag.value = false;
     }
@@ -241,6 +251,13 @@
                             v-model:tag-status="tagStatus_"
                             v-model:tag-input-value="newTagInput"
                         ></TagSelectorWithEntry>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: center; margin-left: 13px;" v-if="datapoint_===null">
+                    <div>
+                        <FileSelectButton text="Select document" :action="(f: File)=>{file_=f}" :as-link="true" style="cursor:pointer; padding: 2px; border-radius: 3px;" v-if="!file_"/>
+                        <a @click="file_=null" style="cursor: pointer; padding: 2px; border-radius: 3px;" v-else>Remove: </a>
+                        {{ file_?file_.name:"" }}
                     </div>
                 </div>
             </div>
