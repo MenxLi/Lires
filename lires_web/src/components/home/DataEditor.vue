@@ -107,6 +107,21 @@
     function isShown(){
         return show_.value;
     }
+    function setFile(f: File){
+        file_.value = f;
+        // if bibtext is empty, try to extract from file
+        console.log("file selected");
+        if (bibtex_.value.trim().length === 0){
+            console.log("try to extract bibtex from file");
+            const fname = f.name;
+            const ftime = f.lastModified;
+            const bib = getBibtexTemplate("article", {
+                title: fname,
+                year: new Date(ftime).getFullYear(),
+            });
+            bibtex_.value = bib;
+        }
+    }
     defineExpose({ show, close, isShown })
 
     const showBibtexTemplate = ref(false);
@@ -172,7 +187,7 @@
             }
         }
         else if (files && files.length > 0){
-            file_.value = files[0];
+            setFile(files[0]);
         }
         isInDrag.value = false;
     }
@@ -263,7 +278,7 @@
                     <div style="margin-top: 5px">
                         <!-- file selection -->
                         {{ file_?file_.name:"" }}
-                        <FileSelectButton text="Select document" :action="(f: File)=>{file_=f}" :as-link="true" style="cursor:pointer; padding: 3px; border-radius: 5px;" v-if="!file_"/>
+                        <FileSelectButton text="Select document" :action="setFile" :as-link="true" style="cursor:pointer; padding: 3px; border-radius: 5px;" v-if="!file_"/>
                         <a @click="file_=null" style="cursor: pointer; padding: 3px; border-radius: 5px;" v-else> (Remove) </a>
                     </div>
                 </div>

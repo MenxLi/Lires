@@ -1,15 +1,22 @@
 import { fetchArxivPaperByID, bibtexFromArxiv } from "../../utils/arxiv";
 
 export type BibtexTypes = 'article' | 'inproceedings' | 'webpage'
-export const getBibtexTemplate = (type: BibtexTypes) => {
+export const getBibtexTemplate = (type: BibtexTypes, {
+    entry = "",
+    title = "",
+    authors = [""],
+    year = new Date().getFullYear(),
+} = {}) => {
+    if (!entry){
         // generate a random bibtex entry
-    const entry = Math.random().toString(36).substring(7);
+        entry = `${year}_${Math.random().toString(36).substring(7)}`;
+    }
     if (type == "article"){
         return `@article{${entry},
-        author = {},
-        title = {},
+        author = {${authors.join(" and ")}},
+        title = {${title}},
         journal = {},
-        year = {${new Date().getFullYear()}},
+        year = {${year}},
         abstract = {},
         volume = {},
         number = {},
@@ -20,10 +27,10 @@ export const getBibtexTemplate = (type: BibtexTypes) => {
     }
     else if (type == "inproceedings"){
         return `@inproceedings{${entry},
-        author = {},
-        title = {},
+        author = {${authors.join(" and ")},
+        title = {${title}},
         booktitle = {},
-        year = {${new Date().getFullYear()}},
+        year = {${year}},
         abstract = {},
         editor = {},
         volume = {},
@@ -34,9 +41,9 @@ export const getBibtexTemplate = (type: BibtexTypes) => {
     }
     else if (type == "webpage"){
         return `@misc{${entry},
-        title = "{}",
-        author = "{}",
-        year = {${new Date().getFullYear()}},
+        title = "{${title}}",
+        author = "{${authors.join(" and ")}}",
+        year = {${year}},
         url = "{}",
         note = "{}"
         }`.replace(/  /g, "");
