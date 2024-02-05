@@ -13,6 +13,7 @@ import Login from './components/Login.vue';
 import Reader from './components/Reader.vue';
 import About from './components/About.vue';
 import Dashboard from './components/Dashboard.vue'
+import _Test from './components/_Test.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -20,7 +21,8 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/reader/:id', component: Reader },
   { path: '/about', component: About },
-  { path: '/dashboard/:username', component: Dashboard }
+  { path: '/dashboard/:username', component: Dashboard },
+  { path: '/_test', component: _Test},
 ]
 const router = createRouter({
   history: createWebHashHistory(),
