@@ -29,18 +29,21 @@
 
     // methods
     function save(){
-        let uuid = null;
-        if (datapoint_.value){
-            uuid = datapoint_.value.summary.uuid;
-        }
-        show_.value = false;
+        const uploadState = {
+            uuid: datapoint_.value? datapoint_.value.summary.uuid : null,
+            bibtex: bibtex_.value,
+            tags: Array.from(tagStatus_.value.checked),
+            url: url_.value,
+            file: file_.value,
+        }           // create a capture of the current state
+        close();    // close the dialog and clear the state
         uiState.showPopup("Saving entry...", "info")
-        new ServerConn().editData(uuid, bibtex_.value, Array.from(tagStatus_.value.checked), url_.value).then(
+        new ServerConn().editData(uploadState.uuid, uploadState.bibtex, uploadState.tags, uploadState.url).then(
             (dSummary) => {
-                if (!file_.value){ uiState.showPopup("Saved", "success"); }
+                if (!uploadState.file){ uiState.showPopup("Saved", "success"); }
                 else{
                     uiState.showPopup("Uploading document...", "info");
-                    new ServerConn().uploadDocument(dSummary.uuid, file_.value).then(
+                    new ServerConn().uploadDocument(dSummary.uuid, uploadState.file).then(
                         (_) => { uiState.showPopup("Saved", "success"); },
                         () => uiState.showPopup("Failed to upload document", "error")
                     )
