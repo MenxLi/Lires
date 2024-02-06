@@ -123,7 +123,7 @@ const showSummary = ref(false);
             wrapCitiation('Bibtex', datapoint.summary.bibtex),
             wrapCitiation('DocURL', datapoint.getRawDocURL()),
             wrapCitiation('Markdown', `[${datapoint.authorAbbr()} (${datapoint.summary.year})](${datapoint.getRawDocURL()})`),
-            wrapCitiation('Plugin', `<span class='lires-cite'>lires:${datapoint.summary.uuid}</span>`),
+            wrapCitiation('UUID', `${datapoint.summary.uuid}`),
         ] ">
             <div @click="()=>{ copy2clip(textwrap[2]); showCopyCitation=false }" :style="{cursor: 'pointer', display: 'flex', flexDirection: 'row'}">
                 <div class="citation-type" :style="{

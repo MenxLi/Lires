@@ -25,39 +25,35 @@ export default class LiresPlugin extends Plugin {
 		this.addSettingTab(new LiresSettingTab(this.app, this));
 		this.api = new LiresAPI().init(() => this.settings.endpoint, () => this.settings.credential);
 		console.log('loading Lires plugin');
-		this.registerMarkdownPostProcessor((el, ctx) => {
-			function replaceCiteBlock(settings: PluginSettings, citeBlock: HTMLElement, summary: DataInfoT) {
-				const summaryEl = document.createElement('a');
-				summaryEl.href = `${settings.endpoint}/doc/${summary.uuid}`;
-				summaryEl.innerText = `${summary.author} (${summary.year})`;
-				summaryEl.title = summary.title;
-				citeBlock.replaceWith(summaryEl);
-			}
-			const citeBlocks = Array.from(el.querySelectorAll('span.lires-cite')) as HTMLElement[];
-			console.log('found', citeBlocks.length, 'cite blocks');
-			for (const citeBlock of citeBlocks) {
-				const inner = citeBlock.innerHTML.trim()
-				// inner must start with 'lirs:'
-				const uid = inner.slice(6);
-				if (uid) {
-					const summary = summaryStore.get(uid);
-					if (summary) {
-						console.log('using cached summary for', uid);
-						replaceCiteBlock(this.settings, citeBlock, summary);
-					}
-					else{
-						console.log('requesting summary for', uid);
-						this.api.reqDatapointSummary(uid).then((summary) => {
-							if (summary) {
-								summaryStore.set(uid, summary);
-								replaceCiteBlock(this.settings, citeBlock, summary);
-							}
-						});
-					}
-				}
-			}
-		});
 
+
+		this.registerMarkdownCodeBlockProcessor('lires-cite', (source, el, ctx) => {
+			// source is the content of the code block
+			// each line is a uuid of the data
+			const uids = source.split('\n').filter(uid => uid.length > 0);
+			const promises = uids.map(async uid => {
+				if (!summaryStore.has(uid)){
+					const data = await this.api.reqDatapointSummary(uid);
+					if (data){ summaryStore.set(uid, data); }
+				}
+				const data = summaryStore.get(uid);
+				if (data){
+					el.appendChild(getCitationLineElem(this, data));
+				}
+			})
+			Promise.all(promises).then(() => {
+				const link = getLinkSpan({
+					text: "details",
+					clickHandler: (evt) => {
+						new DetailModal(this, uids).open();
+					}
+				})
+				link.style.marginLeft = '10px';
+				link.style.fontSize = '0.8em';
+				el.appendChild(link);
+			})
+
+		})
 	}
 	onunload() { }
 	async loadSettings() {
@@ -69,17 +65,42 @@ export default class LiresPlugin extends Plugin {
 }
 
 
-class DatacardModal extends Modal {
-	constructor(app: App) {
+class BibtexModal extends Modal {
+	data: DataInfoT;
+	constructor(app: App, data: DataInfoT) {
 		super(app);
+		this.data = data;
 	}
 
 	onOpen() {
 		const {contentEl} = this;
-		contentEl.setText('Woah!');
+		contentEl.setText(this.data.bibtex.replace(/\\n/g, '<br>'));
 	}
 
 	onClose() {
+		const {contentEl} = this;
+		contentEl.empty();
+	}
+}
+
+class DetailModal extends Modal {
+	plugin: LiresPlugin;
+	uids: string[];
+	constructor(plugin: LiresPlugin, uids: string[]) {
+		super(plugin.app);
+		this.uids = uids;
+		this.plugin = plugin;
+	}
+
+	onOpen() {
+		const {contentEl} = this;
+		this.uids.forEach(async uid => {
+			const data = await this.plugin.api.reqDatapointSummary(uid);
+			if (data){ contentEl.appendChild(getReferenceLineElem(this.plugin, data)); }
+		});
+	}
+
+	onClose(): void {
 		const {contentEl} = this;
 		contentEl.empty();
 	}
@@ -120,4 +141,102 @@ class LiresSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 	}
+}
+
+function getLinkSpan({
+	url = '' , text = '', clickHandler = null, startBracket = '[', endBracket = '] '
+}: {
+	url?: string,
+	text?: string,
+	clickHandler?: null | ((event: MouseEvent)=>void)
+	startBracket?: string,
+	endBracket?: string
+} = {}){
+	const span = document.createElement('span');
+	span.classList.add('lires-cite-link');
+	const link = document.createElement('a');
+	link.classList.add('lires-cite-link');
+	link.innerText = text;
+	if (url){
+		link.href = url;
+	}
+	if (clickHandler){
+		link.onclick = clickHandler;
+	}
+	span.appendChild(document.createTextNode(startBracket));
+	span.appendChild(link);
+	span.appendChild(document.createTextNode(endBracket));
+	return span;
+}
+
+function getCitationLineElem(plugin: LiresPlugin, data: DataInfoT){
+	// a short string to be used in the citation in the form of APA
+	const elem = document.createElement('div');
+	elem.style.display = 'flex';
+	const dotElem = document.createElement('span');
+	dotElem.innerText = '•';
+	dotElem.style.marginRight = '0.5em';
+	elem.appendChild(dotElem);
+
+	const citeElem = document.createElement('span');
+	citeElem.classList.add('lires-cite');
+	citeElem.innerText = data.author + ` (${data.year})` + ` ${data.title}`;
+	elem.appendChild(citeElem);
+	return elem;
+}
+
+function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
+	const elem = document.createElement('div');
+	elem.classList.add('lires-cite');
+	const title = document.createElement('h3');
+	title.classList.add('lires-cite-title');
+	title.innerText = data.title+` (${data.year})`;
+	elem.appendChild(title);
+
+	const infoElem = document.createElement('div');
+	infoElem.style.marginLeft = '1em';
+
+	if (data.publication){
+		const publication = document.createElement('b');
+		publication.classList.add('lires-cite-publication');
+		publication.innerText = data.publication;
+		infoElem.appendChild(publication);
+		infoElem.appendChild(document.createElement('br'));
+	}
+
+	const authors = document.createElement('span');
+	authors.classList.add('lires-cite-authors');
+	for (const author of data.authors){
+		const authorElem = document.createElement('span');
+		authorElem.classList.add('lires-cite-author');
+		authorElem.innerText = author;
+		authors.appendChild(authorElem);
+	}
+	infoElem.appendChild(authors);
+	infoElem.appendChild(document.createElement('br'));
+
+
+	if (data.has_file){
+		infoElem.appendChild(getLinkSpan({
+			url: plugin.settings.endpoint+'/doc/'+data.uuid,
+			text: 'doc'
+		}));
+	}
+	
+	if (data.url){
+		infoElem.appendChild(getLinkSpan({
+			url: data.url,
+			text: 'url'
+		}));
+	}
+
+	infoElem.appendChild(getLinkSpan({
+		text: 'bibtex',
+		clickHandler: (evt) => {
+			new BibtexModal(plugin.app, data).open()
+		}
+	}));
+
+	elem.appendChild(infoElem);
+	return elem;
 }
