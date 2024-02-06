@@ -69,6 +69,17 @@ export default {
         });
     }
 
+    function onDropFiles(event: DragEvent){
+        event.preventDefault();
+        const files = event.dataTransfer?.files;
+        if (files){
+            showBlankAddingDataWindow();
+            if (!dataEditor.value!.loadFiles(files)){
+                dataEditor.value!.close()
+            }
+        }
+    }
+
     function reloadProg(){
         uiState.reloadDatabase();
         getSessionConnection().reset();
@@ -106,7 +117,7 @@ export default {
                 <div class="fullWidth">
                     <FilterVis></FilterVis>
                 </div>
-                <div class="scrollable" id="fileSelector">
+                <div class="scrollable" id="fileSelector" @dragover="(e: Event)=>e.preventDefault()" @drop="onDropFiles">
                     <FileRowContainer :datapoints="dataStore.database.getMany(uiState.shownDataUIDs)" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
                         v-if="uiState.shownDataUIDs.length > 0"
                     ></FileRowContainer>

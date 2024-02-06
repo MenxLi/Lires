@@ -107,7 +107,7 @@
     function isShown(){
         return show_.value;
     }
-    function setFile(f: File){
+    function setDocumentFile(f: File){
         file_.value = f;
         // if bibtext is empty, try to extract from file
         console.log("file selected");
@@ -122,7 +122,37 @@
             bibtex_.value = bib;
         }
     }
-    defineExpose({ show, close, isShown })
+    function loadFiles(files: FileList): boolean{
+        // load the first file 
+        let ret = false;
+        if (!files || files.length === 0) return ret;
+        if (files.length > 1){
+            uiState.showPopup("Only the first file is loaded", "info");
+        }
+        const file = files[0];
+        if (file.type === "text/plain"){
+            if (file.size < 64*1024){
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target?.result as string;
+                    bibtex_.value = content;
+                }
+                reader.readAsText(file);
+                ret = true;
+            }
+            else{ uiState.showPopup("Text file too large", "error"); }
+        }
+        else { 
+            if (file.type == "application/pdf"){ 
+                setDocumentFile(file); 
+                ret = true;
+            }
+            else{ uiState.showPopup(`Unsupported file type: ${file.type}`, "error"); }
+        }
+        isInDrag.value = false;
+        return ret;
+    }
+    defineExpose({ show, close, isShown, loadFiles })
 
     const showBibtexTemplate = ref(false);
     const bibtexTemplateSelection = ref("article" as BibtexTypes);
@@ -172,24 +202,7 @@
     const __onDragDrop = (e: DragEvent) => {
         e.preventDefault();
         const files = e.dataTransfer?.files;
-        if (files && files.length > 0 && files[0].type === "text/plain"){
-            const file = files[0];
-            if (file.size < 64*1024){
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const content = e.target?.result as string;
-                    bibtex_.value = content;
-                }
-                reader.readAsText(file);
-            }
-            else{
-                uiState.showPopup("File too large", "error");
-            }
-        }
-        else if (files && files.length > 0){
-            setFile(files[0]);
-        }
-        isInDrag.value = false;
+        if (files) loadFiles(files);
     }
 </script>
 
@@ -279,7 +292,7 @@
                     <div style="margin-top: 5px">
                         <!-- file selection -->
                         {{ file_?file_.name:"" }}
-                        <FileSelectButton text="Select document" :action="setFile" :as-link="true" style="cursor:pointer; padding: 3px; border-radius: 5px;" v-if="!file_"/>
+                        <FileSelectButton text="Select document" :action="setDocumentFile" :as-link="true" style="cursor:pointer; padding: 3px; border-radius: 5px;" v-if="!file_"/>
                         <a @click="file_=null" style="cursor: pointer; padding: 3px; border-radius: 5px;" v-else> (Remove) </a>
                     </div>
                 </div>
