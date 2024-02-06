@@ -107,7 +107,11 @@
     function isShown(){
         return show_.value;
     }
-    function setDocumentFile(f: File){
+    function setDocumentFile(f: File): boolean{
+        if (f.type !== "application/pdf"){
+            uiState.showPopup(`Unsupported file type: ${f.type}`, "error");
+            return false
+        }
         file_.value = f;
         // if bibtext is empty, try to extract from file
         console.log("file selected");
@@ -121,6 +125,7 @@
             });
             bibtex_.value = bib;
         }
+        return true;
     }
     function loadFiles(files: FileList): boolean{
         // load the first file 
@@ -142,13 +147,7 @@
             }
             else{ uiState.showPopup("Text file too large", "error"); }
         }
-        else { 
-            if (file.type == "application/pdf"){ 
-                setDocumentFile(file); 
-                ret = true;
-            }
-            else{ uiState.showPopup(`Unsupported file type: ${file.type}`, "error"); }
-        }
+        else { ret = setDocumentFile(file); }
         isInDrag.value = false;
         return ret;
     }
@@ -288,13 +287,17 @@
                         ></TagSelectorWithEntry>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: center;" v-if="datapoint_===null">
-                    <div style="margin-top: 5px">
+                <div style="display: flex; justify-content: center; align-items: center; padding-inline: 15px;" v-if="datapoint_===null">
+                    <div class="hr"></div>
+                    <div style="margin-top: 5px; text-wrap: nowrap; margin-inline: 5px;">
                         <!-- file selection -->
                         {{ file_?file_.name:"" }}
-                        <FileSelectButton text="Select document" :action="setDocumentFile" :as-link="true" style="cursor:pointer; padding: 3px; border-radius: 5px;" v-if="!file_"/>
+                        <FileSelectButton text="Select document" :action="setDocumentFile" :as-link="true" 
+                            style="cursor:pointer; padding: 3px; border-radius: 5px; text-wrap: nowrap;" v-if="!file_"
+                        />
                         <a @click="file_=null" style="cursor: pointer; padding: 3px; border-radius: 5px;" v-else> (Remove) </a>
                     </div>
+                    <div class="hr"></div>
                 </div>
             </div>
             <div v-else>
@@ -319,6 +322,12 @@
         gap: 10px;
         padding-left: 15px;
         padding-right: 15px;
+    }
+
+    div.hr{
+        width: 100%;
+        height: 1px;
+        background-color: var(--color-border);
     }
 
     label {
