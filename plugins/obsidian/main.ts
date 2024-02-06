@@ -206,12 +206,6 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	const infoElem = document.createElement('div');
 	infoElem.style.marginLeft = '1em';
 
-	const uuid = document.createElement('span');
-	uuid.classList.add('lires-cite-uuid');
-	uuid.innerText = 'UID: ' + data.uuid;
-	infoElem.appendChild(uuid);
-	infoElem.appendChild(document.createElement('br'));
-
 	if (data.publication){
 		const publication = document.createElement('b');
 		publication.classList.add('lires-cite-publication');
@@ -220,12 +214,19 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 		infoElem.appendChild(document.createElement('br'));
 	}
 
+	const uuid = document.createElement('span');
+	uuid.classList.add('lires-cite-uuid');
+	uuid.innerText = 'UID: ' + data.uuid;
+	infoElem.appendChild(uuid);
+	infoElem.appendChild(document.createElement('br'));
+
 	const authors = document.createElement('span');
 	authors.classList.add('lires-cite-authors');
+	authors.appendChild(document.createTextNode('Authors: '));
 	for (const author of data.authors){
 		const authorElem = document.createElement('span');
 		authorElem.classList.add('lires-cite-author');
-		authorElem.innerText = 'Authors: ' + author;
+		authorElem.innerText = author;
 		authors.appendChild(authorElem);
 	}
 	infoElem.appendChild(authors);
