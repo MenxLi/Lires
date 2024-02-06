@@ -115,7 +115,7 @@
             console.log("try to extract bibtex from file");
             const fname = f.name;
             const ftime = f.lastModified;
-            const bib = getBibtexTemplate("article", {
+            const bib = getBibtexTemplate(bibtexTemplateSelection.value, {
                 title: fname,
                 year: new Date(ftime).getFullYear(),
             });
@@ -208,6 +208,7 @@
             <Toggle @on-check="bibtexTemplateSelection='article'" :checked="bibtexTemplateSelection=='article'">Article</Toggle>
             <Toggle @on-check="bibtexTemplateSelection='inproceedings'" :checked="bibtexTemplateSelection=='inproceedings'">Inproceedings</Toggle>
             <Toggle @on-check="bibtexTemplateSelection='webpage'" :checked="bibtexTemplateSelection=='webpage'">Webpage</Toggle>
+            <Toggle @on-check="bibtexTemplateSelection='misc'" :checked="bibtexTemplateSelection=='misc'">Misc</Toggle>
         </div>
     </QueryDialog>
 
