@@ -289,11 +289,11 @@
                 </div>
                 <div style="display: flex; justify-content: center; align-items: center; padding-inline: 15px;" v-if="datapoint_===null">
                     <div class="hr"></div>
-                    <div style="margin-top: 5px; text-wrap: nowrap; margin-inline: 5px;">
+                    <div style="margin-top: 5px; text-wrap: nowrap; white-space: nowrap; margin-inline: 5px;">
                         <!-- file selection -->
                         {{ file_?file_.name:"" }}
                         <FileSelectButton text="Select document" :action="setDocumentFile" :as-link="true" 
-                            style="cursor:pointer; padding: 3px; border-radius: 5px; text-wrap: nowrap;" v-if="!file_"
+                            style="cursor:pointer; padding: 3px; border-radius: 5px" v-if="!file_"
                         />
                         <a @click="file_=null" style="cursor: pointer; padding: 3px; border-radius: 5px;" v-else> (Remove) </a>
                     </div>
