@@ -42,15 +42,18 @@ export default class LiresPlugin extends Plugin {
 				}
 			})
 			Promise.all(promises).then(() => {
-				const link = getLinkSpan({
+				const linkDiv = document.createElement('div');
+				linkDiv.style.width = '100%';
+				linkDiv.style.display = 'flex';
+				linkDiv.style.paddingRight = '1em';
+				linkDiv.style.justifyContent = 'flex-end';
+				linkDiv.appendChild(getLinkSpan({
 					text: "details",
 					clickHandler: (evt) => {
 						new DetailModal(this, uids).open();
 					}
-				})
-				link.style.marginLeft = '10px';
-				link.style.fontSize = '0.8em';
-				el.appendChild(link);
+				}))
+				el.appendChild(linkDiv);
 			})
 
 		})
@@ -74,7 +77,14 @@ class BibtexModal extends Modal {
 
 	onOpen() {
 		const {contentEl} = this;
-		contentEl.setText(this.data.bibtex.replace(/\\n/g, '<br>'));
+		const elem = document.createElement('textarea');
+		elem.value = this.data.bibtex;
+		elem.style.width = '100%';
+		elem.style.height = '100%';
+		elem.style.minHeight = '300px';
+		elem.style.resize = 'none';
+		elem.readOnly = true;
+		contentEl.appendChild(elem);
 	}
 
 	onClose() {
@@ -196,10 +206,16 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	const infoElem = document.createElement('div');
 	infoElem.style.marginLeft = '1em';
 
+	const uuid = document.createElement('span');
+	uuid.classList.add('lires-cite-uuid');
+	uuid.innerText = 'UID: ' + data.uuid;
+	infoElem.appendChild(uuid);
+	infoElem.appendChild(document.createElement('br'));
+
 	if (data.publication){
 		const publication = document.createElement('b');
 		publication.classList.add('lires-cite-publication');
-		publication.innerText = data.publication;
+		publication.innerText = 'Publication: ' + data.publication;
 		infoElem.appendChild(publication);
 		infoElem.appendChild(document.createElement('br'));
 	}
@@ -209,7 +225,7 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	for (const author of data.authors){
 		const authorElem = document.createElement('span');
 		authorElem.classList.add('lires-cite-author');
-		authorElem.innerText = author;
+		authorElem.innerText = 'Authors: ' + author;
 		authors.appendChild(authorElem);
 	}
 	infoElem.appendChild(authors);
