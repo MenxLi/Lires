@@ -1,0 +1,10 @@
+{
+	"id": "lires-obsidian-plugin",
+	"name": "Lires",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Lires plugin for Obsidian",
+	"author": "Li, Mengxun",
+	"authorUrl": "https://github.com/menxli/lires",
+	"isDesktopOnly": false
+}

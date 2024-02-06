@@ -122,7 +122,8 @@ const showSummary = ref(false);
             wrapCitiation('APA', `${datapoint.authorAbbr()} (${datapoint.summary.year}). ${datapoint.summary.title}. ${datapoint.summary.publication}.`),
             wrapCitiation('Bibtex', datapoint.summary.bibtex),
             wrapCitiation('DocURL', datapoint.getRawDocURL()),
-            wrapCitiation('Markdown', `[${datapoint.authorAbbr()} (${datapoint.summary.year})](${datapoint.getRawDocURL()})`)
+            wrapCitiation('Markdown', `[${datapoint.authorAbbr()} (${datapoint.summary.year})](${datapoint.getRawDocURL()})`),
+            wrapCitiation('Plugin', `<span class='lires-cite'>lires:${datapoint.summary.uuid}</span>`),
         ] ">
             <div @click="()=>{ copy2clip(textwrap[2]); showCopyCitation=false }" :style="{cursor: 'pointer', display: 'flex', flexDirection: 'row'}">
                 <div class="citation-type" :style="{
@@ -145,7 +146,7 @@ const showSummary = ref(false);
                     {{ textwrap[1] }}
                 </p>
             </div>
-            <hr v-if="index !== 5">
+            <hr v-if="index !== 6">
         </div>
     </FloatingWindow>
     <DataEditor ref="dataEditor"></DataEditor>

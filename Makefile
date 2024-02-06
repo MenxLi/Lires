@@ -17,3 +17,9 @@ test-inspect:
 		$(DOCKER_IMAGE_NAME):test tmux
 test-clean:
 	docker rmi $(DOCKER_IMAGE_NAME):test
+
+
+obsidian-build:
+	cd plugins/obsidian \
+		&& npm install \
+		&& npm run build
