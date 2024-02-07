@@ -33,7 +33,7 @@ class SummaryHandler(RequestHandlerBase):
             return
         
         dp = self.db[uuid]
-        if not (await dp.filePath() and dp.summary.file_type == ".pdf"):
+        if not (await dp.fm.filePath() and dp.summary.file_type == ".pdf"):
             self.write("ERROR: No pdf file.")
             return
 
@@ -49,7 +49,7 @@ class SummaryHandler(RequestHandlerBase):
             self.finish()
             return
         
-        assert await dp.filePath()
+        assert await dp.fm.filePath()
         if "16k" in model_name:
             __max_words = 16384
         elif "32k" in model_name:
@@ -60,7 +60,7 @@ class SummaryHandler(RequestHandlerBase):
             __max_words = 4096
         else:
             __max_words = 2048
-        pdf_txt = await getPDFText(await dp.filePath(), __max_words)   # type: ignore
+        pdf_txt = await getPDFText(await dp.fm.filePath(), __max_words)   # type: ignore
         if len(pdf_txt) < 100:
             self.write("ERROR: Not enough content in the paper.")
             return

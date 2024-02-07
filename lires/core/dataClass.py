@@ -194,43 +194,23 @@ class DataPoint(DataCore):
     
     ## For qiuick access
     @property
-    def time_added(self):
-        return self.__summary.time_added
+    def time_added(self): return self.__summary.time_added
     @property
-    def time_modified(self):
-        return self.__summary.time_modified
+    def time_modified(self): return self.__summary.time_modified
     @property
-    def uuid(self):
-        return self.__summary.uuid
+    def uuid(self): return self.__summary.uuid
     @property
-    def has_file(self):
-        return self.__summary.has_file
+    def has_file(self): return self.__summary.has_file
     @property
-    def tags(self):
-        return DataTags(self.__summary.tags)
+    def tags(self): return DataTags(self.__summary.tags)
     @property
-    def title(self):
-        return self.__summary.title
+    def title(self): return self.__summary.title
     @property
-    def year(self):
-        return self.__summary.year
+    def year(self): return self.__summary.year
     @property
-    def authors(self):
-        return self.__summary.authors
+    def authors(self): return self.__summary.authors
     @property
-    def publication(self):
-        return self.__summary.publication
-
-    async def filePath(self) -> Optional[str]:
-        return await self.fm.filePath()
-    
-    async def addFile(self, extern_file_p: str) -> bool:
-        """
-        Add document to this data, 
-        Will only work if the file is in local and not have document file
-        return if success
-        """
-        return await self.fm.addFile(extern_file_p)
+    def publication(self): return self.__summary.publication
     
     # @deprecated
     async def stringInfo(self):
