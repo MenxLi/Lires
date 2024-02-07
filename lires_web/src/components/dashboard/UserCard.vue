@@ -7,6 +7,7 @@
     import { CircularImage, FileSelectButton } from '../common/fragments.tsx';
     import { getBackendURL } from '../../config';
     import { sha256 } from '../../utils/sha256lib';
+    import { copyToClipboard } from '../../utils/misc';
 
     import QueryDialog from '../common/QueryDialog.vue';
     import EditSquareIcon from '../../assets/icons/edit_square.svg'
@@ -129,7 +130,10 @@
                     <img v-if="THIS_USER" :src="EditSquareIcon" alt="" class="icon" id="edit-settings-icon" @click="showUserSettingsDialog=true">
                 </div>
                 <p>{{ props.userInfo.username}} <label class='admin_hint' v-if="props.userInfo.is_admin">admin</label></p>
-                <p id="backendurl">{{ getBackendURL() }}</p>
+                <!-- <p id="backendurl">{{ getBackendURL() }}</p> -->
+                <p id="credential" @click="()=>{copyToClipboard(useSettingsStore().encKey).then(
+                    ()=>{useUIStateStore().showPopup('Secret copied to clipboard', 'info')})
+                }">Credential:{{ useSettingsStore().encKey.substring(0, 8)}}</p>
             </div>
         </div>
     </div>
@@ -187,9 +191,10 @@
             display: none;
         }
     }
-    p#backendurl{
+    p#credential{
         font-family: monospace;
         color: var(--color-text-soft);
+        cursor: pointer;
         font-size: smaller
     }
     h1{
