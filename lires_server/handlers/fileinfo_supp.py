@@ -12,7 +12,7 @@ class NoteGetHandler(RequestHandlerBase):
         Args:
             uid (str): uuid of the datapoint
         """
-        dp = self.db[uid]
+        dp = await self.db.get(uid)
         await self.logger.debug("Get notes of: {}".format(dp))
         self.write(await dp.fm.readComments())
 
@@ -29,7 +29,7 @@ class NoteUpdateHandler(RequestHandlerBase):
         user_info = await self.userInfo()
         note = self.get_argument("content")
 
-        dp = self.db[uid]
+        dp = await self.db.get(uid)
         if not user_info["is_admin"]:
             tags = dp.tags
             await self.checkTagPermission(tags, user_info["mandatory_tags"])
@@ -54,7 +54,7 @@ class AbstractGetHandler(RequestHandlerBase):
         Args:
             uid (str): uuid of the datapoint
         """
-        dp = self.db[uid]
+        dp = await self.db.get(uid)
         await self.logger.debug("Get abstract of: {}".format(dp))
         self.write(await dp.fm.readAbstract())
     
@@ -72,7 +72,7 @@ class AbstractUpdateHandler(RequestHandlerBase):
         user_info = await self.userInfo()
         abstract = self.get_argument("content")
 
-        dp = self.db[uid]
+        dp = await self.db.get(uid)
         if not user_info["is_admin"]:
             tags = dp.tags
             await self.checkTagPermission(tags, user_info["mandatory_tags"])

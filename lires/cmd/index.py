@@ -63,13 +63,13 @@ def main():
                 n_return = args.n_return
                 ))
         print("-----------------------------------")
-        print(f"Query: {args.aim if not args.input_uid else '[' + db[args.aim].title + ']'}")
+        print(f"Query: {args.aim if not args.input_uid else '[' + asyncio.run(db.get(args.aim)).title + ']'}")
         print("Top results:")
         for i, (uid, score) in enumerate(zip(res["uids"], res["scores"])):
             if args.output_uid:
                 print(f"{uid}")
             else:
-                print(f"{i+1}: {db[uid].title} [score: {score:.4f}]")
+                print(f"{i+1}: {asyncio.run(db.get(uid)).title} [score: {score:.4f}]")
 
     else:
         ...

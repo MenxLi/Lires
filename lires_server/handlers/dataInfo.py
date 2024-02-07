@@ -66,6 +66,6 @@ class DataInfoHandler(RequestHandlerBase):
     """
     @keyRequired
     async def get(self, uid:str):
-        dp: DataPoint = self.db[uid]
+        dp: DataPoint = await self.db.get(uid)
         self.write(json.dumps(dp.summary.json()))
         return

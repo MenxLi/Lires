@@ -16,9 +16,15 @@ class SummaryHandler(RequestHandlerBase):
         force = self.get_argument("force", "false").lower() == "true"
         model_name = self.get_argument("model", "DEFAULT")
 
+        if not await self.db.has(uuid):
+            self.write("ERROR: No such paper.")
+            return
+
+        dp = await self.db.get(uuid)
+
         user_info = await self.userInfo()
         if not user_info["is_admin"]:
-            is_allowed = await self.checkTagPermission(self.db[uuid].tags, user_info["mandatory_tags"], raise_error=False)
+            is_allowed = await self.checkTagPermission(dp.tags, user_info["mandatory_tags"], raise_error=False)
             if not is_allowed:
                 self.write("ERROR: Permission denied.")
                 return
@@ -28,11 +34,6 @@ class SummaryHandler(RequestHandlerBase):
             self.write("ERROR: LiresAI server not running.")
             return
         
-        if not uuid in self.db:
-            self.write("ERROR: No such paper.")
-            return
-        
-        dp = self.db[uuid]
         if not (await dp.fm.filePath() and dp.summary.file_type == ".pdf"):
             self.write("ERROR: No pdf file.")
             return

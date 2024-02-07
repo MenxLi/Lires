@@ -361,6 +361,9 @@ class DataBase(Dict[str, DataPoint], DataCore):
             return res
         return False
     
+    async def has(self, uuid: str) -> bool:
+        return await self.conn.get(uuid) is not None
+    
     async def get(self, uuid: str) -> DataPoint:
         """
         Get DataPoint by uuid

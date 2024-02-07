@@ -235,9 +235,9 @@ async def queryFeatureIndexByUID(
     query the related documents of the given uid
     """
     # read the document with the given uid
-    pdf_path = await db[query_uid].fm.filePath()
+    pdf_path = await (dp:=await db.get(query_uid)).fm.filePath()
     if pdf_path is None:
-        query_string: str = db[query_uid].title
+        query_string: str = dp.title
         print("Warning: no pdf file found, use title only: {}".format(query_string))
     else:
         query_string = await getPDFText(pdf_path, 4096)

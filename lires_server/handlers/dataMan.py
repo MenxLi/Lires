@@ -18,7 +18,9 @@ class DataDeleteHandler(RequestHandlerBase):
         uuid = self.get_argument("uuid")
         # check tag permission
         if not (await self.userInfo())["is_admin"]:
-            await self.checkTagPermission(self.db[uuid].tags, (await self.userInfo())["mandatory_tags"])
+            await self.checkTagPermission(
+                (await self.db.get(uuid)).tags, (await self.userInfo())["mandatory_tags"]
+                )
 
         if await self.db.delete(uuid):
             await self.logger.info(f"Deleted {uuid}")
@@ -62,7 +64,7 @@ class DataUpdateHandler(RequestHandlerBase):
                 await self.checkTagPermission(tags, permission["mandatory_tags"])
             else:
                 # if the uuid is provided, check tag validity using old tags
-                old_tags = self.db[uuid].tags
+                old_tags = (await self.db.get(uuid)).tags
                 await self.checkTagPermission(old_tags, permission["mandatory_tags"])
 
         if bibtex is not None and not await checkBibtexValidity(bibtex, self.logger.error):
@@ -112,7 +114,7 @@ class DataUpdateHandler(RequestHandlerBase):
                 'datapoint_summary': dp.summary.json()
             })
         else:
-            dp = self.db[uuid]
+            dp = await self.db.get(uuid)
             __info.append("update entry [{}]".format(uuid))
             if bibtex is not None and await dp.fm.readBib() != bibtex:
                 await dp.fm.writeBib(bibtex)
