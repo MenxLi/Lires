@@ -68,15 +68,24 @@ def generateConfigFile(path:str):
         "This is config file for lires cluster - version {}".format(VERSION),
         "It serves as a script for starting multiple servers with different configurations",
         "The GLOBAL_ENV variables are set globally, and can be overridden by the entries",
+        "Each entry is marked by a ...--- Entry ---... for better readability",
         "The entry names are the subcommands for `lires`",
         "Please refer to the `lires -h` for more information on the subcommands",
     ]
     # inject comments onto the top of the file
     with open(path, "r") as f:
-        content = f.read()
+        content_lines = f.readlines()
+    # new_content = "# " + "\n# ".join(comments) + "\n\n" + content
+    __entry_line_nums = []
+    for i in range(len(content_lines)):
+        if content_lines[i].strip().startswith("[["):
+            __entry_line_nums.append(i)
+    for i in __entry_line_nums[::-1]:
+        content_lines.insert(i, "\n# ----------- Entry -------------\n")
+    content_lines.insert(0, "\n# " + "\n# ".join(comments) + "\n\n")
+            
     with open(path, "w") as f:
-        f.write("# " + "\n# ".join(comments) + "\n\n")
-        f.write(content)
+        f.writelines(content_lines)
 
 def loadConfigFile(path:str)->ClusterConfigT:
     with open(path, "r") as f:
