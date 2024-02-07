@@ -4,7 +4,7 @@ Sqlite connection interface
 from __future__ import annotations
 import json, os, uuid
 import typing
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, TYPE_CHECKING
 import dataclasses
 import platform
 import aiosqlite
@@ -12,6 +12,9 @@ import aiosqlite
 from .base import LiresBase
 from ..utils import TimeUtils
 from ..version import VERSION
+
+if TYPE_CHECKING:
+    from ..types.dataT import FileTypeT
 
 @dataclasses.dataclass
 class DocInfo:
@@ -58,7 +61,7 @@ class DBFileInfo(TypedDict):
     abstract: str       # Abstract, markdown
     comments: str       # Note markdown
     info_str: str       # Info string, json serializable string of DocInfo
-    doc_ext: str        # Document file type, e.g. '.pdf', '.docx'
+    doc_ext: FileTypeT  # Document file type
 
 class DBConnection(LiresBase):
     """

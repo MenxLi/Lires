@@ -2,17 +2,17 @@ from __future__ import annotations
 import os, asyncio
 from typing import List, Union, Set, Dict, Optional, Sequence, overload, TypeVar, Literal
 import difflib
-from ..utils import Timer
 try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable
     from .fileTools import FileManipulator
-    from .dbConn import DBFileInfo
+    from .dbConn import DBFileInfo, DocInfo, DBConnection
 except (FileNotFoundError, KeyError):
     pass
 from .base import LiresBase
 from .bibReader import parseBibtex, ParsedRef
 from ..types.dataT import DataPointSummary
+from ..utils import TimeUtils
 
 class DataCore(LiresBase):
     logger = LiresBase.loggers().core
@@ -176,13 +176,33 @@ class DataPoint(DataCore):
     A buffer that holds parsed information of a single data
     """
     MAX_AUTHOR_ABBR = 36
-    def __init__(self, fm: FileManipulator):
+    def __init__(self, summary: DataPointSummary):
         """
         The basic data structure that holds single data
         fm - FileManipulator, data completeness should be confirmed ahead (use fm.screen())
         """
-        self.fm = fm
-        self.__summary: DataPointSummary | None = None
+        self._loadSummary(summary)
+
+    async def init(self, conn: DBConnection) -> DataPoint:
+        self.fm = await FileManipulator(self.summary.uuid).init(conn)
+        return self
+
+    def _loadSummary(self, summary: DataPointSummary):
+        # load summary into memory, for quick access
+        # these should be removed in the future, as they are redundant
+        self.__summary = summary
+        self.time_added = summary.time_added
+        self.time_modified = summary.time_modified
+        self.uuid = summary.uuid
+        self.has_file = summary.has_file
+        self.tags = DataTags(summary.tags)
+        self.title = summary.title
+        self.year = summary.year
+        self.authors = summary.authors
+        self.publication = summary.publication
+
+        # # old version compatable (< 0.6.0)
+        # return TimeUtils.strLocalTimeToDatetime(record_added).timestamp()
     
     @property
     def summary(self) -> DataPointSummary:
@@ -194,63 +214,6 @@ class DataPoint(DataCore):
 
     async def filePath(self) -> Optional[str]:
         return await self.fm.filePath()
-
-    async def reload(self):
-        await self.loadInfo()
-
-    async def loadInfo(self, parse_bibtex=True) -> DataPoint:
-        """
-        Parse bibtex and other info into the memory
-        """
-        self.has_file = await self.fm.hasFile()
-        self.uuid = self.fm.uuid
-        self.tags = DataTags(await self.fm.getTags())
-
-        self.time_added = await self.fm.getTimeAdded()
-        self.time_modified = await self.fm.getTimeModified()
-
-        if parse_bibtex:
-            self.loadParsedBibtex_(await parseBibtex(await self.fm.readBib()))
-
-        self.__summary = DataPointSummary(**{
-            "has_file": self.has_file,
-            "file_type": await self.fm.fileExt(),
-            "year":self.year,
-            "title":self.title,
-            "author":self.getAuthorsAbbr(),
-            "authors": self.authors,
-            "publication": self.publication,
-            "tags":list(self.tags),
-            "uuid":self.uuid,
-            "url":await self.fm.getWebUrl(),
-            "time_added": await self.fm.getTimeAdded(),
-            "time_modified": await self.fm.getTimeModified(),
-            "bibtex": await self.fm.readBib(),
-            "doc_size": await self.fm.getDocSize(),
-            "note_linecount": len([line for line in (await self.fm.readComments()).split("\n") if line.strip() != ""]),
-            "has_abstract": (abs_ := (await self.fm.readAbstract()).strip()) != "" and abs_ != "<Not avaliable>",
-        })
-        return self
-    
-    
-    def loadParsedBibtex_(self, parsed_bibtex: ParsedRef):
-        self.bib = parsed_bibtex["bib"]
-        self.title = parsed_bibtex["title"]
-        self.year = parsed_bibtex["year"]
-        self.authors = parsed_bibtex["authors"]
-        self.publication = parsed_bibtex["publication"]
-
-
-    async def changeBib(self, bib_str: str) -> bool:
-        """
-        Change bibtex info
-        - bib_str: bibtex string
-        return if success
-        """
-        ret = bool(await self.fm.writeBib(bib_str))
-        # update datapoint
-        await self.reload()
-        return ret
     
     async def addFile(self, extern_file_p: str) -> bool:
         """
@@ -260,50 +223,35 @@ class DataPoint(DataCore):
         """
         return await self.fm.addFile(extern_file_p)
     
-    async def changeTags(self, new_tags: DataTags):
-        await self.fm.writeTags(new_tags)
-        await self.reload()
-    
+    # @deprecated
     async def stringInfo(self):
-        bib = self.bib
-
+        summary = self.summary
         info_txt = \
-        "\u27AA {title}\n\u27AA {year}\n\u27AA {authors}\n".format(title = bib["title"], year = bib["year"], authors = " \u2726 ".join(bib["authors"]))
-        if "journal"  in bib:
-            info_txt = info_txt + "{icon} {journal}".format(icon = u"\U0001F56e", journal = bib["journal"][0])
-        elif "booktitle" in bib:
-            info_txt = info_txt + "{icon} {booktitle}".format(icon = u"\U0001F56e", booktitle = bib["booktitle"][0])
+        "\u27AA {title}\n\u27AA {year}\n\u27AA {authors}\n".format(title = summary.title, year = summary.year, authors = " \u2726 ".join(summary.authors))
+        info_txt = info_txt + "\n\u27AA {publication}".format(publication = summary.publication)
         if self.has_file:
             info_txt = info_txt + "\nFile size: {}M".format(await self.fm.getDocSize())
-        info_txt = "--{}--\n".format(bib["type"]) + info_txt
         return info_txt
     
-    def getFileStatusStr(self):
-        """
-        Unicode icon indicate if the datapoint contains file
-        """
-        if self.has_file:
-            return "\u2726"
-        else:
-            return "\u2727"
-
-    def getAuthorsAbbr(self):
+    @classmethod
+    def getAuthorsAbbr(cls, authors: List[str]):
         """
         Get authors abbreviation, i.e.:
             when only have one author: return the only author's first name
             otherwise return the first author's first name + et al.
         Author name abbreviation has a maximum length of self.MAX_AUTHOR_ABBR
         """
-        if len(self.authors) == 1:
-            author = self._getFirstName(self.authors[0]) + "."
+        if len(authors) == 1:
+            author = cls._getFirstName(authors[0]) + "."
         else:
-            author = self._getFirstName(self.authors[0]) + " et al."
-        if len(author) < self.MAX_AUTHOR_ABBR:
+            author = cls._getFirstName(authors[0]) + " et al."
+        if len(author) < cls.MAX_AUTHOR_ABBR:
             return author
         else:
-            return author[:self.MAX_AUTHOR_ABBR-4] + "..."
+            return author[:cls.MAX_AUTHOR_ABBR-4] + "..."
 
-    def _getFirstName(self, name: str):
+    @classmethod
+    def _getFirstName(cls, name: str):
         x = name.split(", ")
         return x[0]
     
@@ -325,6 +273,41 @@ def sortDataList(data_list: List[DataPoint], sort_by: SortType) -> List[DataPoin
         return sorted(data_list, key = lambda x: x.time_modified)
     else:
         raise ValueError("Unknown sort type")
+
+async def loadAsDatapoint(raw_info: DBFileInfo, conn: DBConnection) -> DataPoint:
+    parsed_bib = await parseBibtex(raw_info["bibtex"])
+    doc_info = DocInfo.fromString(raw_info["info_str"])     # type: ignore
+
+    # it's a bit tricky to get file information in one go
+    _fm = await FileManipulator(raw_info["uuid"]).init(conn)    # type: ignore
+    _file_size = await _fm.getDocSize()
+    _has_file = True if _file_size > 0 else False
+
+    # back compatibility, for less than 0.6.0
+    if isinstance(doc_info.time_import, str):
+        doc_info.time_import = TimeUtils.strLocalTimeToDatetime(doc_info.time_import).timestamp()
+    if isinstance(doc_info.time_modify, str):
+        doc_info.time_modify = TimeUtils.strLocalTimeToDatetime(doc_info.time_modify).timestamp()
+
+    summary = DataPointSummary(
+        has_file=_has_file,
+        file_type=raw_info["doc_ext"],
+        year = parsed_bib["year"],
+        title = parsed_bib["title"],
+        authors = parsed_bib["authors"],
+        author = DataPoint.getAuthorsAbbr(parsed_bib["authors"]),
+        publication=parsed_bib["publication"],
+        tags = doc_info.tags,
+        uuid = raw_info["uuid"],
+        url = doc_info.url,
+        time_added = doc_info.time_import,
+        time_modified = doc_info.time_modify,
+        bibtex = raw_info["bibtex"],
+        doc_size= _file_size,
+        note_linecount = len([line for line in raw_info["comments"].split("\n") if line.strip() != ""]),
+        has_abstract= (abs_ := raw_info["abstract"].strip()) != "" and abs_ != "<Not avaliable>",
+    )
+    return await DataPoint(summary).init(conn)
 
 class DataBase(Dict[str, DataPoint], DataCore):
     def __init__(self, local_path: Optional[str] = None):
@@ -363,25 +346,20 @@ class DataBase(Dict[str, DataPoint], DataCore):
             await self.constuct(to_load)
         return self     # enable chaining initialization
 
+    # @deprecated
     async def constuct(self, vs: List[str]):
         """
         Construct the DataBase (Add new entries to database)
          - vs: list of data uuids
         """
-        all_data: list[DataPoint] = []
-        for v_ in vs:
-            fm = await FileManipulator(v_).init(self.conn)
-            data = await DataPoint(fm).loadInfo()
-            all_data.append(data)
+        all_data: list[DataPoint] = await self.gets(vs)
 
-            # _all_parsed_bibtex = parallelParseBibtex(_all_bibtex)
-            # for d, parsed_bib in zip(all_data, _all_parsed_bibtex):
-            #     d.loadParsedBibtex_(parsed_bib)
         # add to database
         for d_ in all_data:
             if d_ is not None:
                 await self.add(d_)
 
+    # @deprecated
     async def add(self, data: Union[DataPoint, str]) -> DataPoint:
         """
         Add a data to the DataBase
@@ -390,8 +368,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         if isinstance(data, str):
             # uid of the data
-            fm = await FileManipulator(data).init(self.conn)
-            data = await DataPoint(fm).loadInfo()
+            data = await self.get(data)
         self[data.uuid] = data
         return data
     
@@ -407,9 +384,36 @@ class DataBase(Dict[str, DataPoint], DataCore):
             del self[uuid]
             return res
         return False
+    
+    async def get(self, uuid: str) -> DataPoint:
+        """
+        Get DataPoint by uuid
+        """
+        return (await self.gets([uuid]))[0]
 
-    @property
-    def total_tags(self) -> DataTags:
+    async def gets(self, uuids: list[str]) -> list[DataPoint]:
+        """
+        Get DataPoints by uuid
+        """
+        conn = self.conn
+        all_info = await conn.getMany(uuids)
+        tasks = [loadAsDatapoint(info, conn) for info in all_info]
+        return await asyncio.gather(*tasks)
+    
+    async def update(self, uuids: str) -> DataPoint:
+        return (await self.gets([uuids]))[0]
+    async def updates(self, uuids: list[str]) -> list[DataPoint]:
+        """
+        Update DataPoints by uuid
+        will be used to replace loadInfo, 
+        should be removed in the future
+        """
+        dps = await self.gets(uuids)
+        for uid, dp in zip(uuids, dps):
+            self[uid] = dp
+        return dps
+
+    async def totalTags(self) -> DataTags:
         tags = DataTags([])
         for d in self.values():
             tags = tags.union(d.tags)
@@ -445,9 +449,9 @@ class DataBase(Dict[str, DataPoint], DataCore):
             t = d.tags
             t = TagRule.renameTag(t, tag_old, tag_new)
             if t is not None:
-                # await d.changeTags(t)
-                tasks.append(d.changeTags(t))
+                tasks.append(d.fm.writeTags(t))
         await asyncio.gather(*tasks)
+        await self.updates([d.uuid for d in data])
         return True
     
     async def deleteTag(self, tag: str) -> bool:
@@ -463,8 +467,9 @@ class DataBase(Dict[str, DataPoint], DataCore):
             ori_tags = d.tags
             after_deleted = TagRule.deleteTag(ori_tags, tag)
             if after_deleted is not None:
-                tasks.append(d.changeTags(after_deleted))
+                tasks.append(d.fm.writeTags(after_deleted))
         await asyncio.gather(*tasks)
+        await self.updates([d.uuid for d in data])
         return True
 
     async def findSimilarByBib(self, bib_str: str) -> Optional[DataPoint]:

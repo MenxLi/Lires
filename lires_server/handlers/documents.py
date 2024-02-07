@@ -64,7 +64,7 @@ class DocHandler(RequestHandlerBase):
         if not await dp.fm.addFileBlob(file_data, ext):
             raise tornado.web.HTTPError(409, reason="File already exists")
 
-        await dp.loadInfo()
+        dp = await self.db.update(uid)
         d_summary = dp.summary.json()
         await self.logger.info(f"Document {uid} added")
         await self.broadcastEventMessage({
@@ -86,7 +86,7 @@ class DocHandler(RequestHandlerBase):
         if not await dp.fm.deleteDocument():
             raise tornado.web.HTTPError(500, reason="Failed to delete file")
         await self.logger.info(f"Document {uid} freed")
-        await dp.loadInfo()
+        dp = await self.db.update(uid)
         await self.broadcastEventMessage({
             "type": 'update_entry',
             'uuid': uid,
