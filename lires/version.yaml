@@ -690,3 +690,22 @@ version_history:
       - Filename conflict if start multiple log servers simultaneously
       - Allow cross-cite websocket connection
       - Log server concurrent log timestamp
+  1.4.3:
+    - Features:
+      - Drag and drop at home page to add entry
+      - Add document on entry creation
+      - Obsidian plugin
+      - Cite as uuid
+      - Misc template for bibtex
+      - Use toml as cluster configuration file
+      - Use data editor to add data on feed page
+    - UI:
+      - Bibtex editor not resizable
+    - Refactors:
+      - Lires web api fetcher object
+      - Lires web utils
+    - Fix:
+      - Correctly handle websocket connection close
+      - Client token not save on password change
+      - Datapoint not reload on tag change
+      - lrs-log check line count
