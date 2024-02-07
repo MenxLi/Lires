@@ -113,6 +113,10 @@
         return show_.value;
     }
     function setDocumentFile(f: File): boolean{
+        if (datapoint_.value){
+            uiState.showPopup("Document can only be added to new entry", "error");
+            return false;
+        }
         if (f.type !== "application/pdf"){
             uiState.showPopup(`Unsupported file type: ${f.type}`, "error");
             return false
@@ -205,7 +209,7 @@
     const __onDragDrop = (e: DragEvent) => {
         e.preventDefault();
         const files = e.dataTransfer?.files;
-        if (files && datapoint_.value === null) loadFiles(files);
+        if (files) loadFiles(files);
         isInDrag.value = false;
     }
 </script>
@@ -278,7 +282,8 @@
                                     <div class="button" @click="showBibSourceInput=true">from-source</div>
                                 </div>
                             </div>
-                            <textarea id="bibtex" v-model="bibtex_" placeholder="bibtex / enw / nbib"></textarea>
+                            <textarea id="bibtex" v-model="bibtex_" placeholder="bibtex / enw / nbib" 
+                                class="scrollable" style="resize: none"></textarea>
                         </div>
                         <div id="urlArea">
                             <label for="url">URL: </label>
