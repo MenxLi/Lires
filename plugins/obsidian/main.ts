@@ -216,28 +216,35 @@ function getCitationLineElem(plugin: LiresPlugin, data: DataInfoT){
 
 function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	const elem = document.createElement('div');
+	elem.style.marginBottom = '1em';
 	elem.classList.add('lires-cite');
+
+	const uuid = document.createElement('span');
+	uuid.classList.add('lires-cite-uuid');
+	uuid.innerText = 'lires:'+ data.uuid;
+	uuid.style.fontSize = '0.8em';
+	uuid.style.opacity = '0.25';
+	elem.appendChild(uuid);
+	elem.appendChild(document.createElement('br'));
+
 	const title = document.createElement('h3');
+	title.style.marginBlock = '0em';
+	title.style.paddingBlock = '0em';
 	title.classList.add('lires-cite-title');
 	title.innerText = data.title+` (${data.year})`;
 	elem.appendChild(title);
 
 	const infoElem = document.createElement('div');
 	infoElem.style.marginLeft = '1em';
+	infoElem.style.marginTop = '0.5em';
 
 	if (data.publication){
-		const publication = document.createElement('b');
+		const publication = document.createElement('span');
 		publication.classList.add('lires-cite-publication');
 		publication.innerText = 'Publication: ' + data.publication;
 		infoElem.appendChild(publication);
 		infoElem.appendChild(document.createElement('br'));
 	}
-
-	const uuid = document.createElement('span');
-	uuid.classList.add('lires-cite-uuid');
-	uuid.innerText = 'UID: ' + data.uuid;
-	infoElem.appendChild(uuid);
-	infoElem.appendChild(document.createElement('br'));
 
 	const authors = document.createElement('span');
 	authors.classList.add('lires-cite-authors');
@@ -251,6 +258,28 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	infoElem.appendChild(authors);
 	infoElem.appendChild(document.createElement('br'));
 
+	const abstractDetail = document.createElement('details');
+	abstractDetail.classList.add('lires-cite-abstract-detail');
+	const summary = document.createElement('summary');
+	summary.innerText = 'Abstract';
+	abstractDetail.appendChild(summary);
+	const abstract = document.createElement('p');
+	abstract.style.textAlign = 'justify';
+	abstract.style.whiteSpace = 'pre-wrap';
+	abstract.style.marginLeft = '1em';
+	function onUnfold(evt: Event){
+		// abstractDetail.removeEventListener('toggle', onUnfold);
+		if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
+		if (!evt.target.open){ return; }
+		abstract.innerHTML = 'Loading...';
+		plugin.api.reqDatapointAbstract(data.uuid).then((text) => {
+			if (text !== ''){ abstract.innerText = text; }
+			else { abstract.innerText = 'Not available'; }
+		})
+	}
+	abstractDetail.addEventListener('toggle', onUnfold);
+	abstractDetail.appendChild(abstract);
+	infoElem.appendChild(abstractDetail);
 
 	if (data.has_file){
 		infoElem.appendChild(getLinkSpan({
