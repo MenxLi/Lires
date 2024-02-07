@@ -43,7 +43,10 @@ export const useUIStateStore = defineStore(
                 databaseLoadingStatus: {
                     nCurrent: 0,
                     nTotal: -1,
-                }
+                },
+
+                // global data editor status
+                dataEditorOpened: false,
 
             }
         },

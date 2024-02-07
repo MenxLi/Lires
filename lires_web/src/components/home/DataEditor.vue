@@ -65,6 +65,10 @@
         url: string | null,
         tags: DataTags | null | string[]
     }){
+        // only one instance of data editor is allowed
+        if (uiState.dataEditorOpened){ return; }
+        else { uiState.dataEditorOpened = true; }
+
         if (datapoint!==null){
             datapoint_.value = datapoint;
             bibtex_.value = datapoint.summary.bibtex;
@@ -103,6 +107,7 @@
         file_.value = null;
         newTagInput.value = "";
         isInDrag.value = false;
+        uiState.dataEditorOpened = false;
     }
     function isShown(){
         return show_.value;
@@ -148,7 +153,6 @@
             else{ uiState.showPopup("Text file too large", "error"); }
         }
         else { ret = setDocumentFile(file); }
-        isInDrag.value = false;
         return ret;
     }
     defineExpose({ show, close, isShown, loadFiles })
@@ -201,7 +205,8 @@
     const __onDragDrop = (e: DragEvent) => {
         e.preventDefault();
         const files = e.dataTransfer?.files;
-        if (files) loadFiles(files);
+        if (files && datapoint_.value === null) loadFiles(files);
+        isInDrag.value = false;
     }
 </script>
 
