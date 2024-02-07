@@ -181,36 +181,45 @@ class DataPoint(DataCore):
         The basic data structure that holds single data
         fm - FileManipulator, data completeness should be confirmed ahead (use fm.screen())
         """
-        self._loadSummary(summary)
+        self.__summary = summary
 
     async def init(self, conn: DBConnection) -> DataPoint:
         self.fm = await FileManipulator(self.summary.uuid).init(conn)
         return self
-
-    def _loadSummary(self, summary: DataPointSummary):
-        # load summary into memory, for quick access
-        # these should be removed in the future, as they are redundant
-        self.__summary = summary
-        self.time_added = summary.time_added
-        self.time_modified = summary.time_modified
-        self.uuid = summary.uuid
-        self.has_file = summary.has_file
-        self.tags = DataTags(summary.tags)
-        self.title = summary.title
-        self.year = summary.year
-        self.authors = summary.authors
-        self.publication = summary.publication
-
-        # # old version compatable (< 0.6.0)
-        # return TimeUtils.strLocalTimeToDatetime(record_added).timestamp()
     
     @property
     def summary(self) -> DataPointSummary:
-        """
-        Generate datapoint info
-        """
-        assert self.__summary is not None
+        """ Generate datapoint info """
         return self.__summary
+    
+    ## For qiuick access
+    @property
+    def time_added(self):
+        return self.__summary.time_added
+    @property
+    def time_modified(self):
+        return self.__summary.time_modified
+    @property
+    def uuid(self):
+        return self.__summary.uuid
+    @property
+    def has_file(self):
+        return self.__summary.has_file
+    @property
+    def tags(self):
+        return DataTags(self.__summary.tags)
+    @property
+    def title(self):
+        return self.__summary.title
+    @property
+    def year(self):
+        return self.__summary.year
+    @property
+    def authors(self):
+        return self.__summary.authors
+    @property
+    def publication(self):
+        return self.__summary.publication
 
     async def filePath(self) -> Optional[str]:
         return await self.fm.filePath()
