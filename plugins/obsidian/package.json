@@ -4,8 +4,8 @@
 	"description": "Connect to Lires",
 	"main": "main.js",
 	"scripts": {
-		"dev": "node esbuild.config.mjs && node ./bundle.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && node ./bundle.mjs",
+		"dev": "node esbuild.config.mjs && node ./scripts/bundle.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && node ./scripts/bundle.mjs",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [],
