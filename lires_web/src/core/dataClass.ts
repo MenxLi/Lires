@@ -161,7 +161,7 @@ export class DataPoint {
 
     getRawDocURL(): string {
         const uid = this.summary.uuid;
-        if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
+        if (this.summary["has_file"]){
             return `${getBackendURL()}/doc/${uid}`;
         }
         if (!this.summary["has_file"] && this.summary["url"]){
@@ -175,7 +175,6 @@ export class DataPoint {
         extraPDFViewerParams = {} as Record<string, string>,
         urlHashMark = "" as string,
     } = {}): string {
-        const uid = this.summary.uuid;
         const backendPdfjsviewer = `${getBackendURL()}/pdfjs/web/viewer.html`;
         function _getPdfViewerURL(fURL: string, pdfjs: string = backendPdfjsviewer){
             const pdfjsviewerParams = new URLSearchParams();
@@ -210,8 +209,12 @@ export class DataPoint {
         }
         if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             // view pdf via backend pdfjs viewer
-            const pdfURL = `${getBackendURL()}/doc/${uid}`;
+            const pdfURL = this.getRawDocURL();
             ret = _getPdfViewerURL(_setHashMark(pdfURL));
+        }
+        if (this.summary["has_file"] && this.summary["file_type"] == ".html"){
+            const htmlURL = this.getRawDocURL();
+            ret = _setHashMark(htmlURL);
         }
         if (!this.summary["has_file"] && this.summary["url"]){
             ret = _setHashMark(this.summary.url);
@@ -230,9 +233,12 @@ export class DataPoint {
         return `${apiURL()}/summary?uuid=${uid}&key=${useSettingsStore().encKey}`;
     }
 
-    docType(): "" | "pdf" | "url" | "unknown" {
+    docType(): "" | "html" | "pdf" | "url" | "unknown" {
         if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             return "pdf";
+        }
+        else if (this.summary["has_file"] && this.summary["file_type"] == ".html"){
+            return "html";
         }
         else if (!this.summary["has_file"] && this.summary["url"]){
             return "url";

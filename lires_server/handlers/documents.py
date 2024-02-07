@@ -16,7 +16,12 @@ class DocHandler(RequestHandlerBase):
                     self.set_header("Content-Disposition", "inline; filename={}.pdf".format(uuid))
                     self.write(await f.read())
                     return
-        self.write("The file not exist or is not PDF file.")
+            if file_p.endswith(".html"):
+                async with aiofiles.open(file_p, "r", encoding="utf-8") as f:
+                    self.set_header("Content-Type", 'text/html; charset="utf-8"')
+                    self.write(await f.read())
+                    return
+        self.write("The file not exist or is not supported.")
     
     @keyRequired
     async def put(self, uid):

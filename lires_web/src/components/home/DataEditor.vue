@@ -117,7 +117,7 @@
             uiState.showPopup("Document can only be added to new entry", "error");
             return false;
         }
-        if (f.type !== "application/pdf"){
+        if (f.type !== "application/pdf" && f.type !== "text/html"){
             uiState.showPopup(`Unsupported file type: ${f.type}`, "error");
             return false
         }

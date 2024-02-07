@@ -228,8 +228,9 @@
                     </div>
 
                     <div class="status">
-                        <img v-if="datapoint.summary.file_type == '.pdf'" src="../../assets/icons/pdf_fill.svg" alt="" class="icon">
-                        <img v-else-if="datapoint.summary.url" src="../../assets/icons/cloud_fill.svg" alt="" class="icon">
+                        <img v-if="datapoint.docType() == 'pdf'" src="../../assets/icons/pdf_fill.svg" alt="" class="icon">
+                        <img v-else-if="datapoint.docType() == 'html'" src="../../assets/icons/cloud_fill.svg" alt="" class="icon">
+                        <img v-else-if="datapoint.docType() == 'url'" src="../../assets/icons/cloud.svg" alt="" class="icon">
                         <img v-else src="../../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
                     </div>
 

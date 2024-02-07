@@ -48,7 +48,7 @@ LOG_DIR = os.path.join(LRS_HOME, "log")
 # things under lrs_cache
 TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
 
-ACCEPTED_EXTENSIONS = [".pdf"]
+ACCEPTED_EXTENSIONS = [".pdf", '.html']
 
 # Create directories if they don't exist
 if not os.path.exists(LRS_HOME):

@@ -1,10 +1,10 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Literal
 from dataclasses import dataclass
 
 @dataclass
 class DataPointSummary():
     has_file: bool
-    file_type: str  # pdf, epub, etc.
+    file_type: Literal['.pdf', '.html']     # should be one of the accepted extensions at config.py
     year: Any
     title: str
     author: str
