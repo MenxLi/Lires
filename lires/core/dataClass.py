@@ -319,22 +319,9 @@ async def loadAsDatapoint(raw_info: DBFileInfo, conn: DBConnection) -> DataPoint
     return await DataPoint(summary).init(conn)
 
 class DataBase(Dict[str, DataPoint], DataCore):
-    def __init__(self, local_path: Optional[str] = None):
+    def __init__(self):
         super().__init__()
         self.__conn = None
-
-    async def destroy(self):
-        """
-        Make sure all datapoint is deleted from database
-        """
-        for k in self.uuids:
-            del self[k]
-        await self.logger.debug("Closing DataBase's DBConnection")
-        if self.__conn is not None:
-            await self.__conn.close()
-            del self.__conn
-            self.__conn = None
-        await self.logger.debug("Deleted DataBase object")
 
     @property
     def conn(self):
