@@ -48,8 +48,8 @@ class DocHandler(RequestHandlerBase):
         if content_type.startswith("image/"):
             # embed as html
             b64_im = "data:{};base64,{}".format(content_type, base64.b64encode(file_data).decode())
-            html = '<!DOCTYPE html><html><head><title>{}</title></head><body style="display: flex; justify-content: center; align-items: center">'.format(original_filename) + \
-                f'<img src="{b64_im}" alt="{original_filename}" style="max-width: 100%; max-height: 100%;" />' + \
+            html = '<!DOCTYPE html><html><head><title>{}</title></head><body style="display: flex; justify-content: center; align-items: center">'.format(uid) + \
+                f'<img src="{b64_im}" alt="{uid}" style="max-width: 100%; max-height: 100%;" />' + \
                 '</body></html>'
             ext = ".html"
             file_data = html.encode("utf-8")
