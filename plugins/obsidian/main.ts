@@ -14,6 +14,17 @@ const DEFAULT_SETTINGS: PluginSettings = {
 
 const summaryStore = new Map<string, DataInfoT>();
 
+async function getDataInfo(uids: string[], api: LiresAPI): Promise<(DataInfoT | undefined)[]>{
+	const promises = uids.map(async uid => {
+		if (!summaryStore.has(uid)){
+			const data = await api.reqDatapointSummary(uid);
+			if (data){ summaryStore.set(uid, data); }
+		}
+		return summaryStore.get(uid);
+	})
+	return await Promise.all(promises);
+}
+
 export default class LiresPlugin extends Plugin {
 	settings: PluginSettings;
 	api: LiresAPI;
@@ -31,17 +42,12 @@ export default class LiresPlugin extends Plugin {
 			// source is the content of the code block
 			// each line is a uuid of the data
 			const uids = source.split('\n').filter(uid => uid.length > 0);
-			const promises = uids.map(async uid => {
-				if (!summaryStore.has(uid)){
-					const data = await this.api.reqDatapointSummary(uid);
-					if (data){ summaryStore.set(uid, data); }
+			getDataInfo(uids, this.api).then((dInfos) => {
+				for (const dInfo of dInfos){
+					if (dInfo){
+						el.appendChild(getCitationLineElem(this, dInfo));
+					}
 				}
-				const data = summaryStore.get(uid);
-				if (data){
-					el.appendChild(getCitationLineElem(this, data));
-				}
-			})
-			Promise.all(promises).then(() => {
 				const linkDiv = document.createElement('div');
 				linkDiv.style.width = '100%';
 				linkDiv.style.display = 'flex';
@@ -54,6 +60,19 @@ export default class LiresPlugin extends Plugin {
 					}
 				}))
 				el.appendChild(linkDiv);
+			})
+
+			this.registerMarkdownCodeBlockProcessor('lires-ref', (source, el, ctx) => {
+				// source is the content of the code block
+				// each line is a uuid of the data
+				const uids = source.split('\n').filter(uid => uid.length > 0);
+				getDataInfo(uids, this.api).then((dInfos) => {
+					for (const dInfo of dInfos){
+						if (dInfo){
+							el.appendChild(getReferenceLineElem(this, dInfo));
+						}
+					}
+				})
 			})
 
 		})
