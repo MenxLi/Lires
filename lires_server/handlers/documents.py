@@ -2,6 +2,7 @@
 Get documents: document file / web page / comments
 """
 from ._base import *
+import base64
 import os, json
 import aiofiles
 from lires.config import ACCEPTED_EXTENSIONS
@@ -35,6 +36,7 @@ class DocHandler(RequestHandlerBase):
 
         file_info = self.request.files['file'][0]  # Get the file information
         file_data = file_info['body']  # Get the file data
+        content_type: str = file_info['content_type']
         
         original_filename = file_info['filename']
         file_size = len(file_data)
@@ -42,8 +44,21 @@ class DocHandler(RequestHandlerBase):
 
         #check file extension
         ext = os.path.splitext(original_filename)[1]
-        if ext not in ACCEPTED_EXTENSIONS:
-            raise tornado.web.HTTPError(400, reason="File extension not allowed")
+
+        if content_type.startswith("image/"):
+            # embed as html
+            b64_im = "data:{};base64,{}".format(content_type, base64.b64encode(file_data).decode())
+            html = '<!DOCTYPE html><html><head><title>{}</title></head><body style="display: flex; justify-content: center; align-items: center">'.format(original_filename) + \
+                f'<img src="{b64_im}" alt="{original_filename}" style="max-width: 100%; max-height: 100%;" />' + \
+                '</body></html>'
+            ext = ".html"
+            file_data = html.encode("utf-8")
+
+        else:
+            if ext not in ACCEPTED_EXTENSIONS:
+                # this may be a security issue... as we only check the extension
+                # TODO: check the file type
+                raise tornado.web.HTTPError(400, reason="File extension not allowed")
         
         # add the file to the document
         if not await dp.fm.addFileBlob(file_data, ext):
