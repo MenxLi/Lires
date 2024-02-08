@@ -283,7 +283,7 @@
                                 </div>
                             </div>
                             <textarea id="bibtex" v-model="bibtex_" placeholder="bibtex / enw / nbib" 
-                                class="scrollable" style="resize: none"></textarea>
+                                class="scrollable wrapword" style="resize: none"></textarea>
                         </div>
                         <div id="urlArea">
                             <label for="url">URL: </label>
@@ -365,23 +365,20 @@
         color: var(--color-theme);
         text-decoration: underline;
     }
-    textarea, input[type="text"]{
-        border: 1px solid var(--color-border);
-        border-radius: 5px;
-        background-color: var(--color-background);
-        color: var(--color-text);
-        width: 100%
-    }
-    textarea#bibtex{
-        font-size:medium;
-        font-family: monospace;
-    }
 
     #inputLeft, #inputRight{
         display: flex;
         flex-direction: column;
         width: 100%;
         gap: 10px;
+    }
+
+    textarea, input[type="text"]{
+        border: 1px solid var(--color-border);
+        border-radius: 5px;
+        background-color: var(--color-background);
+        color: var(--color-text);
+        width: 100%
     }
     div#bibtexArea{
         display: flex;
@@ -392,8 +389,21 @@
         min-width: 300px;
         width: 100%;
         height: 420px;
-        padding: 5px
+        padding: 5px;
+        font-size: medium;
+        font-family: monospace;
     }
+    .wrapword {
+        white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+        white-space: -webkit-pre-wrap;          /* Chrome & Safari */ 
+        white-space: -pre-wrap;                 /* Opera 4-6 */
+        white-space: -o-pre-wrap;               /* Opera 7 */
+        white-space: pre-wrap;                  /* CSS3 */
+        word-wrap: break-word;                  /* Internet Explorer 5.5+ */
+        word-break: break-all;
+        /* white-space: normal; */
+    }
+
     div#urlArea {
         display: flex;
         flex-direction: row;
