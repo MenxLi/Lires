@@ -103,11 +103,11 @@ class DataUpdateHandler(RequestHandlerBase):
                 # most likely a duplicate
                 raise tornado.web.HTTPError(409)
             __info.append("new entry created [{}]".format(uuid))
-            dp = await self.db.add(uuid)
+            dp = await self.db.get(uuid)
             await dp.fm.writeTags(tags)
             await dp.fm.setWebUrl(url)
 
-            dp = await self.db.update(uuid)   # update the cached info
+            dp = await self.db.get(uuid)   # update the cached info
             await self.broadcastEventMessage({
                 'type': 'add_entry',
                 'uuid': uuid, 
@@ -126,7 +126,7 @@ class DataUpdateHandler(RequestHandlerBase):
                 await dp.fm.setWebUrl(url)
                 __info.append("url updated")
             
-            dp = await self.db.update(uuid)   # update the cached info
+            dp = await self.db.get(uuid)   # update the cached info
             await self.broadcastEventMessage({
                 'type': 'update_entry',
                 'uuid': uuid,

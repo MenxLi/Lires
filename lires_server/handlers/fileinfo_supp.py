@@ -37,7 +37,7 @@ class NoteUpdateHandler(RequestHandlerBase):
         await self.logger.info("Update notes of: {}".format(dp))
 
         await dp.fm.writeComments(note)
-        dp = await self.db.update(uid)
+        dp = await self.db.get(uid)
         await self.broadcastEventMessage({
             'type': 'update_entry',
             'uuid': uid,

@@ -291,7 +291,7 @@ async def assembleDatapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
     )
     return await DataPoint(summary).init(db)
 
-class DataBase(Dict[str, DataPoint], DataCore):
+class DataBase(DataCore):
     def __init__(self):
         super().__init__()
         self.__conn = None
@@ -308,51 +308,22 @@ class DataBase(Dict[str, DataPoint], DataCore):
             os.mkdir(db_local)
         conn = await FileManipulator.getDatabaseConnection(db_local) 
         self.__conn = conn      # set database-wise connection instance
-        await self.logger.debug("Initializing new DataBase's DBConnection")
-        if db_local:
-            # when load database is provided
-            to_load = await conn.keys()
-            await self.constuct(to_load)
-        return self     # enable chaining initialization
-
-    # @deprecated
-    async def constuct(self, vs: List[str]):
-        """
-        Construct the DataBase (Add new entries to database)
-         - vs: list of data uuids
-        """
-        all_data: list[DataPoint] = await self.gets(vs)
-
-        # add to database
-        for d_ in all_data:
-            if d_ is not None:
-                await self.add(d_)
-
-    # @deprecated
-    async def add(self, data: Union[DataPoint, str]) -> DataPoint:
-        """
-        Add a data to the DataBase
-         - data: DataPoint or uid
-        return DataPoint
-        """
-        if isinstance(data, str):
-            # uid of the data
-            data = await self.get(data)
-        self[data.uuid] = data
-        return data
+        return self
     
     async def delete(self, uuid: str) -> bool:
         """
         Delete a DataPoint by uuid,
         will delete remote data if in online mode and remote data exists
         """
+        if not self.has(uuid):
+            await self.logger.error(f"Data not found: {uuid}")
+            return False
         await self.logger.info("Deleting {}".format(uuid))
-        if uuid in self.keys():
-            dp: DataPoint = self[uuid]
-            res = await dp.fm.deleteEntry()
-            del self[uuid]
-            return res
-        return False
+        dp = await self.get(uuid)
+        return await dp.fm.deleteEntry()
+    
+    async def count(self) -> int:
+        return len(await self.conn.keys())
     
     async def has(self, uuid: str) -> bool:
         return await self.conn.get(uuid) is not None
@@ -373,32 +344,23 @@ class DataBase(Dict[str, DataPoint], DataCore):
         tasks = [assembleDatapoint(info, self) for info in all_info]
         return await asyncio.gather(*tasks)
     
-    async def update(self, uuids: str) -> DataPoint:
-        return (await self.gets([uuids]))[0]
-    async def updates(self, uuids: list[str]) -> list[DataPoint]:
-        """
-        Update DataPoints by uuid
-        will be used to replace loadInfo, 
-        should be removed in the future
-        """
-        dps = await self.gets(uuids)
-        for uid, dp in zip(uuids, dps):
-            self[uid] = dp
-        return dps
-
+    async def getAll(self) -> list[DataPoint]:
+        """ Get all DataPoints, may remove in the future """
+        return await self.gets(await self.conn.keys())
+    
     async def totalTags(self) -> DataTags:
+        # TODO: Optimize this
         tags = DataTags([])
-        for d in self.values():
+        for d in await self.getAll():
             tags = tags.union(d.tags)
         return tags
     
-    @property
-    def uuids(self) -> List[str]:
-        return list(self.keys())
+    async def keys(self) -> List[str]:
+        return await self.conn.keys()
     
-    def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[DataPoint]:
+    async def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[DataPoint]:
         datalist = []
-        for data in self.values():
+        for data in await self.getAll():
             if not from_uids is None:
                 # filter by uids (for searching purposes)
                 if data.uuid not in from_uids:
@@ -414,7 +376,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         Rename a tag for the entire database
         return if success
         """
-        data = self.getDataByTags(DataTags([tag_old]))
+        data = await self.getDataByTags(DataTags([tag_old]))
         await self.logger.info(f"Rename tag: {tag_old} -> {tag_new} [count: {len(data)}]")
         tasks = []
         for d in data:
@@ -424,7 +386,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
             if t is not None:
                 tasks.append(d.fm.writeTags(t))
         await asyncio.gather(*tasks)
-        await self.updates([d.uuid for d in data])
         return True
     
     async def deleteTag(self, tag: str) -> bool:
@@ -432,7 +393,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         Delete a tag for the entire database
         return if success
         """
-        data = self.getDataByTags(DataTags([tag]))
+        data = await self.getDataByTags(DataTags([tag]))
         await self.logger.info(f"Delete tag: {tag}")
         tasks = []
         for d in data:
@@ -442,7 +403,6 @@ class DataBase(Dict[str, DataPoint], DataCore):
             if after_deleted is not None:
                 tasks.append(d.fm.writeTags(after_deleted))
         await asyncio.gather(*tasks)
-        await self.updates([d.uuid for d in data])
         return True
 
     async def findSimilarByBib(self, bib_str: str) -> Optional[DataPoint]:
@@ -451,7 +411,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         # Check if the file already exists
         t2 = (await parseBibtex(bib_str))["title"]
-        for _, v in self.items():
+        for v in await self.getAll():
             t1 = v.title
             similarity = difflib.SequenceMatcher(a = t1, b = t2).ratio()
             if similarity > 0.8:

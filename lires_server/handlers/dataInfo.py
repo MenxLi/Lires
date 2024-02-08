@@ -17,7 +17,7 @@ class DataListHandler(RequestHandlerBase):
         Args:
             tags (str): tags should be "%" or split by "&&"
         """
-        self.set_header("totalDataCount", str(len(self.db)))
+        self.set_header("totalDataCount", str(await self.db.count()))
 
         # may delete this
         tags = self.get_argument("tags")
@@ -33,24 +33,24 @@ class DataListHandler(RequestHandlerBase):
         """
         tags are list of strings
         """
-        self.set_header("totalDataCount", str(len(self.db)))
+        self.set_header("totalDataCount", str(await self.db.count()))
         tags = json.loads(self.get_argument("tags"))
         await self.emitDataList(tags)
     
     async def emitDataList(self, tags):
-        data_info = self.getDictDataListByTags(tags)
+        data_info = await self.getDictDataListByTags(tags)
         self.write(json.dumps(data_info))
         return
 
-    def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by:SortType = "time_added") -> List[dict]:
-        dl = self.db.getDataByTags(tags)
+    async def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by:SortType = "time_added") -> List[dict]:
+        dl = await self.db.getDataByTags(tags)
         dl = sortDataList(dl, sort_by = sort_by)
         return [d.summary.json() for d in dl]
 
 class DataListStreamHandler(DataListHandler):
 
     async def emitDataList(self, tags):
-        data_info = self.getDictDataListByTags(tags)
+        data_info = await self.getDictDataListByTags(tags)
 
         # it's a bit tricky to stream json
         # we add a \N at the end of each json string
