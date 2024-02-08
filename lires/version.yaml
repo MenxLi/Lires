@@ -709,3 +709,10 @@ version_history:
       - Client token not save on password change
       - Datapoint not reload on tag change
       - lrs-log check line count
+  1.5.0:
+    - Breaking changes:
+      - Change database storage format
+    - Features:
+      - Support html and image document
+    - UI:
+      - Show credential on dashboard
