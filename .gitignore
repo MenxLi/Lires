@@ -27,7 +27,12 @@ compile_commands.json
 # Binaries
 *.pptx
 *.psd
+
+# databases
 *.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
 
 # Logs
 logs

@@ -6,7 +6,7 @@ try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable
     from .fileTools import FileManipulator
-    from .dbConn import DBFileInfo, DocInfo, DBConnection
+    from .dbConn import DBFileInfo, DocInfo, LIST_SEP
 except (FileNotFoundError, KeyError):
     pass
 from .base import LiresBase
@@ -119,6 +119,8 @@ class TagRule(DataCore):
         if isinstance(tags, set):
             for t in tags:
                 stripped = cls.stripTag(t)
+                if LIST_SEP in stripped:
+                    raise cls.Error.LiresProhibitedKeywordError(f"Tag contains prohibited keyword: {LIST_SEP}")
                 if stripped == t:
                     continue
                 tags.remove(t)
@@ -263,33 +265,25 @@ def sortDataList(data_list: List[DataPoint], sort_by: SortType) -> List[DataPoin
         raise ValueError("Unknown sort type")
 
 async def assembleDatapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
-    parsed_bib = await parseBibtex(raw_info["bibtex"])
-    doc_info = DocInfo.fromString(raw_info["info_str"])     # type: ignore
 
     # it's a bit tricky to get file information in one go
     _fm = await FileManipulator(raw_info["uuid"]).init(db.conn)    # type: ignore
     _file_size = await _fm.getDocSize()
     _has_file = True if _file_size > 0 else False
 
-    # back compatibility, for less than 0.6.0
-    if isinstance(doc_info.time_import, str):
-        doc_info.time_import = TimeUtils.strLocalTimeToDatetime(doc_info.time_import).timestamp()
-    if isinstance(doc_info.time_modify, str):
-        doc_info.time_modify = TimeUtils.strLocalTimeToDatetime(doc_info.time_modify).timestamp()
-
     summary = DataPointSummary(
         has_file=_has_file,
         file_type=raw_info["doc_ext"],
-        year = parsed_bib["year"],
-        title = parsed_bib["title"],
-        authors = parsed_bib["authors"],
-        author = DataPoint.getAuthorsAbbr(parsed_bib["authors"]),
-        publication=parsed_bib["publication"],
-        tags = doc_info.tags,
+        year = raw_info["year"],
+        title = raw_info["title"],
+        authors = raw_info["authors"],
+        author = DataPoint.getAuthorsAbbr(raw_info["authors"]),
+        publication=raw_info["publication"],
+        tags = raw_info["tags"],
         uuid = raw_info["uuid"],
-        url = doc_info.url,
-        time_added = doc_info.time_import,
-        time_modified = doc_info.time_modify,
+        url = raw_info["url"],
+        time_added = raw_info["time_import"],
+        time_modified = raw_info["time_modify"],
         bibtex = raw_info["bibtex"],
         doc_size= _file_size,
         note_linecount = len([line for line in raw_info["comments"].split("\n") if line.strip() != ""]),

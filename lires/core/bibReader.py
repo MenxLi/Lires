@@ -106,13 +106,13 @@ class ParsedRef(TypedDict):
     title: str
     year: str
     authors: list[str]
-    publication: Optional[str]
+    publication: str
 async def parseBibtex(bib_single: str) -> ParsedRef:
     """
     parse bibtex and extract useful entries
     """
     parsed = (await BibParser()(bib_single))[0]
-    publication = None
+    publication = ""
     for k in ["journal", "booktitle", "eprint"]:
         if k in parsed:
             pub = parsed[k]

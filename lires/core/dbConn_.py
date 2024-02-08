@@ -1,4 +1,5 @@
 """
+A back up of the old sqlite connection interface, changed in 1.5.0
 Sqlite connection interface
 """
 from __future__ import annotations
@@ -23,17 +24,25 @@ class DocInfo:
     The user is supposed to use FileManipulator to access those informations.
     """
     uuid: str
+    time_import: float
+    time_modify: float
     version_import: str
     version_modify: str
     device_import: str
     device_modify: str
+    tags: list[str]
+    url: str
 
     DocInfoDictT = typing.TypedDict("DocInfoDictT", {
         "uuid": str,            # maybe ommited in the future, duplicate with file key
+        "time_import": float,
+        "time_modify": float,
         "version_import": str,
         "version_modify": str,
         "device_import": str,
         "device_modify": str,
+        "tags": list[str],
+        "url": str,
     })
 
     @classmethod
@@ -47,47 +56,14 @@ class DocInfo:
     def toDict(self) -> DocInfoDictT:
         return dataclasses.asdict(self)     # type: ignore
 
-# use this to separate tags and authors,
-# because sqlite does not support list type, 
-# use this, we can easily split and join the string, 
-# and use search in sqlite
-LIST_SEP = "&sp;"
-class DBFileRawInfo(TypedDict):
+class DBFileInfo(TypedDict):
     uuid: str           # File uuid, should be unique for each file
     bibtex: str         # Bibtex string, should be valid and remove abstract, at least contains title, year, authors
-    title: str          # Title, string
-    year: str           # int, year
-    publication: str    # Publication, string
-    authors: str        # Authors, string (separator: LIST_SEP)
-    tags: str           # Tags, string (separator: LIST_SEP)
-    url: str            # URL, string
     abstract: str       # Abstract, markdown
     comments: str       # Note markdown
-    time_import: float  # Time imported, float
-    time_modify: float  # Time modified, float
     info_str: str       # Info string, json serializable string of DocInfo
     doc_ext: FileTypeT  # Document file type
 
-
-class DBFileInfo(TypedDict):
-    # The same as DBFileRawInfo, but with some fields converted to their original type
-    uuid: str           
-    bibtex: str         
-    title: str         
-    year: str          
-    publication: str   
-    authors: list[str] 
-    tags: list[str]   
-    url: str         
-    abstract: str   
-    comments: str  
-    time_import: float  # Time imported, float
-    time_modify: float  # Time modified, float
-    info_str: str 
-    doc_ext: FileTypeT
-
-
-__THIS_NODE__ = platform.node()
 class DBConnection(LiresBase):
     """
     to manage database connection
@@ -136,19 +112,9 @@ class DBConnection(LiresBase):
                 await cursor.execute("""
                 CREATE TABLE IF NOT EXISTS files (
                     uuid TEXT PRIMARY KEY,
-
                     bibtex TEXT NOT NULL,
-                    title TEXT NOT NULL,
-                    year INTEGER NOT NULL,
-                    publication TEXT NOT NULL,
-                    authors TEXT NOT NULL,
-
-                    tags TEXT NOT NULL,
-                    url TEXT NOT NULL,
                     abstract TEXT NOT NULL,
                     comments TEXT NOT NULL,
-                    time_import REAL NOT NULL DEFAULT 0,
-                    time_modify REAL NOT NULL DEFAULT 0,
                     info_str TEXT NOT NULL,
                     doc_ext TEXT NOT NULL,
                     misc_dir TEXT
@@ -164,29 +130,17 @@ class DBConnection(LiresBase):
         return self
     
     async def __aexit__(self, exc_type, exc_value, traceback):
-        await self.commit()
         await self.close()
 
     
     def __formatRow(self, row: tuple | aiosqlite.Row) -> DBFileInfo:
-        def _formatList(s: str) -> list[str]:
-            if s == "": return []
-            return s.split(LIST_SEP)
         return {
             "uuid": row[0],
             "bibtex": row[1],
-            "title": row[2],
-            "year": row[3],
-            "publication": row[4],
-            "authors": _formatList(row[5]),
-            "tags": _formatList(row[6]),
-            "url": row[7],
-            "abstract": row[8],
-            "comments": row[9],
-            "time_import": row[10],
-            "time_modify": row[11],
-            "info_str": row[12],
-            "doc_ext": row[13]
+            "abstract": row[2],
+            "comments": row[3],
+            "info_str": row[4],
+            "doc_ext": row[5],
         }
     
     async def get(self, uuid: str) -> Optional[DBFileInfo]:
@@ -216,37 +170,17 @@ class DBConnection(LiresBase):
         ret = [self.__formatRow(row) for row in rows]
         return ret
     
-    async def _insertItem(self, item_raw: DBFileRawInfo) -> bool:
+    async def insertItem(self, item: DBFileInfo) -> bool:
         """
         Insert item into database, will overwrite if uuid already exists
         """
-        await self.logger.debug("(db_conn) Inserting item {}".format(item_raw["uuid"]))
-        if await self.get(item_raw["uuid"]) is not None:
+        await self.logger.debug("(db_conn) Inserting item {}".format(item["uuid"]))
+        if await self.get(item["uuid"]) is not None:
             # if uuid already exists, delete it first
-            await self.conn.execute("DELETE FROM files WHERE uuid=?", (item_raw["uuid"],))
-        await self.conn.execute(
-            """
-            INSERT INTO files (uuid, bibtex, title, year, publication, authors, tags, url, abstract, comments, time_import, time_modify, info_str, doc_ext)
-            VALUES (?,?,?, ?,?,?, ?,?,?, ?,?,?, ?,?)
-            """,
-            (
-                item_raw["uuid"],
-                item_raw["bibtex"],
-                item_raw["title"],
-                item_raw["year"],
-                item_raw["publication"],
-                item_raw["authors"],
-                item_raw["tags"],
-                item_raw["url"],
-                item_raw["abstract"],
-                item_raw["comments"],
-                item_raw["time_import"],
-                item_raw["time_modify"],
-                item_raw["info_str"],
-                item_raw["doc_ext"]
-            ))
-            
-                                
+            await self.conn.execute("DELETE FROM files WHERE uuid=?", (item["uuid"],))
+        await self.conn.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
+            item["uuid"], item["bibtex"], item["abstract"], item["comments"], item["info_str"], item["doc_ext"], None
+        ))
         await self.setModifiedFlag(True)
         return True
     
@@ -264,20 +198,10 @@ class DBConnection(LiresBase):
         return True
     
     async def addEntry(
-            self, 
-
-            # bibtex fields
-            bibtex: str, 
-            title: str,
-            year: str,
-            publication: str,
-            authors: list[str],
-            
-            tags: list[str] = [],
-            url: str = "",
+            self, bibtex: str, 
             abstract: str = "", 
             comments: str = "", 
-            doc_ext: FileTypeT = "",
+            doc_ext: str = "",
             doc_info: Optional[DocInfo | dict] = None
             ) -> Optional[str]:
         """
@@ -290,10 +214,14 @@ class DBConnection(LiresBase):
         # generate info
         doc_info_default = DocInfo(
             uuid = str(uuid.uuid4()),
+            time_import = TimeUtils.nowStamp(),
+            time_modify = TimeUtils.nowStamp(),
             version_import = VERSION,
             version_modify = VERSION,
-            device_import = __THIS_NODE__,
-            device_modify = __THIS_NODE__,
+            device_import = platform.node(),
+            device_modify = platform.node(),
+            tags = [],
+            url = ""
         )
         if doc_info is None:
             doc_info = doc_info_default
@@ -316,36 +244,11 @@ class DBConnection(LiresBase):
             return None
         # insert
         await self.logger.debug("(db_conn) Adding entry {}".format(uid))
-        await self._insertItem({
-            "uuid": uid,
-            "bibtex": bibtex,
-            "title": title,
-            "year": year,
-            "publication": publication,
-            "authors": LIST_SEP.join(authors),
-            "tags": LIST_SEP.join(tags),
-            "url": url,
-            "abstract": abstract,
-            "comments": comments,
-            "time_import": TimeUtils.nowStamp(),
-            "time_modify": TimeUtils.nowStamp(),
-            "info_str": doc_info.toString(),
-            "doc_ext": doc_ext
-        })
-        # await self.setModifiedFlag(True)
-        return uid
-    
-    async def _touchEntry(self, uuid: str) -> bool:
-        # exist check should be done before calling this function
-        await self.conn.execute("UPDATE files SET time_modify=? WHERE uuid=?", (TimeUtils.nowStamp(), uuid))
-        info = DocInfo.fromString(
-            (await (await self.conn.execute("SELECT info_str FROM files WHERE uuid=?", (uuid,))).fetchone())[0]  # type: ignore
-        )
-        info.version_modify = VERSION
-        info.device_modify = __THIS_NODE__
-        await self.conn.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.toString(), uuid))
+        await self.conn.execute("INSERT INTO files VALUES (?,?,?,?,?,?,?)", (
+            uid, bibtex, abstract, comments, doc_info.toString(), doc_ext, None
+        ))
         await self.setModifiedFlag(True)
-        return True
+        return uid
     
     async def removeEntry(self, uuid: str) -> bool:
         if not await self._ensureExist(uuid): return False
@@ -359,52 +262,35 @@ class DBConnection(LiresBase):
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Setting doc_ext for {} to {}".format(uuid, ext))
         await self.conn.execute("UPDATE files SET doc_ext=? WHERE uuid=?", (ext, uuid))
-        await self._touchEntry(uuid)
+        await self.setModifiedFlag(True)
         return True
     
-    async def updateBibtex(
-        self, uuid: str, 
-        bibtex: str, 
-        title: str,
-        year: str,
-        publication: str,
-        authors: list[str],
-        ) -> bool:
-        """Provide a new bibtex string, and update the title, year, publication, authors accordingly."""
+    async def updateInfo(self, uuid: str, info: DocInfo) -> bool:
+        if not await self._ensureExist(uuid): return False
+        await self.logger.debug("(db_conn) Updating info for {} - {}".format(uuid, info))
+        await self.conn.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.toString(), uuid))
+        await self.setModifiedFlag(True)
+        return True
+    
+    async def updateBibtex(self, uuid: str, bibtex: str) -> bool:
         if not await self._ensureExist(uuid): return False
         await self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
-        await self.conn.execute("UPDATE files SET bibtex=?, title=?, year=?, publication=?, authors=? WHERE uuid=?", (
-            bibtex, title, year, publication, LIST_SEP.join(authors), uuid
-        ))
-        await self._touchEntry(uuid)
-        return True
-    
-    async def updateTags(self, uuid: str, tags: list[str]) -> bool:
-        if not await self._ensureExist(uuid): return False
-        await self.logger.debug("(db_conn) Updating tags for {}".format(uuid))
-        await self.conn.execute("UPDATE files SET tags=? WHERE uuid=?", (LIST_SEP.join(tags), uuid))
-        await self._touchEntry(uuid)
-        return True
-    
-    async def updateUrl(self, uuid: str, url: str) -> bool:
-        if not await self._ensureExist(uuid): return False
-        await self.logger.debug("(db_conn) Updating url for {}".format(uuid))
-        await self.conn.execute("UPDATE files SET url=? WHERE uuid=?", (url, uuid))
-        await self._touchEntry(uuid)
+        await self.conn.execute("UPDATE files SET bibtex=? WHERE uuid=?", (bibtex, uuid))
+        await self.setModifiedFlag(True)
         return True
     
     async def updateComments(self, uuid: str, comments: str) -> bool:
         if not await self._ensureExist(uuid): return False
         # await self.logger.debug("(db_conn) Updating comments for {}".format(uuid))   # too verbose
         await self.conn.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
-        await self._touchEntry(uuid)
+        await self.setModifiedFlag(True)
         return True
     
     async def updateAbstract(self, uuid: str, abstract: str) -> bool:
         if not await self._ensureExist(uuid): return False
         # await self.logger.debug("(db_conn) Updating abstract for {}".format(uuid))   # too verbose
         await self.conn.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
-        await self._touchEntry(uuid)
+        await self.setModifiedFlag(True)
         return True
     
     async def commit(self):

@@ -2,7 +2,7 @@ from typing import Any, List, Optional, Literal, TypeAlias
 from dataclasses import dataclass
 
 # FileTypeT = Literal['.pdf', '.html']     # should be one of the accepted extensions at config.py
-FileTypeT: TypeAlias = Literal['.pdf', '.html']
+FileTypeT: TypeAlias = Literal['', '.pdf', '.html']
 
 @dataclass
 class DataPointSummary():
