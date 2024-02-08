@@ -220,6 +220,14 @@ class DBConnection(LiresBase):
         ret = [self.__formatRow(row) for row in rows]
         return ret
     
+    async def getAll(self) -> list[DBFileInfo]:
+        """
+        Get all file info
+        """
+        async with self.conn.execute("SELECT * FROM files") as cursor:
+            rows = await cursor.fetchall()
+        return [self.__formatRow(row) for row in rows]
+    
     async def _insertItem(self, item_raw: DBFileRawInfo) -> bool:
         """
         Insert item into database, will overwrite if uuid already exists

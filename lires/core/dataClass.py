@@ -346,7 +346,8 @@ class DataBase(DataCore):
     
     async def getAll(self) -> list[DataPoint]:
         """ Get all DataPoints, may remove in the future """
-        return await self.gets(await self.conn.keys())
+        all_info = await self.conn.getAll()
+        return await asyncio.gather(*[assembleDatapoint(info, self) for info in all_info])
     
     async def totalTags(self) -> DataTags:
         # TODO: Optimize this

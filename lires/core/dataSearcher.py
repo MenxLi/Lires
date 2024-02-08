@@ -39,7 +39,7 @@ class DataSearcher(DataCore):
     
     async def searchStringInfo(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
         results: StringSearchT = {}
-        for dp in await self.db.gets(await self.db.keys()):
+        for dp in await self.db.getAll():
             uid = dp.uuid
             res = self._searchRegex(pattern, await dp.stringInfo(), ignore_case)
             if not res is None:
@@ -48,7 +48,7 @@ class DataSearcher(DataCore):
     
     async def searchTitle(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
         results: StringSearchT = {}
-        for dp in await self.db.gets(await self.db.keys()):
+        for dp in await self.db.getAll():
             uid = dp.uuid
             res = self._searchRegex(pattern, dp.title, ignore_case)
             if not res is None:
@@ -57,7 +57,7 @@ class DataSearcher(DataCore):
 
     async def searchAuthor(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
         results: StringSearchT = {}
-        for dp in await self.db.gets(await self.db.keys()):
+        for dp in await self.db.getAll():
             uid = dp.uuid
             to_search = ", ".join(dp.authors)
             res = self._searchRegex(pattern, to_search, ignore_case)
@@ -67,7 +67,7 @@ class DataSearcher(DataCore):
 
     async def searchYear(self, pattern: str) -> StringSearchT:
         results: StringSearchT = {}
-        for dp in await self.db.gets(await self.db.keys()):
+        for dp in await self.db.getAll():
             uid = dp.uuid
             year = str(dp.year); pattern = str(pattern)
             if year.startswith(pattern):
@@ -76,7 +76,7 @@ class DataSearcher(DataCore):
 
     async def searchPublication(self, pattern: str, ignore_case:bool = True) -> StringSearchT:
         results: StringSearchT = {}
-        for dp in await self.db.gets(await self.db.keys()):
+        for dp in await self.db.getAll():
             uid = dp.uuid
             res = None
             to_search = dp.publication
@@ -90,7 +90,7 @@ class DataSearcher(DataCore):
         results: StringSearchT = {}
         uids = []
         all_res = []
-        for dp in await self.db.gets(await self.db.keys()):
+        for dp in await self.db.getAll():
             uid = dp.uuid
             comments = await dp.fm.readComments()
             res = self._searchRegex(pattern, comments, ignore_case)
