@@ -372,6 +372,10 @@
         color: var(--color-text);
         width: 100%
     }
+    textarea#bibtex{
+        font-size:medium;
+        font-family: monospace;
+    }
 
     #inputLeft, #inputRight{
         display: flex;
