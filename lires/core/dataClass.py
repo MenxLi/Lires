@@ -323,7 +323,7 @@ class DataBase(DataCore):
         return await dp.fm.deleteEntry()
     
     async def count(self) -> int:
-        return len(await self.conn.keys())
+        return await self.conn.size()
     
     async def has(self, uuid: str) -> bool:
         return await self.conn.get(uuid) is not None

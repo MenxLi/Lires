@@ -188,6 +188,10 @@ class DBConnection(LiresBase):
             "info_str": row[12],
             "doc_ext": row[13]
         }
+
+    async def size(self) -> int:
+        async with self.conn.execute("SELECT COUNT(*) FROM files") as cursor:
+            return (await cursor.fetchone())[0]     # type: ignore
     
     async def get(self, uuid: str) -> Optional[DBFileInfo]:
         """
