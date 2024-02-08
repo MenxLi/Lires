@@ -174,17 +174,16 @@ DataTagT_G = TypeVar('DataTagT_G', bound=DataTagT)
 class DataPoint(DataCore):
     """
     A buffer that holds parsed information of a single data
+    Provide quick access to data information and some high-level operations
     """
     MAX_AUTHOR_ABBR = 36
+    fm: FileManipulator
     def __init__(self, summary: DataPointSummary):
-        """
-        The basic data structure that holds single data
-        fm - FileManipulator, data completeness should be confirmed ahead (use fm.screen())
-        """
+        """ The basic data structure that holds single data """
         self.__summary = summary
 
-    async def init(self, conn: DBConnection) -> DataPoint:
-        self.fm = await FileManipulator(self.summary.uuid).init(conn)
+    async def init(self, db: DataBase) -> DataPoint:
+        self.fm = await FileManipulator(self.summary.uuid).init(db.conn)
         return self
     
     @property
@@ -263,12 +262,12 @@ def sortDataList(data_list: List[DataPoint], sort_by: SortType) -> List[DataPoin
     else:
         raise ValueError("Unknown sort type")
 
-async def loadAsDatapoint(raw_info: DBFileInfo, conn: DBConnection) -> DataPoint:
+async def assembleDatapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
     parsed_bib = await parseBibtex(raw_info["bibtex"])
     doc_info = DocInfo.fromString(raw_info["info_str"])     # type: ignore
 
     # it's a bit tricky to get file information in one go
-    _fm = await FileManipulator(raw_info["uuid"]).init(conn)    # type: ignore
+    _fm = await FileManipulator(raw_info["uuid"]).init(db.conn)    # type: ignore
     _file_size = await _fm.getDocSize()
     _has_file = True if _file_size > 0 else False
 
@@ -296,7 +295,7 @@ async def loadAsDatapoint(raw_info: DBFileInfo, conn: DBConnection) -> DataPoint
         note_linecount = len([line for line in raw_info["comments"].split("\n") if line.strip() != ""]),
         has_abstract= (abs_ := raw_info["abstract"].strip()) != "" and abs_ != "<Not avaliable>",
     )
-    return await DataPoint(summary).init(conn)
+    return await DataPoint(summary).init(db)
 
 class DataBase(Dict[str, DataPoint], DataCore):
     def __init__(self):
@@ -368,7 +367,8 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         Get DataPoint by uuid
         """
-        return (await self.gets([uuid]))[0]
+        assert (info := await self.conn.get(uuid)) is not None, f"Data not found: {uuid}"
+        return await assembleDatapoint(info, self)
 
     async def gets(self, uuids: list[str]) -> list[DataPoint]:
         """
@@ -376,7 +376,7 @@ class DataBase(Dict[str, DataPoint], DataCore):
         """
         conn = self.conn
         all_info = await conn.getMany(uuids)
-        tasks = [loadAsDatapoint(info, conn) for info in all_info]
+        tasks = [assembleDatapoint(info, self) for info in all_info]
         return await asyncio.gather(*tasks)
     
     async def update(self, uuids: str) -> DataPoint:
