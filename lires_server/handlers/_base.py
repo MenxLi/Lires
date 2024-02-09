@@ -139,8 +139,9 @@ class RequestHandlerMixin(LiresBase):
         """
         tags = DataTags(_tags)
         mandatory_tags = DataTags(_mandatory_tags)
-        await RequestHandlerMixin.logger.debug(f"check tags: {tags} vs {mandatory_tags}")
+        await RequestHandlerMixin.logger.debug(f"check tag permission: {tags} vs {mandatory_tags}")
         if not mandatory_tags.issubset(tags.withParents()):
+            await RequestHandlerMixin.logger.debug("Tag permission denied")
             if raise_error:
                 raise tornado.web.HTTPError(403)
             else:
