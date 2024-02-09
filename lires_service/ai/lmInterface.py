@@ -16,7 +16,9 @@ if sys.version_info < (3, 9):
 else:
     from collections.abc import Iterator
 
-import openai
+from openai import OpenAI
+
+client = OpenAI()
 from . import globalConfig as config
 import basaran.model
 
@@ -129,16 +131,22 @@ class OpenAIChatStreamIter(ChatStreamIter):
     
     def call(self, prompt: str, temperature: float, max_tokens: Optional[int]) -> Iterator[StreamData]:
 
-        res = openai.ChatCompletion.create(
-            model=self.model, 
-            messages=self.generateMessages(prompt), 
-            temperature=temperature, 
-            max_tokens=max_tokens,
-            stream=True, 
+        client = OpenAI(
+            api_key=os.environ["OPENAI_API_KEY"],
+            base_url=os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
         )
+        res = client.chat.completions.create(
+                model=self.model, 
+                messages=self.generateMessages(prompt),     # type: ignore
+                temperature=temperature, 
+                max_tokens=max_tokens,
+                stream=True
+            )
         text = ""
         for chunk in res:
-            piece: str = chunk["choices"][0]["delta"].get("content", "") # type: ignore
+            piece = chunk.choices[0].delta.content
+            if piece is None:
+                piece = ""
             text += piece
             data: StreamData = {
                 "text": piece if self.return_pieces else text,

@@ -63,7 +63,7 @@ ai = [
     "scikit-learn",
     "safetensors",
     "torch",
-    "openai",
+    "openai >= 1.0.0",
     "transformers",
     "sentencepiece",
     "protobuf",
