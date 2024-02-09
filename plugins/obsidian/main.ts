@@ -35,7 +35,7 @@ export default class LiresPlugin extends Plugin {
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new LiresSettingTab(this.app, this));
 		this.api = new LiresAPI().init(() => this.settings.endpoint, () => this.settings.credential);
-		console.log('loading Lires plugin');
+		console.log('loading Lires plugin, time: ', Date.now());
 
 
 		this.registerMarkdownCodeBlockProcessor('lires-cite', (source, el, ctx) => {
@@ -61,23 +61,22 @@ export default class LiresPlugin extends Plugin {
 				}))
 				el.appendChild(linkDiv);
 			})
-
-			this.registerMarkdownCodeBlockProcessor('lires-ref', (source, el, ctx) => {
-				// source is the content of the code block
-				// each line is a uuid of the data
-				const uids = source.split('\n').filter(uid => uid.length > 0);
-				getDataInfo(uids, this.api).then((dInfos) => {
-					for (const dInfo of dInfos){
-						if (dInfo){
-							el.appendChild(getReferenceLineElem(this, dInfo));
-						}
-					}
-				})
-			})
-
 		})
+		this.registerMarkdownCodeBlockProcessor('lires-ref', (source, el, ctx) => {
+			// source is the content of the code block
+			// each line is a uuid of the data
+			const uids = source.split('\n').filter(uid => uid.length > 0);
+			getDataInfo(uids, this.api).then((dInfos) => {
+				for (const dInfo of dInfos){
+					if (dInfo){
+						el.appendChild(getReferenceLineElem(this, dInfo));
+					}
+				}
+			})
+		})
+
 	}
-	onunload() { }
+	onunload() {}
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
