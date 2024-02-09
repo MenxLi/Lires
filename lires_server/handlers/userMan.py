@@ -1,6 +1,6 @@
 
 from ._base import *
-from lires.core.dataClass import DataTags
+from lires.core.dataTags import DataTags
 import json
 
 

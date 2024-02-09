@@ -4,7 +4,8 @@ Get information about data
 from typing import Union, List
 import json
 
-from lires.core.dataClass import DataTags, DataPoint, DataPointSummary, sortDataList, SortType
+from lires.core.dataClass import DataPoint, sortDataList, SortType
+from lires.core.dataTags import DataTags
 from ._base import *
 
 class DataListHandler(RequestHandlerBase):

@@ -1,8 +1,8 @@
 import argparse
-from lires.user import UsrDBConnection, UserPool
+from lires.user import UserPool
 from lires.user.encrypt import generateHexHash
 from lires.config import USER_DIR
-from lires.core.dataClass import DataTags
+from lires.core.dataTags import DataTags
 
 def str2bool(v):
     if isinstance(v, bool):

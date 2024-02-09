@@ -12,7 +12,7 @@ from .bibReader import BibParser, parseBibtex
 from ..config import ACCEPTED_EXTENSIONS
 
 if TYPE_CHECKING:
-    from .dataClass import DataTags
+    from .dataTags import DataTags
 
 def _getFileExt(fpath: str):
     """

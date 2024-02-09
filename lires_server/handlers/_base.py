@@ -8,7 +8,8 @@ import http.cookies
 from ._global_data import GlobalStorage
 from lires.user import UserInfo, UserPool
 from lires.core.base import LiresBase
-from lires.core.dataClass import DataBase, DataTags
+from lires.core.dataClass import DataBase
+from lires.core.dataTags import DataTags
 from lires.utils import BCOLORS
 from tiny_vectordb import VectorDatabase
 
