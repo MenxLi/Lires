@@ -433,3 +433,59 @@ class DBConnection(LiresBase):
         async with self.conn.execute("SELECT * FROM files WHERE uuid=?", (uuid,)) as cursor:
             row = cursor.fetchone()
         print(row)
+    
+    async def filter(
+        self, strict = False,
+        ignore_case = True,
+        from_uids: Optional[list[str]] = None,
+        title: Optional[str] = None,
+        publication: Optional[str] = None,
+        note: Optional[str] = None,
+    ) -> list[str]:
+        '''
+        !! not fully tested yet !!
+        A simple filter function for fast search,
+        will support authors and tags in the future (maybe by adding a new index table)
+        '''
+        # build query
+        query_conds = []
+        if from_uids:
+            query_conds.append("uuid IN ({})".format(",".join(["?"]*len(from_uids))))
+        for [field, value] in [
+            ["title", title],
+            ["publication", publication],
+            ["comments", note]
+        ]:
+            if value:
+                if strict and not ignore_case:
+                    query_conds.append("{}=?".format(field))
+                elif strict and ignore_case:
+                    query_conds.append("{}=? COLLATE NOCASE".format(field))
+                elif not strict and not ignore_case:
+                    query_conds.append("{} LIKE ?".format(field))
+                else:
+                    query_conds.append("{} LIKE ? COLLATE NOCASE".format(field))
+        
+        if query_conds:
+            # build query items
+            query_items = []
+            if from_uids:
+                query_items.extend(from_uids)
+            for value in [title, publication, note]:
+                if not value:
+                    continue
+                if not strict:
+                    query_items.append(f"%{value}%")
+                else:
+                    query_items.append(value)
+
+            # execute
+            query = "SELECT uuid FROM files WHERE " + " AND ".join(query_conds)
+            await self.logger.debug("Executing query: {} | with items: {}".format(query, query_items))
+
+            async with self.conn.execute(
+                query, tuple(query_items)
+                ) as cursor:
+                return [row[0] for row in await cursor.fetchall()]
+        else:
+            return await self.keys()

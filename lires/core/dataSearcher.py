@@ -88,24 +88,30 @@ class DataSearcher(DataCore):
         return results
     
     async def searchNote(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
-        import asyncio
-        results: StringSearchT = {}
-        uids = []
-        all_res = []
+        # import asyncio
+        # results: StringSearchT = {}
+        # uids = []
+        # all_res = []
 
-        all_dps = await self.db.getAll()
-        all_comments = await asyncio.gather(*[dp.fm.readComments() for dp in all_dps])
-        for dp, comments in zip(all_dps, all_comments):
-            if not comments:
-                continue
-            uid = dp.uuid
-            res = self._searchRegex(pattern, comments, ignore_case)
-            uids.append(uid)
-            all_res.append(res)
-        for uid, res in zip(uids, all_res):
-            if res is not None:
-                results[uid] = {"score": None, "match": res}
-        return results
+        # all_dps = await self.db.getAll()
+        # all_comments = await asyncio.gather(*[dp.fm.readComments() for dp in all_dps])
+        # for dp, comments in zip(all_dps, all_comments):
+        #     if not comments:
+        #         continue
+        #     uid = dp.uuid
+        #     res = self._searchRegex(pattern, comments, ignore_case)
+        #     uids.append(uid)
+        #     all_res.append(res)
+        # for uid, res in zip(uids, all_res):
+        #     if res is not None:
+        #         results[uid] = {"score": None, "match": res}
+        # return results
+        uids = await self.db.conn.filter(
+            strict=False, 
+            ignore_case=ignore_case,
+            note=pattern
+        )
+        return {uid: None for uid in uids}
     
     async def searchFeature(self, iconn: IServerConn, vec_db: VectorDatabase, pattern: str, n_return = 999, ) -> StringSearchT:
         if pattern.strip() == "":
