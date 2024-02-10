@@ -88,12 +88,17 @@ class DataSearcher(DataCore):
         return results
     
     async def searchNote(self, pattern: str, ignore_case: bool = True) -> StringSearchT:
+        import asyncio
         results: StringSearchT = {}
         uids = []
         all_res = []
-        for dp in await self.db.getAll():
+
+        all_dps = await self.db.getAll()
+        all_comments = await asyncio.gather(*[dp.fm.readComments() for dp in all_dps])
+        for dp, comments in zip(all_dps, all_comments):
+            if not comments:
+                continue
             uid = dp.uuid
-            comments = await dp.fm.readComments()
             res = self._searchRegex(pattern, comments, ignore_case)
             uids.append(uid)
             all_res.append(res)
