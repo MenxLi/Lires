@@ -118,7 +118,7 @@ export const useUIStateStore = defineStore(
                         useUIStateStore().databaseLoadingStatus.nTotal = -1
                     },
                     () => {
-                        this.showPopup(`Failed to load database from: ${new ServerConn().apiURL()}`, "alert");
+                        this.showPopup(`Failed to load database from: ${new ServerConn().baseURL}`, "alert");
                         useUIStateStore().databaseLoadingStatus.nTotal = -1
                     },
                     (nCurrent, nTotal) => {

@@ -11,14 +11,14 @@ export class ServerConn {
     declare fetcher: Fetcher;
     constructor(){
         this.fetcher = new Fetcher();
-        this.fetcher.setBaseUrlGetter(()=>`${getBackendURL()}`)
+        this.fetcher.setBaseUrlGetter(()=>`${this.baseURL}`)
         this.fetcher.setCredentialGetter(()=>useSettingsStore().encKey);
     }
     get settings(){
         return useSettingsStore();
     }
-    apiURL(){
-        return getBackendURL() + "/api";
+    get baseURL(){
+        return getBackendURL();
     }
     async authUsr( encKey: string ): Promise<UserInfo>{
         return await this.fetcher.post(`/api/auth`, {
