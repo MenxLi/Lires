@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import Plot3d from './Plot3d.vue';
     import LoadingWidget from '../common/LoadingWidget.vue';
-    import { ref, computed } from 'vue';
+    import { ref, computed, watch } from 'vue';
     import { useConnectionStore, useDataStore, useUIStateStore, useSettingsStore } from '../store';
     import { deepCopy } from '../../core/misc';
     import { ThemeMode } from '../../core/misc';
@@ -32,10 +32,10 @@
     })
 
     // uids: the uids of the data to be shown
-    function getPointsGroupFromUids(
+    async function getPointsGroupFrom(
         uids: string[], 
         colors: string | string[] | number[] = 'rgb(100, 100, 200)'
-        ): PlotPoints3D{
+    ): Promise<PlotPoints3D>{
         const feats_ = feats.value;
         if (!feats_){
             // features not ready
@@ -53,6 +53,7 @@
         }
 
         const len = uids.length;
+        const datapoints = await dataStore.database.agetMany(uids);
         const xs = new Float32Array(len);
         const ys = new Float32Array(len);
         const zs = new Float32Array(len);
@@ -65,7 +66,7 @@
             xs[i] = feat[0];
             ys[i] = feat[1];
             zs[i] = feat[2];
-            const dp = dataStore.database.get(uid);
+            const dp = datapoints[i];
             texts[i] = `${dp.authorYear()}<br>${dp.summary.title}`;
         };
         let color;
@@ -109,25 +110,29 @@
         } as PlotPoints3D
     }
 
-    const plotPoints = computed(()=>{
+    const plotPoints = ref(null as null | [PlotPoints3D, PlotPoints3D, PlotPoints3D]);
+    async function updatePlotPoints(){
         const scores = uiState.shownDataScores;
         let shownPoints;
         if (scores){
-            shownPoints = getPointsGroupFromUids(deepCopy(uiState.shownDataUIDs), scores);
+            shownPoints = await getPointsGroupFrom(deepCopy(uiState.shownDataUIDs), scores);
         }
         else{
-            shownPoints = getPointsGroupFromUids(deepCopy(uiState.shownDataUIDs));    // must use deepCopy here!
+            shownPoints = await getPointsGroupFrom(deepCopy(uiState.shownDataUIDs));    // must use deepCopy here!
         }
         const allUIDs = Object.keys(dataStore.database.data);
         const remainUIDs = allUIDs.filter((uid)=>uiState.shownDataUIDs.indexOf(uid) == -1);
 
-        const remainPoints = getPointsGroupFromUids(remainUIDs, 
+        const remainPoints = await getPointsGroupFrom(remainUIDs, 
             ThemeMode.isDarkMode()?'rgb(50, 50, 50)': 'rgb(220, 220, 220)'
         );
-        const selectedPoints = getPointsGroupFromUids(deepCopy(uiState.unfoldedDataUIDs), 'rgb(255, 0, 0)');
-        return [shownPoints, remainPoints, selectedPoints];
+        const selectedPoints = await getPointsGroupFrom(deepCopy(uiState.unfoldedDataUIDs), 'rgb(255, 0, 0)');
+        plotPoints.value = [shownPoints, remainPoints, selectedPoints];
     }
-    )
+    watch(()=>uiState.shownDataUIDs, ()=>{
+        updatePlotPoints();
+    })
+
 
     const dataObtained = computed(()=>{
         return Object.keys(feats.value).length > 0;
@@ -167,7 +172,7 @@
         <details @toggle="onToggleDetail" :open="settingsStore.show3DScatterPlot">
             <summary>Visualization</summary>
             <div id="plot3dDiv">
-                <Plot3d :data="plotPoints" ref="plot3DRef"></Plot3d>
+                <Plot3d :data="plotPoints?plotPoints:[]" ref="plot3DRef"></Plot3d>
                 <div id="loadingDiv" class="full" v-if="!dataObtained">
                     <LoadingWidget v-if="featsRaw === null"></LoadingWidget>
                     <p class="status" v-else>Data not ready</p>
