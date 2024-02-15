@@ -341,16 +341,19 @@ export class DataBase {
 
     async aget(uid: string): Promise<DataPoint>{
         // will shift to async get in the future
-        const dpInfo = await this.conn.reqDatapointSummary(uid);
-        return new DataPoint(this.conn, dpInfo);
+        if (!(uid in this.data)){
+            const dpInfo = await this.conn.reqDatapointSummary(uid);
+            this.data[uid] = new DataPoint(this.conn, dpInfo);
+        }
+        return this.data[uid];
     }
 
-    getMany(uuids: string[]): DataPoint[]{
-        const ret = [];
-        for (const uid of uuids){
-            ret.push(this.get(uid));
-        }
-        return ret;
+    async agetMany(uuids: string[]): Promise<DataPoint[]>{
+        const res = await Promise.all(uuids.map((uid) => {
+            // TODO: should be done with a single request
+            return this.aget(uid);
+        }));
+        return res;
     }
 
     getAllTags() : DataTags {
