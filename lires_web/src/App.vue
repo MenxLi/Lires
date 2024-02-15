@@ -67,7 +67,7 @@
         // on login
         console.log("Logged in.")
         // initialize session connection if it's not been
-        wsConnection.init({
+        wsConnection.connect({
             onopenCallback: () => {
                 __sessionConnected.value = true
                 __sessionFailed.value = false

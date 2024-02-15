@@ -142,7 +142,10 @@ export const useConnectionStore = defineStore(
                     useSettingsStore().backend,
                     () => useSettingsStore().encKey
                 ),
-                wsConn: new ServerWebsocketConn(),
+                wsConn: new ServerWebsocketConn().init(
+                    useSettingsStore().backend,
+                    () => useSettingsStore().encKey
+                )
             }
         },
     }

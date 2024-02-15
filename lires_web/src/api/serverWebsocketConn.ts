@@ -1,6 +1,4 @@
 
-import { getBackendURL } from "../config";
-import { useSettingsStore } from "../components/store";
 import { sha256 } from "../utils/sha256lib";
 import type { Event } from "./protocalT";
 
@@ -36,6 +34,8 @@ export function registerServerEvenCallback(
 export class ServerWebsocketConn{
     declare ws: WebSocket
     declare sessionID: string
+    declare __baseUrlGetter: ()=>string
+    declare __tokenGetter: ()=>string
     declare __remainingRetries: number
     declare __eventCallback_records: {
         onopenCallback: ()=>void,
@@ -55,8 +55,10 @@ export class ServerWebsocketConn{
         }
     }
 
-    get settings(){
-        return useSettingsStore();
+    init(baseUrlGetter: ()=>string, tokenGetter: ()=>string): ServerWebsocketConn{
+        this.__baseUrlGetter = baseUrlGetter;
+        this.__tokenGetter = tokenGetter;
+        return this;
     }
 
     private resetRemainingRetries=()=>{this.__remainingRetries = 10;}
@@ -64,7 +66,7 @@ export class ServerWebsocketConn{
     public isOpen=()=>(this.ws)?(this.ws.readyState === WebSocket.OPEN):false;
     public willTryReconnect=()=>this.__remainingRetries > 0;
 
-    public init({
+    public connect({
         onopenCallback = ()=>{},
         onmessageCallback = (_: MessageEvent)=>{},
         oncloseCallback = ()=>{},
@@ -80,9 +82,9 @@ export class ServerWebsocketConn{
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        urlParams.append('key', this.settings.encKey);
+        urlParams.append('key', this.__tokenGetter());
         urlParams.append('session_id', this.sessionID);
-        const __ws_backend = getBackendURL().replace('https://', 'wss://').replace('http://', 'ws://')
+        const __ws_backend = this.__baseUrlGetter().replace('https://', 'wss://').replace('http://', 'ws://')
             + '/ws?' + urlParams.toString();
         
         console.log("connecting to server websocket at: ", __ws_backend);
@@ -116,7 +118,7 @@ export class ServerWebsocketConn{
                 this.decreaseRemainingRetries();
                 new Promise(r => setTimeout(r, 1000)).then(
                     () => {
-                        if (this.ws.readyState === WebSocket.CLOSED) this.init({
+                        if (this.ws.readyState === WebSocket.CLOSED) this.connect({
                             onopenCallback,
                             onmessageCallback,
                             oncloseCallback,
@@ -146,7 +148,7 @@ export class ServerWebsocketConn{
             this.ws.close();
         }
         this.resetRemainingRetries()
-        this.init(this.__eventCallback_records);
+        this.connect(this.__eventCallback_records);
     }
 
     public close(){
