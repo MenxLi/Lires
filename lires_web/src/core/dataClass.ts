@@ -1,20 +1,20 @@
 import type { DataInfoT, SearchResultant } from "../api/protocalT";
-import { getBackendURL } from "../config";
 import type { ServerConn } from "../api/serverConn";
 import type { SearchStatus } from "../components/interface";
 import {useConnectionStore, useSettingsStore, useDataStore, formatAuthorName } from "../components/store";
 import { DataTags } from "./tag";
 
-function apiURL(){
-    return `${getBackendURL()}/api`;
-}
+// function apiURL(){
+//     return `${getBackendURL()}/api`;
+// }
 
 
 export class DataPoint {
     summary: DataInfoT;
     supp: Record<'note' | 'abstract', string | null>;
+    conn: ServerConn;
 
-    constructor(summary: DataInfoT) {
+    constructor(conn: ServerConn, summary: DataInfoT) {
         this.summary = summary;
         // supplimentary information for this datapoint,
         // need to fetch from server
@@ -23,9 +23,10 @@ export class DataPoint {
             note: null,
             abstract: null,
         }
+        this.conn = conn;
     }
 
-    get conn(){ return useConnectionStore().conn; }
+    get backendUrl(): string{ return this.conn.baseURL; }
 
     get tags(): DataTags{
         return new DataTags(this.summary.tags);
@@ -81,7 +82,7 @@ export class DataPoint {
             return Promise.reject("Note is null");
         }
         // replace image url with ./misc/
-        note = note.replace(new RegExp(`${getBackendURL()}/img/${this.summary.uuid}\\?fname=`, 'g'), './misc/');
+        note = note.replace(new RegExp(`${this.backendUrl}/img/${this.summary.uuid}\\?fname=`, 'g'), './misc/');
         return new Promise((resolve, reject) => {
             this.conn.reqDatapointNoteUpdate(
                 this.summary.uuid,
@@ -164,7 +165,7 @@ export class DataPoint {
     getRawDocURL(): string {
         const uid = this.summary.uuid;
         if (this.summary["has_file"]){
-            return `${getBackendURL()}/doc/${uid}`;
+            return `${this.backendUrl}/doc/${uid}`;
         }
         if (!this.summary["has_file"] && this.summary["url"]){
             return this.summary.url;
@@ -177,7 +178,7 @@ export class DataPoint {
         extraPDFViewerParams = {} as Record<string, string>,
         urlHashMark = "" as string,
     } = {}): string {
-        const backendPdfjsviewer = `${getBackendURL()}/pdfjs/web/viewer.html`;
+        const backendPdfjsviewer = `${this.backendUrl}/pdfjs/web/viewer.html`;
         function _getPdfViewerURL(fURL: string, pdfjs: string = backendPdfjsviewer){
             const pdfjsviewerParams = new URLSearchParams();
             if (pdfjs === backendPdfjsviewer){
@@ -223,16 +224,6 @@ export class DataPoint {
         }
         console.log("Open doc url: ", ret)
         return ret;
-    }
-
-    getOpenNoteURL(): string {
-        const uid = this.summary.uuid;
-        return `${apiURL()}/comment/${uid}/`;
-    }
-
-    getOpenSummaryURL(): string {
-        const uid = this.summary.uuid;
-        return `${apiURL()}/summary?uuid=${uid}&key=${useSettingsStore().encKey}`;
     }
 
     docType(): "" | "html" | "pdf" | "url" | "unknown" {
@@ -323,7 +314,7 @@ export class DataBase {
     }
 
     add(summary: DataInfoT): DataPoint {
-        this.data[summary.uuid] = new DataPoint(summary);
+        this.data[summary.uuid] = new DataPoint(this.conn, summary);
         return this.data[summary.uuid];
     }
 
@@ -343,14 +334,15 @@ export class DataBase {
             // I found this is tricky, but works... 
             // (The returned datapoint is temporary, after the entire UI update, the data point should be garbage collected)
             // TODO: find a better way to handle this
-            return new DataPoint(_dummyDataSummary);    
+            return new DataPoint(this.conn, _dummyDataSummary);    
         }
         return this.data[uuid];
     }
 
-    async aget(_: string): Promise<DataPoint>{
+    async aget(uid: string): Promise<DataPoint>{
         // will shift to async get in the future
-        throw new Error("Not implemented");
+        const dpInfo = await this.conn.reqDatapointSummary(uid);
+        return new DataPoint(this.conn, dpInfo);
     }
 
     getMany(uuids: string[]): DataPoint[]{
