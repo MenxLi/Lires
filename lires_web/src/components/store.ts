@@ -1,6 +1,7 @@
 
 import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint } from '../core/dataClass'
+import { UserPool } from '../core/user'
 import { DataTags } from '../core/tag'
 import { ServerConn } from '../api/serverConn'
 import { ServerWebsocketConn } from '../api/serverWebsocketConn'
@@ -137,7 +138,10 @@ export const useConnectionStore = defineStore(
     "connection", {
         state: () => {
             return {
-                conn: new ServerConn(),
+                conn: new ServerConn().init(
+                    useSettingsStore().backend,
+                    () => useSettingsStore().encKey
+                ),
                 wsConn: new ServerWebsocketConn(),
             }
         },
@@ -148,7 +152,10 @@ export const useDataStore = defineStore(
     "data", {
         state: () => {
             return {
-                database: new DataBase(),
+                // @ts-ignore
+                database: new DataBase(useConnectionStore().conn),
+                // @ts-ignore
+                userPool: new UserPool(useConnectionStore().conn),
                 user: {
                     id: -1,
                     username: '',
@@ -177,7 +184,7 @@ export const useDataStore = defineStore(
             },
             allTags(): DataTags {
                 return this.database.getAllTags();
-            }
+            },
         },
         actions: {
             clearUserInfo(){
@@ -300,6 +307,12 @@ export const useSettingsStore = defineStore(
                 this.__readerLayoutType = type.toString();
                 localStorage.setItem("readerLayoutType", type.toString());
             },
+
+            // no corresponding setter for the following getter
+            backend(): string {
+                console.log("backendUrl: ", `${this.backendHost}:${this.backendPort}`);
+                return `${this.backendHost}:${this.backendPort}`
+            }
         },
     }
 )

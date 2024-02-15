@@ -3,8 +3,7 @@
     import Plot3d from './Plot3d.vue';
     import LoadingWidget from '../common/LoadingWidget.vue';
     import { ref, computed } from 'vue';
-    import { useDataStore, useUIStateStore, useSettingsStore } from '../store';
-    import { ServerConn } from '../../api/serverConn';
+    import { useConnectionStore, useDataStore, useUIStateStore, useSettingsStore } from '../store';
     import { deepCopy } from '../../core/misc';
     import { ThemeMode } from '../../core/misc';
     import type { DatabaseFeature } from '../../api/protocalT';
@@ -135,7 +134,8 @@
     })
     async function fetchFeaturess(){
         featsRaw.value = null;
-        const datasetSize = (await new ServerConn().status()).n_data;
+        const conn = useConnectionStore().conn;
+        const datasetSize = (await conn.status()).n_data;
 
         // set perplextiy to according to the dataset size
         let perp;
@@ -146,10 +146,7 @@
         else{ perp = 15; }
 
         console.log("dataset size: ", datasetSize, "perp: ", perp);
-
-        new ServerConn().reqDatabaseFeatureTSNE("doc_feature", 3, perp).then((data)=>{
-            featsRaw.value = data;
-        });
+        featsRaw.value = await conn.reqDatabaseFeatureTSNE("doc_feature", 3, perp);
     }
     function onToggleDetail(ev:Event){
         if (ev.target instanceof HTMLDetailsElement){

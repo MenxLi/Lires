@@ -9,15 +9,15 @@
     import Banner from './common/Banner.vue';
     import LoadingWidget from './common/LoadingWidget.vue'
 
-    import { ServerConn } from '../api/serverConn';
     import { lazify } from '../utils/misc';
+    import { useConnectionStore } from './store';
 
 
     export interface ArxivArticleWithFeatures extends ArxivArticle{
         features: Float32Array | null,
     }
 
-    const conn = new ServerConn();
+    const conn = useConnectionStore().conn;
 
     // search and main data structure
     const fetchCategory = ref("cat:cs.CV OR cat:cs.AI OR stat.ML");
@@ -54,7 +54,7 @@
             searchFeature.value = null;
             return
         }
-        new ServerConn().featurize(searchText.value).then(
+        conn.featurize(searchText.value).then(
             (features) => {
                 searchFeature.value = new Float32Array(features);
             },

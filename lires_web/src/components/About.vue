@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { ServerConn } from '../api/serverConn';
+    import { useConnectionStore } from './store';
     import { ref, computed } from 'vue';
     import { type Changelog } from '../api/protocalT';
     import { getBackendURL, manualURL_zh } from '../config';
@@ -9,8 +9,9 @@
 
     const changelog = ref<Changelog>([]);
     const showChangelog = ref(false);
+    const conn = useConnectionStore().conn;
     const updateChangelog = () => {
-        new ServerConn().changelog().then(
+        conn.changelog().then(
             (data) => {
                 changelog.value = data;
             },
@@ -38,7 +39,7 @@
         'numConnections': -1,
     })
     const updateServerStatus = () => {
-        new ServerConn().status().then(
+        conn.status().then(
             (data) => {
                 __uptime.value = data.uptime;
                 serverInfo.value.version = data.version;

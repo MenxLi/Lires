@@ -2,13 +2,12 @@
 import { ref, computed } from 'vue';
 import { DataPoint } from '../../core/dataClass';
 import DataEditor from './DataEditor.vue';
-import { useUIStateStore } from '../store';
+import { useConnectionStore, useUIStateStore } from '../store';
 import FloatingWindow from '../common/FloatingWindow.vue';
 import {FileSelectButton} from '../common/fragments.tsx'
 import { copyToClipboard } from '../../utils/misc.ts'
 import { EditableParagraph } from '../common/fragments.tsx'
 import DataSummary from './DataSummary.vue';
-import { ServerConn } from '../../api/serverConn';
 
 const props = defineProps<{
     datapoint: DataPoint
@@ -78,7 +77,7 @@ function freeDocument(){
 function deleteThisDatapoint(){
     const uuid = props.datapoint.summary.uuid;
     if (window.confirm(`[IMPORTANT] Delete? \n${props.datapoint.toString()}`)){
-        new ServerConn().deleteData(uuid).then((_) => {
+        useConnectionStore().conn.deleteData(uuid).then((_) => {
             uiState.showPopup("Deleted");
         });
     }

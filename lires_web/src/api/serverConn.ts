@@ -1,8 +1,6 @@
 
 // Server connection
 
-import {getBackendURL} from "../config.js";
-import { useSettingsStore } from "../components/store.js";
 import type { DataInfoT, UserInfo, SearchResult, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
 import { sha256 } from "../utils/sha256lib.js";
 import Fetcher from "./fetcher.js";
@@ -11,8 +9,11 @@ export class ServerConn {
     declare fetcher: Fetcher;
     constructor(){
         this.fetcher = new Fetcher();
-        this.fetcher.setBaseUrlGetter(()=>getBackendURL())
-        this.fetcher.setCredentialGetter(()=>useSettingsStore().encKey);
+    }
+    public init(baseUrlGetter: ()=>string, tokenGetter: ()=>string): ServerConn{
+        this.fetcher.setBaseUrlGetter(baseUrlGetter);
+        this.fetcher.setCredentialGetter(tokenGetter);
+        return this;
     }
     public get baseURL(){ return this.fetcher.baseUrl; }
     async authUsr( encKey: string ): Promise<UserInfo>{

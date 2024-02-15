@@ -6,8 +6,7 @@
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
     import { openURLExternal } from '../../utils/misc';
-    import { ServerConn } from '../../api/serverConn';
-    import { useUIStateStore } from '../store';
+    import { useConnectionStore, useUIStateStore } from '../store';
 
     import BookmarkFill0 from '../../assets/icons/bookmark_fill0.svg'
     import BookmarkFill1 from '../../assets/icons/bookmark_fill1.svg'
@@ -160,7 +159,7 @@
         }
 
         const uuid = props.datapoint.summary.uuid;
-        new ServerConn().editData(uuid, null, newTags).then(
+        useConnectionStore().conn.editData(uuid, null, newTags).then(
             (summary) => {
                 props.datapoint.update(summary);
                 useUIStateStore().updateShownData();

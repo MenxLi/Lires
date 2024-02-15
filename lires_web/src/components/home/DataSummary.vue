@@ -4,9 +4,8 @@
     import { DataPoint } from '../../core/dataClass';
     import { DataSearcher } from '../../core/dataClass';
     import type { SearchResultant } from '../../api/protocalT';
-    import { ServerConn } from '../../api/serverConn';
     import FileRowContainer from './FileRowContainer.vue';
-    import { useDataStore, formatAuthorName } from '../store';
+    import {useConnectionStore, useDataStore, formatAuthorName } from '../store';
 
     const props = defineProps<{
         datapoint: DataPoint
@@ -23,7 +22,7 @@
         )
     );
 
-    const serverConn = new ServerConn();
+    const serverConn = useConnectionStore().conn;
     const aiSummaryParagraph = ref<HTMLParagraphElement | null>(null);
     const aiSummary = ref<string>('');
 
@@ -65,8 +64,7 @@
         }
 
         if (fromContent == '') return;
-        const conn = new ServerConn();
-        const res = await conn.search("searchFeature", {"pattern": fromContent , "n_return": 9});
+        const res = await serverConn.search("searchFeature", {"pattern": fromContent , "n_return": 9});
         const dps: DataPoint[] = new Array();
         const scores: number[] = new Array();
         for (const dp of dataStore.database.getDataByTags([])){

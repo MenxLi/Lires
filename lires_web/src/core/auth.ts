@@ -1,6 +1,5 @@
 
-import { ServerConn } from "../api/serverConn";
-import { useSettingsStore, useDataStore } from "../components/store";
+import { useConnectionStore, useSettingsStore, useDataStore } from "../components/store";
 import type { UserInfo } from "../api/protocalT";
 import { sha256 } from "../utils/sha256lib";
 
@@ -32,7 +31,7 @@ export function settingsLogout(){
 // Use current settings to authenticate again
 // Will be called when the page is loaded or on navigation
 export async function settingsAuthentication(): Promise<UserInfo|null> {
-    const conn = new ServerConn();
+    const conn = useConnectionStore().conn;
     const usrEncKey = useSettingsStore().encKey;
     try{
         const userInfo = await conn.authUsr(usrEncKey);

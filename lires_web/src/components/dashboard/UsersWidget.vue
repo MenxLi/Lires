@@ -1,9 +1,8 @@
 
 <script setup lang="ts">
     import { getBackendURL } from '../../config';
-    import { useDataStore } from '../store';
+    import {useConnectionStore, useDataStore } from '../store';
     import type { UserInfo, Event_User } from '../../api/protocalT';
-    import { ServerConn } from '../../api/serverConn';
     import { ref, computed, onMounted } from 'vue';
     import { registerServerEvenCallback } from '../../api/serverWebsocketConn';
 
@@ -18,6 +17,7 @@
 
     const allUsers = ref([] as UserInfo[]);
     const is_admin = computed(() => useDataStore().user.is_admin);
+    const conn = useConnectionStore().conn;
 
     // Edit user related
     const showEditUserDialog = ref(false);
@@ -35,7 +35,7 @@
     }
     function onEditUserOK(){
         console.log(editUserDialog_userInfo.value);
-        new ServerConn().setUserAccess(
+        conn.setUserAccess(
             editUserDialog_userInfo.value!.username,
             editUserDialog_userInfo.value!.is_admin,
             editUserDialog_userInfo.value!.mandatory_tags
@@ -53,7 +53,7 @@
             useUIStateStore().showPopup('Wrong input', 'error');
             return;
         }
-        new ServerConn().deleteUser(editUserDialog_userInfo.value!.username).then(
+        conn.deleteUser(editUserDialog_userInfo.value!.username).then(
             (_) => {
                 useUIStateStore().showPopup(`User ${editUserDialog_userInfo.value!.username} deleted`, 'info');
                 showDeleteUserDialog.value = false;
@@ -86,7 +86,7 @@
         }
         const mandatoryTags = createUser_mandatoryTags.value.split(';').map((s:string)=>s.trim());
         if (mandatoryTags.length === 1 && mandatoryTags[0] === '') mandatoryTags.splice(0, 1);
-        new ServerConn().createUser(
+        conn.createUser(
             createUser_username.value,
             createUser_name.value,
             createUser_password.value,
@@ -104,7 +104,7 @@
 
     onMounted(() => {
         // get all users
-        new ServerConn().reqUserList().then(
+        conn.reqUserList().then(
             (res) => { 
                 allUsers.value = res; 
             },

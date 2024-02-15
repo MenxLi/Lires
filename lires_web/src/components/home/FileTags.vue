@@ -2,11 +2,10 @@
 <script setup lang="ts">
     import { watch, ref } from 'vue';
     import { DataTags } from '../../core/tag';
-    import { ServerConn } from '../../api/serverConn';
     import { computed } from 'vue';
     import TagSelector from '../tags/TagSelector.vue';
     import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
-    import { useUIStateStore, useDataStore } from '../store';
+    import { useConnectionStore, useUIStateStore, useDataStore } from '../store';
     import type { TagStatus } from '../interface';
 
     const emit = defineEmits<{
@@ -60,7 +59,7 @@
         if (oldTag && dataStore.database.getAllTags().has(oldTag)){
             const newTag = prompt("New tag");
             if (newTag){
-                new ServerConn().renameTag(oldTag, newTag).then(
+                useConnectionStore().conn.renameTag(oldTag, newTag).then(
                     () => { uiState.showPopup("Tag renamed", "success"); },
                     () => { uiState.showPopup("Failed to rename tag", "error") },
                 )
@@ -76,7 +75,7 @@
             if (!confirm(`Are you sure to delete tag "${tag}"?`)){
                 return;
             }
-            new ServerConn().deleteTag(tag).then(
+            useConnectionStore().conn.deleteTag(tag).then(
                 () => { uiState.showPopup("Tag deleted", "success"); },
                 () => { uiState.showPopup("Failed to delete tag", "error") },
             )

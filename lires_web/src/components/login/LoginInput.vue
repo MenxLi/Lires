@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue';
-import { ServerConn } from '../../api/serverConn';
+import { useConnectionStore } from '../store';
 import { useRouter } from 'vue-router';
 import { saveAuthentication, getEncKey } from '../../core/auth.js'
 import { useSettingsStore } from '../store';
@@ -37,7 +37,7 @@ function login(){
     loginText.value = "Connecting..."
 
     const encKey = getEncKey(username.value, password.value);
-    const conn = new ServerConn();
+    const conn = useConnectionStore().conn;
     conn.authUsr(encKey as string).then(
         (userInfo) => {
             saveAuthentication(encKey as string, userInfo, stayLogin.value);

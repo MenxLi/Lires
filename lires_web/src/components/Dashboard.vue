@@ -5,13 +5,12 @@
     import UsersWiget from './dashboard/UsersWidget.vue';
     import { ref, computed, onActivated } from 'vue';
     import { useRoute } from 'vue-router';
-    import { ServerConn } from '../api/serverConn';
-    import { useUIStateStore, useDataStore } from './store';
+    import {useConnectionStore, useUIStateStore, useDataStore } from './store';
     import { registerServerEvenCallback } from '../api/serverWebsocketConn';
     import type { UserInfo, Event_User } from '../api/protocalT';
 
     const route = useRoute();
-    const conn = new ServerConn();
+    const conn = useConnectionStore().conn;
 
     const THIS_USER = computed(() => {
         const thisUserId = useDataStore().user.id;

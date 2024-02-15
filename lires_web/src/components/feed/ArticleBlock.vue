@@ -2,8 +2,7 @@
 <script setup lang="ts">
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { bibtexFromArxiv } from '../../utils/arxiv';
-    import { ServerConn } from '../../api/serverConn';
-    import { useDataStore, formatAuthorName } from '../store';
+    import {useConnectionStore, useDataStore, formatAuthorName } from '../store';
     import { DataPoint, DataSearcher } from '../../core/dataClass';
     import FileRowContainer from '../home/FileRowContainer.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
@@ -15,6 +14,7 @@
         article: ArxivArticleWithFeatures,
     }>()
     const dataStore = useDataStore();
+    const conn = useConnectionStore().conn;
 
     const dataEditor = ref(null as null | typeof DataEditor);
     async function showDataEditor(){
@@ -60,7 +60,7 @@
         if (relatedArticles.value.length > 0){
             return;
         }
-        new ServerConn().search(
+        conn.search(
             "searchFeature", { pattern: props.article.abstract, n_return: 8 }
             ).then(
                 (res) => {

@@ -3,9 +3,8 @@
     import { ref, computed } from 'vue';
     import QueryDialog from '../common/QueryDialog.vue';
     import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
-    import { useUIStateStore } from '../store';
+    import { useConnectionStore, useUIStateStore } from '../store';
     import { DataTags } from '../../core/tag';
-    import { ServerConn } from '../../api/serverConn';
     import type { DataPoint } from '../../core/dataClass';
     import type { TagStatus } from '../interface';
     import Toggle from '../common/Toggle.vue';
@@ -15,6 +14,7 @@
 
 
     const uiState = useUIStateStore();
+    const conn = useConnectionStore().conn;
     // internal states that control the dialog
     const show_ = ref(false);
     const datapoint_ = ref<DataPoint | null>(null);
@@ -38,12 +38,12 @@
         }           // create a capture of the current state
         close();    // close the dialog and clear the state
         uiState.showPopup("Saving entry...", "info")
-        new ServerConn().editData(uploadState.uuid, uploadState.bibtex, uploadState.tags, uploadState.url).then(
+        conn.editData(uploadState.uuid, uploadState.bibtex, uploadState.tags, uploadState.url).then(
             (dSummary) => {
                 if (!uploadState.file){ uiState.showPopup("Saved", "success"); }
                 else{
                     uiState.showPopup("Uploading document...", "info");
-                    new ServerConn().uploadDocument(dSummary.uuid, uploadState.file).then(
+                    conn.uploadDocument(dSummary.uuid, uploadState.file).then(
                         (_) => { uiState.showPopup("Saved", "success"); },
                         () => uiState.showPopup("Failed to upload document", "error")
                     )

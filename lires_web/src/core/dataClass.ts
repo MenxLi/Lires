@@ -1,8 +1,8 @@
 import type { DataInfoT, SearchResultant } from "../api/protocalT";
-import { ServerConn } from "../api/serverConn";
 import { getBackendURL } from "../config";
+import type { ServerConn } from "../api/serverConn";
 import type { SearchStatus } from "../components/interface";
-import { useSettingsStore, useDataStore, formatAuthorName } from "../components/store";
+import {useConnectionStore, useSettingsStore, useDataStore, formatAuthorName } from "../components/store";
 import { DataTags } from "./tag";
 
 function apiURL(){
@@ -25,6 +25,8 @@ export class DataPoint {
         }
     }
 
+    get conn(){ return useConnectionStore().conn; }
+
     get tags(): DataTags{
         return new DataTags(this.summary.tags);
     }
@@ -36,7 +38,7 @@ export class DataPoint {
     // will update this.supp.abstract
     fetchAbstract(): Promise<string> {
         return new Promise((resolve, reject) => {
-            new ServerConn().reqDatapointAbstract(this.summary.uuid).then((data) => {
+            this.conn.reqDatapointAbstract(this.summary.uuid).then((data) => {
                 this.supp.abstract = data;
                 resolve(data);
             }).catch((err) => {
@@ -52,7 +54,7 @@ export class DataPoint {
                 resolve(true);
                 return;
             }
-            new ServerConn().reqDatapointAbstractUpdate(this.summary.uuid, abstract).then((data) => {
+            this.conn.reqDatapointAbstractUpdate(this.summary.uuid, abstract).then((data) => {
                 this.supp.abstract = abstract;
                 resolve(data);
             }).catch((err) => {
@@ -64,7 +66,7 @@ export class DataPoint {
     // will update this.supp.note
     fetchNote(): Promise<string> {
         return new Promise((resolve, reject) => {
-            new ServerConn().reqDatapointNote(this.summary.uuid).then((data) => {
+            this.conn.reqDatapointNote(this.summary.uuid).then((data) => {
                 this.supp.note = data;
                 resolve(data);
             }).catch((err) => {
@@ -81,7 +83,7 @@ export class DataPoint {
         // replace image url with ./misc/
         note = note.replace(new RegExp(`${getBackendURL()}/img/${this.summary.uuid}\\?fname=`, 'g'), './misc/');
         return new Promise((resolve, reject) => {
-            new ServerConn().reqDatapointNoteUpdate(
+            this.conn.reqDatapointNoteUpdate(
                 this.summary.uuid,
                 note as string
             ).then((data) => {
@@ -101,7 +103,7 @@ export class DataPoint {
     // return a list of raw image urls
     uploadImages(images: File[]): Promise<string[]>{
         return new Promise((resolve, reject) => {
-            new ServerConn().uploadImages(this.summary.uuid, images).then(
+            this.conn.uploadImages(this.summary.uuid, images).then(
                 (data) => {
                     resolve(
                         data.map((fname) => `./misc/${fname}`)
@@ -115,10 +117,10 @@ export class DataPoint {
     }
 
     uploadDocument(doc: File): Promise<DataInfoT>{
-        return new ServerConn().uploadDocument(this.summary.uuid, doc);
+        return this.conn.uploadDocument(this.summary.uuid, doc);
     }
     freeDocument(): Promise<DataInfoT>{
-        return new ServerConn().freeDocument(this.summary.uuid);
+        return this.conn.freeDocument(this.summary.uuid);
     }
 
     update(summary: null | DataInfoT = null): Promise<DataInfoT> {
@@ -127,7 +129,7 @@ export class DataPoint {
             return Promise.resolve(summary);
         }
 
-        const res = new ServerConn().reqDatapointSummary(this.summary.uuid);
+        const res = this.conn.reqDatapointSummary(this.summary.uuid);
         res.then((data) => {
             this.summary = data;
         })
@@ -273,11 +275,13 @@ const _dummyDataSummary: DataInfoT = {
 
 export class DataBase {
     data: Record<string, DataPoint>;
+    conn: ServerConn;
     _initliazed: boolean;
 
-    constructor(){
+    constructor(conn: ServerConn){
         this.data = {}
         this._initliazed = false;
+        this.conn = conn;
     }
 
     get initialized(): boolean{
@@ -291,7 +295,7 @@ export class DataBase {
     }
 
     async requestData(){
-        const conn = new ServerConn();
+        const conn = this.conn;
         const allData = await conn.reqFileList([]);
         console.log("Get infolist of size: ", 
             (JSON.stringify(allData).length * 2 / 1024 / 1024)
@@ -306,7 +310,7 @@ export class DataBase {
 
     // get the datalist in chunks
     async requestDataStream(stepCallback: (nCurrent_: number, nTotal_: number) => void = () => {}){
-        const conn = new ServerConn();
+        const conn = this.conn;
         this.clear()
         await conn.reqFileListStream([], (data: DataInfoT, nCurrent: number, nTotal: number) => {
             this.add(data);
@@ -389,7 +393,7 @@ export class DataBase {
     async renameTag(oldTag: string, newTag: string): Promise<boolean>{
         oldTag = DataTags.removeSpaces(oldTag);
         newTag = DataTags.removeSpaces(newTag);
-        const conn = new ServerConn();
+        const conn = this.conn;
         const res = await conn.renameTag(oldTag, newTag);
         if (res){
             const needUpdate = this.getDataByTags([oldTag]);
@@ -407,7 +411,7 @@ export class DataBase {
      */
     async deleteTag(tag: string): Promise<boolean>{
         tag = DataTags.removeSpaces(tag);
-        const conn = new ServerConn();
+        const conn = this.conn;
         const res = await conn.deleteTag(tag);
         if (res){
             const needUpdate = this.getDataByTags([tag]);
@@ -445,7 +449,7 @@ export class DataSearcher{
 
         // server search
         if (searchStatus.searchBy.toLowerCase() === "feature"){
-            const conn = new ServerConn();
+            const conn = useConnectionStore().conn;
             const res = await conn.search("searchFeature", {"pattern": searchStatus.content , "n_return": 999});
             const scores: number[] = new Array();
             for (const dp of datapoints){
@@ -464,7 +468,7 @@ export class DataSearcher{
         } 
 
         else if (searchStatus.searchBy.toLowerCase() === "note"){
-            const conn = new ServerConn();
+            const conn = useConnectionStore().conn;
             const res = await conn.search("searchNote", {"pattern": searchStatus.content , "ignore_case": true});
             const uids = Object.keys(res);
             for (const dp of datapoints){

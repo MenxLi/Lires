@@ -1,8 +1,7 @@
 
 <script setup lang="ts">
     import type { UserInfo } from '../../api/protocalT';
-    import { useSettingsStore, useUIStateStore, useDataStore } from '../store';
-    import { ServerConn } from '../../api/serverConn';
+    import {useConnectionStore, useSettingsStore, useUIStateStore, useDataStore } from '../store';
     import { ref, computed } from 'vue';
     import { CircularImage, FileSelectButton } from '../common/fragments.tsx';
     import { getBackendURL } from '../../config';
@@ -15,6 +14,8 @@
     const props = defineProps<{
         userInfo: UserInfo;
     }>();
+
+    const conn = useConnectionStore().conn;
 
     const emit = defineEmits<{
         (e: "update:userInfo", userInfo: UserInfo): void
@@ -36,7 +37,7 @@
             return;
         }
         useUIStateStore().showPopup('Uploading avatar...');
-        new ServerConn().uploadUserAvatar( props.userInfo.username, file).then(
+        conn.uploadUserAvatar( props.userInfo.username, file).then(
             (new_userInfo: UserInfo) => {
                 emit("update:userInfo", new_userInfo);
             },
@@ -54,7 +55,7 @@
         // maybe update the name
         if (!(settings_nickname.value === "" || settings_nickname.value === props.userInfo.name)){
             if (settings_nickname.value !== props.userInfo.name){
-                new ServerConn().updateUserNickname(settings_nickname.value).then(
+                conn.updateUserNickname(settings_nickname.value).then(
                     (new_userInfo: UserInfo) => {
                         emit("update:userInfo", new_userInfo);
                         showUserSettingsDialog.value = false;
@@ -81,7 +82,7 @@
                 useUIStateStore().showPopup("The old password is incorrect", "error");
                 return;
             }
-            new ServerConn().updateUserPassword(settings_newPassword.value).then(
+            conn.updateUserPassword(settings_newPassword.value).then(
                 (_: UserInfo) => {
                     const new_encKey = sha256(props.userInfo.username + sha256(settings_newPassword.value)) as string;
                     useSettingsStore().setEncKey(new_encKey, true);
