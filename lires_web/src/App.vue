@@ -2,10 +2,10 @@
 <script setup lang="ts">
     import { watch, ref, computed } from 'vue';
     import Popup from './components/common/Popup.vue';
-    import { useUIStateStore, useSettingsStore, useDataStore } from './components/store';
+    import { useConnectionStore, useUIStateStore, useSettingsStore, useDataStore } from './components/store';
     import { useRouter } from 'vue-router';
     import { settingsAuthentication } from './core/auth';
-    import { getSessionConnection, registerServerEvenCallback } from './api/serverWebsocketConn';
+    import { registerServerEvenCallback } from './api/serverWebsocketConn';
     import LoadingPopout from './components/common/LoadingPopout.vue';
     import type { Event_Data, Event_Tag, Event_User } from './api/protocalT'
     import { DataTags } from './core/tag';
@@ -51,6 +51,7 @@
         }
     })
 
+    const wsConnection = useConnectionStore().wsConn;
     // session connection status hint
     const __sessionConnected = ref(false)
     const __sessionFailed = ref(false)
@@ -66,7 +67,7 @@
         // on login
         console.log("Logged in.")
         // initialize session connection if it's not been
-        getSessionConnection().init({
+        wsConnection.init({
             onopenCallback: () => {
                 __sessionConnected.value = true
                 __sessionFailed.value = false
@@ -78,8 +79,8 @@
     }
     function redirectToLoginPage(){
         console.log("Logged out from: ", router.currentRoute.value.fullPath);
-        if (getSessionConnection().isOpen()){
-            getSessionConnection().close();
+        if (wsConnection.isOpen()){
+            wsConnection.close();
         }
         router.push({
             path: "/login",

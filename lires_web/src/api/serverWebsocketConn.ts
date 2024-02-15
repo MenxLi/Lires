@@ -8,7 +8,6 @@ import type { Event } from "./protocalT";
 declare global {
     interface Window {
         g_eventHooks: Record<string, ((arg: Event)=>void)[]>;
-        g_wsConn: ServerWebsocketConn;
     }
   }
 const __global_eventHooks: Record<string, ((arg: Event)=>void)[]> = {};
@@ -33,14 +32,6 @@ export function registerServerEvenCallback(
     }
     __global_eventHooks[eventType].push(eventReactFn);
 }
-
-export function getSessionConnection(): ServerWebsocketConn{
-    if (window.g_wsConn === undefined){
-        window.g_wsConn = new ServerWebsocketConn()
-    }
-    return window.g_wsConn
-}
-
 
 export class ServerWebsocketConn{
     declare ws: WebSocket

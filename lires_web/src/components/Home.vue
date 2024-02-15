@@ -9,10 +9,9 @@ export default {
 <script setup lang="ts">
     import { ref } from "vue";
     import type { Ref } from "vue";
-    import { useUIStateStore, useDataStore, useSettingsStore } from "./store";
+    import { useConnectionStore, useUIStateStore, useDataStore, useSettingsStore } from "./store";
     import { useRouter } from "vue-router";
     import { DataTags } from "../core/tag";
-    import { getSessionConnection } from "../api/serverWebsocketConn";
     import FileTags from "./home/FileTags.vue";
     import FileRowContainer from "./home/FileRowContainer.vue";
     import Banner from "./common/Banner.vue";
@@ -82,7 +81,7 @@ export default {
 
     function reloadProg(){
         uiState.reloadDatabase();
-        getSessionConnection().reset();
+        useConnectionStore().wsConn.reset();
     }
 
 </script>

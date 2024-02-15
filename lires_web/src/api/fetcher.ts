@@ -9,6 +9,8 @@ class Fetcher {
         this._baseUrlGetter = () => '';
         this._tokenGetter = () => '';
     }
+    public get baseUrl(): string { return this._baseUrlGetter(); }
+    public get token(): string { return this._tokenGetter(); }
     public setBaseUrlGetter(g: ()=>string) {
         this._baseUrlGetter = g;
     }

@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { DataBase, DataSearcher, DataPoint } from '../core/dataClass'
 import { DataTags } from '../core/tag'
 import { ServerConn } from '../api/serverConn'
+import { ServerWebsocketConn } from '../api/serverWebsocketConn'
 import { formatAuthorName } from '../utils/misc'
 export { formatAuthorName }
 import type { SearchStatus, PopupStyle, TagStatus } from './interface'
@@ -129,6 +130,17 @@ export const useUIStateStore = defineStore(
 
             }
         }
+    }
+)
+
+export const useConnectionStore = defineStore(
+    "connection", {
+        state: () => {
+            return {
+                conn: new ServerConn(),
+                wsConn: new ServerWebsocketConn(),
+            }
+        },
     }
 )
 

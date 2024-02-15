@@ -11,15 +11,10 @@ export class ServerConn {
     declare fetcher: Fetcher;
     constructor(){
         this.fetcher = new Fetcher();
-        this.fetcher.setBaseUrlGetter(()=>`${this.baseURL}`)
+        this.fetcher.setBaseUrlGetter(()=>getBackendURL())
         this.fetcher.setCredentialGetter(()=>useSettingsStore().encKey);
     }
-    get settings(){
-        return useSettingsStore();
-    }
-    get baseURL(){
-        return getBackendURL();
-    }
+    public get baseURL(){ return this.fetcher.baseUrl; }
     async authUsr( encKey: string ): Promise<UserInfo>{
         return await this.fetcher.post(`/api/auth`, {
             key: encKey,
