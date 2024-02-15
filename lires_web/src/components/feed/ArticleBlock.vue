@@ -83,7 +83,7 @@
     <DataEditor ref="dataEditor"></DataEditor>
     <FloatingWindow v-model:show="showAuthorPapers" title="Publications in the database" @onClose="authorPapers=[]">
         <div id="authorPapers">
-            <FileRowContainer :datapoints="authorPapers"></FileRowContainer>
+            <FileRowContainer :datapoints="(authorPapers as DataPoint[])"></FileRowContainer>
         </div>
     </FloatingWindow>
     <div id="feed-main" class="slideInFast">
@@ -115,7 +115,7 @@
             <details>
                 <summary @click="queryRelatedArticles">Related articles</summary>
                 <div id="relatedArticles">
-                    <FileRowContainer :datapoints="relatedArticles" :scores="relatedArticlesScoresByUid"/>
+                    <FileRowContainer :datapoints="(relatedArticles as DataPoint[])" :scores="relatedArticlesScoresByUid"/>
                 </div>
             </details>
         </div>
