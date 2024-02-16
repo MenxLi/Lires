@@ -19,6 +19,7 @@ export default {
     import splitscreenIcon from '../assets/icons/splitscreen.svg';
     import uploadIcon from '../assets/icons/upload.svg';
     import eyeIcon from '../assets/icons/eye.svg';
+import { DataPoint } from '../core/dataClass';
 
     const dataStore = useDataStore();
     const uiStateStore = useUIStateStore();
@@ -155,7 +156,7 @@ export default {
         </div>
     </Banner>
     <div id="main-reader" class="gradIn">
-        <ReaderBody :datapoint="datapoint" :layoutType="layoutType" ref="readerBody"></ReaderBody>
+        <ReaderBody :datapoint="(datapoint as DataPoint)" :layoutType="layoutType" ref="readerBody"></ReaderBody>
     </div>
 </template>
 
