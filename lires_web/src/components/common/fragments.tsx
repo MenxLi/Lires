@@ -195,12 +195,20 @@ export const EditableParagraph = defineComponent({
                 }
             }
           };
+        
+        const pasteWithoutFormatting = (event: ClipboardEvent) => {
+            event.preventDefault();
+            const text = event.clipboardData?.getData('text/plain');
+            // alough deprecated, execCommand seems to be the only way to insert text 
+            // that can be reverted with ctrl+z
+            document.execCommand('insertText', false, text);
+        }
 
         // checks if there is a default slot defined within the component's context (context.slots.default) and 
         // if so, it calls the slot function (context.slots.default()).
         return () => (
             <p class="editable-paragraph" contenteditable={props.contentEditable} ref={p}
-                onInput={handleInput} onBlur={handleBlur} onKeydown={handleKeyDown} style={props.style}>
+                onInput={handleInput} onBlur={handleBlur} onKeydown={handleKeyDown} style={props.style} onPaste={pasteWithoutFormatting}>
                 {context.slots.default && context.slots.default()}
             </p>
         )
