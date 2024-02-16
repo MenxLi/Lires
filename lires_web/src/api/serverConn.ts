@@ -7,13 +7,10 @@ import Fetcher from "./fetcher.js";
 
 export class ServerConn {
     declare fetcher: Fetcher;
-    constructor(){
+    constructor(baseUrlGetter: ()=>string, tokenGetter: ()=>string){
         this.fetcher = new Fetcher();
-    }
-    public init(baseUrlGetter: ()=>string, tokenGetter: ()=>string): ServerConn{
         this.fetcher.setBaseUrlGetter(baseUrlGetter);
         this.fetcher.setCredentialGetter(tokenGetter);
-        return this;
     }
     public get baseURL(){ return this.fetcher.baseUrl; }
     async authUsr( encKey: string ): Promise<UserInfo>{

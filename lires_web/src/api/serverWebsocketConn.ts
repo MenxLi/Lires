@@ -44,7 +44,9 @@ export class ServerWebsocketConn{
         onfailedToConnectCallback: ()=>void
     }
 
-    constructor(){
+    constructor( baseUrlGetter: ()=>string, tokenGetter: ()=>string){
+        this.__baseUrlGetter = baseUrlGetter;
+        this.__tokenGetter = tokenGetter;
         this.resetRemainingRetries();
         this.sessionID = sha256(Date.now().toString()).slice(0, 16);
         this.__eventCallback_records = {
@@ -53,12 +55,6 @@ export class ServerWebsocketConn{
             oncloseCallback: ()=>{},
             onfailedToConnectCallback: ()=>{}
         }
-    }
-
-    init(baseUrlGetter: ()=>string, tokenGetter: ()=>string): ServerWebsocketConn{
-        this.__baseUrlGetter = baseUrlGetter;
-        this.__tokenGetter = tokenGetter;
-        return this;
     }
 
     private resetRemainingRetries=()=>{this.__remainingRetries = 10;}

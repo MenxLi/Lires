@@ -120,7 +120,7 @@ export const useUIStateStore = defineStore(
                         useUIStateStore().databaseLoadingStatus.nTotal = -1
                     },
                     () => {
-                        this.showPopup(`Failed to load database from: ${new ServerConn().baseURL}`, "alert");
+                        this.showPopup(`Failed to load database from: ${useConnectionStore().conn.baseURL}`, "alert");
                         useUIStateStore().databaseLoadingStatus.nTotal = -1
                     },
                     (nCurrent, nTotal) => {
@@ -138,11 +138,11 @@ export const useConnectionStore = defineStore(
     "connection", {
         state: () => {
             return {
-                conn: new ServerConn().init(
+                conn: new ServerConn(
                     useSettingsStore().backend,
                     () => useSettingsStore().encKey
                 ),
-                wsConn: new ServerWebsocketConn().init(
+                wsConn: new ServerWebsocketConn(
                     useSettingsStore().backend,
                     () => useSettingsStore().encKey
                 )
@@ -220,7 +220,8 @@ export const useDataStore = defineStore(
                 }
 
                 if (backendReload){
-                    new ServerConn().reqReloadDB().then(
+                    // should be deprecated...
+                    useConnectionStore().conn.reqReloadDB().then(
                         (success) => {
                             console.log("Reload: ", success);
                             if (success){ __requestDBData(this); }
