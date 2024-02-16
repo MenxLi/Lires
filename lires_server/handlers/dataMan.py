@@ -120,7 +120,7 @@ class DataUpdateHandler(RequestHandlerBase):
                 await dp.fm.writeBib(bibtex)
                 __info.append("bibtex updated")
             if tags is not None and DataTags(dp.tags) != DataTags(tags):
-                await dp.fm.writeTags(DataTags(tags).toOrderedList())
+                await dp.fm.writeTags(DataTags(tags))
                 __info.append("tags updated")
             if url is not None and await dp.fm.getWebUrl() != url:
                 await dp.fm.setWebUrl(url)
