@@ -50,13 +50,13 @@ class DocInfo:
 # use this to separate tags and authors,
 # because sqlite does not support list type, 
 # use this, we can easily split and join the string, 
-# and use search in sqlite
+# it should be faster than json?
 LIST_SEP = "&sp;"
 class DBFileRawInfo(TypedDict):
     uuid: str           # File uuid, should be unique for each file
     bibtex: str         # Bibtex string, should be valid and remove abstract, at least contains title, year, authors
     title: str          # Title, string
-    year: str           # int, year
+    year: int           # int, year
     publication: str    # Publication, string
     authors: str        # Authors, string (separator: LIST_SEP)
     tags: str           # Tags, string (separator: LIST_SEP)
@@ -68,13 +68,19 @@ class DBFileRawInfo(TypedDict):
     info_str: str       # Info string, json serializable string of DocInfo
     doc_ext: FileTypeT  # Document file type
 
+def parseList(s: str) -> list[str]:
+    if s == "": return []
+    return s.split(LIST_SEP)
+def dumpList(l: list[str]) -> str:
+    return LIST_SEP.join(l)
+
 
 class DBFileInfo(TypedDict):
     # The same as DBFileRawInfo, but with some fields converted to their original type
     uuid: str           
     bibtex: str         
     title: str         
-    year: str          
+    year: int          
     publication: str   
     authors: list[str] 
     tags: list[str]   
@@ -106,6 +112,8 @@ class DBConnection(LiresBase):
         self.db_dir = db_dir
         self.db_path = db_path
         self.__modified = False
+
+        self.cache = DBConnectionCache(self)
     
     async def init(self) -> DBConnection:
         """
@@ -113,6 +121,9 @@ class DBConnection(LiresBase):
         """
         self.conn = await aiosqlite.connect(self.db_path)
         await self.__maybeCreateTable()
+        await self.cache.init()
+        await self.cache.buildInitCache(await self.getAll())
+        await self.setModifiedFlag(True)
         return self
     
     async def isInitialized(self) -> bool:
@@ -155,7 +166,7 @@ class DBConnection(LiresBase):
                 )
                 """)
                 await self.setModifiedFlag(True)
-    
+        
     async def close(self):
         await self.commit()
         await self.conn.close()
@@ -169,17 +180,14 @@ class DBConnection(LiresBase):
 
     
     def __formatRow(self, row: tuple | aiosqlite.Row) -> DBFileInfo:
-        def _formatList(s: str) -> list[str]:
-            if s == "": return []
-            return s.split(LIST_SEP)
         return {
             "uuid": row[0],
             "bibtex": row[1],
             "title": row[2],
             "year": row[3],
             "publication": row[4],
-            "authors": _formatList(row[5]),
-            "tags": _formatList(row[6]),
+            "authors": parseList(row[5]),
+            "tags": parseList(row[6]),
             "url": row[7],
             "abstract": row[8],
             "comments": row[9],
@@ -192,6 +200,14 @@ class DBConnection(LiresBase):
     async def size(self) -> int:
         async with self.conn.execute("SELECT COUNT(*) FROM files") as cursor:
             return (await cursor.fetchone())[0]     # type: ignore
+    async def authors(self) -> list[str]:
+        return await self.cache.allAuthors()
+    async def tags(self) -> list[str]:
+        return await self.cache.allTags()
+    async def keys(self) -> list[str]:
+        """ Return all uuids """
+        async with self.conn.execute("SELECT uuid FROM files") as cursor:
+            return [row[0] for row in await cursor.fetchall()]
     
     async def get(self, uuid: str) -> Optional[DBFileInfo]:
         """
@@ -257,23 +273,14 @@ class DBConnection(LiresBase):
                 item_raw["info_str"],
                 item_raw["doc_ext"]
             ))
-            
                                 
         await self.setModifiedFlag(True)
         return True
     
-    async def keys(self) -> list[str]:
-        """
-        Return all uuids
-        """
-        async with self.conn.execute("SELECT uuid FROM files") as cursor:
-            return [row[0] for row in await cursor.fetchall()]
-    
-    async def _ensureExist(self, uuid: str) -> bool:
-        if await self.get(uuid) is None:
+    async def _ensureExist(self, uuid: str) -> Optional[DBFileInfo]:
+        if not (ret:=await self.get(uuid)):
             await self.logger.error("uuid {} not exists".format(uuid))
-            return False
-        return True
+        return ret
     
     async def addEntry(
             self, 
@@ -281,7 +288,7 @@ class DBConnection(LiresBase):
             # bibtex fields
             bibtex: str, 
             title: str,
-            year: str,
+            year: int | str,
             publication: str,
             authors: list[str],
             
@@ -299,6 +306,7 @@ class DBConnection(LiresBase):
             or a dict that contains partial information (will be merged with generated default info)
         return uuid if success, None if failed
         """
+        year = int(year)
         # generate info
         doc_info_default = DocInfo(
             uuid = str(uuid.uuid4()),
@@ -334,8 +342,8 @@ class DBConnection(LiresBase):
             "title": title,
             "year": year,
             "publication": publication,
-            "authors": LIST_SEP.join(authors),
-            "tags": LIST_SEP.join(tags),
+            "authors": dumpList(authors),
+            "tags": dumpList(tags),
             "url": url,
             "abstract": abstract,
             "comments": comments,
@@ -344,7 +352,10 @@ class DBConnection(LiresBase):
             "info_str": doc_info.toString(),
             "doc_ext": doc_ext
         })
-        # await self.setModifiedFlag(True)
+        # add cache
+        await self.cache.addTagCache(uid, tags)
+        await self.cache.addAuthorCache(uid, authors)
+        await self.setModifiedFlag(True)
         return uid
     
     async def _touchEntry(self, uuid: str) -> bool:
@@ -360,9 +371,14 @@ class DBConnection(LiresBase):
         return True
     
     async def removeEntry(self, uuid: str) -> bool:
-        if not await self._ensureExist(uuid): return False
+        if not (entry:=await self._ensureExist(uuid)): return False
         await self.logger.debug("(db_conn) Removing entry {}".format(uuid))
         await self.conn.execute("DELETE FROM files WHERE uuid=?", (uuid,))
+
+        # remove related cache
+        await self.cache.removeTagCache(uuid, entry["tags"])
+        await self.cache.removeAuthorCache(uuid, entry["authors"])
+
         await self.setModifiedFlag(True)
         await self.logger.debug("Removed entry {}".format(uuid))
         return True
@@ -383,18 +399,30 @@ class DBConnection(LiresBase):
         authors: list[str],
         ) -> bool:
         """Provide a new bibtex string, and update the title, year, publication, authors accordingly."""
-        if not await self._ensureExist(uuid): return False
+        if not (old_entry:=await self._ensureExist(uuid)): return False
         await self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
         await self.conn.execute("UPDATE files SET bibtex=?, title=?, year=?, publication=?, authors=? WHERE uuid=?", (
-            bibtex, title, year, publication, LIST_SEP.join(authors), uuid
+            bibtex, title, year, publication, dumpList(authors), uuid
         ))
+
+        # check if authors changed and maybe update cache
+        if set(old_entry["authors"]) != set(authors):
+            await self.cache.removeAuthorCache(uuid, old_entry["authors"])
+            await self.cache.addAuthorCache(uuid, authors)
+
         await self._touchEntry(uuid)
         return True
     
     async def updateTags(self, uuid: str, tags: list[str]) -> bool:
-        if not await self._ensureExist(uuid): return False
+        if not (old_entry:=await self._ensureExist(uuid)): return False
         await self.logger.debug("(db_conn) Updating tags for {}".format(uuid))
-        await self.conn.execute("UPDATE files SET tags=? WHERE uuid=?", (LIST_SEP.join(tags), uuid))
+        await self.conn.execute("UPDATE files SET tags=? WHERE uuid=?", (dumpList(tags), uuid))
+
+        # check if tags changed and maybe update cache
+        if set(old_entry["tags"]) != set(tags):
+            await self.cache.removeTagCache(uuid, old_entry["tags"])
+            await self.cache.addTagCache(uuid, tags)
+
         await self._touchEntry(uuid)
         return True
     
@@ -434,23 +462,35 @@ class DBConnection(LiresBase):
             row = cursor.fetchone()
         print(row)
     
+    # ==============================================================================
+    #                              for searching
+    # ==============================================================================
+
     async def filter(
-        self, strict = False,
-        ignore_case = True,
+        self, strict = True,
+        ignore_case = False,
         from_uids: Optional[list[str]] = None,
         title: Optional[str] = None,
         publication: Optional[str] = None,
         note: Optional[str] = None,
+        year: Optional[tuple[Optional[int], Optional[int]] | int] = None,
+        authors: Optional[list[str]] = None,
+        tags: Optional[list[str]] = None
     ) -> list[str]:
         '''
         !! not fully tested yet !!
         A simple filter function for fast search,
-        will support authors and tags in the future (maybe by adding a new index table)
+
+        (tag, and author) will involve more search operations,
+
+        - year: tuple of two int, [start, end), if start or end is None, it will be treated as -inf or inf
         '''
         # build query
         query_conds = []
+        query_items = []
         if from_uids:
             query_conds.append("uuid IN ({})".format(",".join(["?"]*len(from_uids))))
+            query_items.extend(from_uids)
         for [field, value] in [
             ["title", title],
             ["publication", publication],
@@ -465,20 +505,24 @@ class DBConnection(LiresBase):
                     query_conds.append("{} LIKE ?".format(field))
                 else:
                     query_conds.append("{} LIKE ? COLLATE NOCASE".format(field))
-        
-        if query_conds:
-            # build query items
-            query_items = []
-            if from_uids:
-                query_items.extend(from_uids)
-            for value in [title, publication, note]:
-                if not value:
-                    continue
+                
+                # build query items
                 if not strict:
                     query_items.append(f"%{value}%")
                 else:
                     query_items.append(value)
 
+        if year:
+            if isinstance(year, int):
+                year = (year, year+1)
+            if year[0] is None:
+                year = (0, year[1])
+            if year[1] is None:
+                year = (year[0], 9999)
+            query_conds.append("year>=? AND year<?")
+            query_items.extend(year)
+
+        if query_conds:
             # execute
             query = "SELECT uuid FROM files WHERE " + " AND ".join(query_conds)
             await self.logger.debug("Executing query: {} | with items: {}".format(query, query_items))
@@ -486,6 +530,153 @@ class DBConnection(LiresBase):
             async with self.conn.execute(
                 query, tuple(query_items)
                 ) as cursor:
-                return [row[0] for row in await cursor.fetchall()]
+                ret = [row[0] for row in await cursor.fetchall()]
         else:
-            return await self.keys()
+            ret = await self.keys()
+        
+        if authors:
+            ret = set(ret).intersection(await self.cache.queryAuthors(authors, strict, ignore_case))
+        if tags:
+            ret = set(ret).intersection(await self.cache.queryTags(tags, strict, ignore_case))
+        return list(ret)
+
+class DBConnectionCache(LiresBase):
+    """
+    Reverse index for authors and tags, for faster searching (maybe more?)
+    The subtables must be two columns, the first is the key, the second is the value (named "entries")
+    the value should be a json string of a list of uuids
+    """
+    def __init__(self, db_conn: DBConnection) -> None:
+        self.db_conn = db_conn
+        self.logger = db_conn.logger
+    
+    @property
+    def conn(self):
+        return self.db_conn.conn
+
+    async def init(self):
+        # two cache tables for authors and tags
+        async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='authors'") as cursor:
+            if not await cursor.fetchone():
+                await cursor.execute("""
+                CREATE TABLE IF NOT EXISTS authors (
+                    author TEXT PRIMARY KEY,
+                    entries TEXT NOT NULL
+                )
+                """)
+        async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tags'") as cursor:
+            if not await cursor.fetchone():
+                await cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tags (
+                    tag TEXT PRIMARY KEY,
+                    entries TEXT NOT NULL
+                )
+                """)
+        return self
+
+    async def buildInitCache(self, all_items: list[DBFileInfo]):
+        await self.logger.info("[DBCache] Building initial cache")
+        # build cache for authors and tags
+        authors_cache: dict[str, list[str]] = {}
+        tags_cache: dict[str, list[str]] = {}
+        for item in all_items:
+            for author in item["authors"]:
+                if author not in authors_cache:
+                    authors_cache[author] = []
+                authors_cache[author].append(item["uuid"])
+            for tag in item["tags"]:
+                if tag not in tags_cache:
+                    tags_cache[tag] = []
+                tags_cache[tag].append(item["uuid"])
+        await self._removeAllCache()
+        for author, entries in authors_cache.items():
+            await self.conn.execute("INSERT INTO authors (author, entries) VALUES (?, ?)", (author, json.dumps(entries)))
+        for tag, entries in tags_cache.items():
+            await self.conn.execute("INSERT INTO tags (tag, entries) VALUES (?, ?)", (tag, json.dumps(entries)))
+        await self.logger.debug("[DBCache] Initial cache built")
+    
+    async def _removeAllCache(self):
+        async with self.conn.execute("DELETE FROM authors") as cursor:
+            await cursor.fetchall()
+        async with self.conn.execute("DELETE FROM tags") as cursor:
+            await cursor.fetchall()
+        await self.logger.debug("[DBCache] All cache removed")
+    
+    async def allAuthors(self) -> list[str]:
+        async with self.conn.execute("SELECT author FROM authors") as cursor:
+            return [row[0] for row in await cursor.fetchall()]
+    
+    async def allTags(self) -> list[str]:
+        async with self.conn.execute("SELECT tag FROM tags") as cursor:
+            return [row[0] for row in await cursor.fetchall()]
+
+    async def _queryBy(self, table: str, col: str, q: list[str], strict: bool, ignore_case: bool) -> set[str]:
+        """ return a set of uuids that match the query """
+        query_conds = []
+        query_items = []
+        for item in q:
+            if strict and not ignore_case:
+                query_conds.append("{}=?".format(col))
+            elif strict and ignore_case:
+                query_conds.append("{}=? COLLATE NOCASE".format(col))
+            elif not strict and not ignore_case:
+                query_conds.append("{} LIKE ?".format(col))
+            else:
+                query_conds.append("{} LIKE ? COLLATE NOCASE".format(col))
+            if not strict:
+                query_items.append(f"%{item}%")
+            else:
+                query_items.append(item)
+        query = "SELECT entries FROM {} WHERE ".format(table) + " OR ".join(query_conds)
+        ret = set()
+        async with self.conn.execute(query, tuple(query_items)) as cursor:
+            for row in await cursor.fetchall():
+                ret.update(json.loads(row[0]))
+        return ret
+    async def queryAuthors(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
+        return await self._queryBy("authors", "author", q, strict, ignore_case)
+    async def queryTags(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
+        return await self._queryBy("tags", "tag", q, strict, ignore_case)
+    
+    # These functions are for updating cache, should be called after the main database is updated
+    async def removeTagCache(self, uuid: str, tags: list[str]):
+        for tag in tags:
+            async with self.conn.execute("SELECT entries FROM tags WHERE tag=?", (tag,)) as cursor:
+                ret = await cursor.fetchone()
+            if ret is None:
+                continue
+            entries: list[str] = json.loads(ret[0])
+            entries.remove(uuid)
+            await self.conn.execute("UPDATE tags SET entries=? WHERE tag=?", (json.dumps(entries), tag))
+    
+    async def removeAuthorCache(self, uuid: str, authors: list[str]):
+        for author in authors:
+            async with self.conn.execute("SELECT entries FROM authors WHERE author=?", (author,)) as cursor:
+                ret = await cursor.fetchone()
+            if ret is None:
+                continue
+            entries: list[str] = json.loads(ret[0])
+            entries.remove(uuid)
+            await self.conn.execute("UPDATE authors SET entries=? WHERE author=?", (json.dumps(entries), author))
+    
+    async def addTagCache(self, uuid: str, tags: list[str]):
+        for tag in tags:
+            async with self.conn.execute("SELECT entries FROM tags WHERE tag=?", (tag,)) as cursor:
+                ret = await cursor.fetchone()
+            if ret is None:
+                await self.conn.execute("INSERT INTO tags (tag, entries) VALUES (?, ?)", (tag, json.dumps([uuid])))
+            else:
+                entries: list[str] = json.loads(ret[0])
+                entries.append(uuid)
+                await self.conn.execute("UPDATE tags SET entries=? WHERE tag=?", (json.dumps(entries), tag))
+    
+    async def addAuthorCache(self, uuid: str, authors: list[str]):
+        for author in authors:
+            async with self.conn.execute("SELECT entries FROM authors WHERE author=?", (author,)) as cursor:
+                ret = await cursor.fetchone()
+            if ret is None:
+                await self.conn.execute("INSERT INTO authors (author, entries) VALUES (?, ?)", (author, json.dumps([uuid])))
+            else:
+                entries: list[str] = json.loads(ret[0])
+                entries.append(uuid)
+                await self.conn.execute("UPDATE authors SET entries=? WHERE author=?", (json.dumps(entries), author))
