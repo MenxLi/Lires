@@ -148,7 +148,6 @@ class DataBase(DataCore):
         return self.__conn
     
     async def init(self, db_local: str) -> DataBase:
-        """ An abstraction of self.construct """
         if not os.path.exists(db_local):
             os.mkdir(db_local)
         conn = await FileManipulator.getDatabaseConnection(db_local) 
@@ -156,10 +155,7 @@ class DataBase(DataCore):
         return self
     
     async def delete(self, uuid: str) -> bool:
-        """
-        Delete a DataPoint by uuid,
-        will delete remote data if in online mode and remote data exists
-        """
+        """ Delete a DataPoint by uuid"""
         if not self.has(uuid):
             await self.logger.error(f"Data not found: {uuid}")
             return False
@@ -167,23 +163,25 @@ class DataBase(DataCore):
         dp = await self.get(uuid)
         return await dp.fm.deleteEntry()
     
+    # query statistics
     async def count(self) -> int:
         return await self.conn.size()
+    async def tags(self) -> DataTags:
+        return DataTags(await self.conn.tags())
+    async def authors(self) -> list[str]:
+        return await self.conn.authors()
+    async def keys(self) -> List[str]:
+        return await self.conn.keys()
     
     async def has(self, uuid: str) -> bool:
         return await self.conn.get(uuid) is not None
-    
     async def get(self, uuid: str) -> DataPoint:
-        """
-        Get DataPoint by uuid
-        """
+        """ Get DataPoint by uuid """
         assert (info := await self.conn.get(uuid)) is not None, f"Data not found: {uuid}"
         return await assembleDatapoint(info, self)
 
     async def gets(self, uuids: list[str]) -> list[DataPoint]:
-        """
-        Get DataPoints by uuid
-        """
+        """ Get DataPoints by uuids """
         conn = self.conn
         all_info = await conn.getMany(uuids)
         tasks = [assembleDatapoint(info, self) for info in all_info]
@@ -194,17 +192,8 @@ class DataBase(DataCore):
         all_info = await self.conn.getAll()
         return await asyncio.gather(*[assembleDatapoint(info, self) for info in all_info])
     
-    async def totalTags(self) -> DataTags:
-        # TODO: Optimize this
-        tags = DataTags([])
-        for d in await self.getAll():
-            tags = tags.union(d.tags)
-        return tags
-    
-    async def keys(self) -> List[str]:
-        return await self.conn.keys()
-    
     async def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[DataPoint]:
+        # TODO: optimize this function
         datalist = []
         for data in await self.getAll():
             if not from_uids is None:
@@ -250,16 +239,3 @@ class DataBase(DataCore):
                 tasks.append(d.fm.writeTags(after_deleted))
         await asyncio.gather(*tasks)
         return True
-
-    async def findSimilarByBib(self, bib_str: str) -> Optional[DataPoint]:
-        """
-        Check if similar file already exists.
-        """
-        # Check if the file already exists
-        t2 = (await parseBibtex(bib_str))["title"]
-        for v in await self.getAll():
-            t1 = v.title
-            similarity = difflib.SequenceMatcher(a = t1, b = t2).ratio()
-            if similarity > 0.8:
-                return v
-        return None
