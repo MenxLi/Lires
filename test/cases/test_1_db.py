@@ -53,6 +53,9 @@ class TestDB:
             search_res = await conn.filter( tags = ["tag0"],)
             assert len(search_res) == 2
 
+            # search_res = await conn.filter( tags = ["tag0", "tag1"],)
+            # assert len(search_res) == 1
+
             assert len(await conn.filter(year=2021)) == len(await conn.filter(year=(2021, None))) == len(await conn.filter(year=(None, 2022))) == 2
             assert len(await conn.filter(year=(None,2020))) == 0
 

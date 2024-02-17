@@ -628,10 +628,16 @@ class DBConnectionCache(LiresBase):
             else:
                 query_items.append(item)
         query = "SELECT entries FROM {} WHERE ".format(table) + " OR ".join(query_conds)
-        ret = set()
+        found_uids = []
         async with self.conn.execute(query, tuple(query_items)) as cursor:
             for row in await cursor.fetchall():
-                ret.update(json.loads(row[0]))
+                found_uids.append(json.loads(row[0]))
+        if not found_uids: return set()
+        if len(found_uids) == 1: return set(found_uids[0])
+        # make a intersection
+        ret = set(found_uids[0])
+        for uid in found_uids[1:]:
+            ret = ret.intersection(uid)
         return ret
     async def queryAuthors(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
         return await self._queryBy("authors", "author", q, strict, ignore_case)
