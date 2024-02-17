@@ -18,7 +18,6 @@ else:
 
 from openai import OpenAI
 
-client = OpenAI()
 from . import globalConfig as config
 import basaran.model
 
