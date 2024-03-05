@@ -9,7 +9,7 @@ def unify_path(path):
 class TestHomeStructure(BaseConfig):
     def test_homePlace(self):
         __this_dir = os.path.dirname(os.path.abspath(__file__))
-        PASSED =  unify_path(os.environ["LRS_HOME"]) == unify_path(os.path.join(__this_dir, "..", "_test_home"))
+        PASSED =  unify_path(os.environ["LRS_HOME"]) == unify_path(os.path.join(__this_dir, "..", "_sandbox"))
         assert PASSED, "LRS_HOME is not set correctly"
         if not PASSED:
             pytest.exit("LRS_HOME is not set correctly")

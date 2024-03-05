@@ -71,7 +71,7 @@ if __name__ == "__main__":
     assert os.getcwd() == __project_dir, "Please run this script from project root directory"
 
     # it's important to set LRS_HOME!
-    LRS_HOME = os.path.join(__this_dir, "_test_home")
+    LRS_HOME = os.path.join(__this_dir, "_sandbox")
     os.environ["LRS_HOME"] = LRS_HOME
     # to disable log output
     os.environ["LRS_TERM_LOG_LEVEL"] = "DEBUG"
