@@ -2,7 +2,7 @@
 Sqlite connection interface
 """
 from __future__ import annotations
-import json, os, uuid
+import json, os, uuid, hashlib
 import typing
 from typing import TypedDict, Optional, TYPE_CHECKING
 import dataclasses
@@ -113,7 +113,11 @@ class DBConnection(LiresBase):
         self.db_path = db_path
         self.__modified = False
 
-        self.cache = DBConnectionCache(self)
+        self.cache = DBConnectionCache(
+            cache_id=hashlib.md5(
+                os.path.abspath(db_path).encode()
+                ).hexdigest()
+            )
     
     async def init(self) -> DBConnection:
         """
@@ -123,7 +127,6 @@ class DBConnection(LiresBase):
         await self.__maybeCreateTable()
         await self.cache.init()
         await self.cache.buildInitCache(await self.getAll())
-        await self.setModifiedFlag(True)
         return self
     
     async def isInitialized(self) -> bool:
@@ -170,6 +173,7 @@ class DBConnection(LiresBase):
     async def close(self):
         await self.commit()
         await self.conn.close()
+        await self.cache.conn.close()
     
     async def __aenter__(self):
         return self
@@ -453,6 +457,7 @@ class DBConnection(LiresBase):
         """
         if not self.__modified: return
         await self.conn.commit()
+        await self.cache.conn.commit()
         await self.setModifiedFlag(False)
         await self.logger.debug("Committed document database")
     
@@ -546,15 +551,22 @@ class DBConnectionCache(LiresBase):
     The subtables must be two columns, the first is the key, the second is the value (named "entries")
     the value should be a json string of a list of uuids
     """
-    def __init__(self, db_conn: DBConnection) -> None:
-        self.db_conn = db_conn
-        self.logger = db_conn.logger
+    logger = LiresBase.loggers().core
+    def __init__(self, cache_id: str) -> None:
+        self.__id = cache_id
+        self.__conn: aiosqlite.Connection
     
     @property
     def conn(self):
-        return self.db_conn.conn
+        try:
+            return self.__conn
+        except AttributeError:
+            raise AttributeError("DBConnectionCache is not initialized")
 
     async def init(self):
+        # create in-memory database, remember to close it after use!
+        self.__conn = await aiosqlite.connect(f"file:{self.__id}?mode=memory&cache=shared", uri=True)
+
         # two cache tables for authors and tags
         async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='authors'") as cursor:
             if not await cursor.fetchone():
@@ -600,7 +612,6 @@ class DBConnectionCache(LiresBase):
             await cursor.fetchall()
         async with self.conn.execute("DELETE FROM tags") as cursor:
             await cursor.fetchall()
-        await self.logger.debug("[DBCache] All cache removed")
     
     async def allAuthors(self) -> list[str]:
         async with self.conn.execute("SELECT author FROM authors") as cursor:
