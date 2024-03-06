@@ -73,6 +73,9 @@ def main():
 
     else:
         ...
-
+    
+    async def finalize():
+        await db.conn.close()
+    asyncio.run(finalize())
 if __name__ == "__main__":
     main()

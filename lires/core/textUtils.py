@@ -157,7 +157,8 @@ async def buildFeatureStorage(
     text_src: dict[str, str] = {}       # uid -> text source for featurization
     
     # extract text source
-    for idx, (uid, dp) in enumerate(db.items()):
+    for idx, dp in enumerate(await db.getAll()):
+        uid = dp.uuid
         # if idx > 3: break # for debug
         await asyncio.sleep(operation_interval)
         _ret = await getFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
@@ -165,7 +166,7 @@ async def buildFeatureStorage(
         src_type = _ret["type"]
         text_src_hash[uid] = _ret["hash"]
 
-        print(f"[Extracting source] ({idx}/{len(db)}) <{src_type}>: {uid}...")
+        print(f"[Extracting source] ({idx}/{await db.count()}) <{src_type}>: {uid}...")
 
     # build update dict
     print(f"Checking {len(text_src)} documents signature...")
