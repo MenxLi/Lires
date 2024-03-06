@@ -133,6 +133,7 @@ class DataTags(Set[str], LiresBase):
             super().__init__(TagRule.stripTags_(arg))
 
     def toOrderedList(self):
+        # TODO: rename to toList(self, ordered: bool = True)
         ordered_list = list(self)
         ordered_list.sort()
         return ordered_list

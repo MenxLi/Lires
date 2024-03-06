@@ -1,5 +1,6 @@
 
 from lires.core.dbConn import DBConnection
+from lires.core.dataClass import DataBase
 from lires.config import LRS_HOME
 import pytest, os, asyncio
 
@@ -20,7 +21,7 @@ class TestDB:
                 year = "2021",
                 publication = "test publication0",
                 authors = ["author0", "author1"],
-                tags = ["tag0", "tag1->tag2"],
+                tags = ["tag0", "tag1->tag2", 'tag3->tag4'],
                 url = "https://www.google.com",
                 abstract = "This is a test abstract", 
                 comments = "This is a test comment",
@@ -35,7 +36,7 @@ class TestDB:
                 year = 2021,
                 publication = "test publication1",
                 authors = ["author0", "author2"],
-                tags = ["tag0", "tag1"],
+                tags = ["tag0", "tag1", 'tag3->tag5'],
                 url = "https://www.google.com",
                 abstract = "This is a test abstract", 
                 comments = "This is second test comment",
@@ -65,11 +66,21 @@ class TestDB:
 
             assert (await conn.filter( tags = ["tag0"], from_uids=[uid0])) == [uid0]
 
-            assert set(await conn.tags()) == set(("tag0", "tag1", "tag1->tag2"))
+            assert set(await conn.tags()) == set(("tag0", "tag1", "tag1->tag2", "tag3->tag4", "tag3->tag5"))
             assert set(await conn.authors()) == set(("author0", "author1", "author2"))
         
         asyncio.run(_test())
     
+    def test_database_search(self, conn: DBConnection):
+        async def _test():
+            database = await DataBase().init(conn)
+            assert len(await database.getDataByTags(['tag1', 'tag0'])) == 2
+            assert len(await database.getDataByTags(['tag0'])) == 2
+            assert len(await database.getDataByTags(['tag1'])) == 2
+            assert len(await database.getDataByTags(['tag1->tag2'])) == 1
+            assert len(await database.getDataByTags(['tag3'])) == 2
+            assert len(await database.getDataByTags(['tag3', 'tag1'])) == 2
+        asyncio.run(_test())
     
     def test_finalize(self, conn: DBConnection):
         asyncio.run(conn.commit())

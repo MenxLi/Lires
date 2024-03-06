@@ -1,13 +1,12 @@
 from __future__ import annotations
 import os, asyncio
-import difflib
 from typing import List, Union, Optional, Literal
 from .dataTags import DataTags, TagRule
 try:
     # may crash when generating config file withouot config file...
     # because getConf was used in constructing static variable
     from .fileTools import FileManipulator
-    from .dbConn import DBFileInfo, DocInfo, LIST_SEP
+    from .dbConn import DBFileInfo, DBConnection
 except (FileNotFoundError, KeyError):
     pass
 from .base import LiresBase
@@ -139,18 +138,24 @@ async def assembleDatapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
 class DataBase(DataCore):
     def __init__(self):
         super().__init__()
-        self.__conn = None
+        self.__conn: DBConnection = None   # type: ignore
 
     @property
-    def conn(self):
+    def conn(self) -> DBConnection:
         if self.__conn is None:
             raise RuntimeError("Database not initialized")
         return self.__conn
     
-    async def init(self, db_local: str) -> DataBase:
-        if not os.path.exists(db_local):
-            os.mkdir(db_local)
-        conn = await FileManipulator.getDatabaseConnection(db_local) 
+    async def init(self, db: str | DBConnection) -> DataBase:
+        if isinstance(db, DBConnection):
+            assert not isinstance(db, str)  # type check only
+            assert await db.isInitialized()
+            self.__conn = db
+            return self
+        assert isinstance(db, str), "Invalid input"     # type check
+        if not os.path.exists(db):
+            os.mkdir(db)
+        conn = await FileManipulator.getDatabaseConnection(db) 
         self.__conn = conn      # set database-wise connection instance
         return self
     
@@ -193,18 +198,34 @@ class DataBase(DataCore):
         return await asyncio.gather(*[assembleDatapoint(info, self) for info in all_info])
     
     async def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[DataPoint]:
-        # TODO: optimize this function
-        datalist = []
-        for data in await self.getAll():
-            if not from_uids is None:
-                # filter by uids (for searching purposes)
-                if data.uuid not in from_uids:
-                    continue
-            tag_data = DataTags(data.tags)
-            tags = DataTags(tags)
-            if tags.issubset(tag_data.withParents()):
-                datalist.append(data)
-        return datalist
+        """
+        Get DataPoints by tags, including all child tags
+        """
+        async def _getByStrictIntersect(tags: DataTags, from_uids: Optional[List[str]] = None) -> list[str]:
+            return await self.conn.filter(from_uids=from_uids, tags=tags.toOrderedList())
+        async def _getBySingle(tag: str, from_uids: Optional[List[str]] = None) -> list[str]:
+            return await self.conn.filter(from_uids=from_uids, tags=[tag])
+
+        all_tags = DataTags(await self.conn.tags())
+        strict_query_tags = DataTags()                      # the exact tags to be queried
+        relaxed_query_tag_groups: list[DataTags] = []       # the tags groups that will be relaxed by union of each group
+        for t in tags:
+            if len(_w_child_t:= DataTags([t]).withChildsFrom(all_tags))==1:
+                strict_query_tags.add(_w_child_t.pop())
+            else:
+                relaxed_query_tag_groups.append(_w_child_t)
+        # get all possible combinations
+        to_be_intersect = [await _getByStrictIntersect(strict_query_tags, from_uids)]
+        for r in relaxed_query_tag_groups:
+            to_be_union: list[list[str]] = []
+            for t in r:
+                to_be_union.append(await _getBySingle(t, from_uids))
+            to_be_intersect.append(list(set().union(*to_be_union)))
+        # get the intersection
+        if len(to_be_intersect) == 1:
+            return await self.gets(to_be_intersect[0])
+        else:
+            return await self.gets(list(set(to_be_intersect[0]).intersection(*to_be_intersect[1:])))
     
     async def renameTag(self, tag_old: str, tag_new: str) -> bool:
         """
