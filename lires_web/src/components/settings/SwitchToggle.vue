@@ -1,16 +1,25 @@
 <script setup lang="ts">
 
-    const isChecked = defineModel({ default: false, })
+    import { ref } from 'vue';
 
-    const emit = defineEmits<{
-        (e: "onCheck", checkStatus: boolean): void
+    const props = defineProps<{
+        checked: boolean
     }>()
 
+    const isChecked = ref(props.checked)
+
+    const emit = defineEmits<{
+        (e: "onChange", checkStatus: boolean): void
+        (e: "update:checked", checkStatus: boolean): void
+    }>()
 </script>
 
 <template>
     <div class="switch-toggle">
-        <input type="checkbox" id="toggle" v-model="isChecked" @change="emit('onCheck', isChecked)">
+        <input type="checkbox" id="toggle" v-model="isChecked" @change="()=>{
+            emit('onChange', isChecked);
+            emit('update:checked', isChecked);
+            }">
         <label for="toggle" class="switch"></label>
     </div>
 </template>
@@ -23,9 +32,9 @@
     height: 1.2rem;
 }
 
-.switch-toggle input[type="checkbox"] {
+/* .switch-toggle input[type="checkbox"] {
     display: none;
-}
+} */
 
 .switch-toggle .switch {
     position: absolute;
@@ -58,4 +67,16 @@
 .switch-toggle input[type="checkbox"]:checked + .switch:before {
     transform: translateX(0.8rem);
 }
+
+/* Dark theme */
+.dark .switch-toggle .switch {
+    background-color: #666;
+}
+.dark .switch-toggle .switch:before {
+    background-color: #aaa;
+}
+.dark .switch-toggle input[type="checkbox"]:checked + .switch {
+    background-color: #2a7795;
+}
+
 </style>

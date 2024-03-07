@@ -18,7 +18,6 @@ export default {
     import BannerIcon from "./common/BannerIcon.vue";
     import DataEditor from "./home/DataEditor.vue";
     import addCircleIcon from "../assets/icons/add_circle.svg";
-    import sellIcon from "../assets/icons/sell.svg";
     import refreshIcon from "../assets/icons/refresh.svg";
     import LoadingProgressPopout from "./common/LoadingProgressPopout.vue";
     import LoadingWidget from "./common/LoadingWidget.vue";
@@ -99,8 +98,8 @@ export default {
         <div id="bannerAddons">
             <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
                 @click="showBlankAddingDataWindow" shortcut="ctrl+n"></BannerIcon>
-            <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"
-                @click="()=>settingsStore.setShowTagPanel(!settingsStore.showTagPanel)"></BannerIcon>
+            <!-- <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"
+                @click="()=>settingsStore.setShowTagPanel(!settingsStore.showTagPanel)"></BannerIcon> -->
             <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
                 @click="reloadProg"></BannerIcon>
             |

@@ -2,6 +2,7 @@
 <script setup lang="ts">
     import UserCard from '../dashboard/UserCard.vue';
     import ConfigTheme from './ConfigTheme.vue';
+    import ConfigShowTags from './ConfigShowTags.vue';
 
     import { useDataStore } from '../store';
 
@@ -28,5 +29,6 @@
         </div>
 
         <ConfigTheme/>
+        <ConfigShowTags/>
     </div>
 </template>
