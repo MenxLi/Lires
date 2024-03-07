@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import Toolbar from './common/Toolbar.vue';
     import WidgetContainer from './dashboard/WidgetContainer.vue';
-    import UserCard from './dashboard/UserCard.vue';
+    import UserCard from './settings/UserCard.vue';
     import UsersWiget from './dashboard/UsersWidget.vue';
     import { ref, computed, onActivated } from 'vue';
     import { useRoute } from 'vue-router';

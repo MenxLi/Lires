@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import UserCard from '../dashboard/UserCard.vue';
+    import UserCard from './UserCard.vue';
     import ConfigTheme from './ConfigTheme.vue';
     import ConfigShowTags from './ConfigShowTags.vue';
 

@@ -13,7 +13,7 @@
 
     const props = withDefaults(defineProps<{
         userInfo: UserInfo;
-        avatarSize: string;
+        avatarSize?: string;
     }>(), {
         avatarSize: '168px',
     });
