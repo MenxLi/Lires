@@ -1,6 +1,7 @@
 
 <script setup lang="ts">
     import EditorBlock from './editor/EditorBlock.vue';
+    import SwitchToggle from './settings/SwitchToggle.vue';
     import { ref } from 'vue';
 
     const __isDev = import.meta.env.DEV;
@@ -19,6 +20,7 @@
 
 <template>
     <div class="test" v-if="__isDev">
+        <SwitchToggle v-model:checked="preview"></SwitchToggle>
         <EditorBlock v-model:text="text" v-model:preview="preview" @on-save="saveNote" @on-upload-images="uploadImages"></EditorBlock>
     </div>
     <p v-else>

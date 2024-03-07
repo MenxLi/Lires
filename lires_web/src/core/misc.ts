@@ -58,13 +58,13 @@ export class ThemeMode{
     else if(localStorageThemeMode == "light"){ ThemeMode.setDarkMode(false);}
     else{ // null
       if (ThemeMode.isDefaultDarkMode() && !ThemeMode.isDarkMode()){
-        ThemeMode.toggleDarkMode();
+        this.setDarkMode(true, false);
       }
     }
   }
 
   // set color scheme
-  static setDarkMode(mode: boolean){
+  static setDarkMode(mode: boolean, save: boolean = true){
     if (mode){
       document.documentElement.classList.remove("light")
       document.documentElement.classList.add("dark")
@@ -73,13 +73,35 @@ export class ThemeMode{
       document.documentElement.classList.remove("dark")
       document.documentElement.classList.add("light")
     }
-    const _newMode = mode?"dark":"light";
-    if (localStorage.getItem("themeMode") !== _newMode){
-      localStorage.setItem("themeMode", mode?"dark":"light");
-      for (let callback of __themeChangeCallbacks){
-        callback(mode);
-      }  
+    for (let callback of __themeChangeCallbacks){
+      callback(mode);
+    }  
+    if (save){
+      const _newMode = mode?"dark":"light";
+      if (localStorage.getItem("themeMode") !== _newMode){
+        localStorage.setItem("themeMode", mode?"dark":"light");
+      }
     }
+  }
+
+  static getThemeMode(): 'light' | 'dark' | 'auto'{
+    const _settings = localStorage.getItem("themeMode");
+    if (_settings === "dark"){
+      return "dark";
+    }
+    else if (_settings === "light"){
+      return "light";
+    }
+    else{
+      return "auto";
+    }
+  }
+
+  static clear(){
+    document.documentElement.classList.remove("dark")
+    document.documentElement.classList.remove("light")
+    this.setDefaultDarkMode();
+    localStorage.removeItem("themeMode");
   }
 }
 

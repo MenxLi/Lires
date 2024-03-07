@@ -1,19 +1,22 @@
 
 <script setup lang="ts">
 
-    import { ref, computed } from "vue";
+    import { ref } from "vue";
     import { useRouter } from "vue-router";
     import { settingsLogout } from "../../core/auth";
     import { useDataStore } from "../store";
-    import { ThemeMode } from "../../core/misc";
     import BannerIcon from "./BannerIcon.vue";
     import { MenuAttached } from './fragments.tsx'
+
+    import FloatingWindow from "./FloatingWindow.vue";
+    import SettingsWindow from "../settings/SettingsWindow.vue";
 
     // https://vitejs.dev/guide/assets.html
     import logoutIcon from "../../assets/icons/logout.svg";
     import exploreIcon from "../../assets/icons/explore.svg";
-    import bulbTipsIcon from "../../assets/icons/bulb_tips.svg";
+    // import bulbTipsIcon from "../../assets/icons/bulb_tips.svg";
     import homeIcon from "../../assets/icons/home.svg";
+    import settigsIcon from "../../assets/icons/tune.svg";
 
     const props = withDefaults(defineProps<{
         returnHome?: boolean,
@@ -27,17 +30,6 @@
     }
 
     // theme related
-    ThemeMode.setDefaultDarkMode();
-    const _currentDarkTheme = ref(ThemeMode.isDarkMode());
-    const themeLabel = computed(function(){
-        if (_currentDarkTheme.value){ return "LightMode"; }
-        else { return "DarkMode"; }
-    })
-    function toggleTheme(){
-        ThemeMode.toggleDarkMode();
-        _currentDarkTheme.value = !_currentDarkTheme.value;
-    }
-
     const mainDiv = ref(null as HTMLDivElement | null);
     let lastScrollTop = 0;
     window.addEventListener('scroll', function() {
@@ -56,15 +48,23 @@
         lastScrollTop = scrollTop;
     });
 
+    const showSettings = ref(false);
+
 </script>
 
 <template>
+    <FloatingWindow v-model:show="showSettings" title="Settings">
+        <SettingsWindow/>
+    </FloatingWindow>
+
     <div class="main-banner shadow" ref="mainDiv">
         <div class="button">
             <BannerIcon v-if="props.returnHome" :iconSrc="homeIcon" labelText="Home" shortcut="ctrl+h"
                 @onClick="()=>{router.push('/')}" title="home"/>
             <BannerIcon v-else :iconSrc="logoutIcon" labelText="Logout" shortcut="ctrl+q"
                 @onClick="logout" title="logout"/>
+            <BannerIcon :iconSrc="settigsIcon" labelText="Settings" shortcut="ctrl+c"
+                @onClick="()=>{showSettings=true}" title="Open settings"/>
             <MenuAttached :menuItems="[
                 {name:'Home', action:()=>{router.push('/')}},
                 {name:'Dashboard', action:()=>{router.push(`/dashboard/${useDataStore().user.username}`)}},
@@ -73,8 +73,6 @@
             ]">
                 <BannerIcon :iconSrc="exploreIcon" labelText="Explore" shortcut="ctrl+e" title="look around"/>
             </MenuAttached>
-            <BannerIcon :iconSrc="bulbTipsIcon" :labelText="themeLabel" shortcut="ctrl+t"
-                @onClick="()=>toggleTheme()" title="change theme"/>
         </div>
         <slot> <!-- some additional components --> </slot>
     </div>

@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import { watch, ref, computed } from 'vue';
+    import { watch, ref, computed, onMounted } from 'vue';
     import Popup from './components/common/Popup.vue';
     import { useConnectionStore, useUIStateStore, useSettingsStore, useDataStore } from './components/store';
     import { useRouter } from 'vue-router';
@@ -9,6 +9,7 @@
     import LoadingPopout from './components/common/LoadingPopout.vue';
     import type { Event_Data, Event_Tag, Event_User } from './api/protocalT'
     import { DataTags } from './core/tag';
+    import { ThemeMode } from "./core/misc";
 
     const router = useRouter();
     const uiState = useUIStateStore();
@@ -144,6 +145,11 @@
     })
 
     const __reloadPage = ()=>{ window.location.reload(); }
+
+    onMounted(()=>{
+        // set theme
+        ThemeMode.setDefaultDarkMode();
+    })
 
 </script>
 
