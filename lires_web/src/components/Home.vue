@@ -245,7 +245,7 @@ export default {
     }
 
     .left-in-enter-active, .left-in-leave-active {
-        transition: all 0.15s ease-in-out;
+        transition: all 0.075s ease-in-out;
     }
 
     .left-in-enter-from{
