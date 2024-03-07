@@ -32,9 +32,9 @@
     height: 1.2rem;
 }
 
-/* .switch-toggle input[type="checkbox"] {
+.switch-toggle input[type="checkbox"] {
     display: none;
-} */
+}
 
 .switch-toggle .switch {
     position: absolute;
