@@ -19,36 +19,49 @@ export default {
     import splitscreenIcon from '../assets/icons/splitscreen.svg';
     import uploadIcon from '../assets/icons/upload.svg';
     import eyeIcon from '../assets/icons/eye.svg';
-import { DataPoint } from '../core/dataClass';
+    import { DataPoint } from '../core/dataClass';
+
+    function recordRecentlyRead(){
+        // some actions that should be reload when datapoint changes
+        uiStateStore.addRecentlyReadDataUID(uid.value);
+    }
 
     const dataStore = useDataStore();
     const uiStateStore = useUIStateStore();
     const route = useRoute();
     const router = useRouter();
     const uid = computed(() => route.params.id as string)
-    const datapoint = ref(dataStore.database.get(uid.value));
+    const datapoint = ref(dataStore.database.getDummy());
+
+    async function updateDatapoint(): Promise<void>{
+        const dp = await dataStore.database.aget(route.params.id as string);
+        if (dp){ datapoint.value = dp; }
+    }
+
+    recordRecentlyRead();
+    updateDatapoint();
 
     watch(()=>route.params.id, ()=>{
-        datapoint.value = dataStore.database.get(route.params.id as string);
-        initPage();
+        recordRecentlyRead();
+        updateDatapoint();
     })
 
-    function initPage(){
-        // some actions that should be reload when datapoint changes
-        uiStateStore.addRecentlyReadDataUID(uid.value);
-    }
-    initPage();
+    const recentlyReadData = ref([] as DataPoint[])
+    const _updateRecentlyReadData =() => dataStore.database.agetMany(uiStateStore.recentlyReadDataUIDs).then((dps)=>{
+        recentlyReadData.value = dps;
+    })
+    watch(()=>uiStateStore.recentlyReadDataUIDs, ()=>{
+        _updateRecentlyReadData();
+    })
+    _updateRecentlyReadData();
 
     const recentReadMenuItems = computed(()=>{
         const ret = [];
-        for (const uid of uiStateStore.recentlyReadDataUIDs){
-            if (uid === route.params.id) continue;
-            const datapoint = dataStore.database.get(uid);
+        for (const dp of recentlyReadData.value){
+            if (dp.summary.uuid === route.params.id) continue;
             ret.push({
-                name: datapoint.authorYear(),
-                action: ()=>{
-                    router.push('/reader/' + uid)
-                }
+                name: dp.authorYear(),
+                action: ()=>{ router.push('/reader/' + dp.summary.uuid) }
             })
         }
         return ret;
@@ -128,8 +141,9 @@ import { DataPoint } from '../core/dataClass';
                 useUIStateStore().showPopup("Trying to update datapoint...", "warning", 2000);
                 if (Object.keys(dataStore.database.cache).length !== 0){
                     clearInterval(interval);
-                    datapoint.value = dataStore.database.get(uid.value);
-                    useUIStateStore().showPopup("Datapoint updated.", "success", 3000);
+                    updateDatapoint().then(()=>{ 
+                        useUIStateStore().showPopup("Datapoint updated.", "success", 3000);
+                    })
                 }
             }, 750);
         }

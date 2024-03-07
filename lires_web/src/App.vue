@@ -103,13 +103,13 @@
     registerServerEvenCallback('add_entry', (event) => {
         const dataStore = useDataStore();
         const d_summary = (event as Event_Data).datapoint_summary!
-        dataStore.database.add(d_summary);
+        dataStore.database.update(d_summary);
         uiState.updateShownData();
     })
     registerServerEvenCallback('update_entry', (event) => {
         const dataStore = useDataStore();
         const d_summary = (event as Event_Data).datapoint_summary!
-        dataStore.database.get(d_summary.uuid)?.update(d_summary)
+        dataStore.database.update(d_summary);
         uiState.updateShownData();
     })
     registerServerEvenCallback('delete_entry', (event) => {

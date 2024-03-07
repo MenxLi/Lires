@@ -80,9 +80,6 @@ export const useUIStateStore = defineStore(
                 )
             },
             addRecentlyReadDataUID(uid: string){
-                if (useDataStore().database.get(uid).isDummy()){
-                    return;
-                }
                 if (this.recentlyReadDataUIDs.includes(uid)){
                     this.recentlyReadDataUIDs.splice(this.recentlyReadDataUIDs.indexOf(uid), 1);
                 }

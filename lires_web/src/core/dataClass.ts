@@ -312,7 +312,7 @@ export class DataBase {
         this.init()
         const conn = this.conn;
         await conn.reqFileListStream([], (data: DataInfoT, nCurrent: number, nTotal: number) => {
-            this.add(data);
+            this.update(data);
             stepCallback(nCurrent, nTotal);
         });
         console.log("Get datapoints of size: ",
@@ -321,7 +321,7 @@ export class DataBase {
         this._initliazed = true;
     }
 
-    add(summary: DataInfoT): DataPoint {
+    update(summary: DataInfoT): DataPoint {
         this.cache[summary.uuid] = new DataPoint(this.conn, summary);
         if (!this.uids.includes(summary.uuid)){
             // add to start of the list
@@ -344,6 +344,12 @@ export class DataBase {
         }
     }
 
+    hasCache(uuid: string): boolean{
+        return uuid in this.cache;
+    }
+
+    getDummy(): DataPoint{ return new DataPoint(this.conn, _dummyDataSummary); }
+
     get(uuid: string): DataPoint{
         if (!(uuid in this.cache)){
             // return a dummy data point to avoid corrupted UI update on deletion of the data.
@@ -359,8 +365,14 @@ export class DataBase {
     async aget(uid: string): Promise<DataPoint>{
         // will shift to async get in the future
         if (!(uid in this.cache)){
-            const dpInfo = await this.conn.reqDatapointSummary(uid);
-            this.cache[uid] = new DataPoint(this.conn, dpInfo);
+            try{
+                const dpInfo = await this.conn.reqDatapointSummary(uid);
+                this.cache[uid] = new DataPoint(this.conn, dpInfo);
+            }
+            catch(err){
+                console.error("Error in aget: ", err);
+                return new DataPoint(this.conn, _dummyDataSummary);
+            }
         }
         return this.cache[uid];
     }
