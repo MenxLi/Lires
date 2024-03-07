@@ -11,9 +11,12 @@
     import QueryDialog from '../common/QueryDialog.vue';
     import EditSquareIcon from '../../assets/icons/edit_square.svg'
 
-    const props = defineProps<{
+    const props = withDefaults(defineProps<{
         userInfo: UserInfo;
-    }>();
+        avatarSize: string;
+    }>(), {
+        avatarSize: '168px',
+    });
 
     const conn = useConnectionStore().conn;
 
@@ -122,7 +125,7 @@
 
         <div id="info">
             <div id="avatar" :style="THIS_USER?{'cursor':'pointer', 'borderRadius': '50%'}:{}">
-                <CircularImage :href="avatarURL" size="168px" @click="THIS_USER?avatarUploadBtn?.click():()=>{}"/>
+                <CircularImage :href="avatarURL" :size="avatarSize" @click="THIS_USER?avatarUploadBtn?.click():()=>{}"/>
                 <FileSelectButton :text="'Change avatar'" :action="onUploadAvatarImage" ref="avatarUploadBtn" :style="{'display': 'none'}"/>
             </div>
             <div id="user-desc">
