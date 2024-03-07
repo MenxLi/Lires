@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import Banner from './common/Banner.vue';
+    import Toolbar from './common/Toolbar.vue';
     import WidgetContainer from './dashboard/WidgetContainer.vue';
     import UserCard from './dashboard/UserCard.vue';
     import UsersWiget from './dashboard/UsersWidget.vue';
@@ -53,7 +53,7 @@
 
 
 <template>
-    <Banner />
+    <Toolbar />
     <div id="main-dashboard" class="slideIn">
         <WidgetContainer>
             <UserCard :user-info="userInfo"/>

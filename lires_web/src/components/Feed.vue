@@ -6,7 +6,7 @@
     import { useRouter } from 'vue-router';
     import RefreshIcon from '../assets/icons/refresh.svg'
 
-    import Banner from './common/Banner.vue';
+    import Toolbar from './common/Toolbar.vue';
     import LoadingWidget from './common/LoadingWidget.vue'
 
     import { lazify } from '../utils/misc';
@@ -112,8 +112,8 @@
 </script>
 
 <template>
-    <div id="banner">
-        <Banner ref="banner"></Banner>
+    <div id="toolbar">
+        <Toolbar ref="toolbar"></Toolbar>
     </div>
     <div id="main">
         <h1>

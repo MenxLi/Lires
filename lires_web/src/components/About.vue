@@ -3,7 +3,7 @@
     import { ref, computed } from 'vue';
     import { type Changelog } from '../api/protocalT';
     import { getBackendURL, manualURL_zh } from '../config';
-    import Banner from './common/Banner.vue';
+    import Toolbar from './common/Toolbar.vue';
     import FloatingWindow from './common/FloatingWindow.vue';
     import { registerServerEvenCallback } from '../api/serverWebsocketConn';
 
@@ -65,8 +65,8 @@
 </script>
 
 <template>
-    <div class="banner">
-        <Banner/>
+    <div class="toolbar">
+        <Toolbar/>
     </div>
     <div id="about-main" class="slideIn">
 

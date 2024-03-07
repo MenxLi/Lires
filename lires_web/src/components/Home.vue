@@ -14,8 +14,8 @@ export default {
     import { DataTags } from "../core/tag";
     import FileTags from "./home/FileTags.vue";
     import FileRowContainer from "./home/FileRowContainer.vue";
-    import Banner from "./common/Banner.vue";
-    import BannerIcon from "./common/BannerIcon.vue";
+    import Toolbar from "./common/Toolbar.vue";
+    import ToolbarIcon from "./common/ToolbarIcon.vue";
     import DataEditor from "./home/DataEditor.vue";
     import addCircleIcon from "../assets/icons/add_circle.svg";
     import refreshIcon from "../assets/icons/refresh.svg";
@@ -94,14 +94,14 @@ export default {
 
 <template>
     <DataEditor ref="dataEditor"></DataEditor>
-    <Banner :return-home="false">
-        <div id="bannerAddons">
-            <BannerIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
-                @click="showBlankAddingDataWindow" shortcut="ctrl+n"></BannerIcon>
-            <!-- <BannerIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"
-                @click="()=>settingsStore.setShowTagPanel(!settingsStore.showTagPanel)"></BannerIcon> -->
-            <BannerIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
-                @click="reloadProg"></BannerIcon>
+    <Toolbar :return-home="false">
+        <div id="toolbarAddons">
+            <ToolbarIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
+                @click="showBlankAddingDataWindow" shortcut="ctrl+n"></ToolbarIcon>
+            <!-- <ToolbarIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"
+                @click="()=>settingsStore.setShowTagPanel(!settingsStore.showTagPanel)"></ToolbarIcon> -->
+            <ToolbarIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
+                @click="reloadProg"></ToolbarIcon>
             |
             <div class="searchbar">
                 <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
@@ -110,7 +110,7 @@ export default {
                 <input id="searchbar" type="text" v-model="searchInput" @input="lazyOnSearchChanged" placeholder="search">
             </div>
         </div>
-    </Banner>
+    </Toolbar>
     <div id="main-home" class="gradIn">
         <div class="horizontal fullHeight">
             <Transition name="left-in">
@@ -214,7 +214,7 @@ export default {
         display: flex;
         /* gap: 10px; */
     }
-    div#bannerAddons{
+    div#toolbarAddons{
         display: flex;
         align-items: center;
         justify-self: center;

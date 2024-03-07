@@ -5,7 +5,7 @@
     import { useRouter } from "vue-router";
     import { settingsLogout } from "../../core/auth";
     import { useDataStore } from "../store";
-    import BannerIcon from "./BannerIcon.vue";
+    import ToolbarIcon from "./ToolbarIcon.vue";
     import { MenuAttached } from './fragments.tsx'
 
     import FloatingWindow from "./FloatingWindow.vue";
@@ -57,13 +57,13 @@
         <SettingsWindow/>
     </FloatingWindow>
 
-    <div class="main-banner shadow" ref="mainDiv">
+    <div class="main-toolbar shadow" ref="mainDiv">
         <div class="button">
-            <BannerIcon v-if="props.returnHome" :iconSrc="homeIcon" labelText="Home" shortcut="ctrl+h"
+            <ToolbarIcon v-if="props.returnHome" :iconSrc="homeIcon" labelText="Home" shortcut="ctrl+h"
                 @onClick="()=>{router.push('/')}" title="home"/>
-            <BannerIcon v-else :iconSrc="logoutIcon" labelText="Logout" shortcut="ctrl+q"
+            <ToolbarIcon v-else :iconSrc="logoutIcon" labelText="Logout" shortcut="ctrl+q"
                 @onClick="logout" title="logout"/>
-            <BannerIcon :iconSrc="settigsIcon" labelText="Settings" shortcut="ctrl+c"
+            <ToolbarIcon :iconSrc="settigsIcon" labelText="Settings" shortcut="ctrl+c"
                 @onClick="()=>{showSettings=true}" title="Open settings"/>
             <MenuAttached :menuItems="[
                 {name:'Home', action:()=>{router.push('/')}},
@@ -71,7 +71,7 @@
                 {name:'Arxiv daily', action:()=>{router.push('/feed')}},
                 {name:'About', action:()=>{router.push('/about')}},
             ]">
-                <BannerIcon :iconSrc="exploreIcon" labelText="Explore" shortcut="ctrl+e" title="look around"/>
+                <ToolbarIcon :iconSrc="exploreIcon" labelText="Explore" shortcut="ctrl+e" title="look around"/>
             </MenuAttached>
         </div>
         <slot> <!-- some additional components --> </slot>
@@ -79,7 +79,7 @@
 </template>
 
 <style scoped>
-    div.main-banner{
+    div.main-toolbar{
         position: fixed;
         top: 10px;
         left: 10px;
@@ -98,7 +98,7 @@
         z-index: 1;
         transition: top 0.25s ease-in-out;
     }
-    div.main-banner.hidden{
+    div.main-toolbar.hidden{
         top: -30px;
     }
     div.button{
@@ -107,7 +107,7 @@
     }
 
     @media only screen and (max-width: 767px) {
-        div.main-banner{
+        div.main-toolbar{
             left: 0px;
             right: 0px;
             border-radius: 0px;

@@ -8,8 +8,8 @@ export default {
 </script>
 <script setup lang="ts">
     import ReaderBody from './reader/ReaderBody.vue';
-    import Banner from './common/Banner.vue';
-    import BannerIcon from './common/BannerIcon.vue';
+    import Toolbar from './common/Toolbar.vue';
+    import ToolbarIcon from './common/ToolbarIcon.vue';
     import { ref, onMounted, computed, watch } from 'vue';
     import { useDataStore, useUIStateStore, useSettingsStore } from './store';
     import { useRoute, useRouter } from 'vue-router';
@@ -140,21 +140,21 @@ import { DataPoint } from '../core/dataClass';
 <template>
     <!-- a tricky way to use FileSelectButton as select-upload agent -->
     <FileSelectButton :action="onUploadNewDocument" ref="fileSelectionBtn" :style="{display: 'none'}"> </FileSelectButton>
-    <Banner>
-        <div id="bannerOps">
-            <BannerIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
-                @onClick="changeLayout" title="change layout"></BannerIcon>
-            <BannerIcon :iconSrc="uploadIcon" labelText="upload" shortcut="ctrl+u"
-                @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></BannerIcon>
-            <BannerIcon :iconSrc="eyeIcon" :labelText="previewBtnText" shortcut="ctrl+p"
-                @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></BannerIcon>
+    <Toolbar>
+        <div id="toolbarOps">
+            <ToolbarIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
+                @onClick="changeLayout" title="change layout"></ToolbarIcon>
+            <ToolbarIcon :iconSrc="uploadIcon" labelText="upload" shortcut="ctrl+u"
+                @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></ToolbarIcon>
+            <ToolbarIcon :iconSrc="eyeIcon" :labelText="previewBtnText" shortcut="ctrl+p"
+                @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></ToolbarIcon>
             <MenuAttached :menu-items="recentReadMenuItems">
                 <div id="recently-read">
                     {{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}
                 </div>
             </MenuAttached>
         </div>
-    </Banner>
+    </Toolbar>
     <div id="main-reader" class="gradIn">
         <ReaderBody :datapoint="(datapoint as DataPoint)" :layoutType="layoutType" ref="readerBody"></ReaderBody>
     </div>
@@ -178,7 +178,7 @@ div#main-reader{
         padding: 0px;
     }
 }
-div#bannerOps{
+div#toolbarOps{
     display: flex;
     align-items: center;
     justify-content: center;
