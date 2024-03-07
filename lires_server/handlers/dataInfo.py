@@ -70,3 +70,26 @@ class DataInfoHandler(RequestHandlerBase):
         dp: DataPoint = await self.db.get(uid)
         self.write(json.dumps(dp.summary.json()))
         return
+
+class DatabaseKeysHandler(RequestHandlerBase):
+    """ Get summary of the database """
+    @keyRequired
+    async def get(self):
+        self.write(json.dumps(await self.db.keys()))
+        return
+class DatabaseTagsHandler(RequestHandlerBase):
+    """ Get summary of the database """
+    @keyRequired
+    async def get(self):
+        self.write(json.dumps(await self.db.tags()))
+        return
+class DataInfoListHandler(RequestHandlerBase):
+    """
+    Query information about a single file
+    """
+    @keyRequired
+    async def post(self):
+        uids: list[str] = json.loads(self.get_argument("uids"))
+        all_dp = await self.db.gets(uids)
+        self.write(json.dumps([dp.summary.json() for dp in all_dp]))
+        return

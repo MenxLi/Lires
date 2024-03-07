@@ -265,13 +265,18 @@ const _dummyDataSummary: DataInfoT = {
 }
 
 export class DataBase {
-    data: Record<string, DataPoint>;
+    cache: Record<string, DataPoint>;
+    tags: DataTags;
+    uids: string[];
     conn: ServerConn;
     _initliazed: boolean;
 
     constructor(conn: ServerConn){
-        this.data = {}
+        this.cache = {}                         // a cache of all fetched data points
+        this.uids = new Array();                // a set of all uids, fetched from server
+        this.tags = new DataTags([]);           // all tags of the database, fetched from server
         this._initliazed = false;
+
         this.conn = conn;
     }
 
@@ -280,55 +285,67 @@ export class DataBase {
     }
 
     *[Symbol.iterator](): Iterator<DataPoint>{
-        for (let uid in this.data){
-            yield this.data[uid];
+        for (let uid in this.cache){
+            yield this.cache[uid];
         }
     }
 
-    async requestData(){
-        const conn = this.conn;
-        const allData = await conn.reqFileList([]);
-        console.log("Get infolist of size: ", 
-            (JSON.stringify(allData).length * 2 / 1024 / 1024)
-            .toPrecision(2), "MB");
-
+    async init(){
         this.clear();
-        for ( let summary of allData ){
-            this.add(summary);
-        };
+
+        const conn = this.conn;
+        this.uids = await conn.reqAllKeys();
+        this.tags = new DataTags(await conn.reqAllTags());
+
         this._initliazed = true;
+
+        console.log("Get init data of size: ", 
+            (
+                (JSON.stringify(this.uids) + JSON.stringify(this.tags)).length
+                 * 2 / 1024 / 1024
+            ).toPrecision(2), "MB");
     }
 
     // get the datalist in chunks
+    // THIS FUNCTION WILL BE DEPRECATED!
     async requestDataStream(stepCallback: (nCurrent_: number, nTotal_: number) => void = () => {}){
+        this.init()
         const conn = this.conn;
-        this.clear()
         await conn.reqFileListStream([], (data: DataInfoT, nCurrent: number, nTotal: number) => {
             this.add(data);
             stepCallback(nCurrent, nTotal);
         });
         console.log("Get datapoints of size: ",
-            (JSON.stringify(this.data).length * 2 / 1024 / 1024)
+            (JSON.stringify(this.cache).length * 2 / 1024 / 1024)
             .toPrecision(2), "MB");
         this._initliazed = true;
     }
 
     add(summary: DataInfoT): DataPoint {
-        this.data[summary.uuid] = new DataPoint(this.conn, summary);
-        return this.data[summary.uuid];
+        this.cache[summary.uuid] = new DataPoint(this.conn, summary);
+        if (!this.uids.includes(summary.uuid)){
+            // add to start of the list
+            this.uids.unshift(summary.uuid);
+        }
+        return this.cache[summary.uuid];
     }
 
     clear(){
-        this.data = {};
+        this.cache = {}                         // a cache of all fetched data points
+        this.uids = new Array();                // a set of all uids, fetched from server
+        this.tags = new DataTags([]);           // all tags of the database, fetched from server
         this._initliazed = false;
     }
 
     delete(uuid: string){
-        delete this.data[uuid];
+        delete this.cache[uuid];
+        if (this.uids.includes(uuid)){
+            this.uids = this.uids.filter((uid) => uid !== uuid);
+        }
     }
 
     get(uuid: string): DataPoint{
-        if (!(uuid in this.data)){
+        if (!(uuid in this.cache)){
             // return a dummy data point to avoid corrupted UI update on deletion of the data.
             // A deletion may trigger UI update which refers to the deleted data via this function, and get undefined
             // I found this is tricky, but works... 
@@ -336,16 +353,16 @@ export class DataBase {
             // TODO: find a better way to handle this
             return new DataPoint(this.conn, _dummyDataSummary);    
         }
-        return this.data[uuid];
+        return this.cache[uuid];
     }
 
     async aget(uid: string): Promise<DataPoint>{
         // will shift to async get in the future
-        if (!(uid in this.data)){
+        if (!(uid in this.cache)){
             const dpInfo = await this.conn.reqDatapointSummary(uid);
-            this.data[uid] = new DataPoint(this.conn, dpInfo);
+            this.cache[uid] = new DataPoint(this.conn, dpInfo);
         }
-        return this.data[uid];
+        return this.cache[uid];
     }
 
     async agetMany(uuids: string[]): Promise<DataPoint[]>{
@@ -371,8 +388,8 @@ export class DataBase {
     getDataByTags(tags: string[]| DataTags): DataPoint[] {
         tags = new DataTags(tags);
         const valid_data = [];
-        for (const uid in this.data){
-            const data = this.data[uid];
+        for (const uid in this.cache){
+            const data = this.cache[uid];
             const data_tag = new DataTags(data.summary["tags"]);
             if (tags.issubset(data_tag.withParents())) {
                 valid_data.push(data)

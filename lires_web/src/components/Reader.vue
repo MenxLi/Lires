@@ -121,12 +121,12 @@ import { DataPoint } from '../core/dataClass';
 
     onMounted(() => {
         // empty database check 
-        if (Object.keys(dataStore.database.data).length === 0){
+        if (Object.keys(dataStore.database.cache).length === 0){
             useUIStateStore().showPopup("Database not loaded or empty database.", "alert");
             // periodically tries to update datapoint...
             const interval = setInterval(() => {
                 useUIStateStore().showPopup("Trying to update datapoint...", "warning", 2000);
-                if (Object.keys(dataStore.database.data).length !== 0){
+                if (Object.keys(dataStore.database.cache).length !== 0){
                     clearInterval(interval);
                     datapoint.value = dataStore.database.get(uid.value);
                     useUIStateStore().showPopup("Datapoint updated.", "success", 3000);

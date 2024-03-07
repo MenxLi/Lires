@@ -23,10 +23,11 @@ export class ServerConn {
         return await this.fetcher.get(`/api/status`).then(res=>res.json());
     }
     
-    async reqFileList( tags: string[] ): Promise<DataInfoT[]>{
-        return await this.fetcher.get(`/api/filelist`,
-            { tags: tags.join("&&"), }
-        ).then(res=>res.json());
+    async reqAllKeys(): Promise<string[]>{
+        return await this.fetcher.get(`/api/database/keys`).then(res=>res.json());
+    };
+    async reqAllTags(): Promise<string[]>{
+        return await this.fetcher.get(`/api/database/tags`).then(res=>res.json());
     };
 
     // get the file list in a streaming way

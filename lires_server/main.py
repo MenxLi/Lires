@@ -71,9 +71,14 @@ class Application(tornado.web.Application):
             (r"/api/auth", AuthHandler),
             (r"/api/search", SearchHandler),
 
-            (r"/api/filelist", DataListHandler),
-            (r"/api/filelist-stream", DataListStreamHandler),
-            (r"/api/fileinfo/(.*)", DataInfoHandler),
+            (r"/api/database/keys", DatabaseKeysHandler),
+            (r"/api/database/tags", DatabaseTagsHandler),
+            (r"/api/datalist", DataInfoListHandler),
+            (r"/api/data/(.*)", DataInfoHandler),
+
+            (r"/api/filelist", DataListHandler),                # will be deprecated
+            (r"/api/filelist-stream", DataListStreamHandler),   # will be deprecated
+            (r"/api/fileinfo/(.*)", DataInfoHandler),           # will be deprecated
 
             (r'/api/datafeat/tsne/(.*)', DataFeatureTSNEHandler),
 
