@@ -31,6 +31,10 @@
     emit("close")
   }
 
+  function handleClickOnBlocker(e: MouseEvent) {
+    if (e.target === e.currentTarget) { closeWindow(); }
+  }
+
   window.addEventListener("keydown", (e) => {
     if (e.key === props.closeKey) {
       closeWindow();
@@ -42,20 +46,20 @@
 
 <template>
   <div id="window" v-if="showWindow">
-    <div id="blocker" @click="closeWindow" :style="{'z-index':zIndex-1}">
-    </div>
-    <div class="floating-window" :style="{'z-index':zIndex}">
-      <div class="header">
-        <label>{{ props.title }}</label>
-        <button class="close-button" @click="closeWindow">
-          <span class="close-icon">✕</span>
-        </button>
-      </div>
-      <div class="window-content scrollable" :style="{
-        margin: props.compact? '0px': '15px',
-        marginTop: props.compact? '0px': '5px',
-      }">
-        <slot></slot>
+    <div id="blocker" @click="handleClickOnBlocker" :style="{'z-index':zIndex-1}">
+      <div class="floating-window" :style="{'z-index':zIndex}" >
+        <div class="header">
+          <label>{{ props.title }}</label>
+          <button class="close-button" @click="closeWindow">
+            <span class="close-icon">✕</span>
+          </button>
+        </div>
+        <div class="window-content scrollable" :style="{
+          margin: props.compact? '0px': '15px',
+          marginTop: props.compact? '0px': '5px',
+        }">
+          <slot></slot>
+        </div>
       </div>
     </div>
   </div>
@@ -66,12 +70,11 @@
 @keyframes floatingWindowGradIn {
     0% {
         visibility: hidden;
-        transform: translate(-50%, -50%) scale(0.9);
+        transform: scale(0.9);
         opacity: 0;
     }
     100% {
         visibility: visible;
-        transform: translate(-50%, -50%);
     }
 }
 
@@ -82,6 +85,10 @@ div#blocker {
   width: 100vw;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 div.header {
@@ -103,10 +110,6 @@ div.header {
 }
 
 .floating-window {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   background-color: var(--color-background-soft);
   /* border: 1px solid #ccc; */
   border: 1px solid var(--color-border);
@@ -116,7 +119,7 @@ div.header {
   align-items: flex-start;
   box-shadow: 0 1px 3px 2px var(--color-shadow);
 
-  animation-duration: 0.12s; /* the duration of the animation */
+  animation-duration: 0.1s; /* the duration of the animation */
   animation-timing-function: ease-out; /* how the animation will behave */
   animation-delay: 0s; /* how long to delay the animation from starting */
   animation-iteration-count: 1; /* how many times the animation will play */
