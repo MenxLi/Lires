@@ -29,10 +29,10 @@
     const THIS_USER = computed(() => useDataStore().user.id === props.userInfo.id)
 
     const avatarUploadBtn = ref(null as HTMLInputElement | null);
-    const avatarURL = computed(() => {
-        console.log("avatarURL updated");
+    const avatarURL = ref(getAvatarURL());
+    function getAvatarURL(){
         return `${getBackendURL()}/user-avatar/${props.userInfo.username}?t=${Date.now()}&size=256`
-    });
+    }
     function onUploadAvatarImage(file: File){
         // check if the file is an image
         if(!file.type.startsWith('image/')){
@@ -42,6 +42,7 @@
         useUIStateStore().showPopup('Uploading avatar...');
         conn.uploadUserAvatar( props.userInfo.username, file).then(
             (new_userInfo: UserInfo) => {
+                avatarURL.value = getAvatarURL();
                 emit("update:userInfo", new_userInfo);
             },
             (err) => { useUIStateStore().showPopup(err, 'error'); }
