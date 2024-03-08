@@ -75,6 +75,7 @@
         })
     }
     watch([()=>props.uids, ()=>shownPage.value, ()=>shownNumPerPage.value], ()=>{
+        if (props.uids.length < shownPage.value * shownNumPerPage.value){ shownPage.value = 0; }
         updateDisplayDatapoints();
     })
     updateDisplayDatapoints();
@@ -119,7 +120,7 @@
             <button @click="onPrevPage" :disabled="shownPage == 0">Prev</button>
             <span style="margin-left: 10px; margin-right: 10px; display: flex; gap: 5px">
                 <EditableParagraph ref="pageIndicatorEditableParagrah" @finish="(val: any) => {
-                    if(/^\d+$/.test((val as string)) && parseInt(val) > 0 && parseInt(val) <= Math.ceil(uids.length / shownNumPerPage)){
+                    if(parseInt(val) > 0 && parseInt(val) <= Math.ceil(uids.length / shownNumPerPage)){
                         shownPage = parseInt(val) - 1;
                     }}">
                     {{shownPage + 1}}
