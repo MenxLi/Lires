@@ -81,7 +81,9 @@ class DatabaseTagsHandler(RequestHandlerBase):
     """ Get summary of the database """
     @keyRequired
     async def get(self):
-        self.write(json.dumps(await self.db.tags()))
+        self.write(json.dumps(
+            (await self.db.tags()).toOrderedList()
+            ))
         return
 class DataInfoListHandler(RequestHandlerBase):
     """

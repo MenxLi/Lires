@@ -150,7 +150,7 @@
                         <td colspan="2">
                             <b>{{ `Other publications from ${showAuthorPapers.toUpperCase()}:` }}</b>
                             <div id="authorPapers">
-                                <FileRowContainer :datapoints="(authorPapers as DataPoint[])"></FileRowContainer>
+                                <FileRowContainer :uids=" authorPapers.map((dp)=>dp.summary.uuid) "></FileRowContainer>
                             </div>
                         </td>
                     </tr>
@@ -187,7 +187,9 @@
             </div>
             <details>
                 <summary><b>Related Articles</b></summary>
-                <FileRowContainer :datapoints="(relatedDatapoints as DataPoint[])" :scores="relatedDatapointsScoresDict"></FileRowContainer>
+                <FileRowContainer :uids="
+                    relatedDatapoints.map((dp)=>dp.summary.uuid)
+                " :scores="relatedDatapointsScoresDict"></FileRowContainer>
             </details>
         </div>
     </div>

@@ -1,12 +1,14 @@
 <!-- a container that governs the display of multiple FileRow components -->
 <script setup lang="ts">
-    import { computed, ref } from 'vue';
+    import { computed, ref, watch } from 'vue';
+    import { useDataStore } from '../store';
     import FileRow from './FileRow.vue';
     import { type DataPoint } from '../../core/dataClass';
     import { EditableParagraph } from '../common/fragments';
 
     interface DataCardsStatus{
-        datapoints: DataPoint[],
+        // datapoints: DataPoint[],
+        uids: string[],
         unfoldedIds?: string[] | null,
         hoveredIds?: string[] | null,
         scores?: Record<string, number|string> | null,
@@ -52,22 +54,33 @@
         }
     });
 
-    const datapoints = computed({
-        get: ()=>props.datapoints,
-        set: (v)=>emits("update:datapoints", v)}
-    )
+    // const datapoints = computed({
+    //     get: ()=>props.datapoints,
+    //     set: (v)=>emits("update:datapoints", v)}
+    // )
 
     const datacardContainer = ref(null as HTMLDivElement | null);
     const pageIndicatorEditableParagrah = ref(null as any | null);
     const shownPage = ref(0);
     const shownNumPerPage = ref(100);
-    const shownDatapoints = computed(()=>{
+    const displayDatapoints = ref([] as DataPoint[]);
+
+    // change shownDatapoints when props.uids changes or shownPage changes or shownNumPerPage changes
+    function updateDisplayDatapoints(){
         const startIdx = shownPage.value * shownNumPerPage.value;
-        const endIdx = Math.min(startIdx + shownNumPerPage.value, datapoints.value.length);
-        return datapoints.value.slice(startIdx, endIdx);
+        const endIdx = Math.min(startIdx + shownNumPerPage.value, props.uids.length);
+        const displayUIDs = props.uids.slice(startIdx, endIdx);
+        useDataStore().database.agetMany(displayUIDs).then((dps)=>{
+            displayDatapoints.value = dps;
+        })
+    }
+    watch([()=>props.uids, ()=>shownPage.value, ()=>shownNumPerPage.value], ()=>{
+        updateDisplayDatapoints();
     })
+    updateDisplayDatapoints();
+
     const onNextPage = ()=>{
-        if (shownPage.value >= Math.ceil(datapoints.value.length / shownNumPerPage.value) - 1){ return; }
+        if (shownPage.value >= Math.ceil(props.uids.length / shownNumPerPage.value) - 1){ return; }
         shownPage.value++;
         pageIndicatorEditableParagrah.value!.setText("" + (shownPage.value + 1));
         datacardContainer.value?.scrollTo({top: 0, behavior: 'auto'});  // auto, smooth, instant
@@ -94,7 +107,7 @@
 <template>
     <div id="datacard-container-main">
         <div id="datacard-container" :style="{gap: compact?'0px':'5px'}" ref="datacardContainer" @scroll="onScroll" class="scrollable">
-            <FileRow v-for="dp, idx in shownDatapoints" :datapoint="dp" 
+            <FileRow v-for="dp, idx in displayDatapoints" :datapoint="(dp as DataPoint)" 
                     v-model:unfolded-ids="unfoldedIds" v-model:hovered-ids="hoveredIds"
                     :line_number="idx" :compact="compact">
                 <label class="relatedArticleScore" v-if="props.scores != null && props.scores[dp.summary.uuid] != null">
@@ -102,18 +115,18 @@
                 </label>
             </FileRow>
         </div>
-        <div id="datacard-container-footer" v-if="datapoints.length > shownNumPerPage">
+        <div id="datacard-container-footer" v-if="uids.length > shownNumPerPage">
             <button @click="onPrevPage" :disabled="shownPage == 0">Prev</button>
             <span style="margin-left: 10px; margin-right: 10px; display: flex; gap: 5px">
                 <EditableParagraph ref="pageIndicatorEditableParagrah" @finish="(val: any) => {
-                    if(/^\d+$/.test((val as string)) && parseInt(val) > 0 && parseInt(val) <= Math.ceil(datapoints.length / shownNumPerPage)){
+                    if(/^\d+$/.test((val as string)) && parseInt(val) > 0 && parseInt(val) <= Math.ceil(uids.length / shownNumPerPage)){
                         shownPage = parseInt(val) - 1;
                     }}">
                     {{shownPage + 1}}
-                </EditableParagraph> / <p>{{ Math.ceil(datapoints.length / shownNumPerPage) }}</p>
+                </EditableParagraph> / <p>{{ Math.ceil(uids.length / shownNumPerPage) }}</p>
             </span>
 
-            <button @click="onNextPage" :disabled="shownPage >= Math.ceil(datapoints.length / shownNumPerPage) - 1">Next</button>
+            <button @click="onNextPage" :disabled="shownPage >= Math.ceil(uids.length / shownNumPerPage) - 1">Next</button>
         </div>
     </div>
 </template>

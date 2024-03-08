@@ -15,6 +15,9 @@ interface PopupValue {
     styleType: PopupStyle,
 }
 
+
+let __filterConditionBuffer = {}
+
 export const useUIStateStore = defineStore(
     "uiStatus", {
         state: () => {
@@ -70,12 +73,28 @@ export const useUIStateStore = defineStore(
                 // Should call this function manually, because it involves async operation (searching)
                 const dataStore = useDataStore();
                 this.tagStatus.all = dataStore.allTags;
-                const tagFilteredDataPoints = dataStore.database.getDataByTags(this.tagStatus.checked);
-                DataSearcher.filter(tagFilteredDataPoints, this.searchState).then(
-                    // (datapoints: DataPoint[]) => this.shownDataUIDs = datapoints.map((dp) => dp.summary.uuid)
-                    (filterRes) => {
-                        this.shownDataUIDs = filterRes.datapoints.map((dp) => dp.summary.uuid)
-                        this.shownDataScores = filterRes.scores;
+                const _filterCondition = {
+                    tags: this.tagStatus.checked,
+                    searchBy: this.searchState.searchBy,
+                    searchContent: this.searchState.content,
+                }
+                if (JSON.stringify(_filterCondition) === JSON.stringify(__filterConditionBuffer)){
+                    console.log("Filter condition is the same as the last time, no need to update");
+                    // Vue may invoke this function multiple times,
+                    // no need to update if the filter condition is the same as the last time
+                    return;
+                }
+                __filterConditionBuffer = _filterCondition;
+                useConnectionStore().conn.filter(
+                    {
+                        tags: Array.from(_filterCondition.tags),
+                        searchBy: _filterCondition.searchBy,
+                        searchContent: _filterCondition.searchContent,
+                    }
+                ).then(
+                    (res) => {
+                        this.shownDataUIDs = res.uids;
+                        this.shownDataScores = res.scores;
                     }
                 )
             },

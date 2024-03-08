@@ -30,7 +30,11 @@ class Fetcher {
     public async post(path: string, body: Record<string, any> = {}): Promise<Response> {
         const form = new FormData();
         for (const key in body) {
-            form.append(key, body[key]);
+            let value = body[key];
+            if (value instanceof Array) {
+                value = JSON.stringify(value);
+            }
+            form.append(key, value);
         }
         return await this._fetch(`${this._baseUrlGetter()}${path}`, 
         {

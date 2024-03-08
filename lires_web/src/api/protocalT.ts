@@ -48,6 +48,12 @@ export interface SearchResultant {
 export type SearchResult = Record<string, SearchResultant | null>;
 export type Changelog = [string, string[] | Record<string, string[]>][];
 
+export interface SearchResult2 {
+    uids: string[];
+    scores: number[];
+}
+
+
 
 // Event for websocket to broadcast
 interface EventBase{

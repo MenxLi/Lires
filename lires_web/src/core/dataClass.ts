@@ -28,9 +28,21 @@ export class DataPoint {
 
     get backendUrl(): string{ return this.conn.baseURL; }
 
-    get tags(): DataTags{
-        return new DataTags(this.summary.tags);
-    }
+    get tags(): DataTags{ return new DataTags(this.summary.tags); }
+    get uid(): string{ return this.summary.uuid; }
+    get title(): string{ return this.summary.title; }
+    get authors(): string[] { return this.summary.authors; }
+    get year(): string{ return this.summary.year; }
+    get publication(): string | null{ return this.summary.publication; }
+    get url(): string | null{ return this.summary.url; }
+    get bibtex(): string{ return this.summary.bibtex; }
+    // get docSize(): number{ return this.summary.doc_size; }
+    // get noteLinecount(): number{ return this.summary.note_linecount; }
+    // get hasAbstract(): boolean{ return this.summary.has_abstract; }
+    // get hasFile(): boolean{ return this.summary.has_file; }
+    // get fileType(): string{ return this.summary.file_type; }
+    // get timeAdded(): number{ return this.summary.time_added; }
+    // get timeModified(): number{ return this.summary.time_modified; }
 
     toString(){
         return `${this.summary.title} - ${this.authorAbbr()} (${this.summary.year}) [uid: ${this.summary.uuid}]`

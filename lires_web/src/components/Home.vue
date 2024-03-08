@@ -7,7 +7,7 @@ export default {
 }
 </script>
 <script setup lang="ts">
-    import { ref, watch } from "vue";
+    import { ref } from "vue";
     import type { Ref } from "vue";
     import { useConnectionStore, useUIStateStore, useDataStore, useSettingsStore } from "./store";
     import { useRouter } from "vue-router";
@@ -25,18 +25,17 @@ export default {
 
     import type { SearchStatus } from "./interface";
     import { lazify } from "../utils/misc";
-    import type { DataPoint } from "../core/dataClass";
 
     // get data
     const uiState = useUIStateStore();
     const dataStore = useDataStore();
     const settingsStore = useSettingsStore();
-    const shownDatapoints = ref([] as DataPoint[]);
-    watch(()=>uiState.shownDataUIDs, ()=>{
-        dataStore.database.agetMany(uiState.shownDataUIDs).then((res)=>{
-            shownDatapoints.value = res;
-        })
-    })
+    // const shownDatapoints = ref([] as DataPoint[]);
+    // watch(()=>uiState.shownDataUIDs, ()=>{
+    //     dataStore.database.agetMany(uiState.shownDataUIDs).then((res)=>{
+    //         shownDatapoints.value = res;
+    //     })
+    // })
 
     // not show fileTag panel on small screen, by default
     if (window.innerWidth < 768){
@@ -123,7 +122,7 @@ export default {
                     <FilterVis></FilterVis>
                 </div>
                 <div class="scrollable" id="fileSelector" @dragover="(e: Event)=>e.preventDefault()" @drop="onDropFiles">
-                    <FileRowContainer :datapoints="(shownDatapoints as DataPoint[])" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
+                    <FileRowContainer :uids="uiState.shownDataUIDs" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
                         v-if="uiState.shownDataUIDs.length > 0"
                     ></FileRowContainer>
 

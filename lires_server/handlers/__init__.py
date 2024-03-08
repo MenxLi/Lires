@@ -2,7 +2,7 @@ from ._base import g_storage
 from .dataInfo import *
 from .documents import DocHandler
 from .auth import AuthHandler
-from .search import SearchHandler
+from .search import *
 from .summary import SummaryHandler
 from .iServerProxy import IServerProxyHandler
 from .dataFeature import DataFeatureTSNEHandler

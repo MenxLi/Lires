@@ -1,7 +1,7 @@
 
 // Server connection
 
-import type { DataInfoT, UserInfo, SearchResult, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
+import type { DataInfoT, UserInfo, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
 import { sha256 } from "../utils/sha256lib.js";
 import Fetcher from "./fetcher.js";
 
@@ -130,6 +130,25 @@ export class ServerConn {
         return await this.fetcher.post(`/api/search`, {
             method: method,
             kwargs: JSON.stringify(kwargs),
+        }).then(res=>res.json());
+    }
+
+    async filter({
+        tags = [],
+        searchBy = "title", 
+        searchContent = "", 
+        max_results = 9999,
+    }: {
+        tags?: string[],
+        searchBy?: string,
+        searchContent?: string,
+        max_results?: number,
+    } = {}): Promise<SearchResult2>{
+        return await this.fetcher.post(`/api/filter/basic`, {
+            tags: tags,
+            search_by: searchBy,
+            search_content: searchContent,
+            top_k: max_results,
         }).then(res=>res.json());
     }
 

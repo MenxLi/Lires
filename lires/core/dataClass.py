@@ -197,7 +197,7 @@ class DataBase(DataCore):
         all_info = await self.conn.getAll()
         return await asyncio.gather(*[assembleDatapoint(info, self) for info in all_info])
     
-    async def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[DataPoint]:
+    async def getIDByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[str]:
         """
         Get DataPoints by tags, including all child tags
         """
@@ -223,9 +223,13 @@ class DataBase(DataCore):
             to_be_intersect.append(list(set().union(*to_be_union)))
         # get the intersection
         if len(to_be_intersect) == 1:
-            return await self.gets(to_be_intersect[0])
+            # return await self.gets(to_be_intersect[0])
+            return to_be_intersect[0]
         else:
-            return await self.gets(list(set(to_be_intersect[0]).intersection(*to_be_intersect[1:])))
+            return list(set(to_be_intersect[0]).intersection(*to_be_intersect[1:]))
+
+    async def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[DataPoint]:
+        return await self.gets(await self.getIDByTags(tags, from_uids))
     
     async def renameTag(self, tag_old: str, tag_new: str) -> bool:
         """

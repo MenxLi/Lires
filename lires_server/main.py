@@ -69,7 +69,9 @@ class Application(tornado.web.Application):
             (r"/api/status", StatusHandler),
             (r"/api/reload-db", ReloadDBHandler),
             (r"/api/auth", AuthHandler),
-            (r"/api/search", SearchHandler),
+            (r"/api/search", SearchHandler),                    # will be deprecated
+
+            (r"/api/filter/basic", BasicFilterHandler),
 
             (r"/api/database/keys", DatabaseKeysHandler),
             (r"/api/database/tags", DatabaseTagsHandler),
