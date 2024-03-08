@@ -11,6 +11,7 @@ import aiosqlite
 
 from .base import LiresBase
 from ..utils import TimeUtils
+from ..utils.author import formatAuthorName
 from ..version import VERSION
 
 if TYPE_CHECKING:
@@ -595,6 +596,9 @@ class DBConnectionCache(LiresBase):
         tags_cache: dict[str, list[str]] = {}
         for item in all_items:
             for author in item["authors"]:
+                # format author name!
+                author = formatAuthorName(author)
+
                 if author not in authors_cache:
                     authors_cache[author] = []
                 authors_cache[author].append(item["uuid"])
@@ -653,6 +657,7 @@ class DBConnectionCache(LiresBase):
             ret = ret.intersection(uid)
         return ret
     async def queryAuthors(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
+        q = [formatAuthorName(x) for x in q]
         return await self._queryBy("authors", "author", q, strict, ignore_case)
     async def queryTags(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
         return await self._queryBy("tags", "tag", q, strict, ignore_case)

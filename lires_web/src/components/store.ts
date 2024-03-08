@@ -316,7 +316,7 @@ export const useSettingsStore = defineStore(
 
             // no corresponding setter for the following getter
             backend(): string {
-                console.log("backendUrl: ", `${this.backendHost}:${this.backendPort}`);
+                // console.log("backendUrl: ", `${this.backendHost}:${this.backendPort}`);
                 return `${this.backendHost}:${this.backendPort}`
             }
         },
