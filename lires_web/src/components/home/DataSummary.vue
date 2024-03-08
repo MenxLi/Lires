@@ -2,10 +2,10 @@
 <script setup lang="ts">
     import { ref, onMounted, computed } from 'vue';
     import { DataPoint } from '../../core/dataClass';
-    import { DataSearcher } from '../../core/dataClass';
     import type { SearchResultant } from '../../api/protocalT';
     import FileRowContainer from './FileRowContainer.vue';
     import {useConnectionStore, useDataStore} from '../store';
+    import { sortByScore } from '../../core/misc';
 
     const props = defineProps<{
         datapoint: DataPoint
@@ -73,7 +73,7 @@
                 scores.push(score);
             }
         }
-        [relatedDatapoints.value, relatedDatapointsScores.value] = DataSearcher.sortByScore(
+        [relatedDatapoints.value, relatedDatapointsScores.value] = sortByScore(
             dps, scores, false
         );
         if (relatedDatapoints.value && relatedDatapoints.value[0].summary.uuid == props.datapoint.summary.uuid){

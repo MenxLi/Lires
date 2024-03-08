@@ -3,12 +3,13 @@
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { bibtexFromArxiv } from '../../utils/arxiv';
     import {useConnectionStore, useDataStore } from '../store';
-    import { DataPoint, DataSearcher } from '../../core/dataClass';
+    import { DataPoint } from '../../core/dataClass';
     import FileRowContainer from '../home/FileRowContainer.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
     import DataEditor from '../home/DataEditor.vue';
     import { computed, ref } from 'vue';
     import { openURLExternal } from '../../utils/misc';
+    import { sortByScore } from '../../core/misc';
 
     const props = defineProps<{
         article: ArxivArticleWithFeatures,
@@ -90,7 +91,7 @@
                         scores.push(res[uid]?.score);
                         uuids.push(uid);
                     }
-                    const sortedDpSc = DataSearcher.sortByScore(uuids, scores);
+                    const sortedDpSc = sortByScore(uuids, scores);
                     dataStore.database.agetMany(sortedDpSc[0]).then((dps)=>{
                         relatedArticles.value = dps;
                         relatedArticlesScores.value = sortedDpSc[1];
