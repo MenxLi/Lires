@@ -284,9 +284,10 @@ export class DataBase {
     _initliazed: boolean;
 
     constructor(conn: ServerConn){
+        // TODO: handle changes of the database from other clients
         this.cache = {}                         // a cache of all fetched data points
         this.uids = new Array();                // a set of all uids, fetched from server
-        this.tags = new DataTags([]);           // all tags of the database, fetched from server
+        this.tags = new DataTags();             // all tags of the database, fetched from server
         this._initliazed = false;
 
         this.conn = conn;
@@ -304,24 +305,25 @@ export class DataBase {
 
     async init(){
         this.clear();
-
-        const conn = this.conn;
-        this.uids = await conn.reqAllKeys();
-        this.tags = new DataTags(await conn.reqAllTags());
-
+        await this.updateKeyCache();
+        await this.updateTagCache();
         this._initliazed = true;
-
         console.log("Get init data of size: ", 
             (
                 (JSON.stringify(this.uids) + JSON.stringify(this.tags)).length
                  * 2 / 1024 / 1024
             ).toPrecision(2), "MB");
     }
+    async updateKeyCache(){ this.uids = await this.conn.reqAllKeys(); }
+    async updateTagCache(){ this.tags = new DataTags(await this.conn.reqAllTags()); }
 
     // get the datalist in chunks
     // THIS FUNCTION WILL BE DEPRECATED!
+    /**
+     * @deprecated use init instead
+     */
     async requestDataStream(stepCallback: (nCurrent_: number, nTotal_: number) => void = () => {}){
-        this.init()
+        await this.init()
         const conn = this.conn;
         await conn.reqFileListStream([], (data: DataInfoT, nCurrent: number, nTotal: number) => {
             this.update(data);
@@ -333,12 +335,17 @@ export class DataBase {
         this._initliazed = true;
     }
 
-    update(summary: DataInfoT): DataPoint {
+    async update(summary: DataInfoT): Promise<DataPoint> {
         this.cache[summary.uuid] = new DataPoint(this.conn, summary);
         if (!this.uids.includes(summary.uuid)){
             // add to start of the list
             this.uids.unshift(summary.uuid);
         }
+        // check if the tags are updated
+        // if (!(new DataTags(summary.tags).issubset(this.tags))){
+        //     await this.updateTagCache();
+        // }
+        await this.updateTagCache();
         return this.cache[summary.uuid];
     }
 
@@ -401,18 +408,19 @@ export class DataBase {
     }
 
     getAllTags() : DataTags {
-        let _tags: string[];
-        let all_tags: Set<string> = new Set();
-        for (const data of this){
-            _tags = data.summary["tags"];;
-            for (const t of _tags){
-                all_tags.add(t);
-            }
-        }
-        return new DataTags(all_tags);
+        return this.tags;
+        // let _tags: string[];
+        // let all_tags: Set<string> = new Set();
+        // for (const data of this){
+        //     _tags = data.summary["tags"];;
+        //     for (const t of _tags){
+        //         all_tags.add(t);
+        //     }
+        // }
+        // return new DataTags(all_tags);
     }
 
-    getDataByTags(tags: string[]| DataTags): DataPoint[] {
+    getCacheByTags(tags: string[]| DataTags): DataPoint[] {
         tags = new DataTags(tags);
         const valid_data = [];
         for (const uid in this.cache){
@@ -424,43 +432,6 @@ export class DataBase {
         }
         return valid_data;
     }
-
-    /**
-     * @deprecated use server conn to directly rename tag,
-     * and use server event to update the database and UI
-     */
-    async renameTag(oldTag: string, newTag: string): Promise<boolean>{
-        oldTag = DataTags.removeSpaces(oldTag);
-        newTag = DataTags.removeSpaces(newTag);
-        const conn = this.conn;
-        const res = await conn.renameTag(oldTag, newTag);
-        if (res){
-            const needUpdate = this.getDataByTags([oldTag]);
-            const updateRes = await Promise.all(needUpdate.map((data) => {
-                return data.update();
-            }));
-            return updateRes.every((x) => x);
-        }
-        else { return false; }
-    }
-
-    /**
-     * @deprecated use server conn to directly delete tag,
-     * and use server event to update the database and UI
-     */
-    async deleteTag(tag: string): Promise<boolean>{
-        tag = DataTags.removeSpaces(tag);
-        const conn = this.conn;
-        const res = await conn.deleteTag(tag);
-        if (res){
-            const needUpdate = this.getDataByTags([tag]);
-            const updateRes = await Promise.all(needUpdate.map((data) => {
-                return data.update();
-            }));
-            return updateRes.every((x) => x);
-        }
-        else { return false; }
-    }   
 }
 
 

@@ -65,11 +65,10 @@
 
         if (fromContent == '') return;
         const res = await serverConn.search("searchFeature", {"pattern": fromContent , "n_return": 9});
-        const dps: DataPoint[] = new Array();
+        const dps: DataPoint[] = await dataStore.database.agetMany(Object.keys(res));
         const scores: number[] = new Array();
-        for (const dp of dataStore.database.getDataByTags([])){
+        for (const dp of dps){
             if (res[dp.summary.uuid]){
-                dps.push(dp);
                 const score = (res[dp.summary.uuid] as SearchResultant).score as number;   // score exists on feature search
                 scores.push(score);
             }

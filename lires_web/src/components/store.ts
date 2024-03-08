@@ -16,8 +16,6 @@ interface PopupValue {
 }
 
 
-let __filterConditionBuffer = {}
-
 export const useUIStateStore = defineStore(
     "uiStatus", {
         state: () => {
@@ -72,19 +70,13 @@ export const useUIStateStore = defineStore(
                 // update shownDataUIDs, which is used to control the display of data cards
                 // Should call this function manually, because it involves async operation (searching)
                 const dataStore = useDataStore();
-                this.tagStatus.all = dataStore.allTags;
+                this.tagStatus.all = dataStore.allTags;     // in case tag pool are updated from the backend
                 const _filterCondition = {
                     tags: this.tagStatus.checked,
                     searchBy: this.searchState.searchBy,
                     searchContent: this.searchState.content,
                 }
-                if (JSON.stringify(_filterCondition) === JSON.stringify(__filterConditionBuffer)){
-                    console.log("Filter condition is the same as the last time, no need to update");
-                    // Vue may invoke this function multiple times,
-                    // no need to update if the filter condition is the same as the last time
-                    return;
-                }
-                __filterConditionBuffer = _filterCondition;
+                console.log("DEBUG: updateShownData() is called.")
                 useConnectionStore().conn.filter(
                     {
                         tags: Array.from(_filterCondition.tags),
@@ -127,22 +119,19 @@ export const useUIStateStore = defineStore(
                 useDataStore().reload(
                     backendReload,
                     () => {
-                        this.databaseLoadingStatus.nCurrent = 0;
+                        this.databaseLoadingStatus.nCurrent = 0; // databaseLoadingStatus get unused for now
                         useDataStore().database.clear();
                         this.updateShownData()
                     },
                     () => {
-                        this.updateShownData(); 
                         useUIStateStore().databaseLoadingStatus.nTotal = -1
+                        useUIStateStore().tagStatus.all = useDataStore().database.getAllTags();
+                        this.updateShownData(); 
                     },
                     () => {
                         this.showPopup(`Failed to load database from: ${useConnectionStore().conn.baseURL}`, "alert");
                         useUIStateStore().databaseLoadingStatus.nTotal = -1
                     },
-                    (nCurrent, nTotal) => {
-                        this.databaseLoadingStatus.nCurrent = nCurrent;
-                        this.databaseLoadingStatus.nTotal = nTotal
-                    }
                 )
 
             }
@@ -226,13 +215,12 @@ export const useDataStore = defineStore(
                 onStart: () => void = () => {this.database.clear()},
                 onSuccess: () => void = () => {}, 
                 onError: (err: Error) => void = () => {}, 
-                uiUpdateCallback: (nCurrent_: number, nTotal_: number) => void = () => {},
                 ){
 
                 onStart()
                 function __requestDBData( dStore: ReturnType<typeof useDataStore>,){
                     // dStore.database.requestData().then(
-                    dStore.database.requestDataStream(uiUpdateCallback).then(
+                    dStore.database.init().then(
                         (_)=>{ onSuccess(); },
                         (err)=>{ onError(err); }
                     )

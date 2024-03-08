@@ -103,27 +103,38 @@
     registerServerEvenCallback('add_entry', (event) => {
         const dataStore = useDataStore();
         const d_summary = (event as Event_Data).datapoint_summary!
-        dataStore.database.update(d_summary);
-        uiState.updateShownData();
+        dataStore.database.update(d_summary).then(()=>{
+            console.log("DEBUG: add entry update UI");
+            uiState.updateShownData();
+        });
     })
     registerServerEvenCallback('update_entry', (event) => {
         const dataStore = useDataStore();
         const d_summary = (event as Event_Data).datapoint_summary!
-        dataStore.database.update(d_summary);
-        uiState.updateShownData();
+        dataStore.database.update(d_summary).then(()=>{
+            console.log("DEBUG: update entry update UI");
+            uiState.updateShownData();
+        });
     })
     registerServerEvenCallback('delete_entry', (event) => {
         const dataStore = useDataStore();
         const uid = (event as Event_Data).uuid!
         dataStore.database.delete(uid)
+        console.log("DEBUG: delete entry update UI");
         uiState.updateShownData();
     })
     registerServerEvenCallback(['delete_tag', 'update_tag'], (event: any) =>{
         const oldTag = new DataTags([(event as Event_Tag).src_tag!]);
         const dataStore = useDataStore();
-        const needUpdate = dataStore.database.getDataByTags(oldTag);
+        // update database cache tag
+        dataStore.database.tags.pop_(oldTag);
+        if ((event as Event_Tag).dst_tag){
+            dataStore.database.tags.add((event as Event_Tag).dst_tag!);
+        }
+        // update shown data
+        const needUpdate = dataStore.database.getCacheByTags(oldTag);
         Promise.all(needUpdate.map( (d) => d.update())).then(
-            () => { uiState.updateShownData(); },
+            () => { uiState.updateShownData(); console.log("DEBUG: update tag update UI");},
             () => { 
                 uiState.showPopup("Tag rename succeded at server side, but faild to fetch update, please reload the page", 'error') 
             },
