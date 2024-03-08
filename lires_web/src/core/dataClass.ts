@@ -407,6 +407,14 @@ export class DataBase {
         return res;
     }
 
+    async agetByAuthor(author: string): Promise<DataPoint[]>{
+        const res = await this.conn.filter({
+            searchBy: "author",
+            searchContent: author,
+        });
+        return await this.agetMany(res.uids);
+    }
+
     getAllTags() : DataTags {
         return this.tags;
         // let _tags: string[];

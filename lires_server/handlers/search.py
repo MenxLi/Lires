@@ -25,9 +25,21 @@ class BasicFilterHandler(RequestHandlerBase):
         search_content = self.get_argument("search_content")
         top_k = int(self.get_argument("top_k"))
 
+        await self.logger.debug(f"tags: {tags}, search_by: {search_by}, search_content: {search_content}, top_k: {top_k}")
+
         # Get the data
-        cadidate_ids = await self.db.getIDByTags(tags)
-        res = cadidate_ids
+        if (not search_content) and (not tags):
+            return self.write(json.dumps({
+                'uids': await self.db.keys(),
+                'scores': None
+            }))
+
+        if tags:
+            cadidate_ids = await self.db.getIDByTags(tags)
+            res = cadidate_ids
+        else:
+            cadidate_ids = None
+            res = await self.db.keys()
         scores = None
 
         if not search_content:
@@ -58,7 +70,7 @@ class BasicFilterHandler(RequestHandlerBase):
         
         elif search_by == 'uuid':
             res = []
-            for uid in cadidate_ids:
+            for uid in await self.db.keys():
                 if uid.startswith(search_content):
                     res.append(uid)
         
@@ -72,6 +84,7 @@ class BasicFilterHandler(RequestHandlerBase):
         else:
             raise tornado.web.HTTPError(400, "Invalid search_by value")
         
+        await self.logger.debug(f"returning {len(res)} results.")
         self.write(json.dumps({
             'uids': res,
             'scores': scores

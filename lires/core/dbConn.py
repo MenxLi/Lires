@@ -495,7 +495,7 @@ class DBConnection(LiresBase):
         # build query
         query_conds = []
         query_items = []
-        if from_uids:
+        if from_uids is not None:
             query_conds.append("uuid IN ({})".format(",".join(["?"]*len(from_uids))))
             query_items.extend(from_uids)
         for [field, value] in [

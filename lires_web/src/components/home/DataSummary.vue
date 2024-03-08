@@ -5,7 +5,7 @@
     import { DataSearcher } from '../../core/dataClass';
     import type { SearchResultant } from '../../api/protocalT';
     import FileRowContainer from './FileRowContainer.vue';
-    import {useConnectionStore, useDataStore, formatAuthorName } from '../store';
+    import {useConnectionStore, useDataStore} from '../store';
 
     const props = defineProps<{
         datapoint: DataPoint
@@ -85,10 +85,39 @@
 
     const showAuthorPapers = ref("");
     const authorPapers = ref([] as DataPoint[]);
+
+    const allAuthorPapers = ref<Record<string, DataPoint[]>>({});
+    async function gatherAuthorPapers(){
+        const allAuthors = props.datapoint.authors;
+        const allPubs = await Promise.all(allAuthors.map((author) => {
+            return dataStore.database.agetByAuthor(author);
+        }))
+        allAuthorPapers.value = {};
+        for (let i = 0; i < allAuthors.length; i++){
+            allAuthorPapers.value[allAuthors[i]] = allPubs[i];
+        }
+    }
+
+    const authorDatabasePublicationCount = computed(()=>{
+        // return a map of author to publication count
+        const res: Record<string, number | null> = {};
+        for (const author in allAuthorPapers.value){
+            if (allAuthorPapers.value[author] && allAuthorPapers.value[author].length > 1){
+                res[author] = allAuthorPapers.value[author].length - 1;
+            }
+            else{
+                res[author] = null;
+            }
+        }
+        return res;
+    })
+
     function onClickAuthorPubCount(author: string){
-        author = formatAuthorName(author);
-        console.log("check publication of author: ", author);
-        authorPapers.value = dataStore.authorPublicationMap[author];
+        // author = formatAuthorName(author);
+        authorPapers.value = allAuthorPapers.value[author];
+        if (!authorPapers.value){
+            authorPapers.value = [];
+        }
         // remove self from authorPapers
         authorPapers.value = authorPapers.value.filter((dp)=>dp.summary.uuid != props.datapoint.summary.uuid);
         if (showAuthorPapers.value === author){
@@ -96,17 +125,9 @@
         }
         else{ showAuthorPapers.value = author; }
     }
-    function authorDatabasePublicationCount(author: string): null | number{
-        const pubMap = dataStore.authorPublicationMap;
-        author = formatAuthorName(author);
-        if (!(author in pubMap) || pubMap[author].length == 1){
-            return null;
-        }
-        let count = pubMap[author].length;
-        return count - 1;
-    }
 
     onMounted(() => {
+        gatherAuthorPapers();
         requestAISummary(false)
     });
 
@@ -138,8 +159,8 @@
                         <td id="authorTD">
                             <div v-for="author in datapoint.summary.authors">
                                 <span>{{ author }}</span>
-                                <a v-if="authorDatabasePublicationCount(author) !== null" @click="()=>onClickAuthorPubCount(author)">
-                                    ({{ authorDatabasePublicationCount(author) }})
+                                <a v-if="authorDatabasePublicationCount[author] !== null" @click="()=>onClickAuthorPubCount(author)">
+                                    ({{ authorDatabasePublicationCount[author] }})
                                 </a>
                             </div>
                         </td>

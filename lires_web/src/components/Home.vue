@@ -62,7 +62,7 @@ export default {
         console.log(status);
         uiState.updateShownData();
     }
-    const lazyOnSearchChanged = lazify(onSearchChanged, 200);
+    const lazyOnSearchChanged = lazify(onSearchChanged, 300);
 
     // adding new data
     const dataEditor = ref(null as null | typeof DataEditor);

@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import type { ArxivArticleWithFeatures } from '../Feed.vue';
     import { bibtexFromArxiv } from '../../utils/arxiv';
-    import {useConnectionStore, useDataStore, formatAuthorName } from '../store';
+    import {useConnectionStore, useDataStore } from '../store';
     import { DataPoint, DataSearcher } from '../../core/dataClass';
     import FileRowContainer from '../home/FileRowContainer.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';
@@ -26,23 +26,43 @@
         });
     }
 
-    function authorDatabasePublicationCount(author: string): null | number{
-        const pubMap = dataStore.authorPublicationMap;
-        author = formatAuthorName(author);
-        if (!(author in pubMap)){
-            // the author is not in the database
-            return null;
+    const allAuthorPapers = ref<Record<string, DataPoint[]>>({});
+    async function gatherAuthorPapers(){
+        const allAuthors = props.article.authors;
+        const allPubs = await Promise.all(allAuthors.map((author) => {
+            return dataStore.database.agetByAuthor(author);
+        }))
+        allAuthorPapers.value = {};
+        for (let i = 0; i < allAuthors.length; i++){
+            allAuthorPapers.value[allAuthors[i]] = allPubs[i];
         }
-        let count = pubMap[author].length;
-        return count;
     }
+    gatherAuthorPapers()
+
+    const authorDatabasePublicationCount = computed(()=>{
+        // return a map of author to publication count
+        const res: Record<string, number | null> = {};
+        for (const author in allAuthorPapers.value){
+            if (allAuthorPapers.value[author]){
+                res[author] = allAuthorPapers.value[author].length;
+            }
+            else{
+                res[author] = null;
+            }
+        }
+        return res;
+    })
 
     const showAuthorPapers = ref(false);
     const authorPapers = ref([] as DataPoint[]);
+
     function onClickAuthorPubCount(author: string){
-        author = formatAuthorName(author);
-        console.log("check publication of author: ", author);
-        authorPapers.value = dataStore.authorPublicationMap[author];
+        // author = formatAuthorName(author);
+        authorPapers.value = allAuthorPapers.value[author];
+        if (!authorPapers.value){
+            authorPapers.value = [];
+        }
+        // remove self from authorPapers
         showAuthorPapers.value = true;
     }
 
@@ -98,8 +118,8 @@
                 <label>[Authors] </label>
                 <span v-for="(author, index) in props.article.authors" class="authorSpan">
                     <a @click="()=>openURLExternal(`https://arxiv.org/search/?query=${author}&searchtype=author`)">{{ author }}</a>
-                    <a class="pubCount" v-if="authorDatabasePublicationCount(author)" @click="()=>onClickAuthorPubCount(author)">
-                        {{ ` (${authorDatabasePublicationCount(author)})` }}
+                    <a class="pubCount" v-if="authorDatabasePublicationCount[author]" @click="()=>onClickAuthorPubCount(author)">
+                        {{ ` (${authorDatabasePublicationCount[author]})` }}
                     </a>
                     <span v-if="index < props.article.authors.length - 1">, </span>
                 </span>
