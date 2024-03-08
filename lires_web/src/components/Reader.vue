@@ -21,49 +21,40 @@ export default {
     import eyeIcon from '../assets/icons/eye.svg';
     import { DataPoint } from '../core/dataClass';
 
-    function recordRecentlyRead(){
-        // some actions that should be reload when datapoint changes
-        uiStateStore.addRecentlyReadDataUID(uid.value);
-    }
-
     const dataStore = useDataStore();
     const uiStateStore = useUIStateStore();
     const route = useRoute();
     const router = useRouter();
-    const uid = computed(() => route.params.id as string)
     const datapoint = ref(dataStore.database.getDummy());
 
     async function updateDatapoint(): Promise<void>{
         const dp = await dataStore.database.aget(route.params.id as string);
         if (dp){ datapoint.value = dp; }
+
+        uiStateStore.addRecentlyReadDataUID(dp.uid);
+        dataStore.database.agetMany(uiStateStore.recentlyReadDataUIDs).then((dps)=>{
+            updateRecentReadMenuItems(dps);
+        })
+        console.log("Reader: updated datapoint", dp.summary.title, "uid", dp.uid);
     }
 
     watch(()=>route.params.id, ()=>{
-        recordRecentlyRead();
         updateDatapoint();
     })
 
-    const recentlyReadData = ref([] as DataPoint[])
-    const _updateRecentlyReadData =() => dataStore.database.agetMany(uiStateStore.recentlyReadDataUIDs).then((dps)=>{
-        recentlyReadData.value = dps;
-    })
-    watch(()=>uiStateStore.recentlyReadDataUIDs, ()=>{
-        _updateRecentlyReadData();
-    })
-    _updateRecentlyReadData();
-
-    const recentReadMenuItems = computed(()=>{
+    const recentReadMenuItems = ref([] as {name: string, action: ()=>void}[])
+    function updateRecentReadMenuItems(dps: DataPoint[]){
         const ret = [];
-        for (const dp of recentlyReadData.value){
+        for (const dp of dps){
             if (dp.summary.uuid === route.params.id) continue;
             ret.push({
                 name: dp.authorYear(),
                 action: ()=>{ router.push('/reader/' + dp.summary.uuid) }
             })
         }
-        return ret;
-    })
-
+        console.log("Reader: updated recent read menu items", ret);
+        recentReadMenuItems.value = ret;
+    }
 
     // 0: doc only
     // 1: note only
@@ -129,13 +120,9 @@ export default {
         readerBody.value!.noteEditor.preview = !readerBody.value!.noteEditor.preview;
     }
 
-    recordRecentlyRead();
-    updateDatapoint();
-
     onMounted(() => {
         // empty database check 
         console.log("Reader mounted");
-        recordRecentlyRead();
         updateDatapoint();
     })
 
