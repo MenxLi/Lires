@@ -1,6 +1,6 @@
 
 import { defineStore } from 'pinia'
-import { DataBase, DataSearcher, DataPoint } from '../core/dataClass'
+import { DataBase, DataPoint } from '../core/dataClass'
 import { UserPool } from '../core/user'
 import { DataTags } from '../core/tag'
 import { ServerConn } from '../api/serverConn'
@@ -189,6 +189,9 @@ export const useDataStore = defineStore(
         getters: {
             authorPublicationMap(): Record<string, DataPoint[]> {
                 const ret: Record<string, DataPoint[]> = {};
+                console.log("AuthorPublicationMap is deprecated");
+                return ret
+                // DEPRECATED!
                 console.log("Generating authorPublicationMap...") // debug
                 for (const data of this.database){
                     for (let author of data.summary.authors){

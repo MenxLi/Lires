@@ -469,6 +469,7 @@ interface FilteredDataT {
     scores: number[] | null,
 }
 export class DataSearcher{
+    // WILL BE DEPRECATED! move to server side
 
     // perform a search and sort on the datapoints
     static async filter(datapoints: DataPoint[], searchStatus: SearchStatus): Promise<FilteredDataT> {
