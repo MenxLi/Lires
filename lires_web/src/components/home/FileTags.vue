@@ -2,6 +2,7 @@
 <script setup lang="ts">
     import { watch, ref } from 'vue';
     import { DataTags } from '../../core/tag';
+    import type { DataPoint } from '../../core/dataClass';
     import { computed } from 'vue';
     import TagSelector from '../tags/TagSelector.vue';
     import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
@@ -16,18 +17,18 @@
 
     const ftPanel = ref<HTMLElement | null>(null);
 
-    const currentSelectedDatapoint = computed(() => {
-        if (useUIStateStore().unfoldedDataUIDs.length == 0){
-            return null;
-        }
+    const currentSelectedDatapoint = ref(null as DataPoint | null)
+    watch(() => uiState.unfoldedDataUIDs, ()=>{
+        if (uiState.unfoldedDataUIDs.length == 0){ currentSelectedDatapoint.value = null; }
         else{
             if (uiState.shownDataUIDs.includes(uiState.unfoldedDataUIDs[0])){
                 // make sure the unfolded datapoint is showed
-                return useDataStore().database.get(useUIStateStore().unfoldedDataUIDs[0]);
+                dataStore.database.aget(uiState.unfoldedDataUIDs[0]).then((dp)=>{
+                    currentSelectedDatapoint.value = dp;
+                })
             }
-            return null;
         }
-    });
+    })
 
     const highlightTags = computed(() => {
         if (currentSelectedDatapoint.value == null){

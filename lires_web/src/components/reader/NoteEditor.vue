@@ -26,6 +26,7 @@
     const mdEditor = ref<typeof MdEditor | null>(null);
 
     function fetchNote(){
+        if (props.datapoint.isDummy()){return;}
         props.datapoint.fetchNote().then(
             (note) => {
                 console.log('Note fetched')

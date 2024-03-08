@@ -71,8 +71,10 @@
                         uuids.push(uid);
                     }
                     const sortedDpSc = DataSearcher.sortByScore(uuids, scores);
-                    relatedArticles.value = sortedDpSc[0].map((uid) => dataStore.database.get(uid));
-                    relatedArticlesScores.value = sortedDpSc[1];
+                    dataStore.database.agetMany(sortedDpSc[0]).then((dps)=>{
+                        relatedArticles.value = dps;
+                        relatedArticlesScores.value = sortedDpSc[1];
+                    })
                 }
             )
     }

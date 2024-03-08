@@ -350,6 +350,9 @@ export class DataBase {
 
     getDummy(): DataPoint{ return new DataPoint(this.conn, _dummyDataSummary); }
 
+    /**
+     * @deprecated use async get instead,
+     */
     get(uuid: string): DataPoint{
         if (!(uuid in this.cache)){
             // return a dummy data point to avoid corrupted UI update on deletion of the data.
