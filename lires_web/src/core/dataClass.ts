@@ -303,7 +303,6 @@ export class DataBase {
     }
 
     async init(){
-        this.clear();
         await this.updateKeyCache();
         await this.updateTagCache();
         this._initliazed = true;

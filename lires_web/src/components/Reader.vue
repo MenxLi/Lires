@@ -38,9 +38,6 @@ export default {
         if (dp){ datapoint.value = dp; }
     }
 
-    recordRecentlyRead();
-    updateDatapoint();
-
     watch(()=>route.params.id, ()=>{
         recordRecentlyRead();
         updateDatapoint();
@@ -132,21 +129,14 @@ export default {
         readerBody.value!.noteEditor.preview = !readerBody.value!.noteEditor.preview;
     }
 
+    recordRecentlyRead();
+    updateDatapoint();
+
     onMounted(() => {
         // empty database check 
-        if (Object.keys(dataStore.database.cache).length === 0){
-            useUIStateStore().showPopup("Database not loaded or empty database.", "alert");
-            // periodically tries to update datapoint...
-            const interval = setInterval(() => {
-                useUIStateStore().showPopup("Trying to update datapoint...", "warning", 2000);
-                if (Object.keys(dataStore.database.cache).length !== 0){
-                    clearInterval(interval);
-                    updateDatapoint().then(()=>{ 
-                        useUIStateStore().showPopup("Datapoint updated.", "success", 3000);
-                    })
-                }
-            }, 750);
-        }
+        console.log("Reader mounted");
+        recordRecentlyRead();
+        updateDatapoint();
     })
 
 </script>
