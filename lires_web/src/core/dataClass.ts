@@ -296,12 +296,6 @@ export class DataBase {
         return this._initliazed;
     }
 
-    *[Symbol.iterator](): Iterator<DataPoint>{
-        for (let uid in this.cache){
-            yield this.cache[uid];
-        }
-    }
-
     async init(){
         await this.updateKeyCache();
         await this.updateTagCache();
