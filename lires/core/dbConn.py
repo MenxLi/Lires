@@ -411,6 +411,7 @@ class DBConnection(LiresBase):
 
         # check if authors changed and maybe update cache
         if set(old_entry["authors"]) != set(authors):
+            await self.logger.debug("(db_conn) Updating author cache for {}".format(uuid))
             await self.cache.removeAuthorCache(uuid, old_entry["authors"])
             await self.cache.addAuthorCache(uuid, authors)
 
@@ -424,6 +425,7 @@ class DBConnection(LiresBase):
 
         # check if tags changed and maybe update cache
         if set(old_entry["tags"]) != set(tags):
+            await self.logger.debug("(db_conn) Updating tag cache for {}".format(uuid))
             await self.cache.removeTagCache(uuid, old_entry["tags"])
             await self.cache.addTagCache(uuid, tags)
 
@@ -664,6 +666,8 @@ class DBConnectionCache(LiresBase):
                 continue
             entries: list[str] = json.loads(ret[0])
             entries.remove(uuid)
+            if not entries:
+                await self.conn.execute("DELETE FROM tags WHERE tag=?", (tag,))
             await self.conn.execute("UPDATE tags SET entries=? WHERE tag=?", (json.dumps(entries), tag))
     
     async def removeAuthorCache(self, uuid: str, authors: list[str]):
@@ -674,6 +678,8 @@ class DBConnectionCache(LiresBase):
                 continue
             entries: list[str] = json.loads(ret[0])
             entries.remove(uuid)
+            if not entries:
+                await self.conn.execute("DELETE FROM authors WHERE author=?", (author,))
             await self.conn.execute("UPDATE authors SET entries=? WHERE author=?", (json.dumps(entries), author))
     
     async def addTagCache(self, uuid: str, tags: list[str]):
