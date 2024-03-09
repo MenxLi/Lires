@@ -176,8 +176,7 @@ class DataBase(DataCore):
     async def authors(self) -> list[str]:
         return await self.conn.authors()
     async def keys(self) -> List[str]:
-        return await self.conn.keys()
-    
+        return await self.conn.keys(sortby="time_import", reverse=True)
     async def has(self, uuid: str) -> bool:
         return await self.conn.get(uuid) is not None
     async def get(self, uuid: str) -> DataPoint:

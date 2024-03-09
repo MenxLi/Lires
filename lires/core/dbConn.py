@@ -209,10 +209,14 @@ class DBConnection(LiresBase):
         return await self.cache.allAuthors()
     async def tags(self) -> list[str]:
         return await self.cache.allTags()
-    async def keys(self) -> list[str]:
+    async def keys(self, sortby = None, reverse = False) -> list[str]:
         """ Return all uuids """
-        async with self.conn.execute("SELECT uuid FROM files") as cursor:
-            return [row[0] for row in await cursor.fetchall()]
+        if not sortby:
+            async with self.conn.execute("SELECT uuid FROM files") as cursor:
+                return [row[0] for row in await cursor.fetchall()]
+        else:
+            async with self.conn.execute("SELECT uuid FROM files ORDER BY {} {}".format(sortby, "DESC" if reverse else "ASC")) as cursor:
+                return [row[0] for row in await cursor.fetchall()]
     async def checkNoneExist(self, uuids: list[str]) -> list[str]:
         """Check if uuids exist, return those not exist """
         async with self.conn.execute("SELECT uuid FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids) as cursor:
