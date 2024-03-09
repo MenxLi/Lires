@@ -44,15 +44,16 @@ def cachedStaticFileHandlerFactory(cache_seconds):
             return cache_seconds
     return _CacheStaticFileHandler
 
+NoCacheStaticFileHandler = cachedStaticFileHandlerFactory(0)
 class Application(tornado.web.Application):
     def __init__(self, debug = False) -> None:
         # will use simple storage service protocal (put, get, delete) to store data, when applicable
         handlers = [
             # Frontend
-            (r'/()', StaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
-            (r'/(index.html)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(favicon.ico)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(assets/.*)', StaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/()', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
+            (r'/(index.html)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(assets/.*)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
             (r'/(docs/.*)', cachedStaticFileHandlerFactory(cache_seconds=600), {"path": LRSWEB_SRC_ROOT}),
 
             # websocket
