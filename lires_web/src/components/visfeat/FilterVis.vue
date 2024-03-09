@@ -20,7 +20,7 @@
             return {};
         }
         // filter out the features that are not in the database
-        const allUIDs = Object.keys(dataStore.database.cache);
+        const allUIDs = dataStore.database.allKeys();
         const ret = {} as DatabaseFeature;
         for (const uid of allUIDs){
             if (featsRaw.value[uid]){
@@ -120,7 +120,7 @@
         else{
             shownPoints = await getPointsGroupFrom(deepCopy(uiState.shownDataUIDs));    // must use deepCopy here!
         }
-        const allUIDs = Object.keys(dataStore.database.cache);
+        const allUIDs = dataStore.database.allKeys();
         const remainUIDs = allUIDs.filter((uid)=>uiState.shownDataUIDs.indexOf(uid) == -1);
 
         const remainPoints = await getPointsGroupFrom(remainUIDs, 

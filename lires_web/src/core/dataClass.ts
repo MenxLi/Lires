@@ -276,9 +276,9 @@ const _dummyDataSummary: DataInfoT = {
 }
 
 export class DataBase {
-    cache: Record<string, DataPoint>;
-    tags: DataTags;
-    uids: string[];
+    private cache: Record<string, DataPoint>;
+    private tags: DataTags;
+    private uids: string[];
     conn: ServerConn;
     _initliazed: boolean;
 
@@ -306,6 +306,8 @@ export class DataBase {
                  * 2 / 1024 / 1024
             ).toPrecision(2), "MB");
     }
+    allTags() : DataTags { return this.tags; }
+    allKeys() : string[] { return this.uids; }
     async updateKeyCache(){ this.uids = await this.conn.reqAllKeys(); }
     async updateTagCache(){ this.tags = new DataTags(await this.conn.reqAllTags()); }
 
@@ -368,6 +370,7 @@ export class DataBase {
             }
             // done with a single request, this is faster but require all uids to be exist
             const notCachedSummaries = await this.conn.reqDatapointSummaries(notCached);
+            console.log("DEBUG: get data points of size: ", notCachedSummaries.length)
             // assamble the result
             const notCachedDps = notCachedSummaries.map((summary) => new DataPoint(this.conn, summary));
             const datapoints = uuids.map((uid) => {
@@ -392,10 +395,6 @@ export class DataBase {
             searchContent: author,
         });
         return await this.agetMany(res.uids);
-    }
-
-    allTags() : DataTags {
-        return this.tags;
     }
 
     getCacheByTags(tags: string[]| DataTags): DataPoint[] {
