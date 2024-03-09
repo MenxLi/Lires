@@ -725,7 +725,7 @@ version_history:
     - Features:
       - Settings
       - Set page capacity
-      - Past to abstract without format
+      - Paste to abstract without format
     - UI:
       - Larger bibtex text size
     - Refactors:
