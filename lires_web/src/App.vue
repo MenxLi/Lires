@@ -126,19 +126,14 @@
     registerServerEvenCallback(['delete_tag', 'update_tag'], (event: any) =>{
         const oldTag = new DataTags([(event as Event_Tag).src_tag!]);
         const dataStore = useDataStore();
-        // update database cache tag
-        dataStore.database.tags.pop_(oldTag);
-        if ((event as Event_Tag).dst_tag){
-            dataStore.database.tags.add((event as Event_Tag).dst_tag!);
-        }
-        // update shown data
-        const needUpdate = dataStore.database.getCacheByTags(oldTag);
-        Promise.all(needUpdate.map( (d) => d.update())).then(
-            () => { uiState.updateShownData(); console.log("DEBUG: update tag update UI");},
-            () => { 
-                uiState.showPopup("Tag rename succeded at server side, but faild to fetch update, please reload the page", 'error') 
-            },
-        )
+        (async function onTagChange() {
+            // update database cache tag
+            await dataStore.database.updateTagCache();
+            // update shown data
+            const needUpdate = dataStore.database.getCacheByTags(oldTag);
+            await Promise.all(needUpdate.map( (d) => d.update()));
+            uiState.updateShownData(); console.log("DEBUG: update tag update UI")
+        })();
     })
     registerServerEvenCallback('update_user', (event)=>{
         if ((event as Event_User).username === useDataStore().user.username){
