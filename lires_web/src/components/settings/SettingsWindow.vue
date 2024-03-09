@@ -3,6 +3,7 @@
     import UserCard from './UserCard.vue';
     import ConfigTheme from './ConfigTheme.vue';
     import ConfigShowTags from './ConfigShowTags.vue';
+    import ConfigPageCapacity from './ConfigPageCapacity.vue';
 
     import { useDataStore } from '../store';
 
@@ -29,6 +30,7 @@
         </div>
 
         <ConfigTheme/>
+        <ConfigPageCapacity/>
         <ConfigShowTags/>
     </div>
 </template>

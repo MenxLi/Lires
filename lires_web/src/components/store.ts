@@ -230,6 +230,7 @@ export const useSettingsStore = defineStore(
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
+                __numItemsPerPage: localStorage.getItem("numItemsPerPage") || "50",
 
                 // backend host and port are stored in sessionStorage, 
                 // unless user change it manually when login or via url parameters, 
@@ -260,6 +261,9 @@ export const useSettingsStore = defineStore(
             readerLayoutType(): number{
                 return parseInt(this.__readerLayoutType);
             },
+            numItemsPerPage(): number{
+                return parseInt(this.__numItemsPerPage);
+            }
         },
         "actions": {
             setEncKey(key: string, keep: boolean){
@@ -296,10 +300,13 @@ export const useSettingsStore = defineStore(
                 this.__readerLayoutType = type.toString();
                 localStorage.setItem("readerLayoutType", type.toString());
             },
+            setNumItemsPerPage(num: number){
+                this.__numItemsPerPage = num.toString();
+                localStorage.setItem("numItemsPerPage", num.toString());
+            },
 
             // no corresponding setter for the following getter
             backend(): string {
-                // console.log("backendUrl: ", `${this.backendHost}:${this.backendPort}`);
                 return `${this.backendHost}:${this.backendPort}`
             }
         },

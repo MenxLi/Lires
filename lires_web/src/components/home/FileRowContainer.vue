@@ -1,7 +1,7 @@
 <!-- a container that governs the display of multiple FileRow components -->
 <script setup lang="ts">
     import { computed, ref, watch } from 'vue';
-    import { useDataStore } from '../store';
+    import { useDataStore, useSettingsStore } from '../store';
     import FileRow from './FileRow.vue';
     import { type DataPoint } from '../../core/dataClass';
     import { EditableParagraph } from '../common/fragments';
@@ -62,26 +62,26 @@
     const datacardContainer = ref(null as HTMLDivElement | null);
     const pageIndicatorEditableParagrah = ref(null as any | null);
     const shownPage = ref(0);
-    const shownNumPerPage = ref(100);
+    const settings = useSettingsStore();
     const displayDatapoints = ref([] as DataPoint[]);
 
     // change shownDatapoints when props.uids changes or shownPage changes or shownNumPerPage changes
     function updateDisplayDatapoints(){
-        const startIdx = shownPage.value * shownNumPerPage.value;
-        const endIdx = Math.min(startIdx + shownNumPerPage.value, props.uids.length);
+        const startIdx = shownPage.value * settings.numItemsPerPage;
+        const endIdx = Math.min(startIdx + settings.numItemsPerPage, props.uids.length);
         const displayUIDs = props.uids.slice(startIdx, endIdx);
         useDataStore().database.agetMany(displayUIDs).then((dps)=>{
             displayDatapoints.value = dps;
         })
     }
-    watch([()=>props.uids, ()=>shownPage.value, ()=>shownNumPerPage.value], ()=>{
-        if (props.uids.length < shownPage.value * shownNumPerPage.value){ shownPage.value = 0; }
+    watch([()=>props.uids, ()=>shownPage.value, ()=>settings.numItemsPerPage], ()=>{
+        if (props.uids.length < shownPage.value * settings.numItemsPerPage){ shownPage.value = 0; }
         updateDisplayDatapoints();
     })
     updateDisplayDatapoints();
 
     const onNextPage = ()=>{
-        if (shownPage.value >= Math.ceil(props.uids.length / shownNumPerPage.value) - 1){ return; }
+        if (shownPage.value >= Math.ceil(props.uids.length / settings.numItemsPerPage) - 1){ return; }
         shownPage.value++;
         pageIndicatorEditableParagrah.value!.setText("" + (shownPage.value + 1));
         datacardContainer.value?.scrollTo({top: 0, behavior: 'auto'});  // auto, smooth, instant
@@ -116,18 +116,18 @@
                 </label>
             </FileRow>
         </div>
-        <div id="datacard-container-footer" v-if="uids.length > shownNumPerPage">
+        <div id="datacard-container-footer" v-if="uids.length > settings.numItemsPerPage">
             <button @click="onPrevPage" :disabled="shownPage == 0">Prev</button>
             <span style="margin-left: 10px; margin-right: 10px; display: flex; gap: 5px">
                 <EditableParagraph ref="pageIndicatorEditableParagrah" @finish="(val: any) => {
-                    if(parseInt(val) > 0 && parseInt(val) <= Math.ceil(uids.length / shownNumPerPage)){
+                    if(parseInt(val) > 0 && parseInt(val) <= Math.ceil(uids.length / settings.numItemsPerPage)){
                         shownPage = parseInt(val) - 1;
                     }}">
                     {{shownPage + 1}}
-                </EditableParagraph> / <p>{{ Math.ceil(uids.length / shownNumPerPage) }}</p>
+                </EditableParagraph> / <p>{{ Math.ceil(uids.length / settings.numItemsPerPage) }}</p>
             </span>
 
-            <button @click="onNextPage" :disabled="shownPage >= Math.ceil(uids.length / shownNumPerPage) - 1">Next</button>
+            <button @click="onNextPage" :disabled="shownPage >= Math.ceil(uids.length / settings.numItemsPerPage) - 1">Next</button>
         </div>
     </div>
 </template>
