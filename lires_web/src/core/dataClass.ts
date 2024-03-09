@@ -3,10 +3,7 @@ import type { ServerConn } from "../api/serverConn";
 import {useSettingsStore } from "../components/store";
 import { DataTags } from "./tag";
 
-// function apiURL(){
-//     return `${getBackendURL()}/api`;
-// }
-
+import { Mutex } from "async-mutex";
 
 export class DataPoint {
     summary: DataInfoT;
@@ -279,6 +276,8 @@ export class DataBase {
     private cache: Record<string, DataPoint>;
     private tags: DataTags;
     private uids: string[];
+    private dataInfoAcquireMutex = new Mutex();
+
     conn: ServerConn;
     _initliazed: boolean;
 
@@ -362,23 +361,29 @@ export class DataBase {
 
     async agetMany(uuids: string[], strict_exist = true): Promise<DataPoint[]>{
         if (strict_exist){
-            // optimize for the case where all uuids are surely exist in the database
-            const cachedIds = Object.keys(this.cache);
-            const notCached = uuids.filter((uid) => !cachedIds.includes(uid));
-            if (notCached.length === 0){
-                return uuids.map((uid) => this.cache[uid]);
-            }
-            // done with a single request, this is faster but require all uids to be exist
-            const notCachedSummaries = await this.conn.reqDatapointSummaries(notCached);
-            console.log("DEBUG: get data points of size: ", notCachedSummaries.length)
-            // assamble the result
-            const notCachedDps = notCachedSummaries.map((summary) => new DataPoint(this.conn, summary));
-            const datapoints = uuids.map((uid) => {
-                if (notCached.includes(uid)){
-                    return notCachedDps[notCached.indexOf(uid)];
+            this.dataInfoAcquireMutex.acquire();
+            try{
+                // optimize for the case where all uuids are surely exist in the database
+                const cachedIds = Object.keys(this.cache);
+                const notCached = uuids.filter((uid) => !cachedIds.includes(uid));
+                if (notCached.length === 0){
+                    return uuids.map((uid) => this.cache[uid]);
                 }
-                return this.cache[uid];
-            })
+                // done with a single request, this is faster but require all uids to be exist
+                const notCachedSummaries = await this.conn.reqDatapointSummaries(notCached);
+                console.log("DEBUG: get data points of size: ", notCachedSummaries.length)
+                // assamble the result
+                const notCachedDps = notCachedSummaries.map((summary) => new DataPoint(this.conn, summary));
+                // save to cache
+                notCachedDps.forEach((dp) => {
+                    this.cache[dp.uid] = dp;
+                })
+            }
+            catch(err){ throw err; }
+            finally{ this.dataInfoAcquireMutex.release(); }
+
+            // return the result
+            const datapoints = uuids.map((uid) => this.cache[uid]);
             return datapoints;
         }
 
