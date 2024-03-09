@@ -120,7 +120,7 @@ export const useUIStateStore = defineStore(
                     },
                     () => {
                         useUIStateStore().databaseLoadingStatus.nTotal = -1
-                        useUIStateStore().tagStatus.all = useDataStore().database.getAllTags();
+                        useUIStateStore().tagStatus.all = useDataStore().database.allTags();
                         this.updateShownData(); 
                     },
                     () => {
@@ -172,7 +172,7 @@ export const useDataStore = defineStore(
         },
         getters: {
             allTags(): DataTags {
-                return this.database.getAllTags();
+                return this.database.allTags();
             },
         },
         actions: {

@@ -57,7 +57,7 @@
     function queryRenameTag(){
         const oldTag = prompt("Old tag");
         // check if oldTag is valid
-        if (oldTag && dataStore.database.getAllTags().has(oldTag)){
+        if (oldTag && dataStore.database.allTags().has(oldTag)){
             const newTag = prompt("New tag");
             if (newTag){
                 useConnectionStore().conn.renameTag(oldTag, newTag).then(
@@ -72,7 +72,7 @@
     }
     function queryDeleteTag(){
         const tag = prompt("Tag to delete");
-        if (tag && dataStore.database.getAllTags().has(tag)){
+        if (tag && dataStore.database.allTags().has(tag)){
             if (!confirm(`Are you sure to delete tag "${tag}"?`)){
                 return;
             }

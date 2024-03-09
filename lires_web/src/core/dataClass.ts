@@ -412,17 +412,8 @@ export class DataBase {
         return await this.agetMany(res.uids);
     }
 
-    getAllTags() : DataTags {
+    allTags() : DataTags {
         return this.tags;
-        // let _tags: string[];
-        // let all_tags: Set<string> = new Set();
-        // for (const data of this){
-        //     _tags = data.summary["tags"];;
-        //     for (const t of _tags){
-        //         all_tags.add(t);
-        //     }
-        // }
-        // return new DataTags(all_tags);
     }
 
     getCacheByTags(tags: string[]| DataTags): DataPoint[] {
