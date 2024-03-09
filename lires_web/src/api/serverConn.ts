@@ -98,7 +98,12 @@ export class ServerConn {
     }
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
-        return await this.fetcher.get(`/api/fileinfo/${uid}`).then(res=>res.json());
+        return await this.fetcher.get(`/api/data/${uid}`).then(res=>res.json());
+    }
+    async reqDatapointSummaries( uids: string[] ): Promise<DataInfoT[]>{
+        return await this.fetcher.post(`/api/datalist`, {
+            uids: JSON.stringify(uids),
+        }).then(res=>res.json());
     }
 
     async reqReloadDB(): Promise<boolean>{

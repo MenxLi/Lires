@@ -213,6 +213,11 @@ class DBConnection(LiresBase):
         """ Return all uuids """
         async with self.conn.execute("SELECT uuid FROM files") as cursor:
             return [row[0] for row in await cursor.fetchall()]
+    async def checkNoneExist(self, uuids: list[str]) -> list[str]:
+        """Check if uuids exist, return those not exist """
+        async with self.conn.execute("SELECT uuid FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids) as cursor:
+            exist = [row[0] for row in await cursor.fetchall()]
+        return list(set(uuids).difference(exist))
     
     async def get(self, uuid: str) -> Optional[DBFileInfo]:
         """
@@ -237,7 +242,7 @@ class DBConnection(LiresBase):
         async with self.conn.execute("SELECT * FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids) as cursor:
             rows = await cursor.fetchall()
         if len(list(rows)) != len(uuids):
-            raise ValueError("Some uuids not found")
+            raise self.Error.LiresEntryNotFoundError("Some uuids not found")
         ret = [self.__formatRow(row) for row in rows]
         return ret
     

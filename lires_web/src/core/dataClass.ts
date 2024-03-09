@@ -361,21 +361,6 @@ export class DataBase {
 
     getDummy(): DataPoint{ return new DataPoint(this.conn, _dummyDataSummary); }
 
-    /**
-     * @deprecated use async get instead,
-     */
-    get(uuid: string): DataPoint{
-        if (!(uuid in this.cache)){
-            // return a dummy data point to avoid corrupted UI update on deletion of the data.
-            // A deletion may trigger UI update which refers to the deleted data via this function, and get undefined
-            // I found this is tricky, but works... 
-            // (The returned datapoint is temporary, after the entire UI update, the data point should be garbage collected)
-            // TODO: find a better way to handle this
-            return new DataPoint(this.conn, _dummyDataSummary);    
-        }
-        return this.cache[uuid];
-    }
-
     async aget(uid: string): Promise<DataPoint>{
         // will shift to async get in the future
         if (!(uid in this.cache)){
@@ -391,12 +376,32 @@ export class DataBase {
         return this.cache[uid];
     }
 
-    async agetMany(uuids: string[]): Promise<DataPoint[]>{
-        const res = await Promise.all(uuids.map((uid) => {
-            // TODO: should be done with a single request
+    async agetMany(uuids: string[], strict_exist = true): Promise<DataPoint[]>{
+        if (strict_exist){
+            // optimize for the case where all uuids are surely exist in the database
+            const cachedIds = Object.keys(this.cache);
+            const notCached = uuids.filter((uid) => !cachedIds.includes(uid));
+            if (notCached.length === 0){
+                return uuids.map((uid) => this.cache[uid]);
+            }
+            // done with a single request, this is faster but require all uids to be exist
+            const notCachedSummaries = await this.conn.reqDatapointSummaries(notCached);
+            // assamble the result
+            const notCachedDps = notCachedSummaries.map((summary) => new DataPoint(this.conn, summary));
+            const datapoints = uuids.map((uid) => {
+                if (notCached.includes(uid)){
+                    return notCachedDps[notCached.indexOf(uid)];
+                }
+                return this.cache[uid];
+            })
+            return datapoints;
+        }
+
+        // done in parallel, handle the case where some uids are not exist
+        const datapoints = await Promise.all(uuids.map((uid) => {
             return this.aget(uid);
         }));
-        return res;
+        return datapoints;
     }
 
     async agetByAuthor(author: string): Promise<DataPoint[]>{

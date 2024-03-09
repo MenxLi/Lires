@@ -92,9 +92,14 @@
                         uuids.push(uid);
                     }
                     const sortedDpSc = sortByScore(uuids, scores);
-                    dataStore.database.agetMany(sortedDpSc[0]).then((dps)=>{
+                    dataStore.database.agetMany(sortedDpSc[0], false).then((dps)=>{
                         relatedArticles.value = dps;
-                        relatedArticlesScores.value = sortedDpSc[1];
+                        // filter out scores of non-exist dps
+                        const realExistScores = [];
+                        for (const dp of dps){
+                            realExistScores.push(res[dp.summary.uuid]?.score!);
+                        }
+                        relatedArticlesScores.value = realExistScores;
                     })
                 }
             )

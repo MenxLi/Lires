@@ -65,7 +65,7 @@
 
         if (fromContent == '') return;
         const res = await serverConn.search("searchFeature", {"pattern": fromContent , "n_return": 9});
-        const dps: DataPoint[] = await dataStore.database.agetMany(Object.keys(res));
+        const dps: DataPoint[] = await dataStore.database.agetMany(Object.keys(res), false);
         const scores: number[] = new Array();
         for (const dp of dps){
             if (res[dp.summary.uuid]){

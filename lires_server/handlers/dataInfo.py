@@ -61,16 +61,6 @@ class DataListStreamHandler(DataListHandler):
             self.write("\\N")
             self.flush()
 
-class DataInfoHandler(RequestHandlerBase):
-    """
-    Query information about a single file
-    """
-    @keyRequired
-    async def get(self, uid:str):
-        dp: DataPoint = await self.db.get(uid)
-        self.write(json.dumps(dp.summary.json()))
-        return
-
 class DatabaseKeysHandler(RequestHandlerBase):
     """ Get summary of the database """
     @keyRequired
@@ -85,6 +75,17 @@ class DatabaseTagsHandler(RequestHandlerBase):
             (await self.db.tags()).toOrderedList()
             ))
         return
+
+class DataInfoHandler(RequestHandlerBase):
+    """
+    Query information about a single file
+    """
+    @keyRequired
+    async def get(self, uid:str):
+        dp: DataPoint = await self.db.get(uid)
+        self.write(json.dumps(dp.summary.json()))
+        return
+
 class DataInfoListHandler(RequestHandlerBase):
     """
     Query information about a single file
@@ -92,6 +93,16 @@ class DataInfoListHandler(RequestHandlerBase):
     @keyRequired
     async def post(self):
         uids: list[str] = json.loads(self.get_argument("uids"))
-        all_dp = await self.db.gets(uids)
+        try:
+            all_dp = await self.db.gets(uids)
+        except self.Error.LiresEntryNotFoundError:
+            self.set_status(404)
+            self.write(
+                "Some data points are not found: {}"
+                .format(self.db.conn.checkNoneExist(uids))
+                )
+            return
+
+        await self.logger.debug("emit data info list of size: {}".format(len(all_dp)))
         self.write(json.dumps([dp.summary.json() for dp in all_dp]))
         return
