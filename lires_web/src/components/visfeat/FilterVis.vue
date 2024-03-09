@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import Plot3d from './Plot3d.vue';
     import LoadingWidget from '../common/LoadingWidget.vue';
-    import { ref, computed, watch } from 'vue';
+    import { ref, computed, watch, onMounted } from 'vue';
     import { useConnectionStore, useDataStore, useUIStateStore, useSettingsStore } from '../store';
     import { deepCopy } from '../../core/misc';
     import { ThemeMode } from '../../core/misc';
@@ -153,32 +153,29 @@
         console.log("dataset size: ", datasetSize, "perp: ", perp);
         featsRaw.value = await conn.reqDatabaseFeatureTSNE("doc_feature", 3, perp);
     }
-    function onToggleDetail(ev:Event){
-        if (ev.target instanceof HTMLDetailsElement){
-            if (ev.target.open){
-                settingsStore.setShow3DScatterPlot(true);
-                fetchFeaturess();
-            }
-            else{
-                settingsStore.setShow3DScatterPlot(false);
-            }
-        }
-    }
 
+    
+    watch(()=>settingsStore.show3DScatterPlot, (v)=>{
+        if (v){
+            fetchFeaturess();
+        }
+    })
+    onMounted(()=>{
+        if (settingsStore.show3DScatterPlot){
+            fetchFeaturess();
+        }
+    })
 </script>
 
 <template>
     <div id="main-filtervis">
-        <details @toggle="onToggleDetail" :open="settingsStore.show3DScatterPlot">
-            <summary>Visualization</summary>
-            <div id="plot3dDiv">
-                <Plot3d :data="plotPoints?plotPoints:[]" ref="plot3DRef"></Plot3d>
-                <div id="loadingDiv" class="full" v-if="!dataObtained">
-                    <LoadingWidget v-if="featsRaw === null"></LoadingWidget>
-                    <p class="status" v-else>Data not ready</p>
-                </div>
+        <div id="plot3dDiv" v-if="settingsStore.show3DScatterPlot">
+            <Plot3d :data="plotPoints?plotPoints:[]" ref="plot3DRef"></Plot3d>
+            <div id="loadingDiv" class="full" v-if="!dataObtained">
+                <LoadingWidget v-if="featsRaw === null"></LoadingWidget>
+                <p class="status" v-else>Data not ready</p>
             </div>
-        </details>
+        </div>
     </div>
 </template>
 
@@ -188,19 +185,6 @@
         margin-top: 5px;
         width: 100%;
         height: 100%;
-    }
-
-    details{
-        margin: 0px;
-        margin-left: 15px;
-        margin-right: 15px;
-        padding: 0px;
-        width: 100%;
-    }
-    summary{
-        text-align: left;
-        font-weight: bold;
-        margin: 0px;
     }
 
     .full{

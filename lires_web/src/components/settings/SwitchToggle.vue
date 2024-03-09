@@ -9,18 +9,18 @@
     const isChecked = ref(props.checked)
 
     const emit = defineEmits<{
-        (e: "onChange", checkStatus: boolean): void
         (e: "update:checked", checkStatus: boolean): void
     }>()
+
+    const checkerRef = ref(null as HTMLInputElement | null)
 </script>
 
 <template>
     <div class="switch-toggle">
         <input type="checkbox" id="toggle" v-model="isChecked" @change="()=>{
-            emit('onChange', isChecked);
             emit('update:checked', isChecked);
-            }">
-        <label for="toggle" class="switch"></label>
+            }" ref="checkerRef">
+        <label class="switch" @click="checkerRef?.click()"></label>
     </div>
 </template>
 
@@ -48,7 +48,7 @@
     transition: background-color 0.3s;
 }
 
-.switch-toggle .switch:before {
+.switch-toggle .switch::before {
     position: absolute;
     content: "";
     height: 0.84rem;
@@ -64,7 +64,7 @@
     background-color: #2196f3;
 }
 
-.switch-toggle input[type="checkbox"]:checked + .switch:before {
+.switch-toggle input[type="checkbox"]:checked + .switch::before {
     transform: translateX(0.8rem);
 }
 
@@ -72,7 +72,7 @@
 .dark .switch-toggle .switch {
     background-color: #666;
 }
-.dark .switch-toggle .switch:before {
+.dark .switch-toggle .switch::before {
     background-color: #aaa;
 }
 .dark .switch-toggle input[type="checkbox"]:checked + .switch {

@@ -3,10 +3,10 @@
     import UserCard from './UserCard.vue';
     import ConfigTheme from './ConfigTheme.vue';
     import ConfigShowTags from './ConfigShowTags.vue';
+    import ConfigShowScatterPlot from './ConfigShowScatterPlot.vue';
     import ConfigPageCapacity from './ConfigPageCapacity.vue';
 
     import { useDataStore } from '../store';
-
     const userInfo = useDataStore().user;   // is already a ref
 
 </script>
@@ -32,5 +32,6 @@
         <ConfigTheme/>
         <ConfigPageCapacity/>
         <ConfigShowTags/>
+        <ConfigShowScatterPlot/>
     </div>
 </template>
