@@ -129,11 +129,6 @@
         const selectedPoints = await getPointsGroupFrom(deepCopy(uiState.unfoldedDataUIDs), 'rgb(255, 0, 0)');
         plotPoints.value = [shownPoints, remainPoints, selectedPoints];
     }
-    watch(()=>uiState.shownDataUIDs, ()=>{
-        updatePlotPoints();
-    })
-
-
     const dataObtained = computed(()=>{
         return Object.keys(feats.value).length > 0;
     })
@@ -155,14 +150,21 @@
     }
 
     
+    watch(()=>uiState.shownDataUIDs, ()=>{
+        updatePlotPoints();
+    })
     watch(()=>settingsStore.show3DScatterPlot, (v)=>{
         if (v){
-            fetchFeaturess();
+            fetchFeaturess().then(()=>{
+                updatePlotPoints();
+            })
         }
     })
     onMounted(()=>{
         if (settingsStore.show3DScatterPlot){
-            fetchFeaturess();
+            fetchFeaturess().then(()=>{
+                updatePlotPoints();
+            })
         }
     })
 </script>
@@ -171,7 +173,7 @@
     <div id="main-filtervis">
         <div id="plot3dDiv" v-if="settingsStore.show3DScatterPlot">
             <Plot3d :data="plotPoints?plotPoints:[]" ref="plot3DRef"></Plot3d>
-            <div id="loadingDiv" class="full" v-if="!dataObtained">
+            <div id="loadingDiv" class="full" v-if="!dataObtained || !feats">
                 <LoadingWidget v-if="featsRaw === null"></LoadingWidget>
                 <p class="status" v-else>Data not ready</p>
             </div>
