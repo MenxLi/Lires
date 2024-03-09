@@ -716,3 +716,24 @@ version_history:
       - Support html and image document
     - UI:
       - Show credential on dashboard
+  1.6.0:
+    - Breaking changes:
+      - Data-info API change
+      - Frontend asynchrnous data loading
+      - All search to server-side
+      - Remove general search
+    - Features:
+      - Settings
+      - Set page capacity
+      - Past to abstract without format
+    - UI:
+      - Larger bibtex text size
+    - Refactors:
+      - Frontend global connection store
+      - Bump openai version
+    - Perf:
+      - Database reverse index
+    - Fix:
+      - Floating window use flex box for nested content
+      - Async build vector index
+      - Obsidian plugin
