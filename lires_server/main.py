@@ -75,13 +75,17 @@ class Application(tornado.web.Application):
 
             (r"/api/database/keys", DatabaseKeysHandler),
             (r"/api/database/tags", DatabaseTagsHandler),
-            (r"/api/datalist", DataInfoListHandler),
-            (r"/api/data/(.*)", DataInfoHandler),
+            (r"/api/datainfo-list", DataInfoListHandler),
+            (r"/api/datainfo/(.*)", DataInfoHandler),
 
             (r"/api/filelist", DataListHandler),                # will be deprecated
             (r"/api/filelist-stream", DataListStreamHandler),   # will be deprecated
-            (r"/api/fileinfo/(.*)", DataInfoHandler),           # will be deprecated
 
+            # additional information (supplementary data / resources) for each datapoint
+            (r"/api/datainfo-supp/note/(.*)", NoteGetHandler),
+            (r"/api/datainfo-supp/note-update/(.*)", NoteUpdateHandler),
+            (r"/api/datainfo-supp/abstract/(.*)", AbstractGetHandler),
+            (r"/api/datainfo-supp/abstract-update/(.*)", AbstractUpdateHandler),
             (r'/api/datafeat/tsne/(.*)', DataFeatureTSNEHandler),
 
             # iServer proxy
@@ -92,12 +96,6 @@ class Application(tornado.web.Application):
             (r"/api/dataman/update", DataUpdateHandler),
             (r"/api/dataman/tag-rename", TagRenameHandler),
             (r"/api/dataman/tag-delete", TagDeleteHandler),
-
-            # additional information (supplementary data / resources) for each datapoint
-            (r"/api/fileinfo-supp/note/(.*)", NoteGetHandler),
-            (r"/api/fileinfo-supp/note-update/(.*)", NoteUpdateHandler),
-            (r"/api/fileinfo-supp/abstract/(.*)", AbstractGetHandler),
-            (r"/api/fileinfo-supp/abstract-update/(.*)", AbstractUpdateHandler),
 
             # user
             (r"/api/user/list", UserListHandler),

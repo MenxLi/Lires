@@ -30,7 +30,7 @@ export class ServerConn {
         return await this.fetcher.get(`/api/database/tags`).then(res=>res.json());
     };
 
-    // get the file list in a streaming way
+    // get the file list in a streaming way, deprecated
     async reqFileListStream( 
         tags: string[] = [],
         onReceive: (data_: DataInfoT, nCurrent_: number, nTotal_: number)=>void = ()=>{},
@@ -98,10 +98,10 @@ export class ServerConn {
     }
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
-        return await this.fetcher.get(`/api/data/${uid}`).then(res=>res.json());
+        return await this.fetcher.get(`/api/datainfo/${uid}`).then(res=>res.json());
     }
     async reqDatapointSummaries( uids: string[] ): Promise<DataInfoT[]>{
-        return await this.fetcher.post(`/api/datalist`, {
+        return await this.fetcher.post(`/api/datainfo-list`, {
             uids: JSON.stringify(uids),
         }).then(res=>res.json());
     }
@@ -111,21 +111,21 @@ export class ServerConn {
     }
 
     async reqDatapointAbstract(uid: string): Promise<string>{
-        return await this.fetcher.get(`/api/fileinfo-supp/abstract/${uid}`).then(res=>res.text());
+        return await this.fetcher.get(`/api/datainfo-supp/abstract/${uid}`).then(res=>res.text());
     }
 
     async reqDatapointAbstractUpdate(uid: string, content: string): Promise<boolean>{
-        return await this.fetcher.post(`/api/fileinfo-supp/abstract-update/${uid}`, {
+        return await this.fetcher.post(`/api/datainfo-supp/abstract-update/${uid}`, {
             content: content,
         }).then((_) => true);
     }
 
     async reqDatapointNote( uid: string ): Promise<string>{
-        return await this.fetcher.get(`/api/fileinfo-supp/note/${uid}`).then(res=>res.text());
+        return await this.fetcher.get(`/api/datainfo-supp/note/${uid}`).then(res=>res.text());
     }
 
     async reqDatapointNoteUpdate( uid: string, content: string ): Promise<boolean>{
-        return await this.fetcher.post(`/api/fileinfo-supp/note-update/${uid}`, {
+        return await this.fetcher.post(`/api/datainfo-supp/note-update/${uid}`, {
             content: content,
         }).then((_) => true);
         

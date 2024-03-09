@@ -309,24 +309,6 @@ export class DataBase {
     async updateKeyCache(){ this.uids = await this.conn.reqAllKeys(); }
     async updateTagCache(){ this.tags = new DataTags(await this.conn.reqAllTags()); }
 
-    // get the datalist in chunks
-    // THIS FUNCTION WILL BE DEPRECATED!
-    /**
-     * @deprecated use init instead
-     */
-    async requestDataStream(stepCallback: (nCurrent_: number, nTotal_: number) => void = () => {}){
-        await this.init()
-        const conn = this.conn;
-        await conn.reqFileListStream([], (data: DataInfoT, nCurrent: number, nTotal: number) => {
-            this.update(data);
-            stepCallback(nCurrent, nTotal);
-        });
-        console.log("Get datapoints of size: ",
-            (JSON.stringify(this.cache).length * 2 / 1024 / 1024)
-            .toPrecision(2), "MB");
-        this._initliazed = true;
-    }
-
     async update(summary: DataInfoT): Promise<DataPoint> {
         this.cache[summary.uuid] = new DataPoint(this.conn, summary);
         if (!this.uids.includes(summary.uuid)){

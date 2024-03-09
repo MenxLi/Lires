@@ -18,11 +18,11 @@ export default class LiresAPI {
     }
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
-        return await this._fetcher.get(`/api/fileinfo/${uid}`).then(res=>res.json());
+        return await this._fetcher.get(`/api/datainfo/${uid}`).then(res=>res.json());
     }
 
     async reqDatapointAbstract( uid: string ): Promise<string>{
-        return await this._fetcher.get(`/api/fileinfo-supp/abstract/${uid}`).then(res=>res.text());
+        return await this._fetcher.get(`/api/datainfo-supp/abstract/${uid}`).then(res=>res.text());
     }
 
 }
