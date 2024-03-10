@@ -539,10 +539,18 @@ class DBConnection(LiresBase):
             query_conds.append("year>=? AND year<?")
             query_items.extend(year)
 
+        # reverse for better debug info
+        query_conds.reverse()
+        query_items.reverse()
+
         if query_conds:
             # execute
             query = "SELECT uuid FROM files WHERE " + " AND ".join(query_conds)
-            await self.logger.debug("Executing query: {} | with items: {}".format(query, query_items))
+            await self.logger.debug(
+                "Executing query: {} | with items: {}"
+                .format(_q[:100] + "..." if len(_q:=str(query)) > 100 else _q, 
+                        _it[:100] + "..." if len(_it:=str(query_items)) > 100 else _it)
+                )
 
             async with self.conn.execute(
                 query, tuple(query_items)
