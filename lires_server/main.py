@@ -39,7 +39,7 @@ class StaticFileHandler(tornado.web.StaticFileHandler, RequestHandlerMixin, prin
         return await super().get(*args, **kwargs)
 
 def cachedStaticFileHandlerFactory(cache_seconds):
-    class _CacheStaticFileHandler(StaticFileHandler):
+    class _CacheStaticFileHandler(StaticFileHandler, print_init_info = False):
         def get_cache_time(self, path: str, modified: datetime | None, mime_type: str) -> int:
             return cache_seconds
     return _CacheStaticFileHandler
