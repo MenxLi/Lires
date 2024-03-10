@@ -19,7 +19,6 @@ export default {
     import DataEditor from "./home/DataEditor.vue";
     import addCircleIcon from "../assets/icons/add_circle.svg";
     import refreshIcon from "../assets/icons/refresh.svg";
-    import LoadingProgressPopout from "./common/LoadingProgressPopout.vue";
     import LoadingWidget from "./common/LoadingWidget.vue";
     import FilterVis from "./visfeat/FilterVis.vue";
 
@@ -148,11 +147,6 @@ export default {
                         </p>
                         <LoadingWidget v-else></LoadingWidget>
                     </div>
-
-                    <Transition name="fade">
-                        <LoadingProgressPopout v-if="!dataStore.database.initialized" :perc="uiState.databaseLoadingProgress" 
-                                :text="uiState.databaseLoadingStatus.nTotal >= 0?`${uiState.databaseLoadingStatus.nCurrent} / ${uiState.databaseLoadingStatus.nTotal}`:'_'"/>
-                    </Transition>
                 </div>
             </div>
         </div>
@@ -233,14 +227,6 @@ export default {
     }
     div.searchbar input {
         width: calc(100% - 80px);
-    }
-
-    .fade-leave-active {
-        transition: opacity 0.5s;
-    }
-
-    .fade-enter-from, .fade-leave-to {
-        opacity: 0;
     }
 
     .left-in-enter-active, .left-in-leave-active {

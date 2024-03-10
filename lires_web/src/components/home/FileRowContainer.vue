@@ -5,6 +5,7 @@
     import FileRow from './FileRow.vue';
     import { type DataPoint } from '../../core/dataClass';
     import { EditableParagraph } from '../common/fragments';
+    import LoadingPopout from '../common/LoadingPopout.vue';
 
     interface DataCardsStatus{
         // datapoints: DataPoint[],
@@ -64,14 +65,25 @@
     const shownPage = ref(0);
     const settings = useSettingsStore();
     const displayDatapoints = ref([] as DataPoint[]);
+    const dataReady = ref(false);
 
     // change shownDatapoints when props.uids changes or shownPage changes or shownNumPerPage changes
     function updateDisplayDatapoints(){
         const startIdx = shownPage.value * settings.numItemsPerPage;
         const endIdx = Math.min(startIdx + settings.numItemsPerPage, props.uids.length);
         const displayUIDs = props.uids.slice(startIdx, endIdx);
-        useDataStore().database.agetMany(displayUIDs).then((dps)=>{
+        const database = useDataStore().database;
+
+        // delay the dataReady signal
+        let _shouldShowLoadingSign = true;
+        (async ()=>{
+            await new Promise((resolve)=>setTimeout(resolve, 500));
+            if (_shouldShowLoadingSign){ dataReady.value = false; }
+        })()
+        database.agetMany(displayUIDs).then((dps)=>{
             displayDatapoints.value = dps;
+            _shouldShowLoadingSign = false;
+            dataReady.value = true;
         })
     }
     watch([()=>props.uids, ()=>shownPage.value, ()=>settings.numItemsPerPage], ()=>{
@@ -108,7 +120,7 @@
 <template>
     <div id="datacard-container-main">
         <div id="datacard-container" :style="{gap: compact?'0px':'5px'}" ref="datacardContainer" @scroll="onScroll" class="scrollable">
-            <FileRow v-for="dp, idx in displayDatapoints" :datapoint="(dp as DataPoint)" 
+            <FileRow :datapoint="(dp as DataPoint)" v-for="dp, idx in displayDatapoints" 
                     v-model:unfolded-ids="unfoldedIds" v-model:hovered-ids="hoveredIds"
                     :line_number="idx" :compact="compact">
                 <label class="relatedArticleScore" v-if="props.scores != null && props.scores[dp.summary.uuid] != null">
@@ -116,6 +128,9 @@
                 </label>
             </FileRow>
         </div>
+        <Transition name="fade" v-if="!dataReady">
+            <LoadingPopout text="Loading data..."></LoadingPopout>
+        </Transition>
         <div id="datacard-container-footer" v-if="uids.length > settings.numItemsPerPage">
             <button @click="onPrevPage" :disabled="shownPage == 0">Prev</button>
             <span style="margin-left: 10px; margin-right: 10px; display: flex; gap: 5px">
@@ -192,5 +207,15 @@
     }
     #datacard-container-footer button:disabled:hover{
         background-color: transparent;
+    }
+
+    .fade-enter-active,
+    .fade-leave-active {
+        transition: all 0.5s ease-in-out;
+    }
+
+    .fade-enter-from,
+    .fade-leave-to {
+        opacity: 0;
     }
 </style>
