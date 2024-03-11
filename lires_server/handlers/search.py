@@ -75,7 +75,18 @@ class BasicFilterHandler(RequestHandlerBase):
                     res.append(uid)
         
         elif search_by == 'feature':
-            res, scores = await searchByFeature(self.iconn, self.vec_db, search_content, top_k=top_k)
+            res_, scores_ = await searchByFeature(self.iconn, self.vec_db, search_content, top_k=top_k)
+            if cadidate_ids is not None:
+                candidate_set = set(cadidate_ids)    # convert to set may be faster?
+                res = []
+                scores = []
+                for uid, score in zip(res_, scores_):
+                    if uid in candidate_set:
+                        res.append(uid)
+                        scores.append(score)
+            else:
+                res = res_
+                scores = scores_
         
         elif search_by == 'author':
             # TODO: Optimize this to unify the author name

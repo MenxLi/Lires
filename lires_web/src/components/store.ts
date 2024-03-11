@@ -80,7 +80,6 @@ export const useUIStateStore = defineStore(
                     }
                 ).then(
                     (res) => {
-                        console.log("Got number of data: ", res.uids.length)
                         this.shownDataUIDs = res.uids;
                         this.shownDataScores = res.scores;
                     }
