@@ -150,7 +150,7 @@
     }
 
     
-    watch(()=>uiState.shownDataUIDs, ()=>{
+    watch(()=>[uiState.shownDataUIDs, uiState.unfoldedDataUIDs], ()=>{
         updatePlotPoints();
     })
     watch(()=>settingsStore.show3DScatterPlot, (v)=>{
