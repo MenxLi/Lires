@@ -144,7 +144,15 @@
             uiState.showPopup("Only the first file is loaded", "info");
         }
         const file = files[0];
-        if (file.type === "text/plain"){
+        if (file.type === "text/plain" || (
+            file.type === "" && ((fName: string) => {
+                const fExt = fName.split('.').pop()?.toLowerCase();
+                for (const ext of ["bibtex", "enw", "nbib", "txt", "bib"]){
+                    if (fExt === ext) return true;
+                }
+                return false;
+            })(file.name)
+        )){
             if (file.size < 64*1024){
                 const reader = new FileReader();
                 reader.onload = (e) => {
