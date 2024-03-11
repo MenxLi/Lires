@@ -352,15 +352,16 @@ export class DataBase {
                 this.cache[uid] = new DataPoint(this.conn, dpInfo);
             }
             catch(err){
-                console.error("Error in aget: ", err);
+                console.warn("Caught error in aget: ", err);
                 return new DataPoint(this.conn, _dummyDataSummary);
             }
         }
         return this.cache[uid];
     }
 
-    async agetMany(uuids: string[], strict_exist = true): Promise<DataPoint[]>{
-        if (strict_exist){
+    async agetMany(uuids: string[], strict_exist = true, fallback = true): Promise<DataPoint[]>{
+
+        const _getWithSingleRequest = async ()=>{
             this.dataInfoAcquireMutex.acquire();
             try{
                 // optimize for the case where all uuids are surely exist in the database
@@ -387,11 +388,27 @@ export class DataBase {
             return datapoints;
         }
 
-        // done in parallel, handle the case where some uids are not exist
-        const datapoints = await Promise.all(uuids.map((uid) => {
-            return this.aget(uid);
-        }));
-        return datapoints;
+        const _getWithParallelRequest = async ()=>{
+            // done in parallel, handle the case where some uids are not exist
+            const datapoints = await Promise.all(uuids.map((uid) => {
+                return this.aget(uid);
+            }));
+            return datapoints;
+        }
+
+        if (strict_exist){
+            try{ return await _getWithSingleRequest(); }
+            catch(err){
+                if (fallback){
+                    console.warn("Caught error in agetMany: ", err);
+                    return await _getWithParallelRequest();
+                }
+                else{
+                    throw err;
+                }
+            }
+        }
+        return await _getWithParallelRequest();
     }
 
     async agetByAuthor(author: string): Promise<DataPoint[]>{

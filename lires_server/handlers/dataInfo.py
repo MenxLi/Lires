@@ -82,7 +82,13 @@ class DataInfoHandler(RequestHandlerBase):
     """
     @keyRequired
     async def get(self, uid:str):
-        dp: DataPoint = await self.db.get(uid)
+        try:
+            dp: DataPoint = await self.db.get(uid)
+        except self.Error.LiresEntryNotFoundError:
+            await self.logger.error("Data point not found (uid: {})".format(uid))
+            self.set_status(404)
+            self.write("Data point not found")
+            return
         self.write(json.dumps(dp.summary.json()))
         return
 
@@ -96,11 +102,11 @@ class DataInfoListHandler(RequestHandlerBase):
         try:
             all_dp = await self.db.gets(uids)
         except self.Error.LiresEntryNotFoundError:
+            await self.logger.error("Some data points are not found: {}".format(
+                non_exist_uids := await self.db.conn.checkNoneExist(uids)
+            ))
             self.set_status(404)
-            self.write(
-                "Some data points are not found: {}"
-                .format(self.db.conn.checkNoneExist(uids))
-                )
+            self.write("Some data points are not found: {}".format(non_exist_uids))
             return
 
         await self.logger.debug("emit data info list of size: {}".format(len(all_dp)))

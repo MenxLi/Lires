@@ -181,7 +181,8 @@ class DataBase(DataCore):
         return await self.conn.get(uuid) is not None
     async def get(self, uuid: str) -> DataPoint:
         """ Get DataPoint by uuid """
-        assert (info := await self.conn.get(uuid)) is not None, f"Data not found: {uuid}"
+        if (info := await self.conn.get(uuid)) is None:
+            raise self.Error.LiresEntryNotFoundError(f"Data not found: {uuid}")
         return await assembleDatapoint(info, self)
 
     async def gets(self, uuids: list[str]) -> list[DataPoint]:
