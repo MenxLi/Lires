@@ -11,6 +11,7 @@
     import { getBibtexTemplate, type BibtexTypes } from './bibtexUtils';
     import { BibtexCollector } from './bibtexUtils';
     import { FileSelectButton } from '../common/fragments';
+    import { classifyFiles } from '../../utils/file';
 
 
     const uiState = useUIStateStore();
@@ -117,9 +118,9 @@
             uiState.showPopup("Document can only be added to new entry", "error");
             return false;
         }
-        if (f.type !== "application/pdf" && f.type !== "text/html" && !f.type.startsWith("image/")){
-            uiState.showPopup(`Unsupported file type: ${f.type}`, "error");
-            return false
+        if (!classifyFiles([f]).document){
+            uiState.showPopup("Unsupported file", "error");
+            return false;
         }
         file_.value = f;
         // if bibtext is empty, try to extract from file
@@ -136,35 +137,37 @@
         }
         return true;
     }
-    function loadFiles(files: FileList): boolean{
+    function loadFiles(files: FileList | File[]): boolean{
         // load the first file 
         let ret = false;
         if (!files || files.length === 0) return ret;
-        if (files.length > 1){
-            uiState.showPopup("Only the first file is loaded", "info");
+
+        const classified = classifyFiles(files);
+        if (classified.citation.length > 1 || classified.document.length > 1){
+            uiState.showPopup("Only one citation and one document are allowed", "error");
         }
-        const file = files[0];
-        if (file.type === "text/plain" || (
-            file.type === "" && ((fName: string) => {
-                const fExt = fName.split('.').pop()?.toLowerCase();
-                for (const ext of ["bibtex", "enw", "nbib", "txt", "bib"]){
-                    if (fExt === ext) return true;
-                }
-                return false;
-            })(file.name)
-        )){
-            if (file.size < 64*1024){
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const content = e.target?.result as string;
-                    bibtex_.value = content;
-                }
-                reader.readAsText(file);
-                ret = true;
-            }
-            else{ uiState.showPopup("Text file too large", "error"); }
+        if (classified.citation.length == 0 && classified.document.length == 0){
+            console.log("[Error] Got files: ", files);
+            uiState.showPopup("Unsupported file type", "error");
         }
-        else { ret = setDocumentFile(file); }
+        if (classified.citation.length > 0){
+            // load to bibtex
+            const file = classified.citation[0];
+                if (file.size < 64*1024){
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const content = e.target?.result as string;
+                        bibtex_.value = content;
+                    }
+                    reader.readAsText(file);
+                    ret = true;
+                }
+                else{ uiState.showPopup("Text file too large", "error"); }
+        }
+        if (classified.document.length > 0){
+            ret = setDocumentFile(classified.document[0]);
+        }
+
         return ret;
     }
     defineExpose({ show, close, isShown, loadFiles })
