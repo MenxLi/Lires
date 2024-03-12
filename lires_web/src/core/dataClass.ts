@@ -311,7 +311,12 @@ export class DataBase {
     async updateTagCache(){ this.tags = new DataTags(await this.conn.reqAllTags()); }
 
     async update(summary: DataInfoT): Promise<DataPoint> {
-        this.cache[summary.uuid] = new DataPoint(this.conn, summary);
+        if (summary.uuid in this.cache){
+            this.cache[summary.uuid].update(summary);
+        }else{
+            this.cache[summary.uuid] = new DataPoint(this.conn, summary);
+        }
+
         if (!this.uids.includes(summary.uuid)){
             // add to start of the list
             this.uids.unshift(summary.uuid);
