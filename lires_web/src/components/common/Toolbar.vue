@@ -87,7 +87,7 @@
         left: 10px;
         right: 5px;
         border-radius: 13px;
-        padding-left: 10px;
+        padding-inline: 10px;
         padding-right: 10px;
     }
     div.main-toolbar.compact-layout{
@@ -95,8 +95,7 @@
         left: 0px;
         right: 0px;
         border-radius: 0px;
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-inline: 20px;
     }
 
     div.main-toolbar{

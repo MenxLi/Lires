@@ -8,7 +8,6 @@ export default {
 </script>
 <script setup lang="ts">
     import { ref } from "vue";
-    import type { Ref } from "vue";
     import { useConnectionStore, useUIStateStore, useDataStore, useSettingsStore } from "./store";
     import { useRouter } from "vue-router";
     import { DataTags } from "../core/tag";
@@ -21,9 +20,7 @@ export default {
     import refreshIcon from "../assets/icons/refresh.svg";
     import LoadingWidget from "./common/LoadingWidget.vue";
     import FilterVis from "./visfeat/FilterVis.vue";
-
-    import type { SearchStatus } from "./interface";
-    import { lazify } from "../utils/misc";
+    import Searchbar from "./home/Searchbar.vue";
 
     // get data
     const uiState = useUIStateStore();
@@ -48,20 +45,6 @@ export default {
         uiState.tagStatus.unfolded = uiState.tagStatus.checked.allParents()
     }
 
-    // search refealated
-    const searchTypesPool = ["title", "author", "note", "publication", "feature", "uuid"];
-    const searchInput = ref("")
-    const searchSelector: Ref<HTMLSelectElement | null> = ref(null)
-    function onSearchChanged(){
-        const status: SearchStatus = {
-            searchBy: searchSelector.value!.value,
-            content: searchInput.value
-        }
-        uiState.searchState = status;
-        console.log(status);
-        uiState.updateShownData();
-    }
-    const lazyOnSearchChanged = lazify(onSearchChanged, 300);
 
     // adding new data
     const dataEditor = ref(null as null | typeof DataEditor);
@@ -92,21 +75,12 @@ export default {
 
 <template>
     <DataEditor ref="dataEditor"></DataEditor>
-    <Toolbar :return-home="false">
+    <Toolbar :return-home="false" :compact="true">
         <div id="toolbarAddons">
             <ToolbarIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
                 @click="showBlankAddingDataWindow" shortcut="ctrl+n"></ToolbarIcon>
-            <!-- <ToolbarIcon :icon-src="sellIcon" label-text="Tags" title="Tag utilities"
-                @click="()=>settingsStore.setShowTagPanel(!settingsStore.showTagPanel)"></ToolbarIcon> -->
             <ToolbarIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
                 @click="reloadProg"></ToolbarIcon>
-            |
-            <div class="searchbar">
-                <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
-                    <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
-                </select>
-                <input id="searchbar" type="text" v-model="searchInput" @input="lazyOnSearchChanged" placeholder="search">
-            </div>
         </div>
     </Toolbar>
     <div id="main-home" class="gradIn">
@@ -121,6 +95,7 @@ export default {
                     <FilterVis></FilterVis>
                 </div>
                 <div class="scrollable" id="fileSelector" @dragover="(e: Event)=>e.preventDefault()" @drop="onDropFiles">
+                    <Searchbar></Searchbar>
                     <FileRowContainer :uids="uiState.shownDataUIDs" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
                         v-if="uiState.shownDataUIDs.length > 0"
                     ></FileRowContainer>
@@ -158,8 +133,8 @@ export default {
         height: 100vh;
     }
     #main-home{
-        margin-top: 50px;
-        height: calc(100vh - 50px - 10px);
+        margin-top: 40px;
+        height: calc(100vh - 40px - 10px);
         width: calc(100vw - 20px);
         display: flex;
         flex-direction: column;
@@ -179,7 +154,6 @@ export default {
     #right-panel{
         display: flex;
         flex-direction: column;
-        height: 100%;
         width: 100%;
         gap: 2px;
         overflow-x: hidden;
@@ -213,20 +187,8 @@ export default {
         justify-self: center;
     }
     div#fileSelector{
-        /* padding: 5px; */
-        flex-grow: 999;
-    }
-
-    div.searchbar{
         display: flex;
-        margin-left: 5px;
-        gap: 5px;
-    }
-    div.searchbar select {
-        width: 75px;
-    }
-    div.searchbar input {
-        width: calc(100% - 80px);
+        flex-direction: column;
     }
 
     .left-in-enter-active, .left-in-leave-active {
@@ -241,7 +203,8 @@ export default {
     @media screen and (max-width: 767px) {
         #main-home{
             width: 100vw;
-            height: calc(100vh - 50px);
+            margin-top: 30px;
+            height: calc(100vh - 40px);
             border-radius: 0px;
             border-left: none;
             border-right: none;
