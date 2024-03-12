@@ -737,3 +737,15 @@ version_history:
       - Floating window use flex box for nested content
       - Async build vector index
       - Obsidian plugin
+  1.6.1:
+    - Features:
+      - Remove user card from dashboard
+      - Scatter plot toggle to settings
+    - Improvements:
+      - File type detection
+      - Loading spinner on long-time data update
+    - Fix:
+      - Entry order
+      - Search by feature&tag
+      - Catch data not found error on datapoint creation
+      - Update feature visualization and tag bubble on data change
