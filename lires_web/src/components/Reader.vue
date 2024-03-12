@@ -131,7 +131,7 @@ export default {
 <template>
     <!-- a tricky way to use FileSelectButton as select-upload agent -->
     <FileSelectButton :action="onUploadNewDocument" ref="fileSelectionBtn" :style="{display: 'none'}"> </FileSelectButton>
-    <Toolbar>
+    <Toolbar :compact="true">
         <div id="toolbarOps">
             <ToolbarIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
                 @onClick="changeLayout" title="change layout"></ToolbarIcon>
@@ -153,15 +153,12 @@ export default {
 
 <style scoped>
 div#main-reader{
-    margin-top: 45px;
-    height: calc(100vh - 45px);
-    padding: 10px;
-    padding-top: 5px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100vw;
+    bottom: 0px;
+    padding-top: 0px;
+    position: fixed;
+    top: 30px;
+    left: 0px;
+    right: 0px;
     background-color: var(--color-background);
 }
 @media only screen and (max-width: 767px) {

@@ -141,7 +141,7 @@ div#noteEditor {
 div.editor {
     text-align: left;
     /* clip a rounded corner here */
-    clip-path: inset(0 0 0 0 round 10px);
+    /* clip-path: inset(0 0 0 0 round 10px); */
     display: flex;
     align-items: center;
     justify-content: center;

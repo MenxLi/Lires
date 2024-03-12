@@ -133,7 +133,7 @@ iframe{
     width: 100%;
     height: 100%;
     border: 1px solid var(--color-border);
-    border-radius: 10px;
+    /* border-radius: 10px; */
     box-shadow: 0px 0px 5px var(--color-shadow);
     /* -webkit-overflow-scrolling: touch; */
     /* overflow: scroll; */
@@ -145,10 +145,11 @@ iframe{
 }
 
 #splitter{
-    width: 5px;
-    margin:4px;
+    width: 0.2rem;
+    margin: 0rem;
     border-radius: 3px;
-    height: 70%;
+    /* height: 70%; */
+    height: 100%;
     align-self: center;
     background-color: var(--color-border);
     cursor: col-resize;

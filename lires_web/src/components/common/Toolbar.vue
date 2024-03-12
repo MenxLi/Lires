@@ -20,8 +20,10 @@
 
     const props = withDefaults(defineProps<{
         returnHome?: boolean,
+        compact?: boolean,
     }>(), {
         returnHome: true,
+        compact: false,
     })
 
     const router = useRouter();
@@ -57,7 +59,7 @@
         <SettingsWindow/>
     </FloatingWindow>
 
-    <div class="main-toolbar shadow" ref="mainDiv">
+    <div :class="`main-toolbar ${props.compact ? 'compact-layout' : 'normal-layout shadow'}` "ref="mainDiv">
         <div class="button">
             <ToolbarIcon v-if="props.returnHome" :iconSrc="homeIcon" labelText="Home" shortcut="ctrl+h"
                 @onClick="()=>{router.push('/')}" title="home"/>
@@ -79,20 +81,30 @@
 </template>
 
 <style scoped>
-    div.main-toolbar{
-        position: fixed;
+    div.main-toolbar.normal-layout{
+        /* height is 40px (10+30); */
         top: 10px;
         left: 10px;
         right: 5px;
-        /* height is 40px (10+30); */
+        border-radius: 13px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    div.main-toolbar.compact-layout{
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        border-radius: 0px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 
+    div.main-toolbar{
+        position: fixed;
         display: flex;
         align-items: center;
         justify-content: space-between;
         background-color: var(--color-background-soft);
-        border-radius: 13px;
-        padding-left: 10px;
-        padding-right: 10px;
         font-size: small;
         height: 30px;
         z-index: 1;
