@@ -63,17 +63,26 @@ html{
   --scrollbarBG: var(--color-background-soft);
   --thumbBG: var(--color-border);
 }
-body, .panel, .scrollable {
+body, .panel, .scrollable, .hover-scrollable{
   scrollbar-width: thin;
   scrollbar-color: var(--thumbBG) var(--scrollbarBG);
 }
-body::-webkit-scrollbar, .panel::-webkit-scrollbar, .scrollable::-webkit-scrollbar {
+body::-webkit-scrollbar, 
+.panel::-webkit-scrollbar, 
+.scrollable::-webkit-scrollbar,
+.hover-scrollable::-webkit-scrollbar{
   width: 11px;
 }
-body::-webkit-scrollbar-track, .panel::-webkit-scrollbar-track, .scrollable::-webkit-scrollbar-track {
+body::-webkit-scrollbar-track, 
+.panel::-webkit-scrollbar-track, 
+.scrollable::-webkit-scrollbar-track, 
+.hover-scrollable::-webkit-scrollbar-track {
   background: var(--scrollbarBG);
 }
-body::-webkit-scrollbar-thumb, .panel::-webkit-scrollbar-thumb, .scrollable::-webkit-scrollbar-thumb {
+body::-webkit-scrollbar-thumb, 
+.panel::-webkit-scrollbar-thumb, 
+.scrollable::-webkit-scrollbar-thumb,
+.hover-scrollable::-webkit-scrollbar-thumb {
   background-color: var(--thumbBG) ;
   border-radius: 6px;
   border: 3px solid var(--scrollbarBG);
