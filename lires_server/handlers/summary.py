@@ -94,6 +94,11 @@ class SummaryHandler(RequestHandlerBase):
             summary_txt += msg      # save to cache
             self.write(msg)
             self.flush()  # Flush the response buffer to send the chunk immediately
+            # check if summary is too long
+            if len(summary_txt) > 2000:
+                # stop the conversation
+                await self.logger.warning(f"Summary too long, stopping ...")
+                break
 
         with open(summary_txt_path, "w", encoding='utf-8') as fp:
             await self.logger.info(f"Saving summary to {summary_txt_path} ...")
