@@ -211,6 +211,10 @@ class DBConnection(LiresBase):
         return await self.cache.allTags()
     async def keys(self, sortby = None, reverse = False) -> list[str]:
         """ Return all uuids """
+        if await self.size() == 0:
+            # just return empty list if no entry,
+            # otherwise the following query will raise an error if sortby is not None
+            return []   
         if not sortby:
             async with self.conn.execute("SELECT uuid FROM files") as cursor:
                 return [row[0] for row in await cursor.fetchall()]
@@ -495,7 +499,6 @@ class DBConnection(LiresBase):
         tags: Optional[list[str]] = None
     ) -> list[str]:
         '''
-        !! not fully tested yet !!
         A simple filter function for fast search,
 
         (tag, and author) will involve more search operations,
@@ -503,6 +506,8 @@ class DBConnection(LiresBase):
         - year: tuple of two int, [start, end), if start or end is None, it will be treated as -inf or inf
         '''
         # build query
+        if await self.size() == 0:
+            return []
         query_conds = []
         query_items = []
         if from_uids is not None:
