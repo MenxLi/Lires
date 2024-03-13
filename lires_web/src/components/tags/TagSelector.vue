@@ -23,7 +23,7 @@
 </script>
 
 <template>
-    <div id="tagSelector-main" class="scrollable">
+    <div id="tagSelector-main" class="hover-scrollable">
         <TagCollapsibleToggle v-for="k of sortedHierarchyKeys"
             :identifier="String(k)" 
             :children="hierarchy[k]" 

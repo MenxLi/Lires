@@ -38,7 +38,7 @@
 </script>
 
 <template>
-    <div id="bubbleContainer" class="scrollable" 
+    <div id="bubbleContainer"
         :style="{
             maxWidth: `${(props.maxWidth?props.maxWidth:999)-10}px`,
             justifyContent: props.middleAlign?'center':'flex-start',
@@ -59,6 +59,6 @@ div#bubbleContainer{
     gap: 5px;
     padding: 5px;
     border-radius: 5px;
-    overflow-y: auto;
+    overflow: visible;
 }
 </style>

@@ -37,9 +37,17 @@ b{
     box-shadow: 0 1px 3px 2px var(--color-shadow);
 }
 
-div.scrollable{
+.scrollable{
     overflow-y:auto;
     overflow-x:auto;
+}
+.hover-scrollable{
+    overflow-x:hidden;
+    overflow-y:hidden;
+}
+.hover-scrollable:hover{
+    overflow-x:auto;
+    overflow-y:auto;
 }
 
 .non-selectable{
