@@ -1,8 +1,8 @@
 
 <script setup lang="ts">
 
-    import { ref } from "vue";
-    import { useRouter } from "vue-router";
+    import { computed, ref } from "vue";
+    import { useRouter, useRoute } from "vue-router";
     import { settingsLogout } from "../../core/auth";
     import { useDataStore } from "../store";
     import ToolbarIcon from "./ToolbarIcon.vue";
@@ -21,9 +21,11 @@
     const props = withDefaults(defineProps<{
         returnHome?: boolean,
         compact?: boolean,
+        showNavigator?: boolean,
     }>(), {
         returnHome: true,
-        compact: false,
+        compact: true,
+        showNavigator: true,
     })
 
     const router = useRouter();
@@ -52,6 +54,13 @@
 
     const showSettings = ref(false);
 
+    const route = useRoute();
+    const currPage = computed(()=>{
+        const ret = route.path.split('/')[1];
+        // console.log("currPage", ret);
+        return ret;
+    });
+
 </script>
 
 <template>
@@ -72,10 +81,20 @@
                 {name:'Dashboard', action:()=>{router.push(`/dashboard/${useDataStore().user.username}`)}},
                 {name:'Arxiv daily', action:()=>{router.push('/feed')}},
                 {name:'About', action:()=>{router.push('/about')}},
-            ]">
+            ]" v-if="!showNavigator">
                 <ToolbarIcon :iconSrc="exploreIcon" labelText="Explore" shortcut="ctrl+e" title="look around"/>
             </MenuAttached>
         </div>
+
+        <div id="navigator" v-if="showNavigator">
+            <div class="nav-toggle">
+                <div :class="`button ${currPage === 'home' || !currPage ? 'active-nav' : ''}`" @click="()=>{router.push('/')}">Home</div>
+                <!-- <div :class="`button ${currPage === 'dashboard' ? 'active-nav' : ''}`" @click="()=>{router.push(`/dashboard/${useDataStore().user.username}`)}">Dashboard</div> -->
+                <div :class="`button ${currPage === 'feed' ? 'active-nav' : ''}`" @click="()=>{router.push('/feed')}">Feed</div>
+                <div :class="`button ${currPage === 'about' ? 'active-nav' : ''}`" @click="()=>{router.push('/about')}">About</div>
+            </div>
+        </div>
+
         <slot> <!-- some additional components --> </slot>
     </div>
 </template>
@@ -115,6 +134,28 @@
     div.button{
         display: flex;
         align-items: center;
+    }
+
+    div.nav-toggle{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        background-color: var(--color-background-soft);
+        font-size: small;
+        height: 30px;
+        z-index: 1;
+        transition: top 0.25s ease-in-out;
+    }
+    div.nav-toggle div.button{
+        cursor: pointer;
+        user-select: none;
+        font-weight: bold;
+        color: var(--color-text-soft);
+    }
+    div.nav-toggle div.button.active-nav{
+        border-bottom: 1px solid var(--color-theme);
+        color: var(--color-theme);
     }
 
     @media only screen and (max-width: 767px) {

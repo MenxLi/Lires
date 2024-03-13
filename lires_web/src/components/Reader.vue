@@ -131,7 +131,7 @@ export default {
 <template>
     <!-- a tricky way to use FileSelectButton as select-upload agent -->
     <FileSelectButton :action="onUploadNewDocument" ref="fileSelectionBtn" :style="{display: 'none'}"> </FileSelectButton>
-    <Toolbar :compact="true">
+    <Toolbar :compact="true" :show-navigator="false">
         <div id="toolbarOps">
             <ToolbarIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
                 @onClick="changeLayout" title="change layout"></ToolbarIcon>
