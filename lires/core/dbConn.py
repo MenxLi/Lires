@@ -211,6 +211,7 @@ class DBConnection(LiresBase):
         return await self.cache.allTags()
     async def keys(self, sortby = None, reverse = False) -> list[str]:
         """ Return all uuids """
+        if await self.size() == 0: return []
         if not sortby:
             async with self.conn.execute("SELECT uuid FROM files") as cursor:
                 return [row[0] for row in await cursor.fetchall()]
@@ -502,6 +503,7 @@ class DBConnection(LiresBase):
 
         - year: tuple of two int, [start, end), if start or end is None, it will be treated as -inf or inf
         '''
+        if await self.size() == 0: return []
         # build query
         query_conds = []
         query_items = []
