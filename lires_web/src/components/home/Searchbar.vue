@@ -23,13 +23,17 @@
         uiState.updateShownData();
     }
     const lazyOnSearchChanged = lazify(onSearchChanged, 300);
+
+    function capitalizeFirstLetter(string: string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 </script>
 
 <template>
     <div id="searchbar">
         <div id="searchbar-container">
             <select ref="searchSelector" name="search_type" id="searchType" @change="onSearchChanged">
-                <option v-for="v in searchTypesPool" :value="v">{{ v }}</option>
+                <option v-for="v in searchTypesPool" :value="v">{{ capitalizeFirstLetter(v) }}</option>
             </select>
             <input type="text" id="searchbar-input" placeholder="Search" v-model="searchInput" @input="lazyOnSearchChanged">
         </div>
