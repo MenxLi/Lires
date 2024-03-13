@@ -100,6 +100,7 @@ const shouldEnableEditDatapoint = computed(()=> {
 });
 defineExpose({
     editThisDatapoint,
+    deleteThisDatapoint,
     shouldEnableEditDatapoint
 })
 // summary

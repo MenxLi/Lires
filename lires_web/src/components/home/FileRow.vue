@@ -19,10 +19,10 @@
         unfoldedIds: string[]     // global unfoldedIds from DataCardContainer
         hoveredIds: string[]      // global hoveredIds from DataCardContainer
         line_number?: number
-        compact?: boolean
+        // compact?: boolean
     }>(), {
         line_number: 0,
-        compact: false,
+        // compact: false,
     })
 
     const emits = defineEmits<{
@@ -47,15 +47,12 @@
     const showMore = computed(() => {
         return g_unfoldedIds.value.includes(props.datapoint.summary.uuid);
     })
-    // record if mouse is hovering on authorYear div
-    const isHoveringAuthorYear = ref(false);
 
     // template refs
     const dataCard = ref<HTMLElement | null>(null);
     const initDiv = ref<HTMLElement | null>(null);
     const moreDiv = ref<HTMLElement | null>(null);
     const moreComponent = ref<typeof FileRowMore | null>(null);
-    const leadingStatus = ref<HTMLElement | null>(null);
 
     // A flag to prevent unfold datacard when click on some elements, set this to true when click on those elements
     // so that clickOnRow can check this flag and prevent show more, while also alow the event to propagate to parent
@@ -94,26 +91,8 @@
     }
 
     // related to authorYear div
-    function hoverInAuthorYear(){
-        isHoveringAuthorYear.value = true;
-    }
-    function hoverOutAuthorYear(){
-        isHoveringAuthorYear.value = false;
-    }
     const authorYearText = computed(() => {
-        if (!isHoveringAuthorYear.value){
-            return props.datapoint.yearAuthor(" :: ");
-        }
-        else {
-            const dp = props.datapoint;
-            const docType = dp.docType();
-            if (docType === ""){
-                return "_"
-            }
-            else{
-                return docType;
-            }
-        }
+        return props.datapoint.yearAuthor("-");
     })
 
     // fileRow Style
@@ -137,9 +116,9 @@
             return "var(--color-background-theme)";
         }
         // only apply alternate color when compact
-        if (!props.compact){
-            return "var(--color-background-ssoft)";
-        }
+        // if (!props.compact){
+        //     return "var(--color-background-ssoft)";
+        // }
 
         if (props.line_number % 2 == 0){
             return "var(--color-background-ssoft)";
@@ -171,56 +150,85 @@
     }
 
     // shortcut to edit datapoint information
-    function shortcutEdit(event: KeyboardEvent){
-        if (event.code === "Space" 
-            && g_unfoldedIds.value.includes(props.datapoint.summary.uuid)
+    function _shouldEnableShortcut(){
+        return g_unfoldedIds.value.includes(props.datapoint.summary.uuid)
             && isDataCardHover.value
             && document.activeElement === document.body
-            ){
-            if (moreComponent.value?.shouldEnableEditDatapoint){
-                moreComponent.value?.editThisDatapoint();
-                event.preventDefault();
-            }
+            && moreComponent.value?.shouldEnableEditDatapoint;
+    }
+    function shortcut(event: KeyboardEvent){
+        if (event.code === "Space" && _shouldEnableShortcut()){
+            moreComponent.value?.editThisDatapoint();
+            event.preventDefault();
+        }
+        if ((event.code === "Delete" || event.code === "Backspace")&& _shouldEnableShortcut()){
+            moreComponent.value?.deleteThisDatapoint();
+            event.preventDefault();
         }
     }
     watch(
         () => g_unfoldedIds.value,
         (newVal) => {
             if (newVal.includes(props.datapoint.summary.uuid)){
-                window.addEventListener("keydown", shortcutEdit);
+                window.addEventListener("keydown", shortcut);
             }
             else{
-                window.removeEventListener("keydown", shortcutEdit);
+                window.removeEventListener("keydown", shortcut);
             }
         }
     )
 </script>
 
 <template>
-    <!-- <div id="fileRow" :class="`gradInFast${(props.compact && !showMore)?' compact':''}`" @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false"  -->
     <div id="fileRow" 
-        :class="`${(props.compact && !showMore)?' compact':''}` + `${(showMore)?' unfolded':''}`" 
+        :class="`${(showMore)?' unfolded':''}`" 
         @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false" 
         ref="dataCard" :style="{backgroundColor: datacardBackgroundColor}">
 
         <div id="init" class="row" ref="initDiv">
-            
-            <div class="left row">
-                <div id="leadingStatus" class="row" ref="leadingStatus">
-                    <div id="authorYear" class="row text" @mouseover="hoverInAuthorYear" @mouseleave="hoverOutAuthorYear">
-                        {{ authorYearText }}
-                    </div>
-                    <div id="marks">
-                        <img v-if="datapoint.summary.tags.includes('* Bookmark')" :src="BookmarkFill1" alt="" class="icon redIcon" @click="()=>setBookmark(false)">
-                        <img v-else :src="BookmarkFill0" alt="" class="icon" @click="() => setBookmark(true)">
-                    </div>
+            <div class="left" :style="{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                flexWrap: 'nowrap',
+                gap: '0.25rem',
+            }">
+                <div id="marks">
+                    <img v-if="datapoint.summary.tags.includes('* Bookmark')" :src="BookmarkFill1" alt="" class="icon redIcon" @click="()=>setBookmark(false)" style="height: 1rem;">
+                    <img v-else :src="BookmarkFill0" alt="" class="icon" @click="() => setBookmark(true)" style="height: 1rem;">
                 </div>
-                <div id="title" class="text">{{ datapoint.summary.title }}</div>
-                <slot></slot>
+                <div class="row text">
+                    <div :style="{
+                        borderRadius: '10px',
+                        marginLeft: '5px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }">
+                        <div id="title" :style="{
+                            display: 'flex',
+                            // whiteSpace: `${(showMore)?'normal':'nowrap'}`,
+                            fontSize: '1rem',
+                        }">{{ datapoint.summary.title }}</div>
+                        <div :style="{
+                            marginTop: '0px',
+                            padding: '0px',
+                            // whiteSpace: `${(showMore)?'normal':'nowrap'}`,
+                            color: 'var(--color-text-soft)',
+                            fontSize: '0.75rem',
+                        }"> {{ authorYearText + ', ' + datapoint.publication }} </div>
+                    </div>
+                    <slot></slot>
+                </div>
             </div>
 
             <div class="right row">
-                <div id="statusDiv">
+                <div id="statusDiv" :style="{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: '2px',
+                }">
                     <div class="status">
                         <img v-if="datapoint.summary.has_abstract" src="../../assets/icons/contract.svg" alt="" class="icon">
                         <img v-else src="../../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
@@ -266,44 +274,13 @@
         overflow: hidden;
     }
     div#marks:hover{
-        justify-self: flex-end;
-        align-items: flex-end;
         cursor: pointer;
     }
     div#fileRow {
-        flex-wrap: wrap;
         border-radius: 0px;
         padding: 3px;
-        padding-left: 10px;
-        padding-right: 5px;
+        padding-inline: 10px;
         width: 100%;
-        /* border: 1px solid var(--color-border); */
-        /* background-color: var(--color-background-ssoft); */
-        /* box-shadow: 0px 1px 2px 0px var(--color-shadow); */
-    }
-    #authorYear{
-        width: 250px;
-        min-width: 250px;
-        white-space: nowrap;
-        background-color: var(--color-background-theme-thin);
-        border-radius: 10px;
-        padding: 10px;
-        padding-top: 3px;
-        padding-bottom: 3px;
-        /* margin-left: 5px; */
-    }
-    #authorYear:hover{
-        text-align: center;
-        justify-content: center;
-        transition: all 0.25s;
-        box-shadow: 0 1px 3px 3px var(--color-shadow);
-    }
-    #leadingStatus{
-        column-gap: 8px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
     }
     div.text{
         padding: 0px;
@@ -312,29 +289,9 @@
         text-overflow: ellipsis;
         overflow: hidden;
     }
-    @media (max-width: 750px){
-        div#authorYear{
-            width:auto;
-            min-width: 10px;
-        }
-        div#fileRow > div.left{
-            flex-direction: column;
-            align-items:flex-start;
-        }
-    }
-    /* @media (max-width: 750px){
-        #authorYear{
-            width: 180px;
-            min-width: 180px;
-        }
-    } */
-    div#statusDiv, div#title, div.status{
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-    }
     div.status{
+        display: flex;
+        align-items: center;
         justify-content: center;
         width: 15px;
     }
@@ -344,6 +301,9 @@
     }
     img.redIcon {
         filter: invert(33%) sepia(92%) saturate(3443%) hue-rotate(0deg) brightness(97%) contrast(101%);
+    }
+    img.icon.big {
+        height: 20px;
     }
     img.placeholder{
         height: 8px
@@ -356,13 +316,6 @@
         opacity: 0;
     }
 
-    /* Compact layout */
-    #fileRow.compact #init{
-        flex-wrap: nowrap;
-    }
-    #fileRow.compact #leadingStatus{
-        max-width: 100%;
-    }
     #fileRow.compact #title{
         display: inline-block;
         white-space: nowrap;
@@ -371,13 +324,16 @@
         /* width: v-bind("`$(titleMaxWidth)px`"); */
         /* https://stackoverflow.com/a/69078238/6775765 */
     }
+
     @media (max-width: 750px){
-        div#fileRow.compact #title{
-            width: 100%;
-        }
         div#init>div.left{
             width: 100%;
             flex-wrap: wrap;
         }
+        /* div#statusDiv{
+            margin-inline: 0.25rem;
+            margin-block: 0.2rem;
+            flex-direction: column;
+        } */
     }
-</style>../../utils/misc../../api/serverConn
+</style>
