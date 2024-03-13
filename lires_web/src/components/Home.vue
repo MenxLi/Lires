@@ -76,12 +76,12 @@ export default {
 <template>
     <DataEditor ref="dataEditor"></DataEditor>
     <Toolbar :return-home="false" :compact="true">
-        <div id="toolbarAddons">
+        <!-- <div id="toolbarAddons">
             <ToolbarIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
                 @click="showBlankAddingDataWindow" shortcut="ctrl+n"></ToolbarIcon>
             <ToolbarIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
                 @click="reloadProg"></ToolbarIcon>
-        </div>
+        </div> -->
     </Toolbar>
     <div id="main-home" class="gradIn">
         <div class="horizontal fullHeight">
@@ -95,7 +95,19 @@ export default {
                     <FilterVis></FilterVis>
                 </div>
                 <div class="scrollable" id="fileSelector" @dragover="(e: Event)=>e.preventDefault()" @drop="onDropFiles">
-                    <Searchbar></Searchbar>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex-grow: 1;">
+                            <Searchbar></Searchbar>
+                        </div>
+                        <!-- vertical split -->
+                        <!-- <div style="border: 1px solid var(--color-border);margin-right: 5px"></div> -->
+                        <div style="display: flex; flex-grow: 0; margin-right: 5px; margin-block: 5px;">
+                            <ToolbarIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
+                                @click="showBlankAddingDataWindow" shortcut="ctrl+n"></ToolbarIcon>
+                            <ToolbarIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
+                                @click="reloadProg"></ToolbarIcon>
+                        </div>
+                    </div>
                     <FileRowContainer :uids="uiState.shownDataUIDs" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
                         v-if="uiState.shownDataUIDs.length > 0"
                     ></FileRowContainer>
@@ -180,11 +192,6 @@ export default {
     div.horizontal{
         display: flex;
         /* gap: 10px; */
-    }
-    div#toolbarAddons{
-        display: flex;
-        align-items: center;
-        justify-self: center;
     }
     div#fileSelector{
         display: flex;
