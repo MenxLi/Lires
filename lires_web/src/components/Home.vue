@@ -196,6 +196,7 @@ export default {
     div#fileSelector{
         display: flex;
         flex-direction: column;
+        height: 100%;
     }
 
     .left-in-enter-active, .left-in-leave-active {
