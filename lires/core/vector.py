@@ -6,7 +6,7 @@ from __future__ import annotations
 import os, hashlib, re
 import asyncio
 from typing import TypedDict, Optional, Callable, Literal, TYPE_CHECKING
-from lires.config import DOC_SUMMARY_DIR, getConf
+from lires.config import getConf
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
 from lires.utils import Timer
@@ -51,7 +51,6 @@ async def getOverallFeatureTextSource(
         dp: DataPoint, 
         max_words_per_doc: Optional[int] = None, 
         print_fn: Callable[[str], None] = lambda x: None,
-        doc_summary_dir = DOC_SUMMARY_DIR
         )-> FeatureTextSource:
     """
     Extract text source from a document for feature extraction.
@@ -63,6 +62,7 @@ async def getOverallFeatureTextSource(
     """
     abstract = await dp.fm.readAbstract()
     uid = dp.uuid
+    doc_summary_dir = dp.parent.path.summary_dir
     title_text: str = "Title: " + dp.title + "\n"
     if abstract:
         # if abstract is available, use it as the text source
@@ -125,7 +125,6 @@ async def buildFeatureStorage(
         use_llm: bool = True,
         force = False,
         operation_interval: float = 0.,
-        doc_summary_dir = DOC_SUMMARY_DIR,
         ):
     """
     - operation_interval: float, the interval between two operations, in seconds, 
@@ -167,7 +166,7 @@ async def buildFeatureStorage(
         uid = dp.uuid
         # if idx > 3: break # for debug
         await asyncio.sleep(operation_interval)
-        _ret = await getOverallFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc, doc_summary_dir=doc_summary_dir)
+        _ret = await getOverallFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
         text_src[uid] = _ret["text"]
         src_type = _ret["type"]
         text_src_hash[uid] = _ret["hash"]

@@ -17,8 +17,8 @@ WEBPAGE = "https://github.com/MenxLi/Lires"
 # ├── Database
 # │   ├── lrs.db
 # │   ├── index
-# │   │     ├── vector.db [FEATURE_PATH]
-# │   │     └── summary [DOC_SUMMARY_DIR]
+# │   │     ├── vector.db
+# │   │     └── summary
 # │   └── files
 # │         └── ...
 # ├── Users
@@ -41,7 +41,6 @@ USER_DIR = join(LRS_HOME, "Users")
 # indexing related
 INDEX_DIR = os.path.join(DATABASE_DIR, "index")
 VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
-DOC_SUMMARY_DIR = os.path.join(INDEX_DIR, "summary")
 
 # for log files
 LOG_DIR = os.path.join(LRS_HOME, "log")
@@ -58,7 +57,7 @@ for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 for _p in [
-    DATABASE_DIR, TMP_DIR, INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR, 
+    DATABASE_DIR, TMP_DIR, INDEX_DIR, LOG_DIR, 
     ]:
     if not os.path.exists(_p):
         os.mkdir(_p)

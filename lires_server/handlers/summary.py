@@ -1,7 +1,6 @@
 from ._base import *
 import os
 from lires.core.pdfTools import getPDFText
-from lires.config import DOC_SUMMARY_DIR
 
 class SummaryHandler(RequestHandlerBase):
 
@@ -39,7 +38,7 @@ class SummaryHandler(RequestHandlerBase):
             return
 
         # a cache for summary
-        summary_txt_path = os.path.join(DOC_SUMMARY_DIR, uuid + ".txt")
+        summary_txt_path = os.path.join(self.db.path.summary_dir, uuid + ".txt")
         if os.path.exists(summary_txt_path) and not force:
             with open(summary_txt_path, "r", encoding='utf-8') as fp:
                 summary_txt = fp.read()

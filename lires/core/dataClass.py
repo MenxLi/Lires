@@ -30,12 +30,13 @@ class DataPoint(DataCore):
 
     async def init(self, db: DataBase) -> DataPoint:
         self.fm = await FileManipulator(self.summary.uuid).init(db.conn)
+        self.__parent = db
         return self
     
     @property
-    def summary(self) -> DataPointSummary:
-        """ Generate datapoint info """
-        return self.__summary
+    def summary(self) -> DataPointSummary: return self.__summary
+    @property
+    def parent(self) -> DataBase: return self.__parent
     
     ## For qiuick access
     @property
@@ -174,7 +175,15 @@ class DataBase(DataCore):
     def path(self):
         """
         Defines the file structure of the database, 
-        will be used by other modules to access the database
+        will be used by other modules to access the files
+            Database
+            ├── lrs.db
+            ├── index
+            │     ├── vector.db
+            │     └── summary
+            |          └── ...
+            └── files
+                └── ...
         """
         return self.DatabasePath(
             main_dir = self.__conn.db_path,
