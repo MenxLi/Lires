@@ -6,13 +6,18 @@ from __future__ import annotations
 import os, hashlib, re
 import asyncio
 from typing import TypedDict, Optional, Callable, Literal, TYPE_CHECKING
-from lires.config import DOC_SUMMARY_DIR, VECTOR_DB_PATH
+from lires.config import DOC_SUMMARY_DIR, VECTOR_DB_PATH, getConf
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
 from lires.utils import Timer
 import tiny_vectordb
 if TYPE_CHECKING:
     from lires.api import IServerConn
+
+async def initVectorDB(vector_db_path: str) -> tiny_vectordb.VectorDatabase:
+    return tiny_vectordb.VectorDatabase(vector_db_path, [
+        {"name": "doc_feature", "dimension": 768}
+        ], compile_config=getConf()["tiny_vectordb_compile_config"])
 
 async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
     summary = ""

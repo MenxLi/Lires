@@ -148,7 +148,7 @@ async def __startServer(
 
     async def buildIndex(op_interval: float = 0.05):
         print("Periodically build index")
-        from lires.core.textUtils import buildFeatureStorage
+        from lires.core.vector import buildFeatureStorage
 
         base_request_handler = RequestHandlerMixin()
         await buildFeatureStorage(
