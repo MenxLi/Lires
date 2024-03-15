@@ -1,5 +1,5 @@
 from __future__ import annotations
-import os, asyncio
+import os, asyncio, dataclasses
 from typing import List, Union, Optional, Literal
 from .dataTags import DataTags, TagRule
 try:
@@ -136,6 +136,14 @@ async def assembleDatapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
     return await DataPoint(summary).init(db)
 
 class DataBase(DataCore):
+    @dataclasses.dataclass(frozen=True)
+    class DatabasePath:
+        main_dir: str
+        file_dir: str
+        index_dir: str
+        summary_dir: str
+        vector_db_file: str
+
     def __init__(self):
         super().__init__()
         self.__conn: DBConnection = None   # type: ignore
@@ -147,6 +155,9 @@ class DataBase(DataCore):
         return self.__conn
     
     async def init(self, db: str | DBConnection) -> DataBase:
+        """
+        - db: str | DBConnection, the database path or the database connection instance
+        """
         if isinstance(db, DBConnection):
             assert not isinstance(db, str)  # type check only
             assert await db.isInitialized()
@@ -158,6 +169,20 @@ class DataBase(DataCore):
         conn = await FileManipulator.getDatabaseConnection(db) 
         self.__conn = conn      # set database-wise connection instance
         return self
+
+    @property
+    def path(self):
+        """
+        Defines the file structure of the database, 
+        will be used by other modules to access the database
+        """
+        return self.DatabasePath(
+            main_dir = self.__conn.db_path,
+            file_dir = os.path.join(self.__conn.db_path, "files"),
+            index_dir = os.path.join(self.__conn.db_path, "index"),
+            summary_dir = os.path.join(self.__conn.db_path, "index", "summary"),
+            vector_db_file = os.path.join(self.__conn.db_path, "index", "vector.db"),
+        )
     
     async def delete(self, uuid: str) -> bool:
         """ Delete a DataPoint by uuid"""

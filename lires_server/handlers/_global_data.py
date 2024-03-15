@@ -2,7 +2,7 @@ import dataclasses
 
 import asyncio
 from lires.core.dataClass import DataBase
-from lires.config import DATABASE_DIR, VECTOR_DB_PATH, USER_DIR, getConf
+from lires.config import DATABASE_DIR, USER_DIR, getConf
 from lires.user import UserPool
 from lires.api import IServerConn
 from lires.core.vector import initVectorDB
@@ -12,7 +12,7 @@ class GlobalStorage:
     """Global storage for all handlers"""
     database = asyncio.run(DataBase().init(DATABASE_DIR))
     user_pool = asyncio.run(UserPool().init(USER_DIR))
-    vector_database = initVectorDB(VECTOR_DB_PATH)
+    vector_database = initVectorDB(database.path.vector_db_file)
     iconn = IServerConn()   # temporary, the endpoint will be set when server starts
 
     async def flush(self):

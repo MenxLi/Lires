@@ -3,7 +3,7 @@ Build search index for the database
 """
 import argparse, asyncio
 
-from lires.config import DATABASE_DIR, VECTOR_DB_PATH
+from lires.config import DATABASE_DIR
 from lires.core.dataClass import DataBase
 from lires.core.vector import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID, initVectorDB
 from lires.utils import MuteEverything
@@ -42,13 +42,13 @@ def main():
     iconn = IServerConn()
 
     if args.subparser == "build":
-        vector_db = initVectorDB(VECTOR_DB_PATH)
+        vector_db = initVectorDB(db.path.vector_db_file)
         asyncio.run(buildFeatureStorage(
             iconn, db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words, 
             ))
 
     elif args.subparser == "query":
-        vector_collection = initVectorDB(VECTOR_DB_PATH).getCollection("doc_feature")
+        vector_collection = initVectorDB(db.path.vector_db_file).getCollection("doc_feature")
         if args.input_uid:
             res = asyncio.run(queryFeatureIndexByUID(
                 db = db, 
