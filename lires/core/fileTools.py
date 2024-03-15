@@ -31,7 +31,10 @@ async def _addDocumentFileBlob(db_conn: DBConnection, uid: str, file_blob: bytes
     Create document in database directory
     """
     assert ext.startswith(".")
-    dst = os.path.join(db_conn.db_dir, uid + ext)
+    dst_dir = os.path.join(db_conn.db_dir, "files")
+    if not os.path.exists(dst_dir):
+        os.mkdir(dst_dir)
+    dst = os.path.join(dst_dir, uid + ext)
     # with open(dst, "wb") as f:
     #     f.write(file_blob)
     async with aiofiles.open(dst, "wb") as f:
@@ -57,7 +60,7 @@ async def addDocument(
         check_duplicate: bool = True
         ) -> Optional[str]:
     """
-    Should use this function to add document to database instead of directly using DBConnection.addEntry or use FileGenerator
+    Should use this function to add document to database instead of directly using DBConnection.addEntry
 
     - citation: bibtex string, should be valid, at least contains title, year, authors
         may support other formats in the future...
@@ -141,6 +144,8 @@ class FileManipulator(LiresBase):
         self._conn = db_local
         if not await db_local.isInitialized():
             await db_local.init()
+        if not os.path.exists(self.file_dir):
+            os.mkdir(self.file_dir)
         return self
 
     @property
@@ -150,6 +155,10 @@ class FileManipulator(LiresBase):
     @property
     def uuid(self) -> str:
         return self._uid
+    
+    @property
+    def file_dir(self) -> str:
+        return os.path.join(self.conn.db_dir, "files")
     
     async def fileExt(self) -> str:
         """Document file extension, empty string if not exists"""
@@ -162,11 +171,13 @@ class FileManipulator(LiresBase):
         file_ext = await self.fileExt()
         if file_ext == "":
             return None
-        file_path = os.path.join(self.conn.db_dir, self.uuid + file_ext)
+        file_path = os.path.join(self.file_dir, self.uuid + file_ext)
         if not os.path.exists(file_path):
-            await self.logger.error("file {} not exists, but file extension exists".format(file_path))
             await self.conn.setDocExt(self.uuid, "")
-            await self.logger.warning("cleared the file extension to auto-fix the problem")
+            await self.logger.warning(
+                "file {} not exists, but file extension exists, ".format(file_path) + 
+                "cleared the file extension to auto-fix the problem"
+                )
             return None
         return file_path
 
@@ -187,17 +198,17 @@ class FileManipulator(LiresBase):
         if self.hasMisc():
             selected_files.append(self.getMiscDir())
         for f in selected_files:
-            assert (os.path.exists(f) and self.conn.db_dir in f), "File {} not in db_dir {}".format(f, self.conn.db_dir)
+            assert (os.path.exists(f) and self.file_dir in f), "File {} not in db_dir {}".format(f, self.file_dir)
         selected_fname = [os.path.basename(f) for f in selected_files]
         return {
-            "root": self.conn.db_dir,
+            "root": self.file_dir,
             "fname": selected_fname,
         }
     
     # miscelaneous files directory
     @property
     def _misc_dir(self):
-        return os.path.join(self.conn.db_dir, self.uuid)
+        return os.path.join(self.file_dir, self.uuid)
     def getMiscDir(self, create = False):
         if create and not os.path.exists(self._misc_dir):
             os.mkdir(self._misc_dir)
@@ -318,8 +329,7 @@ class FileManipulator(LiresBase):
         if create_backup is True, will create a backup of the document
         """
         if create_backup:
-            _conn_dir = self.conn.db_dir
-            _backup_dir = os.path.join(_conn_dir, ".trash")
+            _backup_dir = os.path.join(self.conn.db_dir, ".trash")
             if not os.path.exists(_backup_dir):
                 os.mkdir(_backup_dir)
             old_entry = await self.conn.get(self.uuid)

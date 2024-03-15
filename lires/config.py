@@ -16,13 +16,14 @@ WEBPAGE = "https://github.com/MenxLi/Lires"
 # │   └── server.log
 # ├── Database
 # │   ├── lrs.db
-# │   └── ...
+# │   ├── index
+# │   │     ├── vector.db [FEATURE_PATH]
+# │   │     └── summary [DOC_SUMMARY_DIR]
+# │   └── files
+# │         └── ...
 # ├── Users
 # │   ├── user.db
 # │   └── avatar
-# ├── index
-# │   ├── vector.db [FEATURE_PATH]
-# │   └── summary [DOC_SUMMARY_DIR]
 # ├── Lires.cache [TMP_DIR]
 # │   └── ...
 
@@ -36,9 +37,9 @@ CONF_FILE_PATH = join(LRS_HOME, "config.json")
 ## Data entries
 DATABASE_DIR = join(LRS_HOME, "Database")
 USER_DIR = join(LRS_HOME, "Users")
-INDEX_DIR = os.path.join(LRS_HOME, "index")      # For index cache
 
 # indexing related
+INDEX_DIR = os.path.join(DATABASE_DIR, "index")
 VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
 DOC_SUMMARY_DIR = os.path.join(INDEX_DIR, "summary")
 
@@ -57,7 +58,7 @@ for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 for _p in [
-    TMP_DIR, INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR, 
+    DATABASE_DIR, TMP_DIR, INDEX_DIR, LOG_DIR, DOC_SUMMARY_DIR, 
     ]:
     if not os.path.exists(_p):
         os.mkdir(_p)
