@@ -5,7 +5,7 @@ import argparse, asyncio
 
 from lires.config import DATABASE_DIR, VECTOR_DB_PATH
 from lires.core.dataClass import DataBase
-from lires.core.vector import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID
+from lires.core.vector import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID, initVectorDB
 from lires.utils import MuteEverything
 from lires.api import IServerConn
 
@@ -42,11 +42,13 @@ def main():
     iconn = IServerConn()
 
     if args.subparser == "build":
-        vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
-        asyncio.run(buildFeatureStorage(iconn, db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words))
+        vector_db = initVectorDB(VECTOR_DB_PATH)
+        asyncio.run(buildFeatureStorage(
+            iconn, db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words, 
+            ))
 
     elif args.subparser == "query":
-        vector_collection = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])["doc_feature"]
+        vector_collection = initVectorDB(VECTOR_DB_PATH).getCollection("doc_feature")
         if args.input_uid:
             res = asyncio.run(queryFeatureIndexByUID(
                 db = db, 

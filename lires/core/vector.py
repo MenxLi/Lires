@@ -6,7 +6,7 @@ from __future__ import annotations
 import os, hashlib, re
 import asyncio
 from typing import TypedDict, Optional, Callable, Literal, TYPE_CHECKING
-from lires.config import DOC_SUMMARY_DIR, VECTOR_DB_PATH, getConf
+from lires.config import DOC_SUMMARY_DIR, getConf
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
 from lires.utils import Timer
@@ -14,7 +14,7 @@ import tiny_vectordb
 if TYPE_CHECKING:
     from lires.api import IServerConn
 
-async def initVectorDB(vector_db_path: str) -> tiny_vectordb.VectorDatabase:
+def initVectorDB(vector_db_path: str) -> tiny_vectordb.VectorDatabase:
     return tiny_vectordb.VectorDatabase(vector_db_path, [
         {"name": "doc_feature", "dimension": 768}
         ], compile_config=getConf()["tiny_vectordb_compile_config"])
@@ -50,7 +50,8 @@ async def getOverallFeatureTextSource(
         iconn: Optional[IServerConn], 
         dp: DataPoint, 
         max_words_per_doc: Optional[int] = None, 
-        print_fn: Callable[[str], None] = lambda x: None
+        print_fn: Callable[[str], None] = lambda x: None,
+        doc_summary_dir = DOC_SUMMARY_DIR
         )-> FeatureTextSource:
     """
     Extract text source from a document for feature extraction.
@@ -76,7 +77,7 @@ async def getOverallFeatureTextSource(
         pdf_path = await dp.fm.filePath(); assert pdf_path
         pdf_text = await getPDFText(pdf_path, max_words_per_doc)
 
-        _summary_cache_path = os.path.join(DOC_SUMMARY_DIR, uid + ".txt")
+        _summary_cache_path = os.path.join(doc_summary_dir, uid + ".txt")
         if os.path.exists(_summary_cache_path):
             # check if summary is already created
             summary = open(_summary_cache_path, "r").read()
@@ -124,12 +125,12 @@ async def buildFeatureStorage(
         use_llm: bool = True,
         force = False,
         operation_interval: float = 0.,
+        doc_summary_dir = DOC_SUMMARY_DIR,
         ):
     """
     - operation_interval: float, the interval between two operations, in seconds, 
         set this to a positive value to avoid blocking the main event loop
     """
-    # vector_db = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])
     vector_collection = vector_db.getCollection("doc_feature")
 
     # check if ai server is running
@@ -166,7 +167,7 @@ async def buildFeatureStorage(
         uid = dp.uuid
         # if idx > 3: break # for debug
         await asyncio.sleep(operation_interval)
-        _ret = await getOverallFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
+        _ret = await getOverallFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc, doc_summary_dir=doc_summary_dir)
         text_src[uid] = _ret["text"]
         src_type = _ret["type"]
         text_src_hash[uid] = _ret["hash"]
@@ -223,9 +224,6 @@ async def queryFeatureIndex(
         vector_collection: tiny_vectordb.VectorCollection,
         query: str, n_return: int = 16, 
         ) -> FeatureQueryResult:
-    if not vector_collection:
-        with Timer("Loading vector db"):
-            vector_collection = tiny_vectordb.VectorDatabase(VECTOR_DB_PATH, [{"name": "doc_feature", "dimension": 768}])["doc_feature"]
     query_vec = await iconn.featurize(query) # [d_feature]
     assert query_vec is not None
 

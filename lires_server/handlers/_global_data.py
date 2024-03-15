@@ -5,22 +5,14 @@ from lires.core.dataClass import DataBase
 from lires.config import DATABASE_DIR, VECTOR_DB_PATH, USER_DIR, getConf
 from lires.user import UserPool
 from lires.api import IServerConn
-from tiny_vectordb import VectorDatabase
+from lires.core.vector import initVectorDB
 
 @dataclasses.dataclass(frozen=True)
 class GlobalStorage:
     """Global storage for all handlers"""
     database = asyncio.run(DataBase().init(DATABASE_DIR))
     user_pool = asyncio.run(UserPool().init(USER_DIR))
-    vector_database = VectorDatabase(
-        path = VECTOR_DB_PATH, 
-        collection_configs = [{
-            "name": "doc_feature",
-            "dimension": 768
-        }],
-        compile_config=getConf()["tiny_vectordb_compile_config"]
-    )
-
+    vector_database = initVectorDB(VECTOR_DB_PATH)
     iconn = IServerConn()   # temporary, the endpoint will be set when server starts
 
     async def flush(self):
