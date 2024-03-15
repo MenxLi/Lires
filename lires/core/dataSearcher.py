@@ -7,7 +7,7 @@ from typing import Dict, Optional, TypedDict, Literal
 from lires.api import IServerConn
 from .dataClass import DataCore, DataBase, DataPoint
 from .dataTags import DataTagT
-from .textUtils import queryFeatureIndex
+from .vectorUtils import queryFeatureIndex
 from tiny_vectordb import VectorDatabase
 
 class _searchResult(TypedDict):
