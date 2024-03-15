@@ -36,17 +36,17 @@ async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = Fa
 
 FeatureQueryResult = TypedDict("FeatureQueryResult", {"uids": list[str], "scores": list[float]})
 
-FeatureTextSourceT = TypedDict("FeatureTextSource", {
+FeatureTextSource = TypedDict("FeatureTextSource", {
             "text": str, 
             "hash": str,
             "type": Literal["abstract", "summary", "fulltext", "title"]},
             )
-async def getFeatureTextSource(
+async def getOverallFeatureTextSource(
         iconn: Optional[IServerConn], 
         dp: DataPoint, 
         max_words_per_doc: Optional[int] = None, 
         print_fn: Callable[[str], None] = lambda x: None
-        )-> FeatureTextSourceT:
+        )-> FeatureTextSource:
     """
     Extract text source from a document for feature extraction.
     Priority: abstract > ai summary > fulltext > title
@@ -63,7 +63,7 @@ async def getFeatureTextSource(
         print_fn(f"- use abstract")
         return {
             "text": (_text := title_text + abstract),
-            "hash": hashlib.sha256(_text.encode()).hexdigest(),
+            "hash": hashlib.md5(_text.encode()).hexdigest(),
             "type": "abstract"
         }
     elif await dp.fm.hasFile() and dp.summary.file_type == ".pdf":
@@ -91,7 +91,7 @@ async def getFeatureTextSource(
             # if summary is created, use it as the text source
             return {
                 "text": (_text := title_text + summary),
-                "hash": hashlib.sha256(_text.encode()).hexdigest(),
+                "hash": hashlib.md5(_text.encode()).hexdigest(),
                 "type": "summary"
             }
         else:
@@ -99,7 +99,7 @@ async def getFeatureTextSource(
             print_fn(f"- use full text")
             return {
                 "text": (_text := pdf_text),
-                "hash": hashlib.sha256(_text.encode()).hexdigest(),
+                "hash": hashlib.md5(_text.encode()).hexdigest(),
                 "type": "fulltext"
             }
     else:
@@ -107,7 +107,7 @@ async def getFeatureTextSource(
         print_fn(f"- use title")
         return {
             "text": (_text := title_text.strip()),
-            "hash": hashlib.sha256(_text.encode()).hexdigest(),
+            "hash": hashlib.md5(_text.encode()).hexdigest(),
             "type": "title"
         }
 
@@ -161,7 +161,7 @@ async def buildFeatureStorage(
         uid = dp.uuid
         # if idx > 3: break # for debug
         await asyncio.sleep(operation_interval)
-        _ret = await getFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
+        _ret = await getOverallFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
         text_src[uid] = _ret["text"]
         src_type = _ret["type"]
         text_src_hash[uid] = _ret["hash"]
@@ -170,19 +170,24 @@ async def buildFeatureStorage(
 
     # build update dict
     print(f"Checking {len(text_src)} documents signature...")
-    text_src_update = {}
-    _current_feature_keys = vector_collection.keys()
+    text_src_to_update = {}        # the text source that needs to be updated
+    current_feature_keys = vector_collection.keys()
     for uid, text in text_src.items():
-        if uid not in _current_feature_keys:
-            text_src_update[uid] = text
+        if uid not in current_feature_keys:
+            text_src_to_update[uid] = text
         else:
             # check if the feature is outdated
             if text_src_hash[uid] != text_src_hash_record[uid]:
-                text_src_update[uid] = text
+                text_src_to_update[uid] = text
+    
+    # remove outdated features, the entry are deleted from the database
+    uid_delete = [uid for uid in current_feature_keys if uid not in text_src.keys()]
+    vector_collection.deleteBlock(uid_delete)
+    print(f"Removed {len(uid_delete)} outdated features...")
 
-    print(f"Featurizing {len(text_src_update)} documents...")
-    uid_list = list(text_src_update.keys())
-    text_list = list(text_src_update.values())
+    print(f"Featurizing {len(text_src_to_update)} documents...")
+    uid_list = list(text_src_to_update.keys())
+    text_list = list(text_src_to_update.values())
 
     feature_list = []
     for text in text_list:
