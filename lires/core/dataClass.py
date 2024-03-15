@@ -169,6 +169,12 @@ class DataBase(DataCore):
             os.mkdir(db)
         conn = await FileManipulator.getDatabaseConnection(db) 
         self.__conn = conn      # set database-wise connection instance
+
+        # create the file structure
+        _path = self.path
+        for p in [_path.file_dir, _path.index_dir, _path.summary_dir]:
+            if not os.path.exists(p):
+                os.mkdir(p)
         return self
 
     @property
@@ -186,11 +192,11 @@ class DataBase(DataCore):
                 └── ...
         """
         return self.DatabasePath(
-            main_dir = self.__conn.db_path,
-            file_dir = os.path.join(self.__conn.db_path, "files"),
-            index_dir = os.path.join(self.__conn.db_path, "index"),
-            summary_dir = os.path.join(self.__conn.db_path, "index", "summary"),
-            vector_db_file = os.path.join(self.__conn.db_path, "index", "vector.db"),
+            main_dir = self.__conn.db_dir,
+            file_dir = os.path.join(self.__conn.db_dir, "files"),
+            index_dir = os.path.join(self.__conn.db_dir, "index"),
+            summary_dir = os.path.join(self.__conn.db_dir, "index", "summary"),
+            vector_db_file = os.path.join(self.__conn.db_dir, "index", "vector.db"),
         )
     
     async def delete(self, uuid: str) -> bool:
