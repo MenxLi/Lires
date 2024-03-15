@@ -2,7 +2,7 @@ import dataclasses
 
 import asyncio
 from lires.core.dataClass import DataBase
-from lires.config import DATABASE_DIR, USER_DIR, getConf
+from lires.config import DATABASE_DIR, USER_DIR
 from lires.user import UserPool
 from lires.api import IServerConn
 from lires.core.vector import initVectorDB

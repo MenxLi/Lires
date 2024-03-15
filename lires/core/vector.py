@@ -9,7 +9,6 @@ from typing import TypedDict, Optional, Callable, Literal, TYPE_CHECKING
 from lires.config import getConf
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
-from lires.utils import Timer
 import tiny_vectordb
 if TYPE_CHECKING:
     from lires.api import IServerConn

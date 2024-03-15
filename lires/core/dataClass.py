@@ -2,17 +2,10 @@ from __future__ import annotations
 import os, asyncio, dataclasses
 from typing import List, Union, Optional, Literal
 from .dataTags import DataTags, TagRule
-try:
-    # may crash when generating config file withouot config file...
-    # because getConf was used in constructing static variable
-    from .fileTools import FileManipulator
-    from .dbConn import DBFileInfo, DBConnection
-except (FileNotFoundError, KeyError):
-    pass
+from .fileTools import FileManipulator
+from .dbConn import DBFileInfo, DBConnection
 from .base import LiresBase
-from .bibReader import parseBibtex, ParsedRef
 from ..types.dataT import DataPointSummary
-from ..utils import TimeUtils
 
 class DataCore(LiresBase):
     logger = LiresBase.loggers().core

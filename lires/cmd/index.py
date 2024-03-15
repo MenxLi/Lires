@@ -9,12 +9,9 @@ from lires.core.vector import buildFeatureStorage, queryFeatureIndex, queryFeatu
 from lires.utils import MuteEverything
 from lires.api import IServerConn
 
-import tiny_vectordb
-
 
 def parseArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build search index for the database")
-    parser.add_argument("--ai-endpoint", action="store", type=str, default="http://127.0.0.1:8731", help="ai endpoint")
     subparsers = parser.add_subparsers(dest="subparser", help="sub-command help")
 
     sp_feat = subparsers.add_parser("build", help="build the index")

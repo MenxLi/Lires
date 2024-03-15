@@ -33,10 +33,6 @@ CONF_FILE_PATH = join(LRS_HOME, "config.json")
 DATABASE_DIR = join(LRS_HOME, "Database")
 USER_DIR = join(LRS_HOME, "Users")
 
-# indexing related
-INDEX_DIR = os.path.join(DATABASE_DIR, "index")
-VECTOR_DB_PATH = os.path.join(INDEX_DIR, "vector.db")
-
 # for log files
 LOG_DIR = os.path.join(LRS_HOME, "log")
 
@@ -51,9 +47,7 @@ if not os.path.exists(LRS_HOME):
 for _p in [TMP_DIR]:
     if not os.path.exists(_p):
         os.mkdir(_p)
-for _p in [
-    DATABASE_DIR, TMP_DIR, INDEX_DIR, LOG_DIR, 
-    ]:
+for _p in [ TMP_DIR, LOG_DIR, ]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 
