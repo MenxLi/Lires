@@ -1,4 +1,4 @@
-import os, logging, asyncio
+import os, asyncio
 from .parser import prepareParser
 from .cmd.generateDefaultConf import generateDefaultConf
 
@@ -7,7 +7,6 @@ def initLoggers():
     import os
     from lires.utils import setupLogger, BCOLORS
     from lires.utils.log import TermLogLevelT
-    from .core.base import G
 
     term_log_level: TermLogLevelT = os.getenv("LRS_LOG_LEVEL", "INFO").upper()          # type: ignore
 
@@ -37,10 +36,6 @@ def run():
     if args.reset_conf:
         generateDefaultConf()
         NOT_RUN = True
-
-    if not os.path.exists(DATABASE_DIR):
-        os.mkdir(DATABASE_DIR)
-        logging.getLogger('default').info("Database directory not exists, create new. ")
 
     if args.version:
         for v,change_list in VERSION_HISTORIES:

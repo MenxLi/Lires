@@ -15,12 +15,7 @@ WEBPAGE = "https://github.com/MenxLi/Lires"
 # │   ├── core.log
 # │   └── server.log
 # ├── Database
-# │   ├── lrs.db
-# │   ├── index
-# │   │     ├── vector.db
-# │   │     └── summary
-# │   └── files
-# │         └── ...
+# │   └── ...
 # ├── Users
 # │   ├── user.db
 # │   └── avatar
