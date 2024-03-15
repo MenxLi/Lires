@@ -510,9 +510,7 @@ class DBConnection(LiresBase):
             return []
         query_conds = []
         query_items = []
-        if from_uids is not None:
-            query_conds.append("uuid IN ({})".format(",".join(["?"]*len(from_uids))))
-            query_items.extend(from_uids)
+
         for [field, value] in [
             ["title", title],
             ["publication", publication],
@@ -544,9 +542,10 @@ class DBConnection(LiresBase):
             query_conds.append("year>=? AND year<?")
             query_items.extend(year)
 
-        # reverse for better debug info
-        query_conds.reverse()
-        query_items.reverse()
+        # better debug info, put uid in the end
+        if from_uids is not None:
+            query_conds.append("uuid IN ({})".format(",".join(["?"]*len(from_uids))))
+            query_items.extend(from_uids)
 
         if query_conds:
             # execute
