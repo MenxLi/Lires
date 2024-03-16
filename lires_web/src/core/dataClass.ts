@@ -332,16 +332,12 @@ export class DataBase {
             for (const uid in this.cache){
                 currentTagPool.union_(this.cache[uid].tags);
             }
-            if (!currentTagPool.issubset(this.tags)){
-                // new tags are introduced by the updated data
-                // update the tag cache directly, without request to server
-                this.tags.union_(currentTagPool);
-            }
-            if (!oldTagsOfUpdatedData.issubset(currentTagPool)){
-                // some of the old tags may not used anymore
-                return true;
-            }
-            return false;
+            // new tags maybe introduced by the updated data
+            // update the tag cache directly, without request to server
+            this.tags.union_(currentTagPool);
+            // if the old tags of the updated data is not a subset of the current tag pool
+            // then the tag cache should be updated
+            return !oldTagsOfUpdatedData.issubset(currentTagPool)
         }
         // check if the tag cache should be updated
         if (syncTags && shouldUpdateTagCache(oldTagsOfUpdatedData)){
