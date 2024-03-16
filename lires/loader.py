@@ -17,11 +17,11 @@ class DatabaseInstance:
     database: DataBase
     vector_db: VectorDatabase
     async def close(self):
-        await self.database.conn.close()
+        await self.database.close()
         self.vector_db.disk_io.conn.close()
     
     async def commit(self):
-        await self.database.conn.commit()
+        await self.database.commit()
         self.vector_db.commit()
 
 async def loadDatabaseInstance(user_id: int, database_home: str):

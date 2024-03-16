@@ -172,7 +172,6 @@ class DBConnection(LiresBase):
                 await self.setModifiedFlag(True)
         
     async def close(self):
-        await self.commit()
         await self.conn.close()
         await self.cache.conn.close()
     

@@ -140,7 +140,7 @@ class DataBase(DataCore):
 
     def __init__(self):
         super().__init__()
-        self.__conn: DBConnection = None   # type: ignore
+        self.__conn: DBConnection | None = None   # type: ignore
 
     @property
     def conn(self) -> DBConnection:
@@ -169,6 +169,11 @@ class DataBase(DataCore):
             if not os.path.exists(p):
                 os.mkdir(p)
         return self
+    
+    async def commit(self): await self.conn.commit()
+    async def close(self):
+        await self.conn.close()
+        self.__conn = None
 
     @property
     def path(self):
@@ -185,11 +190,11 @@ class DataBase(DataCore):
                 └── ...
         """
         return self.DatabasePath(
-            main_dir = self.__conn.db_dir,
-            file_dir = os.path.join(self.__conn.db_dir, "files"),
-            index_dir = os.path.join(self.__conn.db_dir, "index"),
-            summary_dir = os.path.join(self.__conn.db_dir, "index", "summary"),
-            vector_db_file = os.path.join(self.__conn.db_dir, "index", "vector.db"),
+            main_dir = self.conn.db_dir,
+            file_dir = os.path.join(self.conn.db_dir, "files"),
+            index_dir = os.path.join(self.conn.db_dir, "index"),
+            summary_dir = os.path.join(self.conn.db_dir, "index", "summary"),
+            vector_db_file = os.path.join(self.conn.db_dir, "index", "vector.db"),
         )
     
     async def delete(self, uuid: str) -> bool:
