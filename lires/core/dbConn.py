@@ -2,7 +2,7 @@
 Sqlite connection interface
 """
 from __future__ import annotations
-import json, os, uuid, hashlib
+import json, os, uuid
 import typing
 from typing import TypedDict, Optional, TYPE_CHECKING
 import dataclasses
@@ -114,11 +114,7 @@ class DBConnection(LiresBase):
         self.db_path = db_path
         self.__modified = False
 
-        self.cache = DBConnectionCache(
-            cache_id=hashlib.md5(
-                os.path.abspath(db_path).encode()
-                ).hexdigest()
-            )
+        self.cache = DBConnectionCache()
     
     async def init(self) -> DBConnection:
         """
@@ -575,8 +571,7 @@ class DBConnectionCache(LiresBase):
     the value should be a json string of a list of uuids
     """
     logger = LiresBase.loggers().core
-    def __init__(self, cache_id: str) -> None:
-        self.__id = cache_id
+    def __init__(self) -> None:
         self.__conn: aiosqlite.Connection
     
     @property
@@ -588,7 +583,8 @@ class DBConnectionCache(LiresBase):
 
     async def init(self):
         # create in-memory database, remember to close it after use!
-        self.__conn = await aiosqlite.connect(f"file:{self.__id}?mode=memory&cache=shared", uri=True)
+        # self.__conn = await aiosqlite.connect(f"file:{self.__id}?mode=memory&cache=shared", uri=True)
+        self.__conn = await aiosqlite.connect(f":memory:")
 
         # two cache tables for authors and tags
         async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='authors'") as cursor:
