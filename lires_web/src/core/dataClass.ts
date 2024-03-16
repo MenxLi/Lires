@@ -310,22 +310,43 @@ export class DataBase {
     async updateKeyCache(){ this.uids = await this.conn.reqAllKeys(); }
     async updateTagCache(){ this.tags = new DataTags(await this.conn.reqAllTags()); }
 
-    async update(summary: DataInfoT): Promise<DataPoint> {
+    async update(summary: DataInfoT, syncTags = true): Promise<DataPoint> {
+        let oldTagsOfUpdatedData;
         if (summary.uuid in this.cache){
             this.cache[summary.uuid].update(summary);
+            oldTagsOfUpdatedData = this.cache[summary.uuid].tags;
         }else{
             this.cache[summary.uuid] = new DataPoint(this.conn, summary);
+            oldTagsOfUpdatedData = new DataTags();
         }
 
         if (!this.uids.includes(summary.uuid)){
             // add to start of the list
             this.uids.unshift(summary.uuid);
         }
-        // check if the tags are updated
-        // if (!(new DataTags(summary.tags).issubset(this.tags))){
-        //     await this.updateTagCache();
-        // }
-        await this.updateTagCache();
+
+        // maybe the updated data has new tags, or some of the old tags are not used anymore
+        // in this case, the tag cache should be updated
+        const shouldUpdateTagCache = (oldTagsOfUpdatedData: DataTags) => {
+            const currentTagPool = new DataTags();
+            for (const uid in this.cache){
+                currentTagPool.union_(this.cache[uid].tags);
+            }
+            if (!currentTagPool.issubset(this.tags)){
+                // new tags are introduced by the updated data
+                // update the tag cache directly, without request to server
+                this.tags.union_(currentTagPool);
+            }
+            if (!oldTagsOfUpdatedData.issubset(currentTagPool)){
+                // some of the old tags may not used anymore
+                return true;
+            }
+            return false;
+        }
+        // check if the tag cache should be updated
+        if (syncTags && shouldUpdateTagCache(oldTagsOfUpdatedData)){
+            await this.updateTagCache();
+        }
         return this.cache[summary.uuid];
     }
 
@@ -336,10 +357,28 @@ export class DataBase {
         this._initliazed = false;
     }
 
-    delete(uuid: string){
+    async delete(uuid: string, syncTags = true){
+        if (!(uuid in this.cache)) return;
+        const oldTagsOfDeletedData = this.cache[uuid].tags;
+
+        // remove the data from cache
         delete this.cache[uuid];
         if (this.uids.includes(uuid)){
             this.uids = this.uids.filter((uid) => uid !== uuid);
+        }
+
+        // maybe the deleted data has the only tag in the database
+        // in this case, the tag cache should be updated
+        const shouldUpdateTagCache = (oldTagsOfDeletedData: DataTags) => {
+            // collect all tags of the database
+            const allTags = new DataTags();
+            for (const uid in this.cache){
+                allTags.union_(this.cache[uid].tags);
+            }
+            return !oldTagsOfDeletedData.issubset(allTags)
+        }
+        if (syncTags && shouldUpdateTagCache(oldTagsOfDeletedData)){
+            await this.updateTagCache();
         }
     }
 

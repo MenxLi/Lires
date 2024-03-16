@@ -119,9 +119,10 @@
     registerServerEvenCallback('delete_entry', (event) => {
         const dataStore = useDataStore();
         const uid = (event as Event_Data).uuid!
-        dataStore.database.delete(uid)
-        console.log("DEBUG: delete entry update UI");
-        uiState.updateShownData();
+        dataStore.database.delete(uid).then(()=>{
+            console.log("DEBUG: delete entry update UI")
+            uiState.updateShownData();
+        })
     })
     registerServerEvenCallback(['delete_tag', 'update_tag'], (event: any) =>{
         const oldTag = new DataTags([(event as Event_Tag).src_tag!]);
