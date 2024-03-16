@@ -354,18 +354,23 @@ export class DataBase {
     }
 
     async delete(uuid: string, syncTags = true){
-        if (!(uuid in this.cache)) return;
-        const oldTagsOfDeletedData = this.cache[uuid].tags;
+        let oldTagsOfDeletedData: DataTags | null;
+        if (uuid in this.cache){
+            oldTagsOfDeletedData = this.cache[uuid].tags;
+            delete this.cache[uuid];
+        }
+        else{
+            oldTagsOfDeletedData = null;
+        }
 
-        // remove the data from cache
-        delete this.cache[uuid];
         if (this.uids.includes(uuid)){
             this.uids = this.uids.filter((uid) => uid !== uuid);
         }
 
         // maybe the deleted data has the only tag in the database
         // in this case, the tag cache should be updated
-        const shouldUpdateTagCache = (oldTagsOfDeletedData: DataTags) => {
+        const shouldUpdateTagCache = (oldTagsOfDeletedData: DataTags | null) => {
+            if (oldTagsOfDeletedData === null){ return true; }
             // collect all tags of the database
             const allTags = new DataTags();
             for (const uid in this.cache){
