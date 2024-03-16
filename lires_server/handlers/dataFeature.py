@@ -18,7 +18,7 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
         random_state = self.get_argument("random_state", default="100")
 
         try:
-            vector_collection = self.vec_db.getCollection(collection_name)
+            vector_collection = (await self.vec_db()).getCollection(collection_name)
         except KeyError:
             raise tornado.web.HTTPError(405, f"Collection {collection_name} not found")
         

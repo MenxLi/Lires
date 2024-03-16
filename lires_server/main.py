@@ -150,14 +150,14 @@ async def __startServer(
         print("Periodically build index")
         from lires.core.vector import buildFeatureStorage
 
-        base_request_handler = RequestHandlerMixin()
-        await buildFeatureStorage(
-            iconn = g_storage.iconn,
-            db = base_request_handler.db,
-            vector_db = base_request_handler.vec_db,
-            use_llm = False,
-            operation_interval=op_interval,
-        )
+        for db_ins in g_storage.database_pool:
+            await buildFeatureStorage(
+                iconn = g_storage.iconn,
+                db = db_ins.database,
+                vector_db = db_ins.vector_db,
+                use_llm = False,
+                operation_interval=op_interval,
+            )
     
     tornado.ioloop.PeriodicCallback(buildIndex, 12*60*60*1000).start()  # in milliseconds
     tornado.ioloop.PeriodicCallback(g_storage.flush, 5*1000).start()    # periodically flush the database

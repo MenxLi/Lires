@@ -76,7 +76,7 @@ class BasicFilterHandler(RequestHandlerBase):
                     res.append(uid)
         
         elif search_by == 'feature':
-            res_, scores_ = await searchByFeature(self.iconn, self.vec_db, search_content, top_k=top_k)
+            res_, scores_ = await searchByFeature(self.iconn, await self.vec_db(), search_content, top_k=top_k)
             if cadidate_ids is not None:
                 candidate_set = set(cadidate_ids)    # convert to set may be faster?
                 res = []
@@ -127,7 +127,7 @@ class SearchHandler(RequestHandlerBase):
         searcher = DataSearcher(await self.db())
         if method == "searchFeature":
             kwargs["iconn"] = self.iconn
-            kwargs["vec_db"] = self.vec_db
+            kwargs["vec_db"] = await self.vec_db()
         searcher.setRunConfig(method, kwargs)
         res = await searcher.run()
         for k in res.keys():

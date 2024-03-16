@@ -47,6 +47,9 @@ class DatabasePool(LiresBase):
             self.__db_ins_cache[user_id] = db_ins
         return self.__db_ins_cache[user_id]
     
+    def __iter__(self):
+        return iter(self.__db_ins_cache.values())
+    
     async def commit(self):
         await asyncio.gather(*[db_ins.commit() for db_ins in self.__db_ins_cache.values()])
     
