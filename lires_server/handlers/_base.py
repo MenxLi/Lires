@@ -39,7 +39,7 @@ def __init_global_storage():
     return GlobalStorage(user_pool=user_pool, database_pool=db_pool, iconn=iconn)
 
 g_storage = __init_global_storage()
-_ws_connections = []
+_ws_connections: list[WebsocketHandler] = []
 
 class RequestHandlerMixin(LiresBase):
     get_argument: Callable
@@ -77,16 +77,15 @@ class RequestHandlerMixin(LiresBase):
         return ( await g_storage.database_pool.get((await self.userInfo())["id"]) ).vector_db
 
     @property
-    def user_pool(self) -> UserPool:
-        return g_storage.user_pool
+    def user_pool(self): return g_storage.user_pool
+    @property
+    def db_pool(self): return g_storage.database_pool
+    @property
+    def iconn(self): return g_storage.iconn
     
     @property
     def connection_pool(self) -> list[WebsocketHandler]:
         return _ws_connections
-    
-    @property
-    def iconn(self):
-        return g_storage.iconn
     
     @property
     def enc_key(self) -> str:

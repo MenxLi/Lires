@@ -53,7 +53,11 @@ class UserPool():
         except LiresError.LiresUserNotFoundError:
             return None
     
-    async def deleteUser(self, query: int|str):
+    async def deleteUserPermanently(self, query: int|str):
+        """
+        Permanently delete a user from the database.
+        Please use with caution!
+        """
         user: Optional[LiresUser] = None
         if isinstance(query, str):
             user = await self.getUserByUsername(query)

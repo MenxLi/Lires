@@ -54,7 +54,10 @@ class UserDeleteHandler(RequestHandlerBase):
         user = await self.user_pool.getUserByUsername(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
-        await self.user_pool.deleteUser((await user.info())["id"])
+        
+        user_id = (await user.info())["id"]
+        await self.db_pool.deleteDatabasePermanently(user_id)
+        await self.user_pool.deleteUserPermanently(user_id)
         await self.broadcastEventMessage({
             'type': 'delete_user',
             'username': username,

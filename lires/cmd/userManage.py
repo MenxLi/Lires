@@ -1,7 +1,6 @@
 import argparse
-from lires.user import UserPool
+from lires.loader import initResources
 from lires.user.encrypt import generateHexHash
-from lires.config import USER_DIR
 from lires.core.dataTags import DataTags
 
 def str2bool(v):
@@ -35,12 +34,13 @@ async def _run():
     parser_del = sp.add_parser("delete", help = "Delete a user")
     parser_del.add_argument("-u", "--username", help = "Username to delete", default=None)
     parser_del.add_argument("-i", "--id", help = "id to delete", default=None, type=int)
+    parser_del.add_argument("-y", "--yes", help = "Skip confirmation", action="store_true")
 
     sp.add_parser("list", help = "List users")
 
     args = parser.parse_args()
 
-    user_pool = await UserPool().init()
+    user_pool, db_pool = await initResources()
     user_db_conn = user_pool.conn
     try:
         if args.subparser == "add":
@@ -66,10 +66,23 @@ async def _run():
             assert args.username is not None or args.id is not None, "Username or id is required"
             assert not (args.username is not None and args.id is not None), "Cannot specify both username and id"
             if args.username is not None:
-                await user_db_conn.deleteUser(args.username)
-            if args.id is not None:
+                assert args.id is None
+                user = await user_pool.getUserByUsername(args.username)
+            else:
+                assert args.id is not None
                 assert args.username is None
-                await user_db_conn.deleteUser(args.id)
+                user = await user_pool.getUserById(args.id)
+            if user is None:
+                print(f"Error: User does not exist")
+                return
+            if not args.yes:
+                if input(f"Are you sure you want to delete user **{await user.toString()}**, "
+                         "together with all data associated? (y/[n])").lower() != "y":
+                    print("Cancelled.")
+                    return
+            await db_pool.deleteDatabasePermanently(user.id)
+            await user_pool.deleteUserPermanently(user.id)
+            print("User deleted.")
         
         elif args.subparser == "list":
             for user in await user_pool.all():
@@ -82,6 +95,7 @@ async def _run():
     except Exception as e:
         print("Error: ", e)
     finally:
+        await db_pool.close()
         await user_db_conn.close()
 
 def run():

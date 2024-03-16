@@ -2,7 +2,7 @@
 Utilities to load the database and other resources
 """
 
-import os, dataclasses
+import os, dataclasses, shutil
 from .core.base import LiresBase
 from .core.dataClass import DataBase
 from .core.vector import initVectorDB
@@ -65,6 +65,22 @@ class DatabasePool(LiresBase):
         """ Load all databases to cache"""
         users = await user_pool.all()
         await asyncio.gather(*[self.get(user) for user in users])
+    
+    async def deleteDatabasePermanently(self, user: LiresUser|int):
+        """
+        Delete the database permanently! 
+        Please be careful when using this method.
+        """
+        if not isinstance(user, int):
+            user_id = user.id
+        else:
+            user_id = user
+        db = await self.get(user_id)
+        path_to_delete = db.database.path.main_dir
+
+        await db.close()
+        del self.__db_ins_cache[user_id]
+        shutil.rmtree(path_to_delete)
 
 async def initResources(pre_load: bool = False):
     user_pool = await UserPool().init(USER_DIR)

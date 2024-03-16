@@ -163,8 +163,11 @@
         <QueryDialog v-model:show="showDeleteUserDialog" title="Delete user" @on-cancel="()=>showDeleteUserDialog=false" @on-accept="onDeleteUserConfirm">
             <div id="delete-user-dialog-main">
                 <p>
-                    Are you sure to delete user <b>{{editUserDialog_userInfo.name}} ({{editUserDialog_userInfo.username}})</b>?
+                    Are you sure to delete user <b>{{editUserDialog_userInfo.name}} ({{editUserDialog_userInfo.username}})</b>? 
+                    <br>
+                    All data associated will be deleted as well.
                 </p>
+                <hr style="margin-block: 1rem;">
                 Type <b>{{editUserDialog_userInfo.username}}</b> to confirm:
                 <input type="text" id="delete-user-input" v-model="deleteUserConfirmInput" autocomplete="off">
             </div>
