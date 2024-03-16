@@ -36,7 +36,6 @@ def __init_global_storage():
     from lires.loader import initResources
     user_pool, db_pool = asyncio.run(initResources())
     iconn = IServerConn()
-    print("[init] Global storage initialized")
     return GlobalStorage(user_pool=user_pool, database_pool=db_pool, iconn=iconn)
 
 g_storage = __init_global_storage()

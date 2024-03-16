@@ -33,8 +33,10 @@ async def loadDatabaseInstance(user_id: int, database_home: str):
 class DatabasePool(LiresBase):
     def __init__(self, databse_home: str = DATABASE_HOME) -> None:
         super().__init__()
-        self.__db_ins_cache: dict[int, DatabaseInstance] = {}
         self._home = databse_home
+
+        self.__db_ins_cache: dict[int, DatabaseInstance] = {}
+        self.__getting_db_lock = asyncio.Lock()
     
     async def get(self, user: LiresUser|int) -> DatabaseInstance:
         if not isinstance(user, int):
@@ -42,9 +44,12 @@ class DatabasePool(LiresBase):
         else:
             user_id = user
 
-        if not user_id in self.__db_ins_cache:
-            db_ins = await loadDatabaseInstance(user_id, self._home)
-            self.__db_ins_cache[user_id] = db_ins
+        async with self.__getting_db_lock:
+            # to prevent multiple loading of the same database
+            if not user_id in self.__db_ins_cache:
+                db_ins = await loadDatabaseInstance(user_id, self._home)
+                self.__db_ins_cache[user_id] = db_ins
+
         return self.__db_ins_cache[user_id]
     
     def __iter__(self):
@@ -61,7 +66,7 @@ class DatabasePool(LiresBase):
         users = await user_pool.all()
         await asyncio.gather(*[self.get(user) for user in users])
 
-async def initResources(pre_load: bool = True):
+async def initResources(pre_load: bool = False):
     user_pool = await UserPool().init(USER_DIR)
     db_pool = DatabasePool(DATABASE_HOME)
     if pre_load:
