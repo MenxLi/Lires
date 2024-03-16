@@ -11,6 +11,7 @@ from lires.core.base import LiresBase
 from lires.core.dataClass import DataBase
 from lires.core.dataTags import DataTags
 from lires.utils import BCOLORS
+
 from tiny_vectordb import VectorDatabase
 
 from ..types import Event
@@ -33,7 +34,15 @@ def keyRequired(func: FuncT) -> FuncT:
     return wrapper  # type: ignore
 
 # Server level global storage
-g_storage = GlobalStorage()
+def __init_global_storage():
+    from lires.api import IServerConn
+    from lires.loader import initResources
+    user_pool, db_pool = asyncio.run(initResources())
+    iconn = IServerConn()
+    print("[init] Global storage initialized")
+    return GlobalStorage(user_pool=user_pool, database_pool=db_pool, iconn=iconn)
+
+g_storage = __init_global_storage()
 _ws_connections = []
 
 class RequestHandlerMixin(LiresBase):
@@ -67,10 +76,12 @@ class RequestHandlerMixin(LiresBase):
 
     @property
     def db(self) -> DataBase:
+        raise NotImplementedError("Database not defined")
         return g_storage.database
     
     @property
     def vec_db(self) -> VectorDatabase:
+        raise NotImplementedError("Vector database not defined")
         return g_storage.vector_database
     
     @property

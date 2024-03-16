@@ -19,6 +19,10 @@ class DatabaseInstance:
     async def close(self):
         await self.database.conn.close()
         self.vector_db.disk_io.conn.close()
+    
+    async def commit(self):
+        await self.database.conn.commit()
+        self.vector_db.commit()
 
 async def loadDatabaseInstance(user_id: int, database_home: str):
     database_dir = os.path.join(database_home, str(user_id))
@@ -32,11 +36,19 @@ class DatabasePool(LiresBase):
         self.__db_ins_cache: dict[int, DatabaseInstance] = {}
         self._home = databse_home
     
-    async def get(self, user: LiresUser) -> DatabaseInstance:
-        if not user.id in self.__db_ins_cache:
-            db_ins = await loadDatabaseInstance(user.id, self._home)
-            self.__db_ins_cache[user.id] = db_ins
-        return self.__db_ins_cache[user.id]
+    async def get(self, user: LiresUser|int) -> DatabaseInstance:
+        if not isinstance(user, int):
+            user_id = user.id
+        else:
+            user_id = user
+
+        if not user_id in self.__db_ins_cache:
+            db_ins = await loadDatabaseInstance(user_id, self._home)
+            self.__db_ins_cache[user_id] = db_ins
+        return self.__db_ins_cache[user_id]
+    
+    async def commit(self):
+        await asyncio.gather(*[db_ins.commit() for db_ins in self.__db_ins_cache.values()])
     
     async def close(self):
         await asyncio.gather(*[db_ins.close() for db_ins in self.__db_ins_cache.values()])

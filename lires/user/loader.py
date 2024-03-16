@@ -19,8 +19,8 @@ class UserPool():
     def conn(self) -> UsrDBConnection:
         return self._conn
     
-    async def close(self):
-        await self.conn.close()
+    async def commit(self): await self.conn.commit()
+    async def close(self): await self.conn.close()
     
     async def size(self) -> int:
         return len(await self.conn.getAllUserIDs())
