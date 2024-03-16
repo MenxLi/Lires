@@ -1,11 +1,12 @@
 <script setup lang="ts">
-    import { useConnectionStore } from './store';
+    import { useConnectionStore, useDataStore } from './store';
     import { ref, computed } from 'vue';
     import { type Changelog } from '../api/protocalT';
     import { getBackendURL, manualURL_zh } from '../config';
     import Toolbar from './common/Toolbar.vue';
     import FloatingWindow from './common/FloatingWindow.vue';
     import { registerServerEvenCallback } from '../api/serverWebsocketConn';
+    import UsersWidget from './dashboard/UsersWidget.vue';
 
     const changelog = ref<Changelog>([]);
     const showChangelog = ref(false);
@@ -91,6 +92,17 @@
                 </ul>
             </p>
             <a @click="showChangelog = true" style="cursor: pointer;">View change log</a>
+            <details v-if="useDataStore().user.is_admin">
+                <summary>User management</summary>
+                <div style="
+                border: 1px solid var(--color-border); 
+                border-radius: 10px;
+                display: flex; justify-content: center; 
+                margin: 10px; padding: 10px;
+                width: 100%;">
+                    <UsersWidget/>
+                </div>
+            </details> 
         </div>
 
         <FloatingWindow v-model:show="showChangelog" title="Change log">

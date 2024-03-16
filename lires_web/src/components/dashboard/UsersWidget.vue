@@ -160,12 +160,16 @@
                 <input id="delete-user-button" type="button" value="Delete user" @click="()=>{showDeleteUserDialog=true}"/>
             </div>
         </QueryDialog>
-        <QueryDialog v-model:show="showDeleteUserDialog" title="Delete user" @on-cancel="()=>showDeleteUserDialog=false" @on-accept="onDeleteUserConfirm">
+        <QueryDialog v-model:show="showDeleteUserDialog" title="Delete user" 
+            @on-cancel="()=>{showDeleteUserDialog=false; deleteUserConfirmInput=''}" 
+            @on-close="()=>{showDeleteUserDialog=false; deleteUserConfirmInput=''}"
+            @on-accept="onDeleteUserConfirm">
             <div id="delete-user-dialog-main">
                 <p>
                     Are you sure to delete user <b>{{editUserDialog_userInfo.name}} ({{editUserDialog_userInfo.username}})</b>? 
-                    <br>
-                    All data associated will be deleted as well.
+                    <p style="color:var(--color-danger)">
+                        All data under this user will be deleted!
+                    </p>
                 </p>
                 <hr style="margin-block: 1rem;">
                 Type <b>{{editUserDialog_userInfo.username}}</b> to confirm:
@@ -174,6 +178,7 @@
         </QueryDialog>
         <QueryDialog v-model:show="showCreateUserDialog" 
         @on-cancel="closeCreateUserDialog" @on-accept="onConfirmCreateUser" @on-close="closeCreateUserDialog">
+            <div id="create-user-main">
             <table id="create-user-table">
                 <tr>
                     <td>Username:</td>
@@ -199,6 +204,7 @@
                     </td>
                 </tr>
             </table>
+            </div>
         </QueryDialog>
 
         <div id="user-widget-header">
@@ -377,8 +383,8 @@
     }
 
     div#user-editor-main{
-        padding-left: 15px;
-        padding-right: 15px;
+        padding-inline: 2rem;
+        padding-block: 1rem;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
@@ -409,8 +415,7 @@
 
     div#delete-user-dialog-main{
         padding: 10px;
-        padding-left: 15px;
-        padding-right: 15px;
+        padding-inline: 2rem;
     }
     input[type=button]#delete-user-button{
         padding: 5px;
@@ -431,6 +436,10 @@
     }
 
 
+    div#create-user-main{
+        padding-inline: 1rem;
+        padding-block: 0.7rem;
+    }
     table#create-user-table{
         width: 100%;
         border-collapse: collapse;
