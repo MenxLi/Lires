@@ -749,3 +749,14 @@ version_history:
       - Search by feature&tag
       - Catch data not found error on datapoint creation
       - Update feature visualization and tag bubble on data change
+  1.7.0:
+    - Breaking changes:
+      - Database file structure change, every user has their own database
+      - Need a key or specify user on data request
+    - UI:
+      - New home page layout
+      - User management to about page
+      - Add link button to datacard
+      - Reader use compact layout
+    - Fix:
+      - Query year range
