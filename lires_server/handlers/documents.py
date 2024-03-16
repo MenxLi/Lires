@@ -9,7 +9,8 @@ from lires.config import ACCEPTED_EXTENSIONS
 
 class DocHandler(RequestHandlerBase):
     async def get(self, uuid):
-        file_p = await (await self.db.get(uuid)).fm.filePath()
+        db = await self.db()
+        file_p = await (await db.get(uuid)).fm.filePath()
         if isinstance(file_p, str):
             if file_p.endswith(".pdf"):
                 async with aiofiles.open(file_p, "rb") as f:
@@ -30,7 +31,8 @@ class DocHandler(RequestHandlerBase):
         Upload document file
         """
         # permission check
-        dp = await self.db.get(uid)
+        db = await self.db()
+        dp = await db.get(uid)
         if not (await self.userInfo())["is_admin"]:
             await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
 
@@ -64,7 +66,7 @@ class DocHandler(RequestHandlerBase):
         if not await dp.fm.addFileBlob(file_data, ext):
             raise tornado.web.HTTPError(409, reason="File already exists")
 
-        dp = await self.db.get(uid)
+        dp = await db.get(uid)
         d_summary = dp.summary.json()
         await self.logger.info(f"Document {uid} added")
         await self.broadcastEventMessage({
@@ -79,14 +81,15 @@ class DocHandler(RequestHandlerBase):
         """
         Free a document from a file
         """
-        dp = await self.db.get(uid)
+        db = await self.db()
+        dp = await db.get(uid)
         if not (await self.userInfo())["is_admin"]:
             await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
 
         if not await dp.fm.deleteDocument():
             raise tornado.web.HTTPError(500, reason="Failed to delete file")
         await self.logger.info(f"Document {uid} freed")
-        dp = await self.db.get(uid)
+        dp = await db.get(uid)
         await self.broadcastEventMessage({
             "type": 'update_entry',
             'uuid': uid,

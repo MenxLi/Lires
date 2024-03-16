@@ -20,11 +20,12 @@ class StatusHandler(RequestHandlerBase):
 
     async def _respond(self):
         self.set_header("Content-Type", "application/json")
+        db = await self.db()
         status: ServerStatus = {
             "status": "online",
             "version": VERSION,
             "uptime": time.time() - self._init_time,
-            "n_data": await self.db.count(),
+            "n_data": await db.count(),
             "n_connections": len(self.connection_pool)
         }
         self.write(json.dumps(status))

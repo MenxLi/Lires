@@ -18,7 +18,8 @@ class DataListHandler(RequestHandlerBase):
         Args:
             tags (str): tags should be "%" or split by "&&"
         """
-        self.set_header("totalDataCount", str(await self.db.count()))
+        db = await self.db()
+        self.set_header("totalDataCount", str(await db.count()))
 
         # may delete this
         tags = self.get_argument("tags")
@@ -34,7 +35,8 @@ class DataListHandler(RequestHandlerBase):
         """
         tags are list of strings
         """
-        self.set_header("totalDataCount", str(await self.db.count()))
+        db = await self.db()
+        self.set_header("totalDataCount", str(await db.count()))
         tags = json.loads(self.get_argument("tags"))
         await self.emitDataList(tags)
     
@@ -44,7 +46,8 @@ class DataListHandler(RequestHandlerBase):
         return
 
     async def getDictDataListByTags(self, tags: Union[list, DataTags], sort_by:SortType = "time_added") -> List[dict]:
-        dl = await self.db.getDataByTags(tags)
+        db = await self.db()
+        dl = await db.getDataByTags(tags)
         dl = sortDataList(dl, sort_by = sort_by)
         return [d.summary.json() for d in dl]
 
@@ -65,14 +68,16 @@ class DatabaseKeysHandler(RequestHandlerBase):
     """ Get summary of the database """
     @keyRequired
     async def get(self):
-        self.write(json.dumps(await self.db.keys()))
+        db = await self.db()
+        self.write(json.dumps(await db.keys()))
         return
 class DatabaseTagsHandler(RequestHandlerBase):
     """ Get summary of the database """
     @keyRequired
     async def get(self):
+        db = await self.db()
         self.write(json.dumps(
-            (await self.db.tags()).toOrderedList()
+            (await db.tags()).toOrderedList()
             ))
         return
 
@@ -82,8 +87,9 @@ class DataInfoHandler(RequestHandlerBase):
     """
     @keyRequired
     async def get(self, uid:str):
+        db = await self.db()
         try:
-            dp: DataPoint = await self.db.get(uid)
+            dp: DataPoint = await db.get(uid)
         except self.Error.LiresEntryNotFoundError:
             await self.logger.error("Data point not found (uid: {})".format(uid))
             self.set_status(404)
@@ -99,11 +105,12 @@ class DataInfoListHandler(RequestHandlerBase):
     @keyRequired
     async def post(self):
         uids: list[str] = json.loads(self.get_argument("uids"))
+        db = await self.db()
         try:
-            all_dp = await self.db.gets(uids)
+            all_dp = await db.gets(uids)
         except self.Error.LiresEntryNotFoundError:
             await self.logger.error("Some data points are not found: {}".format(
-                non_exist_uids := await self.db.conn.checkNoneExist(uids)
+                non_exist_uids := await db.conn.checkNoneExist(uids)
             ))
             self.set_status(404)
             self.write("Some data points are not found: {}".format(non_exist_uids))

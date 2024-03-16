@@ -18,6 +18,7 @@ class BasicFilterHandler(RequestHandlerBase):
     async def post(self):
         # url encoded form
         self.set_header("Content-Type", "application/json")
+        db = await self.db()
 
         # Get the tag and search filter from form
         tags = json.loads(self.get_argument("tags"))
@@ -30,23 +31,23 @@ class BasicFilterHandler(RequestHandlerBase):
         # Get the data
         if (not search_content) and (not tags):
             return self.write(json.dumps({
-                'uids': await self.db.keys(),
+                'uids': await db.keys(),
                 'scores': None
             }))
 
         if tags:
-            cadidate_ids = await self.db.getIDByTags(tags)
+            cadidate_ids = await db.getIDByTags(tags)
             res = cadidate_ids
         else:
             cadidate_ids = None
-            res = await self.db.keys()
+            res = await db.keys()
         scores = None
 
         if not search_content:
             pass
 
         elif search_by == 'title':
-            res = await self.db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, title=search_content)
+            res = await db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, title=search_content)
         
         elif search_by == 'year':
             q = None
@@ -60,17 +61,17 @@ class BasicFilterHandler(RequestHandlerBase):
                         break
             if q is None:
                 raise tornado.web.HTTPError(400, "Invalid search year value")
-            res = await self.db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, year=q)
+            res = await db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, year=q)
         
         elif search_by == 'publication':
-            res = await self.db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, publication=search_content)
+            res = await db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, publication=search_content)
         
         elif search_by == 'note':
-            res = await self.db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, note=search_content)
+            res = await db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, note=search_content)
         
         elif search_by == 'uuid':
             res = []
-            for uid in await self.db.keys():
+            for uid in await db.keys():
                 if uid.startswith(search_content):
                     res.append(uid)
         
@@ -90,7 +91,7 @@ class BasicFilterHandler(RequestHandlerBase):
         
         elif search_by == 'author':
             # TODO: Optimize this to unify the author name
-            res = await self.db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, authors=[search_content])
+            res = await db.conn.filter(strict=False, ignore_case=True, from_uids=cadidate_ids, authors=[search_content])
         
         else:
             raise tornado.web.HTTPError(400, "Invalid search_by value")
@@ -123,7 +124,7 @@ class SearchHandler(RequestHandlerBase):
         method = self.get_argument("method")
         kwargs = json.loads(self.get_argument("kwargs"))
 
-        searcher = DataSearcher(self.db)
+        searcher = DataSearcher(await self.db())
         if method == "searchFeature":
             kwargs["iconn"] = self.iconn
             kwargs["vec_db"] = self.vec_db

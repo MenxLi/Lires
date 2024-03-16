@@ -25,7 +25,8 @@ class ImageHandler(RequestHandlerBase):
             uid (str): uuid of the datapoint
             fname (str): filename of the image
         """
-        dp = await self.db.get(uid)
+        db = await self.db()
+        dp = await db.get(uid)
         misc_dir = dp.fm.getMiscDir()
         fpath = os.path.join(misc_dir, fname)
         if not os.path.exists(fpath):
@@ -49,7 +50,8 @@ class ImageHandler(RequestHandlerBase):
     @keyRequired
     async def put(self, uid: str):
         # permission check
-        dp = await self.db.get(uid)
+        db = await self.db()
+        dp = await db.get(uid)
         if not (await self.userInfo())["is_admin"]:
             await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
 

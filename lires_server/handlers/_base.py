@@ -73,14 +73,20 @@ class RequestHandlerMixin(LiresBase):
         for item in gen:
             await asyncio.sleep(0)  # make the control back to the event loop, tricky
             yield item
+    
+    async def db(self):
+        return ( await g_storage.database_pool.get((await self.userInfo())["id"]) ).database
+    
+    async def vec_db(self):
+        return ( await g_storage.database_pool.get((await self.userInfo())["id"]) ).vector_db
 
     @property
-    def db(self) -> DataBase:
+    def _db(self) -> DataBase:
         raise NotImplementedError("Database not defined")
         return g_storage.database
     
     @property
-    def vec_db(self) -> VectorDatabase:
+    def _vec_db(self) -> VectorDatabase:
         raise NotImplementedError("Vector database not defined")
         return g_storage.vector_database
     

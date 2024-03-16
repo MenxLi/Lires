@@ -15,11 +15,13 @@ class SummaryHandler(RequestHandlerBase):
         force = self.get_argument("force", "false").lower() == "true"
         model_name = self.get_argument("model", "DEFAULT")
 
-        if not await self.db.has(uuid):
+        db = await self.db()
+
+        if not await db.has(uuid):
             self.write("ERROR: No such paper.")
             return
 
-        dp = await self.db.get(uuid)
+        dp = await db.get(uuid)
 
         user_info = await self.userInfo()
         if not user_info["is_admin"]:
@@ -38,7 +40,7 @@ class SummaryHandler(RequestHandlerBase):
             return
 
         # a cache for summary
-        summary_txt_path = os.path.join(self.db.path.summary_dir, uuid + ".txt")
+        summary_txt_path = os.path.join(db.path.summary_dir, uuid + ".txt")
         if os.path.exists(summary_txt_path) and not force:
             with open(summary_txt_path, "r", encoding='utf-8') as fp:
                 summary_txt = fp.read()
