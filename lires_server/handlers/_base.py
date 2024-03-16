@@ -157,9 +157,11 @@ class RequestHandlerMixin(LiresBase):
         self.set_header("Access-Control-Allow-Headers", "*")
         self.set_header("Access-Control-Expose-Headers", "*")
 
-    async def broadcastEventMessage(self, event: Event):
+    async def broadcastEventMessage(self, event: Event, to_all: bool = False):
         """
         Inform all connected clients about an event
+        - to_all: if True, the event will be broadcasted to all clients, 
+            otherwise, it will be broadcasted to all clients of the same user
         """
         await self.logger.debug("Broadcast message - " + str(event))
 
@@ -167,17 +169,24 @@ class RequestHandlerMixin(LiresBase):
         # we need to remove them, otherwise they will block the function and slow down the server
         # TODO: find out why...
         __need_remove_idx = []
+        if not to_all:
+            __this_user_id = (await self.userInfo())["id"]
         for i in range(len(self.connection_pool)):
             conn = self.connection_pool[i]
-            if conn is not self:
-                try:
-                    conn.write_message(json.dumps({
-                        "type": "event",
-                        "content": event
-                    }))
-                except tornado.websocket.WebSocketClosedError as e:
-                    await self.logger.error("Failed to broadcast to closed socket (s: {})".format(conn.session_id))
-                    __need_remove_idx.append(i)
+            if conn is self:
+                # exlude self, currently only applies to login/logout events
+                continue
+            if not to_all and conn.user_id != __this_user_id:
+                # skip if not to all and not the same user
+                continue
+            try:
+                conn.write_message(json.dumps({
+                    "type": "event",
+                    "content": event
+                }))
+            except tornado.websocket.WebSocketClosedError as e:
+                await self.logger.error("Failed to broadcast to closed socket (s: {})".format(conn.session_id))
+                __need_remove_idx.append(i)
         for i in __need_remove_idx[::-1]:
             self.connection_pool.pop(i)
 

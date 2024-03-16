@@ -38,7 +38,7 @@ class UserInfoUpdateHandler(RequestHandlerBase):
             'type': 'update_user',
             'username': _user_info["username"],
             'user_info': await user.info_desensitized()
-        })
+        }, to_all=True)
         
         self.write(json.dumps(_user_info))
 
@@ -124,7 +124,7 @@ class UserAvatarHandler(RequestHandlerBase):
             'type': 'update_user',
             'username': username,
             'user_info': _user_info
-        })
+        }, to_all=True)
     
     @keyRequired
     async def delete(self, username):
@@ -149,4 +149,4 @@ class UserAvatarHandler(RequestHandlerBase):
             'type': 'delete_user',
             'username': username,
             'user_info': _user_info,
-        })
+        }, to_all=True)

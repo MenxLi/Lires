@@ -16,10 +16,15 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
         # register to global connection pool
         self.connection_pool.append(self)
         self._session_id = self.get_argument("session_id", "")
+        self._user_id = None
     
     @property
-    def session_id(self):
-        return self._session_id
+    def session_id(self): return self._session_id
+    @property
+    def user_id(self) -> int:
+        if self._user_id is None:
+            raise ValueError("User ID not found")
+        return self._user_id
 
     def check_origin(self, _):
         # allowing alternate origins
@@ -30,11 +35,12 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
     @keyRequired
     async def open(self):
         await self.logger.info("WebSocket opened from {} (s: {})".format((await self.userInfo())['username'], self.session_id))
+        self._user_id = (await self.userInfo())['id']
         await self.broadcastEventMessage({
             'type': 'login',
             'username': (await self.userInfo())['username'],
             'user_info': await self.userInfoDesensitized(),
-        })
+        }, to_all=True)
 
     def on_close(self):
         # in the current version of tornado, on_close is not called as a coroutine
@@ -44,7 +50,7 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
                 'type': 'logout',
                 'username': (await self.userInfo())['username'],
                 'user_info': await self.userInfoDesensitized(),
-            })
+            }, to_all=True)
             try:
                 # unregister from global connection pool
                 self.connection_pool.remove(self)

@@ -38,7 +38,7 @@ class UserCreateHandler(RequestHandlerBase):
             'type': 'add_user',
             'username': to_send["username"],
             'user_info': to_send
-        })
+        }, to_all=True)
 
         self.write(json.dumps(to_send))
 
@@ -62,7 +62,7 @@ class UserDeleteHandler(RequestHandlerBase):
             'type': 'delete_user',
             'username': username,
             'user_info': None
-        })
+        }, to_all=True)
         self.write("Success")
 
 class UserModifyHandler(RequestHandlerBase):
@@ -91,6 +91,6 @@ class UserModifyHandler(RequestHandlerBase):
             'type': 'update_user',
             'username': _user_info_desens["username"],
             'user_info': _user_info_desens
-        })
+        }, to_all=True)
         
         self.write(json.dumps(_user_info_desens))
