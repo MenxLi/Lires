@@ -23,7 +23,7 @@ class DataDeleteHandler(RequestHandlerBase):
                 (await db.get(uuid)).tags, (await self.userInfo())["mandatory_tags"]
                 )
 
-        if await self.db.delete(uuid):
+        if await db.delete(uuid):
             await self.logger.info(f"Deleted {uuid}")
         
         await self.broadcastEventMessage({

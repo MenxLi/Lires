@@ -16,7 +16,7 @@ class GlobalStorage:
         """
         Commit and flush all changes to disk
         """
-        asyncio.gather(
+        await asyncio.gather(
             self.database_pool.commit(),
             self.user_pool.commit()
         )
@@ -26,7 +26,7 @@ class GlobalStorage:
         Finalize the storage
         """
         await self.flush()
-        asyncio.gather(
+        await asyncio.gather(
             self.database_pool.close(),
             self.user_pool.close()
         )
