@@ -70,11 +70,32 @@ class RequestHandlerMixin(LiresBase):
             await asyncio.sleep(0)  # make the control back to the event loop, tricky
             yield item
     
+    async def inferUserId(self) -> int:
+        """
+        Try to identify user id from different sources
+        """
+        # first try to get user id from params
+        for _user_id_candidate in ["_userid", "_u"]:
+            user_id = self.get_argument(_user_id_candidate, None)
+            if user_id is not None:
+                break
+        if user_id is not None:
+            user = await self.user_pool.getUserById(int(user_id))
+            if user is not None: return user.id
+
+        user_name = self.get_argument("_username", None)
+        if user_name is not None:
+            user = await self.user_pool.getUserByUsername(user_name)
+            if user is not None: return user.id
+            
+        # if not found, get user id from key
+        return (await self.userInfo())["id"]
+    
     async def db(self):
-        return ( await g_storage.database_pool.get((await self.userInfo())["id"]) ).database
+        return ( await g_storage.database_pool.get( await self.inferUserId() ) ).database
     
     async def vec_db(self):
-        return ( await g_storage.database_pool.get((await self.userInfo())["id"]) ).vector_db
+        return ( await g_storage.database_pool.get( await self.inferUserId() ) ).vector_db
 
     @property
     def user_pool(self): return g_storage.user_pool

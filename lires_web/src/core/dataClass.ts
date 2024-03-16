@@ -1,6 +1,6 @@
 import type { DataInfoT } from "../api/protocalT";
 import type { ServerConn } from "../api/serverConn";
-import {useSettingsStore } from "../components/store";
+import {useDataStore, useSettingsStore } from "../components/store";
 import { DataTags } from "./tag";
 
 import { Mutex } from "async-mutex";
@@ -173,10 +173,10 @@ export class DataPoint {
     getRawDocURL(): string {
         const uid = this.summary.uuid;
         if (this.summary["has_file"]){
-            return `${this.backendUrl}/doc/${uid}`;
+            return `${this.backendUrl}/doc/${uid}?_u=${useDataStore().user.id}`;
         }
-        if (!this.summary["has_file"] && this.summary["url"]){
-            return this.summary.url;
+        if (!this.summary["has_file"] && this.url){
+            return this.url;
         }
         return "about:blank";
     }

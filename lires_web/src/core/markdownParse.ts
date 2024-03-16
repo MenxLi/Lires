@@ -1,6 +1,7 @@
 import type { DataPoint } from "./dataClass";
 import { getBackendURL } from "../config";
 import { URLRouter } from "./vueInterface";
+import { useDataStore } from "../components/store";
 import type { Router } from "vue-router";
 
 // parse raw markdown to mardown with proper html links
@@ -13,8 +14,14 @@ export function parseMarkdown(content: string, {
     const urlRouter = router? new URLRouter(router): null;
 
     if (datapoint) {
+        // need to know the user in order to identify which database to use
+        const user = useDataStore().user
+
         // replace relative file links to absolute web links
-        content = content.replace(new RegExp('./misc/', 'g'), `${getBackendURL()}/img/${datapoint!.summary.uuid}\\?fname=`);
+        content = content.replace(
+            new RegExp('./misc/', 'g'), 
+            `${getBackendURL()}/img/${datapoint!.summary.uuid}?_u=${user.id}&&fname=`
+            );
 
         if (urlRouter) {
             // replace ${doc}#.Router (current page with ?docHashMark=...) if in reader, else (dataurl page with #...)
