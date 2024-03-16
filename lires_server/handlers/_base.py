@@ -8,11 +8,8 @@ import http.cookies
 from ._global_data import GlobalStorage
 from lires.user import UserInfo, UserPool
 from lires.core.base import LiresBase
-from lires.core.dataClass import DataBase
 from lires.core.dataTags import DataTags
 from lires.utils import BCOLORS
-
-from tiny_vectordb import VectorDatabase
 
 from ..types import Event
 if TYPE_CHECKING:
@@ -80,16 +77,6 @@ class RequestHandlerMixin(LiresBase):
     async def vec_db(self):
         return ( await g_storage.database_pool.get((await self.userInfo())["id"]) ).vector_db
 
-    @property
-    def _db(self) -> DataBase:
-        raise NotImplementedError("Database not defined")
-        return g_storage.database
-    
-    @property
-    def _vec_db(self) -> VectorDatabase:
-        raise NotImplementedError("Vector database not defined")
-        return g_storage.vector_database
-    
     @property
     def user_pool(self) -> UserPool:
         return g_storage.user_pool
