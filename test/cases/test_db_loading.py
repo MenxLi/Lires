@@ -1,17 +1,12 @@
 
+import os
 from .base import BaseConfig
-from lires.config import DATABASE_DIR
+from lires.config import LRS_HOME
 from lires.core.dataClass import DataBase
-import asyncio
 
 class TestDBLoad(BaseConfig):
 
     async def test_database_init(self):
-        db = await DataBase().init(DATABASE_DIR)
+        db = await DataBase().init(os.path.join(LRS_HOME, "db_tmp"))
         assert db is not None
         await db.conn.close()
-
-        # we may emit some logs without waiting, 
-        # so we need to wait for a while 
-        # to make sure the coroutine is finished
-        await asyncio.sleep(0.1)

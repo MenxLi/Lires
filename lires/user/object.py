@@ -36,8 +36,9 @@ class LiresUser:
             os.mkdir(self.USER_AVATAR_DIR)
     
     @property
-    def conn(self) -> UsrDBConnection:
-        return self._conn
+    def conn(self) -> UsrDBConnection: return self._conn
+    @property
+    def id(self) -> int: return self._id
     
     async def raw(self) -> RawUser:
         """The user information in the database"""

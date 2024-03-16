@@ -30,7 +30,9 @@ else:
 CONF_FILE_PATH = join(LRS_HOME, "config.json")
 
 ## Data entries
-DATABASE_DIR = join(LRS_HOME, "Database")
+DATABASE_DIR = join(LRS_HOME, "Database")   # will be deprecated
+
+DATABASE_HOME = join(LRS_HOME, "Data")
 USER_DIR = join(LRS_HOME, "Users")
 
 # for log files
@@ -42,12 +44,7 @@ TMP_DIR = os.path.join(LRS_HOME, "Lires.cache")
 ACCEPTED_EXTENSIONS = [".pdf", '.html']
 
 # Create directories if they don't exist
-if not os.path.exists(LRS_HOME):
-    os.mkdir(LRS_HOME)
-for _p in [TMP_DIR]:
-    if not os.path.exists(_p):
-        os.mkdir(_p)
-for _p in [ TMP_DIR, LOG_DIR, ]:
+for _p in [ LRS_HOME, DATABASE_HOME, TMP_DIR, LOG_DIR, ]:
     if not os.path.exists(_p):
         os.mkdir(_p)
 

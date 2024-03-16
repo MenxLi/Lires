@@ -23,7 +23,7 @@ def run():
     assert args is not None     # type checking purpose
 
     # Read configuration file after parse agruments
-    from .config import CONF_FILE_PATH, DATABASE_DIR, LRS_HOME
+    from .config import CONF_FILE_PATH, LRS_HOME
     from .version import VERSION, VERSION_HISTORIES
     initLoggers()
 

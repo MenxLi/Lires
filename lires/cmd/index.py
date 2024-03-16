@@ -1,17 +1,17 @@
 """
 Build search index for the database
 """
-import argparse, asyncio
+import argparse
 
-from lires.config import DATABASE_DIR
-from lires.core.dataClass import DataBase
+from lires.config import USER_DIR
 from lires.core.vector import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID, initVectorDB
-from lires.utils import MuteEverything
 from lires.api import IServerConn
-
+from lires.loader import initResources
+from lires.user import UserPool
 
 def parseArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build search index for the database")
+    parser.add_argument("user", action="store", type=str, help="user name")
     subparsers = parser.add_subparsers(dest="subparser", help="sub-command help")
 
     sp_feat = subparsers.add_parser("build", help="build the index")
@@ -31,50 +31,62 @@ def parseArgs() -> argparse.Namespace:
         exit()
     return args
 
-def main():
-    args = parseArgs()
-    with MuteEverything():
-        db = asyncio.run(DataBase().init(DATABASE_DIR))
+async def entry(args):
+
+    user_pool, db_pool = await initResources()
+    # check if user exists
+    user = await user_pool.getUserByUsername(args.user)
+    if user is None:
+        print(f"Error: User {args.user} does not exist")
+        await user_pool.close(); await db_pool.close()
+        exit()
+    
+    db_ins = await db_pool.get(user)
+    db = db_ins.database
 
     iconn = IServerConn()
 
     if args.subparser == "build":
         vector_db = initVectorDB(db.path.vector_db_file)
-        asyncio.run(buildFeatureStorage(
+        await buildFeatureStorage(
             iconn, db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words, 
-            ))
+            )
 
     elif args.subparser == "query":
         vector_collection = initVectorDB(db.path.vector_db_file).getCollection("doc_feature")
         if args.input_uid:
-            res = asyncio.run(queryFeatureIndexByUID(
+            res = await queryFeatureIndexByUID(
                 db = db, 
                 iconn = iconn,
                 vector_collection = vector_collection,
                 query_uid = args.aim,
                 n_return = args.n_return
-                ))
+                )
         else:
-            res = asyncio.run(queryFeatureIndex(
+            res = await queryFeatureIndex(
                 iconn = iconn,
                 vector_collection = vector_collection,
                 query = args.aim,
                 n_return = args.n_return
-                ))
+                )
         print("-----------------------------------")
-        print(f"Query: {args.aim if not args.input_uid else '[' + asyncio.run(db.get(args.aim)).title + ']'}")
+        print(f"Query: {args.aim if not args.input_uid else '[' + (await db.get(args.aim)).title + ']'}")
         print("Top results:")
         for i, (uid, score) in enumerate(zip(res["uids"], res["scores"])):
             if args.output_uid:
                 print(f"{uid}")
             else:
-                print(f"{i+1}: {asyncio.run(db.get(uid)).title} [score: {score:.4f}]")
+                print(f"{i+1}: {(await db.get(uid)).title} [score: {score:.4f}]")
 
     else:
         ...
     
-    async def finalize():
-        await db.conn.close()
-    asyncio.run(finalize())
+    await user_pool.close(); await db_pool.close()
+
+def main():
+    import asyncio
+    args = parseArgs()
+    asyncio.run(entry(args))
+
 if __name__ == "__main__":
     main()

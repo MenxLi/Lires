@@ -13,7 +13,7 @@ class GlobalStorage:
     database = asyncio.run(DataBase().init(DATABASE_DIR))
     user_pool = asyncio.run(UserPool().init(USER_DIR))
     vector_database = initVectorDB(database.path.vector_db_file)
-    iconn = IServerConn()   # temporary, the endpoint will be set when server starts
+    iconn = IServerConn()
 
     async def flush(self):
         """
