@@ -50,7 +50,7 @@ class TestUserDBConnection:
         assert user2["is_admin"]
         assert user2["mandatory_tags"], ["tag3", "tag4"]
     
-        subprocess.check_call(["lrs-user", "delete", "-u", "test2_username"])
+        subprocess.check_call(["lrs-user", "delete", "-u", "test2_username", "-y"])
         with pytest.raises(LiresError.LiresUserNotFoundError):
             await userdb.getUser("test2_username")
     
