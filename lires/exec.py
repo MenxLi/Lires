@@ -30,7 +30,6 @@ def run():
     NOT_RUN = False     # Indicates whether to run main program
 
     if not os.path.exists(CONF_FILE_PATH):
-        print("Generating default configuration...")
         generateDefaultConf()
 
     if args.reset_conf:

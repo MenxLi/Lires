@@ -44,6 +44,10 @@ class DocHandler(RequestHandlerBase):
         file_size = len(file_data)
         await self.logger.info(f"Received file: {original_filename} ({file_size} bytes)")
 
+        # check if the file is too large
+        if file_size + await db.diskUsage() > (await self.userInfo())["max_storage"]:
+            raise tornado.web.HTTPError(413, reason="File too large")
+
         #check file extension
         ext = os.path.splitext(original_filename)[1]
 

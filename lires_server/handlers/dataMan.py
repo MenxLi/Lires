@@ -100,6 +100,10 @@ class DataUpdateHandler(RequestHandlerBase):
             assert tags is not None
             assert url is not None
 
+            # check disk usage
+            if await db.diskUsage()+128 > permission["max_storage"]:
+                raise tornado.web.HTTPError(413, reason="File too large")
+
             uuid = await addDocument(db.conn, bibtex, check_duplicate=True)
             if uuid is None:
                 # most likely a duplicate

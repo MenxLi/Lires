@@ -62,6 +62,10 @@ class ImageHandler(RequestHandlerBase):
         file_size = len(file_data)
         await self.logger.info(f"Received file: {original_filename} ({file_size} bytes)")
 
+        # check if the file is too large
+        if file_size + await db.diskUsage() > (await self.userInfo())["max_storage"]:
+            raise tornado.web.HTTPError(413, reason="File too large")
+
         # Generate a unique filename for the uploaded file
         filename = str(uuid.uuid4()) + os.path.splitext(original_filename)[1]
 
