@@ -62,3 +62,6 @@ logs
 test/_sandbox
 test/_cache
 .pytest_cache
+
+# casual test
+_test
