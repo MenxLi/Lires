@@ -6,6 +6,7 @@ import { DataTags } from '../core/tag'
 import { ServerConn } from '../api/serverConn'
 import { ServerWebsocketConn } from '../api/serverWebsocketConn'
 import { formatAuthorName } from '../utils/misc'
+import { setCookie, getCookie, isCookieKept } from '../utils/cookie'
 export { formatAuthorName }
 import type { SearchStatus, PopupStyle, TagStatus } from './interface'
 import type { UserInfo } from '../api/protocalT'
@@ -228,7 +229,18 @@ export const useSettingsStore = defineStore(
     "settings", {
         state: () => {
             return {
-                __encKey: sessionStorage.getItem("encKey") || localStorage.getItem("encKey") || "",
+                __encKey: (()=>{
+                    // backward compatibility, before v1.7.2, the encKey was stored in localStorage
+                    // now it is stored in cookie
+                    const oldKey = localStorage.getItem("encKey");
+                    if (oldKey){
+                        localStorage.removeItem("encKey");
+                        setCookie("encKey", oldKey, 1);
+                        return oldKey;
+                    }
+                    // return the encKey from cookie
+                    return getCookie("encKey");
+                })(),
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
@@ -268,19 +280,12 @@ export const useSettingsStore = defineStore(
             }
         },
         "actions": {
-            setEncKey(key: string, keep: boolean){
+            setEncKey(key: string, keep: boolean | undefined = undefined){
+                if (keep === undefined){
+                    keep = isCookieKept("encKey");
+                }
                 this.__encKey = key;
-                if ( keep === true){
-                    localStorage.setItem("encKey", key);
-                }
-                else {
-                    // clear the encKey in local storage if keep is false
-                    if (localStorage.getItem("encKey")){
-                        localStorage.removeItem("encKey");
-                    }
-                    // set the encKey in sessionStorage as a one-time token
-                    sessionStorage.setItem("encKey", key);
-                }
+                setCookie("encKey", key, keep? 7: null);
             },
             setBackendHost(url: string){
                 this.__backendHost = url;

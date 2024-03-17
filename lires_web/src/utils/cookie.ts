@@ -13,6 +13,18 @@ function setCookie(key: string, value: string, expDays: number|null = null): voi
     document.cookie = `${key}=${value}; ${expStr} path=/; sameSite=Lax`
 }
 
+// check if the cookie is kept with expiration date
+function isCookieKept(key: string): boolean {
+    const cookie_decode = decodeURIComponent(document.cookie);
+    const split_cookie = cookie_decode.split("; ");
+    split_cookie.forEach((val) => {
+        if (val.startsWith(`${key}=`) && val.includes(`expires`)){
+            return true;
+        }
+    })
+    return false;
+}
+
 
 function getCookie(key: string): string {
     const cookie_decode = decodeURIComponent(document.cookie);
@@ -26,4 +38,4 @@ function getCookie(key: string): string {
     return ret;
 }
 
-export {setCookie, getCookie};
+export {setCookie, getCookie, isCookieKept};

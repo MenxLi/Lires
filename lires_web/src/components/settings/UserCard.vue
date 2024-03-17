@@ -89,7 +89,7 @@
             conn.updateUserPassword(settings_newPassword.value).then(
                 (_: UserInfo) => {
                     const new_encKey = sha256(props.userInfo.username + sha256(settings_newPassword.value)) as string;
-                    useSettingsStore().setEncKey(new_encKey, true);
+                    useSettingsStore().setEncKey(new_encKey);
                     // clear the password fields
                     settings_oldPassword.value = "";
                     settings_newPassword.value = "";
