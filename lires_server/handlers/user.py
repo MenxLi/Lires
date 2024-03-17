@@ -28,10 +28,12 @@ class UserInfoUpdateHandler(RequestHandlerBase):
         new_name = self.get_argument("name", None)
         if new_name is not None:
             await user.conn.updateUser(id_, name=new_name)
+            await self.logger.info("User {} updated name to {}".format(id_, new_name))
 
         new_password = self.get_argument("password", None)
         if new_password is not None:
             await user.conn.updateUser(id_, password=new_password)
+            await self.logger.info("User {} updated password".format(id_))
         
         _user_info = await user.info()
         await self.broadcastEventMessage({

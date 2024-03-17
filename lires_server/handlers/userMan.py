@@ -17,6 +17,7 @@ class UserCreateHandler(RequestHandlerBase):
         name = self.get_argument("name", default="Anonymous")
         mandatory_tags = json.loads(self.get_argument("mandatory_tags", default="[]"))
         is_admin = json.loads(self.get_argument("is_admin", default="false"))
+        max_storage = json.loads(self.get_argument("max_storage", default="100"))   # in MB
 
         # check if username exists
         if await self.user_pool.getUserByUsername(username) is not None:
@@ -28,6 +29,7 @@ class UserCreateHandler(RequestHandlerBase):
             name=name,
             is_admin=is_admin,
             mandatory_tags=mandatory_tags,
+            max_storage=max_storage*1024*1024
             )
         
         user = await self.user_pool.getUserByUsername(username)
@@ -86,7 +88,13 @@ class UserModifyHandler(RequestHandlerBase):
         if new_mandatory_tags is not None:
             await user.conn.updateUser(user_info["id"], mandatory_tags=DataTags(new_mandatory_tags).toOrderedList())
         
+        new_max_storage = self.get_argument("max_storage", None)
+        if new_max_storage is not None:
+            await user.conn.updateUser(user_info['id'], max_storage=int(new_max_storage))
+        
         _user_info_desens = await user.info_desensitized()
+        await self.logger.info("User {} updated: {}".format(_user_info_desens["username"], _user_info_desens))
+
         await self.broadcastEventMessage({
             'type': 'update_user',
             'username': _user_info_desens["username"],

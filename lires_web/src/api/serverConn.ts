@@ -251,23 +251,26 @@ export class ServerConn {
     }
 
     // User management
-    async setUserAccess(username: string, setAdmin: boolean | null, setMandatoryTags: string[] | null): Promise<UserInfo>{
+    async setUserAccess(username: string, setAdmin: boolean | null, setMandatoryTags: string[] | null, max_storage: number | null): Promise<UserInfo>{
         const formObj = {} as Record<string, any>;
         formObj.username = username;
         if (setAdmin !== null) 
             formObj.is_admin = setAdmin.toString();
         if (setMandatoryTags !== null) 
             formObj.mandatory_tags = JSON.stringify(setMandatoryTags);
+        if (max_storage !== null) 
+            formObj.max_storage = max_storage;
         return await this.fetcher.post(`/api/userman/modify`, formObj).then(res=>res.json());
     }
 
-    async createUser(username: string, name: string, password: string, isAdmin: boolean, mandatoryTags: string[]): Promise<UserInfo>{
+    async createUser(username: string, name: string, password: string, isAdmin: boolean, mandatoryTags: string[], max_storage: number): Promise<UserInfo>{
         return await this.fetcher.post(`/api/userman/create`, {
             username: username,
             name: name,
             password: sha256(password),
             is_admin: isAdmin.toString(),
             mandatory_tags: JSON.stringify(mandatoryTags),
+            max_storage: max_storage,
         }).then(res=>res.json());
     }
 

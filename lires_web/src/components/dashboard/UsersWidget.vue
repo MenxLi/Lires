@@ -26,6 +26,7 @@
         if (!is_admin.value) return;
         const userInfo_copy = JSON.parse(JSON.stringify(userInfo));
         editUserDialog_userInfo.value = userInfo_copy;
+        editUserDialog_userInfo.value.max_storage /= 1024*1024;     // convert to MB
         showEditUserDialog.value = true;
     }
     function onEditMandatoryTagsDone(input: string){
@@ -38,7 +39,8 @@
         conn.setUserAccess(
             editUserDialog_userInfo.value!.username,
             editUserDialog_userInfo.value!.is_admin,
-            editUserDialog_userInfo.value!.mandatory_tags
+            editUserDialog_userInfo.value!.mandatory_tags, 
+            editUserDialog_userInfo.value!.max_storage * 1024*1024
         ).then(
             (_) => { showEditUserDialog.value = false; },
             (err) => { console.log(err); useUIStateStore().showPopup(err, 'error');}
@@ -70,6 +72,7 @@
     const createUser_password = ref('');
     const createUser_isAdmin = ref(false);
     const createUser_mandatoryTags = ref('');
+    const createUser_maxStorage = ref(100);
     function closeCreateUserDialog(){
         showCreateUserDialog.value = false;
         // reset the fields
@@ -91,7 +94,8 @@
             createUser_name.value,
             createUser_password.value,
             createUser_isAdmin.value,
-            mandatoryTags
+            mandatoryTags,
+            createUser_maxStorage.value
         ).then(
             (_) => {
                 useUIStateStore().showPopup(`User ${createUser_username.value} created`, 'success');
@@ -148,6 +152,10 @@
                                 Administrator</Toggle>
                         </div>
                         <div class="full-width left-align">
+                            <b>Max Storage (MB):</b><br>
+                            <input type="number" v-model="editUserDialog_userInfo.max_storage"/>
+                        </div>
+                        <div class="full-width left-align">
                             <b>Mandatory Tags:</b>
                             <div id="mandatory-tag-edit" :class="editUserDialog_userInfo.is_admin?'mute':''">
                                 <EditableParagraph :style="{width:'100%'}" :content-editable="!editUserDialog_userInfo.is_admin" @finish="(inp) => onEditMandatoryTagsDone(inp as string)">
@@ -196,6 +204,10 @@
                     <td>Mandatory Tags:</td>
                     <td><input type="text" v-model="createUser_mandatoryTags" autocomplete="off" class="create-user-input"
                         placeholder="Separate with semicolon ';'" ></td>
+                </tr>
+                <tr>
+                    <td>Max Storage (MB):</td>
+                    <td><input type="text" v-model="createUser_maxStorage" autocomplete="off" class="create-user-input"/></td>
                 </tr>
                 <tr>
                     <td colspan="2">
@@ -452,5 +464,15 @@
         width: 100%;
         background-color: var(--color-background);
         min-width: 200px;
+    }
+
+    input[type=number]{
+        padding: 5px;
+        width: 100%;
+        background-color: var(--color-background);
+        min-width: 200px;
+        border: none;
+        color: var(--color-text);
+        border-radius: 5px;
     }
 </style>

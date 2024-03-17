@@ -43,6 +43,7 @@ export interface UserInfo {
     is_admin: boolean;
     mandatory_tags: string[];
     has_avatar: boolean;
+    max_storage: number;
 }
 
 export interface SearchResultant {
