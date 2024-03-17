@@ -15,6 +15,7 @@ class UserInfo(TypedDict):
     is_admin: bool
     mandatory_tags: list[str]
     has_avatar: bool
+    max_storage: int
 
 class AvatarPath(TypedDict):
     original: str
@@ -56,6 +57,7 @@ class LiresUser:
             "is_admin": raw["is_admin"],
             "mandatory_tags": raw["mandatory_tags"],
             "has_avatar": self.avatar_image_path is not None,
+            "max_storage": raw["max_storage"],
         }
     
     async def info_desensitized(self) -> UserInfo:
@@ -66,7 +68,7 @@ class LiresUser:
     
     async def toString(self) -> str:
         info = await self.info()
-        out = f"[{info['id']}] {info['username']} ({info['name']}), {info['enc_key']}"
+        out = f"[{info['id']}] {info['username']} ({info['name']}), {info['enc_key']}, max: {info['max_storage']/1024/1024}MB"
         if info["is_admin"]:
             out += ", admin"
         return out

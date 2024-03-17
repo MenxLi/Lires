@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os, asyncio, dataclasses
+from concurrent.futures import ThreadPoolExecutor
 from typing import List, Union, Optional, Literal
 from .dataTags import DataTags, TagRule
 from .fileTools import FileManipulator
@@ -137,6 +138,8 @@ class DataBase(DataCore):
         index_dir: str
         summary_dir: str
         vector_db_file: str
+    
+    __thread_pool = ThreadPoolExecutor(max_workers=4)
 
     def __init__(self):
         super().__init__()
@@ -217,6 +220,17 @@ class DataBase(DataCore):
         return await self.conn.keys(sortby="time_import", reverse=True)
     async def has(self, uuid: str) -> bool:
         return await self.conn.get(uuid) is not None
+    
+    async def diskUsage(self) -> int:
+        """ return the disk usage of the database in bytes """
+        def _get_size(path: str) -> int:
+            size = 0
+            for root, _, files in os.walk(path):
+                for f in files:
+                    size += os.path.getsize(os.path.join(root, f))
+            return size
+        return await asyncio.get_event_loop().run_in_executor(self.__thread_pool, _get_size, self.path.main_dir)
+
     async def get(self, uuid: str) -> DataPoint:
         """ Get DataPoint by uuid """
         if (info := await self.conn.get(uuid)) is None:

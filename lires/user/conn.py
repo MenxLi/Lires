@@ -12,6 +12,7 @@ class RawUser(TypedDict):
     name: str
     is_admin: bool
     mandatory_tags: list[str]
+    max_storage: int
 
 class UsrDBConnection(LiresBase):
     logger = LiresBase.loggers().core
@@ -27,6 +28,7 @@ class UsrDBConnection(LiresBase):
         self.conn = await aiosqlite.connect(self.db_path)
         self.__modified = False
         await self.__maybeCreateTables()
+        await self.__autoUpgrade()
         return self
 
     async def close(self):
@@ -34,6 +36,17 @@ class UsrDBConnection(LiresBase):
     
     def setModifiedFlag(self, flag: bool):
         self.__modified = flag
+    
+    async def __autoUpgrade(self):
+        """ Upgrade the database automatically """
+        # since v1.7.1, add max_storage column
+        async with self.conn.execute("PRAGMA table_info(users)") as cursor:
+            res = await cursor.fetchall()
+            if len(res) == 7:   # type: ignore
+                print("Upgrading user database to v1.7.1")
+                # default to 100MB
+                await self.conn.execute("ALTER TABLE users ADD COLUMN max_storage INTEGER NOT NULL DEFAULT 104857600")
+                self.setModifiedFlag(True)
     
     async def __maybeCreateTables(self):
         # check if the table exists
@@ -49,16 +62,16 @@ class UsrDBConnection(LiresBase):
                 name TEXT NOT NULL,
                 is_admin BOOLEAN NOT NULL,
                 mandatory_tags TEXT NOT NULL, 
-                time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                max_storage INTEGER NOT NULL DEFAULT 104857600
             );
         """)
-        # TODO: Add more user-related tables
-        # ...
         self.setModifiedFlag(True)
-    
+
     async def insertUser(self, 
                 username: str, password: str, name: str,
-                is_admin: bool, mandatory_tags: list[str]
+                is_admin: bool, mandatory_tags: list[str], 
+                max_storage: int = 104857600
                 ) -> None:
         # check if the user already exists
         async with self.conn.execute("SELECT * FROM users WHERE username = ?", (username,)) as cursor:
@@ -68,10 +81,11 @@ class UsrDBConnection(LiresBase):
         # insert the user
         await self.conn.execute("""
                             INSERT INTO users 
-                            (username, password, name, is_admin, mandatory_tags)
-                            VALUES (?, ?, ?, ?, ?)
-                            """, 
-                            (username, password, name, is_admin, json.dumps(mandatory_tags)))
+                            (username, password, name, is_admin, mandatory_tags, max_storage)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                            """,
+                            (username, password, name, is_admin, json.dumps(mandatory_tags), max_storage)
+                            )
         self.setModifiedFlag(True)
     
     async def __ensureUserExists(self, query: str | int) -> aiosqlite.Row:
@@ -125,7 +139,8 @@ class UsrDBConnection(LiresBase):
             "password": res[2],
             "name": res[3],
             "is_admin": bool(res[4]),
-            "mandatory_tags": json.loads(res[5])
+            "mandatory_tags": json.loads(res[5]),
+            "max_storage": res[7]
         }
     
     async def commit(self):
