@@ -222,6 +222,12 @@ class DBConnection(LiresBase):
             exist = [row[0] for row in await cursor.fetchall()]
         return list(set(uuids).difference(exist))
     
+    async def sortKeys(self, keys: list[str], sortby: str = "time_import", reverse: bool = True) -> list[str]:
+        """ Sort keys by a field """
+        async with self.conn.execute("SELECT uuid, {} FROM files WHERE uuid IN ({}) ORDER BY {} {}".format(sortby, ",".join(["?"]*len(keys)), sortby, "DESC" if reverse else "ASC"), keys) as cursor:
+            rows = await cursor.fetchall()
+        return [row[0] for row in rows]
+    
     async def get(self, uuid: str) -> Optional[DBFileInfo]:
         """
         Get file info by uuid

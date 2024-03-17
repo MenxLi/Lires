@@ -97,6 +97,11 @@ class BasicFilterHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(400, "Invalid search_by value")
         
         await self.logger.debug(f"returning {len(res)} results.")
+
+        # Sort the result if no scores are provided
+        if scores is None:
+            res = await db.conn.sortKeys(res)
+
         self.write(json.dumps({
             'uids': res,
             'scores': scores
