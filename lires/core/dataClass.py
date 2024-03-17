@@ -204,7 +204,7 @@ class DataBase(DataCore):
             return False
         await self.logger.info("Deleting {}".format(uuid))
         dp = await self.get(uuid)
-        return await dp.fm.deleteEntry()
+        return await dp.fm.deleteEntry(create_backup=False)
     
     # query statistics
     async def count(self) -> int:
