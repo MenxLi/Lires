@@ -15,7 +15,7 @@ export default {
     data() {
         return {
             usedSpace: 0,
-            totalSpace: 0,
+            totalSpace: 1,
             unit: "MB",
         };
     },
@@ -25,6 +25,10 @@ export default {
         },
     },
     mounted() {
+        // reset the disk usage
+        this.usedSpace = 0;
+        this.totalSpace = 1;
+        this.unit = "MB";
         this.fetchDiskUsage();
     },
     methods: {
