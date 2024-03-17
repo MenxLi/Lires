@@ -760,3 +760,10 @@ version_history:
       - Reader use compact layout
     - Fix:
       - Query year range
+  1.7.1:
+    - Features:
+      - Disk limit for each user
+      - Search by year
+      - No entry delete backup
+    - fix:
+      - Entry delete tag update
