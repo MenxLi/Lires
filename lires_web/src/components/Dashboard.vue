@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import Toolbar from './common/Toolbar.vue';
+    import Toolbar from './header/Toolbar.vue';
     import WidgetContainer from './dashboard/WidgetContainer.vue';
     import UsersWiget from './dashboard/UsersWidget.vue';
 </script>

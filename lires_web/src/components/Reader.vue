@@ -8,8 +8,8 @@ export default {
 </script>
 <script setup lang="ts">
     import ReaderBody from './reader/ReaderBody.vue';
-    import Toolbar from './common/Toolbar.vue';
-    import ToolbarIcon from './common/ToolbarIcon.vue';
+    import Toolbar from './header/Toolbar.vue';
+    import ToolbarIcon from './header/ToolbarIcon.vue';
     import { ref, onMounted, computed, watch } from 'vue';
     import { useDataStore, useUIStateStore, useSettingsStore } from './store';
     import { useRoute, useRouter } from 'vue-router';

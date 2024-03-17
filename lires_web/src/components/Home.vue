@@ -13,8 +13,8 @@ export default {
     import { DataTags } from "../core/tag";
     import FileTags from "./home/FileTags.vue";
     import FileRowContainer from "./home/FileRowContainer.vue";
-    import Toolbar from "./common/Toolbar.vue";
-    import ToolbarIcon from "./common/ToolbarIcon.vue";
+    import Toolbar from "./header/Toolbar.vue";
+    import ToolbarIcon from "./header/ToolbarIcon.vue";
     import DataEditor from "./home/DataEditor.vue";
     import addCircleIcon from "../assets/icons/add_circle.svg";
     import refreshIcon from "../assets/icons/refresh.svg";

@@ -3,7 +3,7 @@
     import { ref, computed } from 'vue';
     import { type Changelog } from '../api/protocalT';
     import { getBackendURL, manualURL_zh } from '../config';
-    import Toolbar from './common/Toolbar.vue';
+    import Toolbar from './header/Toolbar.vue';
     import FloatingWindow from './common/FloatingWindow.vue';
     import { registerServerEvenCallback } from '../api/serverWebsocketConn';
     import UsersWidget from './dashboard/UsersWidget.vue';

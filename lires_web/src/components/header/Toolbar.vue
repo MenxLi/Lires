@@ -5,10 +5,9 @@
     import { useRouter, useRoute } from "vue-router";
     import { settingsLogout } from "../../core/auth";
     import { useDataStore } from "../store";
-    import ToolbarIcon from "./ToolbarIcon.vue";
-    import { MenuAttached } from './fragments.tsx'
-
-    import FloatingWindow from "./FloatingWindow.vue";
+    import ToolbarIcon from "../header/ToolbarIcon.vue";
+    import { MenuAttached } from '../common/fragments.tsx'
+    import FloatingWindow from "../common/FloatingWindow.vue";
     import SettingsWindow from "../settings/SettingsWindow.vue";
 
     // https://vitejs.dev/guide/assets.html

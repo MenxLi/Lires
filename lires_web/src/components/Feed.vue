@@ -6,7 +6,7 @@
     import { useRouter } from 'vue-router';
     import RefreshIcon from '../assets/icons/refresh.svg'
 
-    import Toolbar from './common/Toolbar.vue';
+    import Toolbar from './header/Toolbar.vue';
     import LoadingWidget from './common/LoadingWidget.vue'
 
     import { lazify } from '../utils/misc';
