@@ -10,7 +10,7 @@
     const uiState = useUIStateStore();
 
     // search refealated
-    const searchTypesPool = ["title", "author", "note", "publication", "feature", "uuid"];
+    const searchTypesPool = ["title", "author", "year", "note", "publication", "feature", "uuid"];
     const searchInput = ref("")
     const searchSelector: Ref<HTMLSelectElement | null> = ref(null)
     function onSearchChanged(){
