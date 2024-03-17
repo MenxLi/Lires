@@ -167,6 +167,7 @@ export const useDataStore = defineStore(
                     is_admin: false,
                     mandatory_tags: [],
                     has_avatar: false,
+                    max_storage: 0,
                 } as UserInfo,
             }
         },
@@ -185,6 +186,7 @@ export const useDataStore = defineStore(
                     is_admin: false,
                     mandatory_tags: [],
                     has_avatar: false,
+                    max_storage: 0,
                 };
             },
             // reload the database from backend
