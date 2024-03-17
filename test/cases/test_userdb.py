@@ -44,11 +44,12 @@ class TestUserDBConnection:
         await userdb.commit()
     
     async def test_cmd(self, userdb: UsrDBConnection):
-        subprocess.check_call(["lrs-user", "add", "test2_username", "test2_password", "--admin", "--tags", "tag3", "tag4"])
+        subprocess.check_call(["lrs-user", "add", "test2_username", "test2_password", "--admin", "--tags", "tag3", "tag4", "-m", "10"])
         user2 = await userdb.getUser("test2_username")
         assert user2 is not None
         assert user2["is_admin"]
         assert user2["mandatory_tags"], ["tag3", "tag4"]
+        assert user2["max_storage"], 10*1024*1024
     
         subprocess.check_call(["lrs-user", "delete", "-u", "test2_username", "-y"])
         with pytest.raises(LiresError.LiresUserNotFoundError):

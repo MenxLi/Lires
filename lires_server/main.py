@@ -76,11 +76,10 @@ class Application(tornado.web.Application):
 
             (r"/api/database/keys", DatabaseKeysHandler),
             (r"/api/database/tags", DatabaseTagsHandler),
+            (r"/api/database/usage", DatabaseUsageHandler),
+
             (r"/api/datainfo-list", DataInfoListHandler),
             (r"/api/datainfo/(.*)", DataInfoHandler),
-
-            (r"/api/filelist", DataListHandler),                # will be deprecated
-            (r"/api/filelist-stream", DataListStreamHandler),   # will be deprecated
 
             # additional information (supplementary data / resources) for each datapoint
             (r"/api/datainfo-supp/note/(.*)", NoteGetHandler),

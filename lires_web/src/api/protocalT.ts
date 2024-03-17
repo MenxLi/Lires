@@ -6,6 +6,11 @@ export interface ServerStatus {
     n_connections: number;
     uptime: number;
 }
+export interface DatabaseUsage {
+    n_entries: number;
+    disk_usage: number; // in bytes
+    disk_limit: number; // in bytes
+}
 
 export interface DataInfoT {
     has_file: boolean;

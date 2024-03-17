@@ -1,7 +1,7 @@
 
 // Server connection
 
-import type { DataInfoT, UserInfo, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature} from "./protocalT.js";
+import type { DataInfoT, UserInfo, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocalT.js";
 import { sha256 } from "../utils/sha256lib.js";
 import Fetcher from "./fetcher.js";
 
@@ -30,71 +30,15 @@ export class ServerConn {
         return await this.fetcher.get(`/api/database/tags`).then(res=>res.json());
     };
 
-    // get the file list in a streaming way, deprecated
-    async reqFileListStream( 
-        tags: string[] = [],
-        onReceive: (data_: DataInfoT, nCurrent_: number, nTotal_: number)=>void = ()=>{},
-        ){
-
-        const response = await this.fetcher.get(`/api/filelist-stream`, {
-            tags: tags.join("&&"),
-        });
-
-        const _nTotal = response.headers.get("totalDataCount");
-        const nTotal = _nTotal?parseInt(_nTotal):-1;
-        let nCurrent = 0;
-
-        const reader = response.body!.getReader();
-        let partialData = "";
-        const processTextData = ({ value, done } : {value: Uint8Array, done: boolean}) => {
-            
-            const chunkText = partialData + new TextDecoder().decode(value);
-
-            // Split the chunk into individual JSON strings
-            const jsonStrings = chunkText.split("\\N");
-
-            // Process each JSON string, except the last one
-            for (let i = 0; i < jsonStrings.length - 1; i++) {
-                const jsonString = jsonStrings[i];
-                try{
-                    const data = JSON.parse(jsonString) as DataInfoT;
-                    nCurrent += 1;
-                    onReceive(data, nCurrent, nTotal);
-                }
-                catch(err){
-                    // incomplete JSON string, should not happen
-                    console.error(err);
-                }
-            }
-            // Store the partial data from the last JSON string in the chunk
-            if (jsonStrings.length > 0){
-                partialData = jsonStrings[jsonStrings.length - 1];
-            }
-            if (done) {
-                if (partialData) {
-                    try{
-                        const data = JSON.parse(partialData) as DataInfoT;
-                        nCurrent += 1;
-                        onReceive(data, nCurrent, nTotal);
-                    }
-                    catch(err){
-                        // the last chunk should contain an entire JSON string
-                        // incomplete JSON string, should not happen
-                        console.error(err);
-                    }
-                }
-                return;
-            }
-            return reader.read().then(processTextData as any);
-        }
-        return reader.read().then(processTextData as any);
-    }
-
     async reqDatabaseFeatureTSNE(collectionName = "doc_feature", nComponent = 3, perplexity = 10): Promise<DatabaseFeature>{
         return await this.fetcher.get(`/api/datafeat/tsne/${collectionName}`, {
             n_component: nComponent.toString(),
             perplexity: perplexity.toString(),
         }).then(res=>res.json());
+    }
+
+    async reqDatabaseUsage(): Promise<DatabaseUsage>{
+        return await this.fetcher.get(`/api/database/usage`).then(res=>res.json());
     }
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{

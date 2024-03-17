@@ -5,6 +5,7 @@
     import ConfigShowTags from './ConfigShowTags.vue';
     import ConfigShowScatterPlot from './ConfigShowScatterPlot.vue';
     import ConfigPageCapacity from './ConfigPageCapacity.vue';
+    import DiskUsage from './DiskUsage.vue';
 
     import { useDataStore } from '../store';
     const userInfo = useDataStore().user;   // is already a ref
@@ -28,6 +29,8 @@
         }">
             <UserCard :user-info="userInfo" avatar-size="120px"/>
         </div>
+        <DiskUsage/>
+        <hr>
 
         <ConfigTheme/>
         <ConfigPageCapacity/>

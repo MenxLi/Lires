@@ -72,6 +72,8 @@
   --color-background-theme-thin: #dbdee5;
   --color-background-theme: rgba(127, 178, 220, 0.3);
   --color-background-tagpanel: #efefef;
+  --color-progressbar: #007bff;
+  --color-background-progressbar: #f4f4f4;
 }
 
 :root.dark{
@@ -82,6 +84,8 @@
   --color-background-theme-thin: #383b41;
   --color-background-theme: rgba(52, 84, 93, 0.3);
   --color-background-tagpanel: #232323;
+  --color-progressbar: #0e58a8;
+  --color-background-progressbar: #202020;
 }
 
 /* @media (prefers-color-scheme: dark) {

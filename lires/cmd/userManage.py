@@ -30,7 +30,7 @@ async def _run():
     parser_update.add_argument("-p", "--password", help = "Password to update", default=None)
     parser_update.add_argument("-n", "--name", help = "Name to update", default=None)
     parser_update.add_argument("-t", "--tags", nargs = "+", help = "Mandatory tags to update", default=None)
-    parser_update.add_argument("-m", "--max-storage", help = "Max storage to update", default=None, type=int)
+    parser_update.add_argument("-m", "--max-storage", help = "Max storage to update", default=None, type=float)
     parser_update.add_argument("-a", "--admin", help = "Set the account administration (true/false)", default=None, type=str2bool)
 
     parser_del = sp.add_parser("delete", help = "Delete a user")

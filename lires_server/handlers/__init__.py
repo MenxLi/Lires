@@ -1,5 +1,6 @@
 from ._base import g_storage
 from .dataInfo import *
+from .databaseInfo import *
 from .documents import DocHandler
 from .auth import AuthHandler
 from .search import *
