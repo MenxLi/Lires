@@ -42,7 +42,7 @@
                     settingStore.loggedIn = false;
                 }
                 else{
-                    redirectToLoginPage();
+                    resetAndRedirectToLoginPage();
                 }
             }
             settingsAuthentication().then(
@@ -78,11 +78,10 @@
         });
         uiState.reloadDatabase();
     }
-    function redirectToLoginPage(){
-        console.log("Logged out from: ", router.currentRoute.value.fullPath);
-        if (wsConnection.isOpen()){
-            wsConnection.close();
-        }
+    function resetAndRedirectToLoginPage(){
+        useDataStore().$reset();
+        useUIStateStore().$reset();
+        wsConnection.close();
         router.push({
             path: "/login",
             query: {
@@ -95,7 +94,7 @@
         () => settingStore.loggedIn,
         (new_: boolean, _: boolean) => {
             if (new_){ onLogin() }
-            else{ redirectToLoginPage(); }
+            else{ resetAndRedirectToLoginPage(); }
         }
     )
 
