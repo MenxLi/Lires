@@ -10,6 +10,7 @@
 
     import QueryDialog from '../common/QueryDialog.vue';
     import EditSquareIcon from '../../assets/icons/edit_square.svg'
+    import DiskUsage from './DiskUsage.vue';
 
     const props = withDefaults(defineProps<{
         userInfo: UserInfo;
@@ -134,13 +135,20 @@
                     <h1 id="name">{{ props.userInfo.name }}</h1>
                     <img v-if="THIS_USER" :src="EditSquareIcon" alt="" class="icon" id="edit-settings-icon" @click="showUserSettingsDialog=true">
                 </div>
-                <p>{{ props.userInfo.username}} <label class='admin_hint' v-if="props.userInfo.is_admin">admin</label></p>
+                <p @click="showUserSettingsDialog=true" style="cursor: pointer;">
+                    {{ props.userInfo.username}} <label class='admin_hint' v-if="props.userInfo.is_admin">admin</label>
+                </p>
                 <!-- <p id="backendurl">{{ getBackendURL() }}</p> -->
-                <p id="credential" @click="()=>{copyToClipboard(useSettingsStore().encKey).then(
+                <DiskUsage></DiskUsage>
+                <div style="height: 0.2rem;"></div>
+                <!-- <p id="credential" @click="()=>{copyToClipboard(useSettingsStore().encKey).then(
                     ()=>{useUIStateStore().showPopup('Secret copied to clipboard', 'info')})
-                }">Credential:{{ useSettingsStore().encKey.substring(0, 8)}}</p>
+                }">Credential:{{ useSettingsStore().encKey.substring(0, 8)}}</p> -->
             </div>
         </div>
+        <p id="credential" @click="()=>{copyToClipboard(useSettingsStore().encKey).then(
+            ()=>{useUIStateStore().showPopup('Secret copied to clipboard', 'info')})
+        }">-- Credential:{{ useSettingsStore().encKey.substring(0, 12)}} --</p>
     </div>
 </template>
 
@@ -152,6 +160,9 @@
         margin-top: 10px;
         display: flex;
         align-items: center;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
     }
     div#info{
         display: flex;
@@ -182,8 +193,7 @@
         align-items: flex-start;
         justify-self: flex-start;
     }
-    @media only screen and (max-width: 767px) {
-        /* Styles for mobile devices */
+    /* @media only screen and (max-width: 767px) {
         div#info{
             flex-direction: column;
             align-items: center;
@@ -195,12 +205,12 @@
         img#edit-settings-icon{
             display: none;
         }
-    }
+    } */
     p#credential{
         font-family: monospace;
         color: var(--color-text-soft);
         cursor: pointer;
-        font-size: smaller
+        font-size: 0.75rem;
     }
     h1{
         font-weight: bold;

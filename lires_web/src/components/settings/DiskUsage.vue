@@ -4,7 +4,7 @@
             <div class="disk-usage-fill" :style="{ width: fillPercentage }"></div>
         </div>
         <div class="disk-usage-text">
-            {{ usedSpace }} / {{ totalSpace }} {{ unit }}
+            Space: {{ usedSpace }} / {{ totalSpace }} {{ unit }}
         </div>
     </div>
 </template>
@@ -60,11 +60,11 @@ export default {
 <style scoped>
 #disk-usage-main {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
-    padding-inline: 1rem;
-    gap: 0.5rem;
+    align-items: flex-start;
+    /* padding-inline: 1rem; */
+    gap: 0rem;
     width: 100%;
     height: 100%;
     overflow-y: auto;
@@ -85,9 +85,10 @@ export default {
 }
 
 .disk-usage-text {
-    font-size: small;
+    font-size: 0.75rem;
     text-align: center;
     height: 100%;
+    color: var(--color-text-soft);
     white-space: nowrap;
 }
 </style>
