@@ -11,6 +11,8 @@ from lires.core.base import LiresBase
 from lires.core.dataTags import DataTags
 from lires.utils import BCOLORS
 
+from abc import abstractmethod
+
 from ..types import Event
 if TYPE_CHECKING:
     from .websocket import WebsocketHandler
@@ -60,6 +62,7 @@ class RequestHandlerMixin(LiresBase):
             async def _print_init_info():
                 await self.logger.debug(f"{BCOLORS.YELLOW} [init] :: {self.__class__.__name__} {BCOLORS.ENDC}")
             self.io_loop.create_task(_print_init_info())
+        self.__account_info: Optional[UserInfo] = None
 
     @property
     def io_loop(self):
@@ -74,7 +77,13 @@ class RequestHandlerMixin(LiresBase):
         """
         Try to identify user id from different sources
         """
-        # first try to get user id from params
+        # first check if user id is already recorded
+        # this is important, otherwise, 
+        # the user may be manipulated by the client
+        if self.__account_info:
+            return self.__account_info["id"]
+        
+        # then try to get user id from params, this is for non-logged-in requests
         for _user_id_candidate in ["_userid", "_u"]:
             user_id = self.get_argument(_user_id_candidate, None)
             if user_id is not None:
@@ -123,11 +132,10 @@ class RequestHandlerMixin(LiresBase):
         return enc_key
     
     async def userInfo(self) -> UserInfo:
-        try:
-            # use cached permission, from checkKey()
+        # use cached permission, from checkKey()
+        if self.__account_info:
             return self.__account_info
-        except AttributeError:
-            return await self.checkKey()
+        return await self.checkKey()
     
     async def userInfoDesensitized(self) -> UserInfo:
         info = await self.userInfo()
@@ -219,6 +227,50 @@ class RequestHandlerBase(tornado.web.RequestHandler, RequestHandlerMixin):
         # Handle preflight requests
         self.set_status(204)
         self.finish()
+
+
+class ReverseProxyHandlerBase(RequestHandlerBase):
+    """
+    NOT TESTED!
+    """
+    SUPPORTED_METHODS = ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"]
+
+    async def get(self, *args, **kwargs): await self.handle_request()
+    async def post(self, *args, **kwargs): await self.handle_request()
+    async def put(self, *args, **kwargs): await self.handle_request()
+    async def delete(self, *args, **kwargs): await self.handle_request()
+    async def head(self, *args, **kwargs): await self.handle_request()
+    async def options(self, *args, **kwargs): await self.handle_request()
+
+    @abstractmethod
+    async def aimHost(self) -> str:...
+
+    async def handle_request(self):
+        def handle_response(response):
+            # set headers?
+            for header, value in response.headers.get_all():
+                if header not in ('Transfer-Encoding', 'Content-Encoding', 'Content-Length', 'Connection'):
+                    self.set_header(header, value)
+
+            if response.error:
+                print("Error: %s" % response.error)
+            else:
+                self.write(response.body)
+            self.finish()
+
+        http = tornado.httpclient.AsyncHTTPClient()
+        if uri:=self.request.uri:
+            url = await self.aimHost() + uri
+        else:
+            url = await self.aimHost()
+        http.fetch(url,
+                   method=self.request.method,
+                   body=self.request.body if self.request.body else None,
+                   headers=self.request.headers,
+                   follow_redirects=False,
+                   allow_nonstandard_methods=True,
+                   callback=handle_response)
+
 
 __all__ = [
     "tornado",
