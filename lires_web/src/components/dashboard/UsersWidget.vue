@@ -8,7 +8,8 @@
 
     import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
     import QueryDialog from '../common/QueryDialog.vue';
-    import Toggle from '../common/Toggle.vue';
+    // import Toggle from '../common/Toggle.vue';
+    import SwitchToggle from '../settings/SwitchToggle.vue';
     import { useUIStateStore } from '../store';
     import { EditableParagraph } from '../common/fragments';
     import { predefinedUsernames } from '../../config';
@@ -146,18 +147,17 @@
                         <div class="horizontal">
                             <h2> {{editUserDialog_userInfo.name}} </h2> ({{editUserDialog_userInfo.username}})
                         </div>
-                        <div class="horizonal">
-                            <Toggle :checked="editUserDialog_userInfo.is_admin"
-                            @on-check="()=>{editUserDialog_userInfo.is_admin=!editUserDialog_userInfo.is_admin;}">
-                                Administrator</Toggle>
+                        <div class="horizonal" style="display: flex; align-items: center; gap: 0.5rem">
+                            <b>Administrator </b>
+                            <SwitchToggle v-model:checked="editUserDialog_userInfo.is_admin"/>
                         </div>
                         <div class="full-width left-align">
                             <b>Max Storage (MB):</b><br>
                             <input type="number" v-model="editUserDialog_userInfo.max_storage"/>
                         </div>
-                        <div class="full-width left-align">
+                        <div class="full-width left-align" v-if="!editUserDialog_userInfo.is_admin">
                             <b>Mandatory Tags:</b>
-                            <div id="mandatory-tag-edit" :class="editUserDialog_userInfo.is_admin?'mute':''">
+                            <div id="mandatory-tag-edit">
                                 <EditableParagraph :style="{width:'100%'}" :content-editable="!editUserDialog_userInfo.is_admin" @finish="(inp) => onEditMandatoryTagsDone(inp as string)">
                                     {{ editUserDialog_userInfo.mandatory_tags.join('; ')  }}
                                 </EditableParagraph>
@@ -201,18 +201,18 @@
                     <td><input type="text" v-model="createUser_password" autocomplete="off" class="create-user-input"/></td>
                 </tr>
                 <tr>
+                    <td>Max Storage (MB):</td>
+                    <td><input type="text" v-model="createUser_maxStorage" autocomplete="off" class="create-user-input"/></td>
+                </tr>
+                <tr>
                     <td>Mandatory Tags:</td>
                     <td><input type="text" v-model="createUser_mandatoryTags" autocomplete="off" class="create-user-input"
                         placeholder="Separate with semicolon ';'" ></td>
                 </tr>
                 <tr>
-                    <td>Max Storage (MB):</td>
-                    <td><input type="text" v-model="createUser_maxStorage" autocomplete="off" class="create-user-input"/></td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <Toggle :checked="createUser_isAdmin" @on-check="()=>{createUser_isAdmin=!createUser_isAdmin;}">
-                            Administrator</Toggle>
+                    <td>Administrator:</td>
+                    <td style="display: flex; align-items: center; padding-block: 0.25rem;">
+                        <SwitchToggle v-model:checked="createUser_isAdmin"></SwitchToggle>
                     </td>
                 </tr>
             </table>
@@ -232,6 +232,7 @@
                 <th> Avatar </th>
                 <th> Username </th>
                 <th> Name </th>
+                <th> Storage </th>
                 <th> Accessibility </th>
             </tr>
             <tr v-for="user in allUsers" class="user-line">
@@ -248,6 +249,7 @@
                 </td>
                 <td class="username"> {{user.username}} </td>
                 <td> {{user.name}} </td>
+                <td> {{ user.max_storage/1024/1024 }}</td>
                 <td>
                     <TagBubbleContainer v-if="!user.is_admin" :tags="user.mandatory_tags" :max-width="200" :middle-align="true"/>
                     <label class=admin_hint v-else>ADMIN</label>
@@ -419,9 +421,6 @@
         width: 100%;
         border-radius: 8px;
         background-color: var(--color-background);
-    }
-    div#mandatory-tag-edit.mute{
-        opacity: 0.5;
     }
 
 
