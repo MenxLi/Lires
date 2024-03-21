@@ -5,6 +5,7 @@
     import { useUIStateStore, useSettingsStore } from '../store';
     import { DataPoint } from '../../core/dataClass';
     import { ThemeMode } from '../../core/misc';
+    import { FileSelectButton } from '../common/fragments';
 
     const props = defineProps<{
         datapoint: DataPoint,
@@ -104,9 +105,32 @@
     <div id="body">
         <div class="pane" id="left-pane" ref="leftPane">
             <!-- pointer event should be none when moving splitter, otherwise the iframe will capture the mouse event -->
-            <iframe :src="openDocURL" title="doc" frameborder="0"
+            <iframe :src="openDocURL" title="doc" frameborder="0" v-if="datapoint.summary.has_file"
                 :style="{'pointer-events': onMovingSplitter ? 'none' : 'auto'}"
             > </iframe>
+
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%" v-else
+                @dragover="($event)=>$event.preventDefault()"
+                @drop="($ev: DragEvent)=>{
+                    $ev.preventDefault();
+                    const files = $ev.dataTransfer?.files;
+                    if (files && files.length == 1){
+                        datapoint.uploadDocument(files[0]).then(()=>{
+                            useUIStateStore().showPopup(
+                                'File uploaded',
+                            )
+                        })
+                    }
+                }"
+            >
+                <div style="color: var(--color-text-soft); font-weight: bold; font-size: large;">No file, 
+                    drag and drop to&nbsp;
+                </div>
+                <FileSelectButton :action="(f: File)=>datapoint.uploadDocument(f)" text="upload" :as-link="true" 
+                style="font-weight: bold; font-size: large; cursor: pointer;">
+                </FileSelectButton>
+            </div>
+            
         </div>
         <div id="splitter" ref="splitter" @mousedown="onStartMovingSplitter" @touchstart="onStartMovingSplitter" v-if="layoutType==2"> </div>
         <div class="pane" id="right-pane" ref="rightPane">
