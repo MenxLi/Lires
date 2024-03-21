@@ -68,7 +68,7 @@ export default {
 
     function reloadProg(){
         uiState.reloadDatabase();
-        useConnectionStore().wsConn.reset();
+        useConnectionStore().wsConn.resetReconnect();
     }
 
 </script>

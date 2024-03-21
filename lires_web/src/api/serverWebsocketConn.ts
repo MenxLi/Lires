@@ -139,8 +139,8 @@ export class ServerWebsocketConn{
     }
 
     // reset the websocket connection using cached callback functions
-    public reset(){
-        if (this.ws.readyState === WebSocket.OPEN){
+    public resetReconnect(){
+        if (this.ws && this.ws.readyState === WebSocket.OPEN){
             this.ws.close();
         }
         this.resetRemainingRetries()
@@ -148,7 +148,7 @@ export class ServerWebsocketConn{
     }
 
     public close(){
-        if (this.ws.readyState === WebSocket.OPEN){
+        if (this.ws && this.ws.readyState === WebSocket.OPEN){
             this.__remainingRetries = 0;    // disable reconnect
             this.ws.close();
         }
