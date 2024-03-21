@@ -4,6 +4,9 @@ const __themeChangeCallbacks: Array<Function> = [];
 export class ThemeMode{
 
   static registerThemeChangeCallback(callback: Function){
+    if (__themeChangeCallbacks.indexOf(callback) !== -1){
+      return;
+    }
     __themeChangeCallbacks.push(callback);
   }
 

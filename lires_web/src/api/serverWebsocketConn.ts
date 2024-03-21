@@ -28,7 +28,9 @@ export function registerServerEvenCallback(
     if (__global_eventHooks[eventType] === undefined){
         __global_eventHooks[eventType] = [];
     }
-    __global_eventHooks[eventType].push(eventReactFn);
+    if (!__global_eventHooks[eventType].includes(eventReactFn)){
+        __global_eventHooks[eventType].push(eventReactFn);
+    }
 }
 
 export class ServerWebsocketConn{
