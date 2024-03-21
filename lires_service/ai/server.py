@@ -2,7 +2,6 @@
 To expose the interfaces as a server,
 thus the client don't need to install the heavy packages...
 """
-import uvicorn
 import fastapi, openai
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel

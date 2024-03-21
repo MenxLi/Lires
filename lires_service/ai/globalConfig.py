@@ -6,8 +6,6 @@ import globalConfig as config
 from __future__ import annotations
 from typing import Optional, Literal, TYPE_CHECKING
 
-import lires.core.base  # to init logger, will remove this later
-
 if TYPE_CHECKING:
     from .lmInterface import ChatStreamIterType
 
