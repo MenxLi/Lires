@@ -125,7 +125,8 @@
                 ]"
             />
             <MdPreview v-else :model-value="mdTextRender"
-                :theme=theme
+                :theme=theme 
+                :preview-theme="'vuepress'"
             />
         </div>
     </div>
