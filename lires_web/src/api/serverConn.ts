@@ -180,13 +180,22 @@ export class ServerConn {
         return await this.fetcher.post(`/api/dataman/update`, params).then(res=>res.json());
     }
 
-    /* upload images to the misc folder and return the file names */
-    async uploadImages(uid: string, files: File[]): Promise<string[]>{
+    async listMiscFiles(uid: string): Promise<string[]>{
+        return await this.fetcher.get(`/api/misc-list/${uid}`).then(res=>res.json());
+    }
+    async deleteMiscFile(uid: string, fileName: string): Promise<boolean>{
+        return await this.fetcher.delete(`/misc/${uid}`, {
+            'fname': fileName,
+        }).then(()=>true);
+    }
+
+    /* upload files to the misc folder and return the file names */
+    async uploadMiscFiles(uid: string, files: File[]): Promise<string[]>{
         const res = await Promise.all(
             files.map((file) => {
                 // file is an object of File class: https://developer.mozilla.org/en-US/docs/Web/API/File
                 return new Promise((resolve, reject) => {
-                    this.fetcher.put(`/img/${uid}`, file)
+                    this.fetcher.put(`/misc/${uid}`, file)
                         .then(res=>res.json())
                         .then(resolve)
                         .catch(reject);

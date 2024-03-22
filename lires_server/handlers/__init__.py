@@ -2,6 +2,7 @@ from ._base import g_storage
 from .dataInfo import *
 from .databaseInfo import *
 from .documents import DocHandler
+from .miscFiles import *
 from .auth import AuthHandler
 from .search import *
 from .summary import SummaryHandler

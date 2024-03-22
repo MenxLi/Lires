@@ -54,8 +54,15 @@ class Fetcher {
         });
     }
 
-    public async delete(path: string): Promise<Response> {
+    public async delete(path: string, body: Record<string, any> = {}): Promise<Response> {
         const form = new FormData();
+        for (const key in body) {
+            let value = body[key];
+            if (value instanceof Array) {
+                value = JSON.stringify(value);
+            }
+            form.append(key, value);
+        }
         form.append('key', this._tokenGetter());
         return await this._fetch(`${this._baseUrlGetter()}${path}`, 
         {

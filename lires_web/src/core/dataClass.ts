@@ -90,7 +90,7 @@ export class DataPoint {
             return Promise.reject("Note is null");
         }
         // replace image url with ./misc/
-        note = note.replace(new RegExp(`${this.backendUrl}/img/${this.summary.uuid}\\?fname=`, 'g'), './misc/');
+        // note = note.replace(new RegExp(`${this.backendUrl}/misc/${this.summary.uuid}\\?fname=`, 'g'), './misc/');
         return new Promise((resolve, reject) => {
             this.conn.reqDatapointNoteUpdate(
                 this.summary.uuid,
@@ -109,10 +109,12 @@ export class DataPoint {
         })
     }
 
+    listMiscFiles(): Promise<string[]>{ return this.conn.listMiscFiles(this.summary.uuid); }
+    deleteMiscFile(fname: string): Promise<boolean>{ return this.conn.deleteMiscFile(this.summary.uuid, fname); }
     // return a list of raw image urls
-    uploadImages(images: File[]): Promise<string[]>{
+    uploadMisc(files: File[]): Promise<string[]>{
         return new Promise((resolve, reject) => {
-            this.conn.uploadImages(this.summary.uuid, images).then(
+            this.conn.uploadMiscFiles(this.summary.uuid, files).then(
                 (data) => {
                     resolve(
                         data.map((fname) => `./misc/${fname}`)

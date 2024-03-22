@@ -61,7 +61,8 @@ class Application(tornado.web.Application):
 
             # public resources
             (r"/doc/(.*)", DocHandler),
-            (r"/img/(.*)", ImageHandler), 
+            (r"/img/(.*)", ImageHandler),                       # will be deprecated
+            (r"/misc/(.*)", MiscFileHandler),
             (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),
             (r"/user-avatar/(.*)", UserAvatarHandler),
 
@@ -87,6 +88,7 @@ class Application(tornado.web.Application):
             (r"/api/datainfo-supp/abstract/(.*)", AbstractGetHandler),
             (r"/api/datainfo-supp/abstract-update/(.*)", AbstractUpdateHandler),
             (r'/api/datafeat/tsne/(.*)', DataFeatureTSNEHandler),
+            (r"/api/misc-list/(.*)", MiscFileListHandler),
 
             # iServer proxy
             (r"/api/iserver/(.*)", IServerProxyHandler),

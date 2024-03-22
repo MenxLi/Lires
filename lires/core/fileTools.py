@@ -220,6 +220,9 @@ class FileManipulator(LiresBase):
             return False
         else:
             return True
+    def listMiscFiles(self) -> List[str]:
+        if not self.hasMisc(): return []
+        return os.listdir(self.getMiscDir())
     
     async def addFile(self, extern_file_p) -> bool:
         """
