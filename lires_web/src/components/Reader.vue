@@ -10,7 +10,7 @@ export default {
     import ReaderBody from './reader/ReaderBody.vue';
     import Toolbar from './header/Toolbar.vue';
     import ToolbarIcon from './header/ToolbarIcon.vue';
-    import { ref, onMounted, computed, watch } from 'vue';
+    import { ref, onMounted, watch } from 'vue';
     import { useDataStore, useUIStateStore, useSettingsStore } from './store';
     import { useRoute, useRouter } from 'vue-router';
     import {FileSelectButton} from './common/fragments.tsx'
@@ -18,7 +18,6 @@ export default {
 
     import splitscreenIcon from '../assets/icons/splitscreen.svg';
     import uploadIcon from '../assets/icons/upload.svg';
-    import eyeIcon from '../assets/icons/eye.svg';
     import { DataPoint } from '../core/dataClass';
 
     const dataStore = useDataStore();
@@ -111,14 +110,6 @@ export default {
 
     // preview
     const readerBody = ref<typeof ReaderBody | null>(null);
-    const previewState = computed(()=>{
-        try{ return readerBody.value!.noteEditor.preview} 
-        catch(e){ return false; }} // not mounted
-    );
-    const previewBtnText = computed(()=>previewState.value?"edit":"preview");
-    function toggleMarkdownPreview(){
-        readerBody.value!.noteEditor.preview = !readerBody.value!.noteEditor.preview;
-    }
 
     onMounted(() => {
         // empty database check 
@@ -137,8 +128,6 @@ export default {
                 @onClick="changeLayout" title="change layout"></ToolbarIcon>
             <ToolbarIcon :iconSrc="uploadIcon" labelText="upload" shortcut="ctrl+u"
                 @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></ToolbarIcon>
-            <ToolbarIcon :iconSrc="eyeIcon" :labelText="previewBtnText" shortcut="ctrl+p"
-                @onClick="toggleMarkdownPreview" title="preview or edit markdown note"></ToolbarIcon>
             <MenuAttached :menu-items="recentReadMenuItems">
                 <div id="recently-read">
                     {{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}

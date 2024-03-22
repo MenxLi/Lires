@@ -129,6 +129,15 @@
                 :preview-theme="'vuepress'"
             />
         </div>
+        <div id="btn-container">
+            <button @click="preview=!preview" 
+                style="width: 100%; height: 30px; margin-top: 0px; border-radius: 0;"
+            >{{preview?'Edit':'Preview'}}</button>
+            <!-- <button @click="preview=!preview" 
+                style="width: 100%; height: 30px; margin-top: 0px; border-radius: 0;"
+            >{{preview?'Edit':'Preview'}}</button> -->
+        </div>
+        <!-- <div id="misc-container"></div> -->
     </div>
 </template>
 
@@ -154,6 +163,23 @@ div.editor > * {
     flex: 1;
     width: 100%;
     height: 100%;
+}
+
+div#btn-container {
+    display: flex;
+    flex-direction: row;
+    gap: 0px;
+    width: 100%;
+    background-color: var(--color-background);
+    border-top: 1px solid var(--color-border);
+}
+
+div#misc-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100px;
+    background-color: var(--color-background);
+    border-top: 1px solid var(--color-border);
 }
 
 </style>
