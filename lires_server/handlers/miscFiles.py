@@ -97,6 +97,7 @@ class MiscFileHandler(RequestHandlerBase):
         fpath = os.path.join(dp.fm.getMiscDir(create=True), filename)
         async with aiofiles.open(fpath, "wb") as f:
             await f.write(file_data)
+        await self.logger.info(f"Saved misc file to {fpath}")
         
         self.write({
             "status": "OK",
@@ -121,6 +122,7 @@ class MiscFileHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(409, reason="File already exists")
         
         os.rename(fpath, new_fpath)
+        await self.logger.info(f"Renamed misc file {fpath} to {new_fpath}")
         self.write({ "status": "OK" })
     
     @keyRequired
@@ -135,6 +137,7 @@ class MiscFileHandler(RequestHandlerBase):
         fpath = os.path.join(dp.fm.getMiscDir(), fname)
         if os.path.exists(fpath):
             os.remove(fpath)
+            await self.logger.info(f"Deleted misc file {fpath}")
             self.write({ "status": "OK" })
         else:
             raise tornado.web.HTTPError(404, reason="File not found")
