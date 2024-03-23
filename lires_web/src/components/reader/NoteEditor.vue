@@ -92,7 +92,7 @@
 
     const preview = ref<boolean>(false);
     function linkOnNote(content: string): boolean{
-        return mdText.value.indexOf("("+content+")") >= 0;
+        return mdText.value.indexOf(content) >= 0;
     }
     function prompt(msg: string){
         const ret = window.prompt(msg);
@@ -167,7 +167,10 @@
         <div id="misc-toggle" @click="()=>{showMiscFiles = !showMiscFiles}">
             <div :id="showMiscFiles?'triangle-down':'triangle'"></div>
         </div>
-        <div id="misc-container" v-if="showMiscFiles">
+        <div id="misc-container" v-if="showMiscFiles" class="hover-scrollable">
+            <div v-if="miscFiles.length === 0" style="font-weight: bold; color: var(--color-text-soft); top: 0.5rem">
+                No attached files.
+            </div>
             <div v-for="file in miscFiles" :key="file.name" class="misc-file">
                 <div>
                     <a :href="file.url" target="_blank">{{file.name}}</a>
@@ -259,7 +262,8 @@ div#misc-container {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    /* min-height: 100px; */
+    min-height: 5rem;
+    height: fit-content;
     background-color: var(--color-background);
     border-top: 1px solid var(--color-border);
 }
