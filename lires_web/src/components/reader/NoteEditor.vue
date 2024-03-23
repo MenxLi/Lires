@@ -6,11 +6,13 @@
     import { DataPoint } from '../../core/dataClass';
     import { MdEditor, MdPreview } from 'md-editor-v3';
     import 'md-editor-v3/lib/style.css';
-    import { useUIStateStore } from '../store';
+    import { useUIStateStore, useConnectionStore } from '../store';
     import { parseMarkdown } from '../../core/markdownParse';
     import { useRouter } from 'vue-router';
     import { FileSelectButton } from '../common/fragments';
     import { copyToClipboard } from '../../utils/misc';
+    import { registerServerEvenCallback_auto } from '../../api/serverWebsocketConn';
+    import type { Event_Data } from '../../api/protocalT';
 
     const props = withDefaults(defineProps<{
         datapoint: DataPoint
@@ -29,10 +31,16 @@
 
     const uiState = useUIStateStore();
     const miscFiles = ref<Record<'fname'|'rpath'|'url', string>[]>([]);
+    const noteRecord = ref<string>('');
+    const saveHint = computed(()=>{
+        if (noteRecord.value === mdText.value){ return ''; }
+        return 'Unsaved';
+    })
 
     async function fetchNote(){
         if (props.datapoint.isDummy()){return;}
         const note = await props.datapoint.fetchNote();
+        noteRecord.value = note;
         mdText.value = note;
         if (note.trim().length > 0){
             preview.value = true;
@@ -41,19 +49,20 @@
     async function fetchMiscFileInfo(){
         miscFiles.value = await props.datapoint.listMiscFiles();
     }
+    async function fetchAll(){ 
+        if (props.datapoint.isDummy()){return;}
+        await Promise.all([fetchNote(), fetchMiscFileInfo()]); 
+    }
 
-    fetchNote();
-    fetchMiscFileInfo();
+    fetchAll();
     watch(() => props.datapoint, () => {
-        fetchNote(); 
-        fetchMiscFileInfo();
-        console.log('datapoint changed, fetching note and misc files...')
+        fetchAll(); console.log('datapoint changed, fetching note and misc files...')
     })
 
     // event handlers
     async function saveNote() {
         await props.datapoint.uploadNote(mdText.value);
-        useUIStateStore().showPopup('Note saved', 'success')
+        noteRecord.value = mdText.value;
     }
 
     const deleteMiscFile = async (fname: string)=>{
@@ -106,6 +115,17 @@
         fetchNote
     })
 
+    registerServerEvenCallback_auto('update_entry', (event)=>{
+        if (event.session_id === useConnectionStore().wsConn.sessionID){return;}
+        console.log('update_entry event received from', event.session_id, 'updating note...');
+        console.log('this session id is', useConnectionStore().wsConn.sessionID);
+        // update note content from other clients
+        const d_summary = (event as Event_Data).datapoint_summary!
+        if (d_summary.uuid === props.datapoint.uid){ fetchAll().then(()=>{
+            useUIStateStore().showPopup('update from other clients', 'info')
+        }); }
+    });
+
 </script>
 
 <template>
@@ -146,6 +166,7 @@
                 :theme=theme 
                 :preview-theme="'vuepress'"
             />
+            <div id="save-hint" v-if="!preview && saveHint">{{ saveHint }}</div>
         </div>
         <div id="btn-container">
             <button @click="preview=!preview">{{preview?'Edit':'Preview'}}</button>
@@ -211,7 +232,7 @@ div.editor {
     text-align: left;
     /* clip a rounded corner here */
     /* clip-path: inset(0 0 0 0 round 10px); */
-    display: flex;
+    /* display: flex; */
     align-items: center;
     justify-content: center;
     position: relative;
@@ -222,6 +243,21 @@ div.editor > * {
     flex: 1;
     width: 100%;
     height: 100%;
+}
+div#save-hint {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    bottom: 24px;
+    right: 0;
+    padding: 0.2rem;
+    color: var(--color-text);
+    padding-inline: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background-color: rgba(200, 50, 80, 0.5);
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
 }
 
 div#btn-container {
