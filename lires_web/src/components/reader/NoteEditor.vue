@@ -65,11 +65,7 @@
         await props.datapoint.renameMiscFile(oldName, newName);
         // update note content
         mdText.value = mdText.value.replace(oldName, newName);
-        for (const f of miscFiles.value){
-            if (f.fname === oldName){
-                f.fname = newName;
-            }
-        }
+        fetchMiscFNames();
         useUIStateStore().showPopup('File renamed', 'info')
     }
 
