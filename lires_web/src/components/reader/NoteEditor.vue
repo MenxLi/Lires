@@ -38,15 +38,16 @@
             preview.value = true;
         }
     }
-    fetchNote();
-
-    async function fetchMiscFNames(){
+    async function fetchMiscFileInfo(){
         miscFiles.value = await props.datapoint.listMiscFiles();
     }
+
+    fetchNote();
+    fetchMiscFileInfo();
     watch(() => props.datapoint, () => {
         fetchNote(); 
-        fetchMiscFNames();
-        console.log('datapoint changed, fetching note')
+        fetchMiscFileInfo();
+        console.log('datapoint changed, fetching note and misc files...')
     })
 
     // event handlers
@@ -71,7 +72,7 @@
         await props.datapoint.renameMiscFile(oldName, newName);
         // update note content
         mdText.value = mdText.value.replace(oldName, newName);
-        fetchMiscFNames();
+        fetchMiscFileInfo();
         useUIStateStore().showPopup('File renamed', 'info')
     }
 
@@ -87,7 +88,7 @@
             })
         );
         saveNote();   // save note after uploading images, to avoid un-referenced images on server
-        fetchMiscFNames();  // update misc files list
+        fetchMiscFileInfo();  // update misc files list
     }
 
     const preview = ref<boolean>(false);
@@ -151,7 +152,7 @@
             <FileSelectButton :action="(file: File)=>{
                 props.datapoint.uploadMisc([file]).then((fpath: string[])=>{
                     useUIStateStore().showPopup('File uploaded', 'success')
-                    fetchMiscFNames();
+                    fetchMiscFileInfo();
                     mdEditor!.insert(()=>{
                         return {
                             targetValue: `[${file.name}](${fpath[0]})`,

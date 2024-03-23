@@ -126,7 +126,7 @@ export default {
         <div id="toolbarOps">
             <ToolbarIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
                 @onClick="changeLayout" title="change layout"></ToolbarIcon>
-            <ToolbarIcon :iconSrc="uploadIcon" labelText="upload" shortcut="ctrl+u"
+            <ToolbarIcon :iconSrc="uploadIcon" labelText="replace" shortcut="ctrl+u"
                 @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></ToolbarIcon>
             <MenuAttached :menu-items="recentReadMenuItems">
                 <div id="recently-read">
