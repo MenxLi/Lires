@@ -4,19 +4,24 @@ class Fetcher {
 
     declare _baseUrlGetter: ()=>string;
     declare _tokenGetter: ()=>string;
+    declare _sessionIDGetter: ()=>string;
 
-    constructor() {
-        this._baseUrlGetter = () => '';
-        this._tokenGetter = () => '';
+    constructor({
+        baseUrlGetter = ()=>'', 
+        tokenGetter = ()=>'', 
+        sessionIDGetter = ()=>'' 
+    }: {
+        baseUrlGetter?: ()=>string,
+        tokenGetter?: ()=>string,
+        sessionIDGetter?: ()=>string
+    }) {
+        this._baseUrlGetter = baseUrlGetter;
+        this._tokenGetter = tokenGetter;
+        this._sessionIDGetter = sessionIDGetter;
     }
     public get baseUrl(): string { return this._baseUrlGetter(); }
     public get token(): string { return this._tokenGetter(); }
-    public setBaseUrlGetter(g: ()=>string) {
-        this._baseUrlGetter = g;
-    }
-    public setCredentialGetter(g: ()=>string) {
-        this._tokenGetter = g;
-    }
+    public get sessionID(): string { return this._sessionIDGetter(); }
 
     public async get(path: string, params: Record<string, string> = {}): Promise<Response> {
         const urlWithParams = new URL(`${this._baseUrlGetter()}${path}`);
@@ -75,8 +80,10 @@ class Fetcher {
 
         // inject token
         if (options?.method === 'GET') {
-            path += path.includes('?') ? '&' : '?';
-            path += `key=${this._tokenGetter()}`;
+            const url = new URL(path);
+            url.searchParams.append('key', this._tokenGetter());
+            url.searchParams.append('session_id', this._sessionIDGetter());
+            path = url.toString();
         }
 
         if (options?.method === 'POST' || options?.method === 'PUT' || options?.method === 'DELETE') {
@@ -85,11 +92,17 @@ class Fetcher {
             }
             else if (typeof options.body === 'string') {
                 // assume it is JSON
-                options.body = JSON.stringify({key: this._tokenGetter(), ...JSON.parse(options.body)});
+                options.body = JSON.stringify({
+                    key: this._tokenGetter(), 
+                    session_id: this._sessionIDGetter(),
+                    ...JSON.parse(options.body)});
             }
             else if (options.body instanceof FormData) {
                 if (!options.body.has('key')) {
                     options.body.append('key', this._tokenGetter());
+                }
+                if (!options.body.has('session_id')) {
+                    options.body.append('session_id', this._sessionIDGetter());
                 }
             }
             else {

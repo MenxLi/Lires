@@ -131,6 +131,10 @@ class RequestHandlerMixin(LiresBase):
             assert isinstance(enc_key, str), "Not found key in params or cookies"
         return enc_key
     
+    @property
+    def session_id(self) -> str:
+        return self.get_argument("session_id", "")
+    
     async def userInfo(self) -> UserInfo:
         # use cached permission, from checkKey()
         if self.__account_info:
@@ -192,6 +196,7 @@ class RequestHandlerMixin(LiresBase):
         - to_all: if True, the event will be broadcasted to all clients, 
             otherwise, it will be broadcasted to all clients of the same user
         """
+        event["session_id"] = self.session_id
         await self.logger.debug("Broadcast message - " + str(event))
 
         # there will somehow exists closed connections in the pool

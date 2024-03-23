@@ -138,16 +138,16 @@ export const useUIStateStore = defineStore(
 export const useConnectionStore = defineStore(
     "connection", {
         state: () => {
-            return {
-                conn: new ServerConn(
+            const wsConn = new ServerWebsocketConn(
+                useSettingsStore().backend,
+                () => useSettingsStore().encKey
+            )
+            const conn = new ServerConn(
                     useSettingsStore().backend,
-                    () => useSettingsStore().encKey
-                ),
-                wsConn: new ServerWebsocketConn(
-                    useSettingsStore().backend,
-                    () => useSettingsStore().encKey
+                    () => useSettingsStore().encKey,
+                    () => wsConn.sessionID,
                 )
-            }
+            return { conn, wsConn }
         },
     }
 )
