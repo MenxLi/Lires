@@ -88,6 +88,13 @@ def main():
                         help='Log database files')
     sp_check.add_argument('-l', '--level', type=str, help='Log level', default=None)
 
+    sp_merge = sp.add_parser('merge', help='Merge log files, output to dst file')
+    sp_merge.add_argument('-i', "--inputs", dest = "files",
+                        type=str, nargs='+', default=glob.glob(f"{LOG_DIR}/*.sqlite"), 
+                        help='Log database files')
+    sp_merge.add_argument('-o', "--output", dest = "output", type=str, help='Output file', default=f"{LOG_DIR}/log_all.sqlite")
+    sp_merge.add_argument("--rm", action="store_true", help="Remove the input files after merging")
+
     
     args = parser.parse_args()
 
@@ -176,6 +183,49 @@ def main():
         for table_name in all_tables:
             print(f"|{table_name:<{max_len}}|{count[table_name].__str__().ljust(digit_len, ' ')}|")
         print("+" + "-" * (line_len-2) + "+")
+    
+    elif args.subparser_name == 'merge':
+        all_files = args.files
+        # remove the output file if exists in the input files
+        def unifyPath(path: str) -> str:
+            return os.path.abspath(os.path.expanduser(path))
+        for i in range(len(all_files)):
+            if unifyPath(all_files[i]) == unifyPath(args.output):
+                all_files.pop(i)
+                break
+        all_tables = getAllTableNames(all_files)
+        conn = sqlite3.connect(args.output)
+        cur = conn.cursor()
+
+        # get all lines for each table
+        for file in all_files:
+            print(f"Processing {file}")
+            reader = LogDBReader(file)
+            for table_name in all_tables:
+
+                table_info = reader.cur.execute(f"PRAGMA table_info({table_name})").fetchall()
+                if len(table_info) == 0:
+                    continue
+
+                # create new table if not exists
+                sql_create = f"CREATE TABLE IF NOT EXISTS {table_name} ("
+                for info in table_info:
+                    sql_create += f"{info[1]} {info[2]}, "
+                sql_create = sql_create[:-2] + ")"
+                cur.execute(sql_create)
+
+                if not reader.hasTable(table_name):
+                    continue
+                lines = reader.getMessagesFromTable(table_name)
+                for line in lines:
+                    cur.execute(f"INSERT INTO {table_name} VALUES (?,?,?,?,?)", line)
+        conn.commit()
+
+        if args.rm:
+            for file in args.files:
+                os.remove(file)
+            print(f"Removed all input files")
+        print(f"Output to {args.output}")
         
     else:
         raise ValueError(f"Unknown subparser name: {args.subparser_name}")
