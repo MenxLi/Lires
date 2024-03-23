@@ -137,6 +137,8 @@ class MiscFileHandler(RequestHandlerBase):
         fpath = os.path.join(dp.fm.getMiscDir(), fname)
         if os.path.exists(fpath):
             os.remove(fpath)
+            if not os.listdir(dp.fm.getMiscDir()):
+                os.rmdir(dp.fm.getMiscDir())
             await self.logger.info(f"Deleted misc file {fpath}")
             self.write({ "status": "OK" })
         else:
