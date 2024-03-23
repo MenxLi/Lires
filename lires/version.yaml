@@ -765,5 +765,22 @@ version_history:
       - Disk limit for each user
       - Search by year
       - No entry delete backup
-    - fix:
+    - Fix:
       - Entry delete tag update
+  1.7.2:
+    - Features:
+      - Manage data attachments
+      - Synchronize note update
+      - Unsaved change hint on note editor
+      - Reader show upload hint on empty document
+    - UI:
+      - Note preview button to editor
+      - Show user storage in user management
+    - Development:
+      - Include session id in each request
+      - Update lires-web dependencies
+      - Store user token in cookie
+    - Fix:
+      - Search sort
+      - Clean data on user logout
+      - Possible user authentication attack
