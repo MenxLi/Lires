@@ -109,9 +109,24 @@ export class DataPoint {
         })
     }
 
-    listMiscFiles(): Promise<string[]>{ return this.conn.listMiscFiles(this.summary.uuid); }
     deleteMiscFile(fname: string): Promise<boolean>{ return this.conn.deleteMiscFile(this.summary.uuid, fname); }
     renameMiscFile(fname: string, newname: string): Promise<boolean>{ return this.conn.renameMiscFile(this.summary.uuid, fname, newname); }
+    listMiscFiles(): Promise<Record<'fname'|'rpath'|'url', string>[]>{ 
+        const fnameList = this.conn.listMiscFiles(this.summary.uuid); 
+        const urlBase = `${this.backendUrl}/misc/${this.summary.uuid}`;
+        return fnameList.then((data) => {
+            return data.map((fname) => {
+                const sparam = new URLSearchParams();
+                sparam.append("fname", fname);
+                sparam.append("_u", useDataStore().user.id.toString());
+                return {
+                    fname: fname,
+                    rpath: `./misc/${fname}`,
+                    url: `${urlBase.toString()}?${sparam.toString()}`,
+                }
+            })
+        })
+    }
     // return a list of raw image urls
     uploadMisc(files: File[]): Promise<string[]>{
         return new Promise((resolve, reject) => {

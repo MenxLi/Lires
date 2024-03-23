@@ -6,7 +6,7 @@
     import { DataPoint } from '../../core/dataClass';
     import { MdEditor, MdPreview } from 'md-editor-v3';
     import 'md-editor-v3/lib/style.css';
-    import { useUIStateStore, useDataStore, useSettingsStore } from '../store';
+    import { useUIStateStore } from '../store';
     import { parseMarkdown } from '../../core/markdownParse';
     import { useRouter } from 'vue-router';
     import { FileSelectButton } from '../common/fragments';
@@ -28,12 +28,7 @@
     const mdEditor = ref<typeof MdEditor | null>(null);
 
     const uiState = useUIStateStore();
-    const miscFileNames = ref<string[]>([]);
-    const miscFiles = computed(()=>miscFileNames.value.map((name)=>({
-        name: name,
-        url: `${useSettingsStore().backend()}/misc/${props.datapoint.uid}` + 
-        `?_u=${useDataStore().user.id}&fname=${name}`
-    })))
+    const miscFiles = ref<Record<'fname'|'rpath'|'url', string>[]>([]);
 
     async function fetchNote(){
         if (props.datapoint.isDummy()){return;}
@@ -46,8 +41,7 @@
     fetchNote();
 
     async function fetchMiscFNames(){
-        const fNames = await props.datapoint.listMiscFiles();
-        miscFileNames.value = fNames;
+        miscFiles.value = await props.datapoint.listMiscFiles();
     }
     watch(() => props.datapoint, () => {
         fetchNote(); 
@@ -63,7 +57,7 @@
 
     const deleteMiscFile = async (fname: string)=>{
         await props.datapoint.deleteMiscFile(fname);
-        miscFileNames.value = miscFileNames.value.filter((name)=>name !== fname);
+        miscFiles.value = miscFiles.value.filter((f)=>f.fname !== fname);
         useUIStateStore().showPopup('File deleted', 'info')
     }
 
@@ -71,7 +65,11 @@
         await props.datapoint.renameMiscFile(oldName, newName);
         // update note content
         mdText.value = mdText.value.replace(oldName, newName);
-        miscFileNames.value = miscFileNames.value.map((name)=>name === oldName?newName:name);
+        for (const f of miscFiles.value){
+            if (f.fname === oldName){
+                f.fname = newName;
+            }
+        }
         useUIStateStore().showPopup('File renamed', 'info')
     }
 
@@ -171,26 +169,26 @@
             <div v-if="miscFiles.length === 0" style="font-weight: bold; color: var(--color-text-soft); top: 0.5rem">
                 No attached files.
             </div>
-            <div v-for="file in miscFiles" :key="file.name" class="misc-file">
+            <div v-for="file in miscFiles" :key="file.fname" class="misc-file">
                 <div>
-                    <a :href="file.url" target="_blank">{{file.name}}</a>
-                    <label style="color: var(--color-text-soft);" v-if="!linkOnNote(file.name)">
+                    <a :href="file.url" target="_blank">{{file.fname}}</a>
+                    <label style="color: var(--color-text-soft);" v-if="!linkOnNote(file.fname)">
                         (no-ref)
                     </label>
                 </div>
 
                 <div class="misc-file-op-container">
                     <a style="color: var(--color-text-soft); cursor: pointer;" 
-                        @click="copyToClipboard(file.name); useUIStateStore().showPopup('Copied')">
+                        @click="copyToClipboard(file.fname); useUIStateStore().showPopup('Copied')">
                         copy
                     </a>
                     <a style="color: var(--color-text-soft); cursor: pointer;" 
-                        @click="renameMiscFile(file.name, prompt('New name'))">
+                        @click="renameMiscFile(file.fname, prompt('New name'))">
                         rename
                     </a>
                     <a style="color: var(--color-danger); cursor: pointer;" 
-                        v-if="!linkOnNote(file.name)"
-                        @click="deleteMiscFile(file.name)">
+                        v-if="!linkOnNote(file.fname)"
+                        @click="deleteMiscFile(file.fname)">
                         delete
                     </a>
                 </div>
