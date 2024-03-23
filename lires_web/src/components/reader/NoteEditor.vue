@@ -62,6 +62,12 @@
     }
 
     const renameMiscFile = async (oldName: string, newName: string)=>{
+        // check if file extension is the same
+        if (oldName.split('.').pop() !== newName.split('.').pop()){
+            useUIStateStore().showPopup('File extension must be the same', 'error')
+            return;
+        }
+        // do rename
         await props.datapoint.renameMiscFile(oldName, newName);
         // update note content
         mdText.value = mdText.value.replace(oldName, newName);
