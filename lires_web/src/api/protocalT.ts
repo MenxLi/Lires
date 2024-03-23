@@ -64,7 +64,7 @@ export interface SearchResult2 {
 // Event for websocket to broadcast
 interface EventBase{
     type: 
-    'delete_entry' | 'add_entry' | 'update_entry' |
+    'delete_entry' | 'add_entry' | 'update_entry' | 'update_note' |
     'delete_tag' | 'update_tag' |
     'delete_user' | 'add_user' | 'update_user' |
     'login' | 'logout';
@@ -76,6 +76,11 @@ export interface Event_Data extends EventBase{
     type: 'delete_entry' | 'add_entry' | 'update_entry'
     uuid: string;
     datapoint_summary: DataInfoT | null;
+}
+
+export interface Event_DataNote extends EventBase{
+    type: 'update_note'
+    note: string;
 }
 
 export interface Event_Tag extends EventBase{
@@ -90,4 +95,4 @@ export interface Event_User extends EventBase{
     user_info: UserInfo | null
 }
 
-export type Event = Event_Data | Event_Tag | Event_User;
+export type Event = Event_Data | Event_Tag | Event_User | Event_DataNote;

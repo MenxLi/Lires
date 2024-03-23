@@ -115,10 +115,8 @@
         fetchNote
     })
 
-    registerServerEvenCallback_auto('update_entry', (event)=>{
+    registerServerEvenCallback_auto('update_note', (event)=>{
         if (event.session_id === useConnectionStore().wsConn.sessionID){return;}
-        console.log('update_entry event received from', event.session_id, 'updating note...');
-        console.log('this session id is', useConnectionStore().wsConn.sessionID);
         // update note content from other clients
         const d_summary = (event as Event_Data).datapoint_summary!
         if (d_summary.uuid === props.datapoint.uid){ fetchAll().then(()=>{

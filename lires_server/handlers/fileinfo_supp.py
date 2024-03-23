@@ -41,9 +41,10 @@ class NoteUpdateHandler(RequestHandlerBase):
         await dp.fm.writeComments(note)
         dp = await db.get(uid)
         await self.broadcastEventMessage({
-            'type': 'update_entry',
+            'type': 'update_note',
             'uuid': uid,
-            'datapoint_summary': dp.summary.json()
+            'datapoint_summary': dp.summary.json(),
+            'note': note
         })
         self.write("OK")
 

@@ -107,7 +107,7 @@
             uiState.updateShownData();
         });
     })
-    registerServerEvenCallback('update_entry', (event) => {
+    registerServerEvenCallback(['update_entry', 'update_note'], (event) => {
         const dataStore = useDataStore();
         const d_summary = (event as Event_Data).datapoint_summary!
         dataStore.database.update(d_summary).then(()=>{

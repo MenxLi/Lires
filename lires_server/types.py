@@ -12,6 +12,10 @@ class Event_Data(EventBase):
     uuid: str
     datapoint_summary: Optional[dict]
 
+class Event_DataNote(Event_Data):
+    type: Literal['update_note']
+    note: str
+
 class Event_Tag(EventBase):
     type: Literal['delete_tag', 'update_tag']
     src_tag: str
@@ -22,7 +26,7 @@ class Event_User(EventBase):
     username: str
     user_info: Optional[UserInfo]
 
-Event = Event_Data | Event_Tag | Event_User
+Event = Event_Data | Event_DataNote | Event_Tag | Event_User
 
 
 class ServerStatus(TypedDict):
