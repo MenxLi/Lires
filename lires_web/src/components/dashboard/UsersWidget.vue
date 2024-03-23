@@ -249,7 +249,13 @@
                 </td>
                 <td class="username"> {{user.username}} </td>
                 <td> {{user.name}} </td>
-                <td> {{ user.max_storage/1024/1024 }}</td>
+                <td style="text-align: right;"> 
+                    {{ 
+                    user.max_storage/1024/1024 > 1024 ? 
+                    `${(user.max_storage/1024/1024/1024).toFixed(1)} G` : 
+                    `${(user.max_storage/1024/1024).toFixed(0)} M`
+                    }}
+                </td>
                 <td>
                     <TagBubbleContainer v-if="!user.is_admin" :tags="user.mandatory_tags" :max-width="200" :middle-align="true"/>
                     <label class=admin_hint v-else>ADMIN</label>
