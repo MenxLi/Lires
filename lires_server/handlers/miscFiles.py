@@ -72,30 +72,6 @@ class MiscFileHandler(RequestHandlerBase):
         async with aiofiles.open(fpath, "rb") as f:
             self.write(await f.read())
 
-    # async def emitImage(self, uid: str, fname: str):
-    #     """
-    #     Args:
-    #         uid (str): uuid of the datapoint
-    #         fname (str): filename of the image
-    #     """
-    #     db = await self.db()
-    #     dp = await db.get(uid)
-    #     misc_dir = dp.fm.getMiscDir()
-    #     fpath = os.path.join(misc_dir, fname)
-    #     if not os.path.exists(fpath):
-    #         raise tornado.web.HTTPError(404, reason="File not found")
-
-    #     if (not os.path.isfile(fpath)):
-    #         raise tornado.web.HTTPError(404, reason="File not found")
-
-    #     async with aiofiles.open(fpath, "rb") as f:
-    #         # set header to be image
-    #         if fpath.endswith(".png"):
-    #             self.set_header("Content-Type", "image/png")
-    #         elif fpath.endswith(".jpg") or fpath.endswith(".jpeg"):
-    #             self.set_header("Content-Type", "image/jpeg")
-    #         self.write(await f.read())
-
     @keyRequired
     async def put(self, uid: str):
         # permission check
@@ -126,6 +102,26 @@ class MiscFileHandler(RequestHandlerBase):
             "status": "OK",
             "file_name": filename,
         })
+    
+    @keyRequired
+    async def post(self, uid: str):
+        # permission check
+        db = await self.db()
+        dp = await db.get(uid)
+        if not (await self.userInfo())["is_admin"]:
+            await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
+
+        fname = self.get_argument("fname")
+        new_fname = self.get_argument("dst_fname")
+        fpath = os.path.join(dp.fm.getMiscDir(), fname)
+        if not os.path.exists(fpath):
+            raise tornado.web.HTTPError(404, reason="File not found")
+        new_fpath = os.path.join(dp.fm.getMiscDir(), new_fname)
+        if os.path.exists(new_fpath):
+            raise tornado.web.HTTPError(409, reason="File already exists")
+        
+        os.rename(fpath, new_fpath)
+        self.write({ "status": "OK" })
     
     @keyRequired
     async def delete(self, uid: str):

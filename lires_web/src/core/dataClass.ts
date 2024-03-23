@@ -111,6 +111,7 @@ export class DataPoint {
 
     listMiscFiles(): Promise<string[]>{ return this.conn.listMiscFiles(this.summary.uuid); }
     deleteMiscFile(fname: string): Promise<boolean>{ return this.conn.deleteMiscFile(this.summary.uuid, fname); }
+    renameMiscFile(fname: string, newname: string): Promise<boolean>{ return this.conn.renameMiscFile(this.summary.uuid, fname, newname); }
     // return a list of raw image urls
     uploadMisc(files: File[]): Promise<string[]>{
         return new Promise((resolve, reject) => {

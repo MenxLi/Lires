@@ -188,6 +188,12 @@ export class ServerConn {
             'fname': fileName,
         }).then(()=>true);
     }
+    async renameMiscFile(uid: string, fileName: string, newFileName: string): Promise<boolean>{
+        return await this.fetcher.post(`/misc/${uid}`, {
+            'fname': fileName,
+            'dst_fname': newFileName,
+        }).then(()=>true);
+    }
 
     /* upload files to the misc folder and return the file names */
     async uploadMiscFiles(uid: string, files: File[]): Promise<string[]>{

@@ -67,6 +67,14 @@
         useUIStateStore().showPopup('File deleted', 'info')
     }
 
+    const renameMiscFile = async (oldName: string, newName: string)=>{
+        await props.datapoint.renameMiscFile(oldName, newName);
+        // update note content
+        mdText.value = mdText.value.replace(oldName, newName);
+        miscFileNames.value = miscFileNames.value.map((name)=>name === oldName?newName:name);
+        useUIStateStore().showPopup('File renamed', 'info')
+    }
+
     const uploadMiscFiles = async (files: File[]) => {
         const unifiedURLs = await props.datapoint.uploadMisc(files);
         unifiedURLs.map( url => mdEditor.value!.insert(()=>{
@@ -83,6 +91,14 @@
     }
 
     const preview = ref<boolean>(false);
+    function linkOnNote(content: string): boolean{
+        return mdText.value.indexOf("("+content+")") >= 0;
+    }
+    function prompt(msg: string){
+        const ret = window.prompt(msg);
+        if (!ret){ throw new Error('User cancelled'); }
+        return ret;
+    }
 
     defineExpose({
         preview,
@@ -131,9 +147,7 @@
             />
         </div>
         <div id="btn-container">
-            <button @click="preview=!preview" 
-                style="width: 100%; height: 30px; margin-top: 0px; border-radius: 0; font-weight: bold;"
-            >{{preview?'Edit':'Preview'}}</button>
+            <button @click="preview=!preview">{{preview?'Edit':'Preview'}}</button>
             <FileSelectButton :action="(file: File)=>{
                 props.datapoint.uploadMisc([file]).then((fpath: string[])=>{
                     useUIStateStore().showPopup('File uploaded', 'success')
@@ -148,7 +162,6 @@
                     })
                 }) 
             }"
-            style="width: 100%; height: 30px; margin-top: 0px; border-radius: 0; font-weight: bold;"
             ></FileSelectButton>
         </div>
         <div id="misc-toggle" @click="()=>{showMiscFiles = !showMiscFiles}">
@@ -158,7 +171,7 @@
             <div v-for="file in miscFiles" :key="file.name" class="misc-file">
                 <div>
                     <a :href="file.url" target="_blank">{{file.name}}</a>
-                    <label style="color: var(--color-text-soft);" v-if="mdText.indexOf(file.name) < 0">
+                    <label style="color: var(--color-text-soft);" v-if="!linkOnNote(file.name)">
                         (no-ref)
                     </label>
                 </div>
@@ -166,10 +179,14 @@
                 <div class="misc-file-op-container">
                     <a style="color: var(--color-text-soft); cursor: pointer;" 
                         @click="copyToClipboard(file.name); useUIStateStore().showPopup('Copied')">
-                        copy_name
+                        copy
+                    </a>
+                    <a style="color: var(--color-text-soft); cursor: pointer;" 
+                        @click="renameMiscFile(file.name, prompt('New name'))">
+                        rename
                     </a>
                     <a style="color: var(--color-danger); cursor: pointer;" 
-                        v-if="mdText.indexOf(file.name) < 0"
+                        v-if="!linkOnNote(file.name)"
                         @click="deleteMiscFile(file.name)">
                         delete
                     </a>
@@ -215,7 +232,7 @@ div#misc-toggle {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 20px;
+    height: 1.2rem;
     width: 100%;
     background-color: var(--color-background-soft);
     border-top: 1px solid var(--color-border);
@@ -252,7 +269,7 @@ div.misc-file{
     border-bottom: 1px solid var(--color-border);
     background-color: var(--color-background);
     color: var(--color-text);
-    font-size: 0.8em;
+    font-size: 0.8rem;
     gap: 0.5rem;
     display: flex;
 }
@@ -260,6 +277,21 @@ div.misc-file{
     display: none;
     gap: 0.5rem;
 }
-div.misc-file:hover { background-color: var(--color-background-theme); }
+div.misc-file:hover { background-color: var(--color-background-theme-highlight); }
 div.misc-file:hover .misc-file-op-container { display: flex; }
+
+button, :deep(button){
+    background-color: var(--color-background);
+    border-radius: 0%;
+    width: 100%;
+    margin: 0px;
+    border: 0.1px solid var(--color-border);
+    height: 2rem;
+    color: var(--color-text);
+    /* border: none; */
+    cursor: pointer;
+}
+button:hover, :deep(button):hover{
+    background-color: var(--color-background-theme-highlight);
+}
 </style>
