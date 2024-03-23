@@ -67,16 +67,10 @@
     window.addEventListener('touchmove', onMoveSplitter);
 
     // watch layoutType, reset the width of leftPane and rightPane
+    const showLeftPane = computed(()=>props.layoutType == 0 || props.layoutType == 2);
+    const showRightPane = computed(()=>props.layoutType == 1 || props.layoutType == 2);
     function setLayout(layoutType: number){
-        if (layoutType == 0){
-            leftPane.value!.style.width = '100%';
-            rightPane.value!.style.width = '0%';
-        }
-        else if (layoutType == 1){
-            leftPane.value!.style.width = '0%';
-            rightPane.value!.style.width = '100%';
-        }
-        else if (layoutType == 2){
+        if (layoutType == 2){
             leftPane.value!.style.width = `${leftPaneWidthRatio.value * 100}%`;
             rightPane.value!.style.width = `${(1 - leftPaneWidthRatio.value) * 100}%`;
         }
@@ -103,7 +97,7 @@
 
 <template>
     <div id="body">
-        <div class="pane" id="left-pane" ref="leftPane">
+        <div class="pane" id="left-pane" ref="leftPane" v-show="showLeftPane">
             <!-- pointer event should be none when moving splitter, otherwise the iframe will capture the mouse event -->
             <iframe :src="openDocURL" title="doc" frameborder="0" v-if="datapoint.summary.has_file"
                 :style="{'pointer-events': onMovingSplitter ? 'none' : 'auto'}"
@@ -133,7 +127,7 @@
             
         </div>
         <div id="splitter" ref="splitter" @mousedown="onStartMovingSplitter" @touchstart="onStartMovingSplitter" v-if="layoutType==2"> </div>
-        <div class="pane" id="right-pane" ref="rightPane">
+        <div class="pane" id="right-pane" ref="rightPane" v-show="showRightPane">
             <NoteEditor :datapoint="datapoint" :theme="theme" ref="noteEditor"> </NoteEditor>
         </div>
     </div>
