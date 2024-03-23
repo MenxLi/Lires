@@ -39,6 +39,7 @@ export const useUIStateStore = defineStore(
                 // reader component
                 recentlyReadDataUIDs: [] as string[],
                 preferredReaderLeftPanelWidthPerc: 0.65,
+                showMiscPanel: false,
 
                 // global popup component, need to be initialized in App.vue
                 popupValues : {} as Record<string, PopupValue>,
@@ -51,7 +52,6 @@ export const useUIStateStore = defineStore(
 
                 // global data editor status
                 dataEditorOpened: false,
-
             }
         },
         getters: {

@@ -27,7 +27,7 @@
     }))
     const mdEditor = ref<typeof MdEditor | null>(null);
 
-    const showMiscFiles = ref<boolean>(false);
+    const uiState = useUIStateStore();
     const miscFileNames = ref<string[]>([]);
     const miscFiles = computed(()=>miscFileNames.value.map((name)=>({
         name: name,
@@ -164,10 +164,10 @@
             }"
             ></FileSelectButton>
         </div>
-        <div id="misc-toggle" @click="()=>{showMiscFiles = !showMiscFiles}">
-            <div :id="showMiscFiles?'triangle-down':'triangle'"></div>
+        <div id="misc-toggle" @click="()=>{uiState.showMiscPanel = !uiState.showMiscPanel}">
+            <div :id="uiState.showMiscPanel?'triangle-down':'triangle'"></div>
         </div>
-        <div id="misc-container" v-if="showMiscFiles" class="hover-scrollable">
+        <div id="misc-container" v-if="uiState.showMiscPanel" class="hover-scrollable">
             <div v-if="miscFiles.length === 0" style="font-weight: bold; color: var(--color-text-soft); top: 0.5rem">
                 No attached files.
             </div>
