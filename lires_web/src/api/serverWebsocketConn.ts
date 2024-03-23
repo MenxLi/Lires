@@ -1,6 +1,7 @@
 
 import { sha256 } from "../utils/sha256lib";
 import type { Event } from "./protocalT";
+import { onMounted, onUnmounted } from "vue";
 
 // Declare the global object
 declare global {
@@ -31,6 +32,42 @@ export function registerServerEvenCallback(
     if (!__global_eventHooks[eventType].includes(eventReactFn)){
         __global_eventHooks[eventType].push(eventReactFn);
     }
+}
+
+export function unregisterServerEvenCallback(
+    eventType: Event['type'] | Event['type'][], 
+    eventReactFn: (arg: Event)=>void)
+    {
+    if (Array.isArray(eventType)){
+        for (const et of eventType){
+            unregisterServerEvenCallback(et, eventReactFn);
+        }
+        return;
+    }
+    if (__global_eventHooks[eventType] === undefined){
+        return;
+    }
+    __global_eventHooks[eventType] = __global_eventHooks[eventType].filter(
+        (fn)=>fn !== eventReactFn
+    );
+}
+
+/* 
+    This function will automatically register and unregister the event callback 
+    when the component is mounted and unmounted
+ */
+export function registerServerEvenCallback_auto(
+    eventType: Event['type'] | Event['type'][], 
+    eventReactFn: (arg: Event)=>void){
+
+    onMounted(()=>{
+        registerServerEvenCallback(eventType, eventReactFn);
+        console.log(`registered event callback [${eventType}]`, eventReactFn.name);
+    });
+    onUnmounted(()=>{
+        unregisterServerEvenCallback(eventType, eventReactFn);
+        console.log(`unregistered event callback [${eventType}]`, eventReactFn.name);
+    });
 }
 
 export class ServerWebsocketConn{
