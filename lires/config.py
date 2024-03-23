@@ -124,11 +124,14 @@ def saveToConf(**kwargs):
     # So that next time the configuration will be read from file by getConf
     __g_config = None
 
-def generateDefaultConf():
+def generateDefaultConf(database_id: Optional[str] = None):
     """
     Generate default configuration file at CONF_FILE_PATH
     """
+    global __default_config
     default_config: LiresConfT = __default_config
+    if database_id is not None:
+        default_config["database_id"] = database_id
 
     with open(CONF_FILE_PATH, "w", encoding="utf-8") as fp:
         json.dump(default_config, fp, indent=1)
