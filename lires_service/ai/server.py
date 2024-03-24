@@ -114,6 +114,9 @@ async def startServer(
     local_llm_chat: str = "",
     openai_models: list[str] = [],
 ):
+    from .. import avaliablePort
+    if port <= 0:
+        port = avaliablePort()
 
     import uuid
     await registry.register({
