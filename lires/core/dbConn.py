@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ..types.dataT import FileTypeT
 
 
-__db_mod_lock = asyncio.Lock()
+DB_MOD_LOCK = asyncio.Lock()
 
 @dataclasses.dataclass
 class DocInfo:
@@ -358,7 +358,7 @@ class DBConnection(LiresBase):
             return None
         # insert
         await self.logger.debug("(db_conn) Adding entry {}".format(uid))
-        async with __db_mod_lock:
+        async with DB_MOD_LOCK:
             await self._insertItem({
                 "uuid": uid,
                 "bibtex": bibtex,
@@ -425,7 +425,7 @@ class DBConnection(LiresBase):
         if not (old_entry:=await self._ensureExist(uuid)): return False
         await self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
 
-        async with __db_mod_lock:
+        async with DB_MOD_LOCK:
             await self.conn.execute("UPDATE files SET bibtex=?, title=?, year=?, publication=?, authors=? WHERE uuid=?", (
                 bibtex, title, year, publication, dumpList(authors), uuid
             ))
@@ -440,7 +440,7 @@ class DBConnection(LiresBase):
         return True
     
     async def updateTags(self, uuid: str, tags: list[str]) -> bool:
-        async with __db_mod_lock:
+        async with DB_MOD_LOCK:
             if not (old_entry:=await self._ensureExist(uuid)): return False
             await self.logger.debug("(db_conn) Updating tags for {}".format(uuid))
             await self.conn.execute("UPDATE files SET tags=? WHERE uuid=?", (dumpList(tags), uuid))
@@ -455,7 +455,7 @@ class DBConnection(LiresBase):
         return True
     
     async def updateUrl(self, uuid: str, url: str) -> bool:
-        async with __db_mod_lock:
+        async with DB_MOD_LOCK:
             if not await self._ensureExist(uuid): return False
             await self.logger.debug("(db_conn) Updating url for {}".format(uuid))
             await self.conn.execute("UPDATE files SET url=? WHERE uuid=?", (url, uuid))
@@ -463,7 +463,7 @@ class DBConnection(LiresBase):
         return True
     
     async def updateComments(self, uuid: str, comments: str) -> bool:
-        async with __db_mod_lock:
+        async with DB_MOD_LOCK:
             if not await self._ensureExist(uuid): return False
             # await self.logger.debug("(db_conn) Updating comments for {}".format(uuid))   # too verbose
             await self.conn.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
@@ -471,7 +471,7 @@ class DBConnection(LiresBase):
         return True
     
     async def updateAbstract(self, uuid: str, abstract: str) -> bool:
-        async with __db_mod_lock:
+        async with DB_MOD_LOCK:
             if not await self._ensureExist(uuid): return False
             # await self.logger.debug("(db_conn) Updating abstract for {}".format(uuid))   # too verbose
             await self.conn.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
