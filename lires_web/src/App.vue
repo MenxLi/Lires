@@ -51,33 +51,6 @@
             )
         }
     })
-
-    const wsConnection = useConnectionStore().wsConn;
-    // session connection status hint
-    const __sessionConnected = ref(false)
-    const __sessionFailed = ref(false)
-    const __isInLoginPage = ref(window.location.hash.split('?')[0] === "#/login")
-    router.afterEach((to, _) => {
-        __isInLoginPage.value = to.path === "/login"
-    })
-    const showConnectionHint = computed(()=>!__sessionConnected.value && !__isInLoginPage.value && !__sessionFailed.value)
-    const showConnectionFailedHint = computed(()=>__sessionFailed.value && !__isInLoginPage.value)
-
-    // Authentication on load
-    function onLogin(){
-        // on login
-        console.log("Logged in.")
-        // initialize session connection if it's not been
-        wsConnection.connect({
-            onopenCallback: () => {
-                __sessionConnected.value = true
-                __sessionFailed.value = false
-            },
-            oncloseCallback: () => __sessionConnected.value = false,
-            onfailedToConnectCallback: () => __sessionFailed.value = true,
-        });
-        uiState.reloadDatabase();
-    }
     function resetAndRedirectToLoginPage(){
         useDataStore().$reset();
         useUIStateStore().$reset();
@@ -97,6 +70,45 @@
             else{ resetAndRedirectToLoginPage(); }
         }
     )
+
+    const wsConnection = useConnectionStore().wsConn;
+    // session connection status hint
+    const __sessionConnected = ref(false)
+    const __sessionFailed = ref(false)
+    const __isInLoginPage = ref(window.location.hash.split('?')[0] === "#/login")
+    router.afterEach((to, _) => {
+        __isInLoginPage.value = to.path === "/login"
+    })
+    const showConnectionHint = computed(()=>!__sessionConnected.value && !__isInLoginPage.value && !__sessionFailed.value)
+    const showConnectionFailedHint = computed(()=>__sessionFailed.value && !__isInLoginPage.value)
+
+    function initConnection(){
+        wsConnection.connect({
+            onopenCallback: () => {
+                __sessionConnected.value = true
+                __sessionFailed.value = false
+            },
+            oncloseCallback: () => __sessionConnected.value = false,
+            onfailedToConnectCallback: () => __sessionFailed.value = true,
+        });
+    }
+
+    // the callbacks sometime not triggered, so we need to check the connection status periodically
+    setInterval(()=>{
+        if (!wsConnection.isOpen() && __sessionConnected.value 
+            && !__isInLoginPage.value && !__sessionFailed.value){
+
+            __sessionConnected.value = false
+            initConnection();
+        }
+    }, 5000)
+
+    // Authentication on load
+    function onLogin(){
+        // initialize session connection if it's not been
+        initConnection();
+        uiState.reloadDatabase();
+    }
 
     // register some server event callbacks for global storage
     registerServerEvenCallback('add_entry', (event) => {
