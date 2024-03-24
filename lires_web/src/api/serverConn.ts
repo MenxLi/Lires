@@ -297,6 +297,16 @@ export class ServerConn {
         }).then(()=>true);
     }
 
+    // =============================================
+    //                 Feed              
+    // =============================================
+    async fetchFeedList(maxResults = 10, category="arxiv"): Promise<DataInfoT[]>{
+        return await this.fetcher.post(`/api/feed`, {
+            max_results: maxResults,
+            category: category,
+        }).then(res=>res.json());
+    }
+
     // ---- info ----
     async changelog(): Promise<Changelog>{
         return await this.fetcher.get(`/api/info/changelog`).then(res=>res.json());

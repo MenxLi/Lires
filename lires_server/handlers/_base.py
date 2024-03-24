@@ -247,34 +247,35 @@ class ReverseProxyHandlerBase(RequestHandlerBase):
     async def head(self, *args, **kwargs): await self.handle_request()
     async def options(self, *args, **kwargs): await self.handle_request()
 
+    @property
+    def basePath(self) -> str:   # i.e. /api/v1
+        return ''
+
     @abstractmethod
     async def aimHost(self) -> str:...
 
     async def handle_request(self):
-        def handle_response(response):
-            # set headers?
-            for header, value in response.headers.get_all():
-                if header not in ('Transfer-Encoding', 'Content-Encoding', 'Content-Length', 'Connection'):
-                    self.set_header(header, value)
-
-            if response.error:
-                print("Error: %s" % response.error)
-            else:
-                self.write(response.body)
-            self.finish()
-
         http = tornado.httpclient.AsyncHTTPClient()
+
         if uri:=self.request.uri:
+            assert uri.startswith(self.basePath), "uri must start with basePath"
+            uri = uri[len(self.basePath):]
             url = await self.aimHost() + uri
         else:
             url = await self.aimHost()
-        http.fetch(url,
+        await self.logger.info(f"Proxying request to {url}")
+        response = await http.fetch(url,
                    method=self.request.method,
                    body=self.request.body if self.request.body else None,
                    headers=self.request.headers,
                    follow_redirects=False,
                    allow_nonstandard_methods=True,
-                   callback=handle_response)
+                   )
+        for header, value in response.headers.get_all():
+            if header not in ('Transfer-Encoding', 'Content-Encoding', 'Content-Length', 'Connection'):
+                self.set_header(header, value)
+        self.write(response.body)
+        self.finish()
 
 
 __all__ = [

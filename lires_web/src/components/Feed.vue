@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue';
-    import { fetchArxivFeed, ArxivArticle } from '../utils/arxiv.ts';
+    import { ArxivArticle } from '../utils/arxiv.ts';
     import ArticleBlock from './feed/ArticleBlock.vue';
     import { useRouter } from 'vue-router';
     import RefreshIcon from '../assets/icons/refresh.svg'
@@ -20,7 +20,7 @@
     const conn = useConnectionStore().conn;
 
     // search and main data structure
-    const fetchCategory = ref("cat:cs.CV OR cat:cs.AI OR stat.ML");
+    const fetchCategory = ref("arxiv");
     const searchText = ref("");
     const searchFeature = ref(null as null | Float32Array);
     const arxivArticles = ref([] as ArxivArticleWithFeatures[]);
@@ -79,7 +79,31 @@
     const refreshButton = ref(null as HTMLImageElement | null);
     async function runFetchArticles(){
         arxivArticles.value = [];
-        const articles = await fetchArxivFeed(maxResults, fetchCategory.value);
+
+        async function fetchArticleFromBackend(
+            maxResults: number,
+            category: string,
+        ): Promise<ArxivArticle[]> {
+            const conn = useConnectionStore().conn;
+            const summaries = await conn.fetchFeedList(maxResults, category)
+            // convert to ArxivArticle
+            return summaries.map((summary) => {
+                return {
+                    id: summary.uuid,
+                    title: summary.title,
+                    //@ts-ignore, 
+                    // the abstract is not in the summary type, but it is added in the backend
+                    abstract: summary.abstract,
+                    authors: summary.authors,
+                    link: summary.url,
+                    updatedTime: "",
+                    publishedTime: ""
+                }
+            })
+        }
+
+        // const articles = await fetchArxivFeed(maxResults, fetchCategory.value);
+        const articles = await fetchArticleFromBackend(maxResults, fetchCategory.value);
         console.log(`Got ${articles.length} entries.`)
         for (const article of articles){
             const article_with_features = article as any;       // type: ArticleWithFeatures
@@ -128,10 +152,10 @@
         </h1>
         <div id="settings">
             <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">
-                <option value="cat:cs.CV OR cat:cs.AI OR stat.ML">ALL</option>
-                <option value="cat:cs.CV">cs.CV</option>
-                <option value="cat:cs.AI">cs.AI</option>
-                <option value="cat:stat.ML">stat.ML</option>
+                <option value="arxiv">ALL</option>
+                <option value="arxiv->cs.CV">cs.CV</option>
+                <option value="arxiv->cs.AI">cs.AI</option>
+                <option value="arxiv->stat.ML">stat.ML</option>
             </select>
             <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText" autocomplete="off">
         </div>

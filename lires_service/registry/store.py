@@ -6,7 +6,7 @@ from lires.utils import setupLogger
 from lires.api import RegistryConn
 
 # will add more service in the future
-ServiceName = Literal["ai", "log"]
+ServiceName = Literal["ai", "log", "feed"]
 
 class Registration(TypedDict):
     """

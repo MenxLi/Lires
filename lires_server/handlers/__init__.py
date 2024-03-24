@@ -20,3 +20,4 @@ from .pdfjs import *
 from .misc import *
 
 from .websocket import *
+from .feed import *

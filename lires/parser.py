@@ -25,6 +25,11 @@ def _prepareLogServerParser(parser: argparse.ArgumentParser) -> argparse.Argumen
     parser.add_argument("--port", default=0, type=int, help="The port to listen")
     return parser
 
+def _prepareFeedServerParser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument("--host", default="127.0.0.1", help="The host to listen")
+    parser.add_argument("--port", default=0, type=int, help="The port to listen")
+    return parser
+
 def prepareParser() -> argparse.ArgumentParser:
     _description = f"\
 Lires, a self-hosted research literature manager. \
@@ -48,6 +53,9 @@ For more info and source code, visit: https://github.com/MenxLi/Lires\
 
     parser_log = sp.add_parser("log", help = "Start lires log server")
     _prepareLogServerParser(parser_log)
+
+    parser_feed = sp.add_parser("feed", help = "Start lires feed server")
+    _prepareFeedServerParser(parser_feed)
 
     return parser
 

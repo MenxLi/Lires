@@ -109,6 +109,9 @@ class Application(tornado.web.Application):
 
             # info
             (r"/api/info/changelog", ChangelogHandler),
+
+            # feed
+            (r"/api/feed", FeedHandler),
         ]
         # https://www.tornadoweb.org/en/stable/web.html#tornado.web.Application.settings
         settings = {

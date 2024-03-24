@@ -19,7 +19,8 @@ class ClusterConfigT(TypedDict):
     server: list[ConfigEntryT]
     ai: list[ConfigEntryT]
     log: list[ConfigEntryT]
-allowed_entries = ["GLOBAL_ENVS", "server", "ai", "log"]
+    feed: list[ConfigEntryT]
+allowed_entries = ["GLOBAL_ENVS", "server", "ai", "log", "feed"]
 exec_entries = allowed_entries[1:]
 
 def __getDefaultConfig()->ClusterConfigT:
@@ -57,6 +58,7 @@ def __getDefaultConfig()->ClusterConfigT:
                 },
             }
         ],
+        "feed": [{}],
     }
 
 def generateConfigFile(path:str):
