@@ -11,6 +11,7 @@
 
     import { lazify } from '../utils/misc';
     import { useConnectionStore } from './store';
+    import { utcStamp2LocaleStr } from '../utils/timeUtils';
 
 
     export interface ArxivArticleWithFeatures extends ArxivArticle{
@@ -96,8 +97,8 @@
                     abstract: summary.abstract,
                     authors: summary.authors,
                     link: summary.url,
-                    updatedTime: "",
-                    publishedTime: ""
+                    updatedTime: utcStamp2LocaleStr(summary.time_modified, true),
+                    publishedTime: utcStamp2LocaleStr(summary.time_added, true),
                 }
             })
         }
