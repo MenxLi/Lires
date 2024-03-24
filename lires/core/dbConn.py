@@ -2,7 +2,7 @@
 Sqlite connection interface
 """
 from __future__ import annotations
-import json, os, uuid
+import json, os, uuid, asyncio
 import typing
 from typing import TypedDict, Optional, TYPE_CHECKING
 import dataclasses
@@ -16,6 +16,9 @@ from ..version import VERSION
 
 if TYPE_CHECKING:
     from ..types.dataT import FileTypeT
+
+
+__db_mod_lock = asyncio.Lock()
 
 @dataclasses.dataclass
 class DocInfo:
@@ -355,26 +358,27 @@ class DBConnection(LiresBase):
             return None
         # insert
         await self.logger.debug("(db_conn) Adding entry {}".format(uid))
-        await self._insertItem({
-            "uuid": uid,
-            "bibtex": bibtex,
-            "title": title,
-            "year": year,
-            "publication": publication,
-            "authors": dumpList(authors),
-            "tags": dumpList(tags),
-            "url": url,
-            "abstract": abstract,
-            "comments": comments,
-            "time_import": TimeUtils.nowStamp(),
-            "time_modify": TimeUtils.nowStamp(),
-            "info_str": doc_info.toString(),
-            "doc_ext": doc_ext
-        })
-        # add cache
-        await self.cache.addTagCache(uid, tags)
-        await self.cache.addAuthorCache(uid, authors)
-        await self.setModifiedFlag(True)
+        async with __db_mod_lock:
+            await self._insertItem({
+                "uuid": uid,
+                "bibtex": bibtex,
+                "title": title,
+                "year": year,
+                "publication": publication,
+                "authors": dumpList(authors),
+                "tags": dumpList(tags),
+                "url": url,
+                "abstract": abstract,
+                "comments": comments,
+                "time_import": TimeUtils.nowStamp(),
+                "time_modify": TimeUtils.nowStamp(),
+                "info_str": doc_info.toString(),
+                "doc_ext": doc_ext
+            })
+            # add cache
+            await self.cache.addTagCache(uid, tags)
+            await self.cache.addAuthorCache(uid, authors)
+            await self.setModifiedFlag(True)
         return uid
     
     async def _touchEntry(self, uuid: str) -> bool:
@@ -420,52 +424,58 @@ class DBConnection(LiresBase):
         """Provide a new bibtex string, and update the title, year, publication, authors accordingly."""
         if not (old_entry:=await self._ensureExist(uuid)): return False
         await self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
-        await self.conn.execute("UPDATE files SET bibtex=?, title=?, year=?, publication=?, authors=? WHERE uuid=?", (
-            bibtex, title, year, publication, dumpList(authors), uuid
-        ))
 
-        # check if authors changed and maybe update cache
-        if set(old_entry["authors"]) != set(authors):
-            await self.logger.debug("(db_conn) Updating author cache for {}".format(uuid))
-            await self.cache.removeAuthorCache(uuid, old_entry["authors"])
-            await self.cache.addAuthorCache(uuid, authors)
+        async with __db_mod_lock:
+            await self.conn.execute("UPDATE files SET bibtex=?, title=?, year=?, publication=?, authors=? WHERE uuid=?", (
+                bibtex, title, year, publication, dumpList(authors), uuid
+            ))
 
-        await self._touchEntry(uuid)
+            # check if authors changed and maybe update cache
+            if set(old_entry["authors"]) != set(authors):
+                await self.logger.debug("(db_conn) Updating author cache for {}".format(uuid))
+                await self.cache.removeAuthorCache(uuid, old_entry["authors"])
+                await self.cache.addAuthorCache(uuid, authors)
+
+            await self._touchEntry(uuid)
         return True
     
     async def updateTags(self, uuid: str, tags: list[str]) -> bool:
-        if not (old_entry:=await self._ensureExist(uuid)): return False
-        await self.logger.debug("(db_conn) Updating tags for {}".format(uuid))
-        await self.conn.execute("UPDATE files SET tags=? WHERE uuid=?", (dumpList(tags), uuid))
+        async with __db_mod_lock:
+            if not (old_entry:=await self._ensureExist(uuid)): return False
+            await self.logger.debug("(db_conn) Updating tags for {}".format(uuid))
+            await self.conn.execute("UPDATE files SET tags=? WHERE uuid=?", (dumpList(tags), uuid))
 
-        # check if tags changed and maybe update cache
-        if set(old_entry["tags"]) != set(tags):
-            await self.logger.debug("(db_conn) Updating tag cache for {}".format(uuid))
-            await self.cache.removeTagCache(uuid, old_entry["tags"])
-            await self.cache.addTagCache(uuid, tags)
+            # check if tags changed and maybe update cache
+            if set(old_entry["tags"]) != set(tags):
+                await self.logger.debug("(db_conn) Updating tag cache for {}".format(uuid))
+                await self.cache.removeTagCache(uuid, old_entry["tags"])
+                await self.cache.addTagCache(uuid, tags)
 
-        await self._touchEntry(uuid)
+            await self._touchEntry(uuid)
         return True
     
     async def updateUrl(self, uuid: str, url: str) -> bool:
-        if not await self._ensureExist(uuid): return False
-        await self.logger.debug("(db_conn) Updating url for {}".format(uuid))
-        await self.conn.execute("UPDATE files SET url=? WHERE uuid=?", (url, uuid))
-        await self._touchEntry(uuid)
+        async with __db_mod_lock:
+            if not await self._ensureExist(uuid): return False
+            await self.logger.debug("(db_conn) Updating url for {}".format(uuid))
+            await self.conn.execute("UPDATE files SET url=? WHERE uuid=?", (url, uuid))
+            await self._touchEntry(uuid)
         return True
     
     async def updateComments(self, uuid: str, comments: str) -> bool:
-        if not await self._ensureExist(uuid): return False
-        # await self.logger.debug("(db_conn) Updating comments for {}".format(uuid))   # too verbose
-        await self.conn.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
-        await self._touchEntry(uuid)
+        async with __db_mod_lock:
+            if not await self._ensureExist(uuid): return False
+            # await self.logger.debug("(db_conn) Updating comments for {}".format(uuid))   # too verbose
+            await self.conn.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
+            await self._touchEntry(uuid)
         return True
     
     async def updateAbstract(self, uuid: str, abstract: str) -> bool:
-        if not await self._ensureExist(uuid): return False
-        # await self.logger.debug("(db_conn) Updating abstract for {}".format(uuid))   # too verbose
-        await self.conn.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
-        await self._touchEntry(uuid)
+        async with __db_mod_lock:
+            if not await self._ensureExist(uuid): return False
+            # await self.logger.debug("(db_conn) Updating abstract for {}".format(uuid))   # too verbose
+            await self.conn.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
+            await self._touchEntry(uuid)
         return True
     
     async def commit(self):
