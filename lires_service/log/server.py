@@ -102,10 +102,6 @@ async def startLoggerServer(file: str, host: str, port: int):
                 else:
                     file = file[:-1] + chr(ord(file[-1]) + 1)
     
-    if port <= 0:
-        from .. import avaliablePort
-        port = avaliablePort()
-
     # initialize the logger
     logger = DatabaseLogger(file)
     print("Logging to {}".format(file))

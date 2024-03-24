@@ -4,6 +4,7 @@ from logging import Logger, getLogger
 from uvicorn import Config, Server
 from uvicorn.config import LOGGING_CONFIG
 from fastapi import FastAPI
+from . import avaliablePort
 
 async def startService(
     app: FastAPI,
@@ -14,6 +15,9 @@ async def startService(
     # disable default logging
     default_logging_config = LOGGING_CONFIG.copy()
     default_logging_config["loggers"]["uvicorn"]["handlers"] = []
+
+    if port <= 0:
+        port = avaliablePort()
 
     config = Config(
         app=app, 

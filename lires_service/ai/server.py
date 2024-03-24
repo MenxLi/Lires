@@ -110,13 +110,10 @@ async def shutdown():
 
 async def startServer(
     host: str = "0.0.0.0",
-    port: int = 8731,
+    port: int = -1,
     local_llm_chat: str = "",
     openai_models: list[str] = [],
 ):
-    if port <= 0:
-        from .. import avaliablePort
-        port = avaliablePort()
 
     import uuid
     await registry.register({
