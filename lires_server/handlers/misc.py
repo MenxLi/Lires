@@ -44,7 +44,7 @@ _api_mainfile_template = string.Template(f"""
 // Run this script with Node.js
 // Set `NODE_TLS_REJECT_UNAUTHORIZED=0` to ignore SSL error
 
-import {{ ServerConn }} from "./api.js";
+import {{ ServerConn }} from "./lib/api.js";
 
 const context = {{
     endpoint: "$URL",
