@@ -51,7 +51,7 @@ class APIGetHandler(RequestHandlerBase):
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w") as z:
             z.write(api_file, "api.js")
-            z.write(api_d_ts, "serverConn.d.ts")
+            z.write(api_d_ts, "api.d.ts")
         zip_buffer.seek(0)
         self.set_header("Content-Type", "application/zip")
         self.set_header("Content-Disposition", "attachment; filename=api.zip")

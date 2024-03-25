@@ -7,8 +7,8 @@ module.exports = {
     output: {
         filename: 'api.js',
         path: path.resolve(__dirname, 'dist-api'),
-        library: 'LiresAPI',
-        libraryTarget: 'commonjs2'
+        // library: 'LiresAPI',
+        libraryTarget: 'commonjs-static'
     },
     resolve: {
         extensions: ['.ts', '.js', 'tsx', 'jsx'],
