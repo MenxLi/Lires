@@ -44,6 +44,7 @@ class APIGetHandler(RequestHandlerBase):
         from lires_web import LRSWEB_APIFILE_ROOT
         api_file = os.path.join(LRSWEB_APIFILE_ROOT, "api.js")
         api_d_ts = os.path.join(LRSWEB_APIFILE_ROOT, "api", "serverConn.d.ts")
+        protocol_d_ts = os.path.join(LRSWEB_APIFILE_ROOT, "api", "protocol.d.ts")
 
         example_content = f"""
         // Run this script with Node.js
@@ -65,6 +66,7 @@ class APIGetHandler(RequestHandlerBase):
         with zipfile.ZipFile(zip_buffer, "w") as z:
             z.write(api_file, "api.js")
             z.write(api_d_ts, "api.d.ts")
+            z.write(protocol_d_ts, "protocol.d.ts")
             z.writestr("main.mjs", example_content)
         zip_buffer.seek(0)
         self.set_header("Content-Type", "application/zip")
