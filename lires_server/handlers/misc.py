@@ -47,6 +47,8 @@ class APIGetHandler(RequestHandlerBase):
 
         example_content = f"""
         // Run this script with Node.js
+        // set NODE_TLS_REJECT_UNAUTHORIZED=0 to ignore SSL error
+
         import {{ ServerConn }} from "./api.js";
         const conn = new ServerConn(()=>'$URL', ()=>'$KEY')
         console.log(await conn.status()) 
