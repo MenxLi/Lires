@@ -44,6 +44,17 @@ class APIGetHandler(RequestHandlerBase):
         from lires_web import LRSWEB_APIFILE_ROOT
         api_file = os.path.join(LRSWEB_APIFILE_ROOT, "api.js")
         api_d_ts = os.path.join(LRSWEB_APIFILE_ROOT, "api", "serverConn.d.ts")
+
+        example_content = f"""
+        // Run this script with Node.js
+        import {{ ServerConn }} from "./api.js";
+        const conn = new ServerConn(()=>'$URL', ()=>'$KEY')
+        console.log(await conn.status()) 
+        """.replace("        ", "").replace(
+            "$URL", self.request.protocol + "://" + self.request.host
+        ).replace(
+            "$KEY", (await self.userInfo())['enc_key']
+        )
         
         # bundle to zip
         import zipfile
@@ -52,6 +63,7 @@ class APIGetHandler(RequestHandlerBase):
         with zipfile.ZipFile(zip_buffer, "w") as z:
             z.write(api_file, "api.js")
             z.write(api_d_ts, "api.d.ts")
+            z.writestr("main.mjs", example_content)
         zip_buffer.seek(0)
         self.set_header("Content-Type", "application/zip")
         self.set_header("Content-Disposition", "attachment; filename=api.zip")
