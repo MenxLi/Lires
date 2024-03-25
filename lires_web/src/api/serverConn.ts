@@ -2,8 +2,8 @@
 // Server connection
 
 import type { DataInfoT, FeedDataInfoT, UserInfo, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocalT.js";
-import { sha256 } from "../utils/sha256lib.js";
-import Fetcher from "./fetcher.js";
+import { sha256 } from "../utils/sha256lib";
+import Fetcher from "./fetcher";
 
 export class ServerConn {
     declare fetcher: Fetcher;
@@ -312,3 +312,5 @@ export class ServerConn {
         return await this.fetcher.get(`/api/info/changelog`).then(res=>res.json());
     }
 }
+
+export default ServerConn;

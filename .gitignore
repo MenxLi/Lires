@@ -45,6 +45,7 @@ logs
 
 **/node_modules
 **/dist
+**/dist-api
 **/dist-ssr
 **/coverage
 **/*.local
