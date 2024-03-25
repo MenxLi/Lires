@@ -5,7 +5,8 @@
     "moduleResolution": "bundler",
     "outDir": "./dist-api",
     "allowJs": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "declaration": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

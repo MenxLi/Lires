@@ -112,6 +112,9 @@ class Application(tornado.web.Application):
 
             # feed
             (r"/api/feed", FeedHandler),
+
+            # api file
+            (r"/api/api.zip", APIGetHandler),
         ]
         # https://www.tornadoweb.org/en/stable/web.html#tornado.web.Application.settings
         settings = {
