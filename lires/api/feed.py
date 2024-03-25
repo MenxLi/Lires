@@ -36,3 +36,11 @@ class FServerConn(LiresAPIBase):
                 self.ensureRes(res)
                 return await res.json()
     
+    async def categories(self) -> list[str]:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                await self.endpoint() + "/categories",
+            ) as res:
+                self.ensureRes(res)
+                return await res.json()
+    

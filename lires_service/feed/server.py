@@ -15,25 +15,37 @@ registry = RegistryConn()
 
 feed_db: DataBase
 
-async def collectFeed():
+async def collectFeedCircle():
     global feed_db
     from .collector import fetchArxiv
-    articles = await fetchArxiv(
-        max_results=100,
-        search_query= "cat:cs.AI OR cat:cs.CV OR cat:stat.ML OR cat:cs.LG",
-    )
-    await toDatabase(feed_db, articles)
-    await feed_db.commit()
+
+    await logger.info("Start collecting feed...")
+    sleep_time = 0
+    for cat in ["cs.AI", "cs.CV", "cs.LG", "cs.RO", "cs.ET", "cs.GL", "stat.ML", "stat.AP", "physics.med-ph", "eess.IV"]:
+        async def _thisFetch():
+            try:
+                articles = await fetchArxiv(
+                    max_results=50,
+                    search_query= f"cat:{cat}",
+                )
+                await toDatabase(feed_db, articles)
+                await feed_db.commit()
+            except Exception as e:
+                await logger.error(f"Error in fetching feed: {e}")
+        
+        # schedule the task later
+        asyncio.get_event_loop().call_later(sleep_time, _thisFetch)
+        # call every 5 minutes, 
+        # in order not to be banned by arxiv
+        sleep_time += 60*5
     return
 
 async def startCollectionLoop():
     await logger.info("Collecting feed...")
-    try:
-        await collectFeed()
-        await logger.debug("Feed collected.")
-    except Exception as e:
-        await logger.error(f"Error in collecting feed: {e}")
-    asyncio.get_event_loop().call_later(60*60*24, startCollectionLoop)
+    await collectFeedCircle()
+
+    # update every 12 hours
+    asyncio.get_event_loop().call_later(60*60*12, startCollectionLoop)
 
 @app.on_event("shutdown")
 async def shutdown():
@@ -64,6 +76,11 @@ async def latest(req: FeesGetRequest):
         ret["abstract"] = await dp.fm.readAbstract()
         return ret
     return await asyncio.gather(*[withAbstract(dp) for dp in dps])
+
+@app.get("/categories")
+async def categories():
+    global feed_db
+    return await feed_db.tags()
 
 async def startServer(
     host: str = "0.0.0.0",

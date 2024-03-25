@@ -297,11 +297,15 @@ export class ServerConn {
     // =============================================
     //                 Feed              
     // =============================================
-    async fetchFeedList(maxResults = 10, category="arxiv"): Promise<FeedDataInfoT[]>{
-        return await this.fetcher.post(`/api/feed`, {
+    async reqFeedList(maxResults = 10, category="arxiv"): Promise<FeedDataInfoT[]>{
+        return await this.fetcher.post(`/api/feed/latest`, {
             max_results: maxResults,
             category: category,
         }).then(res=>res.json());
+    }
+
+    async reqFeedCategories(): Promise<string[]>{
+        return await this.fetcher.get(`/api/feed/categories`).then(res=>res.json());
     }
 
     // ---- info ----

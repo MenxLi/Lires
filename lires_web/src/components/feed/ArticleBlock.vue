@@ -9,6 +9,7 @@
     import DataEditor from '../home/DataEditor.vue';
     import { computed, ref } from 'vue';
     import { sortByScore } from '../../core/misc';
+    import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
 
     const props = defineProps<{
         article: FeedDataInfoT,
@@ -113,7 +114,10 @@
         <div class="articleBlock">
             <div class="titleBlock">
                 <h2>{{ props.article.title }}</h2>
-                <label class="titleId">{{ props.article.uuid }}</label>
+                <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+                    <TagBubbleContainer :tags="props.article.tags"></TagBubbleContainer>
+                    <label class="titleId">{{ props.article.uuid }}</label>
+                </div>
             </div>
             <div class="authors">
                 <label>[Authors] </label>
@@ -188,10 +192,10 @@
     }
     div.titleBlock{
         display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
+        flex-direction: column;
+        /* justify-content: flex-start; */
+        align-items: flex-start;
         text-align: start;
-        align-items: center;
         flex-wrap: wrap;
         gap: 0.25em;
     }

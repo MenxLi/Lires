@@ -53,3 +53,14 @@ class FeedHandler(RequestHandlerBase):
 
         d_info_all = await asyncio.gather(*[finishOne(d_info) for d_info in d_info_w_abstract])
         self.write(json.dumps(d_info_all))
+
+class FeedCategoriesHandler(RequestHandlerBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fconn = FServerConn()
+    
+    @keyRequired
+    async def get(self):
+        self.set_header("Content-Type", "application/json")
+        categories = await self.fconn.categories()
+        self.write(json.dumps(categories))

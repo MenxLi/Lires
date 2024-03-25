@@ -17,6 +17,7 @@
     // search and main data structure
     const fetchCategory = ref("arxiv");
     const fetching = ref(false);
+    const allCategories = ref(["arxiv"] as string[])
     const searchText = ref("");
     const searchFeature = ref(null as null | Float32Array);
     const arxivArticles = ref([] as FeedDataInfoT[]);
@@ -75,13 +76,15 @@
     const refreshButton = ref(null as HTMLImageElement | null);
     async function runFetchArticles(){
         arxivArticles.value = [];
+        const conn = useConnectionStore().conn;
+        allCategories.value = ['arxiv'].concat(await conn.reqFeedCategories())
+        
 
         async function fetchArticleFromBackend(
             maxResults: number,
             category: string,
         ): Promise<FeedDataInfoT[]> {
-            const conn = useConnectionStore().conn;
-            return await conn.fetchFeedList(maxResults, category)
+            return await conn.reqFeedList(maxResults, category)
         }
 
         fetching.value = true
@@ -124,10 +127,7 @@
         </h1>
         <div id="settings">
             <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">
-                <option value="arxiv">ALL</option>
-                <option value="arxiv->cs.CV">cs.CV</option>
-                <option value="arxiv->cs.AI">cs.AI</option>
-                <option value="arxiv->stat.ML">stat.ML</option>
+                <option v-for="category in allCategories" :value="category">{{category}}</option>
             </select>
             <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText" autocomplete="off">
         </div>
@@ -163,6 +163,26 @@
         flex-direction: row;
         justify-content:center;
         align-items: center;
+        gap: 0.5rem;
+    }
+    div#settings select{
+        max-width: 8rem;
+        padding-inline: 1rem;
+        height: 2rem;
+        border-radius: 1rem;
+        background-color: var(--color-background-soft);
+        font-weight: bold;
+        border: none;
+        /* border: 1px solid var(--color-border); */
+    }
+    div#settings input{
+        width: 100%;
+        padding-inline: 1rem;
+        height: 2rem;
+        border-radius: 1rem;
+        background-color: var(--color-background-soft);
+        border: none;
+        /* border: 1px solid var(--color-border); */
     }
 
     h1{
