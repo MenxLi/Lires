@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { useConnectionStore, useDataStore } from './store';
+    import { useConnectionStore, useDataStore, useSettingsStore } from './store';
     import { ref, computed } from 'vue';
     import { type Changelog } from '../api/protocalT';
     import { getBackendURL, manualURL_zh } from '../config';
@@ -76,7 +76,11 @@
             <p>
                 Lires is a self-hosted web application for research literature management. <br>
                 It is open source and available at <a href="https://github.com/MenxLi/Lires" target="_blank">GitHub - MenxLi/Lires</a>. <br>
-                The user manual is available at <a :href="manualURL_zh" target="_blank">here</a>.
+                The user manual for web interface is available at <a :href="manualURL_zh" target="_blank">here</a>. <br>
+                It also provides 
+                <a :href="useSettingsStore().backend()+`/api/api.zip?key=${useSettingsStore().encKey}`">
+                    API
+                </a> for programmatic access. <br>
             </p>
             <p>
                 <b>Server status: </b>
@@ -86,9 +90,7 @@
                         <b>Version</b>: {{serverInfo.version}}
                     </li>
                     <li><b>Uptime</b>: {{serverInfo.uptime}}</li>
-                    <li><b>Number of documents</b>: {{serverInfo.numDocs}}</li>
-                    <li><b>Number of connections</b>: {{serverInfo.numConnections}}</li>
-
+                    <li><b>Connection count</b>: {{serverInfo.numConnections}}</li>
                 </ul>
             </p>
             <a @click="showChangelog = true" style="cursor: pointer;">View change log</a>
