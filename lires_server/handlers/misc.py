@@ -35,9 +35,6 @@ class StatusHandler(RequestHandlerBase):
 
 _api_mainfile_template = string.Template(f"""
 // Lires-API v$VERSION (Accessed: $TIME at $URL)
-// Run this script with Node.js
-// Set `NODE_TLS_REJECT_UNAUTHORIZED=0` to ignore SSL error
-
 import {{ ServerConn }} from "./lib/api.js";
 
 const context = {{
@@ -46,6 +43,11 @@ const context = {{
 }}
 const conn = new ServerConn(()=>context.endpoint, ()=>context.key)
 console.log(await conn.status()) 
+""")
+_readme_template = string.Template(f"""
+# Lires-API v$VERSION
+Run the `main.mjs` script with Node.js
+Set `NODE_TLS_REJECT_UNAUTHORIZED=0` to ignore SSL error
 """)
 class APIGetHandler(RequestHandlerBase):
     @keyRequired
@@ -62,6 +64,10 @@ class APIGetHandler(RequestHandlerBase):
             KEY=(await self.userInfo())['enc_key']
         )
 
+        readme_content = _readme_template.safe_substitute(
+            VERSION=VERSION
+        )
+
         # bundle to zip
         import zipfile
         import io
@@ -71,6 +77,7 @@ class APIGetHandler(RequestHandlerBase):
             z.write(api_d_ts, "lib/api.d.ts")
             z.write(protocol_d_ts, "lib/protocol.d.ts")
             z.writestr("main.mjs", example_content)
+            z.writestr("README.md", readme_content)
         zip_buffer.seek(0)
         self.set_header("Content-Type", "application/zip")
         self.set_header("Content-Disposition", "attachment; filename=api.zip")

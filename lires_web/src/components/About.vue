@@ -77,7 +77,7 @@
                 Lires is a self-hosted web application for research literature management. <br>
                 It is open source and available at <a href="https://github.com/MenxLi/Lires" target="_blank">GitHub - MenxLi/Lires</a>. <br>
                 The user manual for web interface is available at <a :href="manualURL_zh" target="_blank">here</a>. <br>
-                It also provides 
+                It also has a javascript 
                 <a :href="useSettingsStore().backend()+`/api/api.zip?key=${useSettingsStore().encKey}`">
                     API
                 </a> for programmatic access. <br>
