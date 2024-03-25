@@ -8,7 +8,6 @@
     import FloatingWindow from '../common/FloatingWindow.vue';
     import DataEditor from '../home/DataEditor.vue';
     import { computed, ref } from 'vue';
-    import { openURLExternal } from '../../utils/misc';
     import { sortByScore } from '../../core/misc';
 
     const props = defineProps<{
@@ -56,12 +55,10 @@
     const authorPapers = ref([] as DataPoint[]);
 
     function onClickAuthorPubCount(author: string){
-        // author = formatAuthorName(author);
         authorPapers.value = allAuthorPapers.value[author];
         if (!authorPapers.value){
             authorPapers.value = [];
         }
-        // remove self from authorPapers
         showAuthorPapers.value = true;
     }
 
@@ -121,8 +118,7 @@
             <div class="authors">
                 <label>[Authors] </label>
                 <span v-for="(author, index) in props.article.authors" class="authorSpan">
-                    <!-- <a @click="()=>openURLExternal(`https://arxiv.org/search/?query=${author}&searchtype=author`)">{{ author }}</a> -->
-                    <label>{{ author }}</label>
+                    <a :href="`https://arxiv.org/search/?query=${author}&searchtype=author`" target="_blank">{{ author }}</a>
                     <a class="pubCount" v-if="authorDatabasePublicationCount[author]" @click="()=>onClickAuthorPubCount(author)">
                         {{ ` (${authorDatabasePublicationCount[author]})` }}
                     </a>
@@ -130,8 +126,8 @@
                 </span>
             </div>
             <div class="actions">
-                <a @click="()=>openURLExternal(article.url)">Link</a> |
-                <a @click="()=>openURLExternal(`https://arxiv.org/pdf/${article.uuid}.pdf`)">PDF</a> |
+                <a :href="article.url" target="_blank">Link</a> |
+                <a :href="`https://arxiv.org/pdf/${article.uuid}.pdf`" target="_blank">PDF</a> |
                 <a @click="showDataEditor">Collect</a>
             </div>
             <p>Published: {{ utcStamp2LocaleStr(props.article.time_added, true) }}</p>
