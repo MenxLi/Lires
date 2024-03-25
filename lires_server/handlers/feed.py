@@ -16,10 +16,13 @@ class FeedHandler(RequestHandlerBase):
         self.set_header("Content-Type", "application/json")
 
         # Get latest articles, datapoint summary json with abstract
-        d_info_w_abstract = await self.fconn.getLatest(
+        d_info_w_abstract = await self.fconn.query(
             max_results=int(self.get_argument("max_results", "10")),
-            category=self.get_argument("category")
+            category=self.get_argument("category"),
+            time_after=float(self.get_argument("time_after", "-1")),
+            time_before=float(self.get_argument("time_before", "-1"))
         )
+        print(float(self.get_argument("time_after", "-1")), float(self.get_argument("time_before", "-1")))
 
         # Get more content for each article, add feature and other publications
         db = await self.db()

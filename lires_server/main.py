@@ -110,7 +110,7 @@ class Application(tornado.web.Application):
             (r"/api/info/changelog", ChangelogHandler),
 
             # feed
-            (r"/api/feed/latest", FeedHandler),
+            (r"/api/feed/query", FeedHandler),
             (r"/api/feed/categories", FeedCategoriesHandler),
 
             # api file

@@ -5,6 +5,7 @@ from lires.api import RegistryConn
 import asyncio
 import fastapi
 from pydantic import BaseModel
+from typing import Optional
 from .db import DataBase, initDatabase, toDatabase
 from ..entry import startService
 
@@ -62,13 +63,17 @@ async def startup():
 def status():
     return {"status": "ok"}
 
-class FeesGetRequest(BaseModel):
+class FeedGetRequest(BaseModel):
     max_results: int = 10
     category: str = "arxiv->cat:cs.AI"
-@app.post("/latest")
-async def latest(req: FeesGetRequest):
+    time_after: Optional[float] = None
+    time_before: Optional[float] = None
+@app.post("/query")
+async def query(req: FeedGetRequest):
     global feed_db
+    await logger.info(f"Query: {req}")
     uids = await feed_db.getIDByTags([req.category])
+    uids = await feed_db.conn.filter(time_import=(req.time_after, req.time_before), from_uids=uids)
     uids = (await feed_db.conn.sortKeys(uids))[:req.max_results]
     dps = await feed_db.gets(uids)
     async def withAbstract(dp: DataPoint):

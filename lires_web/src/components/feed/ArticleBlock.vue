@@ -113,18 +113,18 @@
     <div id="feed-main" class="slideInFast">
         <div class="articleBlock">
             <div class="titleBlock">
-                <h2>{{ props.article.title }}</h2>
+                <h2 style="font-weight: bold;">{{ props.article.title }}</h2>
                 <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
                     <TagBubbleContainer :tags="props.article.tags"></TagBubbleContainer>
                     <label class="titleId">{{ props.article.uuid }}</label>
                 </div>
             </div>
             <div class="authors">
-                <label>[Authors] </label>
                 <span v-for="(author, index) in props.article.authors" class="authorSpan">
-                    <a :href="`https://arxiv.org/search/?query=${author}&searchtype=author`" target="_blank">{{ author }}</a>
+                    <!-- <a :href="`https://arxiv.org/search/?query=${author}&searchtype=author`" target="_blank">{{ author }}</a> -->
+                    <label>{{ author }}</label>
                     <a class="pubCount" v-if="authorDatabasePublicationCount[author]" @click="()=>onClickAuthorPubCount(author)">
-                        {{ ` (${authorDatabasePublicationCount[author]})` }}
+                        {{ `(${authorDatabasePublicationCount[author]})` }}
                     </a>
                     <span v-if="index < props.article.authors.length - 1">, </span>
                 </span>
@@ -159,6 +159,11 @@
         max-height: 80vh;
         min-width: 360px;
     }
+    a{
+        border-radius: 1rem;
+        padding-inline: 0.5rem;
+        padding-block: 0.2rem;
+    }
     a:hover{
         cursor: pointer;
     }
@@ -168,18 +173,23 @@
         padding-right: 10px;
     }
     div#feed-main{
-        margin-top: 5px;
-        margin-bottom: 5px;
         display: flex;
         align-items: center;
-        padding: 10px;
-        box-shadow: 2px 2px 4px 2px var(--color-shadow);
+        padding: 1rem;
+        /* box-shadow: 2px 2px 4px 2px var(--color-shadow); */
+        background-color: var(--color-background);
+        /* border: 1px solid var(--color-border);
+        border-top: 0px; */
+        /* border-left: 4px solid var(--color-border); */
+        border-left: 5px solid var(--color-background);
+        border-bottom: 1px solid var(--color-border);
         border-radius: 5px;
     }
     div#feed-main:hover{
-        transform: scale(1.005, 1.005);
-        transition: all 0.1s ease;
-        box-shadow: 2px 2px 4px 3px var(--color-shadow);
+        /* transform: scale(1.005, 1.005); */
+        transition: all 0.3s ease;
+        /* box-shadow: 2px 2px 4px 3px var(--color-shadow); */
+        border-left: 5px solid var(--color-theme);
     }
     .articleBlock{
         width: 90vw;

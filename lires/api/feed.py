@@ -24,13 +24,20 @@ class FServerConn(LiresAPIBase):
             return reg["endpoint"]
         return self._url
     
-    async def getLatest(self, max_results: int = 10, category: Optional[str] = None) -> list[dict]:
+    async def query(
+        self, max_results: int = 10, 
+        category: Optional[str] = None,
+        time_after: float = -1,
+        time_before: float = -1,
+        ) -> list[dict]:
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                await self.endpoint() + "/latest",
+                await self.endpoint() + "/query",
                 json = {
                     "max_results": max_results,
                     "category": category,
+                    "time_after": time_after if time_after > 0 else None,
+                    "time_before": time_before if time_before > 0 else None,
                 }
             ) as res:
                 self.ensureRes(res)

@@ -305,10 +305,23 @@ export class ServerConn {
     // =============================================
     //                 Feed              
     // =============================================
-    async reqFeedList(maxResults = 10, category="arxiv"): Promise<FeedDataInfoT[]>{
-        return await this.fetcher.post(`/api/feed/latest`, {
+    async reqFeedList({
+        maxResults = 10,
+        category = "",
+        timeBefore = -1,
+        timeAfter = -1,
+    }:{
+        maxResults?: number,
+        category?: string,
+        timeBefore?: number,
+        timeAfter?: number,
+    }): Promise<FeedDataInfoT[]>{
+        console.log("reqFeedList", maxResults, category, timeBefore, timeAfter);
+        return await this.fetcher.post(`/api/feed/query`, {
             max_results: maxResults,
             category: category,
+            time_before: timeBefore,
+            time_after: timeAfter,
         }).then(res=>res.json());
     }
 

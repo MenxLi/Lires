@@ -13,11 +13,21 @@
     import { useConnectionStore } from './store';
 
     const conn = useConnectionStore().conn;
+    const router = useRouter();
+
+    function todayString(diffDate: number = 0){
+        const today = new Date();
+        today.setDate(today.getDate() + diffDate);
+        return today.toISOString().split('T')[0];
+    }
 
     // search and main data structure
     const fetchCategory = ref("arxiv");
     const fetching = ref(false);
     const allCategories = ref(["arxiv"] as string[])
+    const timeBefore = ref(todayString(1));
+    const timeAfter = ref(todayString(-1));
+    const maxResults = ref(parseInt(router.currentRoute.value.query.maxResults as string) || 100);
     const searchText = ref("");
     const searchFeature = ref(null as null | Float32Array);
     const arxivArticles = ref([] as FeedDataInfoT[]);
@@ -62,11 +72,9 @@
     }
     const lazyUpdateSearchFeature = lazify(updateSearchFeature, 100);
 
-    const router = useRouter();
-    let maxResults = parseInt(router.currentRoute.value.query.maxResults as string) || 100;
-    if (maxResults > 200){
+    if (maxResults.value > 200){
         window.alert("maxResults cannot be larger than 200");
-        maxResults = 200;
+        maxResults.value = 200;
     }
     let initSearchString = router.currentRoute.value.query.search as string || "";
     if (initSearchString !== ""){
@@ -79,17 +87,18 @@
         const conn = useConnectionStore().conn;
         allCategories.value = ['arxiv'].concat(await conn.reqFeedCategories())
         
-
-        async function fetchArticleFromBackend(
-            maxResults: number,
-            category: string,
-        ): Promise<FeedDataInfoT[]> {
-            return await conn.reqFeedList(maxResults, category)
-        }
-
         fetching.value = true
+        const timeBefore_float = new Date(timeBefore.value).getTime() / 1000;
+        const timeAfter_float = new Date(timeAfter.value).getTime() / 1000;
         try{
-            const articles = await fetchArticleFromBackend(maxResults, fetchCategory.value);
+            // const articles = await fetchArticleFromBackend(maxResults.value, fetchCategory.value);
+            const articles = await conn.reqFeedList(
+                {
+                    maxResults: maxResults.value, 
+                    category: fetchCategory.value, 
+                    timeBefore: timeBefore_float, 
+                    timeAfter: timeAfter_float
+                })
             arxivArticles.value = articles;
             updateSearchFeature();
         }
@@ -115,8 +124,8 @@
         <Toolbar ref="toolbar"></Toolbar>
     </div>
     <div id="main">
-        <h1>
-            Arxiv daily
+        <h1 style="margin-block: 1rem;">
+            Daily Feed
             <img ref="refreshButton" :src="RefreshIcon" alt="" class="icon spin" title="refresh the page" @click="(event: MouseEvent)=>{
                 const this_ = event.target as HTMLImageElement;
                 if (!this_.classList.contains('spin')){
@@ -126,10 +135,28 @@
             }">
         </h1>
         <div id="settings">
-            <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">
-                <option v-for="category in allCategories" :value="category">{{category}}</option>
-            </select>
-            <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText" autocomplete="off">
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; gap: 0.5rem; flex-flow: row wrap">
+                <span>
+                    Category: 
+                    <select name="category" id="category-select" v-model="fetchCategory" @change="runFetchArticles">
+                        <option v-for="category in allCategories" :value="category">{{category}}</option>
+                    </select>
+                </span>
+                <span>
+                    Max results: <select v-model="maxResults" @change="runFetchArticles">
+                        <option v-for="i in [20, 50, 100, 200]" :value="i">{{i}}</option>
+                    </select>
+                </span>
+                <span>
+                    From: <input type="date" v-model="timeAfter" @change="runFetchArticles">
+                </span>
+                <span>
+                    To: <input type="date" v-model="timeBefore" @change="runFetchArticles">
+                </span>
+            </div>
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; gap: 0.5rem">
+                <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText" autocomplete="off">
+            </div>
         </div>
         <div id="loadingPlaceholder" v-if="sortedArxivArticles.length===0 && fetching">
             <b>Fetching...</b>
@@ -160,29 +187,29 @@
     }
     div#settings{
         display: flex;
-        flex-direction: row;
-        justify-content:center;
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
         gap: 0.5rem;
     }
-    div#settings select{
-        max-width: 8rem;
+    div#settings input, div#settings select{
+        height: 1.5rem;
+        border-radius: 0.5rem;
         padding-inline: 1rem;
-        height: 2rem;
-        border-radius: 1rem;
         background-color: var(--color-background-soft);
-        font-weight: bold;
         border: none;
-        /* border: 1px solid var(--color-border); */
+        color: var(--color-text);
     }
-    div#settings input{
-        width: 100%;
-        padding-inline: 1rem;
+    div#settings select{
+        min-width: 2rem;
+        max-width: 8rem;
+        font-weight: bold;
+    }
+    div#settings input[type="text"]{
         height: 2rem;
         border-radius: 1rem;
-        background-color: var(--color-background-soft);
-        border: none;
-        /* border: 1px solid var(--color-border); */
+        width: 100%;
+        margin-block: 0.5rem;
     }
 
     h1{

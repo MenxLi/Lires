@@ -506,6 +506,8 @@ class DBConnection(LiresBase):
         publication: Optional[str] = None,
         note: Optional[str] = None,
         year: Optional[tuple[Optional[int], Optional[int]] | int] = None,
+        time_import: Optional[tuple[Optional[float], Optional[float]]] = None,
+        time_modify: Optional[tuple[Optional[float], Optional[float]]] = None,
         authors: Optional[list[str]] = None,
         tags: Optional[list[str]] = None
     ) -> list[str]:
@@ -552,6 +554,22 @@ class DBConnection(LiresBase):
                 year = (year[0], 9999)
             query_conds.append("year>=? AND year<?")
             query_items.extend(year)
+        
+        if time_import:
+            if time_import[0] is None:
+                time_import = (0, time_import[1])
+            if time_import[1] is None:
+                time_import = (time_import[0], 9999999999)
+            query_conds.append("time_import>=? AND time_import<?")
+            query_items.extend(time_import)
+        
+        if time_modify:
+            if time_modify[0] is None:
+                time_modify = (0, time_modify[1])
+            if time_modify[1] is None:
+                time_modify = (time_modify[0], 9999999999)
+            query_conds.append("time_modify>=? AND time_modify<?")
+            query_items.extend(time_modify)
 
         # better debug info, put uid in the end
         if from_uids is not None:
