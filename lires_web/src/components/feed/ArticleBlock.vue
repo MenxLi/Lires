@@ -134,7 +134,7 @@
                 <a :href="`https://arxiv.org/pdf/${article.uuid}.pdf`" target="_blank">PDF</a> |
                 <a @click="showDataEditor">Collect</a>
             </div>
-            <p>Published: {{ utcStamp2LocaleStr(props.article.time_added, true) }}</p>
+            <p>Added: {{ utcStamp2LocaleStr(props.article.time_added, true) }}</p>
             <details>
                 <summary>Abstract</summary>
                 <p>{{ props.article.abstract }}</p>
