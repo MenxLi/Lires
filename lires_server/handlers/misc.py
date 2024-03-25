@@ -9,12 +9,6 @@ from lires_server.types import ServerStatus
 import string
 import json, time, os
 
-class ReloadDBHandler(RequestHandlerBase):
-    @keyRequired
-    async def post(self):
-        await self.logger.warning("Reload database is deprecated.")
-        self.write("OK")
-
 class StatusHandler(RequestHandlerBase):
 
     _init_time = time.time()

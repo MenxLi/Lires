@@ -109,11 +109,8 @@ export const useUIStateStore = defineStore(
                     delete this.popupValues[id];
                 }, time);
             },
-            reloadDatabase(
-                backendReload: boolean = false,
-            ){
+            reloadDatabase(){
                 useDataStore().reload(
-                    backendReload,
                     () => {
                         this.databaseLoadingStatus.nCurrent = 0; // databaseLoadingStatus get unused for now
                         useDataStore().database.clear();
@@ -192,7 +189,6 @@ export const useDataStore = defineStore(
             },
             // reload the database from backend
             reload(
-                backendReload: boolean = false,
                 onStart: () => void = () => {this.database.clear()},
                 onSuccess: () => void = () => {}, 
                 onError: (err: Error) => void = () => {}, 
@@ -206,19 +202,7 @@ export const useDataStore = defineStore(
                         (err)=>{ onError(err); }
                     )
                 }
-
-                if (backendReload){
-                    // should be deprecated...
-                    useConnectionStore().conn.reqReloadDB().then(
-                        (success) => {
-                            console.log("Reload: ", success);
-                            if (success){ __requestDBData(this); }
-                            else{ onError(new Error("Failed to reload database from backend")); }
-                        },
-                        (err) => { onError(err); }
-                    )
-                }
-                else{ __requestDBData(this); }
+                __requestDBData(this);
             },
         }
 

@@ -52,10 +52,6 @@ export class ServerConn {
         }).then(res=>res.json());
     }
 
-    async reqReloadDB(): Promise<boolean>{
-        return await this.fetcher.post(`/api/reload-db`).then(_=>true);
-    }
-
     async reqDatapointAbstract(uid: string): Promise<string>{
         return await this.fetcher.get(`/api/datainfo-supp/abstract/${uid}`).then(res=>res.text());
     }
