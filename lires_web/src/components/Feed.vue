@@ -16,6 +16,7 @@
 
     // search and main data structure
     const fetchCategory = ref("arxiv");
+    const fetching = ref(false);
     const searchText = ref("");
     const searchFeature = ref(null as null | Float32Array);
     const arxivArticles = ref([] as FeedDataInfoT[]);
@@ -83,9 +84,15 @@
             return await conn.fetchFeedList(maxResults, category)
         }
 
-        const articles = await fetchArticleFromBackend(maxResults, fetchCategory.value);
-        arxivArticles.value = articles;
-        updateSearchFeature();
+        fetching.value = true
+        try{
+            const articles = await fetchArticleFromBackend(maxResults, fetchCategory.value);
+            arxivArticles.value = articles;
+            updateSearchFeature();
+        }
+        finally{
+            fetching.value = false;
+        }
     }
 
     // MAIN: fetch arxiv feed
@@ -124,9 +131,12 @@
             </select>
             <input type="text" placeholder="Search" @input="lazyUpdateSearchFeature" v-model="searchText" autocomplete="off">
         </div>
-        <div id="loadingPlaceholder" v-if="sortedArxivArticles.length===0">
+        <div id="loadingPlaceholder" v-if="sortedArxivArticles.length===0 && fetching">
             <b>Fetching...</b>
             <LoadingWidget></LoadingWidget>
+        </div>
+        <div id="loadingPlaceholder" v-if="sortedArxivArticles.length===0 && !fetching">
+            <b>No articles found</b>
         </div>
         <ArticleBlock v-for="article in sortedArxivArticles" :article="article"></ArticleBlock>
     </div>
