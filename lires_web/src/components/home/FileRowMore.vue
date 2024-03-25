@@ -77,7 +77,7 @@ function freeDocument(){
 function deleteThisDatapoint(){
     const uuid = props.datapoint.summary.uuid;
     if (window.confirm(`[IMPORTANT] Delete? \n${props.datapoint.toString()}`)){
-        useConnectionStore().conn.deleteData(uuid).then((_) => {
+        useConnectionStore().conn.deleteDatapoint(uuid).then((_) => {
             uiState.showPopup("Deleted");
         });
     }

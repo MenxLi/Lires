@@ -63,7 +63,7 @@ export class DataPoint {
                 resolve(true);
                 return;
             }
-            this.conn.reqDatapointAbstractUpdate(this.summary.uuid, abstract).then((data) => {
+            this.conn.updateDatapointAbstract(this.summary.uuid, abstract).then((data) => {
                 this.supp.abstract = abstract;
                 resolve(data);
             }).catch((err) => {
@@ -92,7 +92,7 @@ export class DataPoint {
         // replace image url with ./misc/
         // note = note.replace(new RegExp(`${this.backendUrl}/misc/${this.summary.uuid}\\?fname=`, 'g'), './misc/');
         return new Promise((resolve, reject) => {
-            this.conn.reqDatapointNoteUpdate(
+            this.conn.updateDatapointNote(
                 this.summary.uuid,
                 note as string
             ).then((data) => {

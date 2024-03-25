@@ -56,7 +56,7 @@ export class ServerConn {
         return await this.fetcher.get(`/api/datainfo-supp/abstract/${uid}`).then(res=>res.text());
     }
 
-    async reqDatapointAbstractUpdate(uid: string, content: string): Promise<boolean>{
+    async updateDatapointAbstract(uid: string, content: string): Promise<boolean>{
         return await this.fetcher.post(`/api/datainfo-supp/abstract-update/${uid}`, {
             content: content,
         }).then((_) => true);
@@ -66,7 +66,7 @@ export class ServerConn {
         return await this.fetcher.get(`/api/datainfo-supp/note/${uid}`).then(res=>res.text());
     }
 
-    async reqDatapointNoteUpdate( uid: string, content: string ): Promise<boolean>{
+    async updateDatapointNote( uid: string, content: string ): Promise<boolean>{
         return await this.fetcher.post(`/api/datainfo-supp/note-update/${uid}`, {
             content: content,
         }).then((_) => true);
@@ -74,6 +74,7 @@ export class ServerConn {
     }
 
     async search(method: string, kwargs: any): Promise<SearchResult>{
+        console.warn("ServerConn.search will be deprecated in the future, use ServerConn.filter instead")
         return await this.fetcher.post(`/api/search`, {
             method: method,
             kwargs: JSON.stringify(kwargs),
@@ -152,13 +153,13 @@ export class ServerConn {
     //                Manipulate data               
     // =============================================
 
-    async deleteData(uid: string): Promise<boolean>{
+    async deleteDatapoint(uid: string): Promise<boolean>{
         return await this.fetcher.post(`/api/dataman/delete`, {
             uuid: uid,
         }).then(()=>true);
     }
     
-    async editData(
+    async updateDatapoint(
         uid: string | null, 
         bibtex: string | null = null, 
         tags: string[] | null = null, 
