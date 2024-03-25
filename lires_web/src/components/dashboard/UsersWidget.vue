@@ -37,7 +37,7 @@
     }
     function onEditUserOK(){
         console.log(editUserDialog_userInfo.value);
-        conn.setUserAccess(
+        conn.updateUserAccess(
             editUserDialog_userInfo.value!.username,
             editUserDialog_userInfo.value!.is_admin,
             editUserDialog_userInfo.value!.mandatory_tags, 

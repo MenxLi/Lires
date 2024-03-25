@@ -6,6 +6,14 @@ import { sha256 } from "../utils/sha256lib";
 import Fetcher from "./fetcher";
 
 export class ServerConn {
+    /*
+    Naming convention:
+        - req...: request data from server
+        - update...: update data on the server
+        - delete...: delete data on the server
+        - <Other>: functional methods that do not fit the above categories
+    */
+
     declare fetcher: Fetcher;
     constructor(baseUrlGetter: ()=>string, tokenGetter: ()=>string, sessionIDGetter: ()=>string){
         this.fetcher = new Fetcher({
@@ -104,7 +112,7 @@ export class ServerConn {
     //                 AI API              
     // =============================================
 
-    async featurize(text: string, requireCache: boolean = false): Promise<number[]>{
+    async featurizeText(text: string, requireCache: boolean = false): Promise<number[]>{
         return await this.fetcher.post(`/api/iserver/textFeature`, {
             text: text,
             require_cache: requireCache,
@@ -179,7 +187,7 @@ export class ServerConn {
         return await this.fetcher.post(`/api/dataman/update`, params).then(res=>res.json());
     }
 
-    async listMiscFiles(uid: string): Promise<string[]>{
+    async reqMiscFileList(uid: string): Promise<string[]>{
         return await this.fetcher.get(`/api/misc-list/${uid}`).then(res=>res.json());
     }
     async deleteMiscFile(uid: string, fileName: string): Promise<boolean>{
@@ -265,7 +273,7 @@ export class ServerConn {
     }
 
     // User management
-    async setUserAccess(username: string, setAdmin: boolean | null, setMandatoryTags: string[] | null, max_storage: number | null): Promise<UserInfo>{
+    async updateUserAccess(username: string, setAdmin: boolean | null, setMandatoryTags: string[] | null, max_storage: number | null): Promise<UserInfo>{
         const formObj = {} as Record<string, any>;
         formObj.username = username;
         if (setAdmin !== null) 

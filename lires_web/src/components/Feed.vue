@@ -51,7 +51,7 @@
             searchFeature.value = null;
             return
         }
-        conn.featurize(searchText.value).then(
+        conn.featurizeText(searchText.value).then(
             (features) => {
                 searchFeature.value = new Float32Array(features);
             },

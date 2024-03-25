@@ -112,7 +112,7 @@ export class DataPoint {
     deleteMiscFile(fname: string): Promise<boolean>{ return this.conn.deleteMiscFile(this.summary.uuid, fname); }
     renameMiscFile(fname: string, newname: string): Promise<boolean>{ return this.conn.renameMiscFile(this.summary.uuid, fname, newname); }
     listMiscFiles(): Promise<Record<'fname'|'rpath'|'url', string>[]>{ 
-        const fnameList = this.conn.listMiscFiles(this.summary.uuid); 
+        const fnameList = this.conn.reqMiscFileList(this.summary.uuid); 
         const urlBase = `${this.backendUrl}/misc/${this.summary.uuid}`;
         return fnameList.then((data) => {
             return data.map((fname) => {
