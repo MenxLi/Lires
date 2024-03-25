@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
-    import type { ArxivArticleWithFeatures } from '../Feed.vue';
-    import { bibtexFromArxiv } from '../../utils/arxiv';
+    import type { FeedDataInfoT } from '../../api/protocalT';
+    import { utcStamp2LocaleStr } from '../../utils/timeUtils';
     import {useConnectionStore, useDataStore } from '../store';
     import { DataPoint } from '../../core/dataClass';
     import FileRowContainer from '../home/FileRowContainer.vue';
@@ -12,7 +12,7 @@
     import { sortByScore } from '../../core/misc';
 
     const props = defineProps<{
-        article: ArxivArticleWithFeatures,
+        article: FeedDataInfoT,
     }>()
     const dataStore = useDataStore();
     const conn = useConnectionStore().conn;
@@ -21,21 +21,19 @@
     async function showDataEditor(){
         dataEditor.value?.show({
             datapoint: null,
-            bibtex: bibtexFromArxiv(props.article),
+            bibtex: props.article.bibtex,
             tags: [],
-            url: props.article.link,
+            url: props.article.url,
         });
     }
 
     const allAuthorPapers = ref<Record<string, DataPoint[]>>({});
     async function gatherAuthorPapers(){
-        const allAuthors = props.article.authors;
-        const allPubs = await Promise.all(allAuthors.map((author) => {
-            return dataStore.database.agetByAuthor(author);
-        }))
-        allAuthorPapers.value = {};
-        for (let i = 0; i < allAuthors.length; i++){
-            allAuthorPapers.value[allAuthors[i]] = allPubs[i];
+        for (let i=0; i<props.article.authors.length; i++){
+            const author = props.article.authors[i];
+            const authorOtherPubIds = props.article.authors_other_publications[i];
+            const dps = await dataStore.database.agetMany(authorOtherPubIds);
+            allAuthorPapers.value[author] = dps;
         }
     }
     gatherAuthorPapers()
@@ -118,12 +116,13 @@
         <div class="articleBlock">
             <div class="titleBlock">
                 <h2>{{ props.article.title }}</h2>
-                <label class="titleId">{{ props.article.id }}</label>
+                <label class="titleId">{{ props.article.uuid }}</label>
             </div>
             <div class="authors">
                 <label>[Authors] </label>
                 <span v-for="(author, index) in props.article.authors" class="authorSpan">
-                    <a @click="()=>openURLExternal(`https://arxiv.org/search/?query=${author}&searchtype=author`)">{{ author }}</a>
+                    <!-- <a @click="()=>openURLExternal(`https://arxiv.org/search/?query=${author}&searchtype=author`)">{{ author }}</a> -->
+                    <label>{{ author }}</label>
                     <a class="pubCount" v-if="authorDatabasePublicationCount[author]" @click="()=>onClickAuthorPubCount(author)">
                         {{ ` (${authorDatabasePublicationCount[author]})` }}
                     </a>
@@ -131,11 +130,11 @@
                 </span>
             </div>
             <div class="actions">
-                <a @click="()=>openURLExternal(`https://arxiv.org/abs/${article.id}`)">Arxiv</a> |
-                <a @click="()=>openURLExternal(`https://arxiv.org/pdf/${article.id}.pdf`)">PDF</a> |
+                <a @click="()=>openURLExternal(article.url)">Link</a> |
+                <a @click="()=>openURLExternal(`https://arxiv.org/pdf/${article.uuid}.pdf`)">PDF</a> |
                 <a @click="showDataEditor">Collect</a>
             </div>
-            <p>Published: {{ props.article.publishedTime }}</p>
+            <p>Published: {{ utcStamp2LocaleStr(props.article.time_added, true) }}</p>
             <details>
                 <summary>Abstract</summary>
                 <p>{{ props.article.abstract }}</p>

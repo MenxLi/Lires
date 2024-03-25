@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue';
-    import { ArxivArticle } from '../utils/arxiv.ts';
+    import type { FeedDataInfoT } from '../api/protocalT';
     import ArticleBlock from './feed/ArticleBlock.vue';
     import { useRouter } from 'vue-router';
     import RefreshIcon from '../assets/icons/refresh.svg'
@@ -11,12 +11,6 @@
 
     import { lazify } from '../utils/misc';
     import { useConnectionStore } from './store';
-    import { utcStamp2LocaleStr } from '../utils/timeUtils';
-
-
-    export interface ArxivArticleWithFeatures extends ArxivArticle{
-        features: Float32Array | null,
-    }
 
     const conn = useConnectionStore().conn;
 
@@ -24,16 +18,16 @@
     const fetchCategory = ref("arxiv");
     const searchText = ref("");
     const searchFeature = ref(null as null | Float32Array);
-    const arxivArticles = ref([] as ArxivArticleWithFeatures[]);
+    const arxivArticles = ref([] as FeedDataInfoT[]);
     const sortedArxivArticles = computed(function(){
-        const articleShallowCopy = [...arxivArticles.value] as ArxivArticleWithFeatures[];
+        const articleShallowCopy = [...arxivArticles.value];
         return articleShallowCopy.sort((a, b) => {
-            if (searchFeature.value === null || !a.features || !b.features ){
+            if (searchFeature.value === null || !a.feature || !b.feature ){
                 return 0;
             }
             else{
-                const feat_a = a.features as Float32Array;
-                const feat_b = b.features as Float32Array;
+                const feat_a = new Float32Array(a.feature);
+                const feat_b = new Float32Array(b.feature);
                 const feat_search = searchFeature.value as Float32Array;
 
                 // calculate which vector is closer to the search vector
@@ -84,43 +78,13 @@
         async function fetchArticleFromBackend(
             maxResults: number,
             category: string,
-        ): Promise<ArxivArticle[]> {
+        ): Promise<FeedDataInfoT[]> {
             const conn = useConnectionStore().conn;
-            const summaries = await conn.fetchFeedList(maxResults, category)
-            // convert to ArxivArticle
-            return summaries.map((summary) => {
-                return {
-                    id: summary.uuid,
-                    title: summary.title,
-                    //@ts-ignore, 
-                    // the abstract is not in the summary type, but it is added in the backend
-                    abstract: summary.abstract,
-                    authors: summary.authors,
-                    link: summary.url,
-                    updatedTime: utcStamp2LocaleStr(summary.time_modified, true),
-                    publishedTime: utcStamp2LocaleStr(summary.time_added, true),
-                }
-            })
+            return await conn.fetchFeedList(maxResults, category)
         }
 
-        // const articles = await fetchArxivFeed(maxResults, fetchCategory.value);
         const articles = await fetchArticleFromBackend(maxResults, fetchCategory.value);
-        console.log(`Got ${articles.length} entries.`)
-        for (const article of articles){
-            const article_with_features = article as any;       // type: ArticleWithFeatures
-            article_with_features.features = ref(null as null | Float32Array);
-            arxivArticles.value.push(article_with_features);
-
-            conn.featurize(article.abstract, true).then(
-                // update article features
-                (features) => {
-                    article_with_features.features.value = new Float32Array(features);
-                },
-                () => {
-                    console.log("failed to featurize: ", article.id);
-                },
-            )
-        }
+        arxivArticles.value = articles;
         updateSearchFeature();
     }
 

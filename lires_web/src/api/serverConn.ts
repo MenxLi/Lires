@@ -1,7 +1,7 @@
 
 // Server connection
 
-import type { DataInfoT, UserInfo, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocalT.js";
+import type { DataInfoT, FeedDataInfoT, UserInfo, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocalT.js";
 import { sha256 } from "../utils/sha256lib.js";
 import Fetcher from "./fetcher.js";
 
@@ -300,7 +300,7 @@ export class ServerConn {
     // =============================================
     //                 Feed              
     // =============================================
-    async fetchFeedList(maxResults = 10, category="arxiv"): Promise<DataInfoT[]>{
+    async fetchFeedList(maxResults = 10, category="arxiv"): Promise<FeedDataInfoT[]>{
         return await this.fetcher.post(`/api/feed`, {
             max_results: maxResults,
             category: category,

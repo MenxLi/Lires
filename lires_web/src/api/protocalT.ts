@@ -33,6 +33,12 @@ export interface DataInfoT {
     has_abstract: boolean;
 }
 
+export interface FeedDataInfoT extends DataInfoT {
+    abstract: string;
+    authors_other_publications: string[][];
+    feature: number[];
+}
+
 export type DatabaseFeature = Record<string, number[]>;
 
 export interface UserInfo {
