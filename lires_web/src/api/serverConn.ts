@@ -1,7 +1,7 @@
 
 // Server connection
 
-import type { DataInfoT, FeedDataInfoT, UserInfo, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocalT.js";
+import type { DataInfoT, FeedDataInfoT, UserInfo, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocol.js";
 import { sha256 } from "../utils/sha256lib";
 import Fetcher from "./fetcher";
 

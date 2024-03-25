@@ -7,7 +7,7 @@
     import { settingsAuthentication } from './core/auth';
     import { registerServerEvenCallback } from './api/serverWebsocketConn';
     import LoadingPopout from './components/common/LoadingPopout.vue';
-    import type { Event_Data, Event_Tag, Event_User } from './api/protocalT'
+    import type { Event_Data, Event_Tag, Event_User } from './api/protocol'
     import { DataTags } from './core/tag';
     import { ThemeMode } from "./core/misc";
 
@@ -209,4 +209,4 @@
     margin: 0px;
     padding: 0px;
 }
-</style>./api/serverWebsocketConn./api/protocalT
+</style>./api/serverWebsocketConn./api/protocol

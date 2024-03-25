@@ -1,5 +1,5 @@
 import { App, MarkdownView, Modal, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import { DataInfoT } from '../../lires_web/src/api/protocalT';
+import { DataInfoT } from '../../lires_web/src/api/protocol';
 import LiresAPI from './liresapi';
 
 interface PluginSettings {

@@ -12,7 +12,7 @@
     import { FileSelectButton } from '../common/fragments';
     import { copyToClipboard } from '../../utils/misc';
     import { registerServerEvenCallback_auto } from '../../api/serverWebsocketConn';
-    import type { Event_Data } from '../../api/protocalT';
+    import type { Event_Data } from '../../api/protocol';
 
     const props = withDefaults(defineProps<{
         datapoint: DataPoint

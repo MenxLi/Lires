@@ -1,6 +1,6 @@
 
 import { useConnectionStore, useSettingsStore, useDataStore } from "../components/store";
-import type { UserInfo } from "../api/protocalT";
+import type { UserInfo } from "../api/protocol";
 import { sha256 } from "../utils/sha256lib";
 
 export function saveAuthentication(

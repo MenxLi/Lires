@@ -1,6 +1,6 @@
 
 import { sha256 } from "../utils/sha256lib";
-import type { Event } from "./protocalT";
+import type { Event } from "./protocol";
 import { onMounted, onUnmounted } from "vue";
 
 // Declare the global object

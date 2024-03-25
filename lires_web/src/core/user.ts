@@ -1,5 +1,5 @@
 import type { ServerConn } from '../api/serverConn';
-import type { UserInfo } from '../api/protocalT';
+import type { UserInfo } from '../api/protocol';
 
 
 export class User{

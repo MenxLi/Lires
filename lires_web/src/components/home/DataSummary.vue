@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import { ref, onMounted, computed } from 'vue';
     import { DataPoint } from '../../core/dataClass';
-    import type { SearchResultant } from '../../api/protocalT';
+    import type { SearchResultant } from '../../api/protocol';
     import FileRowContainer from './FileRowContainer.vue';
     import {useConnectionStore, useDataStore} from '../store';
     import { sortByScore } from '../../core/misc';
@@ -293,4 +293,4 @@
         transform: translateY(-10%);
         opacity: 0;
     }
-</style>../../api/protocalT../../api/serverConn
+</style>../../api/protocol../../api/serverConn

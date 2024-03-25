@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import type { FeedDataInfoT } from '../../api/protocalT';
+    import type { FeedDataInfoT } from '../../api/protocol';
     import { utcStamp2LocaleStr } from '../../utils/timeUtils';
     import {useConnectionStore, useDataStore } from '../store';
     import { DataPoint } from '../../core/dataClass';

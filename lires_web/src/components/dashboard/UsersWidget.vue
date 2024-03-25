@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import { getBackendURL } from '../../config';
     import {useConnectionStore, useDataStore } from '../store';
-    import type { UserInfo, Event_User } from '../../api/protocalT';
+    import type { UserInfo, Event_User } from '../../api/protocol';
     import { ref, computed, onMounted } from 'vue';
     import { registerServerEvenCallback } from '../../api/serverWebsocketConn';
 

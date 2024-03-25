@@ -1,5 +1,5 @@
 import Fetcher from "./fetcher";
-import { type DataInfoT } from "../../lires_web/src/api/protocalT";
+import { type DataInfoT } from "../../lires_web/src/api/protocol";
 
 export default class LiresAPI {
 

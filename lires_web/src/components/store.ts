@@ -9,7 +9,7 @@ import { formatAuthorName } from '../utils/misc'
 import { setCookie, getCookie, isCookieKept } from '../utils/cookie'
 export { formatAuthorName }
 import type { SearchStatus, PopupStyle, TagStatus } from './interface'
-import type { UserInfo } from '../api/protocalT'
+import type { UserInfo } from '../api/protocol'
 
 interface PopupValue {
     content: string,

@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import { ref, computed, onMounted } from 'vue';
-    import type { FeedDataInfoT } from '../api/protocalT';
+    import type { FeedDataInfoT } from '../api/protocol';
     import ArticleBlock from './feed/ArticleBlock.vue';
     import { useRouter } from 'vue-router';
     import RefreshIcon from '../assets/icons/refresh.svg'

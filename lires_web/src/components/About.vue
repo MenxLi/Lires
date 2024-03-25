@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { useConnectionStore, useDataStore, useSettingsStore } from './store';
     import { ref, computed } from 'vue';
-    import { type Changelog } from '../api/protocalT';
+    import { type Changelog } from '../api/protocol';
     import { getBackendURL, manualURL_zh } from '../config';
     import Toolbar from './header/Toolbar.vue';
     import FloatingWindow from './common/FloatingWindow.vue';

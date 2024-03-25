@@ -6,7 +6,7 @@
     import { useConnectionStore, useDataStore, useUIStateStore, useSettingsStore } from '../store';
     import { deepCopy } from '../../core/misc';
     import { ThemeMode } from '../../core/misc';
-    import type { DatabaseFeature } from '../../api/protocalT';
+    import type { DatabaseFeature } from '../../api/protocol';
     import type { PlotPoints3D } from '../interface';
 
     const dataStore = useDataStore();

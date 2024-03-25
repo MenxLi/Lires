@@ -1,4 +1,4 @@
-import type { DataInfoT } from "../api/protocalT";
+import type { DataInfoT } from "../api/protocol";
 import type { ServerConn } from "../api/serverConn";
 import {useDataStore, useSettingsStore } from "../components/store";
 import { DataTags } from "./tag";

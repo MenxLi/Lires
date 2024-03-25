@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-    import type { UserInfo } from '../../api/protocalT';
+    import type { UserInfo } from '../../api/protocol';
     import {useConnectionStore, useSettingsStore, useUIStateStore, useDataStore } from '../store';
     import { ref, computed } from 'vue';
     import { CircularImage, FileSelectButton } from '../common/fragments.tsx';

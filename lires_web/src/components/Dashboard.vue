@@ -24,4 +24,4 @@
         width: calc(100vw - 20px);
         gap: 20px;
     }
-</style>../api/serverConn../api/serverWebsocketConn../api/protocalT
+</style>../api/serverConn../api/serverWebsocketConn../api/protocol
