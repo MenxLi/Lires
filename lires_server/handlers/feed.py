@@ -24,16 +24,32 @@ class FeedHandler(RequestHandlerBase):
         # Get more content for each article, add feature and other publications
         db = await self.db()
         async def finishOne(d_info):
-            _feature_source = d_info["abstract"] if d_info["abstract"] in d_info else d_info["title"]
-            feature_task = asyncio.Task(self.iconn.featurize(_feature_source))
+            async def featurizeFn():
+                uid = d_info['uuid']
+
+                # check if cache is too large
+                if len(FeedHandler.__featurize_cache) > 5000:
+                    await self.logger.debug("Clearing featurize cache...")
+                    FeedHandler.__featurize_cache.clear()
+
+                # if already featurized, return
+                if uid in FeedHandler.__featurize_cache:
+                    return FeedHandler.__featurize_cache[d_info['uuid']]
+
+                _feature_source = d_info["abstract"] if d_info["abstract"] in d_info else d_info["title"]
+                feat = await self.iconn.featurize(_feature_source)
+                FeedHandler.__featurize_cache[uid] = feat
+                return feat
+
+            featurize_task = asyncio.Task(featurizeFn())
             other_pubs = await asyncio.gather(*[
                 db.conn.filter(authors=[author])
                 for author in d_info["authors"]
                 ])
             # add extra keys
             d_info['authors_other_publications'] = other_pubs
-            d_info['feature'] = await feature_task
+            d_info['feature'] = await featurize_task
             return d_info
-        d_info_all = await asyncio.gather(*[finishOne(d_info) for d_info in d_info_w_abstract])
 
+        d_info_all = await asyncio.gather(*[finishOne(d_info) for d_info in d_info_w_abstract])
         self.write(json.dumps(d_info_all))
