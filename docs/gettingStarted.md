@@ -18,10 +18,6 @@
       - [More on starting the servers](#more-on-starting-the-servers)
     - [Cluster startup](#cluster-startup)
     - [On the first run](#on-the-first-run)
-  - [Docker Deployment](#docker-deployment)
-    - [Method 1 - Use docker compose (recommended)](#method-1---use-docker-compose-recommended)
-    - [Method 2 - Use the cluster image](#method-2---use-the-cluster-image)
-    - [On the first run](#on-the-first-run-1)
   - [Management](#management)
     - [User management](#user-management)
     - [Build search index](#build-search-index)
@@ -56,7 +52,7 @@ The software mainly consists of four modules:
 ```sh
 pip install 'Lires[all]'
 lrs-user add <username> <password> --admin
-lrs-cluster -i ~/.Lires/cluster-config.yaml
+lrs-cluster -i ~/.Lires/cluster-config.toml
 ```
 
 
@@ -80,42 +76,30 @@ pip install ".[all]"
 ### Server startup
 
 #### Basic entries
-**Start the Lires:**
 ```bash
-lires server
+lires registry  # the global resource module, for service discovery
+lires server    # the gateway server
+lires log       # the log service
+lires ai        # the AI service
+lires feed      # the feed service
 ```
-Lires is a tornado server that provides API for the client (WebUI & CLI) to communicate with.
+Lires server is a tornado server that provides API for the client (WebUI & CLI) to communicate with, and should be exposed to the internet.    
 
-**Start the LiresAI:**
-```bash
-lires ai
-```
-The LiresAI server is written with FastAPI, it provides additional AI features and is designed to be connected by the Lires server, so that the latter can provide AI features to the client.  
-
-> <details> 
-> <summary>The reason to separate LiresAI server from Lires server</summary>  
-> - AI features may require more resources, so that the ai server can be deployed on a more powerful machine. If the user does not need AI features, there is no need to start the ai server and install the heavy AI dependencies.  <br>
-> - Allocating resources to the ai server and Lires server separately can be more flexible. For example, the ai server may need more GPU memory, we can launch multiple Lires servers pointing to different `$LRS_HOME`, while sharing the same ai server. <br>
-> -  It is also possible that the ai server needs a proxy to access the internet, while the Lires server does not.   
-</details>
+The whole application is scalable, heavy tasks will be offloaded to services like AI, log, and feed. 
+The services running independently and can have multiple instances.
+> Note: the `registry` service is for service discovery, and should be started before other services.
 
 #### More on starting the servers
 `$LRS_HOME` directory is used for application data storage, by default it is set to `~/.Lires`.  
-The data directory contains the configuration file, log files, default database, LiresWeb backend data, cache files...  
+The data directory contains the configuration file, log files, database, cache files...  
 
 To start the application with arbitrary data directory, you can run: 
 ```bash
 LRS_HOME="your/path/here" lires ...
 ```
-Typically, the lires server can be started by binding a different port to each database and providing services to different users. Which can be achieved by setting the `$LRS_HOME` variable.  
 
 Additionally, various environment variables can be set to customize the behavior of the application. 
 A detailed list of environment variables can be found at **[here](./enviromentVariables.md)**.
-
-Thus a more general command to start the server is:
-```sh
-LRS_HOME="your/path/here" LRS_SSL_CERTFILE="your/cert/file" LRS_SSL_KEYFILE="your/key/file" lires server -p <port>
-```
 
 ---
 
@@ -126,13 +110,13 @@ Especially when we want to start multiple servers with different configurations.
 Instead, we provide a simple script to enable server clustering for easy deployment.  
 ```sh
 # Generate a template configuration file
-lrs-cluster <your/configuration.yaml> --generate
+lrs-cluster <your/configuration.toml> --generate
 
 # Edit the configuration file
 # ...
 
 # Start the cluster
-lrs-cluster <your/configuration.yaml>
+lrs-cluster <your/configuration.toml>
 ```
 The configuration file designates the environment variables, as well as the command line arguments for each server.
 
@@ -145,40 +129,6 @@ The configuration file designates the environment variables, as well as the comm
 lrs-user add <username> <password> --admin
 ```
 After the user is created, you can manage other users with this user via the web interface.
-
----
-## Docker Deployment
-Instead of installing the server, you can also deploy the server using docker.  
-Which adds additional security and building efficiency.  
-
-### Method 1 - Use docker compose (recommended)
-**Nvidia container toolkit should be installed**
-```sh
-docker compose up
-```
-
-### Method 2 - Use the cluster image
-If you don't have an Nvidia GPU, or you want more flexibility, you can use the cluster image.
-```sh
-# creates a docker image named lires
-docker build -f ./docker/cluster.Dockerfile -t lires:latest .
-
-# create the container named 'lrs', 
-# please change the port mapping and volume mapping as needed
-docker run -d -p 8080:8080 -v $HOME/.Lires:/root/.Lires --name lrs lires:latest
-```
-
-The container runs server cluster with configuration at `/root/.Lires/container-cluster-config.yaml` (Which should be mounted to the host).  
-You can edit the configuration file to change the server settings.
-
-**To maximize the compatibility, The container image by default does not use GPU for AI features.**  
-
-### On the first run
-The same as manual deployment, you need to add a user account on the first run. 
-The user information will be stored in the volume mapping directory, so that they will not be lost when the container is removed.
-```sh
-docker exec lrs lrs-user add <username> <password> --admin
-```
 
 ---
 
