@@ -22,7 +22,6 @@ class FeedHandler(RequestHandlerBase):
             time_after=float(self.get_argument("time_after", "-1")),
             time_before=float(self.get_argument("time_before", "-1"))
         )
-        print(float(self.get_argument("time_after", "-1")), float(self.get_argument("time_before", "-1")))
 
         # Get more content for each article, add feature and other publications
         db = await self.db()

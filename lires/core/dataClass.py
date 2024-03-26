@@ -237,16 +237,16 @@ class DataBase(DataCore):
             raise self.Error.LiresEntryNotFoundError(f"Data not found: {uuid}")
         return await assembleDatapoint(info, self)
 
-    async def gets(self, uuids: list[str]) -> list[DataPoint]:
+    async def gets(self, uuids: list[str], sort_by='time_import', reverse = True) -> list[DataPoint]:
         """ Get DataPoints by uuids """
         conn = self.conn
-        all_info = await conn.getMany(uuids)
+        all_info = await conn.getMany(uuids, sort_by=sort_by, reverse=reverse)
         tasks = [assembleDatapoint(info, self) for info in all_info]
         return await asyncio.gather(*tasks)
     
-    async def getAll(self) -> list[DataPoint]:
+    async def getAll(self, sort_by = 'time_import', reverse=True) -> list[DataPoint]:
         """ Get all DataPoints, may remove in the future """
-        all_info = await self.conn.getAll()
+        all_info = await self.conn.getAll(sort_by=sort_by, reverse=reverse)
         return await asyncio.gather(*[assembleDatapoint(info, self) for info in all_info])
     
     async def getIDByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[str]:

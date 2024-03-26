@@ -225,9 +225,9 @@ class DBConnection(LiresBase):
             exist = [row[0] for row in await cursor.fetchall()]
         return list(set(uuids).difference(exist))
     
-    async def sortKeys(self, keys: list[str], sortby: str = "time_import", reverse: bool = True) -> list[str]:
+    async def sortKeys(self, keys: list[str], sort_by: str = "time_import", reverse: bool = True) -> list[str]:
         """ Sort keys by a field """
-        async with self.conn.execute("SELECT uuid, {} FROM files WHERE uuid IN ({}) ORDER BY {} {}".format(sortby, ",".join(["?"]*len(keys)), sortby, "DESC" if reverse else "ASC"), keys) as cursor:
+        async with self.conn.execute("SELECT uuid, {} FROM files WHERE uuid IN ({}) ORDER BY {} {}".format(sort_by, ",".join(["?"]*len(keys)), sort_by, "DESC" if reverse else "ASC"), keys) as cursor:
             rows = await cursor.fetchall()
         return [row[0] for row in rows]
     
@@ -235,34 +235,26 @@ class DBConnection(LiresBase):
         """
         Get file info by uuid
         """
-        # self.cursor.execute("SELECT * FROM files WHERE uuid=?", (uuid,))
-        # row = self.cursor.fetchone()
-
         async with self.conn.execute("SELECT * FROM files WHERE uuid=?", (uuid,)) as cursor:
             row = await cursor.fetchone()
             if row is None:
                 return None
         return self.__formatRow(row)
     
-    async def getMany(self, uuids: list[str]) -> list[DBFileInfo]:
-        """
-        Get file info by uuid
-        """
-        # self.cursor.execute("SELECT * FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids)
-        # rows = self.cursor.fetchall()
-
-        async with self.conn.execute("SELECT * FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids) as cursor:
+    async def getMany(self, uuids: list[str], sort_by = 'time_import', reverse = True) -> list[DBFileInfo]:
+        """ Get file info by uuid, this will use new order specified by orderBy!  """
+        async with self.conn.execute("SELECT * FROM files WHERE uuid IN ({}) ORDER BY {} {}".format(",".join(["?"]*len(uuids)), sort_by, "DESC" if reverse else "ASC"), uuids) as cursor:
             rows = await cursor.fetchall()
         if len(list(rows)) != len(uuids):
             raise self.Error.LiresEntryNotFoundError("Some uuids not found")
         ret = [self.__formatRow(row) for row in rows]
         return ret
     
-    async def getAll(self) -> list[DBFileInfo]:
+    async def getAll(self, sort_by = 'time_import', reverse = True) -> list[DBFileInfo]:
         """
         Get all file info
         """
-        async with self.conn.execute("SELECT * FROM files") as cursor:
+        async with self.conn.execute("SELECT * FROM files ORDER BY {} {}".format(sort_by, "DESC" if reverse else "ASC")) as cursor:
             rows = await cursor.fetchall()
         return [self.__formatRow(row) for row in rows]
     

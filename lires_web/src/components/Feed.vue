@@ -144,7 +144,7 @@
                 </span>
                 <span>
                     Max results: <select v-model="maxResults" @change="runFetchArticles">
-                        <option v-for="i in [20, 50, 100, 200]" :value="i">{{i}}</option>
+                        <option v-for="i in [20, 50, 100, 200, 500]" :value="i">{{i}}</option>
                     </select>
                 </span>
                 <span>
