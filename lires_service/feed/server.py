@@ -62,7 +62,8 @@ async def query(req: FeedGetRequest):
 @app.get("/categories")
 async def categories():
     global feed_db
-    return await feed_db.tags()
+    # return await feed_db.tags()
+    return [f'arxiv->{cat}' for cat in ["cs.CV", "cs.AI", "cs.LG", "cs.RO", "cs.ET", "cs.GL", "stat.ML", "stat.AP", "physics.med-ph", "eess.IV"]]
 
 async def startServer(
     host: str = "0.0.0.0",
