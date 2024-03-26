@@ -6,7 +6,7 @@ import asyncio
 import fastapi
 from pydantic import BaseModel
 from typing import Optional
-from .db import DataBase, initDatabase, toDatabase
+from .db import DataBase, initDatabase, collectFeedCycle
 from ..entry import startService
 
 logger = G.loggers.get("feed")
@@ -16,34 +16,10 @@ registry = RegistryConn()
 
 feed_db: DataBase
 
-async def collectFeedCircle():
-    global feed_db
-    from .collector import fetchArxiv
-
-    await logger.info("Start collecting feed...")
-    sleep_time = 0
-    for cat in ["cs.AI", "cs.CV", "cs.LG", "cs.RO", "cs.ET", "cs.GL", "stat.ML", "stat.AP", "physics.med-ph", "eess.IV"]:
-        async def _thisFetch():
-            try:
-                articles = await fetchArxiv(
-                    max_results=50,
-                    search_query= f"cat:{cat}",
-                )
-                await toDatabase(feed_db, articles)
-                await feed_db.commit()
-            except Exception as e:
-                await logger.error(f"Error in fetching feed: {e}")
-        
-        # schedule the task later
-        asyncio.get_event_loop().call_later(sleep_time, _thisFetch)
-        # call every 5 minutes, 
-        # in order not to be banned by arxiv
-        sleep_time += 60*5
-    return
 
 async def startCollectionLoop():
     await logger.info("Collecting feed...")
-    await collectFeedCircle()
+    await collectFeedCycle(feed_db, logger=logger)
 
     # update every 12 hours
     asyncio.get_event_loop().call_later(60*60*12, startCollectionLoop)
