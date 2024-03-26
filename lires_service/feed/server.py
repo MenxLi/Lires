@@ -20,9 +20,10 @@ feed_db: DataBase
 async def startCollectionLoop():
     await logger.info("Collecting feed...")
     await collectFeedCycle(feed_db, logger=logger)
+    createTaskFn = lambda: asyncio.get_event_loop().create_task(startCollectionLoop())
 
     # update every 12 hours
-    asyncio.get_event_loop().call_later(60*60*12, startCollectionLoop)
+    asyncio.get_event_loop().call_later(60*60*12, createTaskFn)
 
 @app.on_event("shutdown")
 async def shutdown():
