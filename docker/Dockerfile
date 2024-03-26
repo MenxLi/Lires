@@ -6,9 +6,9 @@ WORKDIR /
 
 COPY . /Lires
 WORKDIR /Lires/lires_web 
-RUN npm install -g cnpm --registry=https://registry.npm.taobao.org
-RUN cnpm install && cnpm run build
-
+# RUN npm install -g cnpm --registry=https://registry.npm.taobao.org
+# RUN cnpm install && cnpm run build
+RUN npm install && npm run build
 
 ## Second stage, build the server
 FROM python:3.11-bookworm as server-build
@@ -18,12 +18,6 @@ WORKDIR /
 # https://mirrors.ustc.edu.cn/help/debian.html
 RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/debian.sources
 
-# RUN apt-get update
-# RUN apt-get -y upgrade
-# RUN apt-get install -y --reinstall ca-certificates
-# RUN apt-get install -y apt-utils
-# RUN apt-get install -y build-essential
-
 # https://mirrors.tuna.tsinghua.edu.cn/help/pypi/
 RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
@@ -31,10 +25,10 @@ RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN python3 -m pip install --upgrade pip --break-system-packages
 RUN pip3 install -e /Lires[all] --break-system-packages
 
-EXPOSE 8081
-EXPOSE 8080
-EXPOSE 8731
-
+EXPOSE 8080 
+EXPOSE 8700
+EXPOSE 21000-22000
 ENV LRS_HOME=/root/.Lires
 ENV HF_HOME=/root/.Lires/hf_home
 ENTRYPOINT ["lrs-cluster", "/root/.Lires/container-cluster-config.yaml", "--init-if-not-exist"]
+# ENTRYPOINT [ "/bin/bash" ]

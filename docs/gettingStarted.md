@@ -17,10 +17,11 @@
       - [Basic entries](#basic-entries)
       - [More on starting the servers](#more-on-starting-the-servers)
     - [Cluster startup](#cluster-startup)
+    - [Run with Docker](#run-with-docker)
     - [On the first run](#on-the-first-run)
   - [Management](#management)
     - [User management](#user-management)
-    - [Build search index](#build-search-index)
+    - [Log management](#log-management)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -120,6 +121,24 @@ lrs-cluster <your/configuration.toml>
 ```
 The configuration file designates the environment variables, as well as the command line arguments for each server.
 
+### Run with Docker
+```sh
+# build the image
+docker build -f docker/Dockerfile -t lires:runtime .
+
+# run the container
+docker run -d -p 8080:8080 -v </path/to/data>:/root/.Lires --name lrs lires:runtime
+
+# user management
+docker exec -it lrs lrs-user ...
+
+# check the logs
+docker exec -it lrs lrs-log ...
+
+# or check output by docker logs
+docker logs -f lrs
+```
+
 ---
 
 ### On the first run
@@ -136,7 +155,8 @@ After the user is created, you can manage other users with this user via the web
 There are several management tools for the server, they are all accessible by `lrs-<tool_name>`.  
 A detailed description of each tool can be found in [manage.md](./manage.md).
 
-Following are some common management tasks.
+**Following are some common management tasks.**
+
 ### User management
 After installation, user should be registered with `lrs-user` command.
 ```sh
@@ -148,15 +168,23 @@ lrs-user update <username> -p <password> -t "tag1" "tag2->subtag" --admin true
 ```
 for more information, see `lrs-user -h`.  
 
-### Build search index
-The search index is used for **semantic search** and querying **related works**,
-It is currently implemented as building feature vectors for each entry (thanks to [huggingface transformers](https://huggingface.co/docs/transformers/index)), 
-and use cosine similarity to measure the distance between vectors.
+### Log management
+The log service is used to store the logs of the application, 
+the log server can have multiple instances, each one will store the logs in a separate sqlite database.
 
-**No need to manually build the index**, the index will be periodically updated by the server.   
-If you add a document and want to update the index immediately, or you want to use LLM to summarize all the no-absract entries for indexing, you can run:
+The logs can be accessed by `lrs-log` command, the output is combined from the results of all log servers.
 ```sh
-lrs-index build
+lrs-log check
 ```
-**This requires LiresAI server to be running.**
-*The priority for indexing sources: Abstract > AI summerization > PDF full text*
+This will check the overall logged information, specifically the table names and the number of logs in each table.
+
+To view the log, run:
+```sh
+lrs-log view -t <table_name> | less
+```
+
+Since every startup of the log server will create a new log file, it is recommended to periodically archive the logs.
+```sh
+lrs-log merge --rm
+```
+This will merge all the log files into a single file, and remove the original files.
