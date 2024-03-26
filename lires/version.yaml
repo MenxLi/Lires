@@ -784,3 +784,15 @@ version_history:
       - Search sort
       - Clean data on user logout
       - Possible user authentication attack
+  1.7.3:
+    - Features:
+      - Backend feed server, with more categories and permanent storage
+      - Allow user to set date and number of feed items
+      - Able to merge log files
+      - Javascript API
+    - UI:
+      - Feed page update
+    - Fix:
+      - Database `gets` sort
+      - Database modification lock
+      - Ensure websocket connection
