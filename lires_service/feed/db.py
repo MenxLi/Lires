@@ -12,9 +12,11 @@ async def initDatabase(db_path = os.path.join(DATABASE_HOME, 'feed')):
 
 async def toDatabase(database: DataBase, articles: list[ArticleInfo], logger: LiresLogger):
     conn = database.conn
+
+    current_ids = await database.keys()
     new_articles = [
         article for article in articles
-        if not (await database.has(article.id))
+        if not article.id in current_ids
     ]
 
     await asyncio.gather(*[
