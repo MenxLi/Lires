@@ -57,7 +57,8 @@ async def addDocument(
         comments: str = "", 
         doc_src: Optional[str] = None,
         doc_info: Optional[DocInfo | dict[str, Any]] = None,
-        check_duplicate: bool = True
+        check_duplicate: bool = True, 
+        remove_abstract: bool = True, 
         ) -> Optional[str]:
     """
     Should use this function to add document to database instead of directly using DBConnection.addEntry
@@ -89,7 +90,10 @@ async def addDocument(
     
     # maybe remove abstract from citation, so that the bibtex won't be too long
     # the abstract will be stored in the database separately
-    citation = BibParser.removeAbstract(citation)
+    if remove_abstract:
+        citation = BibParser.removeAbstract(citation)
+    else:
+        citation = BibParser.formatBib(citation)
 
     uniform_bib = await parseBibtex(citation)
 

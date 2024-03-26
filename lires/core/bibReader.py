@@ -55,6 +55,12 @@ class BibParser(LiresBase):
                 bib_data.entries[k].fields.pop("abstract")
         return bib_data.to_string("bibtex")
     
+    @classmethod
+    def formatBib(cls, bib_str: str) -> str:
+        """ Format bib string """
+        bib_data = pybtex.database.parse_string(bib_str, bib_format="bibtex")
+        return bib_data.to_string("bibtex")
+    
     async def __call__(self, bib_str: str) -> list[dict]:
         """
             datapoint: {
