@@ -121,8 +121,10 @@
             </div>
             <div class="authors">
                 <span v-for="(author, index) in props.article.authors" class="authorSpan">
-                    <!-- <a :href="`https://arxiv.org/search/?query=${author}&searchtype=author`" target="_blank">{{ author }}</a> -->
-                    <label>{{ author }}</label>
+                    <a class="link" v-if="()=>{article.tags.some((tag)=>tag.startsWith('arxiv'))}"
+                        :href="`https://arxiv.org/search/?query=${author}&searchtype=author`" 
+                        target="_blank">{{ author }}</a>
+                    <label v-else>{{ author }}</label>
                     <a class="pubCount" v-if="authorDatabasePublicationCount[author]" @click="()=>onClickAuthorPubCount(author)">
                         {{ `(${authorDatabasePublicationCount[author]})` }}
                     </a>
@@ -166,6 +168,14 @@
     }
     a:hover{
         cursor: pointer;
+    }
+    a.link{
+        padding: 0px;
+    }
+    a.link:hover{
+        text-decoration: underline;
+        text-underline-offset: 0.1em;
+        background-color: rgba(0, 0, 0, 0);
     }
     div#tag-selector{
         padding: 5px;
