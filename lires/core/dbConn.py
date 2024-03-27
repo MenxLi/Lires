@@ -243,10 +243,7 @@ class DBConnection(LiresBase):
     
     async def getMany(self, uuids: list[str], sort_by = 'time_import', reverse = True) -> list[DBFileInfo]:
         """ Get file info by uuid, this will use new order specified by orderBy!  """
-        if await self.size() == 0:
-            # just return empty list if no entry,
-            # otherwise the following query will raise an error if sortby is not None
-            return []   
+        if await self.size() == 0: return []
         async with self.conn.execute("SELECT * FROM files WHERE uuid IN ({}) ORDER BY {} {}".format(",".join(["?"]*len(uuids)), sort_by, "DESC" if reverse else "ASC"), uuids) as cursor:
             rows = await cursor.fetchall()
         if len(list(rows)) != len(uuids):
@@ -258,6 +255,7 @@ class DBConnection(LiresBase):
         """
         Get all file info
         """
+        if await self.size() == 0: return []
         async with self.conn.execute("SELECT * FROM files ORDER BY {} {}".format(sort_by, "DESC" if reverse else "ASC")) as cursor:
             rows = await cursor.fetchall()
         return [self.__formatRow(row) for row in rows]
