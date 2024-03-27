@@ -1,6 +1,6 @@
 **Lires - A self-hosted research literature manager.**
 
-![Lires-webUI](https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/lires_v1.6.1.png)
+![](https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires_v1.7.3w.png)
 
 
 Installation:  
