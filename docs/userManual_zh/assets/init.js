@@ -30,7 +30,7 @@ function initElement() {
                     ' | <a onclick="backToTop()" style="cursor: pointer;">返回顶部</a>': ''
                     }
                     <br>
-                    &copy; 2023 李梦寻
+                    &copy; 2021-2024 李梦寻
                 </p>
             </div>
         `
@@ -56,7 +56,6 @@ async function replaceKeyword() {
         "主页面": "./route.html#sec-main",
         "主页": "./route.html#sec-main",
         "阅读器": "./route.html#sec-reader",
-        "仪表盘": "./route.html#sec-dashboard",
         "推送页面": "./route.html#sec-feed",
         "关于页面": "./route.html#sec-about",
 
