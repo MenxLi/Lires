@@ -23,7 +23,7 @@ lires_server/assets/pdfjs_downloading.lock
 **/package-lock.json
 **/Cargo.lock
 compile_commands.json
-docs/.vitepress/cache
+**/.vitepress/cache
 
 # Binaries
 *.pptx

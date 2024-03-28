@@ -1,0 +1,17 @@
+{
+  "name": "docs",
+  "version": "1.7.3",
+  "description": "Lires docs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs:build": "vitepress build ../docs",
+    "docs:dev": "vitepress dev ../docs",
+    "docs:preview": "vitepress preview ../docs"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vitepress": "^1.0.1"
+  }
+}

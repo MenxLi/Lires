@@ -8,10 +8,7 @@
     "web:preview": "vite preview", 
     "web:build": "vue-tsc && vite build",
     "api:build": "npx webpack --config api-webpack.config.cjs",
-    "docs:build": "vitepress build ../docs",
-    "docs:dev": "vitepress dev ../docs",
-    "docs:preview": "vitepress preview ../docs",
-    "build": "npm run docs:build && npm run api:build && npm run web:build && node ./postBuildScript.js"
+    "build": "npm run --prefix ../docs docs:build && npm run api:build && npm run web:build && node ./postBuildScript.js"
   },
   "dependencies": {
     "async-mutex": "^0.5.0",
