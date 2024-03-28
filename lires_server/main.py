@@ -54,7 +54,7 @@ class Application(tornado.web.Application):
             (r'/(index.html)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
             (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
             (r'/(assets/.*)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(docs/.*)', cachedStaticFileHandlerFactory(cache_seconds=600), {"path": LRSWEB_SRC_ROOT}),
+            (r'/(documentation/.*)', cachedStaticFileHandlerFactory(cache_seconds=600), {"path": LRSWEB_SRC_ROOT, 'default_filename': 'index.html'}),
 
             # websocket
             (r'/ws', WebsocketHandler),

@@ -27,4 +27,4 @@ lrs-user add <username> <password>  --admin # Add a user
 ```
 
 Now you can visit the web UI at `http://localhost:8080` and login with the user you just added.  
-For more information, please visit the [getting started](./docs/gettingStarted.md#getting-started) document.
+For more information, please visit the [getting started](./docs/deployment/gettingStarted.md#getting-started) document.

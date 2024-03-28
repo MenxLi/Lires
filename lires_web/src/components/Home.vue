@@ -129,7 +129,6 @@ export default {
                                     background-color: var(--color-background-soft);
                                     ">⊕ New</a></b> 
                                 button above.<br>
-                                <!-- Refer to the <a :href="manualURL_zh">documentation</a> for more information. -->
                             </p>
                         </p>
                         <LoadingWidget v-else></LoadingWidget>

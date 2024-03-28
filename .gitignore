@@ -23,6 +23,7 @@ lires_server/assets/pdfjs_downloading.lock
 **/package-lock.json
 **/Cargo.lock
 compile_commands.json
+docs/.vitepress/cache
 
 # Binaries
 *.pptx
@@ -43,6 +44,7 @@ logs
 **/pnpm-debug.log*
 **/lerna-debug.log*
 
+# binaries
 **/node_modules
 **/dist
 **/dist-api

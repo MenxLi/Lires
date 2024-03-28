@@ -4,9 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build && npx webpack --config api-webpack.config.cjs && node ./postBuildScript.js",
-    "preview": "vite preview"
+    "web:dev": "vite",
+    "web:preview": "vite preview", 
+    "web:build": "vue-tsc && vite build",
+    "api:build": "npx webpack --config api-webpack.config.cjs",
+    "docs:build": "vitepress build ../docs",
+    "docs:dev": "vitepress dev ../docs",
+    "docs:preview": "vitepress preview ../docs",
+    "build": "npm run docs:build && npm run api:build && npm run web:build && node ./postBuildScript.js"
   },
   "dependencies": {
     "async-mutex": "^0.5.0",
@@ -23,12 +28,13 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "fs-extra": "^11.2.0",
+    "prettier": "^3.2.5",
+    "ts-loader": "^9.5.1",
     "typescript": "^5.4.3",
     "vite": "^5.2.2",
+    "vitepress": "^1.0.1",
     "vue-tsc": "^2.0.7",
     "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4",
-    "prettier": "^3.2.5",
-    "ts-loader": "^9.5.1"
+    "webpack-cli": "^5.1.4"
   }
 }
