@@ -16,6 +16,7 @@ let FRONTEND_PROTOCAL: 'http:' | 'https:' = window.location.protocol as 'http:' 
 let FRONTENDURL: string;
 FRONTENDURL = `${FRONTEND_PROTOCAL}//${window.location.hostname}:${window.location.port}`; //
 const docsURL = `${FRONTENDURL}/documentation/`;
+const docsURL_Manual = `${docsURL}manual/`;
 if (import.meta.env.DEV){
     console.log("DEV mode");
 }
@@ -29,7 +30,7 @@ function getBackendURL(){
     return `${BACKEND_HOST}:${BACKEND_PORT}`;
 }
 
-export {getBackendURL, FRONTENDURL, docsURL};
+export {getBackendURL, FRONTENDURL, docsURL_Manual};
 export const MAINTAINER = {
     name: import.meta.env.VITE_MAINTAINER_NAME,
     email: import.meta.env.VITE_MAINTAINER_EMAIL

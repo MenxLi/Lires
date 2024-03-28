@@ -10,10 +10,11 @@
 - [Getting Started](#getting-started)
   - [Introduction](#introduction)
     - [Features](#features)
-  - [Quick Start](#quick-start)
-  - [Manual Deployment](#manual-deployment)
-    - [Installation from source](#installation-from-source)
-    - [Server startup](#server-startup)
+    - [Quick Start](#quick-start)
+  - [Installation](#installation)
+    - [From PyPI](#from-pypi)
+    - [From source](#from-source)
+  - [Server startup](#server-startup)
       - [Basic entries](#basic-entries)
       - [More on starting the servers](#more-on-starting-the-servers)
     - [Cluster startup](#cluster-startup)
@@ -48,7 +49,7 @@ The software mainly consists of four modules:
 ✨ Artificial intelligence  
 🚀 Scalable deployment  
 
-## Quick Start
+### Quick Start
 
 ```sh
 pip install 'Lires[all]'
@@ -57,9 +58,14 @@ lrs-cluster -i ~/.Lires/cluster-config.toml
 ```
 
 
-## Manual Deployment
+## Installation
 
-### Installation from source
+### From PyPI
+```bash
+pip install 'Lires[all]'
+```
+
+### From source
 Compile frontend files
 > **Prerequisites:**  Node.js
 ```bash
@@ -73,23 +79,28 @@ Install the servers
 ```bash
 pip install ".[all]"
 ```
----
-### Server startup
 
+## Server startup
 #### Basic entries
+Start the microservices with the following commands:
 ```bash
 lires registry  # the global resource module, for service discovery
-lires server    # the gateway server
 lires log       # the log service
 lires ai        # the AI service
 lires feed      # the feed service
 ```
+Lires services are designed to be scalable, and can be started with multiple instances (except for the registry service).
+::: info
+The `registry` service is for service discovery, and should be started before other services.
+:::
+
+Then, start the gateway server:
+```sh
+lires server    # the gateway server
+```
 Lires server is a tornado server that provides API for the client (WebUI & CLI) to communicate with, and should be exposed to the internet.    
 
-The whole application is scalable, heavy tasks will be offloaded to services like AI, log, and feed. 
-The services running independently and can have multiple instances.
-> Note: the `registry` service is for service discovery, and should be started before other services.
-
+::: details
 #### More on starting the servers
 `$LRS_HOME` directory is used for application data storage, by default it is set to `~/.Lires`.  
 The data directory contains the configuration file, log files, database, cache files...  
@@ -101,6 +112,7 @@ LRS_HOME="your/path/here" lires ...
 
 Additionally, various environment variables can be set to customize the behavior of the application. 
 A detailed list of environment variables can be found at **[here](./enviromentVariables.md)**.
+:::
 
 ---
 
@@ -149,7 +161,6 @@ lrs-user add <username> <password> --admin
 ```
 After the user is created, you can manage other users with this user via the web interface.
 
----
 
 ## Management
 There are several management tools for the server, they are all accessible by `lrs-<tool_name>`.  

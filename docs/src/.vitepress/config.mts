@@ -11,6 +11,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Manual', link: '/manual/' },
+      { text: 'Deployment', link: '/deployment/' },
     ],
 
     sidebar: [
@@ -27,7 +28,7 @@ export default defineConfig({
       },
       {
         text: 'Deployment',
-        // link: '/deployment/',
+        link: '/deployment/',
         items: [
           { text: 'Getting Started', link: '/deployment/gettingStarted' },
           { text: 'Enviroment Variables', link: '/deployment/enviromentVariables' },
