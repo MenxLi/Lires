@@ -1,6 +1,7 @@
 // Type definitions across components
 
 import type { DataTags } from "../core/tag"
+import type { SearchType } from "../api/protocol"
 
 export interface TagStatus{
     checked: DataTags,
@@ -9,7 +10,7 @@ export interface TagStatus{
 }
 
 export interface SearchStatus{
-    searchBy: string,
+    searchBy: SearchType,
     content: string
 }
 

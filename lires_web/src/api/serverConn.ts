@@ -1,7 +1,7 @@
 
 // Server connection
 
-import type { DataInfoT, FeedDataInfoT, UserInfo, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocol.js";
+import type { DataInfoT, FeedDataInfoT, UserInfo, SearchType, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocol.js";
 import { sha256 } from "../utils/sha256lib";
 import Fetcher from "./fetcher";
 
@@ -60,6 +60,46 @@ export class ServerConn {
         }).then(res=>res.json());
     }
 
+    async deleteDatapoint(uid: string): Promise<boolean>{
+        return await this.fetcher.post(`/api/dataman/delete`, {
+            uuid: uid,
+        }).then(()=>true);
+    }
+
+    /**
+        * Create or update a datapoint
+        * @param uid: the uid of the datapoint to update, if null, create a new datapoint
+        * @param bibtex: the bibtex content
+        * @param tags: the tags of the datapoint
+        * @param url: the url of the datapoint
+        * @return the updated datapoint
+    */
+    async updateDatapoint(
+        uid: string | null, 
+        {
+            bibtex = null, 
+            tags = null, 
+            url = null,
+        }: {
+            bibtex?: string | null,
+            tags?: string[] | null,
+            url?: string | null,
+        }
+        ): Promise<DataInfoT>{
+        if (!uid){
+            // make sure other fields are not null
+            if (bibtex === null || tags === null || url === null){
+                throw new Error("uid is null, other fields should be complete");
+            }
+        }
+        const params = {} as Record<string, any>;
+        if (uid !== null) params["uuid"] = JSON.stringify(uid);
+        if (bibtex !== null ) params["bibtex"] = bibtex;
+        if (tags !== null) params["tags"] = JSON.stringify(tags);
+        if (url !== null) params["url"] = url;
+        return await this.fetcher.post(`/api/dataman/update`, params).then(res=>res.json());
+    }
+
     async reqDatapointAbstract(uid: string): Promise<string>{
         return await this.fetcher.get(`/api/datainfo-supp/abstract/${uid}`).then(res=>res.text());
     }
@@ -81,7 +121,8 @@ export class ServerConn {
         
     }
 
-    async search(method: string, kwargs: any): Promise<SearchResult>{
+    /** * @deprecated use filter instead */
+    async _search(method: string, kwargs: any): Promise<SearchResult>{
         console.warn("ServerConn.search will be deprecated in the future, use ServerConn.filter instead")
         return await this.fetcher.post(`/api/search`, {
             method: method,
@@ -93,18 +134,18 @@ export class ServerConn {
         tags = [],
         searchBy = "title", 
         searchContent = "", 
-        max_results = 9999,
+        maxResults = 9999,
     }: {
         tags?: string[],
-        searchBy?: string,
+        searchBy?: SearchType,
         searchContent?: string,
-        max_results?: number,
+        maxResults?: number,
     } = {}): Promise<SearchResult2>{
         return await this.fetcher.post(`/api/filter/basic`, {
             tags: tags,
             search_by: searchBy,
             search_content: searchContent,
-            top_k: max_results,
+            top_k: maxResults,
         }).then(res=>res.json());
     }
 
@@ -155,36 +196,6 @@ export class ServerConn {
             };
             return reader.read().then(processTextData as any);
         })
-    }
-
-    // =============================================
-    //                Manipulate data               
-    // =============================================
-
-    async deleteDatapoint(uid: string): Promise<boolean>{
-        return await this.fetcher.post(`/api/dataman/delete`, {
-            uuid: uid,
-        }).then(()=>true);
-    }
-    
-    async updateDatapoint(
-        uid: string | null, 
-        bibtex: string | null = null, 
-        tags: string[] | null = null, 
-        url: string | null = null,
-        ): Promise<DataInfoT>{
-        if (!uid){
-            // make sure other fields are not null
-            if (bibtex === null || tags === null || url === null){
-                throw new Error("uid is null, other fields should be complete");
-            }
-        }
-        const params = {} as Record<string, any>;
-        if (uid !== null) params["uuid"] = JSON.stringify(uid);
-        if (bibtex !== null ) params["bibtex"] = bibtex;
-        if (tags !== null) params["tags"] = JSON.stringify(tags);
-        if (url !== null) params["url"] = url;
-        return await this.fetcher.post(`/api/dataman/update`, params).then(res=>res.json());
     }
 
     async reqMiscFileList(uid: string): Promise<string[]>{

@@ -2,7 +2,6 @@
 <script setup lang="ts">
     import { ref, onMounted, computed } from 'vue';
     import { DataPoint } from '../../core/dataClass';
-    import type { SearchResultant } from '../../api/protocol';
     import FileRowContainer from './FileRowContainer.vue';
     import {useConnectionStore, useDataStore} from '../store';
     import { sortByScore } from '../../core/misc';
@@ -29,6 +28,7 @@
     function requestAISummary(force: boolean = false){
         aiSummary.value = 'Loading...';
         let _summary = "";
+        updateRelatedArticles();
         serverConn.reqAISummary(
             props.datapoint.summary.uuid,
             (data: string) => {
@@ -59,19 +59,22 @@
                 fromContent = aiSummary.value;
             }
             else{
-                throw new Error("No content to search for related articles");
+                fromContent = props.datapoint.title
             }
         }
 
         if (fromContent == '') return;
-        const res = await serverConn.search("searchFeature", {"pattern": fromContent , "n_return": 9});
-        const dps: DataPoint[] = await dataStore.database.agetMany(Object.keys(res), false);
+        const res = await serverConn.filter({
+            searchBy: "feature",
+            searchContent: fromContent,
+            maxResults: 9,
+        })
+        const dps: DataPoint[] = await dataStore.database.agetMany(res.uids, false);
         const scores: number[] = new Array();
         for (const dp of dps){
-            if (res[dp.summary.uuid]){
-                const score = (res[dp.summary.uuid] as SearchResultant).score as number;   // score exists on feature search
-                scores.push(score);
-            }
+            const idx = res.uids.indexOf(dp.summary.uuid);
+            if (idx >= 0){ scores.push(res.scores[idx]); }
+            else{ throw new Error("Related article not found in search result, IMPOSSIBLE"); }
         }
         [relatedDatapoints.value, relatedDatapointsScores.value] = sortByScore(
             dps, scores, false

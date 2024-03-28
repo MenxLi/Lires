@@ -5,17 +5,18 @@
     import { useUIStateStore } from '../store';
 
     import type { SearchStatus } from "../interface";
+    import type { SearchType } from '/@/api/protocol';
     import { lazify } from "../../utils/misc";
 
     const uiState = useUIStateStore();
 
     // search refealated
-    const searchTypesPool = ["title", "author", "year", "note", "publication", "feature", "uuid"];
+    const searchTypesPool: SearchType[] = ["title", "author", "year", "note", "publication", "feature", "uuid"];
     const searchInput = ref("")
     const searchSelector: Ref<HTMLSelectElement | null> = ref(null)
     function onSearchChanged(){
         const status: SearchStatus = {
-            searchBy: searchSelector.value!.value,
+            searchBy: searchSelector.value!.value as SearchType,
             content: searchInput.value
         }
         uiState.searchState = status;

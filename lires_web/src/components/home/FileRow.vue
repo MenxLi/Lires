@@ -138,7 +138,7 @@
         }
 
         const uuid = props.datapoint.summary.uuid;
-        useConnectionStore().conn.updateDatapoint(uuid, null, newTags).then(
+        useConnectionStore().conn.updateDatapoint(uuid, {tags: newTags}).then(
             (summary) => {
                 props.datapoint.update(summary);
                 useUIStateStore().updateShownData();

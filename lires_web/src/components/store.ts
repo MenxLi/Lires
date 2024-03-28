@@ -31,7 +31,7 @@ export const useUIStateStore = defineStore(
                 shownDataUIDs: [] as string[],
                 shownDataScores: [] as number[] | null,
                 searchState: {
-                        "searchBy": "",
+                        "searchBy": "title",
                         "content": ""
                     } as SearchStatus,
                 unfoldedDataUIDs: [] as string[],

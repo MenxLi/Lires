@@ -39,7 +39,11 @@
         }           // create a capture of the current state
         close();    // close the dialog and clear the state
         uiState.showPopup("Saving entry...", "info")
-        conn.updateDatapoint(uploadState.uuid, uploadState.bibtex, uploadState.tags, uploadState.url).then(
+        conn.updateDatapoint(uploadState.uuid, {
+            bibtex: uploadState.bibtex, 
+            tags: uploadState.tags, 
+            url: uploadState.url
+        }).then(
             (dSummary) => {
                 if (!uploadState.file){ uiState.showPopup("Saved", "success"); }
                 else{
