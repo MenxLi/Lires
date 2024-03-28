@@ -2,7 +2,7 @@
     import { useConnectionStore, useDataStore, useSettingsStore } from './store';
     import { ref, computed } from 'vue';
     import { type Changelog } from '../api/protocol';
-    import { getBackendURL, docsURL_Manual } from '../config';
+    import { getBackendURL, docsURL } from '../config';
     import Toolbar from './header/Toolbar.vue';
     import FloatingWindow from './common/FloatingWindow.vue';
     import { registerServerEvenCallback } from '../api/serverWebsocketConn';
@@ -76,7 +76,7 @@
             <p>
                 Lires is a self-hosted web application for research literature management. <br>
                 It is open source and available at <a href="https://github.com/MenxLi/Lires" target="_blank">GitHub - MenxLi/Lires</a>. <br>
-                The user manual for web interface is available at <a :href="docsURL_Manual" target="_blank">here</a>. <br>
+                The user manual for web interface is available at <a :href="docsURL" target="_blank">here</a>. <br>
                 It also has a javascript 
                 <a :href="useSettingsStore().backend()+`/api/api.zip?key=${useSettingsStore().encKey}`">
                     API

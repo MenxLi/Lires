@@ -8,9 +8,6 @@
 **Table of Contents**
 
 - [Getting Started](#getting-started)
-  - [Introduction](#introduction)
-    - [Features](#features)
-    - [Quick Start](#quick-start)
   - [Installation](#installation)
     - [From PyPI](#from-pypi)
     - [From source](#from-source)
@@ -25,37 +22,6 @@
     - [Log management](#log-management)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-## Introduction
-
-The name of Lires is a combination of **Lire** and **Res**earch, where **Lire** is the French word for '***Read***'.
-
-![](https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires_v1.7.3.png)
-
-Lires is designed to be deployed onto a server to provide a **self-hosted collaborative solution** for research literature management.
-
-The software mainly consists of four modules:  
-1. `lires`, the global resource module.
-2. `lires-server`, the main entry point for the client.
-3. `lires-service`, microservices for enhanced scalability. 
-4. `lires-web`, a web-based interface for user interaction.
-
-### Features
-📚 Shared database  
-🔄 Cross-platform  
-🏷️ Cascading tags    
-📝 Markdown notes  
-👥 Multi-user management  
-✨ Artificial intelligence  
-🚀 Scalable deployment  
-
-### Quick Start
-
-```sh
-pip install 'Lires[all]'
-lrs-user add <username> <password> --admin
-lrs-cluster -i ~/.Lires/cluster-config.toml
-```
 
 
 ## Installation

@@ -30,7 +30,7 @@ function getBackendURL(){
     return `${BACKEND_HOST}:${BACKEND_PORT}`;
 }
 
-export {getBackendURL, FRONTENDURL, docsURL_Manual};
+export {getBackendURL, FRONTENDURL, docsURL, docsURL_Manual};
 export const MAINTAINER = {
     name: import.meta.env.VITE_MAINTAINER_NAME,
     email: import.meta.env.VITE_MAINTAINER_EMAIL
