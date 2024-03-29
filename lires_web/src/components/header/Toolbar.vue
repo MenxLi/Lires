@@ -73,7 +73,7 @@
                 @onClick="()=>{router.push('/')}" title="home"/>
             <ToolbarIcon v-else :iconSrc="logoutIcon" labelText="Logout" shortcut="ctrl+q"
                 @onClick="logout" title="logout"/>
-            <ToolbarIcon :iconSrc="settigsIcon" labelText="Settings" shortcut="ctrl+c"
+            <ToolbarIcon :iconSrc="settigsIcon" labelText="Settings" shortcut="ctrl+,"
                 @onClick="()=>{showSettings=true}" title="Open settings"/>
             <MenuAttached :menuItems="[
                 {name:'Home', action:()=>{router.push('/')}},
