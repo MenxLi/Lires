@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "description": "Lires docs",
   "main": "index.js",
   "scripts": {
