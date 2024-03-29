@@ -4,7 +4,6 @@
     import { computed, ref } from "vue";
     import { useRouter, useRoute } from "vue-router";
     import { settingsLogout } from "../../core/auth";
-    import { useDataStore } from "../store";
     import ToolbarIcon from "../header/ToolbarIcon.vue";
     import { MenuAttached } from '../common/fragments.tsx'
     import FloatingWindow from "../common/FloatingWindow.vue";
@@ -77,8 +76,7 @@
                 @onClick="()=>{showSettings=true}" title="Open settings"/>
             <MenuAttached :menuItems="[
                 {name:'Home', action:()=>{router.push('/')}},
-                {name:'Dashboard', action:()=>{router.push(`/dashboard/${useDataStore().user.username}`)}},
-                {name:'Arxiv daily', action:()=>{router.push('/feed')}},
+                {name:'Feed', action:()=>{router.push('/feed')}},
                 {name:'About', action:()=>{router.push('/about')}},
             ]" v-if="!showNavigator">
                 <ToolbarIcon :iconSrc="exploreIcon" labelText="Explore" shortcut="ctrl+e" title="look around"/>
