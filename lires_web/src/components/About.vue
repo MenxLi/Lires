@@ -72,18 +72,26 @@
     <div id="about-main" class="slideIn">
 
         <h1>About</h1>
-        <div id="about-div" class="content">
+        <div class="content">
             <p>
                 Lires is a self-hosted web application for research literature management. <br>
                 It is open source and available at <a href="https://github.com/MenxLi/Lires" target="_blank">GitHub - MenxLi/Lires</a>. <br>
-                The user manual for web interface is available at <a :href="docsURL" target="_blank">here</a>. <br>
-                It also has a javascript 
-                <a :href="useSettingsStore().backend()+`/api/api.zip?key=${useSettingsStore().encKey}`">
-                    API
-                </a> for programmatic access. <br>
             </p>
-            <p>
-                <b>Server status: </b>
+
+        </div>
+        <div class="content">
+            <h2> Resources </h2>
+            <ul>
+                <li> <a :href="docsURL" target="_blank">User manual</a> </li>
+                <li> <a :href="useSettingsStore().backend()+`/api/api.zip?key=${useSettingsStore().encKey}`">Javascript API</a> </li>
+                <li> <a @click="showChangelog = true" style="cursor: pointer;">Change log</a> </li>
+            </ul>
+
+        </div>
+        <div class="content" v-if="useDataStore().user.is_admin">
+            <h2> Management </h2>
+            <details>
+                <summary>Server status </summary>
                 <ul>
                     <li><b>Backend</b>: {{serverInfo.backend}}</li>
                     <li>
@@ -92,15 +100,14 @@
                     <li><b>Uptime</b>: {{serverInfo.uptime}}</li>
                     <li><b>Connection count</b>: {{serverInfo.numConnections}}</li>
                 </ul>
-            </p>
-            <a @click="showChangelog = true" style="cursor: pointer;">View change log</a>
-            <details v-if="useDataStore().user.is_admin">
+            </details>
+            <details>
                 <summary>User management</summary>
                 <div style="
                 border: 1px solid var(--color-border); 
                 border-radius: 10px;
                 display: flex; justify-content: center; 
-                margin: 10px; padding: 10px;
+                margin-block: 10px; padding: 10px;
                 width: 100%;">
                     <UsersWidget/>
                 </div>
@@ -131,6 +138,14 @@
 </template>
 
 <style scoped> 
+
+    h2{
+        font-weight: bold;
+        margin-top: 1rem;
+        padding-block: 0.8rem;
+        border-top: 1px solid var(--color-border);
+    }
+
     div#about-main{
         display: flex;
         flex-direction: column;
@@ -142,16 +157,8 @@
     b{
         font-weight: bold;
     }
-    div#about-div{
-        padding: 10px;
-        padding-left: 15px;
-        padding-right: 15px;
-        border-radius: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
     div.content{
+        padding-inline: 1rem;
         width: 100%;
         text-align: left;
     }
