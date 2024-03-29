@@ -154,7 +154,7 @@ const showSummary = ref(false);
     <div id="moreMain" v-if="show">
         <div class="row" id="buttons">
             <router-link :to="`/reader/${props.datapoint.summary.uuid}`">Reader</router-link>
-            <a :href="datapoint.getRawDocURL()" target="_blank" v-if="datapoint.url">Link</a>
+            <a :href="datapoint.url" target="_blank" v-if="datapoint.url">Link</a>
             <!-- <a :href="datapoint.getOpenNoteURL()" target="_blank" rel="noopener noreferrer">Note</a> -->
             <!-- <a :href="datapoint.getOpenSummaryURL()" target="_blank" rel="noopener noreferrer">Summary</a> -->
             <a rel="noopener noreferrer" @click="()=>showSummary=!showSummary">Summary</a>
