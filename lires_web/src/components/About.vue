@@ -116,6 +116,7 @@
 
         <FloatingWindow v-model:show="showChangelog" title="Change log">
             <div id="versionHistory" class="content">
+                <h1 style="margin-bottom: 0px;"> Version history </h1>
                 <div class="block" v-for="i in reversedChangelog.length">
                     <h2>{{reversedChangelog[i-1][0].toString()}}</h2>
                     <ul>
@@ -139,6 +140,12 @@
 
 <style scoped> 
 
+    h1{
+        font-size: 2rem;
+        font-weight: bold;
+        margin-top: 1rem;
+        padding-block: 0.8rem;
+    }
     h2{
         font-weight: bold;
         margin-top: 1rem;
@@ -166,7 +173,6 @@
         padding: 20px;
         display: flex;
         flex-direction: column;
-        gap: 20px
     }
     div#block{
         display: flex;
