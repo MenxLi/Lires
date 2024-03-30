@@ -1,7 +1,7 @@
 from __future__ import annotations
 import aiosqlite
 import os, json
-from typing import TypedDict
+from typing import TypedDict, Optional
 
 from ..core.base import LiresBase
 
@@ -12,7 +12,17 @@ class RawUser(TypedDict):
     name: str
     is_admin: bool
     mandatory_tags: list[str]
+    time_created: str
     max_storage: int
+
+class InvitationRecord(TypedDict):
+    id: int
+    code: str
+    created_by: int
+    max_uses: int
+    uses: int
+    accessibility: dict
+    time_created: str
 
 class UsrDBConnection(LiresBase):
     logger = LiresBase.loggers().core
@@ -42,31 +52,53 @@ class UsrDBConnection(LiresBase):
         # since v1.7.1, add max_storage column
         async with self.conn.execute("PRAGMA table_info(users)") as cursor:
             res = await cursor.fetchall()
-            if len(res) == 7:   # type: ignore
+            if len(res) == 7 and res[-1][1] != "max_storage":   # type: ignore
                 print("Upgrading user database to v1.7.1")
                 # default to 100MB
                 await self.conn.execute("ALTER TABLE users ADD COLUMN max_storage INTEGER NOT NULL DEFAULT 104857600")
                 self.setModifiedFlag(True)
     
     async def __maybeCreateTables(self):
-        # check if the table exists
-        async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'") as cursor:
-            res = await cursor.fetchone()
-        if res is not None:
-            return
-        await self.conn.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL,
-                password TEXT NOT NULL,
-                name TEXT NOT NULL,
-                is_admin BOOLEAN NOT NULL,
-                mandatory_tags TEXT NOT NULL, 
-                time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                max_storage INTEGER NOT NULL DEFAULT 104857600
-            );
-        """)
-        self.setModifiedFlag(True)
+        async def createUserTable():
+            # check if the table exists
+            async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'") as cursor:
+                res = await cursor.fetchone()
+            if res is not None:
+                return
+            await self.conn.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL,
+                    password TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    is_admin BOOLEAN NOT NULL,
+                    mandatory_tags TEXT NOT NULL, 
+                    time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    max_storage INTEGER NOT NULL DEFAULT 104857600
+                );
+            """)
+            self.setModifiedFlag(True)
+        
+        async def createInvitationTable():
+            async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='invitations'") as cursor:
+                res = await cursor.fetchone()
+            if res is not None:
+                return
+            await self.conn.execute("""
+                CREATE TABLE IF NOT EXISTS invitations (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    code TEXT NOT NULL,
+                    created_by INTEGER NOT NULL,
+                    max_uses INTEGER NOT NULL,
+                    uses INTEGER NOT NULL DEFAULT 0,
+                    accessibility STRING NOT NULL DEFAULT '',
+                    time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            self.setModifiedFlag(True)
+        
+        await createUserTable()
+        await createInvitationTable()
 
     async def insertUser(self, 
                 username: str, password: str, name: str,
@@ -140,12 +172,66 @@ class UsrDBConnection(LiresBase):
             "name": res[3],
             "is_admin": bool(res[4]),
             "mandatory_tags": json.loads(res[5]),
+            "time_created": res[6],
             "max_storage": res[7]
         }
+    
+    async def listInvitations(self) -> list[InvitationRecord]:
+        async with self.conn.execute("SELECT * FROM invitations") as cursor:
+            res = await cursor.fetchall()
+        return [{
+            "id": i[0],
+            "code": i[1],
+            "created_by": i[2],
+            "max_uses": i[3],
+            "uses": i[4],
+            "accessibility": json.loads(i[5]),
+            "time_created": i[6]
+        } for i in res]
+    
+    async def queryInvitation(self, code: str) -> Optional[InvitationRecord]:
+        async with self.conn.execute("SELECT * FROM invitations WHERE code = ?", (code,)) as cursor:
+            res = await cursor.fetchone()
+        return {
+            "id": res[0],
+            "code": res[1],
+            "created_by": res[2],
+            "max_uses": res[3],
+            "uses": res[4],
+            "accessibility": json.loads(res[5]),
+            "time_created": res[6]
+        } if res is not None else None
+    
+    async def createInvitation(self, code: str, created_by: int, max_uses: int, accesibility = {}) -> None:
+        async with self.conn.execute("SELECT * FROM invitations WHERE code = ?", (code,)) as cursor:
+            res = await cursor.fetchone()
+            if res is not None:
+                raise self.Error.LiresDuplicateError(f"Invitation {code} already exists")
+        await self.conn.execute("INSERT INTO invitations (code, created_by, max_uses, accessibility) VALUES (?, ?, ?, ?)", (code, created_by, max_uses, json.dumps(accesibility)))
+        await self.logger.debug("Invitation %s created", code)
+        self.setModifiedFlag(True)
+    
+    async def useInvitation(self, code: str) -> None:
+        record = await self.queryInvitation(code)
+        if record is None:
+            raise self.Error.LiresEntryNotFoundError(f"Invitation {code} not found")
+        if record["uses"] >= record["max_uses"]:
+            raise self.Error.LiresEntryNotFoundError(f"Invitation {code} has been used up")
+        await self.conn.execute("UPDATE invitations SET uses = uses + 1 WHERE code = ?", (code,))
+        await self.logger.debug("Invitation %s used", code)
+        self.setModifiedFlag(True)
+    
+    async def deleteInvitation(self, code: str) -> None:
+        async with self.conn.execute("SELECT * FROM invitations WHERE code = ?", (code,)) as cursor:
+            res = await cursor.fetchone()
+            if res is None:
+                raise self.Error.LiresEntryNotFoundError(f"Invitation {code} not found")
+        await self.conn.execute("DELETE FROM invitations WHERE code = ?", (code,))
+        await self.logger.debug("Invitation %s deleted", code)
+        self.setModifiedFlag(True)
     
     async def commit(self):
         if not self.__modified:
             return
         await self.conn.commit()
         self.setModifiedFlag(False)
-        print("User database saved")
