@@ -36,6 +36,8 @@ class UserRegisterHandler(RequestHandlerBase):
         assert user is not None, "User not found"   # should not happen
         to_send = await user.info_desensitized()
 
+        await self.logger.info("User {} registered with code: {}".format(to_send["username"], invitation_code))
+
         await self.broadcastEventMessage({
             'type': 'add_user',
             'username': to_send["username"],

@@ -66,13 +66,19 @@ function login(){
         <form>
             <div class="loginLine">
                 <!-- <label for="username-input">Username: </label> -->
-                <input class='key-input' type="text" id="username-input" v-model="username" placeholder="Username" autocomplete="off"/>
+                <input class='key-input' type="text" id="username-input" v-model="username" placeholder="Username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
             </div>
             <div class="loginLine">
                 <!-- <label for="password-input">Password: </label> -->
                 <input class="key-input" :type="pwdInputType" id="password-input" v-model="password" placeholder="Password"/>
             </div>
-            <details>
+            <div class="options">
+                <Toggle :checked="stayLogin" @onCheck="() => {stayLogin=!stayLogin}">Stay login</Toggle>
+                <Toggle :checked="showPassword" @onCheck="() => {showPassword=!showPassword}">Show key</Toggle>
+            </div>
+
+            <!-- to be removed -->
+            <details v-if="false">
                 <summary>Settings</summary>
                 <div id="settings">
                     <label for="backendHostInput">Backend: </label>
@@ -112,10 +118,11 @@ input[type="text"],input[type="password"]{
     background-color: var(--color-background);
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
+    padding: 0.5rem;
 }
 
 div.loginLine{
-    margin: 5px;
+    margin: 0px;
 }
 
 div.loginLine label{
@@ -128,7 +135,8 @@ div.options {
     gap: 10px;
 }
 button{
-    width: 200px
+    width: 100%;
+    border-radius: 1rem;
 }
 input.key-input {
     width: 275px

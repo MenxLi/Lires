@@ -1,27 +1,35 @@
 <script setup lang="ts">
 import LoginInput from "./login/LoginInput.vue"
+import FloatingWindow from "./common/FloatingWindow.vue";
+import RegistrationForm from "./login/RegistrationForm.vue";
+import { useUIStateStore } from "./store";
 import { ThemeMode } from "../core/misc";
 import { MAINTAINER } from "../config";
+import { ref } from "vue";
 ThemeMode.setDefaultDarkMode();
 
-function _notImplemented(){
-  alert("Not implemented yet. \nPlease contact the maintainer for registration.");
-}
+const showRegistration = ref(false);
 </script>
 
 <template>
-  <div id="main">
+  <FloatingWindow title="User registration" v-model:show="showRegistration" :compact="true" >
+    <RegistrationForm
+      @register-success="()=>{showRegistration=false; useUIStateStore().showPopup('Registration successful', 'success')}" 
+      @register-fail="useUIStateStore().showPopup($event, 'error')"
+    />
+  </FloatingWindow>
+  <div id="login-main">
     <div id="container">
       <LoginInput/>
       <label for="login" id="info">
-        Need assistant? - <a @click="_notImplemented">Register</a> | <a :href="`mailto:${MAINTAINER.email}`">Contact me</a>
+        Need assistant? - <a @click="showRegistration=true">Register</a> | <a :href="`mailto:${MAINTAINER.email}`">Contact me</a>
       </label>
     </div>
   </div>
 </template>
 
 <style scoped>
-#main{
+#login-main{
   display: flex;
   height: 100vh;
   width: 100vw;
@@ -33,5 +41,10 @@ function _notImplemented(){
   right: 0;
   margin: 0.5em;
   font-size: smaller;
+}
+div#login-main a{
+  cursor: pointer;
+  padding-inline: 0.5rem;
+  border-radius: 0.5rem;
 }
 </style>

@@ -301,7 +301,7 @@ export class ServerConn {
         return await this.fetcher.post(`/api/userman/register`, {
             invitation_code,
             username,
-            password,
+            password: sha256(password),
             name
         }).then(res=>res.json())
     }
