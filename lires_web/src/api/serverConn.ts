@@ -5,14 +5,15 @@ import type { DataInfoT, FeedDataInfoT, UserInfo, SearchType, SearchResult, Sear
 import { sha256 } from "../utils/sha256lib";
 import Fetcher from "./fetcher";
 
+/**
+ * Naming convention:
+ *  - req...: request data from server
+ *  - update...: update data on the server
+ *  - delete...: delete data on the server
+ *  - upload...: upload files
+ *  - <Other>: functional methods that do not fit the above categories
+ */
 export class ServerConn {
-    /*
-    Naming convention:
-        - req...: request data from server
-        - update...: update data on the server
-        - delete...: delete data on the server
-        - <Other>: functional methods that do not fit the above categories
-    */
 
     declare fetcher: Fetcher;
     constructor(baseUrlGetter: ()=>string, tokenGetter: ()=>string, sessionIDGetter: ()=>string){
@@ -294,6 +295,15 @@ export class ServerConn {
         if (max_storage !== null) 
             formObj.max_storage = max_storage;
         return await this.fetcher.post(`/api/userman/modify`, formObj).then(res=>res.json());
+    }
+
+    async registerUser(invitation_code: string, username: string, password: string, name: string): Promise<UserInfo>{
+        return await this.fetcher.post(`/api/userman/register`, {
+            invitation_code,
+            username,
+            password,
+            name
+        }).then(res=>res.json())
     }
 
     async createUser(username: string, name: string, password: string, isAdmin: boolean, mandatoryTags: string[], max_storage: number): Promise<UserInfo>{

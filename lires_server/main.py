@@ -105,6 +105,7 @@ class Application(tornado.web.Application):
             (r"/api/userman/create", UserCreateHandler),
             (r"/api/userman/delete", UserDeleteHandler),
             (r"/api/userman/modify", UserModifyHandler),
+            (r"/api/userman/register", UserRegisterHandler), 
 
             # info
             (r"/api/info/changelog", ChangelogHandler),

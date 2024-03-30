@@ -3,6 +3,47 @@ from ._base import *
 from lires.core.dataTags import DataTags
 import json
 
+class UserRegisterHandler(RequestHandlerBase):
+    """ Create user with invitation code """
+    async def post(self):
+        invitation_code = self.get_argument("invitation_code")
+        username = self.get_argument("username")
+        password = self.get_argument("password")
+        name = self.get_argument("name", default="Anonymous")
+
+        invitation = await self.user_pool.conn.queryInvitation(invitation_code)
+        if invitation is None:
+            raise tornado.web.HTTPError(404, "Invitation code not found")
+        if invitation["uses"] >= invitation["max_uses"]:
+            raise tornado.web.HTTPError(403, "Invitation code has been used up")
+        
+        # check if username exists
+        try:
+            await self.user_pool.conn.insertUser(
+                username=username,
+                password=password,
+                name=name,
+                is_admin=False,
+                mandatory_tags=[],
+                max_storage=1024*1024*1024  # 1G
+            )
+        except self.Error.LiresUserDuplicationError:
+            raise tornado.web.HTTPError(409, "Username already exists")
+
+        await self.user_pool.conn.useInvitation(invitation_code)
+
+        user = await self.user_pool.getUserByUsername(username)
+        assert user is not None, "User not found"   # should not happen
+        to_send = await user.info_desensitized()
+
+        await self.broadcastEventMessage({
+            'type': 'add_user',
+            'username': to_send["username"],
+            'user_info': to_send
+        }, to_all=True)
+
+        self.write(json.dumps(to_send))
+
 
 class UserCreateHandler(RequestHandlerBase):
 
