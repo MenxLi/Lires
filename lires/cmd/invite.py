@@ -1,18 +1,6 @@
 
 import argparse
 from lires.loader import initResources
-from lires.user.encrypt import generateHexHash
-from lires.core.dataTags import DataTags
-
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 async def _run():
     parser = argparse.ArgumentParser()
@@ -26,6 +14,7 @@ async def _run():
     parser_del.add_argument("code", help="Invitation code", type = str)
 
     parser_list = sp.add_parser("list", help = "List users")
+    parser_list.add_argument("--valid", help = "Only list valid codes", action = "store_true")
 
     args = parser.parse_args()
 
@@ -44,9 +33,11 @@ async def _run():
 
         elif args.subparser == "list":
             for inv in await user_db_conn.listInvitations():
-                for k, v in inv.items():
-                    print(f"{k}: {v}", end=", ")
-                print()
+                if not inv["max_uses"] > inv["uses"] and args.valid:
+                    continue
+                
+                print(f"{inv['id']}: {inv['code']} (created by {inv['created_by']}, uses: {inv['uses']}/{inv['max_uses']})")
+                    
 
         else:
             parser.print_usage()
