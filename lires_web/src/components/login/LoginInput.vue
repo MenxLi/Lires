@@ -122,7 +122,7 @@ input[type="text"],input[type="password"]{
 }
 
 div.loginLine{
-    margin: 0px;
+    margin-top: 0.25rem;
 }
 
 div.loginLine label{

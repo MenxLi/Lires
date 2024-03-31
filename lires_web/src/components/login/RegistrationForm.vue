@@ -1,8 +1,15 @@
 <template>
     <form @submit="submitForm" id="registration-form">
+        <div style="color: var(--color-text-soft); padding-inline: 0.5rem; margin-bottom: 1rem; font-size: small;">
+            Get an invitation code from the server administrator
+            <div id="show-password-container">
+                <SwitchToggle v-model:checked="showPassword" />
+                <label>Show password</label>
+            </div>
+        </div>
         <table>
             <tr>
-                <td>Invitation Code</td>
+                <td style="color: var(--color-theme)">Invitation Code</td>
                 <td><input type="text" v-model="invitationCode" required
                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                     ></td>
@@ -18,10 +25,6 @@
                 <td>
                     <div style="display: flex; flex-direction: row;">
                         <input :type="`${showPassword ? 'text' : 'password'}`" v-model="password" required>
-                        <div id="show-password-container">
-                            <input type="checkbox" @change="showPassword = !showPassword">
-                            <small style="color: var(--color-text-soft)">Show password</small>
-                        </div>
                     </div>
                 </td>
             </tr>
@@ -30,7 +33,7 @@
                 <td><input :type="`${showPassword ? 'text' : 'password'}`" v-model="passwordConfirm" required></td>
             </tr>
             <tr>
-                <td>Nickname</td>
+                <td>Name</td>
                 <td><input type="text" v-model="name" required
                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                     ></td>
@@ -46,6 +49,7 @@
 
 <script>
 import { useConnectionStore } from '../store';
+import SwitchToggle from '../settings/SwitchToggle.vue';
 export default {
     data() {
         return {
@@ -58,6 +62,7 @@ export default {
         };
     },
     emits: ['register-success', 'register-fail'],
+    components: { SwitchToggle },
     methods: {
         submitForm() {
             // Handle form submission logic here
@@ -84,8 +89,8 @@ export default {
     margin: 0 auto;
     text-align: left;
 }
-#registration-form input[type="!checkbox"] {
-    min-width: 15rem;
+#registration-form input {
+    min-width: 15rem
 }
 #registration-form input:focus {
     outline: none;
@@ -95,13 +100,18 @@ export default {
     width: 100%;
 }
 #registration-form table td{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
     font-weight: bold;
-    padding: 0.5rem;
+    padding-block: 0.2rem;
+    padding-inline: 0.5rem;
     border: 1px solid var(--color-border);
 }
 #registration-form button{
     width: 100%;
-    height: 3rem;
+    height: 2.5rem;
     border: none;
     font-size: medium;
     font-weight: bold;
@@ -116,7 +126,7 @@ td.horizontal{
 div#show-password-container{
     display: flex;
     flex-direction: row;
-    gap: 0.5rem;
+    gap: 0.2rem;
     align-items: center;
 }
 </style>
