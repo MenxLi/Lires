@@ -3,9 +3,9 @@ import argparse
 
 def run():
 	parser = argparse.ArgumentParser(description="Generate default configuration file")
-	parser.add_argument("-i", "--database_id", type=str, help="Database ID", default=None)
+	parser.add_argument("-g", "--group", type=str, help="Server ID", default=None)
 	args = parser.parse_args()
-	generateDefaultConf(args.database_id)
+	generateDefaultConf(args.group)
 
 if __name__ == "__main__":
 	run()

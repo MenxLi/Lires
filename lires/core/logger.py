@@ -120,7 +120,7 @@ class LoggerStorage:
 
     def get(self, _name: str) -> LiresLogger:
         from lires.config import getConf
-        name = f"{_name}_{getConf()['database_id']}"
+        name = f"{_name}_{getConf()['group']}"
         # assure the name is a valid sqlite table name
         assert name.isidentifier(), f"Invalid logger name: {name}"
         if not name in self._logger_dict:

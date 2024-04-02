@@ -56,7 +56,8 @@ for _p in [ LRS_HOME, DATABASE_HOME, TMP_DIR, LOG_DIR, ]:
 import tiny_vectordb
 import uuid
 __default_config: LiresConfT = {
-    'database_id': uuid.uuid4().hex,
+    'group': uuid.uuid4().hex,
+    'deploy_token': uuid.uuid4().hex,
     'service_port_range': [21000, 22000],
     'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
 }
@@ -99,8 +100,8 @@ def getConf() -> LiresConfT:
         assert len(conf["service_port_range"]) == 2 and \
             conf["service_port_range"][0] < conf["service_port_range"][1], \
             "Invalid service port range: {}".format(conf["service_port_range"])
-        assert conf["database_id"].replace("_", "").isalnum(), \
-            "Invalid database id: {}".format(conf["database_id"]) + ", must be alphanumeric or underscore"
+        assert conf["group"].replace("_", "").isalnum(), \
+            "Invalid database id: {}".format(conf["group"]) + ", must be alphanumeric or underscore"
         
         __g_config = conf
 
@@ -124,14 +125,14 @@ def saveToConf(**kwargs):
     # So that next time the configuration will be read from file by getConf
     __g_config = None
 
-def generateDefaultConf(database_id: Optional[str] = None):
+def generateDefaultConf(group: Optional[str] = None):
     """
     Generate default configuration file at CONF_FILE_PATH
     """
     global __default_config
     default_config: LiresConfT = __default_config
-    if database_id is not None:
-        default_config["database_id"] = database_id
+    if group is not None:
+        default_config["group"] = group
 
     with open(CONF_FILE_PATH, "w", encoding="utf-8") as fp:
         json.dump(default_config, fp, indent=1)
