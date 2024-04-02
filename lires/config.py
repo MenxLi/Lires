@@ -27,6 +27,8 @@ if "LRS_HOME" in os.environ:
 else:
     LRS_HOME = os.path.join(os.path.expanduser("~"), ".Lires")
 
+LRS_HOME = os.path.abspath(LRS_HOME)
+
 CONF_FILE_PATH = join(LRS_HOME, "config.json")
 
 ## Data entries
@@ -55,9 +57,14 @@ for _p in [ LRS_HOME, DATABASE_HOME, TMP_DIR, LOG_DIR, ]:
 # the new fields will be added on top of the old config file on getConf()
 import tiny_vectordb
 import uuid
+import platform
+def __staticConfigToken(prefix = uuid.NAMESPACE_DNS):
+    # Create a static token for the configuration file, 
+    # based on the $LRS_HOME directory and node id
+    return uuid.uuid5(prefix, platform.node() + LRS_HOME).hex
 __default_config: LiresConfT = {
-    'group': uuid.uuid4().hex,
-    'deploy_token': uuid.uuid4().hex,
+    'group': __staticConfigToken(uuid.NAMESPACE_DNS)[:8],
+    'deploy_token': __staticConfigToken(uuid.NAMESPACE_X500),
     'service_port_range': [21000, 22000],
     'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
 }
