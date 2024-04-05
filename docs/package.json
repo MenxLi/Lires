@@ -5,13 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "vitepress build src",
-    "dev": "vitepress dev src",
-    "preview": "vitepress preview src"
+    "build": "vitepress build",
+    "dev": "vitepress dev",
+    "preview": "vitepress preview"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "vitepress": "^1.0.1"
+    "vitepress": "^1.0.2"
   }
 }
