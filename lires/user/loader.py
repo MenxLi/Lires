@@ -4,9 +4,9 @@ from typing import Optional
 
 from .object import LiresUser, UsrDBConnection
 from ..config import USER_DIR
-from ..core import LiresError
+from ..core.base import LiresBase
 
-class UserPool():
+class UserPool(LiresBase):
 
     def __init__(self) -> None:
         super().__init__()
@@ -43,14 +43,14 @@ class UserPool():
         try:
             user_id = (await self.conn.getUser(username))['id']
             return LiresUser(self.conn, user_id)
-        except LiresError.LiresUserNotFoundError:
+        except self.Error.LiresUserNotFoundError:
             return None
     
     async def getUserById(self, id: int) -> Optional[LiresUser]:
         try:
             await self.conn.getUser(id)
             return LiresUser(self.conn, id)
-        except LiresError.LiresUserNotFoundError:
+        except self.Error.LiresUserNotFoundError:
             return None
     
     async def deleteUserPermanently(self, query: int|str):
@@ -67,7 +67,7 @@ class UserPool():
             raise ValueError("Invalid query type")
 
         if user is None:
-            raise LiresError.LiresUserNotFoundError(f"User {query} not found")
+            raise self.Error.LiresUserNotFoundError(f"User {query} not found")
         
         # remove avatar image
         if user.avatar_image_path:
