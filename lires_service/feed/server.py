@@ -69,21 +69,13 @@ async def startServer(
     host: str = "0.0.0.0",
     port: int = -1,
 ):
-
-    from .. import avaliablePort
-    if port <= 0:
-        port = avaliablePort()
-
-    import uuid
-    await registry.register({
-        "uid": uuid.uuid4().hex,
-        "name": "feed",
-        "endpoint": f"http://{host}:{port}",
-        "description": "LiresFeed server",
-        "group": None
-    })
-
-    await startService(app, logger, host, port)
+    await startService(
+        app, logger, host, port, 
+        register_settings={
+            "registry": registry,
+            "name": "feed",
+            "description": "LiresFeed server",
+        })
 
 if __name__ == "__main__":
     import asyncio

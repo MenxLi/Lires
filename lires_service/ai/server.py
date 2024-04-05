@@ -114,19 +114,6 @@ async def startServer(
     local_llm_chat: str = "",
     openai_models: list[str] = [],
 ):
-    from .. import avaliablePort
-    if port <= 0:
-        port = avaliablePort()
-
-    import uuid
-    await registry.register({
-        "uid": uuid.uuid4().hex,
-        "name": "ai",
-        "endpoint": f"http://{host}:{port}",
-        "description": "LiresAI server",
-        "group": None
-    })
-
     # load config into global config
     if local_llm_chat:
         config.local_llm_name = local_llm_chat
@@ -154,5 +141,10 @@ async def startServer(
         host = host,
         port = port,
         logger=logger,
+        register_settings={
+            "registry": registry,
+            "name": "ai",
+            "description": "LiresAI server",
+        }
     )
 

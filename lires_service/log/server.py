@@ -105,23 +105,15 @@ async def startLoggerServer(file: str, host: str, port: int):
     # initialize the logger
     logger = DatabaseLogger(file)
     print("Logging to {}".format(file))
-
-    from .. import avaliablePort
-    if port <= 0:
-        port = avaliablePort()
-
-    import uuid
-    await registry.register({
-        "uid": uuid.uuid4().hex,
-        "name": "log",
-        "endpoint": f"http://{host}:{port}",
-        "description": "Log server",
-        "group": None,
-    })
     
     # start the server
     await startService(
         app = app,
         host = host,
         port = port,
+        register_settings={
+            "registry": registry,
+            "name": "log",
+            "description": "Log server",
+        }
     )
