@@ -64,10 +64,11 @@ def __staticConfigToken(prefix = uuid.NAMESPACE_DNS):
     return uuid.uuid5(prefix, platform.node() + LRS_HOME).hex
 __default_config: LiresConfT = {
     'group': __staticConfigToken(uuid.NAMESPACE_DNS)[:8],
-    'deploy_token': __staticConfigToken(uuid.NAMESPACE_X500),
+    'deploy_token': uuid.uuid4().hex, 
     'service_port_range': [21000, 22000],
     'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
 }
+__essential_config_keys = ['deploy_token']  # keys that must be in the configuration file
 __g_config: Optional[LiresConfT] = None     # buffer
 def getConf() -> LiresConfT:
     global __g_config, CONF_FILE_PATH
@@ -94,6 +95,9 @@ def getConf() -> LiresConfT:
                     if not compareObject(d1[k], d2[k]):
                         return False
             return True
+        # check if the essential keys are in the configuration file
+        if not all([k in read_conf for k in __essential_config_keys]):
+            raise KeyError(f"Essential keys ({__essential_config_keys}) are missing in the configuration file")
         # warn if the configuration file is outdated
         if not compareObject(read_conf, __default_config):
             __logger.warn("Configuration file outdated, "
