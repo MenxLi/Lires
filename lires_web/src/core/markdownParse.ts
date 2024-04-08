@@ -13,6 +13,9 @@ export function parseMarkdown(content: string, {
     // url router is used for updating url with query params
     const urlRouter = router? new URLRouter(router): null;
 
+    // remove gray-matter front matter
+    content = content.replace(/^---[\s\S]*?---/, '');
+
     if (datapoint) {
         // need to know the user in order to identify which database to use
         const user = useDataStore().user
