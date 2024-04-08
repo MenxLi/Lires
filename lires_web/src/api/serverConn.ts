@@ -16,7 +16,11 @@ import Fetcher from "./fetcher";
 export class ServerConn {
 
     declare fetcher: Fetcher;
-    constructor(baseUrlGetter: ()=>string, tokenGetter: ()=>string, sessionIDGetter: ()=>string){
+    constructor(baseUrlGetter: ()=>string, tokenGetter: ()=>string, sessionIDGetter: (()=>string) | null = null){
+        if (sessionIDGetter === null){
+            const _sessionID = Math.random().toString(36).substring(2);
+            sessionIDGetter = () => _sessionID;
+        }
         this.fetcher = new Fetcher({
             baseUrlGetter: baseUrlGetter,
             tokenGetter: tokenGetter,
