@@ -7,12 +7,15 @@
     import { MdEditor, MdPreview } from 'md-editor-v3';
     import 'md-editor-v3/lib/style.css';
     import { useUIStateStore, useConnectionStore } from '../store';
-    import { parseMarkdown } from '../../core/markdownParse';
+    import { parseMarkdown, type FrontMatterData } from '../../core/markdownParse';
     import { useRouter } from 'vue-router';
     import { FileSelectButton } from '../common/fragments';
     import { copyToClipboard } from '../../utils/misc';
     import { registerServerEvenCallback_auto } from '../../api/serverWebsocketConn';
     import type { Event_Data } from '../../api/protocol';
+
+    // requires vite-plugin-node-polyfills
+    import matter from 'gray-matter';
 
     const props = withDefaults(defineProps<{
         datapoint: DataPoint
@@ -23,6 +26,16 @@
 
     const router = useRouter();
     const mdText = ref<string>('');
+    const mdFrontMatter = ref({} as FrontMatterData);
+    watch(()=>mdText.value, (newVal)=>{
+        try{
+            const parse = matter(newVal);
+            if (typeof parse.data !== 'object'){ return; }
+            if (parse.data === mdFrontMatter.value){ return; }
+            mdFrontMatter.value = parse.data;
+            console.log("DEBUG: front matter", mdFrontMatter.value)
+        }catch(e){}
+    })
     const mdTextRender = computed(()=>parseMarkdown(mdText.value, {
         router: router,
         datapoint: props.datapoint,
@@ -165,6 +178,19 @@
                 :preview-theme="'vuepress'"
             />
             <div id="save-hint" v-if="!preview && saveHint">{{ saveHint }}</div>
+        </div>
+        <div style="padding-inline: 5px; padding-block: 3px">
+            <template v-for="(v, k) in mdFrontMatter" :key="k">
+                <div v-if="k=='links'" style="display: flex; gap: 2px">
+                    <b>LINKS:&nbsp;</b>
+                    <template v-for="(link, name) in v" :key="i">
+                        <a class="frontmatter-links" :href="link" target="_blank" v-if="typeof(name)=='string'">{{name}}</a>
+                    </template>
+                </div>
+                <div v-else style="display: flex;">
+                    [unknown-entry]&nbsp;<b>{{k}}:&nbsp;</b>{{v}}
+                </div>
+            </template>
         </div>
         <div id="btn-container">
             <button @click="preview=!preview">{{preview?'Edit':'Preview'}}</button>
@@ -332,5 +358,10 @@ button, :deep(button){
 }
 button:hover, :deep(button):hover{
     background-color: var(--color-background-theme-highlight);
+}
+
+a.frontmatter-links{
+    border-radius: 5px;
+    padding-inline: 0.2rem;
 }
 </style>

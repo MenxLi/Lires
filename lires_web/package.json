@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "web:dev": "vite",
-    "web:preview": "vite preview", 
+    "web:preview": "vite preview",
     "web:build": "vue-tsc && vite build",
     "api:build": "npx webpack --config api-webpack.config.cjs",
     "build": "npm run --prefix ../docs build && npm run api:build && npm run web:build && node ./postBuildScript.js"
@@ -13,6 +13,7 @@
   "dependencies": {
     "async-mutex": "^0.5.0",
     "fast-xml-parser": "^4.3.6",
+    "gray-matter": "^4.0.3",
     "markdown-it": "^14.1.0",
     "md-editor-v3": "^4.12.2",
     "pinia": "^2.1.7",
@@ -29,6 +30,7 @@
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.3",
     "vite": "^5.2.2",
+    "vite-plugin-node-polyfills": "^0.21.0",
     "vue-tsc": "^2.0.7",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"

@@ -4,6 +4,10 @@ import { URLRouter } from "./vueInterface";
 import { useDataStore } from "../components/store";
 import type { Router } from "vue-router";
 
+export interface FrontMatterData {
+    links?: Record<string, string>;
+}
+
 // parse raw markdown to mardown with proper html links
 export function parseMarkdown(content: string, {
     router = null as null | Router,
