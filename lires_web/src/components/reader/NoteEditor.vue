@@ -179,12 +179,12 @@
             />
             <div id="save-hint" v-if="!preview && saveHint">{{ saveHint }}</div>
         </div>
-        <div style="padding-inline: 5px; padding-block: 3px">
+        <div style="padding-inline: 5px; padding-block: 0.5rem">
             <template v-for="(v, k) in mdFrontMatter" :key="k">
-                <div v-if="k=='links'" style="display: flex; gap: 2px">
-                    <b>LINKS:&nbsp;</b>
+                <div v-if="k=='links'" style="display: flex; gap: 5px">
+                    <label class="frontmatter-label">LINKS</label>
                     <template v-for="(link, name) in v" :key="i">
-                        <a class="frontmatter-links" :href="link" target="_blank" v-if="typeof(name)=='string'">{{name}}</a>
+                        <a class="frontmatter-link" :href="link" target="_blank" v-if="typeof(name)=='string'">{{name}}</a>
                     </template>
                 </div>
                 <div v-else style="display: flex;">
@@ -360,8 +360,22 @@ button:hover, :deep(button):hover{
     background-color: var(--color-background-theme-highlight);
 }
 
-a.frontmatter-links{
+label.frontmatter-label
+{
+    display: none;
+}
+a.frontmatter-link{
+    background-color: var(--color-pure);
+    box-shadow: 0px 2px 3px 0px var(--color-shadow);
+    border-radius: 15px;
+    padding-inline: 8px;
+}
+a.frontmatter-link:hover{
+    background-color: var(--color-background-theme-highlight);
+}
+/* a.frontmatter-link{
+    background-color: var(--color-background-soft);
     border-radius: 5px;
     padding-inline: 0.2rem;
-}
+} */
 </style>

@@ -65,6 +65,7 @@
 }
 
 :root, :root.light{
+  --color-pure: #fff;
   --color-theme: rgb(82, 153, 182);
   --color-text-soft: rgba(80, 80, 80, 0.5);
   --color-background-ssoft: #e8e8e8;
@@ -77,6 +78,7 @@
 }
 
 :root.dark{
+  --color-pure: #000;
   --color-theme: rgb(80, 180, 200);
   --color-text-soft: rgba(180, 180, 180, 0.5);
   --color-background-ssoft: #2c2c2c;
