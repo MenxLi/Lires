@@ -25,6 +25,7 @@ export default defineConfig({
           { text: '编辑条目', link: '/manual/add-edit-entry' },
           { text: '添加文档', link: '/manual/add-document' },
           { text: '查找条目', link: '/manual/filter-entry' },
+          { text: '阅读文档', link: '/manual/read' },
           { text: 'API', link: '/manual/api' },
         ]
       },
