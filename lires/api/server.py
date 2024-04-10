@@ -1,11 +1,13 @@
 from __future__ import annotations
 from .common import LiresAPIBase
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 import aiohttp, json
 if TYPE_CHECKING:
     from lires.core.dataClass import DataPointSummary
     from lires_server.types import ServerStatus
     from lires.user import UserInfo
+
+JsonDumpable = list | dict | str | int | float | bool | None
 
 class ServerConn(LiresAPIBase):
     def __init__(self, token: str, server_url: str = ""):
@@ -26,23 +28,40 @@ class ServerConn(LiresAPIBase):
         else:
             return super().ensureRes(res)
     
-    async def status(self) -> ServerStatus:
+    async def _formatParams(self, params: dict[str, JsonDumpable]):
+        # _formatEntry = lambda x: json.dumps(x) if isinstance(x, (list, dict)) or x is None else x
+        # _formatEntry = json.dumps
+        def _formatEntry(x: Any):
+            if x is None or isinstance(x, (list, dict)):
+                return json.dumps(x)
+            return x
+        return {k: _formatEntry(v) for k, v in params.items()}
+    
+    async def _get(self, path: str, params: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}):
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                    self.api_url + "/api/status", 
-                    params={"key": self.token}
+                    path,
+                    params={"key": self.token, **(await self._formatParams(params))}, 
+                    headers=headers
                 ) as res:
                 self.ensureRes(res)
                 return await res.json()
     
-    async def authorize(self) -> UserInfo:
+    async def _post(self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}):
         async with aiohttp.ClientSession() as session:
-            async with session.get(
-                    self.api_url + "/api/auth", 
-                    params={"key": self.token}
+            async with session.post(
+                    path,
+                    data={"key": self.token, **(await self._formatParams(data))},
+                    headers={"Content-Type": "application/x-www-form-urlencoded", **headers}
                 ) as res:
                 self.ensureRes(res)
                 return await res.json()
+    
+    async def status(self) -> ServerStatus:
+        return await self._get(self.api_url + "/api/status")
+    
+    async def authorize(self) -> UserInfo:
+        return await self._get(self.api_url + "/api/auth")
 
     async def updateEntry(
             self, uuid: Optional[str], 
@@ -60,19 +79,14 @@ class ServerConn(LiresAPIBase):
                     raise ValueError("uid is None, other fields should be complete")
 
         params = {
-            "key": self.token,
             "uuid": json.dumps(uuid),
-            "tags": json.dumps(tags),
+            "tags": tags,
             # be careful with ""
-            "bibtex": bibtex if bibtex is not None else json.dumps(None),
-            "url": url if url is not None else json.dumps(None),
+            "bibtex": bibtex,
+            "url": url,
         }
 
         # avoid circular import
         from lires.core.dataClass import DataPointSummary
-        async with aiohttp.ClientSession() as session:
-            async with session.post(f"{self.api_url}/api/dataman/update",
-                                    data=params,
-                                    headers={"Content-Type": "application/x-www-form-urlencoded"}) as response:
-                self.ensureRes(response)
-                return DataPointSummary(**(await response.json()))
+        res = await self._post(self.api_url + "/api/dataman/update", params)
+        return DataPointSummary(**res)
