@@ -1,6 +1,6 @@
 from __future__ import annotations
 from .common import LiresAPIBase
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any, Literal, TypedDict
 import aiohttp, json
 if TYPE_CHECKING:
     from lires.core.dataClass import DataPointSummary
@@ -8,6 +8,10 @@ if TYPE_CHECKING:
     from lires.user import UserInfo
 
 JsonDumpable = list | dict | str | int | float | bool | None
+SearchType = Literal[ 'title', 'author', 'year', 'note', 'publication', 'feature', 'uuid'] | None
+class SearchRes(TypedDict):
+    uids: list[str]
+    scores: list[float]
 
 def _makeDatapointSummary(js: dict[str, Any]) -> DataPointSummary:
     # avoid circular import
@@ -115,3 +119,18 @@ class ServerConn(LiresAPIBase):
 
         res = await self._post("/api/dataman/update", params)
         return _makeDatapointSummary(**res)
+    
+    async def filter(
+        self, 
+        tags: list[str] = [],
+        search_by: SearchType = 'title',
+        search_content: str = '',
+        max_results: int = 99999,
+    ) -> SearchRes:
+        params = {
+            "tags": tags,
+            "search_by": search_by,
+            "search_content": search_content,
+            "top_k": max_results,
+        }
+        return await self._post("/api/filter/basic", params)
