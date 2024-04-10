@@ -73,7 +73,7 @@
         const scores: number[] = new Array();
         for (const dp of dps){
             const idx = res.uids.indexOf(dp.summary.uuid);
-            if (idx >= 0){ scores.push(res.scores[idx]); }
+            if (idx >= 0){ scores.push(res.scores![idx]); }
             else{ throw new Error("Related article not found in search result, IMPOSSIBLE"); }
         }
         [relatedDatapoints.value, relatedDatapointsScores.value] = sortByScore(

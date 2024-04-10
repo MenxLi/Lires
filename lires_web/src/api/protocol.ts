@@ -63,7 +63,7 @@ export type Changelog = [string, string[] | Record<string, string[]>][];
 export type SearchType = 'title' | 'author' | 'year' | 'note' | 'publication' | 'feature' | 'uuid';
 export interface SearchResult2 {
     uids: string[];
-    scores: number[];
+    scores: number[] | null;
 }
 
 

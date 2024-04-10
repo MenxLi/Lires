@@ -87,14 +87,14 @@
                 (res) => {
                     const scores = res.scores;
                     const uuids = res.uids;
-                    const sortedDpSc = sortByScore(uuids, scores);
+                    const sortedDpSc = sortByScore(uuids, scores!);
                     dataStore.database.agetMany(sortedDpSc[0], false).then((dps)=>{
                         relatedArticles.value = dps;
                         // filter out scores of non-exist dps
                         const realExistScores = [];
                         for (const dp of dps){
                             const idx = uuids.indexOf(dp.summary.uuid);
-                            if (idx >= 0){ realExistScores.push(scores[idx]); }
+                            if (idx >= 0){ realExistScores.push(scores![idx]); }
                         }
                         relatedArticlesScores.value = realExistScores;
                     })
