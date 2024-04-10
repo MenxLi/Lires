@@ -7,7 +7,7 @@ import pytest
 @pytest.fixture(scope="module")
 def serverConn():
     config = BaseConfig()
-    return ServerConn(config.admin_user["token"], "http://localhost:8080")
+    return ServerConn(token = config.admin_user["token"], endpoint = "http://localhost:8080")
 
 N_CONCURRENT = 10
 SEMAPHORE = asyncio.Semaphore(N_CONCURRENT)

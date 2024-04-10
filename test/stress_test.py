@@ -20,7 +20,7 @@ async def makeRequest(conn: ServerConn) -> bool:
 
 async def main(username: str, password: str):
     token = encrypt.encryptKey(username, encrypt.generateHexHash(password))
-    conn = ServerConn(token, "http://localhost:8080")
+    conn = ServerConn(token=token, endpoint="http://localhost:8080")
     n_req = 1000
     with Timer(f"{n_req} requests (concurrent {N_CONCURRENT})"):
         res = await asyncio.gather(*[makeRequest(conn) for _ in range(n_req)])
