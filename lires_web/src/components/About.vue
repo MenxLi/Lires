@@ -84,6 +84,7 @@
             <ul>
                 <li> <a :href="docsURL" target="_blank">User manual</a> </li>
                 <li> <a :href="useSettingsStore().backend()+`/api/api.zip?key=${useSettingsStore().encKey}`">Javascript API</a> </li>
+                <li> <a :href="useSettingsStore().backend()+`/api/api.py?key=${useSettingsStore().encKey}`">Python API</a> </li>
                 <li> <a @click="showChangelog = true" style="cursor: pointer;">Change log</a> </li>
             </ul>
 

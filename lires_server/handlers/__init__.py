@@ -16,6 +16,7 @@ from .info import *
 from .user import *
 from .userMan import *
 from .pdfjs import *
+from .apiFiles import *
 
 from .misc import *
 
