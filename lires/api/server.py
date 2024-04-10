@@ -19,9 +19,9 @@ def _makeDatapointSummary(js: dict[str, Any]) -> DataPointSummary:
     return DataPointSummary(**js)
 
 class ServerConn(LiresAPIBase):
-    def __init__(self, token: str, server_url: str = ""):
+    def __init__(self, token: str, endpoint: str = ""):
         self._token = token
-        self.server_url = server_url
+        self.server_url = endpoint
     
     @property
     def token(self):

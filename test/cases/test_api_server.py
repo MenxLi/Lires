@@ -11,14 +11,14 @@ import pybtex.database
 def server_admin():
     return ServerConn(
         token=BaseConfig().admin_user["token"],
-        server_url="http://localhost:8080"
+        endpoint="http://localhost:8080"
     )
 
 @pytest.fixture(scope="module")
 def server_normal():
     return ServerConn(
         token=BaseConfig().normal_user["token"],
-        server_url="http://localhost:8080"
+        endpoint="http://localhost:8080"
     )
 
 
