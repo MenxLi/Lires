@@ -277,9 +277,11 @@ class FileManipulator(LiresBase):
         db_data = await self.conn.get(self.uuid); assert db_data
         return db_data["bibtex"]
 
-    async def writeBib(self, bib: str):
+    async def writeBib(self, bib: str, format = False):
         await self.logger.debug("(fm) writeBib: {}".format(self.uuid))
         parsed_bib = await parseBibtex(bib)
+        if format:
+            bib = BibParser.formatBib(bib)
         return await self.conn.updateBibtex(
             self.uuid, bib,
             title=parsed_bib["title"],

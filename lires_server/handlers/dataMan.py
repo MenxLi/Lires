@@ -123,7 +123,7 @@ class DataUpdateHandler(RequestHandlerBase):
             dp = await db.get(uuid)
             __info.append("update entry [{}]".format(uuid))
             if bibtex is not None and await dp.fm.readBib() != bibtex:
-                await dp.fm.writeBib(bibtex)
+                await dp.fm.writeBib(bibtex, format=True)
                 __info.append("bibtex updated")
             if tags is not None and DataTags(dp.tags) != DataTags(tags):
                 await dp.fm.writeTags(DataTags(tags))
