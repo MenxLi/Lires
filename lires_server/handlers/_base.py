@@ -16,6 +16,8 @@ from abc import abstractmethod
 from ..types import Event
 if TYPE_CHECKING:
     from .websocket import WebsocketHandler
+    from lires.core.dataClass import DataBase
+    from tiny_vectordb import VectorDatabase
 
 T = TypeVar("T")
 FuncT = TypeVar("FuncT", bound=Callable)
@@ -79,7 +81,8 @@ class RequestHandlerMixin(LiresBase):
         """
         # first check if user id is already recorded
         # this is important, otherwise, 
-        # the user may be manipulated by the client
+        # this create a vulnerability that allows users 
+        # to access other users' data by changing the url parameters
         if self.__account_info:
             return self.__account_info["id"]
         
@@ -100,10 +103,10 @@ class RequestHandlerMixin(LiresBase):
         # if not found, get user id from key
         return (await self.userInfo())["id"]
     
-    async def db(self):
+    async def db(self) -> DataBase:
         return ( await g_storage.database_pool.get( await self.inferUserId() ) ).database
     
-    async def vec_db(self):
+    async def vec_db(self) -> VectorDatabase:
         return ( await g_storage.database_pool.get( await self.inferUserId() ) ).vector_db
 
     @property
