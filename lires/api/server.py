@@ -20,9 +20,13 @@ def _makeDatapointSummary(js: dict[str, Any]) -> DataPointSummary:
     return DataPointSummary(**js)
 
 class ServerConn(LiresAPIBase):
-    def __init__(self, endpoint: str, token: str, session_id: Optional[str] = None):
+    def __init__(
+        self, endpoint: str, token: str, 
+        session_id: Optional[str] = None, verify_ssl: bool = True
+        ):
         self._token = token
         self._endpoint = endpoint
+        self._verify_ssl = verify_ssl
         if session_id is None:
             self._session_id = "default"
         self._session_id = 'py-api-'+randomAlphaNumeric(8)
@@ -48,7 +52,9 @@ class ServerConn(LiresAPIBase):
         return {k: _formatEntry(v) for k, v in params.items()}
     
     async def _get(self, path: str, params: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
+            ) as session:
             async with session.get(
                     self.endpoint + path,
                     params={"key": self.token, "session_id": self.session_id, **(await self._formatParams(params))},
@@ -57,7 +63,9 @@ class ServerConn(LiresAPIBase):
                 return await self._parseRes(res, return_type)
     
     async def _post(self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
+            ) as session:
             async with session.post(
                     self.endpoint + path,
                     data={"key": self.token, "session_id": self.session_id, **(await self._formatParams(data))},
