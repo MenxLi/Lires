@@ -98,7 +98,7 @@ export class ServerConn {
             }
         }
         const params = {} as Record<string, any>;
-        if (uid !== null) params["uuid"] = JSON.stringify(uid);
+        if (uid !== null) params["uuid"] = uid;
         if (bibtex !== null ) params["bibtex"] = bibtex;
         if (tags !== null) params["tags"] = JSON.stringify(tags);
         if (url !== null) params["url"] = url;

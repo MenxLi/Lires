@@ -52,7 +52,15 @@ class DataUpdateHandler(RequestHandlerBase):
 
         __info = [] # for logging
 
-        uuid = json.loads(self.get_argument("uuid", 'null'))
+        # uuid = json.loads(self.get_argument("uuid", 'null'))
+        uuid = self.get_argument("uuid", "null")
+        if uuid == "null" or uuid == "":
+            uuid = None
+
+        if uuid is not None and uuid.startswith('"') and uuid.endswith('"'):
+            # backward compatibility to old api copies, since 1.7.5
+            uuid = uuid[1:-1]   # remove the quotes, if the uid is json encoded
+
         assert uuid is None or isinstance(uuid, str)
 
         # optional arguments (set to None) if uuid is present

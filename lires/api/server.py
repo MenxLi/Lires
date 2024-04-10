@@ -79,7 +79,7 @@ class ServerConn(LiresAPIBase):
                     raise ValueError("uid is None, other fields should be complete")
 
         params = {
-            "uuid": json.dumps(uuid),
+            "uuid": uuid,
             "tags": tags,
             # be careful with ""
             "bibtex": bibtex,
