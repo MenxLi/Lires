@@ -1,6 +1,7 @@
 # API
-使用Javascript API实现脚本化操作。
+使用API实现脚本化操作。
 
+## Javascript
 在软件的关于页面中可以下载API文件包，解压后包含程序示例`main.mjs`和相关API库文件。
 所有接口均包含TS类型定义，方法名和参数名均有语义化命名，方便使用。
 
@@ -13,7 +14,7 @@ API文件包下载过程中即在`main.mjs`中包含了用户授权信息，因�
 :::
 
 
-## 示例
+### 示例
 抓取ArXiv上最新50条CV论文信息，并加入到数据库中。
 
 ::: details 前置代码
@@ -98,3 +99,30 @@ for (const article of articles) {
     }
 }
 ```
+
+## Python
+本软件还提供了Python版本的API，可以通过`pip install Lires`安装。  
+（最新版本可通过`pip install git+http://github.com/MenxLi/Lires.git`安装）
+
+使用方法和Javascript版本类似，但是Python版本的API仅支持部分功能，
+具体可参考[Python API实现](https://github.com/MenxLi/Lires/blob/dev/lires/api/server.py)。
+
+### 示例
+```python
+import asyncio
+from lires.api import ServerConn
+
+async def main():
+    conn = ServerConn(endpoint="https://...", token="...")
+    print(await conn.status())
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## RESTful API
+本质上，上述API都是基于RESTful API实现的，
+然而本软件目前处于开发阶段，API可能会有变动，因此不建议直接使用RESTful API进行操作，
+建议使用上述封装好的API库。
+
+若要使用RESTful API，可以参考[API实现](https://github.com/MenxLi/Lires/blob/dev/lires_server/main.py)
