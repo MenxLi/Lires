@@ -9,18 +9,19 @@ if TYPE_CHECKING:
 
 JsonDumpable = list | dict | str | int | float | bool | None
 
+def _makeDatapointSummary(js: dict[str, Any]) -> DataPointSummary:
+    # avoid circular import
+    from lires.core.dataClass import DataPointSummary
+    return DataPointSummary(**js)
+
 class ServerConn(LiresAPIBase):
     def __init__(self, token: str, server_url: str = ""):
         self._token = token
-        self._api_url = server_url
+        self.server_url = server_url
     
     @property
     def token(self):
         return self._token
-    
-    @property
-    def api_url(self):
-        return self._api_url
 
     def ensureRes(self, res: aiohttp.ClientResponse):
         if res.status == 401 or res.status == 403:
@@ -29,39 +30,65 @@ class ServerConn(LiresAPIBase):
             return super().ensureRes(res)
     
     async def _formatParams(self, params: dict[str, JsonDumpable]):
-        # _formatEntry = lambda x: json.dumps(x) if isinstance(x, (list, dict)) or x is None else x
-        # _formatEntry = json.dumps
         def _formatEntry(x: Any):
             if x is None or isinstance(x, (list, dict)):
                 return json.dumps(x)
             return x
         return {k: _formatEntry(v) for k, v in params.items()}
     
-    async def _get(self, path: str, params: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}):
+    async def _get(self, path: str, params: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                    path,
+                    self.server_url + path,
                     params={"key": self.token, **(await self._formatParams(params))}, 
                     headers=headers
                 ) as res:
-                self.ensureRes(res)
-                return await res.json()
+                return await self._parseRes(res, return_type)
     
-    async def _post(self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}):
+    async def _post(self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                    path,
+                    self.server_url + path,
                     data={"key": self.token, **(await self._formatParams(data))},
                     headers={"Content-Type": "application/x-www-form-urlencoded", **headers}
                 ) as res:
-                self.ensureRes(res)
-                return await res.json()
+                return await self._parseRes(res, return_type)
+    
+    async def _parseRes(self, res: aiohttp.ClientResponse, return_type: str) -> Any:
+        self.ensureRes(res)
+        if return_type == "json":
+            return await res.json()
+        elif return_type == "text":
+            return await res.text()
+        else:
+            raise ValueError(f"Invalid return_type: {return_type}")
     
     async def status(self) -> ServerStatus:
-        return await self._get(self.api_url + "/api/status")
-    
+        return await self._get("/api/status")
     async def authorize(self) -> UserInfo:
-        return await self._get(self.api_url + "/api/auth")
+        return await self._get("/api/auth")
+    
+    async def reqAllTags(self) -> list[str]:
+        return await self._get("/api/database/tags")
+    async def reqAllKeys(self) -> list[str]:
+        return await self._get("/api/database/keys")
+
+    async def reqDatapointSummary(self, uuid: str) -> DataPointSummary:
+        data = await self._get(f"/api/datainfo/{uuid}")
+        return _makeDatapointSummary(data)
+    async def reqDatapointSummaries(self, uuids: list[str]) -> list[DataPointSummary]:
+        data = await self._post("/api/datainfo-list", {"uids": uuids})
+        return [_makeDatapointSummary(x) for x in data]
+
+    async def reqDatapointAbstract(self, uuid: str) -> str:
+        return await self._get(f"/api/datainfo-supp/abstract/{uuid}", return_type="text")
+    async def updateDatapointAbstract(self, uuid: str, content: str):
+        return await self._post(f"/api/datainfo-supp/abstract-update/{uuid}", {"content": content}, return_type="text")
+    
+    async def reqDatapointNote(self, uuid: str) -> str:
+        return await self._get(f"/api/datainfo-supp/note/{uuid}", return_type="text")
+    async def updateDatapointNote(self, uuid: str, content: str):
+        return await self._post(f"/api/datainfo-supp/note-update/{uuid}", {"content": content}, return_type="text")
 
     async def updateEntry(
             self, uuid: Optional[str], 
@@ -86,7 +113,5 @@ class ServerConn(LiresAPIBase):
             "url": url,
         }
 
-        # avoid circular import
-        from lires.core.dataClass import DataPointSummary
-        res = await self._post(self.api_url + "/api/dataman/update", params)
-        return DataPointSummary(**res)
+        res = await self._post("/api/dataman/update", params)
+        return _makeDatapointSummary(**res)

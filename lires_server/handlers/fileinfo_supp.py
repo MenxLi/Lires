@@ -12,6 +12,7 @@ class NoteGetHandler(RequestHandlerBase):
         Args:
             uid (str): uuid of the datapoint
         """
+        self.set_header("Content-Type", "text/plain")
         db = await self.db()
         dp = await db.get(uid)
         await self.logger.debug("Get notes of: {}".format(dp))
@@ -27,6 +28,7 @@ class NoteUpdateHandler(RequestHandlerBase):
         Args:
             uid (str): uuid of the datapoint
         """
+        self.set_header("Content-Type", "text/plain")
         user_info = await self.userInfo()
         db = await self.db()
         note = self.get_argument("content")
@@ -57,6 +59,7 @@ class AbstractGetHandler(RequestHandlerBase):
         Args:
             uid (str): uuid of the datapoint
         """
+        self.set_header("Content-Type", "text/plain")
         db = await self.db()
         dp = await db.get(uid)
         await self.logger.debug("Get abstract of: {}".format(dp))
@@ -73,6 +76,7 @@ class AbstractUpdateHandler(RequestHandlerBase):
         Args:
             uid (str): uuid of the datapoint
         """
+        self.set_header("Content-Type", "text/plain")
         user_info = await self.userInfo()
         abstract = self.get_argument("content")
 

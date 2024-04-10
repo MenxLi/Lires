@@ -14,6 +14,7 @@ class DataInfoHandler(RequestHandlerBase):
     """
     @keyRequired
     async def get(self, uid:str):
+        self.set_header("Content-Type", "application/json")
         db = await self.db()
         try:
             dp: DataPoint = await db.get(uid)
@@ -31,6 +32,7 @@ class DataInfoListHandler(RequestHandlerBase):
     """
     @keyRequired
     async def post(self):
+        self.set_header("Content-Type", "application/json")
         uids: list[str] = json.loads(self.get_argument("uids"))
         db = await self.db()
         try:
