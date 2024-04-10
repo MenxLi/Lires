@@ -245,14 +245,14 @@ export class ServerConn {
     }
 
     async renameTag(oldTag: string, newTag: string): Promise<boolean>{
-        return await this.fetcher.post(`/api/dataman/tag-rename`, {
+        return await this.fetcher.post(`/api/database/tag-rename`, {
             oldTag: oldTag,
             newTag: newTag,
         }).then(()=>true);
     }
 
     async deleteTag(tag: string): Promise<boolean>{
-        return await this.fetcher.post(`/api/dataman/tag-delete`, {
+        return await this.fetcher.post(`/api/database/tag-delete`, {
             tag: tag,
         }).then(()=>true);
     }
