@@ -2,6 +2,7 @@ from __future__ import annotations
 from .common import LiresAPIBase
 from typing import TYPE_CHECKING, Optional, Any, Literal, TypedDict
 import aiohttp, json
+from lires.utils import randomAlphaNumeric
 if TYPE_CHECKING:
     from lires.core.dataClass import DataPointSummary
     from lires_server.types import ServerStatus
@@ -19,13 +20,19 @@ def _makeDatapointSummary(js: dict[str, Any]) -> DataPointSummary:
     return DataPointSummary(**js)
 
 class ServerConn(LiresAPIBase):
-    def __init__(self, token: str, endpoint: str = ""):
+    def __init__(self, token: str, endpoint: str = "", session_id: Optional[str] = None):
         self._token = token
-        self.server_url = endpoint
+        self._server_url = endpoint
+        if session_id is None:
+            self._session_id = "default"
+        self._session_id = 'py-api-'+randomAlphaNumeric(8)
     
     @property
-    def token(self):
-        return self._token
+    def token(self): return self._token
+    @property
+    def server_url(self): return self._server_url
+    @property
+    def session_id(self): return self._session_id
 
     def ensureRes(self, res: aiohttp.ClientResponse):
         if res.status == 401 or res.status == 403:
@@ -44,7 +51,7 @@ class ServerConn(LiresAPIBase):
         async with aiohttp.ClientSession() as session:
             async with session.get(
                     self.server_url + path,
-                    params={"key": self.token, **(await self._formatParams(params))}, 
+                    params={"key": self.token, "session_id": self.session_id, **(await self._formatParams(params))},
                     headers=headers
                 ) as res:
                 return await self._parseRes(res, return_type)
@@ -53,7 +60,7 @@ class ServerConn(LiresAPIBase):
         async with aiohttp.ClientSession() as session:
             async with session.post(
                     self.server_url + path,
-                    data={"key": self.token, **(await self._formatParams(data))},
+                    data={"key": self.token, "session_id": self.session_id, **(await self._formatParams(data))},
                     headers={"Content-Type": "application/x-www-form-urlencoded", **headers}
                 ) as res:
                 return await self._parseRes(res, return_type)
