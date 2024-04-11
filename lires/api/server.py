@@ -19,7 +19,7 @@ def _makeDatapointSummary(js: dict[str, Any]) -> DataPointSummary:
     from lires.core.dataClass import DataPointSummary
     return DataPointSummary(**js)
 
-class _ServerConn(LiresAPIBase):
+class Connector(LiresAPIBase):
     def __init__(
         self, endpoint: str, token: str, 
         session_id: Optional[str] = None, verify_ssl: bool = True
@@ -51,7 +51,7 @@ class _ServerConn(LiresAPIBase):
             return x
         return {k: _formatEntry(v) for k, v in params.items()}
     
-    async def _get(self, path: str, params: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
+    async def get(self, path: str, params: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
         async with aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
             ) as session:
@@ -62,7 +62,7 @@ class _ServerConn(LiresAPIBase):
                 ) as res:
                 return await self._parseRes(res, return_type)
     
-    async def _post(self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
+    async def post(self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
         async with aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
             ) as session:
@@ -73,7 +73,7 @@ class _ServerConn(LiresAPIBase):
                 ) as res:
                 return await self._parseRes(res, return_type)
     
-    async def _put(
+    async def put(
         self, path: str, data: bytes, filename: str,
         metadata: dict[str, JsonDumpable] = {}, 
         content_type: str = "application/octet-stream",
@@ -98,7 +98,7 @@ class _ServerConn(LiresAPIBase):
                 ) as res:
                 return await self._parseRes(res, return_type)
     
-    async def _delete(
+    async def delete(
         self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
         data = await self._formatParams(data)
         form = aiohttp.FormData()
@@ -126,36 +126,50 @@ class _ServerConn(LiresAPIBase):
         else:
             raise ValueError(f"Invalid return_type: {return_type}")
     
-class ServerConn(_ServerConn):
+class ServerConn:
+    def __init__(
+        self, endpoint: str, token: str, 
+        session_id: Optional[str] = None, verify_ssl: bool = True
+        ):
+        self.__c = Connector(
+            endpoint = endpoint, token = token,
+            session_id = session_id, verify_ssl = verify_ssl
+            )
+
     async def status(self) -> ServerStatus:
-        return await self._get("/api/status")
+        return await self.__c.get("/api/status")
+
     async def authorize(self) -> UserInfo:
-        return await self._get("/api/auth")
+        return await self.__c.get("/api/auth")
     
     async def reqAllTags(self) -> list[str]:
-        return await self._get("/api/database/tags")
+        return await self.__c.get("/api/database/tags")
+
     async def reqAllKeys(self) -> list[str]:
-        return await self._get("/api/database/keys")
+        return await self.__c.get("/api/database/keys")
 
     async def reqDatapointSummary(self, uuid: str) -> DataPointSummary:
-        data = await self._get(f"/api/datainfo/{uuid}")
+        data = await self.__c.get(f"/api/datainfo/{uuid}")
         return _makeDatapointSummary(data)
+
     async def reqDatapointSummaries(self, uuids: list[str]) -> list[DataPointSummary]:
-        data = await self._post("/api/datainfo-list", {"uids": uuids})
+        data = await self.__c.post("/api/datainfo-list", {"uids": uuids})
         return [_makeDatapointSummary(x) for x in data]
 
     async def reqDatapointAbstract(self, uuid: str) -> str:
-        return await self._get(f"/api/datainfo-supp/abstract/{uuid}", return_type="text")
+        return await self.__c.get(f"/api/datainfo-supp/abstract/{uuid}", return_type="text")
+
     async def updateDatapointAbstract(self, uuid: str, content: str):
-        return await self._post(f"/api/datainfo-supp/abstract-update/{uuid}", {"content": content}, return_type="text")
+        return await self.__c.post(f"/api/datainfo-supp/abstract-update/{uuid}", {"content": content}, return_type="text")
     
     async def reqDatapointNote(self, uuid: str) -> str:
-        return await self._get(f"/api/datainfo-supp/note/{uuid}", return_type="text")
+        return await self.__c.get(f"/api/datainfo-supp/note/{uuid}", return_type="text")
+
     async def updateDatapointNote(self, uuid: str, content: str):
-        return await self._post(f"/api/datainfo-supp/note-update/{uuid}", {"content": content}, return_type="text")
+        return await self.__c.post(f"/api/datainfo-supp/note-update/{uuid}", {"content": content}, return_type="text")
     
     async def deleteDatapoint(self, uuid: str):
-        return await self._post(f"/api/dataman/delete", {
+        return await self.__c.post(f"/api/dataman/delete", {
             "uuid": uuid
         }, return_type="text")
     
@@ -168,13 +182,13 @@ class ServerConn(_ServerConn):
         else:
             assert filename is not None
 
-        ret = await self._put(
+        ret = await self.__c.put(
             f"/doc/{uid}", file, filename, 
             return_type="json")
         return _makeDatapointSummary(ret)
     
     async def deleteDocument(self, uid: str) -> DataPointSummary:
-        ret = await self._delete(f"/doc/{uid}", return_type="json")
+        ret = await self.__c.delete(f"/doc/{uid}", return_type="json")
         return _makeDatapointSummary(ret)
 
     async def updateEntry(
@@ -195,12 +209,11 @@ class ServerConn(_ServerConn):
         params = {
             "uuid": uuid,
             "tags": tags,
-            # be careful with ""
             "bibtex": bibtex,
             "url": url,
         }
 
-        res = await self._post("/api/dataman/update", params)
+        res = await self.__c.post("/api/dataman/update", params)
         return _makeDatapointSummary(**res)
     
     async def filter(
@@ -216,4 +229,4 @@ class ServerConn(_ServerConn):
             "search_content": search_content,
             "top_k": max_results,
         }
-        return await self._post("/api/filter/basic", params)
+        return await self.__c.post("/api/filter/basic", params)
