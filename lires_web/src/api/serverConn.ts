@@ -240,7 +240,7 @@ export class ServerConn {
     }
 
     /* free document and return the new datapoint summary */
-    async freeDocument(uid: string): Promise<DataInfoT>{
+    async deleteDocument(uid: string): Promise<DataInfoT>{
         return await this.fetcher.delete(`/doc/${uid}`).then(res=>res.json());
     }
 

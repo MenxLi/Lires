@@ -30,6 +30,7 @@ class DocHandler(RequestHandlerBase):
         """
         Upload document file
         """
+        self.set_header("Content-Type", "application/json")
         # permission check
         db = await self.db()
         dp = await db.get(uid)
@@ -85,6 +86,7 @@ class DocHandler(RequestHandlerBase):
         """
         Free a document from a file
         """
+        self.set_header("Content-Type", "application/json")
         db = await self.db()
         dp = await db.get(uid)
         if not (await self.userInfo())["is_admin"]:

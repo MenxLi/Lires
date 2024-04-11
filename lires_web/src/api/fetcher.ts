@@ -51,6 +51,7 @@ class Fetcher {
     public async put(path: string, file: File): Promise<Response> {
         const form = new FormData();
         form.append('key', this._tokenGetter());
+        form.append('session_id', this._sessionIDGetter());
         form.append('file', file);
         return await this._fetch(`${this._baseUrlGetter()}${path}`, 
         {
@@ -69,6 +70,7 @@ class Fetcher {
             form.append(key, value);
         }
         form.append('key', this._tokenGetter());
+        form.append('session_id', this._sessionIDGetter());
         return await this._fetch(`${this._baseUrlGetter()}${path}`, 
         {
             method: 'DELETE',

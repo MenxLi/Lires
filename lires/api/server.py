@@ -1,7 +1,7 @@
 from __future__ import annotations
 from .common import LiresAPIBase
 from typing import TYPE_CHECKING, Optional, Any, Literal, TypedDict
-import aiohttp, json
+import aiohttp, json, os
 from lires.utils import randomAlphaNumeric
 if TYPE_CHECKING:
     from lires.core.dataClass import DataPointSummary
@@ -19,7 +19,7 @@ def _makeDatapointSummary(js: dict[str, Any]) -> DataPointSummary:
     from lires.core.dataClass import DataPointSummary
     return DataPointSummary(**js)
 
-class ServerConn(LiresAPIBase):
+class _ServerConn(LiresAPIBase):
     def __init__(
         self, endpoint: str, token: str, 
         session_id: Optional[str] = None, verify_ssl: bool = True
@@ -73,6 +73,50 @@ class ServerConn(LiresAPIBase):
                 ) as res:
                 return await self._parseRes(res, return_type)
     
+    async def _put(
+        self, path: str, data: bytes, filename: str,
+        metadata: dict[str, JsonDumpable] = {}, 
+        content_type: str = "application/octet-stream",
+        return_type = "json"):
+
+        metadata = await self._formatParams(metadata)
+
+        form = aiohttp.FormData()
+        form.add_field("key", self.token)
+        form.add_field("session_id", self.session_id)
+        for k, v in metadata.items():
+            form.add_field(k, v)
+
+        form.add_field("file", data, filename=filename, content_type=content_type)
+
+        async with aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
+            ) as session:
+            async with session.put(
+                    self.endpoint + path,
+                    data=form,
+                ) as res:
+                return await self._parseRes(res, return_type)
+    
+    async def _delete(
+        self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
+        data = await self._formatParams(data)
+        form = aiohttp.FormData()
+        form.add_field("key", self.token)
+        form.add_field("session_id", self.session_id)
+        for k, v in data.items():
+            form.add_field(k, v)
+        async with aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
+            ) as session:
+            async with session.delete(
+                    self.endpoint + path,
+                    data=form,
+                    headers={"Content-Type": "application/x-www-form-urlencoded", **headers}
+                ) as res:
+                return await self._parseRes(res, return_type)
+        
+    
     async def _parseRes(self, res: aiohttp.ClientResponse, return_type: str) -> Any:
         self.ensureRes(res)
         if return_type == "json":
@@ -82,6 +126,7 @@ class ServerConn(LiresAPIBase):
         else:
             raise ValueError(f"Invalid return_type: {return_type}")
     
+class ServerConn(_ServerConn):
     async def status(self) -> ServerStatus:
         return await self._get("/api/status")
     async def authorize(self) -> UserInfo:
@@ -108,6 +153,29 @@ class ServerConn(LiresAPIBase):
         return await self._get(f"/api/datainfo-supp/note/{uuid}", return_type="text")
     async def updateDatapointNote(self, uuid: str, content: str):
         return await self._post(f"/api/datainfo-supp/note-update/{uuid}", {"content": content}, return_type="text")
+    
+    async def deleteDatapoint(self, uuid: str):
+        return await self._post(f"/api/dataman/delete", {
+            "uuid": uuid
+        }, return_type="text")
+    
+    async def uploadDocument(self, uid: str, file: str | bytes, filename: Optional[str] = None) -> DataPointSummary:
+        if isinstance(file, str):
+            if not filename:
+                filename = os.path.basename(file)
+            with open(file, "rb") as f:
+                file = f.read()
+        else:
+            assert filename is not None
+
+        ret = await self._put(
+            f"/doc/{uid}", file, filename, 
+            return_type="json")
+        return _makeDatapointSummary(ret)
+    
+    async def deleteDocument(self, uid: str) -> DataPointSummary:
+        ret = await self._delete(f"/doc/{uid}", return_type="json")
+        return _makeDatapointSummary(ret)
 
     async def updateEntry(
             self, uuid: Optional[str], 
