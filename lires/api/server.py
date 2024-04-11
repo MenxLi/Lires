@@ -214,7 +214,7 @@ class ServerConn:
         }
 
         res = await self.__c.post("/api/dataman/update", params)
-        return _makeDatapointSummary(**res)
+        return _makeDatapointSummary(res)
     
     async def filter(
         self, 
