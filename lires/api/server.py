@@ -3,6 +3,7 @@ from .common import LiresAPIBase
 from typing import TYPE_CHECKING, Optional, Any, Literal, TypedDict
 import aiohttp, json, os
 from lires.utils import randomAlphaNumeric
+from lires.types.dataT import DataPointSummary
 if TYPE_CHECKING:
     from lires.core.dataClass import DataPointSummary
     from lires_server.types import ServerStatus
@@ -13,11 +14,6 @@ SearchType = Literal[ 'title', 'author', 'year', 'note', 'publication', 'feature
 class SearchRes(TypedDict):
     uids: list[str]
     scores: list[float]
-
-def _makeDatapointSummary(js: dict[str, Any]) -> DataPointSummary:
-    # avoid circular import
-    from lires.core.dataClass import DataPointSummary
-    return DataPointSummary(**js)
 
 class Connector(LiresAPIBase):
     def __init__(
@@ -150,11 +146,11 @@ class ServerConn:
 
     async def reqDatapointSummary(self, uuid: str) -> DataPointSummary:
         data = await self.__c.get(f"/api/datainfo/{uuid}")
-        return _makeDatapointSummary(data)
+        return DataPointSummary(**data)
 
     async def reqDatapointSummaries(self, uuids: list[str]) -> list[DataPointSummary]:
         data = await self.__c.post("/api/datainfo-list", {"uids": uuids})
-        return [_makeDatapointSummary(x) for x in data]
+        return [DataPointSummary(**x) for x in data]
 
     async def reqDatapointAbstract(self, uuid: str) -> str:
         return await self.__c.get(f"/api/datainfo-supp/abstract/{uuid}", return_type="text")
@@ -185,11 +181,11 @@ class ServerConn:
         ret = await self.__c.put(
             f"/doc/{uid}", file, filename, 
             return_type="json")
-        return _makeDatapointSummary(ret)
+        return DataPointSummary(**ret)
     
     async def deleteDocument(self, uid: str) -> DataPointSummary:
         ret = await self.__c.delete(f"/doc/{uid}", return_type="json")
-        return _makeDatapointSummary(ret)
+        return DataPointSummary(**ret)
 
     async def updateEntry(
             self, uuid: Optional[str], 
@@ -214,7 +210,7 @@ class ServerConn:
         }
 
         res = await self.__c.post("/api/dataman/update", params)
-        return _makeDatapointSummary(res)
+        return DataPointSummary(**res)
     
     async def filter(
         self, 
