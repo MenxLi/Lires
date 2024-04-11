@@ -59,7 +59,7 @@ class DataPoint(DataCore):
         "\u27AA {title}\n\u27AA {year}\n\u27AA {authors}\n".format(title = summary.title, year = summary.year, authors = " \u2726 ".join(summary.authors))
         info_txt = info_txt + "\n\u27AA {publication}".format(publication = summary.publication)
         if self.has_file:
-            info_txt = info_txt + "\nFile size: {}M".format(await self.fm.getDocSize())
+            info_txt = info_txt + "\nFile size: {}Bytes".format(await self.fm.getDocSize())
         return info_txt
     
     @classmethod
@@ -106,9 +106,10 @@ def sortDataList(data_list: List[DataPoint], sort_by: SortType) -> List[DataPoin
 async def assembleDatapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
 
     # it's a bit tricky to get file information in one go
-    _fm = await FileManipulator(raw_info["uuid"]).init(db.conn)    # type: ignore
+    _fm = await FileManipulator(raw_info["uuid"]).init(db.conn)     # type: ignore
     _file_size = await _fm.getDocSize()
     _has_file = True if _file_size > 0 else False
+    _file_size = round(_file_size/(1048576), 2) if _has_file else 0 # convert to MB
 
     summary = DataPointSummary(
         has_file=_has_file,

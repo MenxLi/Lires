@@ -263,15 +263,14 @@ class FileManipulator(LiresBase):
         await self.logger.debug("(fm) __addRawFileBlob: {}".format(self.uuid))
         return True
 
-    async def getDocSize(self) -> float:
+    async def getDocSize(self) -> int:
+        """ return the size of the document in bytes """
         if not await self.hasFile():
-            return 0.0
+            return 0
             # return None
         _f_path = await self.filePath()
         assert _f_path is not None
-        size = os.path.getsize(_f_path)
-        size = size/(1048576)   # byte to M
-        return round(size, 2)
+        return os.path.getsize(_f_path)
 
     async def readBib(self) -> str:
         db_data = await self.conn.get(self.uuid); assert db_data
