@@ -1,5 +1,6 @@
 from ._base import *
 from lires.version import VERSION
+import lires
 
 import os, string, time
 
@@ -55,9 +56,10 @@ class APIGetHandler_JS(RequestHandlerBase):
 
 _py_api_mainfile_template = string.Template(f"""
 # Lires-API v$VERSION (Accessed: $TIME at $URL)
-# install the dependencies with `pip install Lires`
-# or install the latest version with
+# Install the dependencies with `pip install Lires`, 
+# or install the latest version with 
 # `pip install git+https://github.com/MenxLi/Lires.git`
+#
 # For more information, visit $URL/documentation/manual/api.html#python
 
 import asyncio
