@@ -95,3 +95,43 @@ class TestServer(BaseConfig):
             tags = [randomAlphaNumeric(10) for _ in range(random.randint(1, 5))]
             url = randomAlphaNumeric(10)
             await _testOneEntry(bibtex, tags, url)
+
+    async def test_uploadDocument(self, server_normal: ServerConn):
+        def createNewEntry():
+            bibtex = "@article{test, title={Test}, author={Test}}"
+            tags = ["test"]
+            url = "http://test.com"
+            return server_normal.updateEntry( None,
+                bibtex=bibtex,
+                tags=tags,
+                url=url
+            )
+        await createNewEntry()
+
+        # make a fake document
+        f_blob = randomAlphaNumeric(1000).encode()
+
+        # get the first entry
+        dp_id = (await server_normal.filter(max_results=1))['uids'][0]
+        d_summary = await server_normal.uploadDocument(dp_id, f_blob, filename="test.pdf")
+        assert d_summary.uuid == dp_id
+        assert d_summary.has_file
+
+        # remove the document
+        d_summary = await server_normal.deleteDocument(dp_id)
+        assert d_summary.uuid == dp_id
+        assert not d_summary.has_file
+    
+    async def test_updateNote(self, server_normal: ServerConn):
+        # get the first entry
+        dp_id = (await server_normal.filter(max_results=1))['uids'][0]
+        note = randomAlphaNumeric(1000)
+        await server_normal.updateDatapointNote(dp_id, note)
+        assert await server_normal.reqDatapointNote(dp_id) == note
+
+    async def test_updateAbstract(self, server_normal: ServerConn):
+        # get the first entry
+        dp_id = (await server_normal.filter(max_results=1))['uids'][0]
+        abstract = randomAlphaNumeric(1000)
+        await server_normal.updateDatapointAbstract(dp_id, abstract)
+        assert await server_normal.reqDatapointAbstract(dp_id) == abstract
