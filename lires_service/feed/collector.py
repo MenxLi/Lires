@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 import aiohttp, urllib.parse
 import xml.etree.ElementTree as ET
+import string
 
 
 @dataclass
@@ -39,15 +40,39 @@ async def fetchArxiv(
         link: str,
         published_time: str,
     ) -> str:
-        return f"""
-            @article{{{id},
-                title = {{{title}}},
-                author = {{{' and '.join(authors)}}},
-                abstract = {{{abstract}}},
-                journal = {{arXiv preprint arXiv:{id}}},
-                year = {{{published_time.split('-')[0]}}},
-                url = {{{link}}},
-            }} """
+        article_template = string.Template(
+"""
+@article{$id,
+    title = "$title",
+    author = "$authors",
+    abstract = "$abstract",
+    journal = "arXiv preprint arXiv:$id",
+    year = "$year",
+    url = "$link"
+}
+"""
+        )
+
+        def formatIllegalChar(s: str) -> str:
+            # check if brackets are balanced
+            if s.count('{') != s.count('}'):
+                s = s.replace('{', '').replace('}', '')
+                print(f'Warning: unbalanced brackets in {s}')
+
+            return s.replace('"', "'")
+
+        ret = article_template.safe_substitute(
+            id=id,
+            title=formatIllegalChar(title),
+            authors=' and '.join([
+                formatIllegalChar(author)
+                for author in
+                authors]),
+            abstract=formatIllegalChar(abstract),
+            year=published_time.split('-')[0],
+            link=link,
+        )
+        return ret
 
     articles = []
     for entry in entries:
