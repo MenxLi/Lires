@@ -803,3 +803,26 @@ version_history:
     - Documentation:
       - About page update
       - Document with VitePress
+  1.7.5:
+    - Features:
+      - Python API
+      - Invite user registration
+      - Format bibtex on entry update
+      - Static group id in config, depending on $LRS_HOME
+      - Frontmatter for markdown note, support `links` tag
+    - Chore:
+      - tiny_vectordb to core dependency
+    - UI:
+      - Remove dashboard entry on reader's explore button
+      - Change settings shortcut
+    - Development:
+      - Some api name change, to be more consistent
+      - Tag rename and delete to `/database` endpoint
+      - Not json encode datapoint update uuid parameter
+      - Reserve `deploy_key` config for future use
+      - API test page
+    - Fix:
+      - Docker doc build
+      - Small document not pecepted
+      - Link button wrong destination
+      - Feed server deal with illegal bibtex entry
