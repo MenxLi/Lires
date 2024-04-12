@@ -75,10 +75,10 @@ import { ServerConn } from "./lib/api.js";
 
 const context = {
     endpoint: "https://...",
-    key: "..."
+    token: "..."
 }
 // lires 服务器连接对象
-const conn = new ServerConn(()=>context.endpoint, ()=>context.key)
+const conn = new ServerConn(()=>context.endpoint, ()=>context.token)
 
 // 抓取最新50条ArXiv上的文章
 const articles = await fetchArxivFeed(50, 'cat:cs.CV');
@@ -108,6 +108,8 @@ for (const article of articles) {
 具体可参考[Python API实现](https://github.com/MenxLi/Lires/blob/dev/lires/api/server.py)。
 
 ### 示例
+查询服务器运行状态。
+
 ```python
 import asyncio
 from lires.api import ServerConn

@@ -10,10 +10,10 @@ import {{ ServerConn }} from "./lib/api.js";
 
 const context = {{
     endpoint: "$URL",
-    key: "$KEY"
-}}
-const conn = new ServerConn(()=>context.endpoint, ()=>context.key)
-console.log(await conn.status()) 
+    token: "$KEY"
+}};
+const conn = new ServerConn(()=>context.endpoint, ()=>context.token);
+console.log(await conn.status());
 """)
 _js_readme_template = string.Template(f"""
 # Lires-API v$VERSION
