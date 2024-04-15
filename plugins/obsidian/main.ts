@@ -127,10 +127,13 @@ class DetailModal extends Modal {
 
 	onOpen() {
 		const {contentEl} = this;
-		this.uids.forEach(async uid => {
-			const data = await this.plugin.api.reqDatapointSummary(uid);
-			if (data){ contentEl.appendChild(getReferenceLineElem(this.plugin, data)); }
-		});
+		getDataInfo(this.uids, this.plugin.api).then(
+			(dInfos) => {
+				for (const dInfo of dInfos){
+					if (dInfo){ contentEl.appendChild(getReferenceLineElem(this.plugin, dInfo)); }
+				}
+			}
+		);
 	}
 
 	onClose(): void {
