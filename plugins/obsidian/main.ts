@@ -302,13 +302,18 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	abstractDetail.appendChild(abstract);
 	infoElem.appendChild(abstractDetail);
 
+	infoElem.appendChild(getLinkSpan({
+		url: plugin.settings.endpoint+'#reader/'+data.uuid,
+		text: 'reader'
+	}));
+	
 	if (data.has_file){
 		infoElem.appendChild(getLinkSpan({
 			url: plugin.settings.endpoint+'/doc/'+data.uuid + '?_u=' + plugin.userInfo.id,
 			text: 'doc'
 		}));
 	}
-	
+
 	if (data.url){
 		infoElem.appendChild(getLinkSpan({
 			url: data.url,
