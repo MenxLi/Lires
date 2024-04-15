@@ -26,6 +26,7 @@ export default defineConfig({
           { text: '添加文档', link: '/manual/add-document' },
           { text: '查找条目', link: '/manual/filter-entry' },
           { text: '阅读文档', link: '/manual/read' },
+          { text: 'Obsidian插件', link: '/manual/obsidianPlugin'}, 
           { text: 'API', link: '/manual/api' },
         ]
       },
@@ -37,6 +38,7 @@ export default defineConfig({
           { text: 'Enviroment Variables', link: '/deployment/enviromentVariables' },
           { text: 'Manage', link: '/deployment/manage' },
           { text: 'Dev Guide', link: '/deployment/devGuide' },
+          { text: 'Obsidian Plugin', link: '/deployment/obsidianPlugin' },
         ]
       }
     ],
