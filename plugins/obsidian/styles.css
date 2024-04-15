@@ -6,3 +6,19 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+span.lires-cite-uuid{
+    font-size: 0.5em;
+    opacity: 0;
+    margin-left: 2em;
+    margin-bottom: -0.75em;
+    transition: opacity 0.5s;
+}
+
+div.lires-cite-line{
+    display: flex;
+    flex-direction: column;
+}
+div.lires-cite-line:hover > span.lires-cite-uuid{
+    opacity: 0.5;
+}

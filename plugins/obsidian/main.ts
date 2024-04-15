@@ -200,15 +200,29 @@ function getLinkSpan({
 function getCitationLineElem(plugin: LiresPlugin, data: DataInfoT){
 	// a short string to be used in the citation in the form of APA
 	const elem = document.createElement('div');
-	elem.style.display = 'flex';
+	elem.classList.add('lires-cite-line');
+
+	const citeUID = document.createElement('span');
+	citeUID.classList.add('lires-cite-uuid');
+	citeUID.innerText = data.uuid;
+
 	const dotElem = document.createElement('span');
 	dotElem.innerText = '•';
 	dotElem.style.marginRight = '0.5em';
 	elem.appendChild(dotElem);
 
-	const citeElem = document.createElement('span');
-	citeElem.classList.add('lires-cite');
-	citeElem.innerText = data.author + ` (${data.year})` + ` ${data.title}`;
+	const citeSpan = document.createElement('span');
+	citeSpan.classList.add('lires-cite');
+	citeSpan.innerText = data.author + ` (${data.year})` + ` ${data.title}`;
+	citeSpan.style.marginTop = '0em';
+
+	const citeElem = document.createElement('div');
+	citeElem.style.display = 'flex';
+	citeElem.style.flexDirection = 'row';
+	citeElem.appendChild(dotElem);
+	citeElem.appendChild(citeSpan);
+
+	elem.appendChild(citeUID);
 	elem.appendChild(citeElem);
 	return elem;
 }
