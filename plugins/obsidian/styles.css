@@ -43,7 +43,7 @@ span.lires-ref-publication{
     font-style: italic;
 }
 
-p.lires-ref-detail, div.lires-ref-detail{
+p.lires-ref-detail{
     text-align: justify;
     white-space: pre-wrap;
     margin-left: 1em;

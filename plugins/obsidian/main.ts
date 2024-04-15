@@ -284,7 +284,7 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	summaryAbstract.innerText = 'Abstract';
 	abstractDetail.appendChild(summaryAbstract);
 	const abstract = document.createElement('p');
-	abstract.classList.add('lires-ref-detail-p');
+	abstract.classList.add('lires-ref-detail');
 	function onUnfoldAbstract(evt: Event){
 		// abstractDetail.removeEventListener('toggle', onUnfold);
 		if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
