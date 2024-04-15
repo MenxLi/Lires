@@ -23,11 +23,31 @@ div.lires-cite-line:hover > span.lires-cite-uuid{
     opacity: 0.5;
 }
 
-p.lires-cite-detail, div.lires-cite-detail{
+div.lires-ref{
+    margin-bottom: 1em;
+}
+span.lires-ref-uuid{
+    font-size: 0.8em;
+    opacity: 0.25;
+}
+h3.lires-ref-title{
+    margin-block: 0em;
+    padding-block: 0em;
+}
+div.lires-ref-info{
+    margin-left: 1em;
+    margin-top: 0.5em
+}
+
+span.lires-ref-publication{
+    font-style: italic;
+}
+
+p.lires-ref-detail, div.lires-ref-detail{
     text-align: justify;
     white-space: pre-wrap;
     margin-left: 1em;
 }
-div.lires-cite-detail img{
+div.lires-ref-detail img{
     max-width: 100%;
 }

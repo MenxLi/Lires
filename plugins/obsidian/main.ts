@@ -237,56 +237,55 @@ function getCitationLineElem(plugin: LiresPlugin, data: DataInfoT){
 
 function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	const elem = document.createElement('div');
-	elem.style.marginBottom = '1em';
-	elem.classList.add('lires-cite');
+	elem.classList.add('lires-ref');
 
 	const uuid = document.createElement('span');
-	uuid.classList.add('lires-cite-uuid');
+	uuid.classList.add('lires-ref-uuid');
 	uuid.innerText = 'lires:'+ data.uuid;
-	uuid.style.fontSize = '0.8em';
-	uuid.style.opacity = '0.25';
 	elem.appendChild(uuid);
 	elem.appendChild(document.createElement('br'));
 
 	const title = document.createElement('h3');
-	title.style.marginBlock = '0em';
-	title.style.paddingBlock = '0em';
-	title.classList.add('lires-cite-title');
-	title.innerText = data.title+` (${data.year})`;
+	title.classList.add('lires-ref-title');
+	title.innerText = data.title;
 	elem.appendChild(title);
 
 	const infoElem = document.createElement('div');
+	infoElem.classList.add('lires-ref-info');
 	infoElem.style.marginLeft = '1em';
 	infoElem.style.marginTop = '0.5em';
 
 	if (data.publication){
 		const publication = document.createElement('span');
-		publication.classList.add('lires-cite-publication');
-		publication.innerText = 'Publication: ' + data.publication;
+		publication.classList.add('lires-ref-publication');
+		publication.innerText = `(${data.year}) ` + data.publication;
 		infoElem.appendChild(publication);
 		infoElem.appendChild(document.createElement('br'));
 	}
 
 	const authors = document.createElement('span');
-	authors.classList.add('lires-cite-authors');
-	authors.appendChild(document.createTextNode('Authors: '));
+	authors.classList.add('lires-ref-authors');
+	// authors.appendChild(document.createTextNode('Authors: '));
 	for (const author of data.authors){
 		const authorElem = document.createElement('span');
-		authorElem.classList.add('lires-cite-author');
+		authorElem.classList.add('lires-ref-author');
 		authorElem.innerText = author;
+		if (author !== data.authors[data.authors.length-1]){
+			authorElem.innerText += '; ';
+		}
 		authors.appendChild(authorElem);
 	}
 	infoElem.appendChild(authors);
 	infoElem.appendChild(document.createElement('br'));
 
 	const abstractDetail = document.createElement('details');
-	abstractDetail.classList.add('lires-cite-detail');
+	abstractDetail.classList.add('lires-ref-detail');
 	const summaryAbstract = document.createElement('summary');
 	summaryAbstract.innerText = 'Abstract';
 	abstractDetail.appendChild(summaryAbstract);
 	const abstract = document.createElement('p');
-	abstract.classList.add('lires-cite-detail-p');
-	function onUnfold(evt: Event){
+	abstract.classList.add('lires-ref-detail-p');
+	function onUnfoldAbstract(evt: Event){
 		// abstractDetail.removeEventListener('toggle', onUnfold);
 		if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
 		if (!evt.target.open){ return; }
@@ -296,17 +295,17 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 			else { abstract.innerText = 'Not available'; }
 		})
 	}
-	abstractDetail.addEventListener('toggle', onUnfold);
+	abstractDetail.addEventListener('toggle', onUnfoldAbstract);
 	abstractDetail.appendChild(abstract);
 	infoElem.appendChild(abstractDetail);
 
 	const noteDetail = document.createElement('details');
-	noteDetail.classList.add('lires-cite-detail');
+	noteDetail.classList.add('lires-ref-detail');
 	const summaryNote = document.createElement('summary');
 	summaryNote.innerText = 'Note';
 	noteDetail.appendChild(summaryNote);
 	const note = document.createElement('div');
-	note.classList.add('lires-cite-detail');
+	note.classList.add('lires-ref-detail');
 	function onUnfoldNote(evt: Event){
 		if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
 		if (!evt.target.open){ return; }
