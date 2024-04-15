@@ -99,6 +99,7 @@
     }
 
     const uploadMiscFiles = async (files: File[]) => {
+        uiState.showPopup('Upload', 'info');
         const unifiedURLs = await props.datapoint.uploadMisc(files);
         unifiedURLs.map( url => mdEditor.value!.insert(()=>{
                 return {

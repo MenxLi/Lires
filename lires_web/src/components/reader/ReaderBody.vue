@@ -108,10 +108,11 @@
                 @drop="($ev: DragEvent)=>{
                     $ev.preventDefault();
                     const files = $ev.dataTransfer?.files;
+                    useUIStateStore().showPopup('Upload file', 'info');
                     if (files && files.length == 1){
                         datapoint.uploadDocument(files[0]).then(()=>{
                             useUIStateStore().showPopup(
-                                'File uploaded',
+                                'File uploaded', 'success'
                             )
                         })
                     }
