@@ -1,5 +1,5 @@
 import Fetcher from "./fetcher";
-import { type DataInfoT } from "../../lires_web/src/api/protocol";
+import type { DataInfoT, UserInfo } from "../../lires_web/src/api/protocol";
 
 export default class LiresAPI {
 
@@ -15,6 +15,10 @@ export default class LiresAPI {
         this._fetcher.setBaseUrlGetter(endpointGetter);
         this._fetcher.setCredentialGetter(credentialGetter);
         return this;
+    }
+
+    async reqUserInfo(): Promise<UserInfo>{
+        return await this._fetcher.post('/api/auth').then(res=>res.json());
     }
 
     async reqDatapointSummary( uid: string ): Promise<DataInfoT>{

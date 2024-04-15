@@ -1,5 +1,6 @@
 import { App, MarkdownView, Modal, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import { DataInfoT } from '../../lires_web/src/api/protocol';
+import type { UserInfo } from '../../lires_web/src/api/protocol';
 import LiresAPI from './liresapi';
 
 interface PluginSettings {
@@ -28,6 +29,7 @@ async function getDataInfo(uids: string[], api: LiresAPI): Promise<(DataInfoT | 
 export default class LiresPlugin extends Plugin {
 	settings: PluginSettings;
 	api: LiresAPI;
+	userInfo: UserInfo;
 	view: MarkdownView;
 
 	async onload() {
@@ -37,6 +39,9 @@ export default class LiresPlugin extends Plugin {
 		this.api = new LiresAPI().init(() => this.settings.endpoint, () => this.settings.credential);
 		console.log('loading Lires plugin, time: ', Date.now());
 
+		this.api.reqUserInfo().then((userInfo) => {
+			this.userInfo = userInfo;
+		});
 
 		this.registerMarkdownCodeBlockProcessor('lires-cite', (source, el, ctx) => {
 			// source is the content of the code block
@@ -296,7 +301,7 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 
 	if (data.has_file){
 		infoElem.appendChild(getLinkSpan({
-			url: plugin.settings.endpoint+'/doc/'+data.uuid,
+			url: plugin.settings.endpoint+'/doc/'+data.uuid + '?_u=' + plugin.userInfo.id,
 			text: 'doc'
 		}));
 	}
