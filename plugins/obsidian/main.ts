@@ -1,4 +1,4 @@
-import { App, MarkdownView, Modal, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, MarkdownView, Modal, Plugin, PluginSettingTab, Setting, MarkdownRenderer } from 'obsidian';
 import { DataInfoT } from '../../lires_web/src/api/protocol';
 import type { UserInfo } from '../../lires_web/src/api/protocol';
 import LiresAPI from './liresapi';
@@ -280,14 +280,12 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	infoElem.appendChild(document.createElement('br'));
 
 	const abstractDetail = document.createElement('details');
-	abstractDetail.classList.add('lires-cite-abstract-detail');
-	const summary = document.createElement('summary');
-	summary.innerText = 'Abstract';
-	abstractDetail.appendChild(summary);
+	abstractDetail.classList.add('lires-cite-detail');
+	const summaryAbstract = document.createElement('summary');
+	summaryAbstract.innerText = 'Abstract';
+	abstractDetail.appendChild(summaryAbstract);
 	const abstract = document.createElement('p');
-	abstract.style.textAlign = 'justify';
-	abstract.style.whiteSpace = 'pre-wrap';
-	abstract.style.marginLeft = '1em';
+	abstract.classList.add('lires-cite-detail-p');
 	function onUnfold(evt: Event){
 		// abstractDetail.removeEventListener('toggle', onUnfold);
 		if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
@@ -301,6 +299,35 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	abstractDetail.addEventListener('toggle', onUnfold);
 	abstractDetail.appendChild(abstract);
 	infoElem.appendChild(abstractDetail);
+
+	const noteDetail = document.createElement('details');
+	noteDetail.classList.add('lires-cite-detail');
+	const summaryNote = document.createElement('summary');
+	summaryNote.innerText = 'Note';
+	noteDetail.appendChild(summaryNote);
+	const note = document.createElement('div');
+	note.classList.add('lires-cite-detail');
+	function onUnfoldNote(evt: Event){
+		if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
+		if (!evt.target.open){ return; }
+		note.innerHTML = 'Loading...';
+		note.style.maxWidth = '100%';
+		plugin.api.reqDatapointNote(data.uuid).then((text) => {
+			if (text !== ''){
+				note.innerHTML = '';
+				text = plugin.api.parseMarkdown(
+					plugin.settings.endpoint,
+					text, data, plugin.userInfo
+				);
+				MarkdownRenderer.render(
+					plugin.app, text, note, '__none_exist__', plugin
+				);
+			}
+			else { note.innerText = 'Not available'; }
+		})
+	}
+	noteDetail.addEventListener('toggle', onUnfoldNote);
+	noteDetail.appendChild(note);
 
 	infoElem.appendChild(getLinkSpan({
 		url: plugin.settings.endpoint+'#reader/'+data.uuid,
@@ -328,6 +355,10 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 		}
 	}));
 
+	if (data.has_abstract){ infoElem.appendChild(abstractDetail); }
+	if (data.note_linecount){ infoElem.appendChild(noteDetail); }
+
 	elem.appendChild(infoElem);
+
 	return elem;
 }

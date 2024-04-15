@@ -29,4 +29,19 @@ export default class LiresAPI {
         return await this._fetcher.get(`/api/datainfo-supp/abstract/${uid}`).then(res=>res.text());
     }
 
+    async reqDatapointNote( uid: string ): Promise<string>{
+        return await this._fetcher.get(`/api/datainfo-supp/note/${uid}`).then(res=>res.text());
+    }
+
+    parseMarkdown = (
+        backend: string, 
+        content: string, 
+        dpSummary: DataInfoT, 
+        user: UserInfo) => {
+        content = content.replace(
+            new RegExp('./misc/', 'g'), 
+            `${backend}/misc/${dpSummary.uuid}?_u=${user.id}&&fname=`
+            );
+        return content;
+    }
 }

@@ -22,3 +22,12 @@ div.lires-cite-line{
 div.lires-cite-line:hover > span.lires-cite-uuid{
     opacity: 0.5;
 }
+
+p.lires-cite-detail, div.lires-cite-detail{
+    text-align: justify;
+    white-space: pre-wrap;
+    margin-left: 1em;
+}
+div.lires-cite-detail img{
+    max-width: 100%;
+}
