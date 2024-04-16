@@ -236,135 +236,158 @@ function getCitationLineElem(plugin: LiresPlugin, data: DataInfoT){
 }
 
 function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
-	const elem = document.createElement('div');
-	elem.classList.add('lires-ref');
 
-	const uuid = document.createElement('span');
-	uuid.classList.add('lires-ref-uuid');
-	uuid.innerText = 'lires:'+ data.uuid;
-	elem.appendChild(uuid);
-	elem.appendChild(document.createElement('br'));
+	const container = document.createElement('div');
 
-	const title = document.createElement('h3');
-	title.classList.add('lires-ref-title');
-	title.innerText = data.title;
-	elem.appendChild(title);
+	const createMainElem = (data: DataInfoT) => {
+		const elem = document.createElement('div');
+		elem.classList.add('lires-ref');
 
-	const infoElem = document.createElement('div');
-	infoElem.classList.add('lires-ref-info');
-	infoElem.style.marginLeft = '1em';
-	infoElem.style.marginTop = '0.5em';
+		const uuid = document.createElement('span');
+		uuid.classList.add('lires-ref-uuid');
+		uuid.innerText = 'lires:'+ data.uuid;
+		elem.appendChild(uuid);
+		elem.appendChild(document.createElement('br'));
 
-	if (data.publication){
-		const publication = document.createElement('span');
-		publication.classList.add('lires-ref-publication');
-		publication.innerText = `(${data.year}) ` + data.publication;
-		infoElem.appendChild(publication);
+		const title = document.createElement('h3');
+		title.classList.add('lires-ref-title');
+		title.innerText = data.title;
+		elem.appendChild(title);
+
+		const infoElem = document.createElement('div');
+		infoElem.classList.add('lires-ref-info');
+		infoElem.style.marginLeft = '1em';
+		infoElem.style.marginTop = '0.5em';
+
+		if (data.publication){
+			const publication = document.createElement('span');
+			publication.classList.add('lires-ref-publication');
+			publication.innerText = `(${data.year}) ` + data.publication;
+			infoElem.appendChild(publication);
+			infoElem.appendChild(document.createElement('br'));
+		}
+
+		const authors = document.createElement('span');
+		authors.classList.add('lires-ref-authors');
+		// authors.appendChild(document.createTextNode('Authors: '));
+		for (const author of data.authors){
+			const authorElem = document.createElement('span');
+			authorElem.classList.add('lires-ref-author');
+			authorElem.innerText = author;
+			if (author !== data.authors[data.authors.length-1]){
+				authorElem.innerText += '; ';
+			}
+			authors.appendChild(authorElem);
+		}
+		infoElem.appendChild(authors);
 		infoElem.appendChild(document.createElement('br'));
-	}
 
-	const authors = document.createElement('span');
-	authors.classList.add('lires-ref-authors');
-	// authors.appendChild(document.createTextNode('Authors: '));
-	for (const author of data.authors){
-		const authorElem = document.createElement('span');
-		authorElem.classList.add('lires-ref-author');
-		authorElem.innerText = author;
-		if (author !== data.authors[data.authors.length-1]){
-			authorElem.innerText += '; ';
-		}
-		authors.appendChild(authorElem);
-	}
-	infoElem.appendChild(authors);
-	infoElem.appendChild(document.createElement('br'));
-
-	infoElem.appendChild(getLinkSpan({
-		url: plugin.settings.endpoint+'#reader/'+data.uuid,
-		text: 'reader'
-	}));
-	
-	if (data.has_file){
 		infoElem.appendChild(getLinkSpan({
-			url: plugin.settings.endpoint+'/doc/'+data.uuid + '?_u=' + plugin.userInfo.id,
-			text: 'doc'
+			url: plugin.settings.endpoint+'#reader/'+data.uuid,
+			text: 'reader'
 		}));
-	}
+		
+		if (data.has_file){
+			infoElem.appendChild(getLinkSpan({
+				url: plugin.settings.endpoint+'/doc/'+data.uuid + '?_u=' + plugin.userInfo.id,
+				text: 'doc'
+			}));
+		}
 
-	if (data.url){
+		if (data.url){
+			infoElem.appendChild(getLinkSpan({
+				url: data.url,
+				text: 'url'
+			}));
+		}
+
 		infoElem.appendChild(getLinkSpan({
-			url: data.url,
-			text: 'url'
+			text: 'bibtex',
+			clickHandler: (evt) => {
+				new BibtexModal(plugin.app, data).open()
+			}
 		}));
+
+		const reloadButton = document.createElement('a');
+		reloadButton.classList.add('lires-ref-reload');
+		reloadButton.innerText = 'reload';
+		reloadButton.onclick = () => { reloadElem(); }
+		infoElem.appendChild(reloadButton);
+		elem.appendChild(infoElem);
+
+		function createAbstractDetail(){
+			const abstractDetail = document.createElement('details');
+			abstractDetail.classList.add('lires-ref-detail');
+			const summaryAbstract = document.createElement('summary');
+			summaryAbstract.innerText = 'Abstract';
+			abstractDetail.appendChild(summaryAbstract);
+			const abstract = document.createElement('p');
+			abstract.classList.add('lires-ref-detail');
+			function onUnfoldAbstract(evt: Event){
+				// abstractDetail.removeEventListener('toggle', onUnfold);
+				if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
+				if (!evt.target.open){ return; }
+				abstract.innerHTML = 'Loading...';
+				plugin.api.reqDatapointAbstract(data.uuid).then((text) => {
+					if (text !== ''){ abstract.innerText = text; }
+					else { abstract.innerText = 'Not available'; }
+				})
+			}
+			abstractDetail.addEventListener('toggle', onUnfoldAbstract);
+			abstractDetail.appendChild(abstract);
+			return abstractDetail;
+		}
+
+		function createNoteDetail(){
+			const noteDetail = document.createElement('details');
+			noteDetail.classList.add('lires-ref-detail');
+			const summaryNote = document.createElement('summary');
+			summaryNote.innerText = 'Note';
+			noteDetail.appendChild(summaryNote);
+			const note = document.createElement('div');
+			note.classList.add('lires-ref-detail');
+			function onUnfoldNote(evt: Event){
+				if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
+				if (!evt.target.open){ return; }
+				note.innerHTML = 'Loading...';
+				note.style.maxWidth = '100%';
+				plugin.api.reqDatapointNote(data.uuid).then((text) => {
+					if (text !== ''){
+						note.innerHTML = '';
+						text = plugin.api.parseMarkdown(
+							plugin.settings.endpoint,
+							text, data, plugin.userInfo
+						);
+						MarkdownRenderer.render(
+							plugin.app, text, note, '__none_exist__', plugin
+						);
+					}
+					else { note.innerText = 'Not available'; }
+				})
+			}
+			noteDetail.addEventListener('toggle', onUnfoldNote);
+			noteDetail.appendChild(note);
+			return noteDetail;
+		}	
+		
+		const suppElem = document.createElement('div');
+		if (data.has_abstract){ suppElem.appendChild(createAbstractDetail()); }
+		if (data.note_linecount){ suppElem.appendChild(createNoteDetail()); }
+		elem.appendChild(suppElem);
+
+		return elem;
 	}
 
-	infoElem.appendChild(getLinkSpan({
-		text: 'bibtex',
-		clickHandler: (evt) => {
-			new BibtexModal(plugin.app, data).open()
-		}
-	}));
-
-	elem.appendChild(infoElem);
-
-	function createAbstractDetail(){
-		const abstractDetail = document.createElement('details');
-		abstractDetail.classList.add('lires-ref-detail');
-		const summaryAbstract = document.createElement('summary');
-		summaryAbstract.innerText = 'Abstract';
-		abstractDetail.appendChild(summaryAbstract);
-		const abstract = document.createElement('p');
-		abstract.classList.add('lires-ref-detail');
-		function onUnfoldAbstract(evt: Event){
-			// abstractDetail.removeEventListener('toggle', onUnfold);
-			if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
-			if (!evt.target.open){ return; }
-			abstract.innerHTML = 'Loading...';
-			plugin.api.reqDatapointAbstract(data.uuid).then((text) => {
-				if (text !== ''){ abstract.innerText = text; }
-				else { abstract.innerText = 'Not available'; }
-			})
-		}
-		abstractDetail.addEventListener('toggle', onUnfoldAbstract);
-		abstractDetail.appendChild(abstract);
-		return abstractDetail;
+	const reloadElem = () => {
+		const uid = data.uuid;
+		plugin.api.reqDatapointSummary(uid).then((dInfo) => {
+			if (dInfo){
+				container.innerHTML = '';
+				container.appendChild(createMainElem(dInfo));
+			}
+		});
 	}
 
-	function createNoteDetail(){
-		const noteDetail = document.createElement('details');
-		noteDetail.classList.add('lires-ref-detail');
-		const summaryNote = document.createElement('summary');
-		summaryNote.innerText = 'Note';
-		noteDetail.appendChild(summaryNote);
-		const note = document.createElement('div');
-		note.classList.add('lires-ref-detail');
-		function onUnfoldNote(evt: Event){
-			if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
-			if (!evt.target.open){ return; }
-			note.innerHTML = 'Loading...';
-			note.style.maxWidth = '100%';
-			plugin.api.reqDatapointNote(data.uuid).then((text) => {
-				if (text !== ''){
-					note.innerHTML = '';
-					text = plugin.api.parseMarkdown(
-						plugin.settings.endpoint,
-						text, data, plugin.userInfo
-					);
-					MarkdownRenderer.render(
-						plugin.app, text, note, '__none_exist__', plugin
-					);
-				}
-				else { note.innerText = 'Not available'; }
-			})
-		}
-		noteDetail.addEventListener('toggle', onUnfoldNote);
-		noteDetail.appendChild(note);
-		return noteDetail;
-	}	
-	
-	const suppElem = document.createElement('div');
-	if (data.has_abstract){ suppElem.appendChild(createAbstractDetail()); }
-	if (data.note_linecount){ suppElem.appendChild(createNoteDetail()); }
-	elem.appendChild(suppElem);
-
-	return elem;
+	container.appendChild(createMainElem(data));
+	return container;
 }

@@ -38,6 +38,13 @@ div.lires-ref-info{
     margin-left: 1em;
     margin-top: 0.5em
 }
+a.lires-ref-reload{
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+a.lires-ref-reload:hover{
+    opacity: 1;
+}
 
 span.lires-ref-publication{
     font-style: italic;
