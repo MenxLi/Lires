@@ -12,7 +12,7 @@ span.lires-cite-uuid{
     opacity: 0;
     margin-left: 2em;
     margin-bottom: -0.75em;
-    transition: opacity 0.5s;
+    transition: opacity 0.25s;
 }
 
 div.lires-cite-line{
@@ -23,12 +23,18 @@ div.lires-cite-line:hover > span.lires-cite-uuid{
     opacity: 0.5;
 }
 
+
 div.lires-ref{
     margin-bottom: 1em;
 }
-span.lires-ref-uuid{
-    font-size: 0.8em;
-    opacity: 0.25;
+div.lires-ref-uuid{
+    font-size: 0.75em;
+    opacity: 0;
+    margin-bottom: -0.5em;
+    transition: opacity 0.2s;
+}
+div.lires-ref:hover > div.lires-ref-uuid{
+    opacity: 0.35;
 }
 h3.lires-ref-title{
     margin-block: 0em;
@@ -40,7 +46,7 @@ div.lires-ref-info{
 }
 a.lires-ref-reload{
     opacity: 0;
-    transition: all 0.5s;
+    transition: all 0.25s;
     padding-inline: 0.25em;
     border-radius: 0.25em;
     text-decoration: none;

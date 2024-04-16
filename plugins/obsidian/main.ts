@@ -258,11 +258,10 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 		const elem = document.createElement('div');
 		elem.classList.add('lires-ref');
 
-		const uuid = document.createElement('span');
+		const uuid = document.createElement('div');
 		uuid.classList.add('lires-ref-uuid');
 		uuid.innerText = 'lires:'+ data.uuid;
 		elem.appendChild(uuid);
-		elem.appendChild(document.createElement('br'));
 
 		const title = document.createElement('h3');
 		title.classList.add('lires-ref-title');
@@ -398,6 +397,7 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 		plugin.api.reqDatapointSummary(uid).then((dInfo) => {
 			if (dInfo){
 				container.innerHTML = '';
+				summaryStore.set(uid, dInfo); 	// update the summary store
 				container.appendChild(createMainElem(dInfo));
 			}
 		});
