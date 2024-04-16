@@ -278,56 +278,6 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 	infoElem.appendChild(authors);
 	infoElem.appendChild(document.createElement('br'));
 
-	const abstractDetail = document.createElement('details');
-	abstractDetail.classList.add('lires-ref-detail');
-	const summaryAbstract = document.createElement('summary');
-	summaryAbstract.innerText = 'Abstract';
-	abstractDetail.appendChild(summaryAbstract);
-	const abstract = document.createElement('p');
-	abstract.classList.add('lires-ref-detail');
-	function onUnfoldAbstract(evt: Event){
-		// abstractDetail.removeEventListener('toggle', onUnfold);
-		if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
-		if (!evt.target.open){ return; }
-		abstract.innerHTML = 'Loading...';
-		plugin.api.reqDatapointAbstract(data.uuid).then((text) => {
-			if (text !== ''){ abstract.innerText = text; }
-			else { abstract.innerText = 'Not available'; }
-		})
-	}
-	abstractDetail.addEventListener('toggle', onUnfoldAbstract);
-	abstractDetail.appendChild(abstract);
-	infoElem.appendChild(abstractDetail);
-
-	const noteDetail = document.createElement('details');
-	noteDetail.classList.add('lires-ref-detail');
-	const summaryNote = document.createElement('summary');
-	summaryNote.innerText = 'Note';
-	noteDetail.appendChild(summaryNote);
-	const note = document.createElement('div');
-	note.classList.add('lires-ref-detail');
-	function onUnfoldNote(evt: Event){
-		if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
-		if (!evt.target.open){ return; }
-		note.innerHTML = 'Loading...';
-		note.style.maxWidth = '100%';
-		plugin.api.reqDatapointNote(data.uuid).then((text) => {
-			if (text !== ''){
-				note.innerHTML = '';
-				text = plugin.api.parseMarkdown(
-					plugin.settings.endpoint,
-					text, data, plugin.userInfo
-				);
-				MarkdownRenderer.render(
-					plugin.app, text, note, '__none_exist__', plugin
-				);
-			}
-			else { note.innerText = 'Not available'; }
-		})
-	}
-	noteDetail.addEventListener('toggle', onUnfoldNote);
-	noteDetail.appendChild(note);
-
 	infoElem.appendChild(getLinkSpan({
 		url: plugin.settings.endpoint+'#reader/'+data.uuid,
 		text: 'reader'
@@ -354,10 +304,67 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 		}
 	}));
 
-	if (data.has_abstract){ infoElem.appendChild(abstractDetail); }
-	if (data.note_linecount){ infoElem.appendChild(noteDetail); }
-
 	elem.appendChild(infoElem);
+
+	function createAbstractDetail(){
+		const abstractDetail = document.createElement('details');
+		abstractDetail.classList.add('lires-ref-detail');
+		const summaryAbstract = document.createElement('summary');
+		summaryAbstract.innerText = 'Abstract';
+		abstractDetail.appendChild(summaryAbstract);
+		const abstract = document.createElement('p');
+		abstract.classList.add('lires-ref-detail');
+		function onUnfoldAbstract(evt: Event){
+			// abstractDetail.removeEventListener('toggle', onUnfold);
+			if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
+			if (!evt.target.open){ return; }
+			abstract.innerHTML = 'Loading...';
+			plugin.api.reqDatapointAbstract(data.uuid).then((text) => {
+				if (text !== ''){ abstract.innerText = text; }
+				else { abstract.innerText = 'Not available'; }
+			})
+		}
+		abstractDetail.addEventListener('toggle', onUnfoldAbstract);
+		abstractDetail.appendChild(abstract);
+		return abstractDetail;
+	}
+
+	function createNoteDetail(){
+		const noteDetail = document.createElement('details');
+		noteDetail.classList.add('lires-ref-detail');
+		const summaryNote = document.createElement('summary');
+		summaryNote.innerText = 'Note';
+		noteDetail.appendChild(summaryNote);
+		const note = document.createElement('div');
+		note.classList.add('lires-ref-detail');
+		function onUnfoldNote(evt: Event){
+			if (!evt.target || !(evt.target instanceof HTMLDetailsElement)) return;
+			if (!evt.target.open){ return; }
+			note.innerHTML = 'Loading...';
+			note.style.maxWidth = '100%';
+			plugin.api.reqDatapointNote(data.uuid).then((text) => {
+				if (text !== ''){
+					note.innerHTML = '';
+					text = plugin.api.parseMarkdown(
+						plugin.settings.endpoint,
+						text, data, plugin.userInfo
+					);
+					MarkdownRenderer.render(
+						plugin.app, text, note, '__none_exist__', plugin
+					);
+				}
+				else { note.innerText = 'Not available'; }
+			})
+		}
+		noteDetail.addEventListener('toggle', onUnfoldNote);
+		noteDetail.appendChild(note);
+		return noteDetail;
+	}	
+	
+	const suppElem = document.createElement('div');
+	if (data.has_abstract){ suppElem.appendChild(createAbstractDetail()); }
+	if (data.note_linecount){ suppElem.appendChild(createNoteDetail()); }
+	elem.appendChild(suppElem);
 
 	return elem;
 }
