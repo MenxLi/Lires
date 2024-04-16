@@ -20,6 +20,7 @@ venv
 lires_server/assets/pdf-viewer
 lires_server/assets/pdfjs_downloading.lock
 lires_server/assets/js-api
+lires_server/assets/obsidian-plugin
 
 # building process generated
 **/package-lock.json
