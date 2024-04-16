@@ -97,9 +97,12 @@ For more information, visit $URL/documentation/manual/obsidianPlugin.html
 class ObsidianPluginGetHandler(RequestHandlerBase):
     async def get(self):
         obsidian_plugin_root = os.path.join(ASSETS_DIR, "obsidian-plugin")
+        if not os.path.exists(obsidian_plugin_root):
+            self.write("Error: Obsidian plugin not built on this server.")
+            return
+
         self.set_header("Content-Type", "application/zip")
         self.set_header("Content-Disposition", "attachment; filename=lires-obsidian-plugin.zip")
-
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w") as z:
             for root, _, files in os.walk(obsidian_plugin_root):
