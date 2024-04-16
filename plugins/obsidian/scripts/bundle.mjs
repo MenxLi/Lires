@@ -21,9 +21,20 @@ neededFiles.forEach(file => {
 })
 console.info('Copied needed files to dist dir');
 
-// make another copy to asset dir
-neededFiles.forEach(file => {
-    fs.copy(`./${file}`, `${assetDestDir}/${file}`)
-        .catch(err => console.error(err));
+// if assetDestDir does exist, remove it
+if (fs.existsSync(assetDestDir)) {
+    console.info(`Removing ${assetDestDir}`);
+    fs.removeSync(assetDestDir);
+}
+
+// copy dist to lires_server/assets/obsidian-plugin,
+// ignore the 'data.json' file
+fs.copy(distDir, assetDestDir, {
+    filter: (src, dest) => {
+        return !src.endsWith('data.json');
+    }
 })
-console.info('Copied needed files to asset dir');
+    .then(() => {
+        console.info(`Copied dist to ${assetDestDir}`);
+    })
+    .catch(err => console.error(err));
