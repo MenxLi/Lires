@@ -119,6 +119,7 @@ class Application(tornado.web.Application):
             # api file
             (r"/_resources/api.zip", APIGetHandler_JS),
             (r"/_resources/api.py", APIGetHandler_Py),
+            (r"/_resources/lires-obsidian-plugin.zip", ObsidianPluginGetHandler),
         ]
         # https://www.tornadoweb.org/en/stable/web.html#tornado.web.Application.settings
         settings = {

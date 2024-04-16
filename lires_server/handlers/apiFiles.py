@@ -3,6 +3,8 @@ from lires.version import VERSION
 from lires_server.config import ASSETS_DIR
 
 import os, string, time
+import zipfile
+import io
 
 _js_api_mainfile_template = string.Template(f"""
 // Lires-API v$VERSION (Accessed: $TIME at $URL)
@@ -39,9 +41,6 @@ class APIGetHandler_JS(RequestHandlerBase):
             VERSION=VERSION
         )
 
-        # bundle to zip
-        import zipfile
-        import io
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w") as z:
             z.write(api_file, "lib/api.js")
@@ -89,3 +88,27 @@ class APIGetHandler_Py(RequestHandlerBase):
         self.set_header("Content-Type", "text/plain")
         self.set_header("Content-Disposition", "attachment; filename=main.py")
         self.write(example_content)
+
+_obsidian_plugin_readme_template = string.Template(f"""
+# Lires-Obsidian-Plugin v$VERSION
+This plugin is used to connect obsidian with Lires server
+For more information, visit $URL/documentation/manual/obsidianPlugin.html
+""")
+class ObsidianPluginGetHandler(RequestHandlerBase):
+    async def get(self):
+        obsidian_plugin_root = os.path.join(ASSETS_DIR, "obsidian-plugin")
+        self.set_header("Content-Type", "application/zip")
+        self.set_header("Content-Disposition", "attachment; filename=lires-obsidian-plugin.zip")
+
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w") as z:
+            for root, _, files in os.walk(obsidian_plugin_root):
+                for file in files:
+                    z.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), obsidian_plugin_root))
+            readme_content = _obsidian_plugin_readme_template.safe_substitute(
+                VERSION=VERSION,
+                URL=self.request.protocol + "://" + self.request.host
+            )
+            z.writestr("README.md", readme_content)
+        zip_buffer.seek(0)
+        self.write(zip_buffer.read()) 
