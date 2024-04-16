@@ -6,7 +6,7 @@ module.exports = {
     // optimization: { minimize: false, },
     output: {
         filename: 'api.js',
-        path: path.resolve(__dirname, 'dist-api'),
+        path: path.resolve(__dirname, '../lires_server/assets/js-api'),
         // library: 'LiresAPI',
         libraryTarget: 'commonjs-static'
     },

@@ -3,7 +3,7 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "outDir": "./dist-api",
+    "outDir": "../lires_server/assets/js-api",
     "allowJs": true,
     "jsx": "preserve",
     "declaration": true

@@ -1,6 +1,6 @@
 from ._base import *
 from lires.version import VERSION
-import lires
+from lires_server.config import ASSETS_DIR
 
 import os, string, time
 
@@ -23,10 +23,10 @@ Set `NODE_TLS_REJECT_UNAUTHORIZED=0` to ignore SSL error
 class APIGetHandler_JS(RequestHandlerBase):
     @keyRequired
     async def get(self):
-        from lires_web import LRSWEB_APIFILE_ROOT
-        api_file = os.path.join(LRSWEB_APIFILE_ROOT, "api.js")
-        api_d_ts = os.path.join(LRSWEB_APIFILE_ROOT, "api", "serverConn.d.ts")
-        protocol_d_ts = os.path.join(LRSWEB_APIFILE_ROOT, "api", "protocol.d.ts")
+        js_api_root = os.path.join(ASSETS_DIR, "js-api")
+        api_file = os.path.join(js_api_root, "api.js")
+        api_d_ts = os.path.join(js_api_root, "api", "serverConn.d.ts")
+        protocol_d_ts = os.path.join(js_api_root, "api", "protocol.d.ts")
 
         example_content = _js_api_mainfile_template.safe_substitute(
             TIME=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),

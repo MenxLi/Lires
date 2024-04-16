@@ -16,8 +16,10 @@ venv
 .DS_Store
 .TempDir
 .cache
+
 lires_server/assets/pdf-viewer
 lires_server/assets/pdfjs_downloading.lock
+lires_server/assets/js-api
 
 # building process generated
 **/package-lock.json
