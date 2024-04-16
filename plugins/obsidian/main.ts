@@ -206,6 +206,12 @@ function getLinkSpan({
 }
 
 function getCitationLineElem(plugin: LiresPlugin, data: DataInfoT){
+	if (!data.uuid.trim()){
+		const elem = document.createElement('div');
+		elem.innerText = 'Failed to load data';
+		return elem;
+	}
+
 	// a short string to be used in the citation in the form of APA
 	const elem = document.createElement('div');
 	elem.classList.add('lires-cite-line');
@@ -238,6 +244,15 @@ function getCitationLineElem(plugin: LiresPlugin, data: DataInfoT){
 function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 
 	const container = document.createElement('div');
+	if (!data.uuid.trim()){
+		const faildElem = document.createElement('div');
+		faildElem.innerText = 'Failed to load data';
+		faildElem.style.color = 'red';
+		faildElem.style.fontWeight = 'bold';
+		faildElem.style.margin = '1em';
+		container.appendChild(faildElem);
+		return container;
+	}
 
 	const createMainElem = (data: DataInfoT) => {
 		const elem = document.createElement('div');
