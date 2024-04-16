@@ -7,13 +7,17 @@ export default class LiresAPI {
     _endpointGetter: () => string;
     _credentialGetter: () => string;
 
-    constructor() {
-        this._fetcher = new Fetcher();
-    }
+    constructor() {}
 
     public init(endpointGetter: () => string, credentialGetter: () => string): LiresAPI {
-        this._fetcher.setBaseUrlGetter(endpointGetter);
-        this._fetcher.setCredentialGetter(credentialGetter);
+        const __thisSessionId = Math.random().toString(36).substring(2, 15);
+        this._fetcher = new Fetcher(
+            {
+                'baseUrlGetter': endpointGetter,
+                'tokenGetter': credentialGetter,
+                'sessionIDGetter': ()=>{return 'obsidian-'+__thisSessionId;}
+            }
+        );
         return this;
     }
 
