@@ -40,10 +40,18 @@ div.lires-ref-info{
 }
 a.lires-ref-reload{
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: all 0.5s;
+    padding-inline: 0.25em;
+    border-radius: 0.25em;
+    text-decoration: none;
+}
+div.lires-ref-info:hover > a.lires-ref-reload{
+    opacity: 0.25;
 }
 a.lires-ref-reload:hover{
-    opacity: 1;
+    opacity: 1 !important;
+    background-color: rgba(14, 130, 145, 0.75);
+    color: white;
 }
 
 span.lires-ref-publication{
