@@ -92,7 +92,7 @@ class APIGetHandler_Py(RequestHandlerBase):
 _obsidian_plugin_readme_template = string.Template(f"""
 # Lires-Obsidian-Plugin v$VERSION
 This plugin is used to connect obsidian with Lires server
-For more information, visit $URL/documentation/manual/obsidianPlugin.html
+For more information, visit [the manual]($URL/documentation/manual/obsidianPlugin.html)
 """)
 class ObsidianPluginGetHandler(RequestHandlerBase):
     async def get(self):
@@ -107,6 +107,9 @@ class ObsidianPluginGetHandler(RequestHandlerBase):
         with zipfile.ZipFile(zip_buffer, "w") as z:
             for root, _, files in os.walk(obsidian_plugin_root):
                 for file in files:
+                    if file == "data.json":
+                        # make sure the data.json is not accidentally leaked
+                        continue
                     z.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), obsidian_plugin_root))
             readme_content = _obsidian_plugin_readme_template.safe_substitute(
                 VERSION=VERSION,
