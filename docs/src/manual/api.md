@@ -1,5 +1,10 @@
 # API
-使用API实现脚本化操作。
+实现脚本化操作。
+
+::: warning
+API文件包下载过程中即在示例文件中包含了用户授权信息，因此请勿直接将API文件包分享给他人。
+:::
+
 
 ## Javascript
 在软件的关于页面中可以下载API文件包，解压后包含程序示例`main.mjs`和相关API库文件。
@@ -8,11 +13,6 @@
 ::: info
 前端页面即使用此API进行数据交互，你甚至可以基于此接口开发自己的前端页面😊
 :::
-
-::: warning
-API文件包下载过程中即在`main.mjs`中包含了用户授权信息，因此请勿直接将API文件包分享给他人。
-:::
-
 
 ### 示例
 抓取ArXiv上最新50条CV论文信息，并加入到数据库中。
@@ -105,7 +105,7 @@ for (const article of articles) {
 （最新版本可通过`pip install git+http://github.com/MenxLi/Lires.git`安装）
 
 使用方法和Javascript版本类似，但是Python版本的API仅支持部分功能，
-具体可参考[Python API实现](https://github.com/MenxLi/Lires/blob/dev/lires/api/server.py)。
+具体可参考[Python API实现](https://github.com/MenxLi/Lires/blob/dev/lires/api/server.py)中的`ServerConn`类。
 
 ### 示例
 查询服务器运行状态。
@@ -123,8 +123,8 @@ if __name__ == "__main__":
 ```
 
 ## RESTful API
-本质上，上述API都是基于RESTful API实现的，
-然而本软件目前处于开发阶段，API可能会有变动，因此不建议直接使用RESTful API进行操作，
+本质上，后端实现了一套RESTful API，上述API都是基于HTTP请求实现的。  
+然而本软件目前处于开发阶段，API可能会有变动，因此不建议直接使用HTTP请求进行操作，
 建议使用上述封装好的API库。
 
-若要使用RESTful API，可以参考[API实现](https://github.com/MenxLi/Lires/blob/dev/lires_server/main.py)
+若要使用RESTful API，可以参考[网关服务实现](https://github.com/MenxLi/Lires/blob/dev/lires_server/main.py)
