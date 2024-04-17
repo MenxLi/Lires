@@ -49,8 +49,8 @@ use `lowercase-with-dash` for http path, e.g. `/api/v1/your-path`
 ## Build for distribution
 Please run the following commands to build for the distribution:
 ```bash
-# build fronted
-cd lires_web && npm install && npm run build && cd ..
+# build necessary files
+make build
 
 # fetch third party libs
 lrs-utils update_pdfjs

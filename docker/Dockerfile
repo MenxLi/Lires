@@ -9,9 +9,10 @@ COPY . /Lires
 WORKDIR /Lires/docs
 RUN npm install && npm run build
 
+WORKDIR /Lires/plugins/obsidian
+RUN npm install && npm run build
+
 WORKDIR /Lires/lires_web 
-# RUN npm install -g cnpm --registry=https://registry.npm.taobao.org
-# RUN cnpm install && cnpm run build
 RUN npm install && npm run build
 
 ## Second stage, build the server

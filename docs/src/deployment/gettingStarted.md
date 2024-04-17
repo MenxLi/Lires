@@ -33,11 +33,9 @@ pip install 'Lires[all]'
 
 ### From source
 Compile frontend files
-> **Prerequisites:**  Node.js
+> **Prerequisites:**  Node.js, Make
 ```bash
-cd docs && npm install && cd ..   # install the document dependencies
-cd lires_web && npm install && npm run build  
-cd ..
+make build
 ```
 Install the servers
 > **Prerequisites:**  Python 3.8+, GCC

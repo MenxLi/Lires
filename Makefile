@@ -20,6 +20,9 @@ test-clean:
 
 
 obsidian-build:
-	cd plugins/obsidian \
-		&& npm install \
-		&& npm run build
+	cd plugins/obsidian && npm install && npm run build
+doc-build:
+	cd docs && npm install && npm run build
+web-build:
+	cd lires_web && npm install && npm run build
+build: obsidian-build doc-build web-build
