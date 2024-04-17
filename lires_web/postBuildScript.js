@@ -1,10 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
 
-fs.copy('../docs/.vitepress/dist', './dist/documentation')
-  .then(() => console.log('Documents copied successfully!'))
-  .catch(err => console.error(err));
-
 if (fs.existsSync('./dist-api')){
   const assetDir = '../lires_server/assets';
   const apiDestDir = path.resolve(assetDir, 'js-api');

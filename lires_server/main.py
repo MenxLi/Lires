@@ -14,6 +14,7 @@ from tornado.httpserver import HTTPServer
 import ssl
 
 from .handlers import *
+from .config import ASSETS_DIR
 
 
 class DefaultRequestHandler(RequestHandlerBase):
@@ -47,30 +48,36 @@ def cachedStaticFileHandlerFactory(cache_seconds):
 NoCacheStaticFileHandler = cachedStaticFileHandlerFactory(0)
 class Application(tornado.web.Application):
     def __init__(self, debug = False) -> None:
-        # will use simple storage service protocal (put, get, delete) to store data, when applicable
         handlers = [
             # Frontend
             (r'/()', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
             (r'/(index.html)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
             (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
             (r'/(assets/.*)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(documentation/.*)', cachedStaticFileHandlerFactory(cache_seconds=600), {"path": LRSWEB_SRC_ROOT, 'default_filename': 'index.html'}),
+
+            # access server assets
+            (r'/documentation/(.*)', cachedStaticFileHandlerFactory(cache_seconds=600), 
+                {"path": os.path.join(ASSETS_DIR, 'docs'), 'default_filename': 'index.html'}
+            ),
+            (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),
+            (r"/_resources/api.zip", APIGetHandler_JS),
+            (r"/_resources/api.py", APIGetHandler_Py),
+            (r"/_resources/lires-obsidian-plugin.zip", ObsidianPluginGetHandler),
 
             # websocket
             (r'/ws', WebsocketHandler),
 
-            # public resources
+            # public resources, with s3-like protocol: put, get, delete
             (r"/doc/(.*)", DocHandler),
-            (r"/img/(.*)", ImageHandler),                       # will be deprecated
+            (r"/img/(.*)", ImageHandler),                       # will be deprecated on next version
             (r"/misc/(.*)", MiscFileHandler),
-            (r"/pdfjs/(.*)", PdfJsHandler, {"path": PdfJsHandler.root_dir}),
             (r"/user-avatar/(.*)", UserAvatarHandler),
 
             # APIs =================================================
             (r"/api/summary", SummaryHandler),
             (r"/api/status", StatusHandler),
             (r"/api/auth", AuthHandler),
-            (r"/api/search", SearchHandler),                    # will be deprecated
+            (r"/api/search", SearchHandler),                    # will be deprecated on next version
 
             (r"/api/filter/basic", BasicFilterHandler),
 
@@ -116,10 +123,6 @@ class Application(tornado.web.Application):
             (r"/api/feed/query", FeedHandler),
             (r"/api/feed/categories", FeedCategoriesHandler),
 
-            # api file
-            (r"/_resources/api.zip", APIGetHandler_JS),
-            (r"/_resources/api.py", APIGetHandler_Py),
-            (r"/_resources/lires-obsidian-plugin.zip", ObsidianPluginGetHandler),
         ]
         # https://www.tornadoweb.org/en/stable/web.html#tornado.web.Application.settings
         settings = {
