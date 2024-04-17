@@ -193,6 +193,12 @@ class ServerConn:
             tags: Optional[list[str]] = None,
             url: Optional[str] = None,
             ) -> DataPointSummary:
+        """
+        Create or update an entry in the database. 
+        If `uuid` is not None, the entry with the given `uuid` will be updated.
+        Otherwise, a new entry will be created, 
+        all other fields should be complete when creating a new entry.
+        """
         if uuid is None:
             assert bibtex is not None
             assert tags is not None
@@ -219,6 +225,7 @@ class ServerConn:
         search_content: str = '',
         max_results: int = 99999,
     ) -> SearchRes:
+        """ The main entry point for searching in the server. """
         params = {
             "tags": tags,
             "search_by": search_by,
