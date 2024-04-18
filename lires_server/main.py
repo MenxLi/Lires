@@ -55,7 +55,7 @@ class Application(tornado.web.Application):
             (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
             (r'/(assets/.*)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
 
-            # access server assets
+            # access server assets, read-only
             (r'/documentation/(.*)', cachedStaticFileHandlerFactory(cache_seconds=600), 
                 {"path": os.path.join(ASSETS_DIR, 'docs'), 'default_filename': 'index.html'}
             ),
@@ -72,6 +72,10 @@ class Application(tornado.web.Application):
             (r"/img/(.*)", ImageHandler),                       # will be deprecated on next version
             (r"/misc/(.*)", MiscFileHandler),
             (r"/user-avatar/(.*)", UserAvatarHandler),
+
+            # document queries with different levels of details, read-only
+            (r"/doc-dry/(.*)", DryDocHandler), 
+            (r"/doc-text/(.*)", DocTextHandler), 
 
             # APIs =================================================
             (r"/api/summary", SummaryHandler),

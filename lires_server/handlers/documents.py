@@ -3,9 +3,10 @@ Get documents: document file / web page / comments
 """
 from ._base import *
 import base64
-import os, json
+import os, json, re
 import aiofiles
 from lires.config import ACCEPTED_EXTENSIONS
+from lires.core import pdfTools
 
 class DocHandler(RequestHandlerBase):
     async def get(self, uuid):
@@ -102,3 +103,46 @@ class DocHandler(RequestHandlerBase):
             'datapoint_summary': dp.summary.json()
         })
         self.write(json.dumps(dp.summary.json()))
+
+class DryDocHandler(RequestHandlerBase):
+    """
+    Return the document file in minimal format, 
+    for PDF and HTML, remove all the images and return the text only version
+    """
+    async def get(self, uuid):
+        db = await self.db()
+        file_p = await (await db.get(uuid)).fm.filePath()
+        if isinstance(file_p, str):
+            if file_p.endswith(".pdf"):
+                async with pdfTools.PDFAnalyser(file_p) as doc:
+                    doc.removeImages()
+                    self.set_header("Content-Type", 'application/pdf; charset="utf-8"')
+                    self.set_header("Content-Disposition", "inline; filename={}.pdf".format(uuid))
+                    self.write(doc.toBytes())
+                    return
+            if file_p.endswith(".html"):
+                async with aiofiles.open(file_p, "r", encoding="utf-8") as f:
+                    html = await f.read()
+                    self.set_header("Content-Type", 'text/html; charset="utf-8"')
+                    html = re.sub(r'<img[^>]*>', '', html)
+                    self.write(html)
+                    return
+        self.write("The file not exist or is not supported.")
+
+class DocTextHandler(RequestHandlerBase):
+    """
+    Return the text content of the document
+    """
+    async def get(self, uuid):
+        db = await self.db()
+        file_p = await (await db.get(uuid)).fm.filePath()
+        if isinstance(file_p, str):
+            if file_p.endswith(".pdf"):
+                async with pdfTools.PDFAnalyser(file_p) as doc:
+                    text = doc.getText()
+                    self.set_header("Content-Type", 'text/plain; charset="utf-8"')
+                    self.write(text)
+                    return
+            if file_p.endswith(".html"):
+                raise tornado.web.HTTPError(400, reason="HTML file is not supported yet")
+        self.write("The file not exist or is not supported.")

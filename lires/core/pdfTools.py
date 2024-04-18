@@ -173,6 +173,18 @@ class PDFAnalyser:
             # replace multiple spaces with one space
             text = " ".join(text.split())
         return text
+    
+    def removeImages(self) -> None:
+        """ 
+        Remove all images in the pdf.
+        """
+        for i in range(self.doc.page_count):
+            for img in self.doc.get_page_images(i):
+                xref = img[0]
+                self.doc._deleteObject(xref)
+    
+    def toBytes(self) -> bytes:
+        return self.doc.write()
 
 async def getPDFText(pdf_path: str, max_word: Optional[int] = None, possible_offset: int = 0) -> str:
     """
