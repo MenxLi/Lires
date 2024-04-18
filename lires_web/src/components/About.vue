@@ -77,16 +77,15 @@
                 Lires is a self-hosted web application for research literature management. <br>
                 It is open source and available at <a href="https://github.com/MenxLi/Lires" target="_blank">GitHub - MenxLi/Lires</a>. <br>
             </p>
-
         </div>
         <div class="content">
             <h2> Resources </h2>
             <ul>
-                <li> <a :href="docsURL" target="_blank">User manual</a> </li>
-                <li> <a :href="useSettingsStore().backend()+`/_resources/lires-obsidian-plugin.zip?key=${useSettingsStore().encKey}`">Obsidian Plugin</a> </li>
-                <li> <a :href="useSettingsStore().backend()+`/_resources/api.zip?key=${useSettingsStore().encKey}`">Javascript API</a> </li>
-                <li> <a :href="useSettingsStore().backend()+`/_resources/api.py?key=${useSettingsStore().encKey}`">Python API</a> </li>
-                <li> <a @click="showChangelog = true" style="cursor: pointer;">Change log</a> </li>
+                <li> <a class='resource' :href="docsURL" target="_blank"><b>User manual</b></a> </li>
+                <li> <a class='resource' :href="useSettingsStore().backend()+`/_resources/lires-obsidian-plugin.zip?key=${useSettingsStore().encKey}`">Obsidian plugin</a> </li>
+                <li> <a class='resource' :href="useSettingsStore().backend()+`/_resources/api.zip?key=${useSettingsStore().encKey}`">API-Javascript</a> </li>
+                <li> <a class='resource' :href="useSettingsStore().backend()+`/_resources/api.py?key=${useSettingsStore().encKey}`">API-Python</a> </li>
+                <li> <a class='resource' @click="showChangelog = true" style="cursor: pointer;">Change log</a> </li>
             </ul>
 
         </div>
@@ -153,6 +152,15 @@
         margin-top: 1rem;
         padding-block: 0.8rem;
         border-top: 1px solid var(--color-border);
+    }
+
+    a{
+        text-underline-offset: 2px;
+    }
+    a:hover{ 
+        text-decoration: underline;
+        
+        background-color: unset; 
     }
 
     div#about-main{
