@@ -127,7 +127,7 @@ After the user is created, you can manage other users with this user via the web
 
 ## Management
 There are several management tools for the server, they are all accessible by `lrs-<tool_name>`.  
-A detailed description of each tool can be found in [manage.md](./manage.md).
+A list of all the tools can be found in [manage.md](./manage.md).
 
 **Following are some common management tasks.**
 
@@ -161,4 +161,9 @@ Since every startup of the log server will create a new log file, it is recommen
 ```sh
 lrs-log merge --rm
 ```
-This will merge all the log files into a single file, and remove the original files.
+This will merge all the log files into a single file, and remove the original files. 
+
+::: warning
+Log archiving should be done when the log server is not running, 
+otherwise, the log server will try to write to the removed files and cause errors.
+:::
