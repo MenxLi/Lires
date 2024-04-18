@@ -14,8 +14,8 @@ export function platformType(){
 let FRONTEND_PROTOCAL: 'http:' | 'https:' = window.location.protocol as 'http:' | 'https:';
 
 let FRONTENDURL: string;
-FRONTENDURL = `${FRONTEND_PROTOCAL}//${window.location.hostname}:${window.location.port}`; //
-const docsURL = `${getBackendURL()}/documentation/`;
+FRONTENDURL = `${FRONTEND_PROTOCAL}//${window.location.hostname}:${window.location.port}`;
+const docsURL = `${FRONTENDURL}/documentation/`;
 const docsURL_Manual = `${docsURL}manual/`;
 if (import.meta.env.DEV){
     console.log("DEV mode");
