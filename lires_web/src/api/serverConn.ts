@@ -6,6 +6,39 @@ import { sha256 } from "../utils/sha256lib";
 import Fetcher from "./fetcher";
 
 /**
+ * Resolve the path of the resources on the server, 
+ * these resources are the files that can be accessed by the get request.
+ * NOT USED IN THE CURRENT VERSION
+ */
+export class HTTPPathResolver {
+    constructor(private baseURLGetter: ()=>string, private tokenGetter: ()=>string = ()=>"" ){}
+    public get baseURL(){ return this.baseURLGetter(); }
+    public get token(){ return this.tokenGetter(); }
+
+    doc(uid: string, userID: number): string{ return `${this.baseURL}/doc/${uid}?_u=${userID}`; }
+    docDry = (uid: string, userID: number) => this.doc(uid, userID).replace("/doc/", "/doc-dry/");
+    docText = (uid: string, userID: number) => this.doc(uid, userID).replace("/doc/", "/doc-text/");
+
+    miscFile(uid: string, fname: string): string{
+        const encodedFname = encodeURIComponent(fname);
+        return `${this.baseURL}/misc/${uid}?fname=${encodedFname}`;
+    }
+
+    userAvatar(username: string, opt: {
+        size: number, 
+        t: number | null
+    } = { size: 128, t: -1 }): string{
+        let tStamp;
+        if(opt.t === null){ tStamp = ''; }
+        else if (opt.t < 0){ tStamp = `&t=${Date.now()}`; }
+        else{ tStamp = `&t=${opt.t}`; }
+        return `${this.baseURL}/user-avatar/${username}?size=${opt.size}${tStamp}`
+    }
+}
+
+/**
+ * Properties:
+ *  - resolve: resolve the path of the resources on the server
  * Naming convention:
  *  - req...: request data from server
  *  - update...: update data on the server
@@ -15,7 +48,7 @@ import Fetcher from "./fetcher";
  */
 export class ServerConn {
 
-    declare fetcher: Fetcher;
+    declare public fetcher: Fetcher;
     constructor(baseUrlGetter: ()=>string, tokenGetter: ()=>string, sessionIDGetter: (()=>string) | null = null){
         if (sessionIDGetter === null){
             const _sessionID = Math.random().toString(36).substring(2);
