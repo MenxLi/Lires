@@ -122,6 +122,14 @@ class TestServer(BaseConfig):
         assert d_summary.uuid == dp_id
         assert not d_summary.has_file
     
+    async def test_updateTag(self, server_normal: ServerConn):
+        # get the first entry
+        dp_id = (await server_normal.filter(max_results=1))['uids'][0]
+        curr_data = await server_normal.reqDatapointSummary(dp_id)
+        new_tag = curr_data.tags + [randomAlphaNumeric(10)]
+        await server_normal.updateEntry(dp_id, tags = new_tag)
+        assert set((await server_normal.reqDatapointSummary(dp_id)).tags) == set(new_tag)
+
     async def test_updateNote(self, server_normal: ServerConn):
         # get the first entry
         dp_id = (await server_normal.filter(max_results=1))['uids'][0]

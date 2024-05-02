@@ -66,7 +66,9 @@ class DataUpdateHandler(RequestHandlerBase):
         # optional arguments (set to None) if uuid is present
         tags = json.loads(self.get_argument("tags", 'null'))
         url = self.get_argument("url", None)
+        if url == "null": url = None
         bibtex = self.get_argument("bibtex", None)
+        if bibtex == "null": bibtex = None
         
         if not permission["is_admin"]:
             if uuid is None:
