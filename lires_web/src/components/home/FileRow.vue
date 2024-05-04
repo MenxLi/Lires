@@ -5,7 +5,7 @@
     import FileRowMore from './FileRowMore.vue';
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
-    import { openURLExternal } from '../../utils/misc';
+    import { openURLExternal, volInfoFromBibtex } from '../../utils/misc';
     import { useConnectionStore, useUIStateStore } from '../store';
 
     import BookmarkFill0 from '../../assets/icons/bookmark_fill0.svg'
@@ -108,24 +108,16 @@
     })
     const datacardBackgroundColor = computed(() => {
         // if is hover
-        if (isDataCardHover.value){
-            return "var(--color-background-theme-highlight)";
-        }
+        if (isDataCardHover.value){ return "var(--color-background-theme-highlight)"; }
         //if is unfolded
-        if (g_unfoldedIds.value.includes(props.datapoint.summary.uuid)){
-            return "var(--color-background-theme)";
-        }
-        // only apply alternate color when compact
-        // if (!props.compact){
-        //     return "var(--color-background-ssoft)";
-        // }
+        if (g_unfoldedIds.value.includes(props.datapoint.summary.uuid)){ return "var(--color-background-theme)"; }
+        // else, apply zebra color
+        if (props.line_number % 2 == 0){ return "var(--color-background-ssoft)"; }
+        else{ return "var(--color-background)"; }
+    })
 
-        if (props.line_number % 2 == 0){
-            return "var(--color-background-ssoft)";
-        }
-        else{
-            return "var(--color-background)";
-        }
+    const volPageInfo = computed(() => {
+        return volInfoFromBibtex(props.datapoint.summary.bibtex);
     })
 
     function setBookmark(status: boolean){
@@ -216,7 +208,7 @@
                             // whiteSpace: `${(showMore)?'normal':'nowrap'}`,
                             color: 'var(--color-text-soft)',
                             fontSize: '0.75rem',
-                        }"> {{ authorYearText + ', ' + datapoint.publication }} </div>
+                        }"> {{ authorYearText + ', ' + datapoint.publication + (volPageInfo?'. '+volPageInfo:'') }} </div>
                     </div>
                     <slot></slot>
                 </div>

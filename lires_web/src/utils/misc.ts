@@ -114,3 +114,41 @@ export function lazify(func: Function, delay: number): (...args: any[]) => void{
         }, delay);
     }
 }
+
+/** Extract page, number and volume from bibtex
+ * @param bibtex - bibtex string
+ * @returns - formatted volume, number, and pages
+ */
+export function volInfoFromBibtex(bibtex: string): string {
+    // find the line with volume, number, and pages
+    let volume, number, pages;
+    function regexSearchFromBib(key: string): string {
+        return bibtex.match(new RegExp(`^\\s*${key}\\s*=\\s*({.*}|"[^"]*"),?\\s*$`, 'm'))?.[1] || '';
+    }
+    function format(str: string): string {
+        return str.replace(/"/g, '').replace(/{/g, '').replace(/}/g, '').trim()
+    }
+
+    // extract volume, number, and pages
+    volume = regexSearchFromBib('volume');
+    number = regexSearchFromBib('number');
+    if (!number) { number = regexSearchFromBib('issue'); }
+    pages = regexSearchFromBib('pages');
+    pages = pages.replace('--', '-');
+
+    // remove quotes and curly braces
+    volume = format(volume);
+    number = format(number);
+    pages = format(pages);
+
+    // assamble the result
+    let result = '';
+    if (volume) { result += `${volume}`; }
+    if (number) { result += `(${number})`; }
+    if (pages) {
+        if (result){ result += `: ${pages}`; }
+        // common in conference papers
+        else{ result += `${pages}`; }
+    }
+    return result;
+}
