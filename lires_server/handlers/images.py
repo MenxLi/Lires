@@ -8,6 +8,7 @@ import aiofiles
 class ImageHandler(RequestHandlerBase):
     """
     Get image from misc folder
+    DEPRECATED! Use MiscFileHandler instead
     """
     async def get(self, uid:str):
         """

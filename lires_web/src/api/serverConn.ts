@@ -38,13 +38,14 @@ export class HTTPPathResolver {
 
 /**
  * Properties:
- *  - resolve: resolve the path of the resources on the server
+ *  - resolve: resolve the path of the resources on the server  
+ * 
  * Naming convention:
  *  - req...: request data from server
  *  - update...: update data on the server
  *  - delete...: delete data on the server
  *  - upload...: upload files
- *  - <Other>: functional methods that do not fit the above categories
+ *  - [Other]: functional methods that do not fit the above categories
  */
 export class ServerConn {
 
