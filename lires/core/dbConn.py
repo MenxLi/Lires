@@ -726,7 +726,10 @@ class DBConnectionCache(LiresBase):
             if ret is None:
                 continue
             entries: list[str] = json.loads(ret[0])
-            entries.remove(uuid)
+            try:
+                entries.remove(uuid)
+            except ValueError as e:
+                await self.logger.error(f"Failed to remove {uuid} from author {author}, {e}. Maybe the entry is not in the list?")
             if not entries:
                 await self.conn.execute("DELETE FROM authors WHERE author=?", (author,))
             await self.conn.execute("UPDATE authors SET entries=? WHERE author=?", (json.dumps(entries), author))
