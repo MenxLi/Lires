@@ -162,9 +162,6 @@ class TagRenameHandler(RequestHandlerBase):
         db = await self.db()
         old_tag = self.get_argument("oldTag")
         new_tag = self.get_argument("newTag")
-        if not (await self.userInfo())["is_admin"]:
-            # only admin can rename tags
-            raise tornado.web.HTTPError(403)
         await db.renameTag(old_tag, new_tag)
         await self.logger.info(f"Tag [{old_tag}] renamed to [{new_tag}] by [{(await self.userInfo())['name']}]")
         await self.broadcastEventMessage({
@@ -182,9 +179,6 @@ class TagDeleteHandler(RequestHandlerBase):
         """
         db = await self.db()
         tag = self.get_argument("tag")
-        if not (await self.userInfo())["is_admin"]:
-            # only admin can delete tags
-            raise tornado.web.HTTPError(403)
         await db.deleteTag(tag)
         await self.logger.info(f"Tag [{tag}] deleted by [{(await self.userInfo())['name']}]")
         await self.broadcastEventMessage({
