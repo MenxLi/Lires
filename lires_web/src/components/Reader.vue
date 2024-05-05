@@ -58,7 +58,7 @@ export default {
     // 0: doc only
     // 1: note only
     // 2: doc and note
-    const layoutType = ref<number>(useSettingsStore().readerLayoutType);
+    const layoutType = ref(useSettingsStore().readerLayoutType);
 
     // initialize layoutType according to screen size
     if (window.innerWidth < 800){

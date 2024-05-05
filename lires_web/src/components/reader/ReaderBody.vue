@@ -6,6 +6,7 @@
     import { DataPoint } from '../../core/dataClass';
     import { ThemeMode } from '../../core/misc';
     import { FileSelectButton } from '../common/fragments';
+    import Splitter from '../common/Splitter.vue';
 
     const props = defineProps<{
         datapoint: DataPoint,
@@ -20,60 +21,14 @@
         return '';
     });
 
-    const leftPane = ref<HTMLElement | null>(null);
-    const rightPane = ref<HTMLElement | null>(null);
-    const splitter = ref<HTMLElement | null>(null);
-    const onMovingSplitter = ref<boolean>(false);
+    const isMovingSplitter = ref<boolean>(false);
     const noteEditor = ref<typeof NoteEditor | null>(null);
     // const togglePreview = (state: boolean)=>{ noteEditor.value!.togglePreview(state);}
     defineExpose({
         noteEditor,
     });
 
-    function onStartMovingSplitter(event: MouseEvent | TouchEvent){
-        if (splitter.value && splitter.value.contains(event.target as Node)){
-            onMovingSplitter.value = true;
-        }
-    }
-    function onStopMovingSplitter(){
-        onMovingSplitter.value = false;
-    }
-    const leftPaneWidthRatio = computed({
-        // a proxy to uiState.preferedReaderLeftPanelWidthPerc, for convenience
-        get: () => useUIStateStore().preferredReaderLeftPanelWidthPerc,
-        set: (val) => {useUIStateStore().preferredReaderLeftPanelWidthPerc = val}
-    });
-    function onMoveSplitter(event: MouseEvent | TouchEvent) {
-        if (onMovingSplitter.value && leftPane.value && rightPane.value && splitter.value) {
-            const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
-            const leftPaneWidth = clientX - leftPane.value!.getBoundingClientRect().left;
-            leftPane.value!.style.width = `${leftPaneWidth}px`;
-            rightPane.value!.style.width = `calc(100% - ${leftPaneWidth}px)`;
-            // record the width ratio for next time switching layout
-            leftPaneWidthRatio.value = leftPaneWidth / (leftPaneWidth + rightPane.value!.getBoundingClientRect().width);
-            leftPaneWidthRatio.value = Math.max(0.1, Math.min(0.9, leftPaneWidthRatio.value));
-        }
-    }
-
-    // resize event handlers
-    // Event listeners for both mouse and touch events
-    window.addEventListener('mousedown', onStartMovingSplitter);
-    window.addEventListener('touchstart', onStartMovingSplitter);
-
-    window.addEventListener('mouseup', onStopMovingSplitter);
-    window.addEventListener('touchend', onStopMovingSplitter);
-
-    window.addEventListener('mousemove', onMoveSplitter);
-    window.addEventListener('touchmove', onMoveSplitter);
-
-    // watch layoutType, reset the width of leftPane and rightPane
-    const showLeftPane = computed(()=>props.layoutType == 0 || props.layoutType == 2);
-    const showRightPane = computed(()=>props.layoutType == 1 || props.layoutType == 2);
     function setLayout(layoutType: number){
-        if (layoutType == 2){
-            leftPane.value!.style.width = `${leftPaneWidthRatio.value * 100}%`;
-            rightPane.value!.style.width = `${(1 - leftPaneWidthRatio.value) * 100}%`;
-        }
         useSettingsStore().setReaderLayoutType(layoutType);
     }
     watch(() => props.layoutType, (newLayoutType, oldLayoutType) => {
@@ -97,40 +52,50 @@
 
 <template>
     <div id="body">
-        <div class="pane" id="left-pane" ref="leftPane" v-show="showLeftPane">
-            <!-- pointer event should be none when moving splitter, otherwise the iframe will capture the mouse event -->
-            <iframe :src="openDocURL" title="doc" frameborder="0" v-if="datapoint.summary.has_file"
-                :style="{'pointer-events': onMovingSplitter ? 'none' : 'auto'}"
-            > </iframe>
+        <!-- <div class="pane" id="left-pane" ref="leftPane" v-show="showLeftPane"> -->
+        <Splitter direction="vertical" 
+        v-model:split-ratio="useUIStateStore().preferredReaderLeftPanelWidthPerc"
+        :mode="({
+            0: 'a',
+            1: 'b',
+            2: 'ab',
+        }[layoutType] as 'a'|'b'|'ab')"
+        @move-start="()=>isMovingSplitter=true" 
+        @move-stop="()=>isMovingSplitter=false"
+        >
+            <template v-slot:a>
+                <!-- pointer event should be none when moving splitter, otherwise the iframe will capture the mouse event -->
+                <iframe :src="openDocURL" title="doc" frameborder="0" v-if="datapoint.summary.has_file"
+                    :style="{'pointer-events': isMovingSplitter ? 'none' : 'auto'}"
+                > </iframe>
 
-            <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%" v-else
-                @dragover="($event)=>$event.preventDefault()"
-                @drop="($ev: DragEvent)=>{
-                    $ev.preventDefault();
-                    const files = $ev.dataTransfer?.files;
-                    useUIStateStore().showPopup('Upload file', 'info');
-                    if (files && files.length == 1){
-                        datapoint.uploadDocument(files[0]).then(()=>{
-                            useUIStateStore().showPopup(
-                                'File uploaded', 'success'
-                            )
-                        })
-                    }
-                }"
-            >
-                <div style="color: var(--color-text-soft); font-weight: bold; font-size: large;">No file, 
-                    drag and drop to&nbsp;
+                <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%" v-else
+                    @dragover="($event)=>$event.preventDefault()"
+                    @drop="($ev: DragEvent)=>{
+                        $ev.preventDefault();
+                        const files = $ev.dataTransfer?.files;
+                        useUIStateStore().showPopup('Upload file', 'info');
+                        if (files && files.length == 1){
+                            datapoint.uploadDocument(files[0]).then(()=>{
+                                useUIStateStore().showPopup(
+                                    'File uploaded', 'success'
+                                )
+                            })
+                        }
+                    }"
+                >
+                    <div style="color: var(--color-text-soft); font-weight: bold; font-size: large;">No file, 
+                        drag and drop to&nbsp;
+                    </div>
+                    <FileSelectButton :action="(f: File)=>datapoint.uploadDocument(f)" text="upload" :as-link="true" 
+                    style="font-weight: bold; font-size: large; cursor: pointer;">
+                    </FileSelectButton>
                 </div>
-                <FileSelectButton :action="(f: File)=>datapoint.uploadDocument(f)" text="upload" :as-link="true" 
-                style="font-weight: bold; font-size: large; cursor: pointer;">
-                </FileSelectButton>
-            </div>
-            
-        </div>
-        <div id="splitter" ref="splitter" @mousedown="onStartMovingSplitter" @touchstart="onStartMovingSplitter" v-if="layoutType==2"> </div>
-        <div class="pane" id="right-pane" ref="rightPane" v-show="showRightPane">
-            <NoteEditor :datapoint="datapoint" :theme="theme" ref="noteEditor"> </NoteEditor>
-        </div>
+            </template>
+            <template v-slot:b>
+                <NoteEditor :datapoint="datapoint" :theme="theme" ref="noteEditor"> </NoteEditor>
+            </template>
+        </Splitter>
     </div>
 </template>
 
@@ -140,12 +105,6 @@ div#body{
     flex-direction: row;
     width: 100%;
     height: 100%;
-}
-
-div.pane{
-    width: 100%;
-    height: 100%;
-    flex-grow: 1;
 }
 
 iframe{
