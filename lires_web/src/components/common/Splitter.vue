@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-    import { ref, defineModel, onMounted, watch } from 'vue';
+    import { ref, defineModel, onMounted, watch, nextTick } from 'vue';
 
     const props = withDefaults(defineProps<{
         direction?: 'horizontal' | 'vertical',
@@ -96,7 +96,8 @@
     watch(
         ()=>[props.direction, props.mode, splitRatio.value],
         ()=>{
-            updatePaneWidths();
+            // it's a trick to make it work with v-if
+            nextTick(updatePaneWidths);
         },
     )
     onMounted(()=>{
@@ -131,17 +132,20 @@
         display: flex;
         height: 100%;
         width: 100%;
+        padding: 0;
+        margin: 0;
     }
     .splitter-pane {
-        overflow: auto;
         position: relative;
         flex-grow: 1;
+        padding: 0px;
+        margin: 0px;
     }
     .splitter {
-        display: inline-block;
+        display: block;
         background-color: var(--color-border);
     }
     .splitter:hover, .splitter:active {
-        background-color: var(--color-theme);
+        background-color: var(--color-border-hover);
     }
 </style>

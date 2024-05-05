@@ -55,6 +55,7 @@
         <!-- <div class="pane" id="left-pane" ref="leftPane" v-show="showLeftPane"> -->
         <Splitter direction="vertical" 
         v-model:split-ratio="useUIStateStore().preferredReaderLeftPanelWidthPerc"
+        splitter-width="4px"
         :mode="({
             0: 'a',
             1: 'b',
@@ -101,8 +102,6 @@
 
 <style scoped>
 div#body{
-    display: flex;
-    flex-direction: row;
     width: 100%;
     height: 100%;
 }
@@ -110,29 +109,12 @@ div#body{
 iframe{
     width: 100%;
     height: 100%;
-    border: 1px solid var(--color-border);
-    /* border-radius: 10px; */
-    box-shadow: 0px 0px 5px var(--color-shadow);
-    /* -webkit-overflow-scrolling: touch; */
-    /* overflow: scroll; */
+    padding: 0px;
+    margin: 0px;
 }
 @media only screen and (max-width: 767px) {
     iframe{
         border-radius: 0px;
     }
-}
-
-#splitter{
-    width: 0.2rem;
-    margin: 0rem;
-    border-radius: 3px;
-    /* height: 70%; */
-    height: 100%;
-    align-self: center;
-    background-color: var(--color-border);
-    cursor: col-resize;
-}
-#splitter:hover{
-    background-color: var(--color-theme);
 }
 </style>
