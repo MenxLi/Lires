@@ -165,6 +165,7 @@ class ServerConn:
         return await self.__c.post(f"/api/datainfo-supp/note-update/{uuid}", {"content": content}, return_type="text")
     
     async def deleteDatapoint(self, uuid: str):
+        # TODO: remane to deleteEntry
         return await self.__c.post(f"/api/dataman/delete", {
             "uuid": uuid
         }, return_type="text")

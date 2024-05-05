@@ -122,24 +122,32 @@ class TestServer(BaseConfig):
         assert d_summary.uuid == dp_id
         assert not d_summary.has_file
     
+    async def _getFirstEntry(self, server_normal: ServerConn):
+        entry_id = (await server_normal.filter(max_results=1))['uids'][0]
+        return await server_normal.reqDatapointSummary(entry_id)
+    
     async def test_updateTag(self, server_normal: ServerConn):
-        # get the first entry
-        dp_id = (await server_normal.filter(max_results=1))['uids'][0]
-        curr_data = await server_normal.reqDatapointSummary(dp_id)
+        curr_data = await self._getFirstEntry(server_normal)
+        dp_id = curr_data.uuid
         new_tag = curr_data.tags + [randomAlphaNumeric(10)]
         await server_normal.updateEntry(dp_id, tags = new_tag)
         assert set((await server_normal.reqDatapointSummary(dp_id)).tags) == set(new_tag)
 
     async def test_updateNote(self, server_normal: ServerConn):
         # get the first entry
-        dp_id = (await server_normal.filter(max_results=1))['uids'][0]
         note = randomAlphaNumeric(1000)
+        dp_id = (await self._getFirstEntry(server_normal)).uuid
         await server_normal.updateDatapointNote(dp_id, note)
         assert await server_normal.reqDatapointNote(dp_id) == note
 
     async def test_updateAbstract(self, server_normal: ServerConn):
         # get the first entry
-        dp_id = (await server_normal.filter(max_results=1))['uids'][0]
+        dp_id = (await self._getFirstEntry(server_normal)).uuid
         abstract = randomAlphaNumeric(1000)
         await server_normal.updateDatapointAbstract(dp_id, abstract)
         assert await server_normal.reqDatapointAbstract(dp_id) == abstract
+    
+    async def test_deleteEntry(self, server_normal: ServerConn):
+        dp_id = (await self._getFirstEntry(server_normal)).uuid
+        await server_normal.deleteDatapoint(dp_id)
+        assert dp_id not in (await server_normal.reqAllKeys())
