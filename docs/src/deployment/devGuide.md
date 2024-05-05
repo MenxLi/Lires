@@ -10,7 +10,7 @@
   - [Build for distribution](#build-for-distribution)
   - [Roadmap](#roadmap)
     - [Planned changes for the next minor release](#planned-changes-for-the-next-minor-release)
-    - [Future plan](#future-plan)
+    - [Future plans without specific timeline](#future-plans-without-specific-timeline)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -61,21 +61,14 @@ python setup.py sdist
 
 
 ## Roadmap
-
 ### Planned changes for the next minor release
 
-- Use yaml for cluster configuration
 - Inter-service communication verification
+- Use yaml for cluster configuration
+- Add doc type to entry summary
 - API rename:
   - `deleteDatapoint` -> `deleteEntry`
   - `filter` -> `query`
 
-### Future plan
-
-<details>
-<summary>Finished</summary>
-
-- Long connection between the server and the client, so that the client can receive notifications when there are new activities. This may be done by using [Websocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) or [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
-- Moving to microservice paradigm
-- Move all data filtering to backend; frontend use partial async data loading to optimize bandwidth and rendering speed.
-</details>
+### Future plans without specific timeline
+(TO BE UPDATED)
