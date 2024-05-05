@@ -826,3 +826,26 @@ version_history:
       - Small document not pecepted
       - Link button wrong destination
       - Feed server deal with illegal bibtex entry
+  1.7.6:
+    - Features:
+      - Allow non-admin user to edit all tags
+      - Get doc of different level of details
+      - Obsidian plugin show faild fetch hint
+      - Obsidian plugin reader link, note
+      - About page obsidian plugin download
+      - Show volume info on datacard
+      - Python API can edit all tags
+      - Upgrade pdf.js to 4.2.67
+      - Add session id to APIs
+    - UI:
+      - Reader show hints on upload document
+      - About page link style update
+    - Refactor:
+      - API files to `lires_server/assets`
+      - Use splitter component for reader
+      - Remove unused http handler
+    - Development:
+      - Use make to build frontend
+    - Fix:
+      - Obsidian plugin entry order
+      - Update entry tags for Python API
