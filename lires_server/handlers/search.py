@@ -1,6 +1,6 @@
 from ._base import *
 from typing import TypedDict
-from lires.core.dataSearcher import DataSearcher
+from lires.core.vector import queryFeatureIndex
 import json
 
 
@@ -76,7 +76,14 @@ class BasicFilterHandler(RequestHandlerBase):
                     res.append(uid)
         
         elif search_by == 'feature':
-            res_, scores_ = await searchByFeature(self.iconn, await self.vec_db(), search_content, top_k=top_k)
+            q_res = await queryFeatureIndex(
+                iconn=self.iconn,
+                query=search_content,
+                n_return=top_k,
+                vector_collection= (await self.vec_db()).getCollection("doc_feature")
+            )
+            res_ = q_res["uids"]
+            scores_ = q_res["scores"]
             if cadidate_ids is not None:
                 candidate_set = set(cadidate_ids)    # convert to set may be faster?
                 res = []
@@ -107,37 +114,3 @@ class BasicFilterHandler(RequestHandlerBase):
             'scores': scores
         }))
         return
-
-async def searchByFeature(iconn, vec_db, feature, top_k=10):
-    searcher = DataSearcher()
-    result = await searcher.searchFeature(iconn, vec_db, feature, top_k)
-
-    uids = []
-    scores = []
-    for uid, c in result.items():
-        assert c is not None
-        uids.append(uid)
-        scores.append(c["score"])
-    return uids, scores
-    
-
-class SearchHandler(RequestHandlerBase):
-
-    @keyRequired
-    async def post(self):
-
-        method = self.get_argument("method")
-        kwargs = json.loads(self.get_argument("kwargs"))
-
-        searcher = DataSearcher(await self.db())
-        if method == "searchFeature":
-            kwargs["iconn"] = self.iconn
-            kwargs["vec_db"] = await self.vec_db()
-        searcher.setRunConfig(method, kwargs)
-        res = await searcher.run()
-        for k in res.keys():
-            this_res = res[k]
-            if this_res is not None:
-                # Make sure the result is serializable
-                this_res["match"] = None
-        self.write(json.dumps(res))

@@ -69,7 +69,6 @@ class Application(tornado.web.Application):
 
             # public resources, with s3-like protocol: put, get, delete
             (r"/doc/(.*)", DocHandler),
-            (r"/img/(.*)", ImageHandler),                       # will be deprecated on next version
             (r"/misc/(.*)", MiscFileHandler),
             (r"/user-avatar/(.*)", UserAvatarHandler),
 
@@ -81,7 +80,6 @@ class Application(tornado.web.Application):
             (r"/api/summary", SummaryHandler),
             (r"/api/status", StatusHandler),
             (r"/api/auth", AuthHandler),
-            (r"/api/search", SearchHandler),                    # will be deprecated on next version
 
             (r"/api/filter/basic", BasicFilterHandler),
 

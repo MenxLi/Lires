@@ -1,7 +1,7 @@
 
 // Server connection
 
-import type { DataInfoT, FeedDataInfoT, UserInfo, SearchType, SearchResult, SearchResult2, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocol.js";
+import type { DataInfoT, FeedDataInfoT, UserInfo, SearchType, SearchResult, Changelog, ServerStatus, DatabaseFeature, DatabaseUsage} from "./protocol.js";
 import { sha256 } from "../utils/sha256lib";
 import Fetcher from "./fetcher";
 
@@ -160,15 +160,6 @@ export class ServerConn {
         
     }
 
-    /** * @deprecated use filter instead */
-    async _search(method: string, kwargs: any): Promise<SearchResult>{
-        console.warn("ServerConn.search will be deprecated in the future, use ServerConn.filter instead")
-        return await this.fetcher.post(`/api/search`, {
-            method: method,
-            kwargs: JSON.stringify(kwargs),
-        }).then(res=>res.json());
-    }
-
     async filter({
         tags = [],
         searchBy = "title", 
@@ -179,7 +170,7 @@ export class ServerConn {
         searchBy?: SearchType,
         searchContent?: string,
         maxResults?: number,
-    } = {}): Promise<SearchResult2>{
+    } = {}): Promise<SearchResult>{
         return await this.fetcher.post(`/api/filter/basic`, {
             tags: tags,
             search_by: searchBy,

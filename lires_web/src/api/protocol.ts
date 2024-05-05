@@ -57,11 +57,10 @@ export interface SearchResultant {
     match: null;
 }
 
-export type SearchResult = Record<string, SearchResultant | null>;
 export type Changelog = [string, string[] | Record<string, string[]>][];
 
 export type SearchType = 'title' | 'author' | 'year' | 'note' | 'publication' | 'feature' | 'uuid';
-export interface SearchResult2 {
+export interface SearchResult {
     uids: string[];
     scores: number[] | null;
 }

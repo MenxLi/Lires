@@ -10,7 +10,6 @@ from .iServerProxy import IServerProxyHandler
 from .dataFeature import DataFeatureTSNEHandler
 
 from .dataMan import *
-from .images import *
 from .fileinfo_supp import *
 from .info import *
 from .user import *
