@@ -164,6 +164,12 @@ class ServerConn:
     async def updateDatapointNote(self, uuid: str, content: str):
         return await self.__c.post(f"/api/datainfo-supp/note-update/{uuid}", {"content": content}, return_type="text")
     
+    async def updateTagAll(self, tag: str, new_tag: str):
+        return await self.__c.post(f"/api/database/tag-rename", {"oldTag": tag, "newTag": new_tag}, return_type="text")
+    
+    async def deleteTagAll(self, tag: str):
+        return await self.__c.post(f"/api/database/tag-delete", {"tag": tag}, return_type="text")
+    
     async def deleteDatapoint(self, uuid: str):
         # TODO: remane to deleteEntry
         return await self.__c.post(f"/api/dataman/delete", {

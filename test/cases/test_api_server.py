@@ -129,9 +129,17 @@ class TestServer(BaseConfig):
     async def test_updateTag(self, server_normal: ServerConn):
         curr_data = await self._getFirstEntry(server_normal)
         dp_id = curr_data.uuid
-        new_tag = curr_data.tags + [randomAlphaNumeric(10)]
-        await server_normal.updateEntry(dp_id, tags = new_tag)
-        assert set((await server_normal.reqDatapointSummary(dp_id)).tags) == set(new_tag)
+
+        new_tag = randomAlphaNumeric(10)
+        updated_tags = curr_data.tags + [new_tag]
+        await server_normal.updateEntry(dp_id, tags = updated_tags)
+        assert set((await server_normal.reqDatapointSummary(dp_id)).tags) == set(updated_tags)
+
+        await server_normal.updateTagAll(new_tag, 'xxx_new')
+        assert new_tag not in (curr_tags:=await server_normal.reqAllTags())
+        assert 'xxx_new' in curr_tags
+        await server_normal.deleteTagAll('xxx_new')
+        assert 'xxx_new' not in (await server_normal.reqAllTags())
 
     async def test_updateNote(self, server_normal: ServerConn):
         # get the first entry
