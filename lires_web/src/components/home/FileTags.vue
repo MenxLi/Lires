@@ -60,7 +60,7 @@
         if (oldTag && dataStore.database.allTags().has(oldTag)){
             const newTag = prompt("New tag");
             if (newTag){
-                useConnectionStore().conn.renameTag(oldTag, newTag).then(
+                useConnectionStore().conn.updateTagAll(oldTag, newTag).then(
                     () => { uiState.showPopup("Tag renamed", "success"); },
                     () => { uiState.showPopup("Failed to rename tag", "error") },
                 )
@@ -76,7 +76,7 @@
             if (!confirm(`Are you sure to delete tag "${tag}"?`)){
                 return;
             }
-            useConnectionStore().conn.deleteTag(tag).then(
+            useConnectionStore().conn.deleteTagAll(tag).then(
                 () => { uiState.showPopup("Tag deleted", "success"); },
                 () => { uiState.showPopup("Failed to delete tag", "error") },
             )

@@ -269,14 +269,16 @@ export class ServerConn {
         return await this.fetcher.delete(`/doc/${uid}`).then(res=>res.json());
     }
 
-    async renameTag(oldTag: string, newTag: string): Promise<boolean>{
+    /* rename tag for all datapoints */
+    async updateTagAll(oldTag: string, newTag: string): Promise<boolean>{
         return await this.fetcher.post(`/api/database/tag-rename`, {
             oldTag: oldTag,
             newTag: newTag,
         }).then(()=>true);
     }
 
-    async deleteTag(tag: string): Promise<boolean>{
+    /* delete tag for all datapoints */
+    async deleteTagAll(tag: string): Promise<boolean>{
         return await this.fetcher.post(`/api/database/tag-delete`, {
             tag: tag,
         }).then(()=>true);
