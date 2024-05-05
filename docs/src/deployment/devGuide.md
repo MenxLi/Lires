@@ -8,16 +8,16 @@
   - [Contribution](#contribution)
   - [Naming convention](#naming-convention)
   - [Build for distribution](#build-for-distribution)
-  - [Future plan](#future-plan)
+  - [Roadmap](#roadmap)
+    - [Planned changes for the next minor release](#planned-changes-for-the-next-minor-release)
+    - [Future plan](#future-plan)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 
 ## Contribution
 Any contribution is welcome! 
-
 **But please fire an issue before you start working on it.** 
-This is to avoid duplicated work and make sure the changes are necessary.
 
 The principle is to **Keep this project simple and maintainable**:
 - **Use type annotations whenever possible**
@@ -60,20 +60,22 @@ python setup.py sdist
 ```
 
 
-## Future plan
+## Roadmap
 
-The current version mainly focus on the core features including data storage, user management, and basic data visualization.
+### Planned changes for the next minor release
 
-In my plan, the next step is to optimize for large data sets, and add more features for collaboration between users, 
-as these are the key features that really leverages the power of the server-side library.
-- [ ] Add a discussion board, anyone can post a topic and discuss with others, the topic can be linked to a paper or a tag. The data can be stored in the user database as table `posts`, and refer to the paper by id. 
-- [ ] Record user activities, e.g. who added/edited/removed a tag/note/paper, the reading history of a paper, etc. The data can be stored in the user database as table `activities`.
+- Use yaml for cluster configuration
+- Inter-service communication verification
+- API rename:
+  - `deleteDatapoint` -> `deleteEntry`
+  - `filter` -> `query`
+
+### Future plan
 
 <details>
 <summary>Finished</summary>
 
-- [x] Long connection between the server and the client, so that the client can receive notifications when there are new activities. This may be done by using [Websocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) or [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
-- [x] Moving to microservice paradigm
-- [x] Move all data filtering to backend; frontend use partial async data loading to optimize bandwidth and rendering speed.
-
+- Long connection between the server and the client, so that the client can receive notifications when there are new activities. This may be done by using [Websocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) or [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
+- Moving to microservice paradigm
+- Move all data filtering to backend; frontend use partial async data loading to optimize bandwidth and rendering speed.
 </details>
