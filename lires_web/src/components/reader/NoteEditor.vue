@@ -52,7 +52,29 @@
     const miscFiles = ref<Record<'fname'|'rpath'|'url', string>[]>([]);
     const noteRecord = ref<string>('');
     const saveHint = computed(()=>{
-        if (noteRecord.value === mdText.value){ return ''; }
+        // TODO: ... find the bug, to not use this function
+        function formatForCompare(s: string){
+            return s.replace(String.fromCharCode(10), String.fromCharCode(13)).replace(/\s/g, '');
+        }
+        // if (noteRecord.value.trim() === mdText.value.trim()){ return ''; }
+        if (formatForCompare(noteRecord.value) === formatForCompare(mdText.value)){ return ''; }
+
+        // debug:
+        const a = formatForCompare(noteRecord.value).trim();
+        const b = formatForCompare(mdText.value).trim();
+        if (a.length !== b.length){
+            console.log('length diff', a.length, b.length);
+            return 'Unsaved';
+        }
+
+        // debug: find diff
+        for (let i = 0; i < a.length; i++){
+            if (a[i] !== b[i]){
+                console.log('diff at', i, a[i], b[i]);
+                console.log('char code', a.charCodeAt(i), b.charCodeAt(i));
+                break;
+            }
+        }
         return 'Unsaved';
     })
 
