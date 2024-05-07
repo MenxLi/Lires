@@ -235,7 +235,7 @@ export const useSettingsStore = defineStore(
                     return getCookie("encKey");
                 })(),
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
-                __showHomeSummaryPanel: (localStorage.getItem("showHomeSummaryPanel") || "true") === "true",
+                __showHomeInfoPanel: (localStorage.getItem("showHomeInfoPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
                 __numItemsPerPage: localStorage.getItem("numItemsPerPage") || "50",
@@ -263,8 +263,8 @@ export const useSettingsStore = defineStore(
             showTagPanel(): boolean{
                 return this.__showTagPanel;
             },
-            showHomeSummaryPanel(): boolean{
-                return this.__showHomeSummaryPanel;
+            showHomeInfoPanel(): boolean{
+                return this.__showHomeInfoPanel;
             },
             show3DScatterPlot(): boolean{
                 return this.__show3DScatterPlot;
@@ -296,9 +296,9 @@ export const useSettingsStore = defineStore(
                 this.__showTagPanel = show;
                 localStorage.setItem("showTagPanel", show.toString());
             },
-            setShowHomeSummaryPanel(show: boolean){
-                this.__showHomeSummaryPanel = show;
-                localStorage.setItem("showHomeSummaryPanel", show.toString());
+            setShowHomeInfoPanel(show: boolean){
+                this.__showHomeInfoPanel = show;
+                localStorage.setItem("showHomeInfoPanel", show.toString());
             },
             setShow3DScatterPlot(show: boolean){
                 this.__show3DScatterPlot = show;

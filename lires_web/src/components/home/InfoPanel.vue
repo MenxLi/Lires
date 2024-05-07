@@ -32,6 +32,9 @@
                     <span class="author" v-for="author in datapoint.authors">{{author}}</span>
                 </div>
                 <div class="publication">{{datapoint.publication + (volPageInfo? '. '+volPageInfo:'')}}</div>
+                <div class="docsize" v-if="datapoint.summary.doc_size">
+                    <span> {{datapoint.summary.doc_size}} MB </span>
+                </div>
             </div>
         </template>
         <template v-slot:b>
@@ -52,7 +55,7 @@ div#summary-panel-main{
 }
 
 h2.title{
-    font-size: 1.5em;
+    font-size: 1.2em;
     font-weight: bold;
     margin: 0;
     padding: 0;
@@ -73,5 +76,15 @@ span.author{
 
 div.publication{
     font-style: italic;
+}
+
+div.docsize span{
+    font-size: 0.8em;
+    color: var(--color-text-soft);
+    padding-inline: 5px;
+    padding-block: 2px;
+    border-radius: 5px;
+    border: 1px solid var(--color-border);
+    /* background-color: var(--color-background-soft); */
 }
 </style>

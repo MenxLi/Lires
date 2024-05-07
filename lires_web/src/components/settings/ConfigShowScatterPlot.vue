@@ -15,7 +15,7 @@
 </script>
 
 <template>
-    <SettingsContainer title="Scatter Plot" description="Show scatter plot on the home page">
+    <SettingsContainer title="Scatter Plot" description="Show scatter plot at home page">
         <SwitchToggle v-model:checked="toggle"/>
     </SettingsContainer>
 </template>

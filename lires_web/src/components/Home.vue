@@ -23,7 +23,7 @@ export default {
     import Splitter from "./common/Splitter.vue";
     import FilterVis from "./visfeat/FilterVis.vue";
     import Searchbar from "./home/Searchbar.vue";
-    import SummaryPanel from "./home/SummaryPanel.vue";
+    import InfoPanel from "./home/InfoPanel.vue";
     import { useWindowState } from "./wstate";
 
     // get data
@@ -92,7 +92,7 @@ export default {
 
             <Splitter 
             :direction="winw > 768 ? 'vertical' : 'horizontal'"
-            :mode="settingsStore.showHomeSummaryPanel?'ab':'a'"
+            :mode="settingsStore.showHomeInfoPanel?'ab':'a'"
             split-ratio="0.8">
 
                 <template v-slot:a>
@@ -144,7 +144,7 @@ export default {
                 </template>
 
                 <template v-slot:b>
-                    <SummaryPanel :datapoint="(focusedDatapoint as DataPoint | null)"></SummaryPanel>
+                    <InfoPanel :datapoint="(focusedDatapoint as DataPoint | null)"></InfoPanel>
                 </template>
 
             </Splitter>

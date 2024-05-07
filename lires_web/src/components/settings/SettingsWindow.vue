@@ -3,7 +3,7 @@
     import UserCard from './UserCard.vue';
     import ConfigTheme from './ConfigTheme.vue';
     import ConfigShowTags from './ConfigShowTags.vue';
-    import ConfigShowHomeSummary from './ConfigShowHomeSummary.vue';
+    import ConfigShowHomeInfoPanel from './ConfigShowHomeInfoPanel.vue';
     import ConfigShowScatterPlot from './ConfigShowScatterPlot.vue';
     import ConfigPageCapacity from './ConfigPageCapacity.vue';
 
@@ -34,7 +34,7 @@
         <ConfigTheme/>
         <ConfigPageCapacity/>
         <ConfigShowTags/>
-        <ConfigShowHomeSummary/>
+        <ConfigShowHomeInfoPanel/>
         <ConfigShowScatterPlot/>
     </div>
 </template>

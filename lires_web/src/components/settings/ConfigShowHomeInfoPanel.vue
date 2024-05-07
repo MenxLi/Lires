@@ -7,14 +7,14 @@
 
     const settings = useSettingsStore();
     const toggle = computed({
-        get: ()=>settings.showHomeSummaryPanel,
-        set: (v)=>settings.setShowHomeSummaryPanel(v)
+        get: ()=>settings.showHomeInfoPanel,
+        set: (v)=>settings.setShowHomeInfoPanel(v)
     })
 
 </script>
 
 <template>
-    <SettingsContainer title="Summary Panel Display" description="Show summary panel on the home page">
+    <SettingsContainer title="Info Panel Display" description="Show info panel at home page">
         <SwitchToggle v-model:checked="toggle"/>
     </SettingsContainer>
 </template>
