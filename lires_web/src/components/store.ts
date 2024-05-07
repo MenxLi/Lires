@@ -234,8 +234,8 @@ export const useSettingsStore = defineStore(
                     // return the encKey from cookie
                     return getCookie("encKey");
                 })(),
-                __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
-                __showHomeInfoPanel: (localStorage.getItem("showHomeInfoPanel") || "true") === "true",
+                __showTagPanel: (localStorage.getItem("showTagPanel") || String(window.innerWidth > 768)) === "true",
+                __showHomeInfoPanel: (localStorage.getItem("showHomeInfoPanel") || "false") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
                 __numItemsPerPage: localStorage.getItem("numItemsPerPage") || "50",
