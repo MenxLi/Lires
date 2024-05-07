@@ -54,7 +54,7 @@
     const saveHint = computed(()=>{
         // TODO: ... find the bug, to not use this function
         function formatForCompare(s: string){
-            return s.replace(String.fromCharCode(10), String.fromCharCode(13));
+            return s.replace(String.fromCharCode(10), String.fromCharCode(13)).replace(/\s/g, '');
         }
         // if (noteRecord.value.trim() === mdText.value.trim()){ return ''; }
         if (formatForCompare(noteRecord.value) === formatForCompare(mdText.value)){ return ''; }
@@ -158,7 +158,7 @@
     }
 
     const preview = computed({
-            get: ()=>uiState.showNotePreview === null? mdText.value.trim().length > 0 : false,
+            get: ()=>uiState.showNotePreview === null? mdText.value.trim().length > 0 : uiState.showNotePreview,
             set: (v: boolean)=>{ uiState.showNotePreview = v; }
         });
     function linkOnNote(content: string): boolean{
@@ -232,7 +232,7 @@
             <template v-for="(v, k) in mdFrontMatter" :key="k">
                 <div v-if="k=='links'" style="display: flex; gap: 5px">
                     <label class="frontmatter-label">LINKS</label>
-                    <template v-for="(link, name) in v" :key="i">
+                    <template v-for="(link, name) in v">
                         <a class="frontmatter-link" :href="link" target="_blank" v-if="typeof(name)=='string'">{{name}}</a>
                     </template>
                 </div>
