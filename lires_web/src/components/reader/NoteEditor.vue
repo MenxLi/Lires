@@ -18,7 +18,7 @@
     import matter from 'gray-matter';
 
     const props = withDefaults(defineProps<{
-        datapoint: DataPoint
+        datapoint: DataPoint | null
         theme?: 'dark' | 'light'
     }>(), {
         theme: 'light'
@@ -27,6 +27,8 @@
     const router = useRouter();
     const mdText = ref<string>('');
     const mdFrontMatter = ref({} as FrontMatterData);
+    const inactive = computed(()=>(!props.datapoint || props.datapoint?.isDummy()));
+
     watch(()=>mdText.value, (newVal)=>{
         try{
             const parse = matter(newVal);
@@ -50,8 +52,14 @@
         return 'Unsaved';
     })
 
+    function resetState(){
+        mdText.value = '';
+        noteRecord.value = '';
+        miscFiles.value = [];
+    }
+
     async function fetchNote(){
-        if (props.datapoint.isDummy()){return;}
+        if (!props.datapoint || props.datapoint.isDummy()){return;}
         const note = await props.datapoint.fetchNote();
         noteRecord.value = note;
         mdText.value = note;
@@ -60,31 +68,38 @@
         }
     }
     async function fetchMiscFileInfo(){
+        if (!props.datapoint || props.datapoint.isDummy()){return;}
         miscFiles.value = await props.datapoint.listMiscFiles();
     }
     async function fetchAll(){ 
-        if (props.datapoint.isDummy()){return;}
+        if (!props.datapoint || props.datapoint.isDummy()){return;}
         await Promise.all([fetchNote(), fetchMiscFileInfo()]); 
     }
 
     fetchAll();
     watch(() => props.datapoint, () => {
-        fetchAll(); console.log('datapoint changed, fetching note and misc files...')
+        if (inactive.value){ resetState(); }
+        else{
+            fetchAll(); console.log('datapoint changed, fetching note and misc files...')
+        }
     })
 
     // event handlers
     async function saveNote() {
+        if (!props.datapoint || props.datapoint.isDummy()){return;}
         await props.datapoint.uploadNote(mdText.value);
         noteRecord.value = mdText.value;
     }
 
     const deleteMiscFile = async (fname: string)=>{
+        if (!props.datapoint || props.datapoint.isDummy()){return;}
         await props.datapoint.deleteMiscFile(fname);
         miscFiles.value = miscFiles.value.filter((f)=>f.fname !== fname);
         useUIStateStore().showPopup('File deleted', 'info')
     }
 
     const renameMiscFile = async (oldName: string, newName: string)=>{
+        if (!props.datapoint || props.datapoint.isDummy()){return;}
         // check if file extension is the same
         if (oldName.split('.').pop() !== newName.split('.').pop()){
             useUIStateStore().showPopup('File extension must be the same', 'error')
@@ -99,6 +114,7 @@
     }
 
     const uploadMiscFiles = async (files: File[]) => {
+        if (!props.datapoint || props.datapoint.isDummy()){return;}
         uiState.showPopup('Upload', 'info');
         const unifiedURLs = await props.datapoint.uploadMisc(files);
         unifiedURLs.map( url => mdEditor.value!.insert(()=>{
@@ -130,11 +146,12 @@
     })
 
     registerServerEvenCallback_auto('update_note', (event)=>{
+        if (!props.datapoint || props.datapoint.isDummy()){return;}
         if (event.session_id === useConnectionStore().wsConn.sessionID){return;}
         // update note content from other clients
         const d_summary = (event as Event_Data).datapoint_summary!
         if (d_summary.uuid === props.datapoint.uid){ fetchAll().then(()=>{
-            useUIStateStore().showPopup('update from other clients', 'info')
+            useUIStateStore().showPopup('update note from other clients', 'info')
         }); }
     });
 
@@ -150,6 +167,7 @@
                 :theme=theme
                 @on-save="saveNote"
                 @on-upload-img="uploadMiscFiles"
+                :disabled="inactive"
                 :toolbars="[
                     'bold',
                     'underline',
@@ -196,6 +214,7 @@
         <div id="btn-container">
             <button @click="preview=!preview">{{preview?'Edit':'Preview'}}</button>
             <FileSelectButton :action="(file: File)=>{
+                if (!props.datapoint || props.datapoint.isDummy()){return;}
                 props.datapoint.uploadMisc([file]).then((fpath: string[])=>{
                     useUIStateStore().showPopup('File uploaded', 'success')
                     fetchMiscFileInfo();
