@@ -82,7 +82,7 @@ export default {
 <template>
     <DataEditor ref="dataEditor"></DataEditor>
     <Toolbar :return-home="false" :compact="true"></Toolbar>
-    <div id="main-home" class="gradIn">
+    <div id="main-home" class="gradIn compact">
         <div class="horizontal fullHeight">
             <Transition name="left-in">
                 <div id="left-panel" v-if="settingsStore.showTagPanel">
@@ -97,11 +97,11 @@ export default {
 
                 <template v-slot:a>
                     <div id="doc-panel" class="panel1">
-                        <div class="fullWidth">
+                        <div class="fullWidth" v-if="settingsStore.show3DScatterPlot">
                             <FilterVis></FilterVis>
                         </div>
-                        <div class="scrollable" id="fileSelector" @dragover="(e: Event)=>e.preventDefault()" @drop="onDropFiles">
-                            <div style="display: flex; justify-content: space-between;">
+                        <div class="scrollable" id="doc-container" @dragover="(e: Event)=>e.preventDefault()" @drop="onDropFiles">
+                            <div id="doc-top-bar">
                                 <div style="flex-grow: 1;">
                                     <Searchbar></Searchbar>
                                 </div>
@@ -168,19 +168,37 @@ export default {
         overflow: hidden;
         box-shadow: 0 0 5px var(--color-shadow);
     }
+    #main-home.compact{
+        margin-top: 30px;
+        height: calc(100vh - 30px);
+        width: 100vw;
+        border-radius: 0px;
+    }
     .panel1{
         width: 100%;
         height: 100%;
         align-self: center;
         margin: 0em;
-        border-radius: 12px;
+        /* border-radius: 12px; */
     }
     #doc-panel{
         display: flex;
         flex-direction: column;
         width: 100%;
-        gap: 2px;
+        gap: 5px;
         overflow-x: hidden;
+    }
+    div#doc-container{
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    div#doc-top-bar{
+        z-index: 1;
+        margin-top: 0px; padding-top: 0px;
+        display: flex; justify-content: space-between; 
+        box-shadow: 0px 0px 5px 0px var(--color-shadow); 
+        border-bottom: 1px solid var(--color-border);
     }
     #blankPlaceholder{
         display: flex;
@@ -205,16 +223,10 @@ export default {
         display: flex;
         /* gap: 10px; */
     }
-    div#fileSelector{
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
 
     .left-in-enter-active, .left-in-leave-active {
         transition: all 0.075s ease-in-out;
     }
-
     .left-in-enter-from{
         opacity: 0;
         transform: translateX(-10%);

@@ -185,7 +185,8 @@
     }
     #datacard-container-footer button{
         border-radius: 5px;
-        padding-inline: 20px;
+        padding-inline: 30px;
+        height: 30px;
         padding-block: 5px;
         font-weight: bold;
         color: var(--color-text);
