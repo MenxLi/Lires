@@ -10,6 +10,13 @@ export class ThemeMode{
     __themeChangeCallbacks.push(callback);
   }
 
+  static unregisterThemeChangeCallback(callback: Function){
+    const idx = __themeChangeCallbacks.indexOf(callback);
+    if (idx !== -1){
+      __themeChangeCallbacks.splice(idx, 1);
+    }
+  }
+
   /*
   https://stackoverflow.com/a/68824350
   toggle to switch classes between .light and .dark

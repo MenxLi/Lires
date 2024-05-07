@@ -94,7 +94,7 @@
                 </div>
             </template>
             <template v-slot:b>
-                <NoteEditor :datapoint="datapoint" :theme="theme" ref="noteEditor"> </NoteEditor>
+                <NoteEditor :datapoint="datapoint" ref="noteEditor"> </NoteEditor>
             </template>
         </Splitter>
     </div>

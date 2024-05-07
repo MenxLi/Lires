@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
     // https://github.com/imzbf/md-editor-v3
-    import { computed, ref, watch } from 'vue';
+    import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
     import { DataPoint } from '../../core/dataClass';
     import { MdEditor, MdPreview } from 'md-editor-v3';
     import 'md-editor-v3/lib/style.css';
@@ -13,21 +13,25 @@
     import { copyToClipboard } from '../../utils/misc';
     import { registerServerEvenCallback_auto } from '../../api/serverWebsocketConn';
     import type { Event_Data } from '../../api/protocol';
+    import { ThemeMode } from '../../core/misc';
 
     // requires vite-plugin-node-polyfills
     import matter from 'gray-matter';
 
-    const props = withDefaults(defineProps<{
+    const props = defineProps<{
         datapoint: DataPoint | null
-        theme?: 'dark' | 'light'
-    }>(), {
-        theme: 'light'
-    });
+    }>();
 
     const router = useRouter();
     const mdText = ref<string>('');
     const mdFrontMatter = ref({} as FrontMatterData);
     const inactive = computed(()=>(!props.datapoint || props.datapoint?.isDummy()));
+
+    const theme = ref(ThemeMode.isDarkMode()?'dark':'light' as 'dark'|'light')
+    const __themeChangeFn = ()=>theme.value = ThemeMode.isDarkMode()?'dark' : 'light';
+    onMounted( () => ThemeMode.registerThemeChangeCallback(__themeChangeFn))
+    onUnmounted( () => ThemeMode.unregisterThemeChangeCallback(__themeChangeFn))
+
 
     watch(()=>mdText.value, (newVal)=>{
         try{
