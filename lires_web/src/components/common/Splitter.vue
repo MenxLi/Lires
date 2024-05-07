@@ -114,19 +114,19 @@
         { flexDirection: 'row' } : 
         { flexDirection: 'column' }
     ">
-        <div ref="aPane" class="splitter-pane apane" 
+        <div ref="aPane" class="splitter-pane panel" 
             :style="{ overflow: props.overflow }"
             v-if="props.mode == 'ab' || props.mode == 'a'">
             <slot name="a"></slot>
         </div>
-        <div ref="splitter" class="splitter bpane" v-if="props.mode == 'ab' && props.movable"
+        <div ref="splitter" class="splitter" v-if="props.mode == 'ab' && props.movable"
             :style="
                 props.direction === 'vertical' ? 
                 { cursor: 'col-resize', height: '100%', width: splitterWidth } : 
                 { cursor: 'row-resize', width: '100%', height: splitterWidth }
                 "
         ></div>
-        <div ref="bPane" class="splitter-pane" 
+        <div ref="bPane" class="splitter-pane panel" 
             :style="{ overflow: props.overflow }"
             v-if="props.mode == 'ab' || props.mode == 'b'">
             <slot name="b"></slot>
