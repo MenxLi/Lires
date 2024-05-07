@@ -67,9 +67,9 @@
         const note = await props.datapoint.fetchNote();
         noteRecord.value = note;
         mdText.value = note;
-        if (note.trim().length > 0){
-            preview.value = true;
-        }
+        // if (note.trim().length > 0){
+        //     preview.value = true;
+        // }
     }
     async function fetchMiscFileInfo(){
         if (!props.datapoint || props.datapoint.isDummy()){return;}
@@ -81,6 +81,7 @@
     }
 
     onActivated(fetchAll);
+    // fetchAll()
     watch(() => props.datapoint, () => {
         if (inactive.value){ resetState(); }
         else{
@@ -134,7 +135,10 @@
         fetchMiscFileInfo();  // update misc files list
     }
 
-    const preview = ref<boolean>(false);
+    const preview = computed({
+            get: ()=>uiState.showNotePreview === null? mdText.value.trim().length > 0 : false,
+            set: (v: boolean)=>{ uiState.showNotePreview = v; }
+        });
     function linkOnNote(content: string): boolean{
         return mdText.value.indexOf(content) >= 0;
     }
