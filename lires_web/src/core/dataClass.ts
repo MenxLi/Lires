@@ -408,7 +408,6 @@ export class DataBase {
     getDummy(): DataPoint{ return new DataPoint(this.conn, _dummyDataSummary); }
 
     async aget(uid: string): Promise<DataPoint>{
-        // will shift to async get in the future
         if (!(uid in this.cache)){
             try{
                 const dpInfo = await this.conn.reqDatapointSummary(uid);

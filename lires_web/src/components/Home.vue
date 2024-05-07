@@ -7,8 +7,9 @@ export default {
 }
 </script>
 <script setup lang="ts">
-    import { ref } from "vue";
+    import { ref, watch } from "vue";
     import { useConnectionStore, useUIStateStore, useDataStore, useSettingsStore } from "./store";
+    import { DataPoint } from "../core/dataClass";
     import { useRouter } from "vue-router";
     import { DataTags } from "../core/tag";
     import FileTags from "./home/FileTags.vue";
@@ -19,24 +20,17 @@ export default {
     import addCircleIcon from "../assets/icons/add_circle.svg";
     import refreshIcon from "../assets/icons/refresh.svg";
     import LoadingWidget from "./common/LoadingWidget.vue";
+    import Splitter from "./common/Splitter.vue";
     import FilterVis from "./visfeat/FilterVis.vue";
     import Searchbar from "./home/Searchbar.vue";
+    import SummaryPanel from "./home/SummaryPanel.vue";
+    import { useWindowState } from "./wstate";
 
     // get data
     const uiState = useUIStateStore();
     const dataStore = useDataStore();
     const settingsStore = useSettingsStore();
-    // const shownDatapoints = ref([] as DataPoint[]);
-    // watch(()=>uiState.shownDataUIDs, ()=>{
-    //     dataStore.database.agetMany(uiState.shownDataUIDs).then((res)=>{
-    //         shownDatapoints.value = res;
-    //     })
-    // })
-
-    // not show fileTag panel on small screen, by default
-    if (window.innerWidth < 768){
-        settingsStore.setShowTagPanel(false);
-    }
+    const {width: winw} = useWindowState();
 
     const router = useRouter();
     const defaultTags = router.currentRoute.value.query.tags as string | undefined;
@@ -44,6 +38,18 @@ export default {
         uiState.tagStatus.checked = new DataTags(defaultTags.split("&&"));
         uiState.tagStatus.unfolded = uiState.tagStatus.checked.allParents()
     }
+
+    const focusedDatapoint = ref(null as DataPoint | null);
+    watch(() => uiState.focusedDataUID, (newVal) => {
+        if (newVal){
+            dataStore.database.aget(newVal).then((dp)=>{
+                focusedDatapoint.value = dp;
+            })
+        }
+        else{
+            focusedDatapoint.value = null;
+        }
+    });
 
 
     // adding new data
@@ -75,14 +81,7 @@ export default {
 
 <template>
     <DataEditor ref="dataEditor"></DataEditor>
-    <Toolbar :return-home="false" :compact="true">
-        <!-- <div id="toolbarAddons">
-            <ToolbarIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
-                @click="showBlankAddingDataWindow" shortcut="ctrl+n"></ToolbarIcon>
-            <ToolbarIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
-                @click="reloadProg"></ToolbarIcon>
-        </div> -->
-    </Toolbar>
+    <Toolbar :return-home="false" :compact="true"></Toolbar>
     <div id="main-home" class="gradIn">
         <div class="horizontal fullHeight">
             <Transition name="left-in">
@@ -90,51 +89,65 @@ export default {
                     <FileTags @onCheck="() => uiState.updateShownData()"></FileTags>
                 </div>
             </Transition>
-            <div id="right-panel" class="panel1">
-                <div class="fullWidth">
-                    <FilterVis></FilterVis>
-                </div>
-                <div class="scrollable" id="fileSelector" @dragover="(e: Event)=>e.preventDefault()" @drop="onDropFiles">
-                    <div style="display: flex; justify-content: space-between;">
-                        <div style="flex-grow: 1;">
-                            <Searchbar></Searchbar>
-                        </div>
-                        <!-- vertical split -->
-                        <!-- <div style="border: 1px solid var(--color-border);margin-right: 5px"></div> -->
-                        <div style="display: flex; flex-grow: 0; margin-right: 5px; margin-block: 5px;">
-                            <ToolbarIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
-                                @click="showBlankAddingDataWindow" shortcut="ctrl+n"></ToolbarIcon>
-                            <ToolbarIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
-                                @click="reloadProg"></ToolbarIcon>
-                        </div>
-                    </div>
-                    <FileRowContainer :uids="uiState.shownDataUIDs" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
-                        v-if="uiState.shownDataUIDs.length > 0"
-                    ></FileRowContainer>
 
-                    <div id="blankPlaceholder" v-else>
-                        <p v-if="dataStore.database.initialized" style="
-                            font-size: xx-large;
-                            font-weight: bold;
-                            user-select: none;
-                        ">
-                            Nothing to show
-                            <p style="font-size: medium">
-                                Add your first enty by clicking the 
-                                <b><a @click="showBlankAddingDataWindow" style="
-                                    cursor:pointer;
-                                    border-radius: 5px;
-                                    padding-inline: 3px;
-                                    /* border: 1px solid var(--color-border); */
-                                    background-color: var(--color-background-soft);
-                                    ">⊕ New</a></b> 
-                                button above.<br>
-                            </p>
-                        </p>
-                        <LoadingWidget v-else></LoadingWidget>
+            <Splitter 
+            :direction="winw > 768 ? 'vertical' : 'horizontal'"
+            :mode="settingsStore.showHomeSummaryPanel?'ab':'a'"
+            split-ratio="0.8">
+
+                <template v-slot:a>
+                    <div id="doc-panel" class="panel1">
+                        <div class="fullWidth">
+                            <FilterVis></FilterVis>
+                        </div>
+                        <div class="scrollable" id="fileSelector" @dragover="(e: Event)=>e.preventDefault()" @drop="onDropFiles">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div style="flex-grow: 1;">
+                                    <Searchbar></Searchbar>
+                                </div>
+                                <!-- vertical split -->
+                                <!-- <div style="border: 1px solid var(--color-border);margin-right: 5px"></div> -->
+                                <div style="display: flex; flex-grow: 0; margin-right: 5px; margin-block: 5px;">
+                                    <ToolbarIcon :iconSrc="addCircleIcon" labelText="New" title="Add new data to database"
+                                        @click="showBlankAddingDataWindow" shortcut="ctrl+n"></ToolbarIcon>
+                                    <ToolbarIcon :iconSrc="refreshIcon" labelText="Reload" title="Reload database"
+                                        @click="reloadProg"></ToolbarIcon>
+                                </div>
+                            </div>
+                            <FileRowContainer :uids="uiState.shownDataUIDs" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
+                                v-if="uiState.shownDataUIDs.length > 0"
+                            ></FileRowContainer>
+
+                            <div id="blankPlaceholder" v-else>
+                                <p v-if="dataStore.database.initialized" style="
+                                    font-size: xx-large;
+                                    font-weight: bold;
+                                    user-select: none;
+                                ">
+                                    Nothing to show
+                                    <p style="font-size: medium">
+                                        Add your first enty by clicking the 
+                                        <b><a @click="showBlankAddingDataWindow" style="
+                                            cursor:pointer;
+                                            border-radius: 5px;
+                                            padding-inline: 3px;
+                                            /* border: 1px solid var(--color-border); */
+                                            background-color: var(--color-background-soft);
+                                            ">⊕ New</a></b> 
+                                        button above.<br>
+                                    </p>
+                                </p>
+                                <LoadingWidget v-else></LoadingWidget>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </template>
+
+                <template v-slot:b>
+                    <SummaryPanel :datapoint="(focusedDatapoint as DataPoint | null)"></SummaryPanel>
+                </template>
+
+            </Splitter>
         </div>
     </div>
 </template>
@@ -162,7 +175,7 @@ export default {
         margin: 0em;
         border-radius: 12px;
     }
-    #right-panel{
+    #doc-panel{
         display: flex;
         flex-direction: column;
         width: 100%;

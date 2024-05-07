@@ -63,6 +63,7 @@
         }[layoutType] as 'a'|'b'|'ab')"
         @move-start="()=>isMovingSplitter=true" 
         @move-stop="()=>isMovingSplitter=false"
+        overflow="unset"
         >
             <template v-slot:a>
                 <!-- pointer event should be none when moving splitter, otherwise the iframe will capture the mouse event -->

@@ -9,12 +9,14 @@
         maxSplitRatio?: number,
         mode?: 'ab' | 'a' | 'b'
         splitterWidth?: string,
+        overflow?: 'hidden' | 'auto' | 'scroll' | 'visible' | 'inherit' | 'initial' | 'unset',
     }>(), {
         movable: true,
         minSplitRatio: 0,
         maxSplitRatio: 1,
         mode: 'ab', 
         splitterWidth: '3px',
+        overflow: 'auto',
     });
 
     const splitRatio = defineModel(
@@ -111,7 +113,9 @@
         { flexDirection: 'row' } : 
         { flexDirection: 'column' }
     ">
-        <div ref="aPane" class="splitter-pane apane" v-if="props.mode == 'ab' || props.mode == 'a'">
+        <div ref="aPane" class="splitter-pane apane" 
+            :style="{ overflow: props.overflow }"
+            v-if="props.mode == 'ab' || props.mode == 'a'">
             <slot name="a"></slot>
         </div>
         <div ref="splitter" class="splitter bpane" v-if="props.mode == 'ab' && props.movable"
@@ -121,7 +125,9 @@
                 { cursor: 'row-resize', width: '100%', height: splitterWidth }
                 "
         ></div>
-        <div ref="bPane" class="splitter-pane" v-if="props.mode == 'ab' || props.mode == 'b'">
+        <div ref="bPane" class="splitter-pane" 
+            :style="{ overflow: props.overflow }"
+            v-if="props.mode == 'ab' || props.mode == 'b'">
             <slot name="b"></slot>
         </div>
     </div>

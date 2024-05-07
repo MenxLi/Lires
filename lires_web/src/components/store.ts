@@ -64,7 +64,15 @@ export const useUIStateStore = defineStore(
                     return this.databaseLoadingStatus.nCurrent / this.databaseLoadingStatus.nTotal;
                 }
 
+            }, 
+            
+            focusedDataUID(): string | null {
+                if (this.unfoldedDataUIDs.length === 0){
+                    return null;
+                }
+                return this.unfoldedDataUIDs[0];
             }
+
         },
         actions: {
             updateShownData(){
@@ -226,6 +234,7 @@ export const useSettingsStore = defineStore(
                     return getCookie("encKey");
                 })(),
                 __showTagPanel: (localStorage.getItem("showTagPanel") || "true") === "true",
+                __showHomeSummaryPanel: (localStorage.getItem("showHomeSummaryPanel") || "true") === "true",
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
                 __numItemsPerPage: localStorage.getItem("numItemsPerPage") || "50",
@@ -252,6 +261,9 @@ export const useSettingsStore = defineStore(
             },
             showTagPanel(): boolean{
                 return this.__showTagPanel;
+            },
+            showHomeSummaryPanel(): boolean{
+                return this.__showHomeSummaryPanel;
             },
             show3DScatterPlot(): boolean{
                 return this.__show3DScatterPlot;
@@ -282,6 +294,10 @@ export const useSettingsStore = defineStore(
             setShowTagPanel(show: boolean){
                 this.__showTagPanel = show;
                 localStorage.setItem("showTagPanel", show.toString());
+            },
+            setShowHomeSummaryPanel(show: boolean){
+                this.__showHomeSummaryPanel = show;
+                localStorage.setItem("showHomeSummaryPanel", show.toString());
             },
             setShow3DScatterPlot(show: boolean){
                 this.__show3DScatterPlot = show;
