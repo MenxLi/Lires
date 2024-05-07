@@ -82,6 +82,7 @@
                 (clientX - arect.left) / allrect.width :
                 (clientY - arect.top) / allrect.height;
             splitRatio.value = Math.max(props.minSplitRatio!, Math.min(props.maxSplitRatio!, splitRatioValue));
+            event.preventDefault();
         }
     }
 
