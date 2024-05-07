@@ -2,7 +2,7 @@
 
 <script setup lang="ts">
     // https://github.com/imzbf/md-editor-v3
-    import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+    import { computed, onActivated, onMounted, onUnmounted, ref, watch } from 'vue';
     import { DataPoint } from '../../core/dataClass';
     import { MdEditor, MdPreview } from 'md-editor-v3';
     import 'md-editor-v3/lib/style.css';
@@ -80,7 +80,7 @@
         await Promise.all([fetchNote(), fetchMiscFileInfo()]); 
     }
 
-    fetchAll();
+    onActivated(fetchAll);
     watch(() => props.datapoint, () => {
         if (inactive.value){ resetState(); }
         else{
