@@ -6,7 +6,7 @@ import json
 
 import http.cookies
 from ._global_data import GlobalStorage
-from lires.user import UserInfo, UserPool
+from lires.user import UserInfo
 from lires.core.base import LiresBase
 from lires.core.dataTags import DataTags
 from lires.utils import BCOLORS
@@ -87,7 +87,7 @@ class RequestHandlerMixin(LiresBase):
             return self.__account_info["id"]
         
         # then try to get user id from params, this is for non-logged-in requests
-        for _user_id_candidate in ["_userid", "_u"]:
+        for _user_id_candidate in ["_userid", "_u", "u"]:
             user_id = self.get_argument(_user_id_candidate, None)
             if user_id is not None:
                 break

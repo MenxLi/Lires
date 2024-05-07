@@ -1,18 +1,12 @@
 """
 Get information about data
 """
-from typing import Union, List
 import json
-
-from lires.core.dataClass import DataPoint, sortDataList, SortType
-from lires.core.dataTags import DataTags
+from lires.core.dataClass import DataPoint
 from ._base import *
 
 class DataInfoHandler(RequestHandlerBase):
-    """
-    Query information about a single file
-    """
-    @keyRequired
+    """ Query information about a single file """
     async def get(self, uid:str):
         self.set_header("Content-Type", "application/json")
         db = await self.db()
@@ -27,10 +21,7 @@ class DataInfoHandler(RequestHandlerBase):
         return
 
 class DataInfoListHandler(RequestHandlerBase):
-    """
-    Query information about a single file
-    """
-    @keyRequired
+    """ Query information about a list of files """
     async def post(self):
         self.set_header("Content-Type", "application/json")
         uids: list[str] = json.loads(self.get_argument("uids"))
