@@ -54,7 +54,7 @@
     const saveHint = computed(()=>{
         // TODO: ... find the bug, to not use this function
         function formatForCompare(s: string){
-            return s.replace(String.fromCharCode(10), String.fromCharCode(13)).replace(/\s/g, '');
+            return s.replace(String.fromCharCode(10), String.fromCharCode(13));
         }
         // if (noteRecord.value.trim() === mdText.value.trim()){ return ''; }
         if (formatForCompare(noteRecord.value) === formatForCompare(mdText.value)){ return ''; }

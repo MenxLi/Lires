@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "vitepress": "^1.0.2"
+    "vitepress": "^1.1.4"
   },
   "devDependencies": {
     "fs-extra": "^11.2.0"
