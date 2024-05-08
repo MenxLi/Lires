@@ -88,6 +88,7 @@ class Application(tornado.web.Application):
             (r"/api/database/usage", DatabaseUsageHandler),
             (r"/api/database/tag-rename", TagRenameHandler),
             (r"/api/database/tag-delete", TagDeleteHandler),
+            (r"/api/database/download", DatabaseDownloadHandler),
 
             (r"/api/datainfo-list", DataInfoListHandler),
             (r"/api/datainfo/(.*)", DataInfoHandler),

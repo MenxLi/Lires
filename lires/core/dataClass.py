@@ -201,6 +201,16 @@ class DataBase(DataCore):
             vector_db_file = os.path.join(self.conn.db_dir, "index", "vector.db"),
         )
     
+    async def dump(self, include_files = False) -> bytes:
+        if include_files:
+            raise NotImplementedError("Not implemented yet")
+
+        dump_lock = asyncio.Lock()
+        async with dump_lock:
+            await self.conn.commit()
+            with open(self.conn.db_path, "rb") as f:
+                return f.read()
+    
     async def delete(self, uuid: str) -> bool:
         """ Delete a DataPoint by uuid"""
         if not self.has(uuid):

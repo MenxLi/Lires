@@ -33,3 +33,13 @@ class StatusHandler(RequestHandlerBase):
     @keyRequired
     async def post(self):
         await self._respond(await self.userInfo())
+
+class DatabaseDownloadHandler(RequestHandlerBase):
+
+    @keyRequired
+    async def get(self):
+        user_info = await self.userInfo()
+        db = await self.db()
+        self.set_header("Content-Type", "application/octet-stream")
+        self.set_header("Content-Disposition", f"attachment; filename=\"{user_info['username']}.lires.sqlite\"")
+        self.write(await db.dump())
