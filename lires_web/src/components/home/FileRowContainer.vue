@@ -180,8 +180,9 @@
         align-items: center;
         justify-content: center;
         width: 100%;
-        margin-top: 5px;
-        margin-bottom: 5px;
+        padding-block: 5px;
+        z-index: 1;
+        box-shadow: 0px -0px 5px 0px var(--color-shadow);
     }
     #datacard-container-footer button{
         border-radius: 5px;
