@@ -217,9 +217,11 @@ class DataBase(DataCore):
             else:
                 zip_buffer = BytesIO()
                 with zipfile.ZipFile(zip_buffer, "w") as zf:
+                    # include the database file
                     db_fname = os.path.basename(self.conn.db_path)
                     zf.write(self.conn.db_path, db_fname)
-                    for root, _, files in os.walk(self.path.main_dir):
+                    # include the document files and attachments
+                    for root, _, files in os.walk(self.path.file_dir):
                         for f in files:
                             zf.write(os.path.join(root, f), os.path.relpath(os.path.join(root, f), self.path.main_dir))
                 return zip_buffer.getvalue()
