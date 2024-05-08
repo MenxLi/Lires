@@ -14,7 +14,7 @@
 </script>
 
 <template>
-    <SettingsContainer title="Info Panel Display" description="Show info panel at home page">
+    <SettingsContainer title="Info Panel" description="Show info panel at home page">
         <SwitchToggle v-model:checked="toggle"/>
     </SettingsContainer>
 </template>

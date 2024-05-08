@@ -14,7 +14,7 @@
 </script>
 
 <template>
-    <SettingsContainer title="Tag Display" description="Show tag panel at home page">
+    <SettingsContainer title="Tag Panel" description="Show tag panel at home page">
         <SwitchToggle v-model:checked="toggle"/>
     </SettingsContainer>
 </template>
