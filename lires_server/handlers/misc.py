@@ -37,21 +37,36 @@ class StatusHandler(RequestHandlerBase):
 class DatabaseDownloadHandler(RequestHandlerBase):
 
     __download_request_time = {}
+    __global_download_request_time = []
 
     def checkReqFrequency(self, user_id: int):
         _prev_request_times = self.__download_request_time.get(user_id, [0])
         n_last_req = [t for t in _prev_request_times if time.time() - t < 600]
-        if len(n_last_req) > 2:
+        if len(n_last_req) >= 3:
             # 3 requests in 10 minutes
-            raise tornado.web.HTTPError(429, "Too many requests")
-    
-    def updateReqFrequency(self, user_id: int):
-        _prev_request_times = self.__download_request_time.get(user_id, [0])
-        _prev_request_times.append(time.time())
+            self.set_header("Retry-After", 600)
+            raise tornado.web.HTTPError(429, "Too many requests from this user")
+        
+        _g_prev_request_times = self.__global_download_request_time
+        n_last_req = [t for t in _g_prev_request_times if time.time() - t < 6000]
+        if len(n_last_req) >= 20:
+            # 20 requests in 60 minutes
+            self.set_header("Retry-After", 6000)
+            raise tornado.web.HTTPError(429, "Too many requests from all users")
+        
+        # update the request times
+        curr_time = time.time()
+        
+        _prev_request_times.append(curr_time)
         if len(_prev_request_times) > 5:
             _prev_request_times = _prev_request_times[-5:]
         self.__download_request_time[user_id] = _prev_request_times
-
+        
+        _g_prev_request_times.append(curr_time)
+        if len(_g_prev_request_times) > 100:
+            _g_prev_request_times = _g_prev_request_times[-100:]
+        self.__global_download_request_time = _g_prev_request_times
+    
     @keyRequired
     async def get(self):
         include_data = self.get_argument("data", "false").lower() == "true"
@@ -60,7 +75,6 @@ class DatabaseDownloadHandler(RequestHandlerBase):
         db = await self.db()
 
         self.checkReqFrequency(user_info["id"])
-        self.updateReqFrequency(user_info["id"])
 
         if not include_data:
             await self.logger.info(f"User {user_info['username']} is downloading the database")
