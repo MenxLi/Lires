@@ -114,14 +114,16 @@ class DataUpdateHandler(RequestHandlerBase):
             if await db.diskUsage()+128 > permission["max_storage"]:
                 raise tornado.web.HTTPError(413, reason="File too large")
 
-            uuid = await addDocument(db.conn, bibtex, check_duplicate=True)
+            uuid = await addDocument(
+                db.conn, bibtex, 
+                url = url,
+                tags = DataTags(tags).toOrderedList(),
+                check_duplicate = True
+                )
             if uuid is None:
                 # most likely a duplicate
                 raise tornado.web.HTTPError(409)
             __info.append("new entry created [{}]".format(uuid))
-            dp = await db.get(uuid)
-            await dp.fm.writeTags(tags)
-            await dp.fm.setWebUrl(url)
 
             dp = await db.get(uuid)   # update the cached info
             await self.broadcastEventMessage({

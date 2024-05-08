@@ -747,6 +747,7 @@ class DBConnectionCache(LiresBase):
     
     async def addAuthorCache(self, uuid: str, authors: list[str]):
         for author in authors:
+            author = formatAuthorName(author)
             async with self.conn.execute("SELECT entries FROM authors WHERE author=?", (author,)) as cursor:
                 ret = await cursor.fetchone()
             if ret is None:
