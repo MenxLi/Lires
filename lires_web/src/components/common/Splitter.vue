@@ -151,8 +151,10 @@
     .splitter {
         display: block;
         background-color: var(--color-border);
+        transition-delay: 0s;
     }
     .splitter:hover, .splitter:active {
-        background-color: var(--color-border-hover);
+        background-color: var(--color-theme);
+        transition-delay: 0.5s;
     }
 </style>
