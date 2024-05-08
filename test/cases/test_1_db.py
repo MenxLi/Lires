@@ -35,7 +35,7 @@ class TestDB:
                 title="test title1",
                 year = 2021,
                 publication = "test publication1",
-                authors = ["author0", "author2"],
+                authors = ["author0", "author2 fam2", "fam3,author3"],
                 tags = ["tag0", "tag1", 'tag3->tag5'],
                 url = "https://www.google.com",
                 abstract = "This is a test abstract", 
@@ -67,7 +67,7 @@ class TestDB:
             assert (await conn.filter( tags = ["tag0"], from_uids=[uid0])) == [uid0]
 
             assert set(await conn.tags()) == set(("tag0", "tag1", "tag1->tag2", "tag3->tag4", "tag3->tag5"))
-            assert set(await conn.authors()) == set(("author0", "author1", "author2"))
+            assert set(await conn.authors()) == set(("author0", "author1", "fam2, author2", "fam3, author3"))
         
         asyncio.run(_test())
     
