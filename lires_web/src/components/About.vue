@@ -93,10 +93,12 @@
             <h2> Resources </h2>
             <ul>
                 <li> <a class='resource' :href="docsURL" target="_blank"><b>User manual</b></a> </li>
+                <li> <a class='resource' @click="showChangelog = true" style="cursor: pointer;">Change log</a> </li>
                 <li> <a class='resource' :href="useSettingsStore().backend()+`/_resources/lires-obsidian-plugin.zip?key=${useSettingsStore().encKey}`">Obsidian plugin</a> </li>
                 <li> <a class='resource' :href="useSettingsStore().backend()+`/_resources/api.zip?key=${useSettingsStore().encKey}`">API-Javascript</a> </li>
                 <li> <a class='resource' :href="useSettingsStore().backend()+`/_resources/api.py?key=${useSettingsStore().encKey}`">API-Python</a> </li>
-                <li> <a class='resource' @click="showChangelog = true" style="cursor: pointer;">Change log</a> </li>
+                <!-- <li><a :href="conn.resolve.databaseDownload(false)" target="_blank">Download database index</a></li>
+                <li> <a :href="conn.resolve.databaseDownload(true)" target="_blank">Download full database</a> </li> -->
             </ul>
 
         </div>
@@ -111,7 +113,7 @@
                     </li>
                     <li><b>Uptime</b>: {{serverInfo.uptime}}</li>
                     <li><b>Connection count</b>: {{serverInfo.numConnections}}</li>
-                    <li v-if="isAdmin"><b>Connection count (all)</b>: {{serverInfo.numConnectionsAll}}</li>
+                    <li v-if="isAdmin"><b>Total connection count</b>: {{serverInfo.numConnectionsAll}}</li>
                 </ul>
             </details>
             <details v-if="isAdmin">
@@ -125,6 +127,11 @@
                     <UsersWidget/>
                 </div>
             </details> 
+        </div>
+
+        <div class="content link-container">
+            <a :href="conn.resolve.databaseDownload(false)" target="_blank">Download database index</a> |
+            <a :href="conn.resolve.databaseDownload(true)" target="_blank">Download full database</a>
         </div>
 
         <FloatingWindow v-model:show="showChangelog" title="Change log">
@@ -214,4 +221,20 @@
         cursor: pointer;
         user-select: none;
     }
+
+    div.link-container{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        
+        margin-top: 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 3rem;
+        padding: 0.3rem;
+        gap: 1rem;
+        white-space: nowrap;
+        width: 100%;
+    }
+
 </style>

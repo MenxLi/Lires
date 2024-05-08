@@ -1,5 +1,6 @@
 from __future__ import annotations
-import os, asyncio, dataclasses
+import os, asyncio, dataclasses, zipfile
+from io import BytesIO
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Union, Optional, Literal
 from .dataTags import DataTags, TagRule
@@ -202,14 +203,26 @@ class DataBase(DataCore):
         )
     
     async def dump(self, include_files = False) -> bytes:
-        if include_files:
-            raise NotImplementedError("Not implemented yet")
-
+        """
+        if include files, dump the database to a zip file. 
+        else, dump the database to a sqlite file
+        """
         dump_lock = asyncio.Lock()
         async with dump_lock:
             await self.conn.commit()
-            with open(self.conn.db_path, "rb") as f:
-                return f.read()
+
+            if not include_files:
+                with open(self.conn.db_path, "rb") as f:
+                    return f.read()
+            else:
+                zip_buffer = BytesIO()
+                with zipfile.ZipFile(zip_buffer, "w") as zf:
+                    db_fname = os.path.basename(self.conn.db_path)
+                    zf.write(self.conn.db_path, db_fname)
+                    for root, _, files in os.walk(self.path.main_dir):
+                        for f in files:
+                            zf.write(os.path.join(root, f), os.path.relpath(os.path.join(root, f), self.path.main_dir))
+                return zip_buffer.getvalue()
     
     async def delete(self, uuid: str) -> bool:
         """ Delete a DataPoint by uuid"""

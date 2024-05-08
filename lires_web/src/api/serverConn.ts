@@ -18,7 +18,7 @@ export class HTTPPathResolver {
     doc(uid: string, userID: number): string{ return `${this.baseURL}/doc/${uid}?_u=${userID}`; }
     docDry = (uid: string, userID: number) => this.doc(uid, userID).replace("/doc/", "/doc-dry/");
     docText = (uid: string, userID: number) => this.doc(uid, userID).replace("/doc/", "/doc-text/");
-
+    databaseDownload(data=false): string{ return `${this.baseURL}/api/database/download?data=${data}&key=${this.token}`; }
     miscFile(uid: string, fname: string): string{
         const encodedFname = encodeURIComponent(fname);
         return `${this.baseURL}/misc/${uid}?fname=${encodedFname}`;
@@ -50,6 +50,7 @@ export class HTTPPathResolver {
 export class ServerConn {
 
     declare public fetcher: Fetcher;
+    declare public resolve: HTTPPathResolver;
     constructor(baseUrlGetter: ()=>string, tokenGetter: ()=>string, sessionIDGetter: (()=>string) | null = null){
         if (sessionIDGetter === null){
             const _sessionID = Math.random().toString(36).substring(2);
@@ -60,6 +61,7 @@ export class ServerConn {
             tokenGetter: tokenGetter,
             sessionIDGetter: sessionIDGetter,
         });
+        this.resolve = new HTTPPathResolver(baseUrlGetter, tokenGetter);
     }
     public get baseURL(){ return this.fetcher.baseUrl; }
     async authUsr( encKey: string ): Promise<UserInfo>{
