@@ -93,7 +93,7 @@ export default {
             <Splitter 
             :direction="winw > 768 ? 'vertical' : 'horizontal'"
             :mode="settingsStore.showHomeInfoPanel?'ab':'a'"
-            split-ratio="0.8">
+            :split-ratio="winw > 768 ? 0.8 : 0.6">
 
                 <template v-slot:a>
                     <div id="doc-panel" class="panel1">

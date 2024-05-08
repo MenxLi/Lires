@@ -31,7 +31,7 @@
                 <div class="author-container">
                     <span class="author" v-for="author in datapoint.authors">{{author}}</span>
                 </div>
-                <div class="publication">{{datapoint.publication + (volPageInfo? '. '+volPageInfo:'')}}</div>
+                <div class="publication">{{datapoint.publication + `. (${datapoint.year})` + (volPageInfo? ', '+volPageInfo:'')}}</div>
                 <div class="docsize" v-if="datapoint.summary.doc_size">
                     <span> {{datapoint.summary.doc_size}} MB </span>
                 </div>
@@ -64,18 +64,19 @@ h2.title{
 div.author-container{
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 2px;
 }
 
 span.author{
     text-decoration: underline;
     text-underline-offset: 3px;
     white-space: nowrap;
+    margin-right: 5px;
+    font-size: small;
 }
 
 div.publication{
     font-style: italic;
+    font-size: small;
 }
 
 div.docsize span{
