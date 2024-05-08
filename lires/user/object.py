@@ -97,7 +97,7 @@ class LiresUser:
         """
         Read image from image_path,
         resize, and save it to USER_AVATAR_DIR.
-        Save as three different sizes: original, large, small.
+        Save as two different sizes: original, square.
         Save as png format.
 
         When image_path is None, remove avatar images.
@@ -117,7 +117,6 @@ class LiresUser:
             raise TypeError("image must be str or PIL.Image.Image")
 
         # save original
-        # img.save(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_original.png"))
         buffer = BytesIO()
         img.save(buffer, format="PNG")
         async with aiofiles.open(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_original.png"), "wb") as fp:
@@ -135,7 +134,6 @@ class LiresUser:
 
         # resize to 512x512
         img_sq = img.resize((512, 512))
-        # img_sq.save(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_square.png"))
         buffer = BytesIO()
         img_sq.save(buffer, format="PNG")
         async with aiofiles.open(os.path.join(self.USER_AVATAR_DIR, f"{self._id}_square.png"), "wb") as fp:

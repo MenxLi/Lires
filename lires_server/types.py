@@ -35,3 +35,4 @@ class ServerStatus(TypedDict):
     uptime: float
     n_data: int
     n_connections: int
+    n_connections_all: int

@@ -2,9 +2,10 @@
 export interface ServerStatus {
     status: 'online' | 'offline' | 'maintenance';
     version: string;
+    uptime: number;
     n_data: number;
     n_connections: number;
-    uptime: number;
+    n_connections_all: number;
 }
 export interface DatabaseUsage {
     n_entries: number;

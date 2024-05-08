@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { useConnectionStore, useDataStore, useSettingsStore } from './store';
     import { ref, computed } from 'vue';
-    import { type Changelog } from '../api/protocol';
+    import { type Changelog, Event_User } from '../api/protocol';
     import { getBackendURL, docsURL } from '../config';
     import Toolbar from './header/Toolbar.vue';
     import FloatingWindow from './common/FloatingWindow.vue';
@@ -11,6 +11,7 @@
     const changelog = ref<Changelog>([]);
     const showChangelog = ref(false);
     const conn = useConnectionStore().conn;
+    const isAdmin = useDataStore().user.is_admin;
     const updateChangelog = () => {
         conn.changelog().then(
             (data) => {
@@ -38,6 +39,7 @@
         '_uptime': -1,
         'numDocs': -1,
         'numConnections': -1,
+        'numConnectionsAll': -1,
     })
     const updateServerStatus = () => {
         conn.status().then(
@@ -46,6 +48,7 @@
                 serverInfo.value.version = data.version;
                 serverInfo.value.numDocs = data.n_data;
                 serverInfo.value.numConnections = data.n_connections;
+                serverInfo.value.numConnectionsAll = data.n_connections_all;
             },
             (err) => {
                 console.error(err);
@@ -61,8 +64,16 @@
     updateServerStatus();
     window.setInterval(()=>__uptime.value++, 1000);
 
-    registerServerEvenCallback('login', ()=>serverInfo.value.numConnections++);
-    registerServerEvenCallback('logout', ()=>serverInfo.value.numConnections--);
+    registerServerEvenCallback('login', (ev)=>{
+        serverInfo.value.numConnectionsAll++
+        if ((ev as Event_User).user_info!.id == useDataStore().user.id)
+        serverInfo.value.numConnections++
+    });
+    registerServerEvenCallback('logout', (ev)=>{
+        serverInfo.value.numConnectionsAll--
+        if ((ev as Event_User).user_info!.id == useDataStore().user.id)
+        serverInfo.value.numConnections--
+    });
 </script>
 
 <template>
@@ -89,8 +100,8 @@
             </ul>
 
         </div>
-        <div class="content" v-if="useDataStore().user.is_admin">
-            <h2> Management </h2>
+        <div class="content">
+            <h2> Dashboard </h2>
             <details>
                 <summary>Server status </summary>
                 <ul>
@@ -100,10 +111,11 @@
                     </li>
                     <li><b>Uptime</b>: {{serverInfo.uptime}}</li>
                     <li><b>Connection count</b>: {{serverInfo.numConnections}}</li>
+                    <li v-if="isAdmin"><b>Connection count (all)</b>: {{serverInfo.numConnectionsAll}}</li>
                 </ul>
             </details>
-            <details>
-                <summary>User management</summary>
+            <details v-if="isAdmin">
+                <summary> User management </summary>
                 <div style="
                 border: 1px solid var(--color-border); 
                 border-radius: 10px;
@@ -196,5 +208,10 @@
         margin-bottom: 10px;
         border: 1px solid var(--color-border);
         border-top: none;
+    }
+
+    summary{
+        cursor: pointer;
+        user-select: none;
     }
 </style>

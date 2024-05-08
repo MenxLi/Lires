@@ -120,6 +120,9 @@ class RequestHandlerMixin(LiresBase):
     def connection_pool(self) -> list[WebsocketHandler]:
         return _ws_connections
     
+    def connectionsByUserID(self, user_id: int) -> list[WebsocketHandler]:
+        return [conn for conn in self.connection_pool if conn.user_id == user_id]
+    
     @property
     def enc_key(self) -> str:
         try:
