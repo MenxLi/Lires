@@ -104,7 +104,7 @@
     }
 
     onActivated(fetchAll);
-    // fetchAll()
+    onMounted(fetchAll);
     watch(() => props.datapoint, () => {
         if (inactive.value){ resetState(); }
         else{
