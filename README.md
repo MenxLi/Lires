@@ -1,5 +1,10 @@
 **Lires - A self-hosted research literature manager.**
 
+[![PyPI](https://img.shields.io/pypi/v/lires)](https://pypi.org/project/lires/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/lires)](https://pypi.org/project/lires/)
+[![intro-zh](https://img.shields.io/badge/简介-点击查看-8A2BE2?style=social)](https://limengxun.com/projects/lires.html)
+
+
 ![](https://limengxun-imagebed.oss-cn-wuhan-lr.aliyuncs.com/pic/lires_v1.7.3w.png)
 
 
