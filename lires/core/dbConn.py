@@ -12,7 +12,7 @@ import aiosqlite
 from .base import LiresBase
 from ..utils import TimeUtils
 from ..utils.author import formatAuthorName
-from ..version import VERSION
+from ..version import VERSION, versionize
 
 if TYPE_CHECKING:
     from ..types.dataT import FileTypeT
@@ -124,7 +124,8 @@ class DBConnection(LiresBase):
         May call this function to re-init the connection after close
         """
         self.conn = await aiosqlite.connect(self.db_path)
-        await self.__maybeCreateTable()
+        await self.__initTables()
+        await self.__autoUpgrade()
         await self.cache.init()
         await self.cache.buildInitCache(await self.getAll())
         return self
@@ -140,11 +141,41 @@ class DBConnection(LiresBase):
     async def setModifiedFlag(self, modified: bool):
         self.__modified = modified
     
-    async def __maybeCreateTable(self):
-        """
-        Create table if not exist
-        """
-        # check if table exists
+    async def __maybeCreateMetaTable(self):
+        # check if meta table exists
+        async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='meta'") as cursor:
+            if not await cursor.fetchone():
+                await cursor.execute("""
+                CREATE TABLE IF NOT EXISTS meta (
+                    key TEXT PRIMARY KEY,
+                    value TEXT NOT NULL
+                )
+                """)
+                await self.setModifiedFlag(True)
+        
+        async def getInitVersion():
+            has_main_table = (await self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'")).fetchone()
+            if not has_main_table:
+                # this is a new database, insert current version
+                return VERSION
+            else:
+                # backware compatibility, since 1.8.0, version is stored in meta table
+                # main table exists means this is an existing database, insert 0.0.0, for auto upgrade
+                return '0.0.0'
+
+        # check if version key exists
+        async with self.conn.execute("SELECT value FROM meta WHERE key='version'") as cursor:
+            ret = await cursor.fetchone()
+            if ret is None:
+                await self.conn.execute("INSERT INTO meta (key, value) VALUES ('version', ?)", (await getInitVersion(),))
+                await self.setModifiedFlag(True)
+    
+    async def __initTables(self):
+        """ Create table if not exist """
+        # create meta table
+        await self.__maybeCreateMetaTable()
+
+        # create main table
         async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'") as cursor:
             if not await cursor.fetchone():
                 await cursor.execute("""
@@ -169,6 +200,28 @@ class DBConnection(LiresBase):
                 )
                 """)
                 await self.setModifiedFlag(True)
+    
+    async def __autoUpgrade(self):
+
+        ## Update functions
+        async def _upgrade_1_8_0():
+            # add ...
+            ...
+
+        ## Check version and upgrade
+        curr_version = versionize(VERSION)
+        async with self.conn.execute("SELECT value FROM meta WHERE key='version'") as cursor:
+            ver = await cursor.fetchone()
+            assert ver is not None
+            record_version = versionize(ver[0])
+
+        # TODO: auto upgrade
+        ...
+
+        if record_version < curr_version:
+            await self.conn.execute("UPDATE meta SET value=? WHERE key='version'", (curr_version.string(),))
+            await self.logger.debug("Upgraded database {} from version {} to {}".format(self.db_path, record_version, curr_version))
+            await self.setModifiedFlag(True)
         
     async def close(self):
         await self.conn.close()
