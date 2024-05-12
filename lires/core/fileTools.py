@@ -114,6 +114,7 @@ async def addDocument(
 
     uid = await db_conn.addEntry(
         bibtex=citation,
+        dtype=uniform_bib["type"],
         title=uniform_bib["title"],
         year=uniform_bib["year"],
         authors=uniform_bib["authors"],
@@ -283,6 +284,7 @@ class FileManipulator(LiresBase):
             bib = BibParser.formatBib(bib)
         return await self.conn.updateBibtex(
             self.uuid, bib,
+            dtype=parsed_bib["type"],
             title=parsed_bib["title"],
             authors=parsed_bib["authors"],
             year=parsed_bib["year"],
@@ -345,6 +347,7 @@ class FileManipulator(LiresBase):
             async with (await DBConnection(_backup_dir).init()) as trash_db:
                 _success = await trash_db.addEntry(
                     bibtex=old_entry["bibtex"],
+                    dtype=old_entry["type"],
                     title=old_entry["title"],
                     year=old_entry["year"],
                     authors=old_entry["authors"],

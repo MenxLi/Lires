@@ -109,6 +109,7 @@ class BibParser(LiresBase):
 
 class ParsedRef(TypedDict):
     bib: dict
+    type: str
     title: str
     year: str
     authors: list[str]
@@ -130,6 +131,7 @@ async def parseBibtex(bib_single: str) -> ParsedRef:
                 pass
     return {
         "bib": parsed,
+        "type": parsed["type"].lower(),
         "title": latex2text.latex2text(parsed["title"]),
         "year": parsed["year"],
         "authors": [ latex2text.latex2text(au) for au in parsed["authors"] ],

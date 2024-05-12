@@ -17,6 +17,7 @@ class TestDB:
         async def _test():
             uid0 = await conn.addEntry(
                 bibtex="",
+                dtype="article",
                 title="test title0",
                 year = "2021",
                 publication = "test publication0",
@@ -32,6 +33,7 @@ class TestDB:
 
             uid1 = await conn.addEntry(
                 bibtex="",
+                dtype="inproceedings",
                 title="test title1",
                 year = 2021,
                 publication = "test publication1",

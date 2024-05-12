@@ -9,6 +9,7 @@ import dataclasses
 import platform
 import aiosqlite
 
+from .dbConnUpgrade import *
 from .base import LiresBase
 from ..utils import TimeUtils
 from ..utils.author import formatAuthorName
@@ -59,6 +60,7 @@ LIST_SEP = "&sp;"
 class DBFileRawInfo(TypedDict):
     uuid: str           # File uuid, should be unique for each file
     bibtex: str         # Bibtex string, should be valid and remove abstract, at least contains title, year, authors
+    type: str          # Type, string
     title: str          # Title, string
     year: int           # int, year
     publication: str    # Publication, string
@@ -83,6 +85,7 @@ class DBFileInfo(TypedDict):
     # The same as DBFileRawInfo, but with some fields converted to their original type
     uuid: str           
     bibtex: str         
+    type: str
     title: str         
     year: int          
     publication: str   
@@ -154,7 +157,7 @@ class DBConnection(LiresBase):
                 await self.setModifiedFlag(True)
         
         async def getInitVersion():
-            has_main_table = (await self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'")).fetchone()
+            has_main_table = await (await self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'")).fetchone()
             if not has_main_table:
                 # this is a new database, insert current version
                 return VERSION
@@ -183,6 +186,7 @@ class DBConnection(LiresBase):
                     uuid TEXT PRIMARY KEY,
 
                     bibtex TEXT NOT NULL,
+                    type TEXT NOT NULL,
                     title TEXT NOT NULL,
                     year INTEGER NOT NULL,
                     publication TEXT NOT NULL,
@@ -202,11 +206,17 @@ class DBConnection(LiresBase):
                 await self.setModifiedFlag(True)
     
     async def __autoUpgrade(self):
+        """
+        Auto upgrade database if needed, 
+        for backward compatibility
+        """
+        await DB_MOD_LOCK.acquire()
+
+        async def setVersionRecord(version: str):
+            await self.conn.execute("UPDATE meta SET value=? WHERE key='version'", (version,))
+            await self.setModifiedFlag(True)
 
         ## Update functions
-        async def _upgrade_1_8_0():
-            # add ...
-            ...
 
         ## Check version and upgrade
         curr_version = versionize(VERSION)
@@ -215,13 +225,13 @@ class DBConnection(LiresBase):
             assert ver is not None
             record_version = versionize(ver[0])
 
-        # TODO: auto upgrade
-        ...
+        if record_version < versionize("1.8.0"):
+            await upgrade_1_8_0(self)
+            await setVersionRecord("1.8.0")
 
-        if record_version < curr_version:
-            await self.conn.execute("UPDATE meta SET value=? WHERE key='version'", (curr_version.string(),))
-            await self.logger.debug("Upgraded database {} from version {} to {}".format(self.db_path, record_version, curr_version))
-            await self.setModifiedFlag(True)
+        await setVersionRecord(curr_version.string())
+        await self.logger.info("Upgraded database {} from version {} to {}".format(self.db_path, record_version, curr_version))
+        DB_MOD_LOCK.release()
         
     async def close(self):
         await self.conn.close()
@@ -239,18 +249,19 @@ class DBConnection(LiresBase):
         return {
             "uuid": row[0],
             "bibtex": row[1],
-            "title": row[2],
-            "year": row[3],
-            "publication": row[4],
-            "authors": parseList(row[5]),
-            "tags": parseList(row[6]),
-            "url": row[7],
-            "abstract": row[8],
-            "comments": row[9],
-            "time_import": row[10],
-            "time_modify": row[11],
-            "info_str": row[12],
-            "doc_ext": row[13]
+            "type": row[2],
+            "title": row[3],
+            "year": row[4],
+            "publication": row[5],
+            "authors": parseList(row[6]),
+            "tags": parseList(row[7]),
+            "url": row[8],
+            "abstract": row[9],
+            "comments": row[10],
+            "time_import": row[11],
+            "time_modify": row[12],
+            "info_str": row[13],
+            "doc_ext": row[14]
         }
 
     async def size(self) -> int:
@@ -323,12 +334,13 @@ class DBConnection(LiresBase):
             await self.conn.execute("DELETE FROM files WHERE uuid=?", (item_raw["uuid"],))
         await self.conn.execute(
             """
-            INSERT INTO files (uuid, bibtex, title, year, publication, authors, tags, url, abstract, comments, time_import, time_modify, info_str, doc_ext)
-            VALUES (?,?,?, ?,?,?, ?,?,?, ?,?,?, ?,?)
+            INSERT INTO files (uuid, bibtex, type, title, year, publication, authors, tags, url, abstract, comments, time_import, time_modify, info_str, doc_ext)
+            VALUES (?,?,?, ?,?,?,?, ?,?,?, ?,?,?, ?,?)
             """,
             (
                 item_raw["uuid"],
                 item_raw["bibtex"],
+                item_raw["type"],
                 item_raw["title"],
                 item_raw["year"],
                 item_raw["publication"],
@@ -356,6 +368,7 @@ class DBConnection(LiresBase):
 
             # bibtex fields
             bibtex: str, 
+            dtype: str,
             title: str,
             year: int | str,
             publication: str,
@@ -409,6 +422,7 @@ class DBConnection(LiresBase):
             await self._insertItem({
                 "uuid": uid,
                 "bibtex": bibtex,
+                "type": dtype,
                 "title": title,
                 "year": year,
                 "publication": publication,
@@ -463,6 +477,7 @@ class DBConnection(LiresBase):
     async def updateBibtex(
         self, uuid: str, 
         bibtex: str, 
+        dtype: str,
         title: str,
         year: str,
         publication: str,
@@ -473,8 +488,8 @@ class DBConnection(LiresBase):
         await self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
 
         async with DB_MOD_LOCK:
-            await self.conn.execute("UPDATE files SET bibtex=?, title=?, year=?, publication=?, authors=? WHERE uuid=?", (
-                bibtex, title, year, publication, dumpList(authors), uuid
+            await self.conn.execute("UPDATE files SET bibtex=?, type=?, title=?, year=?, publication=?, authors=? WHERE uuid=?", (
+                bibtex, dtype, title, year, publication, dumpList(authors), uuid
             ))
 
             # check if authors changed and maybe update cache
