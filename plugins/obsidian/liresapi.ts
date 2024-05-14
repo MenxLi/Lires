@@ -2,6 +2,7 @@ import Fetcher from "./fetcher";
 import type { DataInfoT, UserInfo } from "../../lires_web/src/api/protocol";
 
 const _dummyDataSummary: DataInfoT = {
+    doc_type: "",
     has_file : false,
     file_type: "",
     year: "0000",

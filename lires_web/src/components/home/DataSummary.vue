@@ -192,7 +192,7 @@
                     </tr>
                     <tr>
                         <td><b>Type</b></td>
-                        <td>{{ datapoint.docType() + `${datapoint.summary.has_file?
+                        <td>{{ datapoint.fileType() + `${datapoint.summary.has_file?
                             ' (' + datapoint.summary.doc_size.toString() + 'M)':''}` }}</td>
                     </tr>
                     <!-- <tr>

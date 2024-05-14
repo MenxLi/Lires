@@ -24,6 +24,7 @@ export class DataPoint {
 
     get backendUrl(): string{ return this.conn.baseURL; }
 
+    get dtype(): string{ return this.summary.doc_type; }
     get tags(): DataTags{ return new DataTags(this.summary.tags); }
     get uid(): string{ return this.summary.uuid; }
     get title(): string{ return this.summary.title; }
@@ -252,7 +253,7 @@ export class DataPoint {
         return ret;
     }
 
-    docType(): "" | "html" | "pdf" | "url" | "unknown" {
+    fileType(): "" | "html" | "pdf" | "url" | "unknown" {
         if (this.summary["has_file"] && this.summary["file_type"] == ".pdf"){
             return "pdf";
         }
@@ -272,6 +273,7 @@ export class DataPoint {
 }
 
 const _dummyDataSummary: DataInfoT = {
+    doc_type: "",
     has_file : false,
     file_type: "",
     year: "0000",

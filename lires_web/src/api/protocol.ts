@@ -14,6 +14,7 @@ export interface DatabaseUsage {
 }
 
 export interface DataInfoT {
+    doc_type: string;
     has_file: boolean;
     file_type: string;
     year: string;

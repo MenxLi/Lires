@@ -113,7 +113,8 @@ async def assembleDatapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
     _file_size = round(_file_size/(1048576), 2) if _has_file else 0 # convert to MB
 
     summary = DataPointSummary(
-        has_file=_has_file,
+        doc_type = raw_info['type'], 
+        has_file =_has_file,
         file_type=raw_info["doc_ext"],
         year = raw_info["year"],
         title = raw_info["title"],

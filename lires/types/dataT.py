@@ -6,6 +6,7 @@ FileTypeT: TypeAlias = Literal['', '.pdf', '.html']
 
 @dataclass
 class DataPointSummary():
+    doc_type: str
     has_file: bool
     file_type: FileTypeT
     year: Any
@@ -25,6 +26,7 @@ class DataPointSummary():
 
     def json(self):
         return {
+            "doc_type": self.doc_type,
             "has_file": self.has_file,
             "file_type": self.file_type,
             "year": self.year,
