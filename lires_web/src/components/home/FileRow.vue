@@ -90,6 +90,25 @@
         }
     }
 
+    // document type icon
+    const docTypeEmoji = computed(() => {
+        switch (props.datapoint.dtype){
+            case "article": return "📄";
+            case "book": return "📚";
+            case "incollection": return "📖";
+            case "inbook": return "📖";
+            case "manual": return "📖";
+            case "webpage": return "🌐";
+            case "inproceedings": return "📜";
+            case "conference": return "📜";
+            case "misc": return "📎";
+            case "thesis": return "🎓";
+            case "techreport": return "📑";
+            case "unpublished": return "📝";
+            default: return "📄";
+        }
+    })
+
     // related to authorYear div
     const authorYearText = computed(() => {
         return props.datapoint.yearAuthor("-");
@@ -201,7 +220,12 @@
                             display: 'flex',
                             // whiteSpace: `${(showMore)?'normal':'nowrap'}`,
                             fontSize: '1rem',
-                        }">{{ datapoint.summary.title }}</div>
+                        }">
+                            <span style="margin-right: 0.25rem; font-size: 0.75rem; display: flex; align-items: center; opacity: 0.8;">
+                                {{ docTypeEmoji }}
+                            </span>
+                            {{ datapoint.summary.title }}
+                        </div>
                         <div :style="{
                             marginTop: '0px',
                             padding: '0px',
