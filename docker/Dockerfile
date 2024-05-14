@@ -35,5 +35,5 @@ EXPOSE 8700
 EXPOSE 21000-22000
 ENV LRS_HOME=/root/.Lires
 ENV HF_HOME=/root/.Lires/hf_home
-ENTRYPOINT ["lrs-cluster", "/root/.Lires/container-cluster-config.yaml", "--init-if-not-exist"]
+ENTRYPOINT ["lrs-cluster", "/root/.Lires/container-cluster.yaml", "--init-if-not-exist"]
 # ENTRYPOINT [ "/bin/bash" ]

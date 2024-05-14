@@ -86,13 +86,13 @@ Especially when we want to start multiple servers with different configurations.
 Instead, we provide a simple script to enable server clustering for easy deployment.  
 ```sh
 # Generate a template configuration file
-lrs-cluster <your/configuration.toml> --generate
+lrs-cluster <your/configuration.yaml> --generate
 
 # Edit the configuration file
 # ...
 
 # Start the cluster
-lrs-cluster <your/configuration.toml>
+lrs-cluster <your/configuration.yaml>
 ```
 The configuration file designates the environment variables, as well as the command line arguments for each server.
 

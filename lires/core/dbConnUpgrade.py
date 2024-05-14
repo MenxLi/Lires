@@ -27,7 +27,8 @@ async def upgrade_1_8_0(db: DBConnection):
 
     # create a new table
     await db.conn.execute("""
-    CREATE TABLE files_new (
+    CREATE TABLE IF NOT EXISTS
+    files_new (
         uuid TEXT PRIMARY KEY,
 
         bibtex TEXT NOT NULL,

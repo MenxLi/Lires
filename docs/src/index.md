@@ -45,5 +45,5 @@ The software mainly consists of four modules:
 ```sh
 pip install 'Lires[all]'
 lrs-user add <username> <password> --admin
-lrs-cluster -i ./cluster-config.toml
+lrs-cluster -i ./cluster-config.yaml
 ``` -->

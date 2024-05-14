@@ -73,7 +73,6 @@ ai = [
 ]
 all = [
     "Lires[core,ai]",
-    "tomlkit", 
 ]
 dev = [
     "Lires[all]",
