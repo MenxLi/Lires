@@ -37,8 +37,14 @@ export default defineConfig({
           { text: 'Getting Started', link: '/deployment/gettingStarted' },
           { text: 'Enviroment Variables', link: '/deployment/enviromentVariables' },
           { text: 'Manage', link: '/deployment/manage' },
-          { text: 'Dev Guide', link: '/deployment/devGuide' },
           { text: 'Obsidian Plugin', link: '/deployment/obsidianPlugin' },
+        ]
+      },
+      {
+        text: 'Development',
+        link: '/dev/',
+        items: [
+          { text: 'Roadmap', link: '/dev/roadmap' },
         ]
       }
     ],
