@@ -172,6 +172,8 @@ const showSummary = ref(false);
             </div>
         </Transition>
         <div id="abstract">
+            <!-- https://github.com/vuejs/core/issues/10928 -->
+            <!-- @vue-ignore -->
             <details @toggle="getAbstract">
                 <summary>Abstract</summary>
                 <EditableParagraph id="abstractParagraph"  ref="abstractParagraph" :style="{minHeight: '20px'}"
