@@ -228,7 +228,7 @@
                             fontSize: '1rem',
                         }">
                             <p>
-                                <span style="margin-right: 0.25rem; margin-top: 0.25rem; font-size: 0.75rem; opacity: 0.8; display: inline-block; filter:drop-shadow(1px 1px 0.5px var(--color-border));">
+                                <span style="margin-right: 0.1rem; margin-top: 0.25rem; font-size: 0.75rem; opacity: 0.8; display: inline-block; filter:drop-shadow(1px 1px 0.5px var(--color-border));">
                                     {{ docTypeEmoji }}
                                 </span>
                                 {{ datapoint.summary.title }}
@@ -246,12 +246,7 @@
             </div>
 
             <div class="right row">
-                <div id="statusDiv" :style="{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: '2px',
-                }">
+                <div id="status-container">
                     <div class="status">
                         <img v-if="datapoint.summary.has_abstract" src="../../assets/icons/contract.svg" alt="" class="icon">
                         <img v-else src="../../assets/icons/dot_fill.svg" alt="" class="icon placeholder">
@@ -288,7 +283,6 @@
     div#init{
         display: flex;
         flex-wrap: nowrap;
-        flex-direction: row;
         justify-content: space-between;
     }
     div#init>div.left{
@@ -312,6 +306,12 @@
         text-overflow: ellipsis;
         overflow: hidden;
     }
+    div#status-container{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 2px;
+    }
     div.status{
         display: flex;
         align-items: center;
@@ -325,9 +325,9 @@
     img.redIcon {
         filter: invert(33%) sepia(92%) saturate(3443%) hue-rotate(0deg) brightness(97%) contrast(101%);
     }
-    img.icon.big {
+    /* img.icon.big {
         height: 20px;
-    }
+    } */
     img.placeholder{
         height: 8px
     }
@@ -349,10 +349,26 @@
         /* https://stackoverflow.com/a/69078238/6775765 */
     }
 
-    @media (max-width: 750px){
+    @media (max-width: 768px){
         div#init>div.left{
             width: 100%;
             flex-wrap: wrap;
+        }
+        div#init{
+            align-items: flex-start;
+        }
+        div#status-container{
+            flex-direction: column;
+            margin-block: 5px;
+            margin-left: 5px;
+            gap: 1px;
+        }
+        img.icon{
+            height: 12px;
+        }
+        img.placeholder{
+            height: 12px;
+            width: 8px;
         }
     }
 </style>

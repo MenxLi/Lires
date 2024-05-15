@@ -56,7 +56,7 @@
 
         border: 1px solid var(--color-border);
         border-radius: 20px;
-        padding-inline: 5px;
+        padding: 3px;
         margin-inline: 10px;
         width: 100%;
         height: 2rem;
@@ -67,8 +67,7 @@
         outline: none;
         /* font-size: medium; */
         width: 100px;
-        padding-inline: 5px;
-        padding-block: 5px;
+        height: 100%;
         border-radius: 20px;
         font-weight: bold;
         background-color: var(--color-background-ssoft);

@@ -232,7 +232,7 @@
         border: 1px solid var(--color-border);
         border-radius: 3rem;
         padding: 0.3rem;
-        gap: 1rem;
+        gap: 0.5rem;
         white-space: nowrap;
         width: 100%;
     }
