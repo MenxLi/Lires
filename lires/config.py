@@ -64,11 +64,12 @@ def __staticConfigToken(prefix = uuid.NAMESPACE_DNS):
     return uuid.uuid5(prefix, platform.node() + LRS_HOME).hex
 __default_config: LiresConfT = {
     'group': __staticConfigToken(uuid.NAMESPACE_DNS)[:8],
-    'deploy_token': uuid.uuid4().hex, 
+    # 'deploy_token': uuid.uuid4().hex, 
     'service_port_range': [21000, 22000],
     'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
 }
-__essential_config_keys = ['deploy_token']  # keys that must be in the configuration file
+# __essential_config_keys = ['deploy_token']  # keys that must be in the configuration file
+__essential_config_keys = []  # keys that must be in the configuration file
 __g_config: Optional[LiresConfT] = None     # buffer
 def getConf() -> LiresConfT:
     global __g_config, CONF_FILE_PATH

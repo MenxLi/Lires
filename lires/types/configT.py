@@ -24,7 +24,7 @@ class LiresConfT(TypedDict):
 
     # The root token for the inter-server communication,
     # will be treated as an admin token for the gateway server
-    deploy_token: str
+    # deploy_token: str
 
     # Random port range for microservices, 
     # if the port is specified as 0, will use a random port in this range
