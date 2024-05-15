@@ -101,7 +101,7 @@
             __sessionConnected.value = false
             initConnection();
         }
-        else if (__isInLoginPage && wsConnection.willTryReconnect()){
+        else if (__isInLoginPage.value && wsConnection.willTryReconnect()){
             console.log("DEBUG: In login page, close connection.");
             wsConnection.close();
         }
