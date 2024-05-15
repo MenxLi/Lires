@@ -150,8 +150,8 @@ def initProcesses(config: ClusterConfigT):
                 dst[k] = v
 
     def __execEntry(subcommand: str, entry: ConfigEntryT):
-        this_env = entry.setdefault("env", dict())
-        __parseEnv(g_env, dst = this_env)
+        this_env = g_env.copy()
+        __parseEnv(entry.get("env", {}), dst = this_env)
         exec_args = ["lires", subcommand]
         args = entry.get("args", [])
         for arg in args:
