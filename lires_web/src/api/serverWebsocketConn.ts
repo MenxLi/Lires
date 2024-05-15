@@ -187,8 +187,8 @@ export class ServerWebsocketConn{
     }
 
     public close(){
+        this.__remainingRetries = 0;    // disable reconnect
         if (this.ws && this.ws.readyState === WebSocket.OPEN){
-            this.__remainingRetries = 0;    // disable reconnect
             this.ws.close();
         }
         else{

@@ -97,9 +97,13 @@
     setInterval(()=>{
         if (!wsConnection.isOpen() && __sessionConnected.value 
             && !__isInLoginPage.value && !__sessionFailed.value){
-
+            console.log("DEBUG: Connection lost, try to reconnect");
             __sessionConnected.value = false
             initConnection();
+        }
+        else if (__isInLoginPage && wsConnection.willTryReconnect()){
+            console.log("DEBUG: In login page, close connection.");
+            wsConnection.close();
         }
     }, 5000)
 
