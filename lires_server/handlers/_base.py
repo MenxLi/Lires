@@ -47,6 +47,7 @@ _ws_connections: list[WebsocketHandler] = []
 
 class RequestHandlerMixin(LiresBase):
     get_argument: Callable
+    request: tornado.httputil.HTTPServerRequest
     get_cookie: Callable[[str, Optional[str]], Optional[str]]
     set_header: Callable
     cookies: http.cookies.SimpleCookie
@@ -123,8 +124,17 @@ class RequestHandlerMixin(LiresBase):
     def connectionsByUserID(self, user_id: int) -> list[WebsocketHandler]:
         return [conn for conn in self.connection_pool if conn.user_id == user_id]
     
-    @property
-    def enc_key(self) -> str:
+    def getAuthToken(self) -> str:
+        # first try to get key from headers
+        # `Authorization` is a common header for key, 
+        # use this should be a better practice
+        # e.g. when using a reverse proxy, it is easier to set headers
+        enc_key = self.request.headers.get("Authorization", "")
+        if enc_key:
+            # assume the key is in the format of "Bearer <key>"
+            enc_key = enc_key.split(" ")[-1]
+            return enc_key
+
         try:
             enc_key = self.get_argument("key", "")
         except tornado.web.HTTPError:
@@ -154,10 +164,10 @@ class RequestHandlerMixin(LiresBase):
     
     async def checkKey(self) -> UserInfo:
         """
-        Authenticates key from params, then cookies
+        Authenticates key from headers, params, then cookies
         Will raise HTTPError if key is invalid
         """
-        enc_key = self.enc_key
+        enc_key = self.getAuthToken()
         if not enc_key:
             await self.logger.debug("No key found, abort")
             raise tornado.web.HTTPError(403) 

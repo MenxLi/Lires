@@ -79,30 +79,36 @@ class Fetcher {
     }
 
     private async _fetch(path: string, options?: RequestInit): Promise<Response> {
+        // add Authorization header
+        if (options === undefined) {
+            options = {};
+        }
 
-        // inject token
+        if (options.headers === undefined) {
+            options.headers = new Headers();
+        } else if (typeof options.headers === 'string') {
+            options.headers = new Headers(options.headers);
+        } else {
+            options.headers = new Headers(options.headers);
+        }
+        options.headers.append('Authorization', `Bearer ${this._tokenGetter()}`);
+
+
+        // add session_id to body
         if (options?.method === 'GET') {
             const url = new URL(path);
-            url.searchParams.append('key', this._tokenGetter());
             url.searchParams.append('session_id', this._sessionIDGetter());
             path = url.toString();
         }
-
+        else
         if (options?.method === 'POST' || options?.method === 'PUT' || options?.method === 'DELETE') {
-            if (options.body === undefined) {
-                options.body = JSON.stringify({key: this._tokenGetter()});
-            }
-            else if (typeof options.body === 'string') {
+            if (typeof options.body === 'string') {
                 // assume it is JSON
                 options.body = JSON.stringify({
-                    key: this._tokenGetter(), 
                     session_id: this._sessionIDGetter(),
                     ...JSON.parse(options.body)});
             }
             else if (options.body instanceof FormData) {
-                if (!options.body.has('key')) {
-                    options.body.append('key', this._tokenGetter());
-                }
                 if (!options.body.has('session_id')) {
                     options.body.append('session_id', this._sessionIDGetter());
                 }

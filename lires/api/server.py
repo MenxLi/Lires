@@ -48,24 +48,26 @@ class Connector(LiresAPIBase):
         return {k: _formatEntry(v) for k, v in params.items()}
     
     async def get(self, path: str, params: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
+        headers['Authorization'] = f"Bearer {self.token}"
         async with aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
+                headers=headers
             ) as session:
             async with session.get(
                     self.endpoint + path,
-                    params={"key": self.token, "session_id": self.session_id, **(await self._formatParams(params))},
-                    headers=headers
+                    params={"session_id": self.session_id, **(await self._formatParams(params))},
                 ) as res:
                 return await self._parseRes(res, return_type)
     
     async def post(self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
+        headers['Authorization'] = f"Bearer {self.token}"
         async with aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
+                headers={"Content-Type": "application/x-www-form-urlencoded", **headers}
             ) as session:
             async with session.post(
                     self.endpoint + path,
-                    data={"key": self.token, "session_id": self.session_id, **(await self._formatParams(data))},
-                    headers={"Content-Type": "application/x-www-form-urlencoded", **headers}
+                    data={"session_id": self.session_id, **(await self._formatParams(data))},
                 ) as res:
                 return await self._parseRes(res, return_type)
     
@@ -87,6 +89,7 @@ class Connector(LiresAPIBase):
 
         async with aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
+                headers={"Authorization": f"Bearer {self.token}"}
             ) as session:
             async with session.put(
                     self.endpoint + path,
@@ -96,6 +99,7 @@ class Connector(LiresAPIBase):
     
     async def delete(
         self, path: str, data: dict[str, JsonDumpable] = {}, headers: dict[str, str] = {}, return_type = "json"):
+        headers['Authorization'] = f"Bearer {self.token}"
         data = await self._formatParams(data)
         form = aiohttp.FormData()
         form.add_field("key", self.token)
@@ -104,11 +108,11 @@ class Connector(LiresAPIBase):
             form.add_field(k, v)
         async with aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(verify_ssl=self._verify_ssl), 
+                headers={"Content-Type": "application/x-www-form-urlencoded", **headers}
             ) as session:
             async with session.delete(
                     self.endpoint + path,
                     data=form,
-                    headers={"Content-Type": "application/x-www-form-urlencoded", **headers}
                 ) as res:
                 return await self._parseRes(res, return_type)
         
