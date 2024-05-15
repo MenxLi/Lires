@@ -82,7 +82,7 @@ export const useUIStateStore = defineStore(
                 const dataStore = useDataStore();
                 this.tagStatus.all = dataStore.allTags;     // in case tag pool are updated from the backend
                 console.log("DEBUG: updateShownData() is called.")
-                useConnectionStore().conn.filter(
+                useConnectionStore().conn.query(
                     {
                         tags: Array.from(this.tagStatus.checked),
                         searchBy: this.searchState.searchBy,

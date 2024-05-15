@@ -39,7 +39,7 @@ class TestServer(BaseConfig):
     async def test_updateEntry(self, server_admin: ServerConn):
 
         async def _testOneEntry(bibtex: str, tags: list, url: str):
-            d_summary = await server_admin.updateEntry(
+            d_summary = await server_admin.updateDatapoint(
                 None,
                 bibtex=bibtex,
                 tags=tags,
@@ -77,7 +77,7 @@ class TestServer(BaseConfig):
             new_url = randomAlphaNumeric(10) if random.random() > 0.5 else None
                 
             # test update
-            d_summary_update = await server_admin.updateEntry(
+            d_summary_update = await server_admin.updateDatapoint(
                 uid,
                 bibtex=bibtex,
                 tags=new_tags,
@@ -101,7 +101,7 @@ class TestServer(BaseConfig):
             bibtex = "@article{test, title={Test}, author={Test}}"
             tags = ["test"]
             url = "http://test.com"
-            return server_normal.updateEntry( None,
+            return server_normal.updateDatapoint( None,
                 bibtex=bibtex,
                 tags=tags,
                 url=url
@@ -112,7 +112,7 @@ class TestServer(BaseConfig):
         f_blob = randomAlphaNumeric(1000).encode()
 
         # get the first entry
-        dp_id = (await server_normal.filter(max_results=1))['uids'][0]
+        dp_id = (await server_normal.query(max_results=1))['uids'][0]
         d_summary = await server_normal.uploadDocument(dp_id, f_blob, filename="test.pdf")
         assert d_summary.uuid == dp_id
         assert d_summary.has_file
@@ -123,7 +123,7 @@ class TestServer(BaseConfig):
         assert not d_summary.has_file
     
     async def _getFirstEntry(self, server_normal: ServerConn):
-        entry_id = (await server_normal.filter(max_results=1))['uids'][0]
+        entry_id = (await server_normal.query(max_results=1))['uids'][0]
         return await server_normal.reqDatapointSummary(entry_id)
     
     async def test_updateTag(self, server_normal: ServerConn):
@@ -132,7 +132,7 @@ class TestServer(BaseConfig):
 
         new_tag = randomAlphaNumeric(10)
         updated_tags = curr_data.tags + [new_tag]
-        await server_normal.updateEntry(dp_id, tags = updated_tags)
+        await server_normal.updateDatapoint(dp_id, tags = updated_tags)
         assert set((await server_normal.reqDatapointSummary(dp_id)).tags) == set(updated_tags)
 
         await server_normal.updateTagAll(new_tag, 'xxx_new')

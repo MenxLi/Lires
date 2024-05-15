@@ -194,7 +194,7 @@ class ServerConn:
         ret = await self.__c.delete(f"/doc/{uid}", return_type="json")
         return DataPointSummary(**ret)
 
-    async def updateEntry(
+    async def updateDatapoint(
             self, uuid: Optional[str], 
             bibtex: Optional[str] = None, 
             tags: Optional[list[str]] = None,
@@ -225,7 +225,7 @@ class ServerConn:
         res = await self.__c.post("/api/dataman/update", params)
         return DataPointSummary(**res)
     
-    async def filter(
+    async def query(
         self, 
         tags: list[str] = [],
         search_by: SearchType = 'title',

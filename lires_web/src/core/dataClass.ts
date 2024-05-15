@@ -476,7 +476,7 @@ export class DataBase {
     }
 
     async agetByAuthor(author: string): Promise<DataPoint[]>{
-        const res = await this.conn.filter({
+        const res = await this.conn.query({
             searchBy: "author",
             searchContent: author,
         });

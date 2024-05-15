@@ -162,7 +162,7 @@ export class ServerConn {
         
     }
 
-    async filter({
+    async query({
         tags = [],
         searchBy = "title", 
         searchContent = "", 

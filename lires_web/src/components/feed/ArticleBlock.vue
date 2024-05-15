@@ -77,7 +77,7 @@
         if (relatedArticles.value.length > 0){
             return;
         }
-        conn.filter(
+        conn.query(
             {
                 searchBy: "feature",
                 searchContent: props.article.abstract,

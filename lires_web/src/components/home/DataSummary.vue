@@ -64,7 +64,7 @@
         }
 
         if (fromContent == '') return;
-        const res = await serverConn.filter({
+        const res = await serverConn.query({
             searchBy: "feature",
             searchContent: fromContent,
             maxResults: 9,

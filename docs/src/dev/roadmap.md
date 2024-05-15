@@ -14,7 +14,7 @@ These are not finalized.
 - Add doc type to database and entry summary
 - Move authentication token to header
 - API rename:
-  - `deleteDatapoint` -> `deleteEntry`
+  - `updateEntry` -> `updateDatapoint`
   - `filter` -> `query`
 
 ## Future plans without specific timeline
