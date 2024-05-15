@@ -98,14 +98,21 @@
             case "incollection": return "📖";
             case "inbook": return "📖";
             case "manual": return "📖";
-            case "webpage": return "🌐";
             case "inproceedings": return "📜";
             case "conference": return "📜";
             case "misc": return "📎";
             case "thesis": return "🎓";
+            case "phdthesis": return "🎓";
+            case "mastersthesis": return "🎓";
             case "techreport": return "📑";
             case "unpublished": return "📝";
-            default: return "📄";
+
+            // below non-standard types
+            case "webpage": return "🌐";
+            case "online": return "🌐";
+
+            // return question mark for unknown type
+            default: return "❔";
         }
     })
 
@@ -218,18 +225,18 @@
                     }">
                         <div id="title" :style="{
                             display: 'flex',
-                            // whiteSpace: `${(showMore)?'normal':'nowrap'}`,
                             fontSize: '1rem',
                         }">
-                            <span style="margin-right: 0.25rem; font-size: 0.75rem; display: flex; align-items: center; opacity: 0.8;">
-                                {{ docTypeEmoji }}
-                            </span>
-                            {{ datapoint.summary.title }}
+                            <p>
+                                <span style="margin-right: 0.25rem; margin-top: 0.25rem; font-size: 0.75rem; opacity: 0.8; display: inline-block; filter:drop-shadow(1px 1px 0.5px var(--color-border));">
+                                    {{ docTypeEmoji }}
+                                </span>
+                                {{ datapoint.summary.title }}
+                            </p>
                         </div>
                         <div :style="{
                             marginTop: '0px',
                             padding: '0px',
-                            // whiteSpace: `${(showMore)?'normal':'nowrap'}`,
                             color: 'var(--color-text-soft)',
                             fontSize: '0.75rem',
                         }"> {{ authorYearText + ', ' + datapoint.publication + (volPageInfo?'. '+volPageInfo:'') }} </div>
@@ -332,11 +339,12 @@
         opacity: 0;
     }
 
-    #fileRow.compact #title{
+    #title{
         display: inline-block;
-        white-space: nowrap;
+        white-space: wrap;
+        word-break: break-word;
         overflow: hidden;
-        /* text-overflow: ellipsis; */
+        text-overflow: ellipsis;
         /* width: v-bind("`$(titleMaxWidth)px`"); */
         /* https://stackoverflow.com/a/69078238/6775765 */
     }
@@ -346,10 +354,5 @@
             width: 100%;
             flex-wrap: wrap;
         }
-        /* div#statusDiv{
-            margin-inline: 0.25rem;
-            margin-block: 0.2rem;
-            flex-direction: column;
-        } */
     }
 </style>
