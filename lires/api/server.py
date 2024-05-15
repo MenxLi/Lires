@@ -233,6 +233,9 @@ class ServerConn:
         res = await self.__c.post("/api/dataman/update", params)
         return DataPointSummary(**res)
     
+    @deprecated.deprecated(version='1.8.0', reason="use query instead")
+    async def filter(self, *args, **kwargs):
+        raise NotImplementedError("filter is deprecated, use query instead")
     async def query(
         self, 
         tags: list[str] = [],
