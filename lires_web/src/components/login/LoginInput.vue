@@ -36,9 +36,13 @@ function login(){
 
     loginText.value = "Connecting..."
 
-    const encKey = getEncKey(username.value, password.value);
     const conn = useConnectionStore().conn;
-    conn.authUsr(encKey as string).then(
+
+    // temporary save the key, for auth user to use
+    const encKey = getEncKey(username.value, password.value);
+    useSettingsStore().setEncKey(encKey, false);
+
+    conn.authorize().then(
         (userInfo) => {
             saveAuthentication(encKey as string, userInfo, stayLogin.value);
             error.value = "";

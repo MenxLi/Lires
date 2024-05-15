@@ -34,7 +34,8 @@ export async function settingsAuthentication(): Promise<UserInfo|null> {
     const conn = useConnectionStore().conn;
     const usrEncKey = useSettingsStore().encKey;
     try{
-        const userInfo = await conn.authUsr(usrEncKey);
+        const userInfo = await conn.authorize();
+        // renforce the authentication
         saveAuthentication( usrEncKey, userInfo, true);
         return userInfo;
     } catch (e){

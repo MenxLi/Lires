@@ -64,10 +64,8 @@ export class ServerConn {
         this.resolve = new HTTPPathResolver(baseUrlGetter, tokenGetter);
     }
     public get baseURL(){ return this.fetcher.baseUrl; }
-    async authUsr( encKey: string ): Promise<UserInfo>{
-        return await this.fetcher.post(`/api/auth`, {
-            key: encKey,
-        }).then(res=>res.json());
+    async authorize(): Promise<UserInfo>{
+        return await this.fetcher.post(`/api/auth`).then(res=>res.json());
     }
 
     async status(): Promise<ServerStatus>{
