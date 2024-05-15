@@ -2,24 +2,17 @@
 # Roadmap
 Future plans for the project.
 
-## Planned changes for the next minor release (1.8.x)
+## Planned changes for the next minor release (1.9.x)
 
 :::info  
 These are not finalized.  
-:::
+:::  
 
+- Move chat api to frontend
 - Inter-service communication verification
-- Use yaml for cluster configuration
-- Add version to database
-- Add doc type to database and entry summary
-- Move authentication token to header
-- API rename:
-  - `updateEntry` -> `updateDatapoint`
-  - `filter` -> `query`
 
 ## Future plans without specific timeline
 (TO BE UPDATED)
-
 
 :::details ideas
 

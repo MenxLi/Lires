@@ -2,6 +2,7 @@ from __future__ import annotations
 from .common import LiresAPIBase
 from typing import TYPE_CHECKING, Optional, Any, Literal, TypedDict
 import aiohttp, json, os
+import deprecated
 from lires.utils import randomAlphaNumeric
 from lires.types.dataT import DataPointSummary
 if TYPE_CHECKING:
@@ -198,6 +199,9 @@ class ServerConn:
         ret = await self.__c.delete(f"/doc/{uid}", return_type="json")
         return DataPointSummary(**ret)
 
+    @deprecated.deprecated(version='1.8.0', reason="use updateDatapoint instead")
+    async def updateEntry(self, *args, **kwargs):
+        raise NotImplementedError("updateEntry is deprecated, use updateDatapoint instead")
     async def updateDatapoint(
             self, uuid: Optional[str], 
             bibtex: Optional[str] = None, 

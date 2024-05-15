@@ -42,6 +42,7 @@ dependencies = [
     "typing_extensions",
     "pyyaml",
     "aiohttp",
+    "deprecated",
 ]
 
 [project.optional-dependencies]

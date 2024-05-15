@@ -849,3 +849,20 @@ version_history:
     - Fix:
       - Obsidian plugin entry order
       - Update entry tags for Python API
+  1.8.0:
+    - Breaking changes:
+      - Use yaml for cluster configuration
+      - Add version to database
+      - Add entry type to database
+      - Authenticate with http header
+      - API renames
+    - Features:
+      - Info panel at home page
+      - Show article type on datacard
+      - Allow database download
+      - Make querying data info public
+    - UI:
+      - More compact home layout
+      - Splitter refactor
+    - Fix: 
+      - Author reverse index
