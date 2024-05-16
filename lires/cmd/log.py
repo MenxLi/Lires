@@ -1,5 +1,5 @@
 
-import argparse, os, sys
+import argparse, os, sys, asyncio
 import sqlite3
 import glob
 from typing import Optional, Generator
@@ -185,6 +185,24 @@ def main():
         print("+" + "-" * (line_len-2) + "+")
     
     elif args.subparser_name == 'merge':
+        # first check if the log server is running
+        async def ensureNotLogging():
+            from aiohttp import ClientConnectorError
+            from lires.core.error import LiresError
+            from lires.utils import BCOLORS
+            from lires.api import RegistryConn
+            from lires.config import getConf
+            group_id = getConf()['group']
+            rconn = RegistryConn()
+            try:
+                log_service = await rconn.get('log', group_id)
+                assert log_service['group'] == group_id, "? impossible..."
+                print(f"{BCOLORS.RED}Error: Log service found at {log_service['endpoint']}, please stop the service first.")
+                exit(1)
+            except (LiresError.LiresResourceNotFoundError, ClientConnectorError):
+                return
+        asyncio.run(ensureNotLogging())
+
         all_files = args.files
         # remove the output file if exists in the input files
         def unifyPath(path: str) -> str:
