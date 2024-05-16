@@ -103,6 +103,7 @@ function login(){
 </template>
   
 <style scoped>
+
 .error {
 color: red;
 }
@@ -111,22 +112,33 @@ div.main{
 }
 
 div#login {
-    border: 2px solid var(--color-border);
+    border: 1px solid var(--color-border);
+    box-shadow: 0px 3px 5px var(--color-shadow);
     border-radius: 15px;
     padding: 15px;
     text-align: center;
     background-color: var(--color-background-ssoft);
+    margin-bottom: 0.5rem;
 }
 
 input[type="text"],input[type="password"]{
+    font-family: "Gill Sans", sans-serif;
+    font-size: medium;
+    border-radius: 1rem;
+    min-width: 8rem;
+    border: 1px solid var(--color-border);
     background-color: var(--color-background);
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
-    padding: 0.5rem;
+    transition: all 0.3s;
+    padding-inline: .8rem;
+    height: 2rem;
+}
+input:focus{
+    outline: none;
+    border: 1px solid var(--color-theme);
 }
 
 div.loginLine{
-    margin-top: 0.25rem;
+    margin-top: 0.5rem;
 }
 
 div.loginLine label{
@@ -140,7 +152,9 @@ div.options {
 }
 button{
     width: 100%;
+    margin-top: 0.5rem;
     border-radius: 1rem;
+    height: 2rem;
 }
 input.key-input {
     width: 275px
