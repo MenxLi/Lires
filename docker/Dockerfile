@@ -16,18 +16,23 @@ WORKDIR /Lires/lires_web
 RUN npm install && npm run build
 
 ## Second stage, build the server
-FROM python:3.11-bookworm as server-build
+FROM python:3.11-bookworm as base-build
 COPY --from=webapp-build /Lires /Lires
-WORKDIR /
+WORKDIR /Lires
 
 # https://mirrors.ustc.edu.cn/help/debian.html
 RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/debian.sources
-
 # https://mirrors.tuna.tsinghua.edu.cn/help/pypi/
 RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-
 # https://stackoverflow.com/a/75722775/6775765
 RUN python3 -m pip install --upgrade pip --break-system-packages
+
+# First create a layer with the requirements
+RUN python3 requirements.py > requirements.txt
+RUN pip3 install -r requirements.txt
+
+# Now, build the final image
+WORKDIR /
 RUN pip3 install -e /Lires[all] --break-system-packages
 
 EXPOSE 8080 

@@ -26,3 +26,6 @@ doc-build:
 web-build:
 	cd lires_web && npm install && npm run build
 build: obsidian-build doc-build web-build
+
+docker-build:
+	docker build -f docker/Dockerfile -t $(DOCKER_IMAGE_NAME):latest .
