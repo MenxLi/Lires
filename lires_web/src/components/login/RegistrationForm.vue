@@ -51,9 +51,12 @@
 import { useConnectionStore } from '../store';
 import SwitchToggle from '../settings/SwitchToggle.vue';
 export default {
+    props: {
+        defaultInvitationCode: { type: String, default: '' },
+    },
     data() {
         return {
-            invitationCode: '',
+            invitationCode: this.defaultInvitationCode,
             username: '',
             password: '',
             passwordConfirm: '',

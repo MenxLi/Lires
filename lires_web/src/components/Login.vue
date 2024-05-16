@@ -3,17 +3,27 @@ import LoginInput from "./login/LoginInput.vue"
 import FloatingWindow from "./common/FloatingWindow.vue";
 import RegistrationForm from "./login/RegistrationForm.vue";
 import { useUIStateStore } from "./store";
+import { useRouter } from "vue-router";
 import { ThemeMode } from "../core/misc";
 import { MAINTAINER } from "../config";
 import { ref } from "vue";
 ThemeMode.setDefaultDarkMode();
 
+const defaultInvitationCode = ref('');
 const showRegistration = ref(false);
+const router = useRouter();
+// check if invitation code is provided
+console.log(router.currentRoute.value.query.invitation);
+if (router.currentRoute.value.query.invitation) {
+  showRegistration.value = true;
+  defaultInvitationCode.value = router.currentRoute.value.query.invitation as string;
+}
 </script>
 
 <template>
   <FloatingWindow title="User registration" v-model:show="showRegistration" :compact="true" >
     <RegistrationForm
+      :default-invitation-code="defaultInvitationCode"
       @register-success="()=>{showRegistration=false; useUIStateStore().showPopup('Registration successful', 'success')}" 
       @register-fail="useUIStateStore().showPopup($event, 'error')"
     />
