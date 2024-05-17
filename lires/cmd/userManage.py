@@ -2,6 +2,7 @@ import argparse
 from lires.loader import initResources
 from lires.user.encrypt import generateHexHash
 from lires.core.dataTags import DataTags
+from lires.utils import tablePrint, TimeUtils
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -98,8 +99,18 @@ async def _run():
                 zip(sort_val, all_users), key=lambda x: x[0], 
                 reverse= not sort_key == "id")
                 ]
-            for user in all_users:
-                print(await user.toString())
+            tablePrint(
+                ["ID", "Username", "Name", "Admin", "Mandatory Tags", "Max Storage", "Last Active"],
+                [[
+                    (await user.info())["id"],
+                    (await user.info())["username"],
+                    (await user.info())["name"],
+                    'X' if (await user.info())["is_admin"] else ' ',
+                    '; '.join((await user.info())["mandatory_tags"]),
+                    f"{((await user.info())['max_storage'])/1024/1024:.1f} MB",
+                    TimeUtils.stamp2Local((await user.info())["last_active"]).strftime("%Y-%m-%d %H:%M:%S")
+                ] for user in all_users]
+            )
 
         else:
             parser.print_usage()

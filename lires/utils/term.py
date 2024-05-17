@@ -98,3 +98,42 @@ class MuteEverything:
         sys.stderr.close()
         sys.stdout = self.stdout
         sys.stderr = self.stderr
+
+
+def tablePrint(
+    header: list[str],
+    data: list[list],
+):
+    """
+    Print a table
+    """
+    # Get the maximum length of each column
+    max_len = [len(h) for h in header]
+    for row in data:
+        for i, cell in enumerate(row):
+            max_len[i] = max(max_len[i], len(str(cell)))
+    
+    # print the table upper border
+    for i, h in enumerate(header):
+        print(f"{'-' * max_len[i]}", end = "-+-")
+    print()
+
+    # Print the header
+    for i, h in enumerate(header):
+        print(f"{h:>{max_len[i]}}", end = " | ")
+    print()
+
+    # print the table middle border
+    for i, h in enumerate(header):
+        print(f"{'-' * max_len[i]}", end = "-+-")
+    print()
+
+    # Print the data
+    for row in data:
+        for i, cell in enumerate(row):
+            print(f"{str(cell):>{max_len[i]}}", end = " | ")
+        print()
+    
+    # print the table lower border
+    for i, h in enumerate(header):
+        print(f"{'-' * max_len[i]}", end = "-+-")
