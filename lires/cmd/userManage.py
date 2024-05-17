@@ -41,6 +41,9 @@ async def _run():
 
     parser_list = sp.add_parser("list", help = "List users")
     parser_list.add_argument("--order", help = "Order by (id, last-active, ...)", default="id", type=str.lower)
+    parser_list.add_argument("-t", "--table", help = "Print in table format", action="store_true")
+    parser_list.add_argument('-r', "--reverse", help = "Reverse order", action="store_true")
+    parser_list.add_argument('--ascii', help = "Only print ascii characters, work only with table", action="store_true")
 
     args = parser.parse_args()
 
@@ -97,20 +100,26 @@ async def _run():
             sort_val = [(await user.info())[sort_key] for user in all_users]
             all_users = [user for _, user in sorted(
                 zip(sort_val, all_users), key=lambda x: x[0], 
-                reverse= not sort_key == "id")
+                reverse = args.reverse)
                 ]
-            tablePrint(
-                ["ID", "Username", "Name", "Admin", "Mandatory Tags", "Max Storage", "Last Active"],
-                [[
-                    (await user.info())["id"],
-                    (await user.info())["username"],
-                    (await user.info())["name"],
-                    'X' if (await user.info())["is_admin"] else ' ',
-                    '; '.join((await user.info())["mandatory_tags"]),
-                    f"{((await user.info())['max_storage'])/1024/1024:.1f} MB",
-                    TimeUtils.stamp2Local((await user.info())["last_active"]).strftime("%Y-%m-%d %H:%M:%S")
-                ] for user in all_users]
-            )
+            def formatascii(s):
+                return s.encode('ascii', 'replace').decode()
+            if args.table:
+                tablePrint(
+                    ["ID", "Username", "Name", "Admin", "Mandatory Tags", "Max Storage", "Last Active"],
+                    [[
+                        (await user.info())["id"],
+                        (await user.info())["username"], 
+                        (await user.info())["name"] if not args.ascii else formatascii((await user.info())["name"]),
+                        'X' if (await user.info())["is_admin"] else ' ',
+                        '; '.join((await user.info())["mandatory_tags"]),
+                        f"{((await user.info())['max_storage'])/1024/1024:.1f} MB",
+                        TimeUtils.stamp2Local((await user.info())["last_active"]).strftime("%Y-%m-%d %H:%M:%S")
+                    ] for user in all_users]
+                )
+            else:
+                for user in all_users:
+                    print(await user.toString())
 
         else:
             parser.print_usage()
