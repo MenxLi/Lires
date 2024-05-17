@@ -1,4 +1,8 @@
 
+/**
+ * Global state management using Pinia.
+ */
+
 import { defineStore } from 'pinia'
 import { DataBase } from '../core/dataClass'
 import { UserPool } from '../core/user'
