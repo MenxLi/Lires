@@ -108,13 +108,13 @@ async def _run():
                 tablePrint(
                     ["ID", "Username", "Name", "Admin", "Mandatory Tags", "Max Storage", "Last Active"],
                     [[
-                        (await user.info())["id"],
-                        (await user.info())["username"], 
-                        (await user.info())["name"] if not args.ascii else formatascii((await user.info())["name"]),
-                        'X' if (await user.info())["is_admin"] else ' ',
-                        '; '.join((await user.info())["mandatory_tags"]),
-                        f"{((await user.info())['max_storage'])/1024/1024:.1f} MB",
-                        TimeUtils.stamp2Local((await user.info())["last_active"]).strftime("%Y-%m-%d %H:%M:%S")
+                        (user_info:=(await user.info()))["id"],
+                        user_info["username"], 
+                        user_info["name"] if not args.ascii else formatascii(user_info["name"]),
+                        'X' if user_info["is_admin"] else ' ',
+                        '; '.join(user_info["mandatory_tags"]),
+                        f"{(user_info['max_storage'])/1024/1024:.1f} MB",
+                        TimeUtils.stamp2Local(user_info["last_active"]).strftime("%Y-%m-%d %H:%M:%S")
                     ] for user in all_users]
                 )
             else:
