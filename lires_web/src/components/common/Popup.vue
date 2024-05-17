@@ -15,36 +15,33 @@
 
     const stylePopup = computed(
         ()=>{
-            if (props.styleType === "alert" || props.styleType === "error"){
-                return {
-                    backgroundColor: "rgba(180, 0, 20, 0.9)",
-                    color: "rgba(255, 255, 255, 1)"
-                }
-            }
-            if (props.styleType === "warning"){
-                return {
-                    backgroundColor: "rgba(210, 150, 0, 0.9)",
-                    // color: "rgba(0, 0, 0, 0.9)"
-                    color: "rgba(255, 255, 255, 1)"
-                }
-            }
-            if (props.styleType === "info"){
-                return {
-                    backgroundColor: "rgba(0, 0, 0, 0.75)",
-                    color: "rgba(255, 255, 255, 1)"
-                }
-            }
-            if (props.styleType === "success"){
-                return {
-                    backgroundColor: "rgba(0, 180, 0, 0.9)",
-                    color: "rgba(255, 255, 255, 1)"
-                }
-            }
-            else{
-                return {
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
-                    color: "var(--color-text)"
-                }
+            switch (props.styleType) {
+                case "alert":
+                case "error":
+                    return {
+                        backgroundColor: "rgba(180, 0, 20, 0.9)",
+                        color: "rgba(255, 255, 255, 1)"
+                    };
+                case "warning":
+                    return {
+                        backgroundColor: "rgba(210, 150, 0, 0.9)",
+                        color: "rgba(255, 255, 255, 1)"
+                    };
+                case "info":
+                    return {
+                        backgroundColor: "rgba(0, 0, 0, 0.75)",
+                        color: "rgba(255, 255, 255, 1)"
+                    };
+                case "success":
+                    return {
+                        backgroundColor: "rgba(0, 180, 0, 0.9)",
+                        color: "rgba(255, 255, 255, 1)"
+                    };
+                default:
+                    return {
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        color: "var(--color-text)"
+                    };
             }
         }
     )
@@ -84,7 +81,6 @@
     @keyframes popupGradIn {
         0% {
             visibility: hidden;
-            /* scale: 0.9; */
             opacity: 0;
         }
         100% {
