@@ -2,11 +2,11 @@
 <script setup lang="ts">
     import { ref } from 'vue';
     import type { Ref } from "vue";
-    import { useUIStateStore } from '../store';
+    import { useUIStateStore } from '@/state/store';
 
-    import type { SearchStatus } from "../interface";
-    import type { SearchType } from '/@/api/protocol';
-    import { lazify } from "../../utils/misc";
+    import type { SearchStatus } from "@/state/interface";
+    import type { SearchType } from '@/api/protocol';
+    import { lazify } from "@/utils/misc";
 
     const uiState = useUIStateStore();
 

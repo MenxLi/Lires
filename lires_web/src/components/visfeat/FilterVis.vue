@@ -3,11 +3,11 @@
     import Plot3d from './Plot3d.vue';
     import LoadingWidget from '../common/LoadingWidget.vue';
     import { ref, computed, watch, onMounted } from 'vue';
-    import { useConnectionStore, useDataStore, useUIStateStore, useSettingsStore } from '../store';
+    import { useConnectionStore, useDataStore, useUIStateStore, useSettingsStore } from '@/state/store';
     import { deepCopy } from '../../core/misc';
     import { ThemeMode } from '../../core/misc';
     import type { DatabaseFeature } from '../../api/protocol';
-    import type { PlotPoints3D } from '../interface';
+    import type { PlotPoints3D } from '@/state/interface';
 
     const dataStore = useDataStore();
     const plot3DRef = ref(null as any);

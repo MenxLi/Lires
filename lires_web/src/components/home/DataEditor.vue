@@ -3,10 +3,10 @@
     import { ref, computed } from 'vue';
     import QueryDialog from '../common/QueryDialog.vue';
     import TagSelectorWithEntry from '../tags/TagSelectorWithEntry.vue';
-    import { useConnectionStore, useUIStateStore } from '../store';
+    import { useConnectionStore, useUIStateStore } from '@/state/store';
     import { DataTags } from '../../core/tag';
     import type { DataPoint } from '../../core/dataClass';
-    import type { TagStatus } from '../interface';
+    import type { TagStatus } from '@/state/interface';
     import Toggle from '../common/Toggle.vue';
     import { getBibtexTemplate, type BibtexTypes } from './bibtexUtils';
     import { BibtexCollector } from './bibtexUtils';

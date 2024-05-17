@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import TagSelector from './TagSelector.vue';
-    import type { TagStatus } from '../interface';
+    import type { TagStatus } from '@/state/interface';
     import { TagRule } from '../../core/tag';
     import { watch, computed, ref } from 'vue';
 

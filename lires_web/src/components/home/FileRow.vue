@@ -6,7 +6,7 @@
     import { isChildDOMElement } from '../../core/misc';
     import { DataPoint } from '../../core/dataClass';
     import { openURLExternal, volInfoFromBibtex } from '../../utils/misc';
-    import { useConnectionStore, useUIStateStore } from '../store';
+    import { useConnectionStore, useUIStateStore } from '@/state/store';
 
     import BookmarkFill0 from '../../assets/icons/bookmark_fill0.svg'
     import BookmarkFill1 from '../../assets/icons/bookmark_fill1.svg'

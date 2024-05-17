@@ -2,7 +2,7 @@
     import { computed} from 'vue';
     import { TagRule, TAG_SEP } from '../../core/tag';
     import TagCollapsibleToggle from './TagCollapsibleToggle.vue';
-    import { TagStatus } from '../interface';
+    import { TagStatus } from '@/state/interface';
 
     const props = defineProps<{
         tagStatus: TagStatus

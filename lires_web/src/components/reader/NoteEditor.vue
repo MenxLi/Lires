@@ -6,7 +6,7 @@
     import { DataPoint } from '../../core/dataClass';
     import { MdEditor, MdPreview } from 'md-editor-v3';
     import 'md-editor-v3/lib/style.css';
-    import { useUIStateStore, useConnectionStore } from '../store';
+    import { useUIStateStore, useConnectionStore } from '@/state/store';
     import { parseMarkdown, type FrontMatterData } from '../../core/markdownParse';
     import { useRouter } from 'vue-router';
     import { FileSelectButton } from '../common/fragments';

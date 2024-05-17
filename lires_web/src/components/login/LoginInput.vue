@@ -1,10 +1,10 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue';
-import { useConnectionStore } from '../store';
+import { useConnectionStore } from '@/state/store';
 import { useRouter } from 'vue-router';
 import { saveAuthentication, getEncKey } from '../../core/auth.js'
-import { useSettingsStore } from '../store';
+import { useSettingsStore } from '@/state/store';
 
 import Toggle from '../common/Toggle.vue'
 

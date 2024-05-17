@@ -5,7 +5,7 @@
     import Splitter from '../common/Splitter.vue';
     import NoteEditor from '../reader/NoteEditor.vue';
     import { volInfoFromBibtex } from '../../utils/misc';
-    import { useWindowState } from '../wstate';
+    import { useWindowState } from '@/state/wstate';
 
     const props = defineProps<{
         datapoint: DataPoint | null,

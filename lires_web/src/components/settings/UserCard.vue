@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import type { UserInfo } from '../../api/protocol';
-    import {useConnectionStore, useSettingsStore, useUIStateStore, useDataStore } from '../store';
+    import {useConnectionStore, useSettingsStore, useUIStateStore, useDataStore } from '@/state/store';
     import { ref, computed } from 'vue';
     import { CircularImage, FileSelectButton } from '../common/fragments.tsx';
     import { getBackendURL } from '../../config';
@@ -9,7 +9,7 @@
     import { copyToClipboard } from '../../utils/misc';
 
     import QueryDialog from '../common/QueryDialog.vue';
-    import EditSquareIcon from '../../assets/icons/edit_square.svg'
+    import EditSquareIcon from '@/assets/icons/edit_square.svg'
     import DiskUsage from './DiskUsage.vue';
 
     const props = withDefaults(defineProps<{

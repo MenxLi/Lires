@@ -10,7 +10,7 @@
     import LoadingWidget from './common/LoadingWidget.vue'
 
     import { lazify } from '../utils/misc';
-    import { useConnectionStore } from './store';
+    import { useConnectionStore } from '@/state/store';
 
     const conn = useConnectionStore().conn;
     const router = useRouter();

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useConnectionStore } from './store';
+import { useConnectionStore } from '@/state/store';
 const __isDev = import.meta.env.DEV;
 
 const methods = ['get', 'post', 'put', 'delete'] //, 'patch', 'options', 'head']

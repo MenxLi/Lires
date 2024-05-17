@@ -1,7 +1,7 @@
 
 <script setup lang="ts">
     import { getBackendURL } from '../../config';
-    import {useConnectionStore, useDataStore } from '../store';
+    import {useConnectionStore, useDataStore, useUIStateStore } from '@/state/store';
     import type { UserInfo, Event_User } from '../../api/protocol';
     import { ref, computed, onMounted } from 'vue';
     import { registerServerEvenCallback } from '../../api/serverWebsocketConn';
@@ -10,7 +10,6 @@
     import QueryDialog from '../common/QueryDialog.vue';
     // import Toggle from '../common/Toggle.vue';
     import SwitchToggle from '../settings/SwitchToggle.vue';
-    import { useUIStateStore } from '../store';
     import { EditableParagraph } from '../common/fragments';
     import { predefinedUsernames } from '../../config';
 

@@ -1,5 +1,5 @@
 
-import { useConnectionStore, useSettingsStore, useDataStore } from "../components/store";
+import { useConnectionStore, useSettingsStore, useDataStore } from "@/state/store";
 import type { UserInfo } from "../api/protocol";
 import { sha256 } from "../utils/sha256lib";
 

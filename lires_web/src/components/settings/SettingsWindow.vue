@@ -7,7 +7,7 @@
     import ConfigShowScatterPlot from './ConfigShowScatterPlot.vue';
     import ConfigPageCapacity from './ConfigPageCapacity.vue';
 
-    import { useDataStore } from '../store';
+    import { useDataStore } from '@/state/store';
     const userInfo = useDataStore().user;   // is already a ref
 
 </script>

@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import SettingsContainer from "./SettingsContainer.vue";
     import { computed } from "vue";
-    import { useSettingsStore } from "../store";
+    import { useSettingsStore } from "@/state/store";
 
     const numItemsPerPage = computed({
         get: ()=>useSettingsStore().numItemsPerPage,

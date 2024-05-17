@@ -1,7 +1,7 @@
 import type { DataPoint } from "./dataClass";
 import { getBackendURL } from "../config";
 import { URLRouter } from "./vueInterface";
-import { useDataStore } from "../components/store";
+import { useDataStore } from "@/state/store";
 import type { Router } from "vue-router";
 
 export interface FrontMatterData {

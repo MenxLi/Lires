@@ -2,7 +2,7 @@
     import { onMounted, ref, watch, computed } from 'vue';
     import { useRouter } from 'vue-router';
     import NoteEditor from './NoteEditor.vue';
-    import { useUIStateStore, useSettingsStore } from '../store';
+    import { useUIStateStore, useSettingsStore } from '@/state/store';
     import { DataPoint } from '../../core/dataClass';
     import { ThemeMode } from '../../core/misc';
     import { FileSelectButton } from '../common/fragments';

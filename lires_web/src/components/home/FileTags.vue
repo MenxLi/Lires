@@ -6,8 +6,8 @@
     import { computed } from 'vue';
     import TagSelector from '../tags/TagSelector.vue';
     import TagBubbleContainer from '../tags/TagBubbleContainer.vue';
-    import { useConnectionStore, useUIStateStore, useDataStore } from '../store';
-    import type { TagStatus } from '../interface';
+    import { useConnectionStore, useUIStateStore, useDataStore } from '@/state/store';
+    import type { TagStatus } from '@/state/interface';
 
     const emit = defineEmits<{
         (e: "onCheck", status: TagStatus) : void

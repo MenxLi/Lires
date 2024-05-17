@@ -2,7 +2,7 @@
 import LoginInput from "./login/LoginInput.vue"
 import FloatingWindow from "./common/FloatingWindow.vue";
 import RegistrationForm from "./login/RegistrationForm.vue";
-import { useUIStateStore } from "./store";
+import { useUIStateStore } from "../state/store";
 import { useRouter } from "vue-router";
 import { ThemeMode } from "../core/misc";
 import { MAINTAINER } from "../config";

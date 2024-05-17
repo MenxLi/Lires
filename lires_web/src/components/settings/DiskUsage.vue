@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { useConnectionStore } from '../store';
+import { useConnectionStore } from '@/state/store';
 export default {
     data() {
         return {

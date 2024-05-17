@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import type { FeedDataInfoT } from '../../api/protocol';
     import { utcStamp2LocaleStr } from '../../utils/timeUtils';
-    import {useConnectionStore, useDataStore } from '../store';
+    import {useConnectionStore, useDataStore } from '@/state/store';
     import { DataPoint } from '../../core/dataClass';
     import FileRowContainer from '../home/FileRowContainer.vue';
     import FloatingWindow from '../common/FloatingWindow.vue';

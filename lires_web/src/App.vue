@@ -2,7 +2,7 @@
 <script setup lang="ts">
     import { watch, ref, computed, onMounted } from 'vue';
     import Popup from './components/common/Popup.vue';
-    import { useConnectionStore, useUIStateStore, useSettingsStore, useDataStore } from './components/store';
+    import { useConnectionStore, useUIStateStore, useSettingsStore, useDataStore } from '@/state/store';
     import { useRouter } from 'vue-router';
     import { settingsAuthentication } from './core/auth';
     import { registerServerEvenCallback } from './api/serverWebsocketConn';

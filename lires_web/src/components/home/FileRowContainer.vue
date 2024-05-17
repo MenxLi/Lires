@@ -1,7 +1,7 @@
 <!-- a container that governs the display of multiple FileRow components -->
 <script setup lang="ts">
     import { computed, ref, watch } from 'vue';
-    import { useDataStore, useSettingsStore } from '../store';
+    import { useDataStore, useSettingsStore } from '@/state/store';
     import FileRow from './FileRow.vue';
     import { type DataPoint } from '../../core/dataClass';
     import { EditableParagraph } from '../common/fragments';

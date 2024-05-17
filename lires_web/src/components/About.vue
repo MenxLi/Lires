@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { useConnectionStore, useDataStore, useSettingsStore } from './store';
+    import { useConnectionStore, useDataStore, useSettingsStore } from '../state/store';
     import { ref, computed } from 'vue';
     import { type Changelog, Event_User } from '../api/protocol';
     import { getBackendURL, docsURL } from '../config';

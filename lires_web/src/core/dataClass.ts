@@ -1,6 +1,6 @@
 import type { DataInfoT } from "../api/protocol";
 import type { ServerConn } from "../api/serverConn";
-import {useDataStore, useSettingsStore } from "../components/store";
+import {useDataStore, useSettingsStore } from "@/state/store";
 import { DataTags } from "./tag";
 
 import { Mutex } from "async-mutex";

@@ -3,7 +3,7 @@
 <script setup lang="ts">
     import SettingsContainer from "./SettingsContainer.vue";
     import SwitchToggle from "./SwitchToggle.vue";
-    import { useSettingsStore } from "../store";
+    import { useSettingsStore } from "@/state/store";
     import { computed } from "vue";
 
     const settings = useSettingsStore();

@@ -8,7 +8,7 @@ export default {
 </script>
 <script setup lang="ts">
     import { ref, watch } from "vue";
-    import { useConnectionStore, useUIStateStore, useDataStore, useSettingsStore } from "./store";
+    import { useConnectionStore, useUIStateStore, useDataStore, useSettingsStore } from "../state/store";
     import { DataPoint } from "../core/dataClass";
     import { useRouter } from "vue-router";
     import { DataTags } from "../core/tag";
@@ -24,7 +24,7 @@ export default {
     import FilterVis from "./visfeat/FilterVis.vue";
     import Searchbar from "./home/Searchbar.vue";
     import InfoPanel from "./home/InfoPanel.vue";
-    import { useWindowState } from "./wstate";
+    import { useWindowState } from "@/state/wstate";
 
     // get data
     const uiState = useUIStateStore();

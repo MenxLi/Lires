@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { DataPoint } from '../../core/dataClass';
 import DataEditor from './DataEditor.vue';
-import { useConnectionStore, useUIStateStore } from '../store';
+import { useConnectionStore, useUIStateStore } from '@/state/store';
 import FloatingWindow from '../common/FloatingWindow.vue';
 import {FileSelectButton} from '../common/fragments.tsx'
 import { copyToClipboard } from '../../utils/misc.ts'

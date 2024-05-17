@@ -1,7 +1,7 @@
 <script>
-import { useConnectionStore } from '../store';
+import { useConnectionStore } from '@/state/store';
 import SwitchToggle from '../settings/SwitchToggle.vue';
-import { predefinedUsernames } from '../../config';
+import { predefinedUsernames } from '@/config';
 export default {
     props: {
         defaultInvitationCode: { type: String, default: '' },

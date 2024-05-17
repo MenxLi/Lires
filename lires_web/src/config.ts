@@ -1,5 +1,5 @@
 
-import { useSettingsStore } from "./components/store";
+import { useSettingsStore } from "@/state/store";
 
 export function platformType(){
     if ((window as any).__TAURI__){

@@ -3,7 +3,7 @@
     import { ref, onMounted, computed } from 'vue';
     import { DataPoint } from '../../core/dataClass';
     import FileRowContainer from './FileRowContainer.vue';
-    import {useConnectionStore, useDataStore} from '../store';
+    import {useConnectionStore, useDataStore} from '@/state/store';
     import { sortByScore } from '../../core/misc';
 
     const props = defineProps<{

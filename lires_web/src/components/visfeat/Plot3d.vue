@@ -3,7 +3,7 @@
     import { ref, computed, onMounted, watch } from 'vue';
     import { ThemeMode, deepCopy } from '../../core/misc';
     import Plotly from 'plotly.js-dist';
-    import type { PlotPoints3D } from '../interface';
+    import type { PlotPoints3D } from '@/state/interface';
 
     const plotlyChart = ref(null as any);
 
