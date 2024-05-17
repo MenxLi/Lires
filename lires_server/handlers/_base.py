@@ -178,6 +178,9 @@ class RequestHandlerMixin(LiresBase):
             await self.logger.debug("Reject key ({})".format(enc_key))
             raise tornado.web.HTTPError(403) 
         
+        # update the last active time
+        await res.refreshActiveTime()
+        
         # Set a cached permission, requires it via property
         user_info = await res.info()
         self.__account_info = user_info

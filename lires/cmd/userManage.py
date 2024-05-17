@@ -38,7 +38,8 @@ async def _run():
     parser_del.add_argument("-i", "--id", help = "id to delete", default=None, type=int)
     parser_del.add_argument("-y", "--yes", help = "Skip confirmation", action="store_true")
 
-    sp.add_parser("list", help = "List users")
+    parser_list = sp.add_parser("list", help = "List users")
+    parser_list.add_argument("--order", help = "Order by (id, last-active, ...)", default="id", type=str.lower)
 
     args = parser.parse_args()
 
@@ -90,7 +91,14 @@ async def _run():
             print("User deleted.")
         
         elif args.subparser == "list":
-            for user in await user_pool.all():
+            all_users = await user_pool.all()
+            sort_key = args.order.replace("-", "_")
+            sort_val = [(await user.info())[sort_key] for user in all_users]
+            all_users = [user for _, user in sorted(
+                zip(sort_val, all_users), key=lambda x: x[0], 
+                reverse= not sort_key == "id")
+                ]
+            for user in all_users:
                 print(await user.toString())
 
         else:

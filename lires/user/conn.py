@@ -14,6 +14,7 @@ class RawUser(TypedDict):
     mandatory_tags: list[str]
     time_created: str
     max_storage: int
+    last_active: float
 
 class InvitationRecord(TypedDict):
     id: int
@@ -50,12 +51,17 @@ class UsrDBConnection(LiresBase):
     async def __autoUpgrade(self):
         """ Upgrade the database automatically """
         # since v1.7.1, add max_storage column
+        # since v1.8.1, add last_active column
         async with self.conn.execute("PRAGMA table_info(users)") as cursor:
             res = await cursor.fetchall()
             if len(res) == 7 and res[-1][1] != "max_storage":   # type: ignore
                 print("Upgrading user database to v1.7.1")
                 # default to 100MB
                 await self.conn.execute("ALTER TABLE users ADD COLUMN max_storage INTEGER NOT NULL DEFAULT 104857600")
+                self.setModifiedFlag(True)
+            if len(res) == 8 and res[-1][1] != "last_active":   # type: ignore
+                print("Upgrading user database to v1.8.1")
+                await self.conn.execute("ALTER TABLE users ADD COLUMN last_active FLOAT NOT NULL DEFAULT 0")
                 self.setModifiedFlag(True)
     
     async def __maybeCreateTables(self):
@@ -75,6 +81,7 @@ class UsrDBConnection(LiresBase):
                     mandatory_tags TEXT NOT NULL, 
                     time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     max_storage INTEGER NOT NULL DEFAULT 104857600
+                    last_active FLOAT NOT NULL DEFAULT 0
                 );
             """)
             self.setModifiedFlag(True)
@@ -103,7 +110,7 @@ class UsrDBConnection(LiresBase):
     async def insertUser(self, 
                 username: str, password: str, name: str,
                 is_admin: bool, mandatory_tags: list[str], 
-                max_storage: int = 104857600
+                max_storage: int = 104857600,
                 ) -> None:
         # check if the user already exists
         async with self.conn.execute("SELECT * FROM users WHERE username = ?", (username,)) as cursor:
@@ -113,8 +120,8 @@ class UsrDBConnection(LiresBase):
         # insert the user
         await self.conn.execute("""
                             INSERT INTO users 
-                            (username, password, name, is_admin, mandatory_tags, max_storage)
-                            VALUES (?, ?, ?, ?, ?, ?)
+                            (username, password, name, is_admin, mandatory_tags, max_storage, last_active)
+                            VALUES (?, ?, ?, ?, ?, ?, 0)
                             """,
                             (username, password, name, is_admin, json.dumps(mandatory_tags), max_storage)
                             )
@@ -173,7 +180,8 @@ class UsrDBConnection(LiresBase):
             "is_admin": bool(res[4]),
             "mandatory_tags": json.loads(res[5]),
             "time_created": res[6],
-            "max_storage": res[7]
+            "max_storage": res[7], 
+            "last_active": res[8]
         }
     
     async def listInvitations(self) -> list[InvitationRecord]:

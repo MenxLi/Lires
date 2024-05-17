@@ -6,6 +6,7 @@ import aiofiles
 from typing import Optional, TypedDict
 from .conn import RawUser, UsrDBConnection
 from .encrypt import encryptKey
+from lires.utils import TimeUtils
 
 class UserInfo(TypedDict):
     id: int
@@ -16,6 +17,7 @@ class UserInfo(TypedDict):
     mandatory_tags: list[str]
     has_avatar: bool
     max_storage: int
+    last_active: float
 
 class AvatarPath(TypedDict):
     original: str
@@ -58,6 +60,7 @@ class LiresUser:
             "mandatory_tags": raw["mandatory_tags"],
             "has_avatar": self.avatar_image_path is not None,
             "max_storage": raw["max_storage"],
+            "last_active": raw["last_active"],
         }
     
     async def info_desensitized(self) -> UserInfo:
@@ -68,15 +71,19 @@ class LiresUser:
     
     async def toString(self) -> str:
         info = await self.info()
-        out = f"[{info['id']}] {info['username']} ({info['name']}), {info['enc_key']}, max: {info['max_storage']/1024/1024}MB"
+        out = f"[{info['id']}] {info['username']} ({info['name']}), {info['enc_key']}"
         if info["is_admin"]:
             out += ", admin"
+        out += f", max: {info['max_storage']/1024/1024}MB, last_active: {TimeUtils.stamp2Local(info['last_active'])}"
         return out
     
     async def equal(self, o: object) -> bool:
         if not isinstance(o, LiresUser):
             return False
         return await self.info() == await o.info()
+    
+    async def refreshActiveTime(self) -> None:
+        await self.conn.updateUser(self._id, last_active=TimeUtils.nowStamp())
     
     @property
     def avatar_image_path(self) -> Optional[AvatarPath]:
