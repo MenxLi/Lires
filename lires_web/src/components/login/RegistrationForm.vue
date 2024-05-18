@@ -30,7 +30,23 @@ export default {
                 this.invitationCode, this.username, this.password, this.name
             ).then(
                 () => { this.$emit('register-success'); },
-                (err) => { this.$emit('register-fail', err); }
+                /**
+                 * @param {Error} err
+                 */
+                (err) => { 
+                    if (err.message.includes('409')){
+                        this.$emit('register-fail', 'Username already exists');
+                    }
+                    else if (err.message.includes('401')){
+                        this.$emit('register-fail', 'Invalid invitation code');
+                    }
+                    else if (err.message.includes('403')){
+                        this.$emit('register-fail', 'Invitation code expired');
+                    }
+                    else{
+                        this.$emit('register-fail', err);
+                    }
+                }
             )
         }
     }

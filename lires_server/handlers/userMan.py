@@ -13,7 +13,7 @@ class UserRegisterHandler(RequestHandlerBase):
 
         invitation = await self.user_pool.conn.queryInvitation(invitation_code)
         if invitation is None:
-            raise tornado.web.HTTPError(404, "Invitation code not found")
+            raise tornado.web.HTTPError(401, "Invitation code not found")
         if invitation["uses"] >= invitation["max_uses"]:
             raise tornado.web.HTTPError(403, "Invitation code has been used up")
         
