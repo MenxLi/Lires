@@ -170,13 +170,13 @@ class RequestHandlerMixin(LiresBase):
         enc_key = self.getAuthToken()
         if not enc_key:
             await self.logger.debug("No key found, abort")
-            raise tornado.web.HTTPError(403) 
+            raise tornado.web.HTTPError(401) 
 
         res = await self.user_pool.getUserByKey(enc_key)
         if res is None:
             # unauthorized or user not found
             await self.logger.debug("Reject key ({})".format(enc_key))
-            raise tornado.web.HTTPError(403) 
+            raise tornado.web.HTTPError(401) 
         
         # update the last active time
         await res.refreshActiveTime()
