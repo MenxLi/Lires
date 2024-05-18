@@ -49,12 +49,8 @@ class UserRegisterHandler(RequestHandlerBase):
 
 class UserCreateHandler(RequestHandlerBase):
 
-    @authenticate()
+    @authenticate(admin_required=True)
     async def post(self):
-        # only admin access
-        if not (await self.userInfo())["is_admin"]:
-            raise tornado.web.HTTPError(403)
-        
         username = self.get_argument("username")
         password = self.get_argument("password")
         name = self.get_argument("name", default="Anonymous")
@@ -89,12 +85,8 @@ class UserCreateHandler(RequestHandlerBase):
 
 class UserDeleteHandler(RequestHandlerBase):
 
-    @authenticate()
+    @authenticate(admin_required=True)
     async def post(self):
-        # only admin access
-        if not (await self.userInfo())["is_admin"]:
-            raise tornado.web.HTTPError(403)
-        
         username = self.get_argument("username")
         user = await self.user_pool.getUserByUsername(username)
         if user is None:
@@ -111,11 +103,8 @@ class UserDeleteHandler(RequestHandlerBase):
         self.write("Success")
 
 class UserModifyHandler(RequestHandlerBase):
-    @authenticate()
+    @authenticate(admin_required=True)
     async def post(self):
-        # only admin access
-        if not (await self.userInfo())["is_admin"]:
-            raise tornado.web.HTTPError(403)
         
         username = self.get_argument("username")
         user = await self.user_pool.getUserByUsername(username)
