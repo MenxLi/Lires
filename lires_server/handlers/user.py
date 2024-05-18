@@ -19,7 +19,7 @@ class UserInfoUpdateHandler(RequestHandlerBase):
     To update a user's own settings.
     Admin should update any user's settings using handers in userMan.py
     """
-    @keyRequired
+    @authenticate()
     async def post(self):
         user = await self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
         assert user is not None, "User not found"   # should not happen
@@ -98,7 +98,7 @@ class UserAvatarHandler(RequestHandlerBase):
                 contents = output.getvalue()
             self.write(contents)
         
-    @keyRequired
+    @authenticate()
     async def put(self, username: str):
         user = await self.user_pool.getUserByUsername(username)
 
@@ -128,7 +128,7 @@ class UserAvatarHandler(RequestHandlerBase):
             'user_info': _user_info
         }, to_all=True)
     
-    @keyRequired
+    @authenticate()
     async def delete(self, username):
         req_user = await self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
         user = await self.user_pool.getUserByUsername(username)

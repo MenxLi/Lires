@@ -14,7 +14,7 @@ class BasicFilterT(TypedDict):
 class BasicFilterHandler(RequestHandlerBase):
     # Get data by a single tag and search filter
 
-    @keyRequired
+    @authenticate()
     async def post(self):
         # url encoded form
         self.set_header("Content-Type", "application/json")

@@ -11,7 +11,7 @@ class FeedHandler(RequestHandlerBase):
         super().__init__(*args, **kwargs)
         self.fconn = FServerConn()
     
-    @keyRequired
+    @authenticate()
     async def post(self):
         self.set_header("Content-Type", "application/json")
 
@@ -61,7 +61,7 @@ class FeedCategoriesHandler(RequestHandlerBase):
         super().__init__(*args, **kwargs)
         self.fconn = FServerConn()
     
-    @keyRequired
+    @authenticate()
     async def get(self):
         self.set_header("Content-Type", "application/json")
         categories = await self.fconn.categories()

@@ -32,7 +32,7 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
         # may change in the future
         return True
 
-    @keyRequired
+    @authenticate()
     async def open(self):
         await self.logger.info("WebSocket opened from {} (s: {})".format((await self.userInfo())['username'], self.session_id))
         self._user_id = (await self.userInfo())['id']

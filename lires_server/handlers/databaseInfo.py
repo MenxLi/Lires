@@ -3,7 +3,7 @@ import json
 
 class DatabaseKeysHandler(RequestHandlerBase):
     """ Get summary of the database """
-    @keyRequired
+    @authenticate()
     async def get(self):
         self.set_header("Content-Type", "application/json")
         db = await self.db()
@@ -11,7 +11,7 @@ class DatabaseKeysHandler(RequestHandlerBase):
         return
 class DatabaseTagsHandler(RequestHandlerBase):
     """ Get summary of the database """
-    @keyRequired
+    @authenticate()
     async def get(self):
         self.set_header("Content-Type", "application/json")
         db = await self.db()
@@ -21,7 +21,7 @@ class DatabaseTagsHandler(RequestHandlerBase):
         return
 class DatabaseUsageHandler(RequestHandlerBase):
     """ Get disk usage of the database """
-    @keyRequired
+    @authenticate()
     async def get(self):
         self.set_header("Content-Type", "application/json")
         db = await self.db()

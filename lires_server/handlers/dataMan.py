@@ -13,7 +13,7 @@ from lires.core.dataTags import DataTags
 
 class DataDeleteHandler(RequestHandlerBase):
 
-    @keyRequired
+    @authenticate()
     async def post(self):
         uuid = self.get_argument("uuid")
         db = await self.db()
@@ -36,7 +36,7 @@ class DataDeleteHandler(RequestHandlerBase):
 
 class DataUpdateHandler(RequestHandlerBase):
 
-    @keyRequired
+    @authenticate()
     async def post(self):
         """
         Update or create a data entry
@@ -156,7 +156,7 @@ class DataUpdateHandler(RequestHandlerBase):
         return 
 
 class TagRenameHandler(RequestHandlerBase):
-    @keyRequired
+    @authenticate()
     async def post(self):
         """
         Rename a tag
@@ -174,7 +174,7 @@ class TagRenameHandler(RequestHandlerBase):
         self.write("OK")
 
 class TagDeleteHandler(RequestHandlerBase):
-    @keyRequired
+    @authenticate()
     async def post(self):
         """
         Delete a tag

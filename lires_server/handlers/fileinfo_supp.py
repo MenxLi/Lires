@@ -22,7 +22,7 @@ class NoteUpdateHandler(RequestHandlerBase):
     """
     Update notes of a datapoint
     """
-    @keyRequired
+    @authenticate()
     async def post(self, uid:str):
         """
         Args:
@@ -70,7 +70,7 @@ class AbstractUpdateHandler(RequestHandlerBase):
     """
     Update abstract of a datapoint
     """
-    @keyRequired
+    @authenticate()
     async def post(self, uid:str):
         """
         Args:

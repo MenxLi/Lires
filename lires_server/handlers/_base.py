@@ -21,18 +21,25 @@ if TYPE_CHECKING:
 
 T = TypeVar("T")
 FuncT = TypeVar("FuncT", bound=Callable)
-def keyRequired(func: FuncT) -> FuncT:
-    """
-    Decorator to check if user is logged in
-    """
-    async def wrapper(self: RequestHandlerMixin, *args, **kwargs):
-        await self.checkKey()
-        # check async 
-        if asyncio.iscoroutinefunction(func):
-            return await func(self, *args, **kwargs)
-        else:
-            return func(self, *args, **kwargs)
-    return wrapper  # type: ignore
+def authenticate(
+    admin_required: bool = False,
+    ) -> Callable[[FuncT], FuncT]:
+    def _authenticate(func: FuncT) -> FuncT:
+        """
+        Decorator to check if user is logged in
+        """
+        async def wrapper(self: RequestHandlerMixin, *args, **kwargs):
+            user_info = await self.checkKey()
+            if admin_required and not user_info["is_admin"]:
+                raise tornado.web.HTTPError(403)
+
+            # check async 
+            if asyncio.iscoroutinefunction(func):
+                return await func(self, *args, **kwargs)
+            else:
+                return func(self, *args, **kwargs)
+        return wrapper  # type: ignore
+    return _authenticate
 
 # Server level global storage
 def __init_global_storage():
@@ -301,5 +308,5 @@ __all__ = [
     "tornado",
     "RequestHandlerMixin",
     "RequestHandlerBase",
-    "keyRequired"
+    "authenticate"
     ]

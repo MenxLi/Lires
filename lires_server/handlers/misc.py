@@ -26,11 +26,11 @@ class StatusHandler(RequestHandlerBase):
         }
         self.write(json.dumps(status))
 
-    @keyRequired
+    @authenticate()
     async def get(self):
         await self._respond(await self.userInfo())
     
-    @keyRequired
+    @authenticate()
     async def post(self):
         await self._respond(await self.userInfo())
 
@@ -67,7 +67,7 @@ class DatabaseDownloadHandler(RequestHandlerBase):
             _g_prev_request_times = _g_prev_request_times[-100:]
         self.__global_download_request_time = _g_prev_request_times
     
-    @keyRequired
+    @authenticate()
     async def get(self):
         include_data = self.get_argument("data", "false").lower() == "true"
 

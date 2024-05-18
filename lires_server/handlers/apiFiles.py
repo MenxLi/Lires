@@ -23,7 +23,7 @@ Run the `main.mjs` script with Node.js
 Set `NODE_TLS_REJECT_UNAUTHORIZED=0` to ignore SSL error
 """)
 class APIGetHandler_JS(RequestHandlerBase):
-    @keyRequired
+    @authenticate()
     async def get(self):
         js_api_root = os.path.join(ASSETS_DIR, "js-api")
         api_file = os.path.join(js_api_root, "api.js")
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 """)
             
 class APIGetHandler_Py(RequestHandlerBase):
-    @keyRequired
+    @authenticate()
     async def get(self):
         example_content = _py_api_mainfile_template.safe_substitute(
             TIME=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),

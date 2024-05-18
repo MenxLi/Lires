@@ -49,7 +49,7 @@ class UserRegisterHandler(RequestHandlerBase):
 
 class UserCreateHandler(RequestHandlerBase):
 
-    @keyRequired
+    @authenticate()
     async def post(self):
         # only admin access
         if not (await self.userInfo())["is_admin"]:
@@ -89,7 +89,7 @@ class UserCreateHandler(RequestHandlerBase):
 
 class UserDeleteHandler(RequestHandlerBase):
 
-    @keyRequired
+    @authenticate()
     async def post(self):
         # only admin access
         if not (await self.userInfo())["is_admin"]:
@@ -111,7 +111,7 @@ class UserDeleteHandler(RequestHandlerBase):
         self.write("Success")
 
 class UserModifyHandler(RequestHandlerBase):
-    @keyRequired
+    @authenticate()
     async def post(self):
         # only admin access
         if not (await self.userInfo())["is_admin"]:

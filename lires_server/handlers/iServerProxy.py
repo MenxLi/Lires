@@ -6,7 +6,7 @@ import json, sys, math
 class IServerProxyHandler(RequestHandlerBase):
 
     CACHE_TEXT_FEATURE: list[tuple[str, list[float]]] = []
-    @keyRequired
+    @authenticate()
     async def post(self, key):
         self.set_header("Content-Type", "application/json")
 

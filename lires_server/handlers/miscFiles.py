@@ -10,7 +10,7 @@ class MiscFileListHandler(RequestHandlerBase):
     """
     Get list of files in the misc folder
     """
-    @keyRequired
+    @authenticate()
     async def get(self, uid:str):
         """
         Args:
@@ -72,7 +72,7 @@ class MiscFileHandler(RequestHandlerBase):
         async with aiofiles.open(fpath, "rb") as f:
             self.write(await f.read())
 
-    @keyRequired
+    @authenticate()
     async def put(self, uid: str):
         # permission check
         db = await self.db()
@@ -104,7 +104,7 @@ class MiscFileHandler(RequestHandlerBase):
             "file_name": filename,
         })
     
-    @keyRequired
+    @authenticate()
     async def post(self, uid: str):
         # permission check
         db = await self.db()
@@ -125,7 +125,7 @@ class MiscFileHandler(RequestHandlerBase):
         await self.logger.info(f"Renamed misc file {fpath} to {new_fpath}")
         self.write({ "status": "OK" })
     
-    @keyRequired
+    @authenticate()
     async def delete(self, uid: str):
         # permission check
         db = await self.db()

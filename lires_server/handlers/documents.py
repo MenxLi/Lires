@@ -26,7 +26,7 @@ class DocHandler(RequestHandlerBase):
                     return
         self.write("The file not exist or is not supported.")
     
-    @keyRequired
+    @authenticate()
     async def put(self, uid):
         """
         Upload document file
@@ -82,7 +82,7 @@ class DocHandler(RequestHandlerBase):
         })
         self.write(json.dumps(d_summary))
     
-    @keyRequired
+    @authenticate()
     async def delete(self, uid):
         """
         Free a document from a file

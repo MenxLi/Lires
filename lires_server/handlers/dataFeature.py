@@ -11,7 +11,7 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
     # TODO: may make a cache to avoid frequent dim reduce
     feat_3d_all: list[tuple[int, Feat3DT]] = []
 
-    @keyRequired
+    @authenticate()
     async def get(self, collection_name: str):
         n_components = self.get_argument("n_components", default="3")
         perplexity = self.get_argument("perplexity", default="-1")

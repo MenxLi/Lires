@@ -4,7 +4,7 @@ from lires.core.pdfTools import getPDFText
 
 class SummaryHandler(RequestHandlerBase):
 
-    @keyRequired
+    @authenticate()
     async def post(self):
 
         # Set the appropriate headers to enable streaming
