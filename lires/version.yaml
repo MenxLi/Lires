@@ -866,3 +866,21 @@ version_history:
       - Splitter refactor
     - Fix: 
       - Author reverse index
+  1.8.1:
+    - Features:
+      - Record user latest active time
+      - Show author papers in info panel
+      - Informative user registration error
+      - Login page `invitation` parameter
+      - More options for `lrs-user list`
+    - UI:
+      - Login page style update
+      - Update data row status on small screen
+    - Performance:
+      - Cache internal service endpoints
+    - Fix:
+      - Cluster script environment scope
+    - Other changes:
+      - Return 401 on unauthorized access
+      - Upgrade lires web dependencies
+      - Safe log file merge
