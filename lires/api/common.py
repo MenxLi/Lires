@@ -1,9 +1,33 @@
-import aiohttp, asyncio, sys
+from __future__ import annotations
+from typing import TypeVar, Callable
+import aiohttp, asyncio, sys, time
 import asyncio.coroutines
 from lires.core.error import LiresError
 
+FuncT = TypeVar("FuncT", bound=Callable)
+def cachedFunc(cache_time: float = 0.1):
+    def decorator(func: FuncT) -> FuncT:
+        func_name = func.__name__
+        async def wrapper(self: LiresAPIBase, *args, **kwargs):
+            if func_name not in self._cache_method_res:
+                self._cache_method_res[func_name] = {
+                    "time": 0,
+                    "res": None
+                }
+            if time.time() - self._cache_method_res[func_name]["time"] > cache_time:
+                if asyncio.iscoroutinefunction(func):
+                    self._cache_method_res[func_name]["res"] = await func(self, *args, **kwargs)
+                else:
+                    self._cache_method_res[func_name]["res"] = func(self, *args, **kwargs)
+                self._cache_method_res[func_name]["time"] = time.time()
+            return self._cache_method_res[func_name]["res"]
+        return wrapper # type: ignore
+    return decorator
+
+
 class LiresAPIBase:
     Error = LiresError
+    _cache_method_res = {}
     _commonErrors = {
         400: "Bad request",
         401: "Invalid token",

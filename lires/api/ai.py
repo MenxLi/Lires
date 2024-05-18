@@ -6,7 +6,7 @@ from __future__ import annotations
 import aiohttp
 from typing import TYPE_CHECKING, Optional, TypedDict, AsyncIterator
 import json
-from .common import LiresAPIBase
+from .common import LiresAPIBase, cachedFunc
 from .registry import RegistryConn
 
 if TYPE_CHECKING:
@@ -22,6 +22,7 @@ class IServerConn(LiresAPIBase):
     def setEndpoint(self, endpoint: str) -> None:
         self._endpoint = endpoint
 
+    @cachedFunc()
     async def url(self) -> str:
         if self._endpoint is None:
             return (await RegistryConn().get("ai"))["endpoint"]
