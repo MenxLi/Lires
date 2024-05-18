@@ -80,7 +80,7 @@ class UsrDBConnection(LiresBase):
                     is_admin BOOLEAN NOT NULL,
                     mandatory_tags TEXT NOT NULL, 
                     time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    max_storage INTEGER NOT NULL DEFAULT 104857600
+                    max_storage INTEGER NOT NULL DEFAULT 104857600, 
                     last_active FLOAT NOT NULL DEFAULT 0
                 );
             """)
