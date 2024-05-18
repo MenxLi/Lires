@@ -105,7 +105,8 @@ class RegistryConn(LiresAPIBase):
             while self.__do_heartbeat:
                 self.run_sync(self.heartbeat(on_fail))
                 time.sleep(self.HEARTBEAT_INTERVAL)
-        threading.Thread(target=heartbeatThread, daemon=True).start()
+        self.__heatbeat_thread = threading.Thread(target=heartbeatThread, daemon=True)
+        self.__heatbeat_thread.start()
     
     async def withdraw(self):
         # stop heartbeat loop
