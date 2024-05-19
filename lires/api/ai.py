@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Optional, TypedDict, AsyncIterator
 import json
 from .common import LiresAPIBase, cachedFunc
 from .registry import RegistryConn
+from lires.config import LRS_DEPLOY_KEY
 
 if TYPE_CHECKING:
     from lires_service.ai.lmInterface import ConversationDictT, ChatStreamIterType
@@ -71,13 +72,17 @@ class IServerConn(LiresAPIBase):
         if model_name is not None:
             post_args["model_name"] = model_name
 
-        try:
-            res = await self.fetcher.post(post_url, post_args, return_raw = True)
-            async for chunk in res.content.iter_chunked(128):
-                if chunk:
-                    yield chunk.decode("utf-8")
-        except self.Error.LiresConnectionError:
-            yield ""
+        async with aiohttp.ClientSession(
+            headers={"Authorization": "Bearer " + LRS_DEPLOY_KEY}
+            ) as session:
+            async with session.post(post_url, json = post_args) as res:
+                try:
+                    self.ensureRes(res)
+                    async for chunk in res.content.iter_chunked(128):
+                        if chunk:
+                            yield chunk.decode("utf-8")
+                except self.Error.LiresConnectionError:
+                    yield ""
     
     async def tsne(self, 
         data: list[list[float]],

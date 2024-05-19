@@ -79,7 +79,7 @@ class DimReduceTSNERequest(BaseModel):
     perplexity: int = 30
     random_state: int = 100
     n_iter: int = 5000
-@app.get("/dim-reduce/tsne")
+@app.post("/dim-reduce/tsne")
 def tsne(req: DimReduceTSNERequest):
     asyncio.run(logger.info(f"TSNE request: data - {len(req.data)} "))
     res = TSNE(
@@ -95,7 +95,7 @@ class DimReducePCARequest(BaseModel):
     data: list[list[float]]
     n_components: int = 3
     random_state: int = 100
-@app.get("/dim-reduce/pca")
+@app.post("/dim-reduce/pca")
 def pca(req: DimReducePCARequest):
     asyncio.run(logger.info(f"PCA request: data - {len(req.data)}"))
     res = PCA(
