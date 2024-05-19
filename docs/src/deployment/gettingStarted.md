@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide will help you to install and start the Lires server. 
+This guide will help you to install and start the Lires server.   
 For using it with Docker, please refer to [Docker Deployment](./docker.md).
 
 ## Table of Contents
@@ -14,13 +14,12 @@ pip install 'Lires[all]'
 ```
 
 ### From source
-Compile frontend files
+1. Compile frontend files
 > **Prerequisites:**  Node.js, Make
 ```bash
 make build
 ```
-Install the servers
-> **Prerequisites:**  Python 3.8+, GCC
+2. Install the servers
 ```bash
 pip install ".[all]"
 ```
@@ -87,7 +86,8 @@ The configuration file designates the environment variables, as well as the comm
 # export LRS_HOME="..."
 lrs-user add <username> <password> --admin
 ```
-After the user is created, you can manage other users with this user via the web interface.
+After the user is created, you can manage other users with this user via the web interface.  
+For more information, see [User management](./manage.md#user-management).
 
 
 ## Management

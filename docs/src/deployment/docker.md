@@ -9,9 +9,10 @@ Running Lires with docker provide another level of isolation and security.
 # build the image
 docker build -f docker/Dockerfile -t lires:runtime .
 
-# run the container, map the port 8080 to the host machine
+# run the container, map the port 8080 to the host machine port 80
 docker run -d -p 80:8080 -v </path/to/data>:/root/.Lires --name lrs lires:runtime
 ```
+Now you can access the web interface at `http://localhost`.
 
 ### Management
 ```sh
@@ -53,5 +54,5 @@ docker volume create --driver local --opt type=btrfs --opt o=size=10G lrs-data
 # run the container with the volume
 docker run -v lrs-data:/root/.Lires ...
 ```
-for more information, see [docker - driver specific options](https://docs.docker.com/reference/cli/docker/volume/create/#driver-specific-options).
+For more information, see [docker - driver specific options](https://docs.docker.com/reference/cli/docker/volume/create/#driver-specific-options).
 
