@@ -137,3 +137,4 @@ def tablePrint(
     # print the table lower border
     for i, h in enumerate(header):
         print(f"{'-' * max_len[i]}", end = "-+-")
+    print()
