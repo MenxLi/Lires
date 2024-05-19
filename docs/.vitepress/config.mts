@@ -35,8 +35,9 @@ export default defineConfig({
         link: '/deployment/',
         items: [
           { text: 'Getting Started', link: '/deployment/gettingStarted' },
+          { text: 'Docker Deployment', link: '/deployment/docker' },
+          { text: 'Management', link: '/deployment/manage' },
           { text: 'Enviroment Variables', link: '/deployment/enviromentVariables' },
-          { text: 'Manage', link: '/deployment/manage' },
           { text: 'Obsidian Plugin', link: '/deployment/obsidianPlugin' },
         ]
       },
