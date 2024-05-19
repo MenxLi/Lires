@@ -22,10 +22,9 @@ WEBPAGE = "https://github.com/MenxLi/Lires"
 # ├── Lires.cache [TMP_DIR]
 # │   └── ...
 
-if "LRS_HOME" in os.environ:
-    LRS_HOME = os.environ["LRS_HOME"]
-else:
-    LRS_HOME = os.path.join(os.path.expanduser("~"), ".Lires")
+# Get environment variables
+LRS_DEPLOY_KEY = os.getenv("LRS_DEPLOY_KEY", '')
+LRS_HOME = os.getenv("LRS_HOME", os.path.join(os.path.expanduser("~"), ".Lires"))
 
 LRS_HOME = os.path.abspath(LRS_HOME)
 

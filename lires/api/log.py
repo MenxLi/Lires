@@ -29,16 +29,15 @@ class LServerConn(LiresAPIBase):
     
     async def log(self, logger_name: str, level: levelT, message: str, timestamp: float):
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    await self.endpoint() + "/log/" + logger_name, 
-                    json = {
-                        "level": level,
-                        "message": message,
-                        "timestamp": timestamp,
-                    },
-                ) as res:
-                    self.ensureRes(res)
+            await self.fetcher.post(
+                await self.endpoint() + "/log/" + logger_name, 
+                json = {
+                    "level": level,
+                    "message": message,
+                    "timestamp": timestamp,
+                },
+                return_raw = True
+            )
         except Exception as e:
             if self.ignore_connection_error and \
                 isinstance(e, aiohttp.ClientConnectionError) or isinstance(e, self.Error.LiresResourceNotFoundError):

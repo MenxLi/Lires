@@ -9,7 +9,6 @@ These are not finalized.
 :::  
 
 - Move chat api to frontend
-- Inter-service communication verification
 
 ## Future plans without specific timeline
 (TO BE UPDATED)

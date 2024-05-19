@@ -4,12 +4,13 @@ import asyncio
 from logging import Logger, getLogger
 from uvicorn import Config, Server
 from uvicorn.config import LOGGING_CONFIG
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from . import avaliablePort
 from typing import TypedDict, Optional, TYPE_CHECKING
 import uuid
-from lires.config import getConf
+from lires.config import getConf, LRS_DEPLOY_KEY
 
 if TYPE_CHECKING:
     from .registry.store import ServiceName
@@ -43,6 +44,16 @@ async def startService(
         log_config=default_logging_config,
         )
     server = Server(config=config)
+
+    if LRS_DEPLOY_KEY:
+        @app.middleware("http")
+        async def interserviceVerification(request: Request, call_next):
+            if request.method == "OPTIONS":
+                return await call_next(request)
+            if request.headers.get("Authorization") != f'Bearer {LRS_DEPLOY_KEY}':
+                print(request.headers)
+                return JSONResponse(content={"detail": "Invalid authorization"}, status_code=401)
+            return await call_next(request)
 
     if register_settings is not None:
         await register_settings["registry"].register({

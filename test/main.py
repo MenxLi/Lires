@@ -76,6 +76,7 @@ if __name__ == "__main__":
     # to disable log output
     os.environ["LRS_TERM_LOG_LEVEL"] = "DEBUG"
     os.environ["LRS_LOG_LEVEL"] = "DEBUG"
+    os.environ["LRS_DEPLOY_KEY"] = "test_deploy_key"
 
     # prepare for test
     procs = []
@@ -85,7 +86,7 @@ if __name__ == "__main__":
         procs.append(startSubprocess("lires server"))
         procs.append(startSubprocess("lires ai"))
         procs.append(startSubprocess("lires log"))
-        print("Waiting for server to start...")
+        print("Waiting for service starting...")
         watchForStartSign()
     
     _report_file = os.path.join(__this_dir, "_cache", "output", "report.html")

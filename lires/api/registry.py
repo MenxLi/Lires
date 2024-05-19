@@ -26,28 +26,19 @@ class RegistryConn(LiresAPIBase):
         return "http://localhost:8700"
     
     async def status(self):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.url + "/status") as res:
-                self.ensureRes(res)
-                return await res.json()
+        return await self.fetcher.get(self.url + "/status")
         
     async def view(self):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.url + "/view") as res:
-                self.ensureRes(res)
-                return await res.json()
+        return await self.fetcher.get(self.url + "/view")
     
     async def get(self, name: ServiceName, group: Optional[str] = None) -> Registration:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                self.url + "/query",
-                json = {
-                    "name": name,
-                    "group": group,
-                }
-            ) as res:
-                self.ensureRes(res)
-                return await res.json()
+        return await self.fetcher.post(
+            self.url + "/query",
+            json = {
+                "name": name,
+                "group": group,
+            }
+        )
     
     async def _register(self, info: Registration, ensure_status: bool = True):
         if ensure_status:
@@ -57,12 +48,7 @@ class RegistryConn(LiresAPIBase):
                 exit("ERROR: Registry server not running")
 
         self._uid = info["uid"]
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                self.url + "/register",
-                json = info
-            ) as res:
-                self.ensureRes(res)
+        await self.fetcher.post(self.url + "/register", json = dict(info))
         self.__register_info = info
     
     async def register(self, info: Registration, ensure_status: bool = True, start_heartbeat: bool = True):
@@ -78,14 +64,12 @@ class RegistryConn(LiresAPIBase):
     
     async def heartbeat(self, on_fail: Optional[Callable[[str], Any]] = None):
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    self.url + "/heartbeat",
-                    json = {
-                        "uid": self.uid,
-                    }
-                ) as res:
-                    self.ensureRes(res)
+            await self.fetcher.post(
+                self.url + "/heartbeat",
+                json = {
+                    "uid": self.uid,
+                }
+            )
         except self.Error.LiresResourceNotFoundError as e:
             # registry server restarted, re-register
             assert self.__register_info is not None
@@ -114,13 +98,11 @@ class RegistryConn(LiresAPIBase):
             self.__do_heartbeat = False
             self.__heatbeat_thread.join()
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    self.url + "/withdraw",
-                    json = {
-                        "uid": self.uid,
-                    }
-                ) as res:
-                    self.ensureRes(res)
+            await self.fetcher.post(
+                self.url + "/withdraw",
+                json = {
+                    "uid": self.uid,
+                }
+            )
         except Exception as e:
             print("ERROR: Failed to withdraw: {}".format(e))

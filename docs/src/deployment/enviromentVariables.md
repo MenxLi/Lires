@@ -9,6 +9,7 @@ Applies to all servers.
 |Variable|Description|Default|
 |---|---|---|
 |`LRS_HOME`| The path to the directory where `Lires` stores its data. | `~/.Lires` |
+|`LRS_DEPLOY_KEY`| The secret key for inter-service communication. |  |
 |`LRS_TERM_LOG_LEVEL`| The terminal logging level. | `INFO` |
 |`LRS_LOG_LEVEL`| The logging level send to the log server. | `DEBUG` |
 

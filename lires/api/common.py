@@ -1,8 +1,9 @@
 from __future__ import annotations
-from typing import TypeVar, Callable
+from typing import TypeVar, Callable, overload, Literal, Any
 import aiohttp, asyncio, sys, time
 import asyncio.coroutines
 from lires.core.error import LiresError
+from lires.config import LRS_DEPLOY_KEY
 
 FuncT = TypeVar("FuncT", bound=Callable)
 def cachedFunc(cache_time: float = 0.1):
@@ -25,6 +26,30 @@ def cachedFunc(cache_time: float = 0.1):
     return decorator
 
 
+class ServiceFetcher:
+
+    @overload
+    async def post(self, url, json: dict, return_raw: Literal[False] = False) -> Any: ...
+    @overload
+    async def post(self, url, json: dict, return_raw: Literal[True]) -> aiohttp.ClientResponse: ...
+    async def post(self, url: str, json: dict, return_raw: bool = False) -> Any | aiohttp.ClientResponse:
+        async with aiohttp.ClientSession(
+            headers = { "Authorization": "Bearer " + LRS_DEPLOY_KEY }
+            ) as session:
+            async with session.post(url, json = json) as res:
+                LiresAPIBase.ensureRes(res)
+                if return_raw:
+                    return res
+                return await res.json()
+    
+    async def get(self, url: str):
+        async with aiohttp.ClientSession(
+            headers = { "Authorization": "Bearer " + LRS_DEPLOY_KEY }
+            ) as session:
+            async with session.get(url) as res:
+                LiresAPIBase.ensureRes(res)
+                return await res.json()
+
 class LiresAPIBase:
     Error = LiresError
     _cache_method_res = {}
@@ -37,26 +62,29 @@ class LiresAPIBase:
         409: "Conflict",
         500: "Internal server error",
     }
-    def ensureRes(self, res: aiohttp.ClientResponse):
+    fetcher = ServiceFetcher()
+
+    @classmethod
+    def ensureRes(cls, res: aiohttp.ClientResponse):
         if res.status == 200:
             return True
         
         if res.status == 404:
-            raise self.Error.LiresResourceNotFoundError(
-                "Server returned 404 ({}).".format(self._commonErrors[res.status])
+            raise cls.Error.LiresResourceNotFoundError(
+                "Server returned 404 ({}).".format(cls._commonErrors[res.status])
             )
         
         if res.status == 401 or res.status == 403:
-            raise self.Error.LiresConnectionAuthError(
-                "Server returned {} ({}).".format(res.status, self._commonErrors[res.status])
+            raise cls.Error.LiresConnectionAuthError(
+                "Server returned {} ({}).".format(res.status, cls._commonErrors[res.status])
             )
 
-        if res.status in self._commonErrors:
-            raise self.Error.LiresConnectionError(
-                "Server returned {} ({}).".format(res.status, self._commonErrors[res.status])
+        if res.status in cls._commonErrors:
+            raise cls.Error.LiresConnectionError(
+                "Server returned {} ({}).".format(res.status, cls._commonErrors[res.status])
             )
 
-        raise self.Error.LiresConnectionError(
+        raise cls.Error.LiresConnectionError(
             "Server returned {}.".format(res.status)
         )
     

@@ -31,13 +31,10 @@ class IServerConn(LiresAPIBase):
     _StatusReturnT = TypedDict("_StatusReturnT", {"status": bool, "device": str})
     @property
     async def status(self) -> _StatusReturnT:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(await self.url() + "/status") as res:
-                try:
-                    self.ensureRes(res)
-                    return await res.json()
-                except self.Error.LiresConnectionError:
-                    return {"status": False, "device": "unknown"}
+        try:
+            return await self.fetcher.get(await self.url() + "/status")
+        except self.Error.LiresConnectionError:
+            return {"status": False, "device": "unknown"}
     
     async def featurize(
             self, 
@@ -46,17 +43,15 @@ class IServerConn(LiresAPIBase):
             # model_name: EncoderT = "bert-base-uncased",
             dim_reduce: bool = True
             ) -> list:
-        post_url = await self.url() + "/featurize"
-        post_args = {
-            "text": text,
-            # "word_chunk": word_chunk,
-            # "model_name": model_name,
-            "dim_reduce": dim_reduce
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.post(post_url, json = post_args) as res:
-                self.ensureRes(res)
-                return await res.json()
+        return await self.fetcher.post(
+            await self.url() + "/featurize",
+            {
+                "text": text,
+                "dim_reduce": dim_reduce
+                # "word_chunk": word_chunk,
+                # "model_name": model_name,
+            }
+        )
     
     async def chat(
             self, 
@@ -76,15 +71,13 @@ class IServerConn(LiresAPIBase):
         if model_name is not None:
             post_args["model_name"] = model_name
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(post_url, json = post_args) as res:
-                try:
-                    self.ensureRes(res)
-                    async for chunk in res.content.iter_chunked(128):
-                        if chunk:
-                            yield chunk.decode("utf-8")
-                except self.Error.LiresConnectionError:
-                    yield ""
+        try:
+            res = await self.fetcher.post(post_url, post_args, return_raw = True)
+            async for chunk in res.content.iter_chunked(128):
+                if chunk:
+                    yield chunk.decode("utf-8")
+        except self.Error.LiresConnectionError:
+            yield ""
     
     async def tsne(self, 
         data: list[list[float]],
@@ -93,32 +86,28 @@ class IServerConn(LiresAPIBase):
         random_state: int = 100,
         n_iter: int = 1000,
         ) -> list[list[float]]:
-        post_url = await self.url() + "/dim-reduce/tsne"
-        post_args = {
-            "data": data,
-            "n_components": n_components,
-            "perplexity": perplexity,
-            "random_state": random_state,
-            "n_iter": n_iter,
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.get(post_url, json = post_args) as res:
-                self.ensureRes(res)
-                return await res.json()
+        return await self.fetcher.post(
+            await self.url() + "/dim-reduce/tsne",
+            {
+                "data": data,
+                "n_components": n_components,
+                "perplexity": perplexity,
+                "random_state": random_state,
+                "n_iter": n_iter,
+            }
+        )
     
     async def pca(self, 
         data: list[list[float]],
         n_components: int = 3,
         random_state: int = 100,
         ) -> list[list[float]]:
-        post_url = await self.url() + "/dim-reduce/pca"
-        post_args = {
-            "data": data,
-            "n_components": n_components,
-            "random_state": random_state,
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.get(post_url, json = post_args) as res:
-                self.ensureRes(res)
-                return await res.json()
+        return await self.fetcher.post(
+            await self.url() + "/dim-reduce/pca",
+            {
+                "data": data,
+                "n_components": n_components,
+                "random_state": random_state,
+            }
+        )
             

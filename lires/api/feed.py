@@ -3,7 +3,6 @@
 Connect to feed server
 """
 
-import aiohttp
 from typing import Optional
 from .common import LiresAPIBase, cachedFunc
 from .registry import RegistryConn
@@ -31,24 +30,15 @@ class FServerConn(LiresAPIBase):
         time_after: float = -1,
         time_before: float = -1,
         ) -> list[dict]:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                await self.endpoint() + "/query",
-                json = {
-                    "max_results": max_results,
-                    "category": category,
-                    "time_after": time_after if time_after > 0 else None,
-                    "time_before": time_before if time_before > 0 else None,
-                }
-            ) as res:
-                self.ensureRes(res)
-                return await res.json()
+        return await self.fetcher.post(
+            await self.endpoint() + "/query",
+            json = {
+                "max_results": max_results,
+                "category": category,
+                "time_after": time_after if time_after > 0 else None,
+                "time_before": time_before if time_before > 0 else None,
+            }
+        )
     
     async def categories(self) -> list[str]:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                await self.endpoint() + "/categories",
-            ) as res:
-                self.ensureRes(res)
-                return await res.json()
-    
+        return await self.fetcher.get(await self.endpoint() + "/categories")
