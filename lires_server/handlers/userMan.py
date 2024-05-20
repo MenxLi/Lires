@@ -29,6 +29,8 @@ class UserRegisterHandler(RequestHandlerBase):
             )
         except self.Error.LiresUserDuplicationError:
             raise tornado.web.HTTPError(409, "Username already exists")
+        except self.Error.LiresExceedLimitError:
+            raise tornado.web.HTTPError(507, "Reached maximum user limit")
 
         await self.user_pool.conn.useInvitation(invitation_code)
 

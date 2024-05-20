@@ -4,6 +4,7 @@ import os, json
 from typing import TypedDict, Optional
 
 from ..core.base import LiresBase
+from lires.config import getConf
 
 class RawUser(TypedDict):
     id: int
@@ -106,6 +107,12 @@ class UsrDBConnection(LiresBase):
         
         await createUserTable()
         await createInvitationTable()
+    
+    async def count(self) -> int:
+        async with self.conn.execute("SELECT COUNT(*) FROM users") as cursor:
+            res = await cursor.fetchone()
+        assert res is not None
+        return res[0]
 
     async def insertUser(self, 
                 username: str, password: str, name: str,
@@ -117,6 +124,12 @@ class UsrDBConnection(LiresBase):
             res = await cursor.fetchone()
             if res is not None:
                 raise self.Error.LiresUserDuplicationError(f"User {username} already exists")
+        # check if limit is reached
+        max_users = getConf()["max_users"]
+        if max_users != 0:
+            if (await self.count()) >= max_users:
+                raise self.Error.LiresExceedLimitError(f"Exceed maximum number of users: {max_users}")
+
         # insert the user
         await self.conn.execute("""
                             INSERT INTO users 

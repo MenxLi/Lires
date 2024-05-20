@@ -63,7 +63,7 @@ def __staticConfigToken(prefix = uuid.NAMESPACE_DNS):
     return uuid.uuid5(prefix, platform.node() + LRS_HOME).hex
 __default_config: LiresConfT = {
     'group': __staticConfigToken(uuid.NAMESPACE_DNS)[:8],
-    # 'deploy_token': uuid.uuid4().hex, 
+    'max_users': 1000,
     'service_port_range': [21000, 22000],
     'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
 }

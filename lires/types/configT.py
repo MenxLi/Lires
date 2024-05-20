@@ -22,14 +22,14 @@ class LiresConfT(TypedDict):
     # used for identifying different LRS_HOME directories
     group: str
 
-    # The root token for the inter-server communication,
-    # will be treated as an admin token for the gateway server
-    # deploy_token: str
-
     # Random port range for microservices, 
     # if the port is specified as 0, will use a random port in this range
     # otherwise, will use the specified port
     service_port_range: list[int]
+
+    # The maximum number of users, 
+    # set to 0 for unlimited users
+    max_users: int
 
     # jit compile configuration for tiny_vectordb
     tiny_vectordb_compile_config: TinyVectordbCompileConfig
