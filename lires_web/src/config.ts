@@ -27,6 +27,10 @@ else{
 function getBackendURL(){
     const BACKEND_PORT = useSettingsStore().backendPort;
     const BACKEND_HOST = useSettingsStore().backendHost;
+    if (!BACKEND_PORT){
+        // 80 or 443 for default ports
+        return BACKEND_HOST;
+    }
     return `${BACKEND_HOST}:${BACKEND_PORT}`;
 }
 
