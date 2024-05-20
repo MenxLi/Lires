@@ -58,7 +58,10 @@ def sssUUID() -> str:
     """
     return ssUUID()[::2]
 
+__ascii = string.ascii_lowercase + string.ascii_uppercase
+__ascii_digits = __ascii + string.digits
 def randomAlphaNumeric(length: int):
     """Generate a random string"""
-    str = string.ascii_lowercase
-    return ''.join(random.choice(str) for i in range(length))
+    assert length > 0
+    first_letter = random.choice(string.ascii_letters)
+    return first_letter + ''.join(random.choice(__ascii_digits) for i in range(length-1))
