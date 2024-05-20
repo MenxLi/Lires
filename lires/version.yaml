@@ -884,3 +884,14 @@ version_history:
       - Return 401 on unauthorized access
       - Upgrade lires web dependencies
       - Safe log file merge
+  1.8.2:
+    - Features:
+      - Inter-service verification
+      - Limit maximum number of users
+      - Set default user storage via configuration
+    - Documentations:
+      - Update documentation structure
+    - Fix: 
+      - Internal service cache name collision
+    - Other changes:
+      - Send feed without ai server connection
