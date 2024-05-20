@@ -61,6 +61,7 @@ class LiresAPIBase:
         405: "Method not allowed",
         409: "Conflict",
         500: "Internal server error",
+        507: "Disk full"
     }
     fetcher = ServiceFetcher()
 
@@ -77,6 +78,11 @@ class LiresAPIBase:
         if res.status == 401 or res.status == 403:
             raise cls.Error.LiresConnectionAuthError(
                 "Server returned {} ({}).".format(res.status, cls._commonErrors[res.status])
+            )
+        
+        if res.status == 507:
+            raise cls.Error.LiresExceedLimitError(
+                "Server returned 507 ({}).".format(cls._commonErrors[res.status])
             )
 
         if res.status in cls._commonErrors:

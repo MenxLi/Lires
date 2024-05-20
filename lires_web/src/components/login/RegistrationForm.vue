@@ -43,6 +43,9 @@ export default {
                     else if (err.message.includes('403')){
                         this.$emit('register-fail', 'Invitation code expired');
                     }
+                    else if (err.message.includes('507')){
+                        this.$emit('register-fail', 'Maximum number of users reached');
+                    }
                     else{
                         this.$emit('register-fail', err);
                     }
