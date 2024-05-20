@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from . import avaliablePort
-from typing import TypedDict, Optional, TYPE_CHECKING
+from typing import TypedDict, Optional, TYPE_CHECKING, Coroutine, Callable
 import uuid
 from lires.config import getConf, LRS_DEPLOY_KEY
 
@@ -50,8 +50,11 @@ async def startService(
         async def interserviceVerification(request: Request, call_next):
             if request.method == "OPTIONS":
                 return await call_next(request)
-            if request.headers.get("Authorization") != f'Bearer {LRS_DEPLOY_KEY}':
-                print(request.headers)
+            if (auth_header:=request.headers.get("Authorization")) != f'Bearer {LRS_DEPLOY_KEY}':
+                if asyncio.iscoroutinefunction(logger.debug):
+                    await logger.debug(f'Reject unauthorized access: {auth_header}')
+                else:
+                    logger.debug(f'Reject unauthorized access: {auth_header}')
                 return JSONResponse(content={"detail": "Invalid authorization"}, status_code=401)
             return await call_next(request)
 
