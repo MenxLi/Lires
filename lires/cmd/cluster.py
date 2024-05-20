@@ -32,7 +32,7 @@ def __getDefaultConfig()->ClusterConfigT:
         "VERSION": "0.1.0",
         "GLOBAL_ENV": {
             "LRS_HOME": LRS_HOME,
-            "LRS_DEPLOY_KEY": randomAlphaNumeric(32),
+            "LRS_KEY": randomAlphaNumeric(32),
             # disable logging to terminal, as it will be messy if the log server are also running
             "LRS_TERM_LOG_LEVEL": "CRITICAL",   
         },

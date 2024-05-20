@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional, TypedDict, AsyncIterator
 import json
 from .common import LiresAPIBase, cachedFunc
 from .registry import RegistryConn
-from lires.config import LRS_DEPLOY_KEY
+from lires.config import LRS_KEY
 
 if TYPE_CHECKING:
     from lires_service.ai.lmInterface import ConversationDictT, ChatStreamIterType
@@ -73,7 +73,7 @@ class IServerConn(LiresAPIBase):
             post_args["model_name"] = model_name
 
         async with aiohttp.ClientSession(
-            headers={"Authorization": "Bearer " + LRS_DEPLOY_KEY}
+            headers={"Authorization": "Bearer " + LRS_KEY}
             ) as session:
             async with session.post(post_url, json = post_args) as res:
                 try:

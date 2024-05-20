@@ -15,6 +15,12 @@ class LiresConfT(TypedDict):
     changes in v1.7.5:
         - Add deploy_token field for server communication
         - Change database_id to group
+    
+    changes in v1.8.0:
+        - Remove deploy_token field
+    
+    changes in v1.8.2:
+        - Add max_users and default_user_max_storage fields
     """
     ## Should contain no optional or ambiguous type fields!!
 

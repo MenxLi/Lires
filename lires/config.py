@@ -23,7 +23,7 @@ WEBPAGE = "https://github.com/MenxLi/Lires"
 # │   └── ...
 
 # Get environment variables
-LRS_DEPLOY_KEY = os.getenv("LRS_DEPLOY_KEY", '')
+LRS_KEY = os.getenv("LRS_KEY", '')
 LRS_HOME = os.getenv("LRS_HOME", os.path.join(os.path.expanduser("~"), ".Lires"))
 
 LRS_HOME = os.path.abspath(LRS_HOME)
@@ -68,7 +68,6 @@ __default_config: LiresConfT = {
     'service_port_range': [21000, 22000],
     'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
 }
-# __essential_config_keys = ['deploy_token']  # keys that must be in the configuration file
 __essential_config_keys = []  # keys that must be in the configuration file
 __g_config: Optional[LiresConfT] = None     # buffer
 def getConf() -> LiresConfT:

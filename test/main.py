@@ -76,7 +76,7 @@ if __name__ == "__main__":
     # to disable log output
     os.environ["LRS_TERM_LOG_LEVEL"] = "DEBUG"
     os.environ["LRS_LOG_LEVEL"] = "DEBUG"
-    os.environ["LRS_DEPLOY_KEY"] = "test_deploy_key"
+    os.environ["LRS_KEY"] = "test_deploy_key"
 
     # prepare for test
     procs = []

@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from . import avaliablePort
 from typing import TypedDict, Optional, TYPE_CHECKING, Coroutine, Callable
 import uuid
-from lires.config import getConf, LRS_DEPLOY_KEY
+from lires.config import getConf, LRS_KEY
 
 if TYPE_CHECKING:
     from .registry.store import ServiceName
@@ -53,12 +53,12 @@ async def startService(
                 return func(*args, **kwargs)
             return wrapper
 
-    if LRS_DEPLOY_KEY:
+    if LRS_KEY:
         @app.middleware("http")
         async def interserviceVerification(request: Request, call_next):
             if request.method == "OPTIONS":
                 return await call_next(request)
-            if (auth_header:=request.headers.get("Authorization")) != f'Bearer {LRS_DEPLOY_KEY}':
+            if (auth_header:=request.headers.get("Authorization")) != f'Bearer {LRS_KEY}':
                 await makeCoro(logger.debug)(f'Reject unauthorized access: {auth_header}')
                 return JSONResponse(content={"detail": "Invalid authorization"}, status_code=401)
             return await call_next(request)

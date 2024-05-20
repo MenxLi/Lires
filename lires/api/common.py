@@ -3,7 +3,7 @@ from typing import TypeVar, Callable, overload, Literal, Any
 import aiohttp, asyncio, sys, time
 import asyncio.coroutines
 from lires.core.error import LiresError
-from lires.config import LRS_DEPLOY_KEY
+from lires.config import LRS_KEY
 
 FuncT = TypeVar("FuncT", bound=Callable)
 def cachedFunc(cache_time: float = 0.1):
@@ -34,7 +34,7 @@ class ServiceFetcher:
     async def post(self, url, json: dict, return_raw: Literal[True]) -> aiohttp.ClientResponse: ...
     async def post(self, url: str, json: dict, return_raw: bool = False) -> Any | aiohttp.ClientResponse:
         async with aiohttp.ClientSession(
-            headers = { "Authorization": "Bearer " + LRS_DEPLOY_KEY }
+            headers = { "Authorization": "Bearer " + LRS_KEY }
             ) as session:
             async with session.post(url, json = json) as res:
                 LiresAPIBase.ensureRes(res)
@@ -44,7 +44,7 @@ class ServiceFetcher:
     
     async def get(self, url: str):
         async with aiohttp.ClientSession(
-            headers = { "Authorization": "Bearer " + LRS_DEPLOY_KEY }
+            headers = { "Authorization": "Bearer " + LRS_KEY }
             ) as session:
             async with session.get(url) as res:
                 LiresAPIBase.ensureRes(res)
