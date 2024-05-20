@@ -39,8 +39,12 @@ class FeedHandler(RequestHandlerBase):
                     return FeedHandler.__featurize_cache[d_info['uuid']]
 
                 _feature_source = d_info["abstract"] if d_info["abstract"] in d_info else d_info["title"]
-                feat = await self.iconn.featurize(_feature_source)
-                FeedHandler.__featurize_cache[uid] = feat
+                try:
+                    feat = await self.iconn.featurize(_feature_source)
+                    FeedHandler.__featurize_cache[uid] = feat
+                except self.Error.LiresConnectionError as e:
+                    await self.logger.error(f"Error featurizing {uid}: {e}")
+                    feat = None
                 return feat
 
             featurize_task = asyncio.Task(featurizeFn())
