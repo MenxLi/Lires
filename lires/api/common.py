@@ -6,22 +6,24 @@ from lires.core.error import LiresError
 from lires.config import LRS_KEY
 
 FuncT = TypeVar("FuncT", bound=Callable)
-def cachedFunc(cache_time: float = 0.1):
+def classCachedFunc(cache_time: float = 0.1):
     def decorator(func: FuncT) -> FuncT:
         func_name = func.__name__
         async def wrapper(self: LiresAPIBase, *args, **kwargs):
-            if func_name not in self._cache_method_res:
-                self._cache_method_res[func_name] = {
+            # cls_name = self.__class__.__name__
+            req_name = f"cls_id:{id(self.__class__)}.{func_name}"
+            if req_name not in self._cache_method_res:
+                self._cache_method_res[req_name] = {
                     "time": 0,
                     "res": None
                 }
-            if time.time() - self._cache_method_res[func_name]["time"] > cache_time:
+            if time.time() - self._cache_method_res[req_name]["time"] > cache_time:
                 if asyncio.iscoroutinefunction(func):
-                    self._cache_method_res[func_name]["res"] = await func(self, *args, **kwargs)
+                    self._cache_method_res[req_name]["res"] = await func(self, *args, **kwargs)
                 else:
-                    self._cache_method_res[func_name]["res"] = func(self, *args, **kwargs)
-                self._cache_method_res[func_name]["time"] = time.time()
-            return self._cache_method_res[func_name]["res"]
+                    self._cache_method_res[req_name]["res"] = func(self, *args, **kwargs)
+                self._cache_method_res[req_name]["time"] = time.time()
+            return self._cache_method_res[req_name]["res"]
         return wrapper # type: ignore
     return decorator
 

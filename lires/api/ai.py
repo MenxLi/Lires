@@ -6,7 +6,7 @@ from __future__ import annotations
 import aiohttp
 from typing import TYPE_CHECKING, Optional, TypedDict, AsyncIterator
 import json
-from .common import LiresAPIBase, cachedFunc
+from .common import LiresAPIBase, classCachedFunc
 from .registry import RegistryConn
 from lires.config import LRS_KEY
 
@@ -23,7 +23,7 @@ class IServerConn(LiresAPIBase):
     def setEndpoint(self, endpoint: str) -> None:
         self._endpoint = endpoint
 
-    @cachedFunc()
+    @classCachedFunc()
     async def url(self) -> str:
         if self._endpoint is None:
             return (await RegistryConn().get("ai"))["endpoint"]
