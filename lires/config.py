@@ -64,6 +64,7 @@ def __staticConfigToken(prefix = uuid.NAMESPACE_DNS):
 __default_config: LiresConfT = {
     'group': __staticConfigToken(uuid.NAMESPACE_DNS)[:8],
     'max_users': 1000,
+    'default_user_max_storage': '512m',
     'service_port_range': [21000, 22000],
     'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
 }
@@ -113,6 +114,8 @@ def getConf() -> LiresConfT:
             "Invalid service port range: {}".format(conf["service_port_range"])
         assert conf["group"].replace("_", "").isalnum(), \
             "Invalid database id: {}".format(conf["group"]) + ", must be alphanumeric or underscore"
+        assert conf['default_user_max_storage'][-1].lower() in ["m", "g", "t"], "Invalid storage unit"
+        assert conf['default_user_max_storage'][:-1].isdigit(), "Invalid storage size"
         
         __g_config = conf
 

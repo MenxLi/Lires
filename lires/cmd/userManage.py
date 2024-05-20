@@ -23,7 +23,7 @@ async def _run():
     parser_reg.add_argument("password", help = "Password")
     parser_reg.add_argument("-n", "--name", default = "Anonymous", help = "Identifier for this user, default: Anonymous")
     parser_reg.add_argument("-t", "--tags", nargs = "+", default = [], help = "Mandatory tag for this user, default: []")
-    parser_reg.add_argument("-m", "--max-storage", default = 100, type = int, help = "Max storage for this user, default: 100 (MB)")
+    parser_reg.add_argument("-m", "--max-storage", default = None, type = str, help = "Max storage for this user, e.g. 512m, 1g, 1t, defaut: <unset>")
     parser_reg.add_argument("--admin", action="store_true", help = "Set the account to administrator, default: False")
 
     parser_update = sp.add_parser("update", help = "Update a user")
@@ -31,7 +31,7 @@ async def _run():
     parser_update.add_argument("-p", "--password", help = "Password to update", default=None)
     parser_update.add_argument("-n", "--name", help = "Name to update", default=None)
     parser_update.add_argument("-t", "--tags", nargs = "+", help = "Mandatory tags to update", default=None)
-    parser_update.add_argument("-m", "--max-storage", help = "Max storage to update", default=None, type=float)
+    parser_update.add_argument("-m", "--max-storage", help = "Max storage to update, e.g. 512m, 1g", default=None, type=str)
     parser_update.add_argument("-a", "--admin", help = "Set the account administration (true/false)", default=None, type=str2bool)
 
     parser_del = sp.add_parser("delete", help = "Delete a user")
@@ -45,6 +45,17 @@ async def _run():
     parser_list.add_argument('-r', "--reverse", help = "Reverse order", action="store_true")
     parser_list.add_argument('--ascii', help = "Only print ascii characters, work only with table", action="store_true")
 
+    def parseStorage(s: str) -> int:
+        assert s[:-1].isdigit(), "Invalid storage size"
+        assert s[-1].lower() in ["m", "g", "t"], "Invalid storage unit"
+        if s[-1].lower() == "m":
+            return int(s[:-1]) * 1024 * 1024
+        if s[-1].lower() == "g":
+            return int(s[:-1]) * 1024 * 1024 * 1024
+        if s[-1].lower() == "t":
+            return int(s[:-1]) * 1024 * 1024 * 1024 * 1024
+        return int(s)
+
     args = parser.parse_args()
 
     user_pool, db_pool = await initResources()
@@ -55,7 +66,7 @@ async def _run():
             await user_db_conn.insertUser(
                 username=args.username, password=generateHexHash(args.password), name=args.name,
                 is_admin=args.admin, mandatory_tags=DataTags(args.tags).toOrderedList(), 
-                max_storage=args.max_storage * 1024 * 1024
+                max_storage=parseStorage(args.max_storage) if args.max_storage is not None else None
             )
         
         elif args.subparser == "update":
@@ -70,7 +81,7 @@ async def _run():
             if args.admin is not None:
                 await user_db_conn.updateUser(user_id, is_admin=args.admin)
             if args.max_storage is not None:
-                await user_db_conn.updateUser(user_id, max_storage=args.max_storage * 1024 * 1024)
+                await user_db_conn.updateUser(user_id, max_storage=parseStorage(args.max_storage))
 
         elif args.subparser == "delete":
             assert args.username is not None or args.id is not None, "Username or id is required"

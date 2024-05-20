@@ -31,6 +31,10 @@ class LiresConfT(TypedDict):
     # set to 0 for unlimited users
     max_users: int
 
+    # The maximum storage for each user
+    # e.g 512m, 1g, 1t
+    default_user_max_storage: str
+
     # jit compile configuration for tiny_vectordb
     tiny_vectordb_compile_config: TinyVectordbCompileConfig
 

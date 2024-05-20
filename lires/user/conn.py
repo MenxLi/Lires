@@ -117,7 +117,7 @@ class UsrDBConnection(LiresBase):
     async def insertUser(self, 
                 username: str, password: str, name: str,
                 is_admin: bool, mandatory_tags: list[str], 
-                max_storage: int = 104857600,
+                max_storage: Optional[int] = None,
                 ) -> None:
         # check if the user already exists
         async with self.conn.execute("SELECT * FROM users WHERE username = ?", (username,)) as cursor:
@@ -125,11 +125,23 @@ class UsrDBConnection(LiresBase):
             if res is not None:
                 raise self.Error.LiresUserDuplicationError(f"User {username} already exists")
         # check if limit is reached
-        max_users = getConf()["max_users"]
+        config = getConf()
+        max_users = config["max_users"]
         if max_users != 0:
             if (await self.count()) >= max_users:
                 raise self.Error.LiresExceedLimitError(f"Exceed maximum number of users: {max_users}")
 
+        if max_storage is None:
+            def parseStorage(s: str) -> int:
+                if s[-1].lower() == "m":
+                    return int(s[:-1]) * 1024 * 1024
+                if s[-1].lower() == "g":
+                    return int(s[:-1]) * 1024 * 1024 * 1024
+                if s[-1].lower() == "t":
+                    return int(s[:-1]) * 1024 * 1024 * 1024 * 1024
+                return int(s)
+            max_storage = parseStorage(config["default_user_max_storage"])
+            
         # insert the user
         await self.conn.execute("""
                             INSERT INTO users 

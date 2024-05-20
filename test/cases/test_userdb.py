@@ -44,7 +44,7 @@ class TestUserDBConnection:
         await userdb.commit()
     
     async def test_cmd(self, userdb: UsrDBConnection):
-        subprocess.check_call(["lrs-user", "add", "test2_username", "test2_password", "--admin", "--tags", "tag3", "tag4", "-m", "10"])
+        subprocess.check_call(["lrs-user", "add", "test2_username", "test2_password", "--admin", "--tags", "tag3", "tag4", "-m", "10m"])
         user2 = await userdb.getUser("test2_username")
         assert user2 is not None
         assert user2["is_admin"]

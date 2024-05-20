@@ -25,7 +25,6 @@ class UserRegisterHandler(RequestHandlerBase):
                 name=name,
                 is_admin=False,
                 mandatory_tags=[],
-                max_storage=1024*1024*1024  # 1G
             )
         except self.Error.LiresUserDuplicationError:
             raise tornado.web.HTTPError(409, "Username already exists")
