@@ -65,6 +65,12 @@ class LiresAPIBase:
     }
     fetcher = ServiceFetcher()
 
+    @property
+    def logger(self):
+        # avoid circular import
+        from lires.core.logger import LoggerStorage
+        return LoggerStorage().get('api')
+
     @classmethod
     def ensureRes(cls, res: aiohttp.ClientResponse):
         if res.status == 200:

@@ -52,7 +52,7 @@ async def heartbeat(req: HeartbeatRequest):
 async def query(req: GetRequest):
     info = await g_store.get(req.name, req.group)
     if info is None:
-        raise HTTPException(status_code=404, detail="Service not found")
+        raise HTTPException(status_code=404, detail=f"Service {req.name} (g: {req.group}) not found")
     else:
         return info
 

@@ -32,13 +32,16 @@ class RegistryConn(LiresAPIBase):
         return await self.fetcher.get(self.url + "/view")
     
     async def get(self, name: ServiceName, group: Optional[str] = None) -> Registration:
-        return await self.fetcher.post(
-            self.url + "/query",
-            json = {
-                "name": name,
-                "group": group,
-            }
-        )
+        try:
+            return await self.fetcher.post(
+                self.url + "/query",
+                json = {
+                    "name": name,
+                    "group": group,
+                }
+            )
+        except self.Error.LiresResourceNotFoundError as e:
+            raise self.Error.LiresResourceNotFoundError(f"Service {name} (g: {group}) not found at registry: {self.url}")
     
     async def _register(self, info: Registration, ensure_status: bool = True):
         if ensure_status:
