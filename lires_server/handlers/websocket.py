@@ -54,7 +54,7 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
             try:
                 # unregister from global connection pool
                 self.connection_pool.remove(self)
-            except IndexError:
+            except (IndexError, ValueError):
                 await self.logger.error("WebSocket connection not found in connection pool, skipped")
         tornado.ioloop.IOLoop.current().add_callback(_on_close)
 

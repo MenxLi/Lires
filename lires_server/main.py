@@ -52,8 +52,10 @@ class Application(tornado.web.Application):
             # Frontend
             (r'/()', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT, "default_filename": "index.html"}),
             (r'/(index.html)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(favicon.ico)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
-            (r'/(assets/.*)', NoCacheStaticFileHandler, {"path": LRSWEB_SRC_ROOT}),
+            (r'/(favicon.ico)', cachedStaticFileHandlerFactory(600), {"path": LRSWEB_SRC_ROOT}),
+            (r'/(assets/.*)', cachedStaticFileHandlerFactory(600), {"path": LRSWEB_SRC_ROOT}),
+            (r'/(site-icons/.*)', cachedStaticFileHandlerFactory(600), {"path": LRSWEB_SRC_ROOT}),
+            (r'/(site.manifest.json)', cachedStaticFileHandlerFactory(600), {"path": LRSWEB_SRC_ROOT}),
 
             # access server assets, read-only
             (r'/documentation/(.*)', cachedStaticFileHandlerFactory(cache_seconds=600), 
