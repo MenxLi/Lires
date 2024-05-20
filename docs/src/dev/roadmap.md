@@ -9,6 +9,7 @@ These are not finalized.
 :::  
 
 - Move chat api to frontend
+- No CORS
 
 ## Future plans without specific timeline
 (TO BE UPDATED)

@@ -10,7 +10,8 @@ def classCachedFunc(cache_time: float = 0.1):
     def decorator(func: FuncT) -> FuncT:
         func_name = func.__name__
         async def wrapper(self: LiresAPIBase, *args, **kwargs):
-            # cls_name = self.__class__.__name__
+            assert args == (), 'classCachedFunc does not support args'
+            assert kwargs == {}, 'classCachedFunc does not support kwargs'
             req_name = f"cls_id:{id(self.__class__)}.{func_name}"
             if req_name not in self._cache_method_res:
                 self._cache_method_res[req_name] = {
