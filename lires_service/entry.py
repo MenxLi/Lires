@@ -45,16 +45,21 @@ async def startService(
         )
     server = Server(config=config)
 
+    def makeCoro(func: Callable) -> Callable[..., Coroutine]:
+        if asyncio.iscoroutinefunction(func):
+            return func
+        else:
+            async def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            return wrapper
+
     if LRS_DEPLOY_KEY:
         @app.middleware("http")
         async def interserviceVerification(request: Request, call_next):
             if request.method == "OPTIONS":
                 return await call_next(request)
             if (auth_header:=request.headers.get("Authorization")) != f'Bearer {LRS_DEPLOY_KEY}':
-                if asyncio.iscoroutinefunction(logger.debug):
-                    await logger.debug(f'Reject unauthorized access: {auth_header}')
-                else:
-                    logger.debug(f'Reject unauthorized access: {auth_header}')
+                await makeCoro(logger.debug)(f'Reject unauthorized access: {auth_header}')
                 return JSONResponse(content={"detail": "Invalid authorization"}, status_code=401)
             return await call_next(request)
 
@@ -67,9 +72,6 @@ async def startService(
             "group": getConf()["group"],
         })
 
-    if asyncio.iscoroutinefunction(logger.info):
-        await logger.info(f"Starting service at: {'https' if config.is_ssl else 'http'}://{config.host}:{config.port}")
-    else:
-        logger.info(f"Starting service at: {'https' if config.is_ssl else 'http'}://{config.host}:{config.port}")
+    await makeCoro(logger.info)(f"Starting service at: {'https' if config.is_ssl else 'http'}://{config.host}:{config.port}")
 
     await server.serve()
