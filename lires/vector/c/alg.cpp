@@ -50,13 +50,14 @@ namespace SearchAlgorithm {
     }
 }
 
+
 std::vector<fp32> similarityB64Enc(
     const std::string& query_encoded,
     const std::vector<std::string>& target_encoded
 ){
     std::vector<fp32> query = VectorStringEncode::decode_b64(query_encoded);
     MatrixF target(target_encoded.size(), FEAT_DIM);
-    for (int i = 0; i < target_encoded.size(); i++){
+    for (unsigned long i = 0; i < target_encoded.size(); i++){
         std::vector<fp32> vec = VectorStringEncode::decode_b64(target_encoded[i]);
         target.row(i) = Eigen::Map<const Eigen::Matrix<fp32, FEAT_DIM, 1>>(vec.data());
     }
@@ -64,19 +65,54 @@ std::vector<fp32> similarityB64Enc(
     return std::vector<fp32>(scores.data(), scores.data() + scores.size());
 }
 
+// use global buffer to avoid memory allocation
+MatrixF g_matrixBuffer(BUFFER_SIZE, FEAT_DIM);
+
 std::vector<fp32> similarityBytesEnc(
     const py::bytes& query_encoded,
     const std::vector<py::bytes>& target_encoded
 ){
-    std::string query_str = query_encoded;
-    std::vector<fp32> query = std::vector<fp32>((fp32*)query_str.data(), (fp32*)query_str.data() + query_str.size() / sizeof(fp32));
-    MatrixF target(target_encoded.size(), FEAT_DIM);
-    for (int i = 0; i < target_encoded.size(); i++){
-        std::string vec_str = target_encoded[i];
-        std::vector<fp32> vec = std::vector<fp32>((fp32*)vec_str.data(), (fp32*)vec_str.data() + vec_str.size() / sizeof(fp32));
-        target.row(i) = Eigen::Map<const Eigen::Matrix<fp32, FEAT_DIM, 1>>(vec.data());
+    // Eigen::Vector<fp32, FEAT_DIM> query = Eigen::Map<const Eigen::Vector<fp32, FEAT_DIM>>((fp32*)query_str.data());
+    auto query = VectorStringEncode::decode_eigen(query_encoded);
+
+    // First impl: directly map the query string to Eigen::Vector
+    // MatrixF target(target_encoded.size(), FEAT_DIM);
+    // for (int i = 0; i < target_encoded.size(); i++){
+    //     // std::vector<fp32> vec = VectorStringEncode::decode(target_encoded[i]);
+    //     auto vec_eigen = VectorStringEncode::decode_eigen(target_encoded[i]);
+    //     target.row(i) = vec_eigen;
+    // }
+    // Eigen::Vector<float, Eigen::Dynamic> scores = SearchAlgorithm::cosineSimilarity(target, query);
+
+    // Second impl: use global buffer to avoid memory allocation
+    // use global buffer to avoid memory allocation, split the target into batches
+    auto target_size = target_encoded.size();
+    auto n_batch = target_size / BUFFER_SIZE;
+    Eigen::Vector<float, Eigen::Dynamic> scores(target_size);
+    for (unsigned long i = 0; i < n_batch; i++){
+        for (unsigned long j = 0; j < BUFFER_SIZE; j++){
+            int process_idx = i * BUFFER_SIZE + j;
+            auto vec = VectorStringEncode::decode_eigen(target_encoded[process_idx]);
+            g_matrixBuffer.row(j) = vec;
+        }
+        // perform cosine similarity
+        auto scores_batch = SearchAlgorithm::cosineSimilarity(g_matrixBuffer, query);
+        scores.segment(i * BUFFER_SIZE, BUFFER_SIZE) = scores_batch;
     }
-    Eigen::Vector<float, Eigen::Dynamic> scores = SearchAlgorithm::cosineSimilarity(target, query);
+
+    // deal with the remaining
+    auto n_remain = target_size % BUFFER_SIZE;
+    if (n_remain > 0){
+        for (unsigned long j = 0; j < n_remain; j++){
+            int process_idx = n_batch * BUFFER_SIZE + j;
+            auto vec = VectorStringEncode::decode_eigen(target_encoded[process_idx]);
+            g_matrixBuffer.row(j) = vec;
+        }
+        // perform cosine similarity
+        auto scores_batch = SearchAlgorithm::cosineSimilarity(g_matrixBuffer.topRows(n_remain), query);
+        scores.segment(n_batch * BUFFER_SIZE, n_remain) = scores_batch;
+    }
+
     return std::vector<fp32>(scores.data(), scores.data() + scores.size());
 }
 

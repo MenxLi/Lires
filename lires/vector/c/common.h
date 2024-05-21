@@ -8,6 +8,10 @@
 #define MODULE_NAME vecdbImpl
 #endif
 
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 1024
+#endif
+
 #include <memory>
 #include <vector>
 #include <string>

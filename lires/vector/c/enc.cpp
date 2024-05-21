@@ -71,3 +71,9 @@ std::vector<fp32> VectorStringEncode::decode(const py::bytes& encoded){
     std::vector<fp32> vec((fp32*)encoded_str.data(), (fp32*)encoded_str.data() + encoded_str.size() / sizeof(fp32));
     return vec;
 }
+
+Eigen::Vector<fp32, FEAT_DIM> VectorStringEncode::decode_eigen(const py::bytes& encoded){
+    std::string encoded_str = encoded;
+    Eigen::Vector<fp32, FEAT_DIM> vec = Eigen::Map<const Eigen::Vector<fp32, FEAT_DIM>>((fp32*)encoded_str.data());
+    return vec;
+}
