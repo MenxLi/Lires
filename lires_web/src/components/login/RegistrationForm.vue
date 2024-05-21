@@ -51,6 +51,8 @@ export default {
                     }
                 }
             )
+            // stop default form submission, which would reload the page
+            return false;
         }
     }
 };
