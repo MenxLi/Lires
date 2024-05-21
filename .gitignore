@@ -17,6 +17,12 @@ venv
 .TempDir
 .cache
 
+lires/vector/external/*
+!lires/vector/external/.gitkeep
+lires/vector/lib/*
+!lires/vector/lib/.gitkeep
+
+
 lires_server/assets/pdf-viewer
 lires_server/assets/pdfjs_downloading.lock
 lires_server/assets/js-api

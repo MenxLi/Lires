@@ -1,25 +1,31 @@
 import argparse
 
+from lires.vector import initEigenSrc
 from lires.core.pdfTools import DEFAULT_PDFJS_DOWNLOADING_URL
 
 def main():
     parser = argparse.ArgumentParser("Miscellaneous utilities for lires.")
     sub_parser = parser.add_subparsers(dest = "subparser", help = "task")
 
-    parser_update_pdfjs = sub_parser.add_parser("update_pdfjs", help="update PDF.js distribution")
+    parser_update_pdfjs = sub_parser.add_parser("init-pdfjs", help="update PDF.js distribution")
     parser_update_pdfjs.add_argument("-u", "--url", help = "downloading url", default=DEFAULT_PDFJS_DOWNLOADING_URL)
 
-    parser_edit_config = sub_parser.add_parser("edit_config", help="edit configuration file")
+    parser_update_eigen = sub_parser.add_parser("init-eigen", help="update Eigen library")
+    parser_update_eigen.add_argument("-v", "--version", help = "Eigen version", default="3.4.0")
+
+    parser_edit_config = sub_parser.add_parser("edit-config", help="edit configuration file")
     parser_edit_config.add_argument("-u", "--use_editor", default="", help="choose editor, e.g. . -u vim will invoke 'vim <config>.json'")
 
     args = parser.parse_args()
 
-    if args.subparser == "update_pdfjs":
+    if args.subparser == "init-pdfjs":
         from lires_server.config import PDF_VIEWER_DIR
         from lires.core.pdfTools import downloadDefaultPDFjsViewer
         import asyncio
         asyncio.run(downloadDefaultPDFjsViewer(download_url=args.url, dst_dir=PDF_VIEWER_DIR, force=True))
-    if args.subparser == "edit_config":
+    if args.subparser == "init-eigen":
+        initEigenSrc(eigen_version=args.version)
+    if args.subparser == "edit-config":
         from lires.config import CONF_FILE_PATH
         from lires.utils import openFile
         import subprocess

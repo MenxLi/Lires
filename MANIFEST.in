@@ -1,5 +1,6 @@
 include README.md
 include lires/version.yaml *
+recursive-include lires/vector/external *
 recursive-include lires_server/assets *
 recursive-include lires_web/dist *
 
