@@ -86,7 +86,6 @@ The configuration file designates the environment variables, as well as the comm
 # export LRS_HOME="..."
 lrs-user add <username> <password> --admin
 ```
-After the user is created, you can manage other users with this user via the web interface.  
 For more information, see [User management](./manage.md#user-management).
 
 
