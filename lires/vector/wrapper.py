@@ -27,8 +27,8 @@ class FixSizeAlg:
     def decode(self, enc: str) -> list[float]:
         return self.lib.decode(enc)
     
-    def similarity(self, query: str, target: list[str]) -> list[float]:
-        return self.lib.similarity(query, target)
+    def similarityEnc(self, query: str, target: list[str]) -> list[float]:
+        return self.lib.similarityBytesEnc(query, target)
     
     def topKIndices(self, scores: list[float], k: int) -> list[int]:
         assert len(scores) >= k
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     assert (np.array(vec) - np.array(dec) < 1e-6).all()
 
-    dist = alg.similarity(enc, [enc, enc, alg.encode(vec2)])
+    dist = alg.similarityEnc(enc, [enc, enc, alg.encode(vec2)])
     print(dist)
 
     print(alg.topKIndices(dist, 3))

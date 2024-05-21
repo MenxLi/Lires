@@ -1,10 +1,13 @@
 
+#include <ctime>
 #include <iostream>
 #include "pybind11/attr.h"
 #include "pybind11/cast.h"
 #include "pybind11/pytypes.h"
 #include "common.h"
-#include "b64.h"
+#include "enc.h"
+#include "time.h"
+
 
 namespace SearchAlgorithm {
     std::vector<int> topKIndices(const Eigen::Vector<float, Eigen::Dynamic> scores, int k){
@@ -47,15 +50,30 @@ namespace SearchAlgorithm {
     }
 }
 
-
-std::vector<fp32> similarity(
+std::vector<fp32> similarityB64Enc(
     const std::string& query_encoded,
     const std::vector<std::string>& target_encoded
 ){
-    std::vector<fp32> query = VectorStringEncode::decode(query_encoded);
+    std::vector<fp32> query = VectorStringEncode::decode_b64(query_encoded);
     MatrixF target(target_encoded.size(), FEAT_DIM);
     for (int i = 0; i < target_encoded.size(); i++){
-        std::vector<fp32> vec = VectorStringEncode::decode(target_encoded[i]);
+        std::vector<fp32> vec = VectorStringEncode::decode_b64(target_encoded[i]);
+        target.row(i) = Eigen::Map<const Eigen::Matrix<fp32, FEAT_DIM, 1>>(vec.data());
+    }
+    Eigen::Vector<float, Eigen::Dynamic> scores = SearchAlgorithm::cosineSimilarity(target, query);
+    return std::vector<fp32>(scores.data(), scores.data() + scores.size());
+}
+
+std::vector<fp32> similarityBytesEnc(
+    const py::bytes& query_encoded,
+    const std::vector<py::bytes>& target_encoded
+){
+    std::string query_str = query_encoded;
+    std::vector<fp32> query = std::vector<fp32>((fp32*)query_str.data(), (fp32*)query_str.data() + query_str.size() / sizeof(fp32));
+    MatrixF target(target_encoded.size(), FEAT_DIM);
+    for (int i = 0; i < target_encoded.size(); i++){
+        std::string vec_str = target_encoded[i];
+        std::vector<fp32> vec = std::vector<fp32>((fp32*)vec_str.data(), (fp32*)vec_str.data() + vec_str.size() / sizeof(fp32));
         target.row(i) = Eigen::Map<const Eigen::Matrix<fp32, FEAT_DIM, 1>>(vec.data());
     }
     Eigen::Vector<float, Eigen::Dynamic> scores = SearchAlgorithm::cosineSimilarity(target, query);
@@ -74,8 +92,11 @@ std::vector<int> topKIndices(
 PYBIND11_MODULE(MODULE_NAME, m) {
     m.doc() = "vector database algorithoms";
     m.attr("FEAT_DIM") = FEAT_DIM;  // for debug
-    m.def("similarity", &similarity, "distance between a encoded query and a list of targets");
+    m.def("similarityB64Enc", &similarityB64Enc, "distance between a encoded query and a list of targets");
+    m.def("similarityBytesEnc", &similarityBytesEnc, "distance between a encoded query and a list of targets"); 
     m.def("topKIndices", &topKIndices, "top k indices of scores");
-    m.def("encode", &VectorStringEncode::encode, "encode vector to string");
-    m.def("decode", &VectorStringEncode::decode, "decode string to vector");
+    m.def("encode_b64", &VectorStringEncode::encode_b64, "encode vector to string");
+    m.def("decode_b64", &VectorStringEncode::decode_b64, "decode string to vector");
+    m.def("encode", &VectorStringEncode::encode, "encode vector to bytes");
+    m.def("decode", &VectorStringEncode::decode, "decode bytes to vector");
 }

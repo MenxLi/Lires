@@ -25,15 +25,22 @@ def vectorLibExt():
         Pybind11Extension(
             "lires.vector.lib.impl{}".format(vector_dim),
             compile_files,
-            define_macros=[("FEAT_DIM", vector_dim), ("MODULE_NAME", "impl{}".format(vector_dim))],
+            define_macros=[
+                ("FEAT_DIM", vector_dim), 
+                ("MODULE_NAME", "impl{}".format(vector_dim)),
+                ("NDEBUG", None),
+                ],
             include_dirs=include_dirs,
             cxx_std=17,
             language="c++",
+            # add some optimization flags
+            extra_compile_args=["-O2", '-funroll-loops'] # '-march=native', '-mtune=native', '-fopenmp'],
         )
         for vector_dim in [768]
     ]
 
 setup(
+    name="Lires",
     version=VERSION,
     packages=find_packages(),
     include_package_data = True,

@@ -1,5 +1,10 @@
-#include "b64.h"
+#include "enc.h"
 #include "common.h"
+#include "pybind11/detail/common.h"
+#include "pybind11/pytypes.h"
+#include <cstddef>
+#include <pybind11/stl.h>
+#include <vector>
 
 /*
 Encoding and Decoding Base64
@@ -38,11 +43,11 @@ std::vector<uchar> base64_decode(const std::string &in) {
     return out;
 }
 
-std::string VectorStringEncode::encode(const std::vector<fp32>& vec){
+std::string VectorStringEncode::encode_b64(const std::vector<fp32>& vec){
     std::vector<uchar> vec_uchar((uchar*)vec.data(), (uchar*)vec.data() + vec.size() * sizeof(fp32));
     return base64_encode(vec_uchar);
 }
-std::vector<fp32> VectorStringEncode::decode(const std::string& encoded){
+std::vector<fp32> VectorStringEncode::decode_b64(const std::string& encoded){
     if (encoded.size() % 4 != 0){
         throw std::runtime_error("invalid encoded string");
     }
@@ -50,5 +55,19 @@ std::vector<fp32> VectorStringEncode::decode(const std::string& encoded){
 
     // will this be unsafe?
     std::vector<fp32> vec((fp32*)vec_uchar.data(), (fp32*)vec_uchar.data() + vec_uchar.size() / sizeof(fp32));
+    return vec;
+}
+
+
+py::bytes VectorStringEncode::encode(const std::vector<fp32>& vec){
+    return py::bytes(
+        (char*)vec.data(),
+        vec.size() * sizeof(fp32)
+    );
+}
+
+std::vector<fp32> VectorStringEncode::decode(const py::bytes& encoded){
+    std::string encoded_str = encoded;
+    std::vector<fp32> vec((fp32*)encoded_str.data(), (fp32*)encoded_str.data() + encoded_str.size() / sizeof(fp32));
     return vec;
 }
