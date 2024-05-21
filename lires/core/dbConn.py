@@ -229,8 +229,9 @@ class DBConnection(LiresBase):
             await upgrade_1_8_0(self)
             await setVersionRecord("1.8.0")
 
-        await setVersionRecord(curr_version.string())
-        await self.logger.info("Upgraded database {} from version {} to {}".format(self.db_path, record_version, curr_version))
+        if record_version != curr_version:
+            await setVersionRecord(curr_version.string())
+            await self.logger.info("Upgraded database {} from version {} to {}".format(self.db_path, record_version, curr_version))
         DB_MOD_LOCK.release()
         
     async def close(self):
