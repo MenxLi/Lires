@@ -19,7 +19,7 @@ export default {
     emits: ['register-success', 'register-fail'],
     components: { SwitchToggle },
     methods: {
-        submitForm() {
+        submitForm(ev) {
             // Handle form submission logic here
             // You can access the form data using this.invitationCode, this.username, this.password, this.name
             if (this.password !== this.passwordConfirm) {
@@ -52,7 +52,7 @@ export default {
                 }
             )
             // stop default form submission, which would reload the page
-            return false;
+            ev.preventDefault();
         }
     }
 };
