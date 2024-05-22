@@ -30,14 +30,17 @@ namespace SearchAlgorithm {
         }
         return ret;
     }
+
+    const num_t _eps = 1e-6;
     inline Eigen::Vector<num_t, Eigen::Dynamic> cosineSimilarity(const MatrixF& target, const Eigen::Vector<num_t, FEAT_DIM>& query_matrix){
-        const num_t _eps = 1e-8;
         if (target.cols() != query_matrix.size()){
             throw std::runtime_error("query size not match");
         }
         Eigen::Matrix<num_t, Eigen::Dynamic, 1> search_scores = target * query_matrix;
         num_t norm_query = query_matrix.norm();
         Eigen::Vector<num_t, Eigen::Dynamic> norm_collection = target.rowwise().norm();
+        std::cout<< "norm_query: " << norm_query << std::endl;
+        std::cout<< "norm_collection: " << norm_collection << std::endl;
         search_scores = search_scores.array() / (norm_query * norm_collection.array() + _eps);
         return search_scores;
     }

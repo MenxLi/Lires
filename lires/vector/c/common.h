@@ -33,7 +33,7 @@ static_assert(sizeof(fp32) == 4, "fp32 must be 32bit");
 typedef double fp64;
 static_assert(sizeof(fp64) == 8, "fp64 must be 64bit");
 
-typedef fp32 num_t;
+typedef fp64 num_t;
 typedef unsigned char uchar;
 
 typedef Eigen::Matrix<num_t, Eigen::Dynamic, FEAT_DIM, Eigen::RowMajor> 

@@ -54,7 +54,7 @@ std::vector<num_t> VectorStringEncode::decode_b64(const std::string& encoded){
     std::vector<uchar> vec_uchar = base64_decode(encoded);
 
     // will this be unsafe?
-    std::vector<num_t> vec((fp32*)vec_uchar.data(), (fp32*)vec_uchar.data() + vec_uchar.size() / sizeof(fp32));
+    std::vector<num_t> vec((num_t*)vec_uchar.data(), (num_t*)vec_uchar.data() + vec_uchar.size() / sizeof(num_t));
     return vec;
 }
 
@@ -68,12 +68,12 @@ py::bytes VectorStringEncode::encode(const std::vector<num_t>& vec){
 
 std::vector<num_t> VectorStringEncode::decode(const py::bytes& encoded){
     std::string encoded_str = encoded;
-    std::vector<num_t> vec((fp32*)encoded_str.data(), (fp32*)encoded_str.data() + encoded_str.size() / sizeof(fp32));
+    std::vector<num_t> vec((num_t*)encoded_str.data(), (num_t*)encoded_str.data() + encoded_str.size() / sizeof(num_t));
     return vec;
 }
 
 Eigen::Vector<num_t, FEAT_DIM> VectorStringEncode::decode_eigen(const py::bytes& encoded){
     std::string encoded_str = encoded;
-    Eigen::Vector<num_t, FEAT_DIM> vec = Eigen::Map<const Eigen::Vector<fp32, FEAT_DIM>>((fp32*)encoded_str.data());
+    Eigen::Vector<num_t, FEAT_DIM> vec = Eigen::Map<const Eigen::Vector<num_t, FEAT_DIM>>((num_t*)encoded_str.data());
     return vec;
 }
