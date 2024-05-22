@@ -173,7 +173,6 @@ async def __startServer(
                 iconn = g_storage.iconn,
                 db = db_ins.database,
                 vector_db = db_ins.vector_db,
-                use_llm = False,
                 operation_interval=op_interval,
             )
     

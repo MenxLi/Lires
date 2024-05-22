@@ -17,7 +17,7 @@ def parseArgs() -> argparse.Namespace:
     sp_feat = subparsers.add_parser("build", help="build the index")
     sp_feat.add_argument("--force", action="store_true", help="force-rebuild")
     sp_feat.add_argument("--max-words", action="store", type=int, default=2048, help="max words per document used for summarization, more words will be truncated")
-    sp_feat.add_argument("--no-llm-fallback", action="store_true", help="not use LLM as fallback when abstract is not available")
+    # sp_feat.add_argument("--no-llm-fallback", action="store_true", help="not use LLM as fallback when abstract is not available")
 
     sp_query = subparsers.add_parser("query", help="query the index")
     sp_query.add_argument("aim", action="store", type=str, help="query string")
@@ -49,7 +49,7 @@ async def entry(args):
     if args.subparser == "build":
         vector_db = db_ins.vector_db
         await buildFeatureStorage(
-            iconn, db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words, 
+            iconn, db, vector_db, force=args.force, max_words_per_doc=args.max_words, 
             )
 
     elif args.subparser == "query":

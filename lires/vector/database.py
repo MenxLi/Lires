@@ -194,7 +194,6 @@ class VectorDatabase(LiresBase):
         await self.conn.execute( f"DELETE FROM metadata WHERE name = ?", (name,))
     
     async def commit(self):
-        await self.logger.debug("commit vector database")
         await self.conn.commit()
     
     async def close(self):

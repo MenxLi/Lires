@@ -6,10 +6,11 @@ Provides handers for adding, deleting, and modifying files/tags
 """
 
 from ._base import *
-import json
+import json, asyncio
 from lires.core.bibReader import checkBibtexValidity, BibConverter
 from lires.core.fileTools import addDocument
 from lires.core.dataTags import DataTags
+from lires.core.vector import updateFeture, deleteFeature
 
 class DataDeleteHandler(RequestHandlerBase):
 
@@ -22,17 +23,13 @@ class DataDeleteHandler(RequestHandlerBase):
             await self.checkTagPermission(
                 (await db.get(uuid)).tags, (await self.userInfo())["mandatory_tags"]
                 )
-
+        
+        await deleteFeature(await self.vec_db(), await db.get(uuid))
         if await db.delete(uuid):
             await self.logger.info(f"Deleted {uuid}")
         
         vec_db = await self.vec_db()
 
-        try:
-            await (await vec_db.getCollection('doc_feature')).delete(uuid)
-        except: 
-            pass
-        
         await self.broadcastEventMessage({
             'type': 'delete_entry',
             'uuid': uuid, 
@@ -159,7 +156,10 @@ class DataUpdateHandler(RequestHandlerBase):
             })
 
         await self.logger.info(", ".join(__info))
+
         self.write(json.dumps(dp.summary.json()))
+        asyncio.ensure_future(updateFeture(await self.vec_db(), self.iconn, dp))
+
         return 
 
 class TagRenameHandler(RequestHandlerBase):

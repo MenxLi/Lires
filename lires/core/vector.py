@@ -4,7 +4,7 @@ AI method shoud go through IServerConn interface.
 """
 from __future__ import annotations
 import os, hashlib, re
-import asyncio
+import asyncio, tqdm
 from typing import TypedDict, Optional, Callable, Literal, TYPE_CHECKING
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
@@ -116,39 +116,17 @@ async def getOverallFeatureTextSource(
             "type": "title"
         }
 
-async def buildFeatureStorage(
-        iconn: IServerConn,
-        db: DataBase, 
-        vector_db: VectorDatabase,
-        max_words_per_doc: int = 2048, 
-        use_llm: bool = True,
-        force = False,
-        operation_interval: float = 0.,
-        ):
-    """
-    - operation_interval: float, the interval between two operations, in seconds, 
-        set this to a positive value to avoid blocking the main event loop
-    """
-    vector_collection = await vector_db.getCollection("doc_feature")
-
-    # check if ai server is running
-    assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
-
-    if force:
-        await vector_collection.clearAll()
-    
-    # extract text source
-    for idx, dp in enumerate(await db.getAll()):
-        uid = dp.uuid
-        # if idx > 3: break # for debug
-        await asyncio.sleep(operation_interval)
-        _ret = await getOverallFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
+async def updateFeture(
+    vector_db: VectorDatabase, 
+    iconn: IServerConn, 
+    dp: DataPoint,
+    max_words_per_doc: int = 2048
+    ):
+    async def _updateDocFeature():
+        vector_collection = await vector_db.getCollection("doc_feature")
+        _ret = await getOverallFeatureTextSource(None, dp, max_words_per_doc)
         new_content = f'{_ret["type"]}:{_ret["hash"]}'
-        print(f"[Extracting source] ({idx}/{await db.count()}) <{_ret['type']}>: {uid}...")
-
-        # if idx > 100:
-        #     break
-
+        uid = dp.uuid
         try:
             entry = await vector_collection.get(uid)
             if entry["content"] != new_content:
@@ -165,6 +143,45 @@ async def buildFeatureStorage(
                 "vector": await iconn.featurize(_ret["text"]),
                 "content": new_content
             })
+    await _updateDocFeature()
+    await vector_db.logger.debug(f"Feature updated for {dp.uuid}")
+
+async def deleteFeature(
+        vector_db: VectorDatabase, 
+        dp: DataPoint,
+        ) -> None:
+    vector_collection = await vector_db.getCollection("doc_feature")
+    await vector_collection.delete(dp.uuid)
+
+async def buildFeatureStorage(
+        iconn: IServerConn,
+        db: DataBase, 
+        vector_db: VectorDatabase,
+        max_words_per_doc: int = 2048, 
+        force = False,
+        operation_interval: float = 0.,
+        ):
+    """
+    - operation_interval: float, the interval between two operations, in seconds, 
+        set this to a positive value to avoid blocking the main event loop
+    """
+    vector_collection = await vector_db.getCollection("doc_feature")
+
+    # check if ai server is running
+    assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
+
+    if force:
+        await vector_collection.clearAll()
+    
+    # extract text source
+    for dp in tqdm.tqdm(await db.getAll(), desc="Building feature storage"):
+        await updateFeture(
+            dp = dp,
+            iconn = iconn, 
+            vector_db = vector_db, 
+            max_words_per_doc = max_words_per_doc
+            )
+        await asyncio.sleep(operation_interval)
     await vector_db.commit()
 
 async def queryFeatureIndex(

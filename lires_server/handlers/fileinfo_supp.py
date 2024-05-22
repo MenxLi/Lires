@@ -2,6 +2,8 @@
 Get and modify notes of a datapoint
 """
 from ._base import *
+import asyncio
+from lires.core.vector import updateFeture
 
 class NoteGetHandler(RequestHandlerBase):
     """
@@ -94,4 +96,5 @@ class AbstractUpdateHandler(RequestHandlerBase):
             'uuid': uid,
             'datapoint_summary': dp.summary.json()
         })
+        asyncio.ensure_future(updateFeture(await self.vec_db(), self.iconn, dp))
         self.write("OK")
