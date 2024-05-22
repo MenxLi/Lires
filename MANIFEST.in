@@ -1,10 +1,13 @@
 include README.md
-include lires/version.yaml *
-recursive-include lires/vector/c *
-recursive-include lires_server/assets *
-recursive-include lires_web/dist *
-recursive-include external *
-prune external/**/.git
+include lires/version.yaml
+recursive-include lires/vector/c
+recursive-include lires_server/assets
+recursive-include lires_web/dist
 
 prune test
 global-exclude compile_commands.json
+global-exclude .git*
+
+# manually control what to include under external
+prune external/*
+graft external/eigen/Eigen
