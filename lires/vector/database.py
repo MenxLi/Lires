@@ -96,6 +96,14 @@ class VectorCollection(LiresBase, Generic[ContentT]):
             }
             for row in rows
         ]
+    
+    async def keys(self) -> list[str]:
+        async with self.conn.execute(f"SELECT uid FROM {self.config['name']}") as res:
+            return [row[0] async for row in res]
+    
+    async def groups(self) -> list[str]:
+        async with self.conn.execute(f"SELECT DISTINCT group_name FROM {self.config['name']}") as res:
+            return [row[0] async for row in res]
 
     async def get(self, uid: str) -> VectorEntry:
         res = await self.conn.execute(

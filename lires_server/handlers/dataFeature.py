@@ -18,12 +18,12 @@ class DataFeatureTSNEHandler(RequestHandlerBase):
         random_state = self.get_argument("random_state", default="100")
 
         try:
-            vector_collection = (await self.vec_db()).getCollection(collection_name)
+            vector_collection = await (await self.vec_db()).getCollection(collection_name)
         except KeyError:
             raise tornado.web.HTTPError(405, f"Collection {collection_name} not found")
         
-        _all_ids = vector_collection.keys()
-        all_feat = vector_collection.getBlock(_all_ids)
+        _all_ids = await vector_collection.keys()
+        all_feat = [(await vector_collection.get(uid))["vector"] for uid in _all_ids]
         if len(all_feat) < 5:
             return self.write(json.dumps({}))
 
