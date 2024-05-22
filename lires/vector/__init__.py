@@ -1,1 +1,0 @@
-from .initEigen import initEigenSrc

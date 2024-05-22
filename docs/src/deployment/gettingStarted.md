@@ -14,12 +14,17 @@ pip install 'Lires[all]'
 ```
 
 ### From source
-1. Compile frontend files
+1. Init submodules
+```bash 
+git submodule update --init --recursive
+```
+2. Compile frontend files
 > **Prerequisites:**  Node.js, Make
 ```bash
 make build
 ```
-2. Install the servers
+3. Install the servers
+> **Prerequisites:**  C++17 compiler
 ```bash
 pip install ".[all]"
 ```

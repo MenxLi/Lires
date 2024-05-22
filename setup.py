@@ -18,7 +18,7 @@ def vectorLibExt():
     from pybind11.setup_helpers import Pybind11Extension, ParallelCompile, naive_recompile
     ParallelCompile("NPY_NUM_BUILD_JOBS", needs_recompile=naive_recompile, default=4).install()
     source_dir = './lires/vector/c'
-    eigen_dir = './lires/vector/external/eigen_src'
+    eigen_dir = './external/eigen'
     compile_files = [ os.path.relpath(f, __this_dir) for f in glob.glob(os.path.join(source_dir, "*.cpp"), recursive=True)]
     include_dirs = [source_dir, eigen_dir]
     return [
