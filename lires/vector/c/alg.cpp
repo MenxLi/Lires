@@ -46,14 +46,14 @@ namespace SearchAlgorithm {
         if (target.cols() != query_matrix.size()){
             throw std::runtime_error("query size not match");
         }
-        Eigen::Matrix<num_t, Eigen::Dynamic, 1> search_scores = - (target.rowwise() - query_matrix.transpose()).rowwise().squaredNorm();
+        Eigen::Matrix<num_t, Eigen::Dynamic, 1> search_scores = (target.rowwise() - query_matrix.transpose()).rowwise().squaredNorm();
         return search_scores;
     }
 
-    enum class DistanceType {
-        COSINE,
-        L2
-    };
+    // enum class DistanceMetrics {
+    //     COSINE,
+    //     L2
+    // };
 }
 
 // use global buffer to avoid memory allocation
@@ -62,7 +62,7 @@ MatrixF g_matrixBuffer(BUFFER_SIZE, FEAT_DIM);
 std::vector<num_t> similarityBytesEnc(
     const py::bytes& query_encoded,
     const std::vector<py::bytes>& target_encoded, 
-    const SearchAlgorithm::DistanceType& distance_type
+    Eigen::Vector<num_t, Eigen::Dynamic> (*searchFn)(const MatrixF&, const Eigen::Vector<num_t, FEAT_DIM>&)
 ){
     // Eigen::Vector<num_t, FEAT_DIM> query = Eigen::Map<const Eigen::Vector<num_t, FEAT_DIM>>((num_t*)query_str.data());
     auto query = VectorStringEncode::decode_eigen(query_encoded);
@@ -74,7 +74,7 @@ std::vector<num_t> similarityBytesEnc(
     //     auto vec_eigen = VectorStringEncode::decode_eigen(target_encoded[i]);
     //     target.row(i) = vec_eigen;
     // }
-    // Eigen::Vector<float, Eigen::Dynamic> scores = SearchAlgorithm::cosineSimilarity(target, query);
+    // Eigen::Vector<float, Eigen::Dynamic> scores = searchFn(target, query);
 
     // Second impl: use global buffer to avoid memory allocation
     // use global buffer to avoid memory allocation, split the target into batches
@@ -87,13 +87,7 @@ std::vector<num_t> similarityBytesEnc(
             auto vec = VectorStringEncode::decode_eigen(target_encoded[process_idx]);
             g_matrixBuffer.row(j) = vec;
         }
-        // perform cosine similarity
-        Eigen::Vector<num_t, Eigen::Dynamic> scores_batch;
-        if (distance_type == SearchAlgorithm::DistanceType::COSINE){
-            scores_batch = SearchAlgorithm::cosineSimilarity(g_matrixBuffer, query);
-        } else if (distance_type == SearchAlgorithm::DistanceType::L2){
-            scores_batch = SearchAlgorithm::l2distance(g_matrixBuffer, query);
-        }
+        auto scores_batch = searchFn(g_matrixBuffer, query);
         scores.segment(i * BUFFER_SIZE, BUFFER_SIZE) = scores_batch;
     }
 
@@ -105,13 +99,7 @@ std::vector<num_t> similarityBytesEnc(
             auto vec = VectorStringEncode::decode_eigen(target_encoded[process_idx]);
             g_matrixBuffer.row(j) = vec;
         }
-        // perform similarity
-        Eigen::Vector<num_t, Eigen::Dynamic> scores_batch;
-        if (distance_type == SearchAlgorithm::DistanceType::COSINE){
-            scores_batch = SearchAlgorithm::cosineSimilarity(g_matrixBuffer, query);
-        } else if (distance_type == SearchAlgorithm::DistanceType::L2){
-            scores_batch = SearchAlgorithm::l2distance(g_matrixBuffer, query);
-        }
+        auto scores_batch = searchFn(g_matrixBuffer, query);
         scores.segment(n_batch * BUFFER_SIZE, n_remain) = scores_batch;
     }
 
@@ -130,11 +118,20 @@ std::vector<int> topKIndices(
 PYBIND11_MODULE(MODULE_NAME, m) {
     m.doc() = "vector database algorithoms";
     m.attr("FEAT_DIM") = FEAT_DIM;  // for debug
-    m.attr("DISTANCE_TYPE") = py::enum_<SearchAlgorithm::DistanceType>(m, "DistanceType")
-        .value("COSINE", SearchAlgorithm::DistanceType::COSINE)
-        .value("L2", SearchAlgorithm::DistanceType::L2)
-        .export_values();
-    m.def("similarityBytesEnc", &similarityBytesEnc, "distance between a encoded query and a list of targets"); 
+    // m.attr("DISTANCE_TYPE") = py::enum_<SearchAlgorithm::DistanceType>(m, "DistanceType")
+    //     .value("COSINE", SearchAlgorithm::DistanceType::COSINE)
+    //     .value("L2", SearchAlgorithm::DistanceType::L2)
+    //     .export_values();
+    // m.def("similarityBytesEnc", &similarityBytesEnc, "distance between a encoded query and a list of targets"); 
+
+    m.def("similarity", [](const py::bytes& query_encoded, const std::vector<py::bytes>& target_encoded){
+        return similarityBytesEnc(query_encoded, target_encoded, SearchAlgorithm::cosineSimilarity);
+    }, "cosine distance between a encoded query and a list of targets");
+
+    m.def("l2score", [](const py::bytes& query_encoded, const std::vector<py::bytes>& target_encoded){
+        return similarityBytesEnc(query_encoded, target_encoded, SearchAlgorithm::l2distance);
+    }, "l2 distance between a encoded query and a list of targets");
+
     m.def("topKIndices", &topKIndices, "top k indices of scores");
     m.def("encode_b64", &VectorStringEncode::encode_b64, "encode vector to string");
     m.def("decode_b64", &VectorStringEncode::decode_b64, "decode string to vector");

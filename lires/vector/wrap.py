@@ -27,11 +27,11 @@ class FixSizeAlg:
     def decode(self, enc: bytes) -> list[float]:
         return self.lib.decode(enc)
     
-    def similarityEnc(self, query: bytes, target: list[bytes]) -> list[float]:
-        return self.lib.similarityBytesEnc(query, target, self.lib.DISTANCE_TYPE.COSINE)
+    def similarity(self, query_enc: bytes, target_enc: list[bytes]) -> list[float]:
+        return self.lib.similarity(query_enc, target_enc)
     
-    def distanceL2Enc(self, query: bytes, target: list[bytes]) -> list[float]:
-        return self.lib.similarityBytesEnc(query, target, self.lib.DISTANCE_TYPE.L2)
+    def l2score(self, query_enc: bytes, target_enc: list[bytes]) -> list[float]:
+        return self.lib.l2score(query_enc, target_enc)
     
     def topKIndices(self, scores: list[float], k: int) -> list[int]:
         if len(scores) < k:
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     assert (np.array(vec) - np.array(dec) < 1e-6).all()
 
-    dist = alg.similarityEnc(enc, [enc, enc, alg.encode(vec2)])
+    dist = alg.similarity(enc, [enc, enc, alg.encode(vec2)])
     print(dist)
 
     print(alg.topKIndices(dist, 3))
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # q = alg.decode(q_enc)
 
     q = [random.random() for _ in range(768)]
-    q_np = np.array(q)
+    q_np = np.array(q, dtype=np.float32)
     q_enc = alg.encode(q)
     q_np_blob = q_np.tobytes()
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     # m_np_blob = m_np.tobytes()
 
     m = [[random.random() for _ in range(768)] for _ in range(N_LEN)]
-    m_np = np.array(m)
+    m_np = np.array(m, dtype=np.float32)
     m_enc = [alg.encode(v) for v in m]
     m_np_blob = m_np.tobytes()
 
@@ -92,11 +92,11 @@ if __name__ == "__main__":
         return np.linalg.norm(m1 - v1, axis=1) ** 2
 
     with Timer("similarity") as t0:
-        dist = alg.similarityEnc(q_enc, m_enc)
+        dist = alg.similarity(q_enc, m_enc)
         t0 = t0.duration
     
     with Timer("similarity-l2") as t0:
-        dist_l2 = alg.distanceL2Enc(q_enc, m_enc)
+        dist_l2 = alg.l2score(q_enc, m_enc)
         t0 = t0.duration
 
     with Timer("similarity-np") as t1:
@@ -108,8 +108,8 @@ if __name__ == "__main__":
         t1 = t1.duration
 
     with Timer("similarity-np-blob") as t1:
-        q_np_loaded = np.frombuffer(q_np_blob, dtype=np.float64)
-        m_np_loaded = np.frombuffer(m_np_blob, dtype=np.float64).reshape(N_LEN, 768)
+        q_np_loaded = np.frombuffer(q_np_blob, dtype=np.float32)
+        m_np_loaded = np.frombuffer(m_np_blob, dtype=np.float32).reshape(N_LEN, 768)
         dist_np = cosSim(q_np_loaded, m_np_loaded)
         t1 = t1.duration
 
