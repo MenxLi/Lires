@@ -150,7 +150,7 @@ class VectorCollection(LiresBase, Generic[ContentT]):
         top_k_indices = self.alg.topKIndices(scores, top_k)
         return [ids[i] for i in top_k_indices], [scores[i] for i in top_k_indices]
     
-    async def delete(self, uid: int):
+    async def delete(self, uid: str):
         await self.conn.execute(
             f"DELETE FROM {self.config['name']} WHERE uid = ?", (uid,)
         )

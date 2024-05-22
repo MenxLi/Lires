@@ -26,6 +26,13 @@ class DataDeleteHandler(RequestHandlerBase):
         if await db.delete(uuid):
             await self.logger.info(f"Deleted {uuid}")
         
+        vec_db = await self.vec_db()
+
+        try:
+            await (await vec_db.getCollection('doc_feature')).delete(uuid)
+        except: 
+            pass
+        
         await self.broadcastEventMessage({
             'type': 'delete_entry',
             'uuid': uuid, 
