@@ -9,6 +9,7 @@ namespace VectorStringEncode {
     std::string encode_b64(const std::vector<num_t>& vec);
     std::vector<num_t> decode_b64(const std::string& encoded);
 
+    // implicit cast by pybind11
     py::bytes encode(const std::vector<num_t>& vec);
     std::vector<num_t> decode(const py::bytes& encoded);
 

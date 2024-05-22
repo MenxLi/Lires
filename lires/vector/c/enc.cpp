@@ -43,37 +43,37 @@ std::vector<uchar> base64_decode(const std::string &in) {
     return out;
 }
 
-std::string VectorStringEncode::encode_b64(const std::vector<fp32>& vec){
-    std::vector<uchar> vec_uchar((uchar*)vec.data(), (uchar*)vec.data() + vec.size() * sizeof(fp32));
+std::string VectorStringEncode::encode_b64(const std::vector<num_t>& vec){
+    std::vector<uchar> vec_uchar((uchar*)vec.data(), (uchar*)vec.data() + vec.size() * sizeof(num_t));
     return base64_encode(vec_uchar);
 }
-std::vector<fp32> VectorStringEncode::decode_b64(const std::string& encoded){
-    if (encoded.size() % 4 != 0){
+std::vector<num_t> VectorStringEncode::decode_b64(const std::string& encoded){
+    if (encoded.size() % sizeof(num_t) != 0){
         throw std::runtime_error("invalid encoded string");
     }
     std::vector<uchar> vec_uchar = base64_decode(encoded);
 
     // will this be unsafe?
-    std::vector<fp32> vec((fp32*)vec_uchar.data(), (fp32*)vec_uchar.data() + vec_uchar.size() / sizeof(fp32));
+    std::vector<num_t> vec((fp32*)vec_uchar.data(), (fp32*)vec_uchar.data() + vec_uchar.size() / sizeof(fp32));
     return vec;
 }
 
 
-py::bytes VectorStringEncode::encode(const std::vector<fp32>& vec){
+py::bytes VectorStringEncode::encode(const std::vector<num_t>& vec){
     return py::bytes(
         (char*)vec.data(),
-        vec.size() * sizeof(fp32)
+        vec.size() * sizeof(num_t)
     );
 }
 
-std::vector<fp32> VectorStringEncode::decode(const py::bytes& encoded){
+std::vector<num_t> VectorStringEncode::decode(const py::bytes& encoded){
     std::string encoded_str = encoded;
-    std::vector<fp32> vec((fp32*)encoded_str.data(), (fp32*)encoded_str.data() + encoded_str.size() / sizeof(fp32));
+    std::vector<num_t> vec((fp32*)encoded_str.data(), (fp32*)encoded_str.data() + encoded_str.size() / sizeof(fp32));
     return vec;
 }
 
-Eigen::Vector<fp32, FEAT_DIM> VectorStringEncode::decode_eigen(const py::bytes& encoded){
+Eigen::Vector<num_t, FEAT_DIM> VectorStringEncode::decode_eigen(const py::bytes& encoded){
     std::string encoded_str = encoded;
-    Eigen::Vector<fp32, FEAT_DIM> vec = Eigen::Map<const Eigen::Vector<fp32, FEAT_DIM>>((fp32*)encoded_str.data());
+    Eigen::Vector<num_t, FEAT_DIM> vec = Eigen::Map<const Eigen::Vector<fp32, FEAT_DIM>>((fp32*)encoded_str.data());
     return vec;
 }
