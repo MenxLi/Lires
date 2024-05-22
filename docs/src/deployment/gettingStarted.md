@@ -28,6 +28,10 @@ make build
 ```bash
 pip install ".[all]"
 ```
+4. Pull [PDF.js viewer](https://mozilla.github.io/pdf.js/)
+```
+lrs-utils init-pdfjs
+```
 
 ## Server startup
 
