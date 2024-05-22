@@ -56,28 +56,35 @@ class VectorCollection(LiresBase, Generic[ContentT]):
             )
             
         # table
-        await self.conn.execute(
-            f"CREATE TABLE IF NOT EXISTS {self.config['name']} ("
-                "uid TEXT PRIMARY KEY, "
-                "vector BLOB, "
-                "group TEXT, "
-                f"content {self.config['conent_type']})"
-        )
+        sql = f"CREATE TABLE IF NOT EXISTS {self.config['name']} ("\
+            "uid TEXT PRIMARY KEY, "\
+            "vector BLOB NOT NULL, "\
+            "group_name TEXT DEFAULT '', "\
+            f"content {self.config['conent_type']} DEFAULT '')"
+        await self.conn.execute(sql)
+        await self.commit()
         return self
     
     async def insert(self, entry: VectorEntry):
         vec = entry["vector"]
         await self.conn.execute(
-            f"INSERT INTO {self.config['name']} (uid, vector, content) VALUES (?, ?, ?)",
-            (entry["uid"], self.alg.encode(vec), entry["content"])
+            f"INSERT INTO {self.config['name']} (uid, vector, group_name, content) VALUES (?, ?, ?, ?)",
+            (entry["uid"], self.alg.encode(vec), entry["group"], entry["content"])
+        )
+    
+    async def update(self, entry: VectorEntry):
+        vec = entry["vector"]
+        await self.conn.execute(
+            f"UPDATE {self.config['name']} SET vector = ?, group_name = ?, content = ? WHERE uid = ?",
+            (self.alg.encode(vec), entry["group"], entry["content"], entry["uid"])
         )
     
     async def deleteGroup(self, group: str):
-        await self.conn.execute( f"DELETE FROM {self.config['name']} WHERE group = ?", (group,))
+        await self.conn.execute( f"DELETE FROM {self.config['name']} WHERE group_name = ?", (group,))
     
     async def getGroup(self, group: str) -> list[VectorEntry]:
         res = await self.conn.execute(
-            f"SELECT * FROM {self.config['name']} WHERE group = ?", (group,)
+            f"SELECT * FROM {self.config['name']} WHERE group_name = ?", (group,)
         )
         rows = await res.fetchall()
         return [
@@ -113,16 +120,16 @@ class VectorCollection(LiresBase, Generic[ContentT]):
         top_k: int, 
         group: str | None = None,
         type: Literal["cosine", "l2"] = "cosine", 
-        ) -> list[str]:
+        ) -> tuple[list[str], list[float]]:
         """return top_k uid"""
 
         similarity_fn = self.alg.similarity if type == "cosine" else self.alg.l2score
 
         q_enc = self.alg.encode(query)
-        if group is not None:
+        if group is None:
             res = await self.conn.execute( f"SELECT uid, vector FROM {self.config['name']}")
         else:
-            res = await self.conn.execute( f"SELECT uid, vector FROM {self.config['name']} WHERE group = ?", (group,))
+            res = await self.conn.execute( f"SELECT uid, vector FROM {self.config['name']} WHERE group_name = ?", (group,))
         rows = await res.fetchall()
         counter = 0
         ids = []
@@ -141,12 +148,16 @@ class VectorCollection(LiresBase, Generic[ContentT]):
             scores += similarity_fn(q_enc, search_buffer)
         
         top_k_indices = self.alg.topKIndices(scores, top_k)
-        return [ids[i] for i in top_k_indices]
+        return [ids[i] for i in top_k_indices], [scores[i] for i in top_k_indices]
     
     async def delete(self, uid: int):
         await self.conn.execute(
             f"DELETE FROM {self.config['name']} WHERE uid = ?", (uid,)
         )
+    
+    async def clearAll(self):
+        await self.conn.execute( f"DELETE FROM {self.config['name']}")
+        await self.conn.execute( f"VACUUM")
     
     async def commit(self):
         await self._parent.commit()
@@ -157,11 +168,11 @@ class VectorDatabase(LiresBase):
 
     def __init__(self, db_path: str, configs: list[CollectionConfig]):
         super().__init__()
-        self.db_path = db_path
+        self.path = db_path
         self.configs = configs
     
     async def init(self):
-        self.conn = await aiosqlite.connect(self.db_path)
+        self.conn = await aiosqlite.connect(self.path)
         await self.conn.execute(
             "CREATE TABLE IF NOT EXISTS metadata (name TEXT PRIMARY KEY, dim INTEGER)"
         )
@@ -183,6 +194,7 @@ class VectorDatabase(LiresBase):
         await self.conn.execute( f"DELETE FROM metadata WHERE name = ?", (name,))
     
     async def commit(self):
+        await self.logger.debug("commit vector database")
         await self.conn.commit()
     
     async def close(self):
