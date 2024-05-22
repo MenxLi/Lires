@@ -28,9 +28,13 @@
 // float is 32bit on most platforms, but not guaranteed
 // IEEE 754 single-precision binary floating-point format: binary32
 typedef float fp32;
+static_assert(sizeof(fp32) == 4, "fp32 must be 32bit");
+
+typedef double fp64;
+static_assert(sizeof(fp64) == 8, "fp64 must be 64bit");
+
 typedef fp32 num_t;
 typedef unsigned char uchar;
-static_assert(sizeof(num_t) == 4, "num_t must be 32bit");
 
 typedef Eigen::Matrix<num_t, Eigen::Dynamic, FEAT_DIM, Eigen::RowMajor> 
 MatrixF;

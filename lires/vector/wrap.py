@@ -28,10 +28,14 @@ class FixSizeAlg:
         return self.lib.decode(enc)
     
     def similarityEnc(self, query: bytes, target: list[bytes]) -> list[float]:
-        return self.lib.similarityBytesEnc(query, target)
+        return self.lib.similarityBytesEnc(query, target, self.lib.DISTANCE_TYPE.COSINE)
+    
+    def distanceL2Enc(self, query: bytes, target: list[bytes]) -> list[float]:
+        return self.lib.similarityBytesEnc(query, target, self.lib.DISTANCE_TYPE.L2)
     
     def topKIndices(self, scores: list[float], k: int) -> list[int]:
-        assert len(scores) >= k
+        if len(scores) < k:
+            k = len(scores)
         return self.lib.topKIndices(scores, k)
 
 
@@ -42,7 +46,7 @@ if __name__ == "__main__":
     from lires.utils import Timer
 
     alg = FixSizeAlg(768)
-    vec = [random.random() for _ in range(768)]
+    vec = [random.random()*10 for _ in range(768)]
     vec2 = [ v*2 for v in vec]
 
     enc = alg.encode(vec)
@@ -59,27 +63,48 @@ if __name__ == "__main__":
 
     alg = FixSizeAlg(768)
 
-    q_np = np.random.rand(768)
-    q_np_blob = q_np.tobytes()
-    q_enc = alg.encode(q_np.tolist())
-    q = alg.decode(q_enc)
+    # q_np = np.random.rand(768)
+    # q_np_blob = q_np.tobytes()
+    # q_enc = alg.encode(q_np.tolist())
+    # q = alg.decode(q_enc)
 
-    m_np = np.random.rand(N_LEN, 768)
-    m_enc = [alg.encode(m) for m in m_np.tolist()]
-    m = [alg.decode(m) for m in m_enc]
+    q = [random.random() for _ in range(768)]
+    q_np = np.array(q)
+    q_enc = alg.encode(q)
+    q_np_blob = q_np.tobytes()
+
+    # m_np = np.random.rand(N_LEN, 768)
+    # m_enc = [alg.encode(m) for m in m_np.tolist()]
+    # m = [alg.decode(m) for m in m_enc]
+    # m_np_blob = m_np.tobytes()
+
+    m = [[random.random() for _ in range(768)] for _ in range(N_LEN)]
+    m_np = np.array(m)
+    m_enc = [alg.encode(v) for v in m]
     m_np_blob = m_np.tobytes()
 
     def cosSim(v1: np.ndarray, m1: np.ndarray) -> np.ndarray:
         # v1: 1d array of size (d), m1: 2d array of size (n, d)
         # return : 1d array of size (n)
         return np.dot(m1, v1) / (np.linalg.norm(m1, axis=1) * np.linalg.norm(v1))
+    
+    def l2Dist(v1: np.ndarray, m1: np.ndarray) -> np.ndarray:
+        return np.linalg.norm(m1 - v1, axis=1) ** 2
 
     with Timer("similarity") as t0:
         dist = alg.similarityEnc(q_enc, m_enc)
         t0 = t0.duration
+    
+    with Timer("similarity-l2") as t0:
+        dist_l2 = alg.distanceL2Enc(q_enc, m_enc)
+        t0 = t0.duration
 
     with Timer("similarity-np") as t1:
         dist_np = cosSim(q_np, m_np)
+        t1 = t1.duration
+    
+    with Timer("similarity-np-l2") as t1:
+        dist_np_l2 = l2Dist(q_np, m_np)
         t1 = t1.duration
 
     with Timer("similarity-np-blob") as t1:
@@ -89,7 +114,6 @@ if __name__ == "__main__":
         t1 = t1.duration
 
     assert (np.array(dist) - dist_np < 1e-6).all()
-
-
+    assert (np.array(dist_l2) - dist_np_l2 < 1e-3).all()
 
             
