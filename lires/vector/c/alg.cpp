@@ -39,8 +39,8 @@ namespace SearchAlgorithm {
         Eigen::Matrix<num_t, Eigen::Dynamic, 1> search_scores = target * query_matrix;
         num_t norm_query = query_matrix.norm();
         Eigen::Vector<num_t, Eigen::Dynamic> norm_collection = target.rowwise().norm();
-        std::cout<< "norm_query: " << norm_query << std::endl;
-        std::cout<< "norm_collection: " << norm_collection << std::endl;
+        // std::cout<< "norm_query: " << norm_query << std::endl;
+        // std::cout<< "norm_collection: " << norm_collection << std::endl;
         search_scores = search_scores.array() / (norm_query * norm_collection.array() + _eps);
         return search_scores;
     }
@@ -139,5 +139,6 @@ PYBIND11_MODULE(MODULE_NAME, m) {
     m.def("encode_b64", &VectorStringEncode::encode_b64, "encode vector to string");
     m.def("decode_b64", &VectorStringEncode::decode_b64, "decode string to vector");
     m.def("encode", &VectorStringEncode::encode, "encode vector to bytes");
+    m.def("encode_fp64as32", &VectorStringEncode::encode_fp64as32, "encode fp64 vector to bytes");
     m.def("decode", &VectorStringEncode::decode, "decode bytes to vector");
 }

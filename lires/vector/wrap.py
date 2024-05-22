@@ -45,6 +45,9 @@ if __name__ == "__main__":
     import numpy as np
     from lires.utils import Timer
 
+
+    np_type = np.float64
+
     alg = FixSizeAlg(768)
     vec = [random.random()*10 for _ in range(768)]
     vec2 = [ v*2 for v in vec]
@@ -59,7 +62,7 @@ if __name__ == "__main__":
 
     print(alg.topKIndices(dist, 3))
 
-    N_LEN = 10000
+    N_LEN = 50000
 
     alg = FixSizeAlg(768)
 
@@ -69,7 +72,7 @@ if __name__ == "__main__":
     # q = alg.decode(q_enc)
 
     q = [random.random() for _ in range(768)]
-    q_np = np.array(q, dtype=np.float32)
+    q_np = np.array(q, dtype=np_type)
     q_enc = alg.encode(q)
     q_np_blob = q_np.tobytes()
 
@@ -79,7 +82,7 @@ if __name__ == "__main__":
     # m_np_blob = m_np.tobytes()
 
     m = [[random.random() for _ in range(768)] for _ in range(N_LEN)]
-    m_np = np.array(m, dtype=np.float32)
+    m_np = np.array(m, dtype=np_type)
     m_enc = [alg.encode(v) for v in m]
     m_np_blob = m_np.tobytes()
 
@@ -108,8 +111,8 @@ if __name__ == "__main__":
         t1 = t1.duration
 
     with Timer("similarity-np-blob") as t1:
-        q_np_loaded = np.frombuffer(q_np_blob, dtype=np.float32)
-        m_np_loaded = np.frombuffer(m_np_blob, dtype=np.float32).reshape(N_LEN, 768)
+        q_np_loaded = np.frombuffer(q_np_blob, dtype=np_type)
+        m_np_loaded = np.frombuffer(m_np_blob, dtype=np_type).reshape(N_LEN, 768)
         dist_np = cosSim(q_np_loaded, m_np_loaded)
         t1 = t1.duration
 

@@ -66,6 +66,18 @@ py::bytes VectorStringEncode::encode(const std::vector<num_t>& vec){
     );
 }
 
+py::bytes VectorStringEncode::encode_fp64as32(const std::vector<fp64>& vec){
+    // cast fp64 to fp32
+    std::vector<fp32> vec_fp32(vec.size());
+    for (unsigned long i = 0; i < vec.size(); i++){
+        vec_fp32[i] = static_cast<fp32>(vec[i]);
+    }
+    return py::bytes(
+        (char*)vec_fp32.data(),
+        vec_fp32.size() * sizeof(fp32)
+    );
+}
+
 std::vector<num_t> VectorStringEncode::decode(const py::bytes& encoded){
     std::string encoded_str = encoded;
     std::vector<num_t> vec((num_t*)encoded_str.data(), (num_t*)encoded_str.data() + encoded_str.size() / sizeof(num_t));

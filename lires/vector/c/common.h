@@ -9,7 +9,7 @@
 #endif
 
 #ifndef BUFFER_SIZE
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE int(1024*1024*8 / sizeof(num_t) / FEAT_DIM) // 8MB
 #endif
 
 #include <memory>
