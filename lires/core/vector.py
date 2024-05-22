@@ -6,17 +6,16 @@ from __future__ import annotations
 import os, hashlib, re
 import asyncio
 from typing import TypedDict, Optional, Callable, Literal, TYPE_CHECKING
-from lires.config import getConf
 from lires.core.dataClass import DataBase, DataPoint
 from lires.core.pdfTools import getPDFText
-import tiny_vectordb
+from lires.vector.database import VectorDatabase, VectorCollection, VectorEntry
 if TYPE_CHECKING:
     from lires.api import IServerConn
 
-def initVectorDB(vector_db_path: str) -> tiny_vectordb.VectorDatabase:
-    return tiny_vectordb.VectorDatabase(vector_db_path, [
-        {"name": "doc_feature", "dimension": 768}
-        ], compile_config=getConf()["tiny_vectordb_compile_config"])
+async def initVectorDB(vector_db_path: str) -> VectorDatabase:
+    return await VectorDatabase(vector_db_path, [
+        {"name": "doc_feature", "dimension": 768, "conent_type": "TEXT"},
+        ]).init()
 
 async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
     summary = ""
@@ -39,6 +38,7 @@ async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = Fa
     return summary
 
 FeatureQueryResult = TypedDict("FeatureQueryResult", {"uids": list[str], "scores": list[float]})
+FeatureQueryResult2 = list[TypedDict("FeatureQueryResult_", {"score": float, "entry": VectorEntry})]
 
 FeatureTextSource = TypedDict("FeatureTextSource", {
             "text": str, 
@@ -119,7 +119,7 @@ async def getOverallFeatureTextSource(
 async def buildFeatureStorage(
         iconn: IServerConn,
         db: DataBase, 
-        vector_db: tiny_vectordb.VectorDatabase,
+        vector_db: VectorDatabase,
         max_words_per_doc: int = 2048, 
         use_llm: bool = True,
         force = False,
@@ -129,36 +129,13 @@ async def buildFeatureStorage(
     - operation_interval: float, the interval between two operations, in seconds, 
         set this to a positive value to avoid blocking the main event loop
     """
-    vector_collection = vector_db.getCollection("doc_feature")
+    vector_collection = await vector_db.getCollection("doc_feature")
 
     # check if ai server is running
     assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
 
-    # a file to store the source text hash, to avoid repeated featurization
-    __vec_db_path = vector_db.database_path
-    text_src_hash_log = os.path.join(os.path.dirname(__vec_db_path), "doc_feature_src_hash.log")
-
-    text_src_hash = {}               # uid -> hash of the source text
-    text_src_hash_record = {}        # uid -> hash of the source text
-    if not os.path.exists(text_src_hash_log):
-        with open(text_src_hash_log, "w") as f:
-            f.write(r"")
-
     if force:
-        vector_collection.deleteBlock(vector_collection.keys())
-        os.remove(text_src_hash_log)
-    else:
-        # load existing features source record
-        with open(text_src_hash_log, "r") as f:
-            lines = f.readlines()
-            for line in lines:
-                if not line.strip():
-                    continue
-                hash = (__split := line.strip().split(":"))[-1]
-                uid = ":".join(__split[:-1])
-                text_src_hash_record[uid] = hash
-    
-    text_src: dict[str, str] = {}       # uid -> text source for featurization
+        await vector_collection.clearAll()
     
     # extract text source
     for idx, dp in enumerate(await db.getAll()):
@@ -166,81 +143,53 @@ async def buildFeatureStorage(
         # if idx > 3: break # for debug
         await asyncio.sleep(operation_interval)
         _ret = await getOverallFeatureTextSource(iconn if use_llm else None, dp, max_words_per_doc)
-        text_src[uid] = _ret["text"]
-        src_type = _ret["type"]
-        text_src_hash[uid] = _ret["hash"]
+        new_content = f'{_ret["type"]}:{_ret["hash"]}'
+        print(f"[Extracting source] ({idx}/{await db.count()}) <{_ret['type']}>: {uid}...")
 
-        print(f"[Extracting source] ({idx}/{await db.count()}) <{src_type}>: {uid}...")
+        # if idx > 100:
+        #     break
 
-    # build update dict
-    print(f"Checking {len(text_src)} documents signature...")
-    text_src_to_update = {}        # the text source that needs to be updated
-    current_feature_keys = vector_collection.keys()
-    for uid, text in text_src.items():
-        if uid not in current_feature_keys:
-            text_src_to_update[uid] = text
-        else:
-            # check if the feature is outdated
-            if text_src_hash[uid] != text_src_hash_record[uid]:
-                text_src_to_update[uid] = text
-    
-    # remove outdated features, the entry are deleted from the database
-    uid_delete = [uid for uid in current_feature_keys if uid not in text_src.keys()]
-    vector_collection.deleteBlock(uid_delete)
-    print(f"Removed {len(uid_delete)} outdated features...")
-
-    print(f"Featurizing {len(text_src_to_update)} documents...")
-    uid_list = list(text_src_to_update.keys())
-    text_list = list(text_src_to_update.values())
-
-    feature_list = []
-    for text in text_list:
-        await asyncio.sleep(operation_interval)
-        feature_list.append(await iconn.featurize(text))
-
-    _to_record_uids = []
-    _to_record_features = []
-    for uid, feature_item in zip(uid_list, feature_list):
-        # traverse the result and record the feature source hash
-        # also filter out failed featurization
-        # if feature_item is None:
-        #     print(f"Warning: failed to featurize {uid}")
-        #     continue
-        text_src_hash_record[uid] = text_src_hash[uid] 
-        _to_record_uids.append(uid)
-        _to_record_features.append(feature_item)
-    vector_collection.setBlock(_to_record_uids, _to_record_features)
-    vector_db.commit()
-    with open(text_src_hash_log, "w") as f:
-        for uid, hash in text_src_hash_record.items():
-            f.write(f"{uid}:{hash}\n")
-    
-    print(f"Saved feature index to {__vec_db_path}, source log to {text_src_hash_log}")
+        try:
+            entry = await vector_collection.get(uid)
+            if entry["content"] != new_content:
+                await vector_collection.update({
+                    "uid": uid,
+                    "group": uid,
+                    "vector": await iconn.featurize(_ret["text"]),
+                    "content": new_content
+                })
+        except vector_collection.Error.LiresEntryNotFoundError:
+            await vector_collection.insert({
+                "uid": uid,
+                "group": uid,
+                "vector": await iconn.featurize(_ret["text"]),
+                "content": new_content
+            })
+    await vector_db.commit()
 
 async def queryFeatureIndex(
         iconn: IServerConn,
-        vector_collection: tiny_vectordb.VectorCollection,
+        vector_collection: VectorCollection,
         query: str, n_return: int = 16, 
-        ) -> FeatureQueryResult:
+        ) -> FeatureQueryResult2:
     query_vec = await iconn.featurize(query) # [d_feature]
     assert query_vec is not None
 
-    uids, scores = vector_collection.search(query_vec, n_return)
-    return {
-        "uids": uids,
-        "scores": scores
-    }
+    uids, scores = await vector_collection.search(query_vec, n_return)
+    entries = await vector_collection.getMany(uids)
+    return [{"score": score, "entry": entry} for score, entry in zip(scores, entries)]
 
 async def queryFeatureIndexByUID(
     db: DataBase, 
     iconn: IServerConn,
-    vector_collection: tiny_vectordb.VectorCollection,
+    vector_collection: VectorCollection,
     query_uid: str, 
     n_return: int = 16
     ) -> FeatureQueryResult:
     """
     query the related documents of the given uid
     """
+    raise NotImplementedError("To be modified")
     # read the document with the given uid
     pdf_path = await (dp:=await db.get(query_uid)).fm.filePath()
     if pdf_path is None:
@@ -265,6 +214,7 @@ async def retrieveRelevantSections(
         min_score = 0.2,
         verbose = False
         ) -> list[tuple[str, float]]:
+    raise NotImplementedError("To be modified")
     assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
 
     if verbose: print("Querying relevent sections...")

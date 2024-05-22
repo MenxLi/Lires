@@ -47,21 +47,15 @@ async def entry(args):
     iconn = IServerConn()
 
     if args.subparser == "build":
-        vector_db = initVectorDB(db.path.vector_db_file)
+        vector_db = db_ins.vector_db
         await buildFeatureStorage(
             iconn, db, vector_db, use_llm=not args.no_llm_fallback, force=args.force, max_words_per_doc=args.max_words, 
             )
 
     elif args.subparser == "query":
-        vector_collection = initVectorDB(db.path.vector_db_file).getCollection("doc_feature")
+        vector_collection = await db_ins.vector_db.getCollection("doc_feature")
         if args.input_uid:
-            res = await queryFeatureIndexByUID(
-                db = db, 
-                iconn = iconn,
-                vector_collection = vector_collection,
-                query_uid = args.aim,
-                n_return = args.n_return
-                )
+            raise NotImplementedError
         else:
             res = await queryFeatureIndex(
                 iconn = iconn,
@@ -72,11 +66,17 @@ async def entry(args):
         print("-----------------------------------")
         print(f"Query: {args.aim if not args.input_uid else '[' + (await db.get(args.aim)).title + ']'}")
         print("Top results:")
-        for i, (uid, score) in enumerate(zip(res["uids"], res["scores"])):
+        # for i, (uid, score) in enumerate(zip(res["uids"], res["scores"])):
+        #     if args.output_uid:
+        #         print(f"{uid}")
+        #     else:
+        #         print(f"{i+1}: {(await db.get(uid)).title} [score: {score:.4f}]")
+        for i, item in enumerate(res):
+            uid = item["entry"]["uid"]
             if args.output_uid:
                 print(f"{uid}")
             else:
-                print(f"{i+1}: {(await db.get(uid)).title} [score: {score:.4f}]")
+                print(f"{i+1}: {(await db.get(uid)).title} [score: {item['score']:.4f}]")
 
     else:
         ...

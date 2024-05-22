@@ -20,7 +20,6 @@ RUN mkdir /_cache
 # set env
 ENV LRS_HOME=/root/.Lires
 ENV HF_ENDPOINT=https://hf-mirror.com
-ENV TVDB_CACHE_DIR=/_cache/tiny_vectordb
 ENV HF_HOME=/_cache/huggingface
 # disable tqdm, otherwise it may block the subprocess pipe for testing
 ENV TQDM_DISABLE=1

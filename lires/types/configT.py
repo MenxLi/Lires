@@ -1,9 +1,6 @@
 from __future__ import annotations
 from typing import TypedDict, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from tiny_vectordb.wrap import CompileConfig as TinyVectordbCompileConfig
-
 class LiresConfT(TypedDict):
     """
     Refer to lrs-reset
@@ -21,6 +18,9 @@ class LiresConfT(TypedDict):
     
     changes in v1.8.2:
         - Add max_users and default_user_max_storage fields
+    
+    changes in v1.8.3:
+        - drop tiny_vectordb dependency
     """
     ## Should contain no optional or ambiguous type fields!!
 
@@ -40,8 +40,5 @@ class LiresConfT(TypedDict):
     # The maximum storage for each user
     # e.g 512m, 1g, 1t
     default_user_max_storage: str
-
-    # jit compile configuration for tiny_vectordb
-    tiny_vectordb_compile_config: TinyVectordbCompileConfig
 
 __all__ = ["LiresConfT"]

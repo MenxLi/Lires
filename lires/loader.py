@@ -9,7 +9,7 @@ from .core.vector import initVectorDB
 from .config import DATABASE_HOME, USER_DIR
 from .user import UserPool, LiresUser
 
-from tiny_vectordb import VectorDatabase
+from lires.vector.database import VectorDatabase
 import asyncio
 
 @dataclasses.dataclass(frozen=True)
@@ -18,16 +18,16 @@ class DatabaseInstance:
     vector_db: VectorDatabase
     async def close(self):
         await self.database.close()
-        self.vector_db.disk_io.conn.close()
+        await self.vector_db.close()
     
     async def commit(self):
         await self.database.commit()
-        self.vector_db.commit()
+        await self.vector_db.commit()
 
 async def loadDatabaseInstance(user_id: int, database_home: str):
     database_dir = os.path.join(database_home, str(user_id))
     db = await DataBase().init(database_dir)
-    vec_db = initVectorDB(db.path.vector_db_file)
+    vec_db = await initVectorDB(db.path.vector_db_file)
     return DatabaseInstance(db, vec_db)
 
 class DatabasePool(LiresBase):

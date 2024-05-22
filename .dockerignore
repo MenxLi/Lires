@@ -4,8 +4,6 @@ test
 _legacy
 **_tmp.*
 
-./packages/tiny_vectordb/_build
-
 **.egg-info
 **.spec
 **__pycache__

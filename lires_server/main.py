@@ -109,8 +109,6 @@ class Application(tornado.web.Application):
             # data management
             (r"/api/dataman/delete", DataDeleteHandler),
             (r"/api/dataman/update", DataUpdateHandler),
-            (r"/api/dataman/tag-rename", TagRenameHandler),     # keep for compatibility, will remove in v1.8.0
-            (r"/api/dataman/tag-delete", TagDeleteHandler),     # keep for compatibility, will remove in v1.8.0
 
             # user
             (r"/api/user/list", UserListHandler),

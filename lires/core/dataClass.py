@@ -200,7 +200,7 @@ class DataBase(DataCore):
             file_dir = os.path.join(self.conn.db_dir, "files"),
             index_dir = os.path.join(self.conn.db_dir, "index"),
             summary_dir = os.path.join(self.conn.db_dir, "index", "summary"),
-            vector_db_file = os.path.join(self.conn.db_dir, "index", "vector.db"),
+            vector_db_file = os.path.join(self.conn.db_dir, "index", "vector_v1.db"),
         )
     
     async def dump(self, include_files = False) -> bytes:

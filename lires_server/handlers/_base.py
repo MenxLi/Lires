@@ -17,7 +17,7 @@ from ..types import Event
 if TYPE_CHECKING:
     from .websocket import WebsocketHandler
     from lires.core.dataClass import DataBase
-    from tiny_vectordb import VectorDatabase
+    from lires.vector.database import VectorDatabase
 
 T = TypeVar("T")
 FuncT = TypeVar("FuncT", bound=Callable)

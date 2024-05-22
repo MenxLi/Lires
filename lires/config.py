@@ -54,7 +54,6 @@ for _p in [ LRS_HOME, DATABASE_HOME, TMP_DIR, LOG_DIR, ]:
 # Also for backward compatibility, 
 # if the old config file exists, and does not contain some new fields,
 # the new fields will be added on top of the old config file on getConf()
-import tiny_vectordb
 import uuid
 import platform
 def __staticConfigToken(prefix = uuid.NAMESPACE_DNS):
@@ -66,7 +65,6 @@ __default_config: LiresConfT = {
     'max_users': 1000,
     'default_user_max_storage': '512m',
     'service_port_range': [21000, 22000],
-    'tiny_vectordb_compile_config': tiny_vectordb.autoCompileConfig(),
 }
 __essential_config_keys = []  # keys that must be in the configuration file
 __g_config: Optional[LiresConfT] = None     # buffer

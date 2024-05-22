@@ -47,7 +47,6 @@ dependencies = [
 
 [project.optional-dependencies]
 core = [
-    "tiny_vectordb >= 0.1.9",
     "pybtex",
     "pylatexenc",
     "tornado",

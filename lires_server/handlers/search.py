@@ -80,10 +80,10 @@ class BasicFilterHandler(RequestHandlerBase):
                 iconn=self.iconn,
                 query=search_content,
                 n_return=top_k,
-                vector_collection= (await self.vec_db()).getCollection("doc_feature")
+                vector_collection= await (await self.vec_db()).getCollection("doc_feature")
             )
-            res_ = q_res["uids"]
-            scores_ = q_res["scores"]
+            res_ = [x["entry"]["uid"] for x in q_res]
+            scores_ = [x["score"] for x in q_res]
             if cadidate_ids is not None:
                 candidate_set = set(cadidate_ids)    # convert to set may be faster?
                 res = []
