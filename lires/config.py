@@ -100,7 +100,7 @@ def getConf() -> LiresConfT:
         if not compareObject(read_conf, __default_config):
             __logger.warn("Configuration file outdated, "
             "default configuration will be used as fallback, if errors occur, "
-            "please run `lrs-reset` to update the configuration file")
+            "please run `lrs-config reset` to update the configuration file")
 
         # merge the default configuration and the configuration file
         conf: LiresConfT = {**__default_config, **read_conf}   # type: ignore

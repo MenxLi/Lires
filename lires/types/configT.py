@@ -3,7 +3,7 @@ from typing import TypedDict, TYPE_CHECKING
 
 class LiresConfT(TypedDict):
     """
-    Refer to lrs-reset
+    Refer to lrs-config
     for the generation of default configuration file,
 
     changes in v1.1.2:

@@ -1,6 +1,6 @@
 import os, asyncio
 from .parser import prepareParser
-from .cmd.generateDefaultConf import generateDefaultConf
+from .config import generateDefaultConf
 
 def initLoggers():
     # May move to other place...

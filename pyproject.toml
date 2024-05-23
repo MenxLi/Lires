@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project.scripts]
 "lires" = "lires.exec:run"
-"lrs-reset" = "lires.cmd.generateDefaultConf:run"
+"lrs-config" = "lires.cmd.config:run"
 "lrs-utils" = "lires.cmd.miscUtils:main"
 "lrs-clear" = "lires.cmd.clear:main"
 "lrs-log" = "lires.cmd.log:main"
