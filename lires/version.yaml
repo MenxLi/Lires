@@ -895,3 +895,12 @@ version_history:
       - Internal service cache name collision
     - Other changes:
       - Send feed without ai server connection
+  1.8.3:
+    - Features:
+      - Instant vector index update
+      - Not reload page submit registeration
+      - Web app icon for mobile
+    - Refactor:
+      - Use internal vector database
+    - Management:
+      - New tool - `lrs-config`
