@@ -143,7 +143,10 @@ async def updateFeture(
                 "vector": await iconn.featurize(_ret["text"]),
                 "content": new_content
             })
-    await _updateDocFeature()
+    async with asyncio.Lock():
+        # in case of rapid update, 
+        # which may case the un-ordered try-catch block to fail
+        await _updateDocFeature()
 
 async def deleteFeature(
         vector_db: VectorDatabase, 

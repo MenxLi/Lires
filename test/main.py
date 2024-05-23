@@ -96,6 +96,9 @@ if __name__ == "__main__":
         subprocess.check_call(_test_cmd, shell=True)
     except Exception as e:
         print("Error while running the tests: ", e)
+    
+    # for all ensure_future tasks to finish
+    time.sleep(1)
 
     # clean up
     print("Test done, cleaning up.")

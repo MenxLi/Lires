@@ -6,12 +6,14 @@ test-build:
 test-run:
 	docker run --rm -it \
 		-v ./:/Lires \
+		-v /Lires/lires/vector/lib \
 		-v ./test/_cache:/_cache \
 		-e LRS_HOME=/Lires/test/_sandbox \
 		$(DOCKER_IMAGE_NAME):test /usr/local/bin/python3 ./test/main.py
 test-inspect:
 	docker run --rm -it \
 		-v ./:/Lires \
+		-v /Lires/lires/vector/lib \
 		-v ./test/_cache:/_cache \
 		-e LRS_HOME=/Lires/test/_sandbox \
 		$(DOCKER_IMAGE_NAME):test tmux
