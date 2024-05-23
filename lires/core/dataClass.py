@@ -229,7 +229,7 @@ class DataBase(DataCore):
     
     async def delete(self, uuid: str) -> bool:
         """ Delete a DataPoint by uuid"""
-        if not self.has(uuid):
+        if not await self.has(uuid):
             await self.logger.error(f"Data not found: {uuid}")
             return False
         await self.logger.info("Deleting {}".format(uuid))
