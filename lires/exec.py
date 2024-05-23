@@ -32,10 +32,6 @@ def run():
     if not os.path.exists(CONF_FILE_PATH):
         generateDefaultConf()
 
-    if args.reset_conf:
-        generateDefaultConf()
-        NOT_RUN = True
-
     if args.version:
         for v,change_list in VERSION_HISTORIES:
             change_strings = []
