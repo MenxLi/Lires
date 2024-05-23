@@ -9,6 +9,7 @@ from ._global_data import GlobalStorage
 from lires.user import UserInfo
 from lires.core.base import LiresBase
 from lires.core.dataTags import DataTags
+from lires.core.vector import updateFeture, deleteFeature
 from lires.utils import BCOLORS
 
 from abc import abstractmethod
@@ -16,7 +17,7 @@ from abc import abstractmethod
 from ..types import Event
 if TYPE_CHECKING:
     from .websocket import WebsocketHandler
-    from lires.core.dataClass import DataBase
+    from lires.core.dataClass import DataBase, DataPoint
     from lires.vector.database import VectorDatabase
 
 T = TypeVar("T")
@@ -192,6 +193,22 @@ class RequestHandlerMixin(LiresBase):
         user_info = await res.info()
         self.__account_info = user_info
         return user_info
+
+    async def ensureFeatureUpdate(self, dp: DataPoint):
+        """
+        Ensure the feature is updated
+        """
+        vec_db = await self.vec_db()
+        asyncio.ensure_future(updateFeture(vec_db, self.iconn, dp))
+        await self.logger.debug(f"Feature update for {dp.uuid}")
+    
+    async def deleteFeature(self, dp: DataPoint):
+        """
+        Delete the feature
+        """
+        vec_db = await self.vec_db()
+        await deleteFeature(vec_db, dp)
+        await self.logger.debug(f"Feature deleted for {dp.uuid}")
     
     @staticmethod
     async def checkTagPermission(_tags: List[str] | DataTags, _mandatory_tags: List[str], raise_error=True) -> bool:

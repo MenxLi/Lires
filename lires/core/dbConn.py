@@ -457,7 +457,6 @@ class DBConnection(LiresBase):
     
     async def removeEntry(self, uuid: str) -> bool:
         if not (entry:=await self._ensureExist(uuid)): return False
-        await self.logger.debug("(db_conn) Removing entry {}".format(uuid))
         await self.conn.execute("DELETE FROM files WHERE uuid=?", (uuid,))
 
         # remove related cache
@@ -465,7 +464,7 @@ class DBConnection(LiresBase):
         await self.cache.removeAuthorCache(uuid, entry["authors"])
 
         await self.setModifiedFlag(True)
-        await self.logger.debug("Removed entry {}".format(uuid))
+        await self.logger.debug("(db_conn) Removed entry {}".format(uuid))
         return True
     
     async def setDocExt(self, uuid: str, ext: Optional[str]) -> bool:
@@ -703,7 +702,7 @@ class DBConnectionCache(LiresBase):
         return self
 
     async def buildInitCache(self, all_items: list[DBFileInfo]):
-        await self.logger.info("[DBCache] Building initial cache")
+        await self.logger.debug("[DBCache] Building initial cache")
         # build cache for authors and tags
         authors_cache: dict[str, list[str]] = {}
         tags_cache: dict[str, list[str]] = {}

@@ -73,6 +73,7 @@ class DocHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(409, reason="File already exists")
 
         dp = await db.get(uid)
+        await self.ensureFeatureUpdate(dp)
         d_summary = dp.summary.json()
         await self.logger.info(f"Document {uid} added")
         await self.broadcastEventMessage({

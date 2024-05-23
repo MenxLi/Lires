@@ -144,14 +144,13 @@ async def updateFeture(
                 "content": new_content
             })
     await _updateDocFeature()
-    await vector_db.logger.debug(f"Feature updated for {dp.uuid}")
 
 async def deleteFeature(
         vector_db: VectorDatabase, 
         dp: DataPoint,
         ) -> None:
     vector_collection = await vector_db.getCollection("doc_feature")
-    await vector_collection.delete(dp.uuid)
+    await vector_collection.deleteGroup(dp.uuid)
 
 async def buildFeatureStorage(
         iconn: IServerConn,
