@@ -269,6 +269,7 @@ class RequestHandlerMixin(LiresBase):
 
 class RequestHandlerBase(tornado.web.RequestHandler, RequestHandlerMixin):
     def set_default_headers(self):
+        self.set_header('robot', 'noindex, nofollow, noarchive')
         self.allowCORS()
 
     def options(self, *args, **kwargs):

@@ -16,6 +16,9 @@ class ShareEntry:
     links: dict[str, str]
 
 class ShareHandler(RequestHandlerBase):
+    with open(os.path.join(ASSETS_DIR, 'share.template.html')) as f:
+        share_page_template = template.Template(f.read())
+
     async def get(self):
 
         # get user
@@ -52,10 +55,7 @@ class ShareHandler(RequestHandlerBase):
             except self.Error.LiresEntryNotFoundError:
                 await self.logger.warning(f"Share entry not found: {uid}")
 
-        with open(os.path.join(ASSETS_DIR, 'share.template.html')) as f:
-            share_page_template = template.Template(f.read())
-
-        self.write(share_page_template.generate(
+        self.write(self.share_page_template.generate(
             user_name = (await user.info())['name'],
             share_entries = share_entries,
         ))
