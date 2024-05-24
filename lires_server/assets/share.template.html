@@ -37,9 +37,14 @@
                 {% end %}
             </div>
 
+            {% if share_entry.abstract %}
             <div class="abstract-container">
-                <p>{{ share_entry.abstract }}</p>
+                <details>
+                    <summary>Abstract</summary>
+                    <p>{{ share_entry.abstract }}</p>
+                </details>
             </div>
+            {% end %}
         </div>
     {% end %}
     </div>
