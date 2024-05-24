@@ -1,7 +1,7 @@
 from ._base import *
 from tornado import template
 from dataclasses import dataclass
-import os, asyncio
+import os
 from ..config import ASSETS_DIR
 
 
@@ -42,6 +42,7 @@ class ShareHandler(RequestHandlerBase):
                     links['link'] = dp.summary.url
                 links.update({
                     'bibtex': f"/bibtex/{uid}?u={user_id}",
+                    'scholar': f"https://scholar.google.com/scholar?q={dp.title}"
                 })
                 share_entries.append(ShareEntry(
                     uid = uid,

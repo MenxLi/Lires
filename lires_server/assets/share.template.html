@@ -15,6 +15,28 @@
         flex-direction: column;
         gap: 1rem;
     }
+    div.share-entry-container{
+        # border: 1px solid #f0f0f0;
+        padding: 1rem;
+        padding-block: 1.5rem;
+        border-radius: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+    }
+    h2{
+        margin-top: 0px;
+        margin-bottom: 0.25rem;
+    }
+    span.author{
+        margin-right: 0.3rem;
+        padding: 0.05rem 0.2rem;
+        border-radius: 0.1rem;
+        margin-block: 0.2rem;
+    }
+    span.author:hover{
+        background-color: #f0f0f0;
+    }
 </style>
 
 
@@ -25,12 +47,12 @@
             <h2>{{ share_entry.title }}</h2>
             <div class="author-container">
                 {% for author in share_entry.authors %}
-                    <span>{{ author }}</span>
+                    <span class='author'>{{ author }}</span>
                 {% end %}
             </div>
             <div class="publication-container">
-                <span class="publication">{{ share_entry.publication }}</span>
-                ({{ share_entry.year }})
+                <span class="publication"><i>{{ share_entry.publication }}</i></span>
+                <span>({{ share_entry.year }})</span>
             </div>
             <div class="link-container">
                 {% for link_name, link in share_entry.links.items() %}
