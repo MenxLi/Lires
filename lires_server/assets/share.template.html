@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lire share</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<style>
+    body{
+        padding-inline: 20px;
+    }
+    div#main-container{
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+</style>
+
+
+<body>
+    <div id='main-container'>
+    {% for share_entry in share_entries %}
+        <div class="share-entry-container">
+            <h2>{{ share_entry.title }}</h2>
+            <div class="author-container">
+                {% for author in share_entry.authors %}
+                    <span>{{ author }}</span>
+                {% end %}
+            </div>
+            <div class="publication-container">
+                <span class="publication">{{ share_entry.publication }}</span>
+                ({{ share_entry.year }})
+            </div>
+            <div class="link-container">
+                {% for link_name, link in share_entry.links.items() %}
+                    [<a href="{{ link }}">{{ link_name }}</a>]
+                {% end %}
+            </div>
+
+            <div class="abstract-container">
+                <p>{{ share_entry.abstract }}</p>
+            </div>
+        </div>
+    {% end %}
+    </div>
+    
+    <!--
+    <footer>
+        Shared by {{ user_name }}
+    </footer>
+    -->
+</body>
+</html>

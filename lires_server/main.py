@@ -66,6 +66,10 @@ class Application(tornado.web.Application):
             (r"/_resources/api.py", APIGetHandler_Py),
             (r"/_resources/lires-obsidian-plugin.zip", ObsidianPluginGetHandler),
 
+            # server-rendered pages
+            (r"/share", ShareHandler),
+            (r"/bibtex/(.*)", BibtexHandler),
+
             # websocket
             (r'/ws', WebsocketHandler),
 

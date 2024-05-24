@@ -1,5 +1,6 @@
 # API
-实现脚本化操作。
+Lires可以作为一个[NoSQL](https://en.wikipedia.org/wiki/NoSQL)数据库，
+向客户端提供一套API接口，实现脚本化操作。
 
 ::: warning
 API文件包下载过程中即在示例文件中包含了用户授权信息，因此请勿直接将API文件包分享给他人。
