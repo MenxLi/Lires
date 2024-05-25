@@ -16,9 +16,13 @@
     const router = useRouter();
     const urlHashMarkParam = computed(()=>{
         const query = router.currentRoute.value.query;
-        const docHashMark = query['docHashMark'] as string | undefined;
-        if (docHashMark){ return docHashMark; }
-        return '';
+        let docHashMark = query['docHashMark'] as string | undefined;
+        if (!docHashMark){ docHashMark = '' }
+        if (props.datapoint.fileType() == 'pdf' && !docHashMark.includes('pagemode=')){
+            // https://github.com/mozilla/pdf.js/wiki/Viewer-options
+            docHashMark += '&pagemode=none';
+        }
+        return docHashMark;
     });
 
     const isMovingSplitter = ref<boolean>(false);

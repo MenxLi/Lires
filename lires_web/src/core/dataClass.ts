@@ -200,7 +200,9 @@ export class DataPoint {
         return "about:blank";
     }
 
-    // will wrap the url with backend pdfjs viewer if the url is a pdf
+    /**
+     * will wrap the url with backend pdfjs viewer if the url is a pdf
+     */ 
     getOpenDocURL({
         extraPDFViewerParams = {} as Record<string, string>,
         urlHashMark = "" as string,
