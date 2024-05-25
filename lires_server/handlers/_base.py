@@ -113,10 +113,10 @@ class RequestHandlerMixin(LiresBase):
         return (await self.userInfo())["id"]
     
     async def db(self) -> DataBase:
-        return ( await g_storage.database_pool.get( await self.inferUserId() ) ).database
+        return ( await g_storage.database_pool.get( await self.inferUserId() ) )
     
     async def vec_db(self) -> VectorDatabase:
-        return ( await g_storage.database_pool.get( await self.inferUserId() ) ).vector_db
+        return (await self.db()).vector
 
     @property
     def user_pool(self): return g_storage.user_pool

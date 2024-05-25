@@ -3,11 +3,9 @@ Build search index for the database
 """
 import argparse
 
-from lires.config import USER_DIR
-from lires.core.vector import buildFeatureStorage, queryFeatureIndex, queryFeatureIndexByUID, initVectorDB
+from lires.core.vector import buildFeatureStorage, queryFeatureIndex
 from lires.api import IServerConn
 from lires.loader import initResources
-from lires.user import UserPool
 
 def parseArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build search index for the database")
@@ -41,19 +39,18 @@ async def entry(args):
         await user_pool.close(); await db_pool.close()
         exit()
     
-    db_ins = await db_pool.get(user)
-    db = db_ins.database
+    db = await db_pool.get(user)
 
     iconn = IServerConn()
 
     if args.subparser == "build":
-        vector_db = db_ins.vector_db
+        vector_db = db.vector
         await buildFeatureStorage(
             iconn, db, vector_db, force=args.force, max_words_per_doc=args.max_words, 
             )
 
     elif args.subparser == "query":
-        vector_collection = await db_ins.vector_db.getCollection("doc_feature")
+        vector_collection = await db.vector.getCollection("doc_feature")
         if args.input_uid:
             raise NotImplementedError
         else:

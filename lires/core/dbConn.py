@@ -126,11 +126,12 @@ class DBConnection(LiresBase):
         """
         May call this function to re-init the connection after close
         """
-        self.conn = await aiosqlite.connect(self.db_path)
-        await self.__initTables()
-        await self.__autoUpgrade()
-        await self.cache.init()
-        await self.cache.buildInitCache(await self.getAll())
+        async with DB_MOD_LOCK:
+            self.conn = await aiosqlite.connect(self.db_path)
+            await self.__initTables()
+            await self.__autoUpgrade()
+            await self.cache.init()
+            await self.cache.buildInitCache(await self.getAll())
         return self
     
     async def isInitialized(self) -> bool:
@@ -210,8 +211,6 @@ class DBConnection(LiresBase):
         Auto upgrade database if needed, 
         for backward compatibility
         """
-        await DB_MOD_LOCK.acquire()
-
         async def setVersionRecord(version: str):
             await self.conn.execute("UPDATE meta SET value=? WHERE key='version'", (version,))
             await self.setModifiedFlag(True)
@@ -232,7 +231,6 @@ class DBConnection(LiresBase):
         if record_version != curr_version:
             await setVersionRecord(curr_version.string())
             await self.logger.info("Upgraded database {} from version {} to {}".format(self.db_path, record_version, curr_version))
-        DB_MOD_LOCK.release()
         
     async def close(self):
         await self.conn.close()

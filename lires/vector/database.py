@@ -4,6 +4,8 @@ import aiosqlite, asyncio
 from typing import TypedDict, Literal, TypeVar, Generic
 from .wrap import FixSizeAlg
 
+DB_MOD_LOCK = asyncio.Lock()
+
 class CollectionConfig(TypedDict):
     name: str
     dimension: int
@@ -42,45 +44,49 @@ class VectorCollection(LiresBase, Generic[ContentT]):
         return self.config["dimension"]
 
     async def init(self):
-        # mata data
-        res = await self.conn.execute(
-            f"SELECT * FROM metadata WHERE name = ?", (self.name,)
-        )
-        row = await res.fetchone()
-        if row is not None:
-            assert row[1] == self.dimension, "Dimension mismatch"
-        else:
-            await self.conn.execute(
-                f"INSERT INTO metadata (name, dim) VALUES (?, ?)",
-                (self.name, self.dimension)
+        async with DB_MOD_LOCK:
+            # mata data
+            res = await self.conn.execute(
+                f"SELECT * FROM metadata WHERE name = ?", (self.name,)
             )
-            
-        # table
-        sql = f"CREATE TABLE IF NOT EXISTS {self.config['name']} ("\
-            "uid TEXT PRIMARY KEY, "\
-            "vector BLOB NOT NULL, "\
-            "group_name TEXT DEFAULT '', "\
-            f"content {self.config['conent_type']} DEFAULT '')"
-        await self.conn.execute(sql)
-        await self.commit()
+            row = await res.fetchone()
+            if row is not None:
+                assert row[1] == self.dimension, "Dimension mismatch"
+            else:
+                await self.conn.execute(
+                    f"INSERT INTO metadata (name, dim) VALUES (?, ?)",
+                    (self.name, self.dimension)
+                )
+                
+            # table
+            sql = f"CREATE TABLE IF NOT EXISTS {self.config['name']} ("\
+                "uid TEXT PRIMARY KEY, "\
+                "vector BLOB NOT NULL, "\
+                "group_name TEXT DEFAULT '', "\
+                f"content {self.config['conent_type']} DEFAULT '')"
+            await self.conn.execute(sql)
+            await self.commit()
         return self
     
     async def insert(self, entry: VectorEntry):
-        vec = entry["vector"]
-        await self.conn.execute(
-            f"INSERT INTO {self.config['name']} (uid, vector, group_name, content) VALUES (?, ?, ?, ?)",
-            (entry["uid"], self.alg.encode(vec), entry["group"], entry["content"])
-        )
+        vec_enc = self.alg.encode(entry["vector"])
+        async with DB_MOD_LOCK:
+            await self.conn.execute(
+                f"INSERT INTO {self.config['name']} (uid, vector, group_name, content) VALUES (?, ?, ?, ?)",
+                (entry["uid"], vec_enc, entry["group"], entry["content"])
+            )
     
     async def update(self, entry: VectorEntry):
-        vec = entry["vector"]
-        await self.conn.execute(
-            f"UPDATE {self.config['name']} SET vector = ?, group_name = ?, content = ? WHERE uid = ?",
-            (self.alg.encode(vec), entry["group"], entry["content"], entry["uid"])
-        )
+        vec_enc = self.alg.encode(entry["vector"])
+        async with DB_MOD_LOCK:
+            await self.conn.execute(
+                f"UPDATE {self.config['name']} SET vector = ?, group_name = ?, content = ? WHERE uid = ?",
+                (vec_enc, entry["group"], entry["content"], entry["uid"])
+            )
     
     async def deleteGroup(self, group: str):
-        await self.conn.execute( f"DELETE FROM {self.config['name']} WHERE group_name = ?", (group,))
+        async with DB_MOD_LOCK:
+            await self.conn.execute( f"DELETE FROM {self.config['name']} WHERE group_name = ?", (group,))
     
     async def getGroup(self, group: str) -> list[VectorEntry]:
         res = await self.conn.execute(
@@ -159,13 +165,15 @@ class VectorCollection(LiresBase, Generic[ContentT]):
         return [ids[i] for i in top_k_indices], [scores[i] for i in top_k_indices]
     
     async def delete(self, uid: str):
-        await self.conn.execute(
-            f"DELETE FROM {self.config['name']} WHERE uid = ?", (uid,)
-        )
+        async with DB_MOD_LOCK:
+            await self.conn.execute(
+                f"DELETE FROM {self.config['name']} WHERE uid = ?", (uid,)
+            )
     
     async def clearAll(self):
-        await self.conn.execute( f"DELETE FROM {self.config['name']}")
-        await self.conn.execute( f"VACUUM")
+        async with DB_MOD_LOCK:
+            await self.conn.execute( f"DELETE FROM {self.config['name']}")
+            await self.conn.execute( f"VACUUM")
     
     async def commit(self):
         await self._parent.commit()
@@ -180,10 +188,12 @@ class VectorDatabase(LiresBase):
         self.configs = configs
     
     async def init(self):
-        self.conn = await aiosqlite.connect(self.path)
-        await self.conn.execute(
-            "CREATE TABLE IF NOT EXISTS metadata (name TEXT PRIMARY KEY, dim INTEGER)"
-        )
+        async with DB_MOD_LOCK:
+            self.conn = await aiosqlite.connect(self.path)
+            await self.conn.execute(
+                "CREATE TABLE IF NOT EXISTS metadata (name TEXT PRIMARY KEY, dim INTEGER)"
+            )
+            await self.commit()
 
         self.collections: dict[str, VectorCollection] = {}
         for config in self.configs:
@@ -198,8 +208,10 @@ class VectorDatabase(LiresBase):
         return self.collections[name]
     
     async def deleteCollection(self, name: str):
-        await self.conn.execute( f"DROP TABLE IF EXISTS {name}")
-        await self.conn.execute( f"DELETE FROM metadata WHERE name = ?", (name,))
+        async with DB_MOD_LOCK:
+            await self.conn.execute( f"DROP TABLE IF EXISTS {name}")
+            await self.conn.execute( f"DELETE FROM metadata WHERE name = ?", (name,))
+            await self.commit()
     
     async def commit(self):
         await self.conn.commit()

@@ -2,53 +2,33 @@
 Utilities to load the database and other resources
 """
 
-import os, dataclasses, shutil
+import os, shutil
 from .core.base import LiresBase
 from .core.dataClass import DataBase
-from .core.vector import initVectorDB
 from .config import DATABASE_HOME, USER_DIR
 from .user import UserPool, LiresUser
 
-from lires.vector.database import VectorDatabase
 import asyncio
-
-@dataclasses.dataclass(frozen=True)
-class DatabaseInstance:
-    database: DataBase
-    vector_db: VectorDatabase
-    async def close(self):
-        await self.database.close()
-        await self.vector_db.close()
-    
-    async def commit(self):
-        await self.database.commit()
-        await self.vector_db.commit()
-
-async def loadDatabaseInstance(user_id: int, database_home: str):
-    database_dir = os.path.join(database_home, str(user_id))
-    db = await DataBase().init(database_dir)
-    vec_db = await initVectorDB(db.path.vector_db_file)
-    return DatabaseInstance(db, vec_db)
 
 class DatabasePool(LiresBase):
     def __init__(self, databse_home: str = DATABASE_HOME) -> None:
         super().__init__()
         self._home = databse_home
 
-        self.__db_ins_cache: dict[int, DatabaseInstance] = {}
+        self.__db_ins_cache: dict[int, DataBase] = {}
         self.__getting_db_lock = asyncio.Lock()
     
-    async def get(self, user: LiresUser|int) -> DatabaseInstance:
+    async def get(self, user: LiresUser|int) -> DataBase:
         if not isinstance(user, int):
             user_id = user.id
         else:
             user_id = user
 
         async with self.__getting_db_lock:
-            # to prevent multiple loading of the same database
             if not user_id in self.__db_ins_cache:
-                db_ins = await loadDatabaseInstance(user_id, self._home)
-                self.__db_ins_cache[user_id] = db_ins
+                database_dir = os.path.join(self._home, str(user_id))
+                db = await DataBase().init(database_dir)
+                self.__db_ins_cache[user_id] = db
 
         return self.__db_ins_cache[user_id]
     
@@ -76,7 +56,7 @@ class DatabasePool(LiresBase):
         else:
             user_id = user
         db = await self.get(user_id)
-        path_to_delete = db.database.path.main_dir
+        path_to_delete = db.path.main_dir
 
         await db.close()
         del self.__db_ins_cache[user_id]

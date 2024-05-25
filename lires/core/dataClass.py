@@ -7,6 +7,7 @@ from .dataTags import DataTags, TagRule
 from .fileTools import FileManipulator
 from .dbConn import DBFileInfo, DBConnection
 from .base import LiresBase
+from ..vector.database import VectorDatabase
 from ..types.dataT import DataPointSummary
 
 class DataCore(LiresBase):
@@ -147,6 +148,7 @@ class DataBase(DataCore):
     def __init__(self):
         super().__init__()
         self.__conn: DBConnection | None = None   # type: ignore
+        self.__vector_db: VectorDatabase | None = None
 
     @property
     def conn(self) -> DBConnection:
@@ -154,20 +156,24 @@ class DataBase(DataCore):
             raise RuntimeError("Database not initialized")
         return self.__conn
     
-    async def init(self, db: str | DBConnection) -> DataBase:
+    async def init(self, db: str) -> DataBase:
         """
         - db: str | DBConnection, the database path or the database connection instance
         """
-        if isinstance(db, DBConnection):
-            assert not isinstance(db, str)  # type check only
-            assert await db.isInitialized()
-            self.__conn = db
-            return self
         assert isinstance(db, str), "Invalid input"     # type check
         if not os.path.exists(db):
             os.mkdir(db)
+        # to prevent multiple loading of the same database
         conn = await FileManipulator.getDatabaseConnection(db) 
         self.__conn = conn      # set database-wise connection instance
+
+        self.__vector_db = await VectorDatabase(self.path.vector_db_file, [
+            {
+                'name': 'doc_feature',
+                'dimension': 768,
+                'conent_type': 'TEXT'
+            },
+        ]).init()
 
         # create the file structure
         _path = self.path
@@ -176,9 +182,10 @@ class DataBase(DataCore):
                 os.mkdir(p)
         return self
     
-    async def commit(self): await self.conn.commit()
+    async def commit(self): 
+        await asyncio.gather(self.conn.commit(), self.vector.commit())
     async def close(self):
-        await self.conn.close()
+        await asyncio.gather(self.conn.close(), self.vector.close())
         self.__conn = None
 
     @property
@@ -195,6 +202,8 @@ class DataBase(DataCore):
             └── files
                 └── ...
         """
+        if not os.path.exists(os.path.join(self.conn.db_dir, "index")):
+            os.mkdir(os.path.join(self.conn.db_dir, "index"))
         return self.DatabasePath(
             main_dir = self.conn.db_dir,
             file_dir = os.path.join(self.conn.db_dir, "files"),
@@ -202,6 +211,12 @@ class DataBase(DataCore):
             summary_dir = os.path.join(self.conn.db_dir, "index", "summary"),
             vector_db_file = os.path.join(self.conn.db_dir, "index", "vector_v1.db"),
         )
+    
+    @property
+    def vector(self) -> VectorDatabase:
+        if self.__vector_db is None:
+            raise RuntimeError("Vector database not initialized")
+        return self.__vector_db
     
     async def dump(self, include_files = False) -> bytes:
         """

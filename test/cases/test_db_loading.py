@@ -9,4 +9,4 @@ class TestDBLoad(BaseConfig):
     async def test_database_init(self):
         db = await DataBase().init(os.path.join(LRS_HOME, "db_tmp"))
         assert db is not None
-        await db.conn.close()
+        await db.close()

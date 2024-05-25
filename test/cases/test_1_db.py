@@ -4,9 +4,9 @@ from lires.core.dataClass import DataBase
 from lires.config import LRS_HOME
 import pytest, os, asyncio
 
+db_dir = os.path.join(LRS_HOME, "db_tmp")
 @pytest.fixture(scope="module")
 def conn():
-    db_dir = os.path.join(LRS_HOME, "db_tmp")
     return DBConnection(db_dir)
 
 class TestDB:
@@ -70,18 +70,21 @@ class TestDB:
 
             assert set(await conn.tags()) == set(("tag0", "tag1", "tag1->tag2", "tag3->tag4", "tag3->tag5"))
             assert set(await conn.authors()) == set(("author0", "author1", "fam2, author2", "fam3, author3"))
+
+            await conn.commit()
         
         asyncio.run(_test())
     
-    def test_database_search(self, conn: DBConnection):
+    def test_database_search(self):
         async def _test():
-            database = await DataBase().init(conn)
+            database = await DataBase().init(db_dir)
             assert len(await database.getDataByTags(['tag1', 'tag0'])) == 2
             assert len(await database.getDataByTags(['tag0'])) == 2
             assert len(await database.getDataByTags(['tag1'])) == 2
             assert len(await database.getDataByTags(['tag1->tag2'])) == 1
             assert len(await database.getDataByTags(['tag3'])) == 2
             assert len(await database.getDataByTags(['tag3', 'tag1'])) == 2
+            await database.close()
         asyncio.run(_test())
     
     def test_finalize(self, conn: DBConnection):

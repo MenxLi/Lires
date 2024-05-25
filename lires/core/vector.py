@@ -12,11 +12,6 @@ from lires.vector.database import VectorDatabase, VectorCollection, VectorEntry
 if TYPE_CHECKING:
     from lires.api import IServerConn
 
-async def initVectorDB(vector_db_path: str) -> VectorDatabase:
-    return await VectorDatabase(vector_db_path, [
-        {"name": "doc_feature", "dimension": 768, "conent_type": "TEXT"},
-        ]).init()
-
 async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
     summary = ""
     res = iconn.chat(
