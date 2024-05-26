@@ -12,7 +12,7 @@ class RegistryConn(LiresAPIBase):
     def __init__(self):
         self._uid: str | None = None
         self.__register_info: Registration | None = None
-        self.__do_heartbeat = False
+        self.__do_heartbeat: threading.Event = threading.Event()
         self.__heatbeat_thread: Optional[threading.Thread] = None
     
     @property
@@ -87,18 +87,24 @@ class RegistryConn(LiresAPIBase):
                 raise e
     
     def startHeartbeatThread(self, on_fail: Optional[Callable[[str], Any]] = None):
-        self.__do_heartbeat = True
+        self.__do_heartbeat.set()
+
         def heartbeatThread():
-            while self.__do_heartbeat:
+            sleep_step = 0.1
+            while self.__do_heartbeat.is_set():
                 self.run_sync(self.heartbeat(on_fail))
-                time.sleep(self.HEARTBEAT_INTERVAL)
+                # split the sleep into smaller steps to allow quick stop
+                for _ in range(max(int(self.HEARTBEAT_INTERVAL / sleep_step), 1)):
+                    if self.__do_heartbeat.is_set():
+                        time.sleep(sleep_step)
+                
         self.__heatbeat_thread = threading.Thread(target=heartbeatThread, daemon=True)
         self.__heatbeat_thread.start()
     
     async def withdraw(self):
         # stop heartbeat loop
         if self.__heatbeat_thread is not None:
-            self.__do_heartbeat = False
+            self.__do_heartbeat.clear()
             self.__heatbeat_thread.join()
         try:
             await self.fetcher.post(
