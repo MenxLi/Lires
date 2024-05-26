@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import signal
 from logging import Logger, getLogger
 from uvicorn import Config, Server
 from uvicorn.config import LOGGING_CONFIG
@@ -74,4 +75,7 @@ async def startService(
 
     await makeCoro(logger.info)(f"Starting service at: {'https' if config.is_ssl else 'http'}://{config.host}:{config.port}")
 
+    async def shutdown():
+        await server.shutdown()
+    signal.signal(signal.SIGINT, lambda sig, frame: shutdown)
     await server.serve()

@@ -76,6 +76,6 @@ class DatabaseLogger:
             self.__is_uptodate = True
 
     async def close(self):
-        print("-------- Closing database... --------")
         await self.commit()
         await self.db.close()
+        print("-------- Log database closed --------")

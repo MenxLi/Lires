@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import uvicorn
+from contextlib import asynccontextmanager
 
 import asyncio
 from lires.api import RegistryConn
@@ -8,7 +8,24 @@ from lires.utils import BCOLORS
 from .logger import DatabaseLogger, NAME_LEVEL
 from ..entry import startService
 
-app = FastAPI()
+DATABASE_COMMIT_INTERVAL = 10
+def scheduleNextCommit():
+    global logger
+    if not logger.isUpToDate():
+        # print("-------- Commit --------")
+        asyncio.ensure_future(logger.commit())
+    asyncio.get_event_loop().call_later(DATABASE_COMMIT_INTERVAL, scheduleNextCommit)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global logger, registry
+    await logger.connect()
+    scheduleNextCommit()
+    yield
+    await logger.close()
+    await registry.withdraw()
+    
+app = FastAPI(lifespan=lifespan)
 registry = RegistryConn()
 logger: DatabaseLogger
 
@@ -61,26 +78,6 @@ async def log(logger_path, request: LogRequest):
 async def status():
     return {"status": "ok"}
 
-DATABASE_COMMIT_INTERVAL = 10
-def scheduleNextCommit():
-    global logger
-    if not logger.isUpToDate():
-        # print("-------- Commit --------")
-        asyncio.ensure_future(logger.commit())
-    asyncio.get_event_loop().call_later(DATABASE_COMMIT_INTERVAL, scheduleNextCommit)
-
-@app.on_event("startup")
-async def startup():
-    global logger, registry
-    await logger.connect()
-    scheduleNextCommit()
-
-@app.on_event("shutdown")
-async def shutdown():
-    global logger
-    await registry.withdraw()
-    await logger.close()
-    
 async def startLoggerServer(file: str, host: str, port: int):
     global logger
     if not file:

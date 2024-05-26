@@ -2,14 +2,22 @@
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 import asyncio
-import uvicorn
+from contextlib import asynccontextmanager
 from pydantic import BaseModel
 from typing import Optional
 from ..entry import startService
 from .store import RegistryStore, ServiceName
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    interval = 10
+    def _autoClean():
+        asyncio.create_task(g_store.autoClean())
+        asyncio.get_event_loop().call_later(interval, _autoClean)
+    asyncio.get_event_loop().call_later(interval, _autoClean)
+    yield
 g_store: RegistryStore
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 class RegisterRequest(BaseModel):
     uid: str
@@ -37,7 +45,7 @@ async def view():
 
 @app.post("/register")
 async def register(req: RegisterRequest):
-    await g_store.register(req.dict())    # type: ignore
+    await g_store.register(req.model_dump())    # type: ignore
     return { "status": "ok", }
 
 @app.post("/heartbeat")
@@ -60,14 +68,6 @@ async def query(req: GetRequest):
 async def withdraw(req: WithdrawRequest):
     await g_store.withdraw(req.uid)
     return { "status": "ok", }
-
-@app.on_event("startup")
-async def startup_event():
-    interval = 10
-    def _autoClean():
-        asyncio.create_task(g_store.autoClean())
-        asyncio.get_event_loop().call_later(interval, _autoClean)
-    asyncio.get_event_loop().call_later(interval, _autoClean)
 
 async def startServer(host: str, port: int):
     global g_store

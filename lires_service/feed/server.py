@@ -1,4 +1,5 @@
 
+from contextlib import asynccontextmanager
 from lires.core.base import G
 from lires.core.dataClass import DataPoint
 from lires.api import RegistryConn
@@ -9,14 +10,6 @@ from typing import Optional
 from .db import DataBase, initDatabase, collectFeedCycle
 from ..entry import startService
 
-logger = G.loggers.get("feed")
-g_warmup = False
-app = fastapi.FastAPI()
-registry = RegistryConn()
-
-feed_db: DataBase
-
-
 async def startCollectionLoop():
     await logger.info("Collecting feed...")
     await collectFeedCycle(feed_db, logger=logger)
@@ -25,16 +18,22 @@ async def startCollectionLoop():
     # update every 12 hours
     asyncio.get_event_loop().call_later(60*60*12, createTaskFn)
 
-@app.on_event("shutdown")
-async def shutdown():
-    await feed_db.close()
-    await registry.withdraw()
-
-@app.on_event("startup")
-async def startup():
+@asynccontextmanager
+async def lifespan(app: fastapi.FastAPI):
     global logger, registry, feed_db
     feed_db = await initDatabase()
     await startCollectionLoop()
+    yield
+    await feed_db.close()
+    await registry.withdraw()
+
+logger = G.loggers.get("feed")
+g_warmup = False
+app = fastapi.FastAPI(lifespan=lifespan)
+registry = RegistryConn()
+
+feed_db: DataBase
+
 
 @app.get("/status")
 def status():

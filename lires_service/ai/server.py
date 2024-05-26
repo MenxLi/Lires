@@ -5,6 +5,7 @@ thus the client don't need to install the heavy packages...
 import fastapi, openai
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from contextlib import asynccontextmanager
 
 import numpy as np
 from sklearn.manifold import TSNE 
@@ -25,9 +26,24 @@ from ..entry import startService
 from lires.core.base import G
 from lires.api import RegistryConn
 
+@asynccontextmanager
+async def lifespan(app: fastapi.FastAPI):
+    global logger, registry
+    # warmup
+    global g_warmup
+    await logger.info("Warming up text encoder...")
+    lmFeaturize("Hello world!")
+    if config.local_llm_name is not None:
+        getStreamIter("LOCAL")
+    await logger.info("Warming up text encoder done!")
+    g_warmup = True
+
+    yield
+    await registry.withdraw()
+
 logger = G.loggers.get("ai")
 g_warmup = False
-app = fastapi.FastAPI()
+app = fastapi.FastAPI(lifespan=lifespan)
 registry = RegistryConn()
 
 @app.get("/status")
@@ -104,10 +120,6 @@ def pca(req: DimReducePCARequest):
         ).fit_transform(np.array(req.data)).astype(np.float16)
     return res.tolist()
 
-@app.on_event("shutdown")
-async def shutdown():
-    await registry.withdraw()
-
 async def startServer(
     host: str = "0.0.0.0",
     port: int = -1,
@@ -126,16 +138,7 @@ async def startServer(
             # set a dummy key, so that openai api will not raise error
             openai.api_key="sk-dummy__"
 
-    async def warmup():
-        global g_warmup
-        await logger.info("Warming up text encoder...")
-        lmFeaturize("Hello world!")
-        if config.local_llm_name is not None:
-            getStreamIter("LOCAL")
-        await logger.info("Warming up text encoder done!")
-        g_warmup = True
     await logger.info("Using device: {}".format(autoTorchDevice()))
-    await warmup()
     await startService(
         app = app,
         host = host,
