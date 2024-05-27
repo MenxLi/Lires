@@ -9,7 +9,7 @@ from ._global_data import GlobalStorage
 from lires.user import UserInfo
 from lires.core.base import LiresBase
 from lires.core.dataTags import DataTags
-from lires.core.vector import updateFeture, deleteFeature
+from lires.core.vecutils import updateFeture, deleteFeature
 from lires.utils import BCOLORS
 
 from abc import abstractmethod

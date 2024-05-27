@@ -3,7 +3,7 @@ Build search index for the database
 """
 import argparse
 
-from lires.core.vector import buildFeatureStorage, queryFeatureIndex
+from lires.core.vecutils import buildFeatureStorage, queryFeatureIndex
 from lires.api import IServerConn
 from lires.loader import initResources
 

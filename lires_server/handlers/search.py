@@ -1,6 +1,6 @@
 from ._base import *
 from typing import TypedDict
-from lires.core.vector import queryFeatureIndex
+from lires.core.vecutils import queryFeatureIndex
 import json
 
 
