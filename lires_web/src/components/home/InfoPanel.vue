@@ -6,6 +6,7 @@
     import NoteEditor from '../reader/NoteEditor.vue';
     import { volInfoFromBibtex } from '../../utils/misc';
     import { useWindowState } from '@/state/wstate';
+    import { useDataStore } from '@/state/store';
     import { useAuthorPapers } from '@/state/authorState';
     import FloatingWindow from '../common/FloatingWindow.vue';
     import FileRowContainer from './FileRowContainer.vue';
@@ -13,6 +14,10 @@
     const props = defineProps<{
         datapoint: DataPoint | null,
     }>()
+
+    // this is a datapoint that is guaranteed to be non-null
+    const $datapoint = computed(() => props.datapoint?props.datapoint:useDataStore().database.getDummy());
+
     const volPageInfo = computed(() => {
         if (!props.datapoint) return '';
         return volInfoFromBibtex(props.datapoint.summary.bibtex);
@@ -48,8 +53,8 @@
 
     <Splitter :direction="splitterDirection" :split-ratio="initSplitRatio">
         <template v-slot:a>
-            <div id="summary-panel-main" v-if="datapoint">
-                <h2 class="title">{{datapoint.summary.title}}</h2>
+            <div id="summary-panel-main">
+                <h2 class="title">{{$datapoint.summary.title}}</h2>
                 <div class="authors-div">
                     <template v-for="author in authors">
                         <div class="author-container">
@@ -62,9 +67,9 @@
                         </div>
                     </template>
                 </div>
-                <div class="publication">{{datapoint.publication + `. (${datapoint.year})` + (volPageInfo? ', '+volPageInfo:'')}}</div>
-                <div class="docsize" v-if="datapoint.summary.doc_size">
-                    <span> {{datapoint.summary.doc_size}} MB </span>
+                <div class="publication" v-if="!$datapoint.isDummy()">{{$datapoint.publication + `. (${$datapoint.year})` + (volPageInfo? ', '+volPageInfo:'')}}</div>
+                <div class="docsize" v-if="$datapoint.summary.doc_size">
+                    <span> {{$datapoint.summary.doc_size}} MB </span>
                 </div>
             </div>
         </template>
