@@ -904,3 +904,12 @@ version_history:
       - Use internal vector database
     - Management:
       - New tool - `lrs-config`
+  1.8.4:
+    - Features:
+      - Simple share page
+    - Refactors:
+      - Use fastapi lifespan
+      - Vector as a database property
+    - Chore:
+      - No robot meta tag
+      - Quick registry withdraw
