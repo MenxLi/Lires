@@ -18,9 +18,12 @@
     // requires vite-plugin-node-polyfills
     import matter from 'gray-matter';
 
-    const props = defineProps<{
-        datapoint: DataPoint | null
-    }>();
+    const props = withDefaults(defineProps<{
+        datapoint: DataPoint | null, 
+        autoEnableEdit?: boolean
+    }>(), {
+        autoEnableEdit: false
+    });
 
     const router = useRouter();
     const mdText = ref<string>('');
@@ -90,9 +93,7 @@
         const note = await props.datapoint.fetchNote();
         noteRecord.value = note;
         mdText.value = note;
-        // if (note.trim().length > 0){
-        //     preview.value = true;
-        // }
+        if (props.autoEnableEdit && !note){ preview.value = false; }
     }
     async function fetchMiscFileInfo(){
         if (!props.datapoint || props.datapoint.isDummy()){return;}
@@ -158,10 +159,7 @@
         fetchMiscFileInfo();  // update misc files list
     }
 
-    const preview = computed({
-            get: ()=>uiState.showNotePreview === null? mdText.value.trim().length > 0 : uiState.showNotePreview,
-            set: (v: boolean)=>{ uiState.showNotePreview = v; }
-        });
+    const preview = ref(true);
     function linkOnNote(content: string): boolean{
         return mdText.value.indexOf(content) >= 0;
     }
