@@ -318,10 +318,14 @@ export class DataBase {
     }
 
     async init(){
-        await this.updateKeyCache();
-        await this.updateTagCache();
+        console.time("Get init data")
+        await Promise.all([
+            this.updateKeyCache(),
+            this.updateTagCache()
+        ])
+        console.timeEnd("Get init data")
         this._initliazed = true;
-        console.log("Get init data of size: ", 
+        console.debug("Get init data of size: ", 
             (
                 (JSON.stringify(this.uids) + JSON.stringify(this.tags)).length
                  * 2 / 1024 / 1024
@@ -438,7 +442,7 @@ export class DataBase {
                 }
                 // done with a single request, this is faster but require all uids to be exist
                 const notCachedSummaries = await this.conn.reqDatapointSummaries(notCached);
-                console.log("DEBUG: get data points of size: ", notCachedSummaries.length)
+                console.debug("DEBUG: get data points of size: ", notCachedSummaries.length)
                 // assamble the result
                 const notCachedDps = notCachedSummaries.map((summary) => new DataPoint(this.conn, summary));
                 // save to cache

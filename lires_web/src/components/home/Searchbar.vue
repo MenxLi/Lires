@@ -20,7 +20,7 @@
             content: searchInput.value
         }
         uiState.searchState = status;
-        console.log(status);
+        console.debug('search status updated', status);
         uiState.updateShownData();
     }
     const lazyOnSearchChanged = lazify(onSearchChanged, 300);

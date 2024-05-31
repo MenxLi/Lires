@@ -51,6 +51,15 @@ export default {
         }
     });
 
+    let __oldSelectedTags = new DataTags();
+    watch(() => uiState.tagStatus, () => {
+        const nowSelectedTags = uiState.tagStatus.checked;
+        if (!nowSelectedTags.equals(__oldSelectedTags)){
+            uiState.updateShownData();
+            __oldSelectedTags = nowSelectedTags.copy();
+        }
+    }, {deep: true});
+
 
     // adding new data
     const dataEditor = ref(null as null | typeof DataEditor);
@@ -86,7 +95,7 @@ export default {
         <div class="horizontal fullHeight">
             <Transition name="left-in">
                 <div id="left-panel" v-if="settingsStore.showTagPanel">
-                    <FileTags @onCheck="() => uiState.updateShownData()"></FileTags>
+                    <FileTags></FileTags>
                 </div>
             </Transition>
 

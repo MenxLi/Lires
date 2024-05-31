@@ -23,6 +23,15 @@ export class DataTags extends Set<string>{
     copy(){
         return new DataTags(this);
     }
+    equals(tags: DataTags){
+        if (tags.size !== this.size){
+            return false;
+        }
+        for (const tag of this){
+            if (!tags.has(tag)){ return false; }
+        }
+        return true;
+    }
     add(tag: string){
         return super.add(DataTags.removeSpaces(tag));
     }

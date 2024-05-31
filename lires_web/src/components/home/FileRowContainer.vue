@@ -64,33 +64,51 @@
     const pageIndicatorEditableParagrah = ref(null as any | null);
     const shownPage = ref(0);
     const settings = useSettingsStore();
+    const displayDataUIDs = ref([] as string[]);
     const displayDatapoints = ref([] as DataPoint[]);
     const dataReady = ref(false);
 
-    // change shownDatapoints when props.uids changes or shownPage changes or shownNumPerPage changes
-    function updateDisplayDatapoints(){
+    /**
+     * update the displayDataUIDs based on the settings, 
+     * not update the displayDatapoints
+     */
+    function updateDisplayDataUIDs(){
+        console.debug("updateDisplayDataUIDs");
         const startIdx = shownPage.value * settings.numItemsPerPage;
         const endIdx = Math.min(startIdx + settings.numItemsPerPage, props.uids.length);
         const displayUIDs = props.uids.slice(startIdx, endIdx);
-        const database = useDataStore().database;
+        displayDataUIDs.value = displayUIDs;
+    }
+    watch([()=>props.uids, ()=>shownPage.value, ()=>settings.numItemsPerPage], ()=>{
+        // The uids is an array, 
+        // this can cause reactive event with the same value
+        if (props.uids.length < shownPage.value * settings.numItemsPerPage){ shownPage.value = 0; }
+        updateDisplayDataUIDs();
+    }, {immediate: true})
 
+    /**
+     * fetch the data from the database and update the displayDatapoints
+     */
+    function updateDisplayDataPoints(){
         // delay the dataReady signal
         let _shouldShowLoadingSign = true;
         (async ()=>{
             await new Promise((resolve)=>setTimeout(resolve, 500));
             if (_shouldShowLoadingSign){ dataReady.value = false; }
         })()
-        database.agetMany(displayUIDs).then((dps)=>{
+        console.debug("updateDisplayDataPoints");
+        useDataStore().database.agetMany(displayDataUIDs.value).then((dps)=>{
             displayDatapoints.value = dps;
             _shouldShowLoadingSign = false;
             dataReady.value = true;
         })
     }
-    watch([()=>props.uids, ()=>shownPage.value, ()=>settings.numItemsPerPage], ()=>{
-        if (props.uids.length < shownPage.value * settings.numItemsPerPage){ shownPage.value = 0; }
-        updateDisplayDatapoints();
-    })
-    updateDisplayDatapoints();
+    watch(displayDataUIDs, ()=>{
+        // update the display datapoints based on the displayDataUIDs
+        // alough the displayDataUIDs is also an array,
+        // this somehow solves the reactivity problem for the same array value?
+        updateDisplayDataPoints();
+    }, {immediate: true})
 
     const onNextPage = ()=>{
         if (shownPage.value >= Math.ceil(props.uids.length / settings.numItemsPerPage) - 1){ return; }

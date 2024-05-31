@@ -126,16 +126,18 @@ export const useUIStateStore = defineStore(
                     () => {
                         this.databaseLoadingStatus.nCurrent = 0; // databaseLoadingStatus get unused for now
                         useDataStore().database.clear();
-                        this.updateShownData()
+                        // clear shown data, without querying the backend
+                        this.shownDataUIDs = [];
+                        this.shownDataScores = [];
                     },
                     () => {
-                        useUIStateStore().databaseLoadingStatus.nTotal = -1
-                        useUIStateStore().tagStatus.all = useDataStore().database.allTags();
+                        this.databaseLoadingStatus.nTotal = -1
+                        this.tagStatus.all = useDataStore().database.allTags();
                         this.updateShownData(); 
                     },
                     () => {
                         this.showPopup(`Failed to load database from: ${useConnectionStore().conn.baseURL}`, "alert");
-                        useUIStateStore().databaseLoadingStatus.nTotal = -1
+                        this.databaseLoadingStatus.nTotal = -1
                     },
                 )
 
