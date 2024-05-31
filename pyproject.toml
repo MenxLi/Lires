@@ -51,6 +51,7 @@ core = [
     "pylatexenc",
     "tornado",
     "fastapi",
+    "pydantic >= 2.0.0",
     "uvicorn",
     "aiofiles",
     "aiosqlite",
