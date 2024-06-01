@@ -8,7 +8,7 @@ Future plans for the project.
 These are not finalized.  
 :::  
 
-- Move chat api to frontend
+- Use [langchain](https://github.com/langchain-ai/langchain) for LLM usage
 - No CORS
 
 ## Future plans without specific timeline

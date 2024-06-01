@@ -127,27 +127,34 @@ export default {
                                 v-if="uiState.shownDataUIDs.length > 0"
                             ></FileRowContainer>
 
-                            <div id="blankPlaceholder" v-else>
-                                <p v-if="dataStore.database.initialized" style="
-                                    font-size: xx-large;
-                                    font-weight: bold;
-                                    user-select: none;
-                                ">
-                                    Nothing to show
-                                    <p style="font-size: medium">
-                                        Add your first enty by clicking the 
-                                        <b><a @click="showBlankAddingDataWindow" style="
-                                            cursor:pointer;
-                                            border-radius: 5px;
-                                            padding-inline: 3px;
-                                            /* border: 1px solid var(--color-border); */
-                                            background-color: var(--color-background-soft);
-                                            ">⊕ New</a></b> 
-                                        button above.<br>
+                            <transition name="delay-fade-in">
+                                <!-- 
+                                    use a transition to prevent the loading widget from quick showing up, 
+                                    during the shownDataUIDs is updating (especially at initialization). 
+                                    `uiState.shownDataUIDs == 0` equals v-else
+                                -->
+                                <div id="blankPlaceholder" v-if="uiState.shownDataUIDs.length == 0">
+                                    <p style="
+                                        font-size: xx-large;
+                                        font-weight: bold;
+                                        user-select: none;
+                                    " v-if="dataStore.database.initialized">
+                                        Nothing to show
+                                        <p style="font-size: medium">
+                                            Add your first enty by clicking the 
+                                            <b><a @click="showBlankAddingDataWindow" style="
+                                                cursor:pointer;
+                                                border-radius: 5px;
+                                                padding-inline: 3px;
+                                                /* border: 1px solid var(--color-border); */
+                                                background-color: var(--color-background-soft);
+                                                ">⊕ New</a></b> 
+                                            button above.<br>
+                                        </p>
                                     </p>
-                                </p>
-                                <LoadingWidget v-else></LoadingWidget>
-                            </div>
+                                    <LoadingWidget v-if="!dataStore.database.initialized"></LoadingWidget>
+                                </div>
+                            </transition>
                         </div>
                     </div>
                 </template>
@@ -251,4 +258,12 @@ export default {
             border-right: none;
         }
     }
+
+    .delay-fade-in-enter-active {
+        transition: all 0.5s ease-in-out;
+    }
+    .delay-fade-in-enter-from{
+        opacity: 0;
+    }
+    
 </style>
