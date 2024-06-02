@@ -123,38 +123,31 @@ export default {
                                         @click="reloadProg"></ToolbarIcon>
                                 </div>
                             </div>
-                            <FileRowContainer :uids="uiState.shownDataUIDs" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
-                                v-if="uiState.shownDataUIDs.length > 0"
-                            ></FileRowContainer>
 
-                            <transition name="delay-fade-in">
-                                <!-- 
-                                    use a transition to prevent the loading widget from quick showing up, 
-                                    during the shownDataUIDs is updating (especially at initialization). 
-                                    `uiState.shownDataUIDs == 0` equals v-else
-                                -->
-                                <div id="blankPlaceholder" v-if="uiState.shownDataUIDs.length == 0">
-                                    <p style="
-                                        font-size: xx-large;
-                                        font-weight: bold;
-                                        user-select: none;
-                                    " v-if="dataStore.database.initialized">
-                                        Nothing to show
-                                        <p style="font-size: medium">
-                                            Add your first enty by clicking the 
-                                            <b><a @click="showBlankAddingDataWindow" style="
-                                                cursor:pointer;
-                                                border-radius: 5px;
-                                                padding-inline: 3px;
-                                                /* border: 1px solid var(--color-border); */
-                                                background-color: var(--color-background-soft);
-                                                ">⊕ New</a></b> 
-                                            button above.<br>
-                                        </p>
+                            <FileRowContainer :uids="uiState.shownDataUIDs" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
+                                v-if="uiState.shownDataUIDs.length"
+                            ></FileRowContainer>
+                            <div id="blankPlaceholder" v-else>
+                                <p style="
+                                    font-size: xx-large;
+                                    font-weight: bold;
+                                    user-select: none;
+                                " v-if="dataStore.database.initialized">
+                                    Nothing to show
+                                    <p style="font-size: medium">
+                                        Add your first enty by clicking the 
+                                        <b><a @click="showBlankAddingDataWindow" style="
+                                            cursor:pointer;
+                                            border-radius: 5px;
+                                            padding-inline: 3px;
+                                            /* border: 1px solid var(--color-border); */
+                                            background-color: var(--color-background-soft);
+                                            ">⊕ New</a></b> 
+                                        button above.<br>
                                     </p>
-                                    <LoadingWidget v-if="!dataStore.database.initialized"></LoadingWidget>
-                                </div>
-                            </transition>
+                                </p>
+                                <LoadingWidget v-if="!dataStore.database.initialized"></LoadingWidget>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -216,12 +209,22 @@ export default {
         box-shadow: 0px 0px 5px 0px var(--color-shadow); 
         border-bottom: 1px solid var(--color-border);
     }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
     #blankPlaceholder{
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         height: 100%;
+        animation: fade-in 0.25s ease-in-out;
     }
     #blankPlaceholder p{
         color: var(--color-text-soft);
@@ -259,11 +262,5 @@ export default {
         }
     }
 
-    .delay-fade-in-enter-active {
-        transition: all 0.5s ease-in-out;
-    }
-    .delay-fade-in-enter-from{
-        opacity: 0;
-    }
     
 </style>
