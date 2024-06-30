@@ -14,7 +14,7 @@ from tornado.httpserver import HTTPServer
 import ssl
 
 from .handlers import *
-from .config import ASSETS_DIR
+from .path_config import ASSETS_DIR
 
 
 class DefaultRequestHandler(RequestHandlerBase):

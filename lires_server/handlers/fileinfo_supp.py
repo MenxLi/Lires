@@ -2,7 +2,6 @@
 Get and modify notes of a datapoint
 """
 from ._base import *
-import asyncio
 
 class NoteGetHandler(RequestHandlerBase):
     """

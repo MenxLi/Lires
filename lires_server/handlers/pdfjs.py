@@ -3,7 +3,7 @@ Serve pdfjs files
 """
 
 from ._base import *
-from ..config import PDF_VIEWER_DIR
+from ..path_config import PDF_VIEWER_DIR
 from lires.core.pdfTools import initPDFViewer
 import asyncio
 

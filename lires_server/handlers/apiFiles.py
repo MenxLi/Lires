@@ -1,6 +1,6 @@
 from ._base import *
 from lires.version import VERSION
-from lires_server.config import ASSETS_DIR
+from lires_server.path_config import ASSETS_DIR
 
 import os, string, time
 import zipfile

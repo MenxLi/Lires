@@ -3,7 +3,7 @@ from tornado import template
 from dataclasses import dataclass
 import os
 from lires.config import getConf
-from ..config import ASSETS_DIR
+from ..path_config import ASSETS_DIR
 
 @dataclass
 class ShareEntry:
