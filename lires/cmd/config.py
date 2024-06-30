@@ -16,6 +16,7 @@ def run():
         generateDefaultConf(args.group)
 
     elif args.subparser == "show":
+        print("Configuration file: ", CONF_FILE_PATH)
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as fp:
             print(json.dumps(json.load(fp), indent=1))
 

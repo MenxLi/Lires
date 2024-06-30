@@ -65,6 +65,7 @@ __default_config: LiresConfT = {
     'max_users': 1000,
     'default_user_max_storage': '512m',
     'service_port_range': [21000, 22000],
+    'allow_public_query': True,
 }
 __essential_config_keys = []  # keys that must be in the configuration file
 __g_config: Optional[LiresConfT] = None     # buffer

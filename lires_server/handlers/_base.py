@@ -23,8 +23,12 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 FuncT = TypeVar("FuncT", bound=Callable)
 def authenticate(
+    enabled: bool = True, 
     admin_required: bool = False,
     ) -> Callable[[FuncT], FuncT]:
+    if not enabled:
+        return lambda x: x
+
     def _authenticate(func: FuncT) -> FuncT:
         """
         Decorator to check if user is logged in

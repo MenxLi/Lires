@@ -21,6 +21,9 @@ class LiresConfT(TypedDict):
     
     changes in v1.8.3:
         - drop tiny_vectordb dependency
+    
+    changes in v1.8.5:
+        - Add allow_public_query field
     """
     ## Should contain no optional or ambiguous type fields!!
 
@@ -40,5 +43,9 @@ class LiresConfT(TypedDict):
     # The maximum storage for each user
     # e.g 512m, 1g, 1t
     default_user_max_storage: str
+
+    # Whether to allow public query
+    # i.e. get datapoint info without login via /share and /datainfo*
+    allow_public_query: bool
 
 __all__ = ["LiresConfT"]

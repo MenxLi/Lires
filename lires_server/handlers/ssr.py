@@ -2,8 +2,8 @@ from ._base import *
 from tornado import template
 from dataclasses import dataclass
 import os
+from lires.config import getConf
 from ..config import ASSETS_DIR
-
 
 @dataclass
 class ShareEntry:
@@ -19,6 +19,7 @@ class ShareHandler(RequestHandlerBase):
     with open(os.path.join(ASSETS_DIR, 'share.template.html')) as f:
         share_page_template = template.Template(f.read())
 
+    @authenticate(enabled = not getConf()['allow_public_query'])
     async def get(self):
 
         # get user

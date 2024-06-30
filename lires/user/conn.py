@@ -151,6 +151,7 @@ class UsrDBConnection(LiresBase):
                             (username, password, name, is_admin, json.dumps(mandatory_tags), max_storage)
                             )
         self.setModifiedFlag(True)
+        await self.logger.debug(f"[UserDBConn] User {username} created")
     
     async def __ensureUserExists(self, query: str | int) -> aiosqlite.Row:
         if isinstance(query, str):
