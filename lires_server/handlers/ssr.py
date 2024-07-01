@@ -63,6 +63,7 @@ class ShareHandler(RequestHandlerBase):
         ))
 
 class BibtexHandler(RequestHandlerBase):
+    @authenticate(enabled = not getConf()['allow_public_query'])
     async def get(self, uid): 
         db = await self.db()
         dp = await db.get(uid)

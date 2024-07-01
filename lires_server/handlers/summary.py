@@ -61,7 +61,7 @@ class SummaryHandler(RequestHandlerBase):
         elif model_name == "gpt-4":
             __max_words = 4096
         else:
-            __max_words = 1024
+            __max_words = 2048
         pdf_txt = await getPDFText(await dp.fm.filePath(), __max_words)   # type: ignore
         if len(pdf_txt) < 100:
             self.write("ERROR: Not enough content in the paper.")
