@@ -4,7 +4,7 @@ thus the client don't need to install the heavy packages...
 """
 import fastapi, openai
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from contextlib import asynccontextmanager
 
 import numpy as np
@@ -25,6 +25,10 @@ from ..entry import startService
 
 from lires.core.base import G
 from lires.api import RegistryConn
+
+class BareModel(BaseModel):
+    # https://github.com/pydantic/pydantic/issues/6322
+    model_config = ConfigDict(protected_namespaces=())
 
 @asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
@@ -53,7 +57,7 @@ def status():
         "device": autoTorchDevice(),
         }
 
-class FeaturizeRequest(BaseModel):
+class FeaturizeRequest(BareModel):
     text: str
     word_chunk: int = 256
     model_name: EncoderT = _default_encoder
@@ -64,7 +68,7 @@ async def featurize(req: FeaturizeRequest):
     feat = lmFeaturize(req.text, req.word_chunk, req.model_name, req.dim_reduce)
     return feat.tolist()
 
-class ChatBotRequest(BaseModel):
+class ChatBotRequest(BareModel):
     prompt: str
     model_name: ChatStreamIterType = "DEFAULT"
     temperature: float = 0.7
