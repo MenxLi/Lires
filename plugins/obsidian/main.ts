@@ -303,7 +303,7 @@ function getReferenceLineElem(plugin: LiresPlugin, data: DataInfoT){
 		
 		if (data.has_file){
 			infoElem.appendChild(getLinkSpan({
-				url: plugin.settings.endpoint+'/doc/'+data.uuid + '?_u=' + plugin.userInfo.id,
+				url: plugin.settings.endpoint+'/doc/'+data.uuid + '?u=' + plugin.userInfo.id,
 				text: 'doc'
 			}));
 		}

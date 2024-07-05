@@ -70,7 +70,7 @@ export default class LiresAPI {
         user: UserInfo) => {
         content = content.replace(
             new RegExp('./misc/', 'g'), 
-            `${backend}/misc/${dpSummary.uuid}?_u=${user.id}&&fname=`
+            `${backend}/misc/${dpSummary.uuid}?u=${user.id}&&fname=`
             );
         return content;
     }

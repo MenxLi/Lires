@@ -27,7 +27,7 @@ export function parseMarkdown(content: string, {
         // replace relative file links to absolute web links
         content = content.replace(
             new RegExp('./misc/', 'g'), 
-            `${getBackendURL()}/misc/${datapoint!.summary.uuid}?_u=${user.id}&&fname=`
+            `${getBackendURL()}/misc/${datapoint!.summary.uuid}?u=${user.id}&&fname=`
             );
 
         if (urlRouter) {

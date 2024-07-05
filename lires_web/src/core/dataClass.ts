@@ -192,7 +192,7 @@ export class DataPoint {
     getRawDocURL(): string {
         const uid = this.summary.uuid;
         if (this.summary["has_file"]){
-            return `${this.backendUrl}/doc/${uid}?_u=${useDataStore().user.id}`;
+            return `${this.backendUrl}/doc/${uid}?u=${useDataStore().user.id}`;
         }
         if (!this.summary["has_file"] && this.url){
             return this.url;

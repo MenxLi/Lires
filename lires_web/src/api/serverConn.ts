@@ -15,7 +15,7 @@ export class HTTPPathResolver {
     public get baseURL(){ return this.baseURLGetter(); }
     public get token(){ return this.tokenGetter(); }
 
-    doc(uid: string, userID: number): string{ return `${this.baseURL}/doc/${uid}?_u=${userID}`; }
+    doc(uid: string, userID: number): string{ return `${this.baseURL}/doc/${uid}?u=${userID}`; }
     docDry = (uid: string, userID: number) => this.doc(uid, userID).replace("/doc/", "/doc-dry/");
     docText = (uid: string, userID: number) => this.doc(uid, userID).replace("/doc/", "/doc-text/");
     databaseDownload(data=false): string{ return `${this.baseURL}/api/database/download?data=${data}&key=${this.token}`; }
