@@ -1,13 +1,5 @@
 """ C++ wrapper """
-import sysconfig, platform, dataclasses
 import importlib
-
-@dataclasses.dataclass(frozen=True)
-class PlatformBasicConfig:
-    ext_suffix = sysconfig.get_config_var("EXT_SUFFIX")
-    obj_suffix = ".obj" if platform.system() == "Windows" else ".o"
-    py_includes = sysconfig.get_config_var('INCLUDEPY')
-
 
 class FixSizeAlg:
     """
