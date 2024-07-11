@@ -280,7 +280,14 @@ class RequestHandlerBase(tornado.web.RequestHandler, RequestHandlerMixin):
         # Handle preflight requests
         self.set_status(204)
         self.finish()
-
+    
+    def _handle_request_exception(self, e: BaseException) -> None:
+        if isinstance(e, self.Error.LiresEntryNotFoundError):
+            self.send_error(404, reason="Entry not found")
+        elif isinstance(e, self.Error.LiresUserNotFoundError):
+            self.send_error(404, reason="User not found")
+        else:
+            return super()._handle_request_exception(e)
 
 class ReverseProxyHandlerBase(RequestHandlerBase):
     """
