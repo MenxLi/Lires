@@ -38,8 +38,11 @@ export class DataTags extends Set<string>{
     has(tag: string){
         return super.has(DataTags.removeSpaces(tag));
     }
-    union( tags: DataTags){
-        const ret = new DataTags(this)
+    // @ts-ignore: Property 'union' in type 'DataTags' is not assignable to the same property in base type 'Set<string>'.
+    // Type '(tags: DataTags) => DataTags' is not assignable to type '<U>(other: ReadonlySetLike<U>) => Set<string | U>'.
+    // https://github.com/Microsoft/TypeScript/issues/22198#issuecomment-369278691
+    union( tags: DataTags ): DataTags {
+        const ret = new DataTags(this);
         ret.union_(tags);
         return ret;
     }

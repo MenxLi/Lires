@@ -157,7 +157,7 @@
                         <div class="full-width left-align" v-if="!editUserDialog_userInfo.is_admin">
                             <b>Mandatory Tags:</b>
                             <div id="mandatory-tag-edit">
-                                <EditableParagraph :style="{width:'100%'}" :content-editable="!editUserDialog_userInfo.is_admin" @finish="(inp) => onEditMandatoryTagsDone(inp as string)">
+                                <EditableParagraph :style="{width:'100%'}" :content-editable="!editUserDialog_userInfo.is_admin" @finish="(inp: string) => onEditMandatoryTagsDone(inp)">
                                     {{ editUserDialog_userInfo.mandatory_tags.join('; ')  }}
                                 </EditableParagraph>
                             </div>
