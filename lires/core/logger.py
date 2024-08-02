@@ -46,7 +46,10 @@ class LiresLogger(logging.Logger):
     
     async def log(self, level: int, msg: str, *args, **kwargs):
         if self.isEnabledFor(level):
-            await self.__log(logging.getLevelName(level), msg)
+            await self.__log(
+                logging.getLevelName(level),  # type: ignore
+                msg
+                )
         return super().log(level, msg, *args, **kwargs)
 
 def getFormatter(
@@ -94,9 +97,9 @@ def setupRemoteLogger(
     else:
         logger.setLevel(logging.getLevelName(term_log_level))
         
-
     # remove all other handlers
     logger.handlers.clear()
+
     # set up terminal handler
     _ch = logging.StreamHandler()
     _ch.setLevel(term_log_level)

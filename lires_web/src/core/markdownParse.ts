@@ -17,7 +17,7 @@ export function parseMarkdown(content: string, {
     // url router is used for updating url with query params
     const urlRouter = router? new URLRouter(router): null;
 
-    // remove gray-matter front matter
+    // remove front matter
     content = content.replace(/^---[\s\S]*?---/, '');
 
     if (datapoint) {
