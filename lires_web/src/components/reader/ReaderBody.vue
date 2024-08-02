@@ -99,7 +99,7 @@
                 </div>
             </template>
             <template v-slot:b>
-                <NoteEditor :datapoint="datapoint" :auto-enable-edit="true"ref="noteEditor"> </NoteEditor>
+                <NoteEditor :datapoint="datapoint" :auto-enable-edit="true" ref="noteEditor"> </NoteEditor>
             </template>
         </Splitter>
     </div>

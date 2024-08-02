@@ -913,3 +913,14 @@ version_history:
     - Chore:
       - No robot meta tag
       - Quick registry withdraw
+  1.8.5:
+    - Features:
+      - Configure `allow_public_query`
+    - UI:
+      - Some minor style update
+    - Chore:
+      - Handle request un-caught exception
+      - Reduce redundant requests on tag click
+      - Prefer `u` for user id in url parameters
+      - Opt out of pydantic namespace protection
+      - Update frontend dependencies
