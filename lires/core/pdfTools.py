@@ -46,7 +46,45 @@ __pdfviewer_code_snippet = """
         }
     }
     }
+
+    window.onload = function() {
+        document.querySelector("#viewerContainer").classList.add("scrollable");
+    }
 </script>
+<style>
+    :root.is-light, :root {
+    --color-background-soft: #f7f7f7;
+    --color-border: rgba(0, 0, 0, 0.12);
+    }
+    :root.is-dark {
+    --color-background-soft: #303030;
+    --color-border: rgba(90, 90, 90, 0.48);
+    }
+    html{
+    --scrollbarBG: var(--color-background-soft);
+    --thumbBG: var(--color-border);
+    }
+    body::-webkit-scrollbar, 
+    .panel::-webkit-scrollbar, 
+    .scrollable::-webkit-scrollbar,
+    .hover-scrollable::-webkit-scrollbar{
+    width: 15px;
+    }
+    body::-webkit-scrollbar-track, 
+    .panel::-webkit-scrollbar-track, 
+    .scrollable::-webkit-scrollbar-track, 
+    .hover-scrollable::-webkit-scrollbar-track {
+    background: var(--scrollbarBG);
+    }
+    body::-webkit-scrollbar-thumb, 
+    .panel::-webkit-scrollbar-thumb, 
+    .scrollable::-webkit-scrollbar-thumb,
+    .hover-scrollable::-webkit-scrollbar-thumb {
+    background-color: var(--thumbBG) ;
+    border-radius: 7px;
+    border: 3px solid var(--scrollbarBG);
+    }
+</style>
 """
 
 async def downloadDefaultPDFjsViewer(
