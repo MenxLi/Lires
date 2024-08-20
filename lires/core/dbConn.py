@@ -8,6 +8,7 @@ from typing import TypedDict, Optional, TYPE_CHECKING
 import dataclasses
 import platform
 import aiosqlite
+import functools
 
 from .dbConnUpgrade import *
 from .base import LiresBase
@@ -739,33 +740,37 @@ class DBConnectionCache(LiresBase):
 
     async def _queryBy(self, table: str, col: str, q: list[str], strict: bool, ignore_case: bool) -> set[str]:
         """ return a set of uuids that match the query """
-        query_conds = []
-        query_items = []
+        res_list: list[set[str]] = []
+
         for item in q:
             if strict and not ignore_case:
-                query_conds.append("{}=?".format(col))
+                q_cond = "{}=?".format(col)
             elif strict and ignore_case:
-                query_conds.append("{}=? COLLATE NOCASE".format(col))
+                q_cond = "{}=? COLLATE NOCASE".format(col)
             elif not strict and not ignore_case:
-                query_conds.append("{} LIKE ?".format(col))
+                q_cond = "{} LIKE ?".format(col)
             else:
-                query_conds.append("{} LIKE ? COLLATE NOCASE".format(col))
+                q_cond = "{} LIKE ? COLLATE NOCASE".format(col)
+
             if not strict:
-                query_items.append(f"%{item}%")
+                q_item = f"%{item}%"
             else:
-                query_items.append(item)
-        query = "SELECT entries FROM {} WHERE ".format(table) + " OR ".join(query_conds)
-        found_uids = []
-        async with self.conn.execute(query, tuple(query_items)) as cursor:
-            for row in await cursor.fetchall():
-                found_uids.append(json.loads(row[0]))
-        if not found_uids: return set()
-        if len(found_uids) == 1: return set(found_uids[0])
-        # make a intersection
-        ret = set(found_uids[0])
-        for uid in found_uids[1:]:
-            ret = ret.intersection(uid)
-        return ret
+                q_item = item
+
+            query = "SELECT entries FROM {} WHERE ".format(table) + q_cond
+            found_uids = []
+            async with self.conn.execute(query, (q_item,)) as cursor:
+                for row in await cursor.fetchall():
+                    found_uids.append(json.loads(row[0]))
+
+            # for every search query, get result's union
+            if not found_uids: continue
+            res_list.append(set(functools.reduce(lambda x, y: x+y, found_uids)))
+        
+        # return intersection of all results
+        if not res_list: return set()
+        return functools.reduce(lambda x, y: x.intersection(y), res_list)
+
     async def queryAuthors(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
         q = [formatAuthorName(x) for x in q]
         return await self._queryBy("authors", "author", q, strict, ignore_case)

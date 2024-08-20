@@ -296,9 +296,9 @@ class DataBase(DataCore):
         Get DataPoints by tags, including all child tags
         """
         async def _getByStrictIntersect(tags: DataTags, from_uids: Optional[List[str]] = None) -> list[str]:
-            return await self.conn.filter(from_uids=from_uids, tags=tags.toOrderedList())
+            return await self.conn.filter(from_uids=from_uids, tags=tags.toOrderedList(), strict=True, ignore_case=False)
         async def _getBySingle(tag: str, from_uids: Optional[List[str]] = None) -> list[str]:
-            return await self.conn.filter(from_uids=from_uids, tags=[tag])
+            return await self.conn.filter(from_uids=from_uids, tags=[tag], strict=True, ignore_case=False)
 
         all_tags = DataTags(await self.conn.tags())
         strict_query_tags = DataTags()                      # the exact tags to be queried
