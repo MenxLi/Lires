@@ -1,6 +1,12 @@
 import { fetchArxivPaperByID, bibtexFromArxiv } from "../../utils/arxiv";
 
-export type BibtexTypes = 'article' | 'inproceedings' | 'webpage' | 'misc';
+export type BibtexTypes = 
+'article' | 'inproceedings' | 'misc' |
+'book' | 'booklet' | 'inbook' | 'incollection' | 'manual' | 'conference' |
+'mastersthesis' | 'phdthesis' | 'proceedings' | 'techreport' | 'unpublished' |
+// below are non-standard types
+'online' | 'webpage';
+
 export const getBibtexTemplate = (type: BibtexTypes, {
     entry = "",
     title = "",
@@ -39,8 +45,8 @@ export const getBibtexTemplate = (type: BibtexTypes, {
         pages = {},
         }`.replace(/  /g, "");
     }
-    else if (type == "webpage"){
-        return `@misc{${entry},
+    else if (type == "webpage" || type == "online"){
+        return `@online{${entry},
         title = "{${title}}",
         author = "{${authors.join(" and ")}}",
         year = {${year}},

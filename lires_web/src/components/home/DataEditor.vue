@@ -133,7 +133,14 @@
             console.log("try to extract bibtex from file");
             const fname = f.name;
             const ftime = f.lastModified;
-            const bib = getBibtexTemplate(bibtexTemplateSelection.value, {
+
+            let templateType = bibtexTemplateSelection.value;
+            switch (fname.split('.').pop()){
+                case 'pdf': templateType = 'article'; break;
+                case 'html': templateType = 'online'; break;
+            }
+
+            const bib = getBibtexTemplate(templateType, {
                 title: fname,
                 year: new Date(ftime).getFullYear(),
             });
