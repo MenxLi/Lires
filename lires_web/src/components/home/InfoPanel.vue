@@ -59,7 +59,7 @@
                     <template v-for="author in authors">
                         <div class="author-container">
                             <span class="author">{{author}}</span>
-                            <span class="author-paper-count" v-if="authorPapers[author].length > 0"
+                            <span class="author-paper-count" v-if="authorPapers[author]?.length > 0"
                                 @click="showupAuthor = author"
                             >
                                 ({{authorPapers[author].length}})
