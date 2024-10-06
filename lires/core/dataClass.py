@@ -72,6 +72,8 @@ class DataPoint(DataCore):
             otherwise return the first author's first name + et al.
         Author name abbreviation has a maximum length of self.MAX_AUTHOR_ABBR
         """
+        if len(authors) == 0:
+            return ""
         if len(authors) == 1:
             author = cls._getFirstName(authors[0]) + "."
         else:

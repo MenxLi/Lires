@@ -47,11 +47,11 @@ export const getBibtexTemplate = (type: BibtexTypes, {
     }
     else if (type == "webpage" || type == "online"){
         return `@online{${entry},
-        title = "{${title}}",
-        author = "{${authors.join(" and ")}}",
+        title = {${title}},
+        author = {${authors.join(" and ")}},
         year = {${year}},
-        url = "{}",
-        note = "{}"
+        url = {},
+        note = {}
         }`.replace(/  /g, "");
 
     }
