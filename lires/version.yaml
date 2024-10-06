@@ -924,3 +924,8 @@ version_history:
       - Prefer `u` for user id in url parameters
       - Opt out of pydantic namespace protection
       - Update frontend dependencies
+  1.8.6:
+    - Fixes:
+      - Incomplete author name search
+      - Allow parsing on empty author
+      - Online bibtex template
