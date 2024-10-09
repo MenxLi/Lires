@@ -122,7 +122,7 @@
             </div>
             <div class="authors">
                 <span v-for="(author, index) in props.article.authors" class="authorSpan">
-                    <a class="link" v-if="()=>{article.tags.some((tag)=>tag.startsWith('arxiv'))}"
+                    <a class="link" v-if="props.article.tags.some((tag) => tag.startsWith('arxiv'))"
                         :href="`https://arxiv.org/search/?query=${author}&searchtype=author`" 
                         target="_blank">{{ author }}</a>
                     <label v-else>{{ author }}</label>
@@ -140,7 +140,7 @@
             <p>Added: {{ utcStamp2LocaleStr(props.article.time_added, true) }}</p>
             <details>
                 <summary>Abstract</summary>
-                <p>{{ props.article.abstract }}</p>
+                <p style="font-family: 'Times New Roman', Times, serif;">{{ props.article.abstract }}</p>
             </details>
             <details>
                 <summary @click="queryRelatedArticles">Related articles</summary>

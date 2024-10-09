@@ -176,7 +176,7 @@ const showSummary = ref(false);
             <!-- @vue-ignore -->
             <details @toggle="getAbstract">
                 <summary>Abstract</summary>
-                <EditableParagraph id="abstractParagraph"  ref="abstractParagraph" :style="{minHeight: '20px'}"
+                <EditableParagraph id="abstractParagraph"  ref="abstractParagraph" :style="{minHeight: '20px', fontFamily: '\'Times New Roman\', Times, serif'}"
                     @finish="(t: any)=>onSetAbstract(t)"></EditableParagraph>
             </details>
         </div>

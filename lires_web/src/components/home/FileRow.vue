@@ -241,11 +241,13 @@
                             fontSize: '0.75rem',
                         }"> {{ authorYearText + ', ' + datapoint.publication + (volPageInfo?'. '+volPageInfo:'') }} </div>
                     </div>
-                    <slot></slot>
                 </div>
             </div>
 
             <div class="right row">
+                <div style="margin-right: 0.5rem">
+                    <slot></slot>
+                </div>
                 <div id="status-container">
                     <div class="status">
                         <img v-if="datapoint.summary.has_abstract" src="../../assets/icons/contract.svg" alt="" class="icon">
