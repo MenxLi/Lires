@@ -107,7 +107,7 @@ def tsne(req: DimReduceTSNERequest):
         random_state=req.random_state, 
         perplexity=req.perplexity, 
         n_jobs=None, 
-        n_iter=5000
+        max_iter=5000
         ).fit_transform(np.array(req.data)).astype(np.float16)
     return res.tolist()
 
