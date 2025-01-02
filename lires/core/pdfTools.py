@@ -7,9 +7,9 @@ from tqdm import tqdm
 from ..utils import UseTermColor
 from ..config import TMP_DIR
 
-# DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.2.67/pdfjs-4.2.67-dist.zip"
-DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.2.67/pdfjs-4.2.67-legacy-dist.zip"
 # DEFAULT_PDFJS_DOWNLOADING_URL = "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-4.0.379.tgz"
+# DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.2.67/pdfjs-4.2.67-legacy-dist.zip"
+DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.10.38/pdfjs-4.10.38-dist.zip"
 __pdfviewer_code_snippet = """
 <script>
     // A snippet to modify the default viewer options
@@ -30,11 +30,12 @@ __pdfviewer_code_snippet = """
     }
     }
     const urlParams = (new URL(document.location)).searchParams;
+    let themeChangeFn = function() {};
     if (urlParams.has('color-mode')) {
     const colorMode = urlParams.get('color-mode');
     if (colorMode && (colorMode === 'dark' || colorMode === 'light')) {
         console.log('Setting color mode to ' + colorMode)
-        window.onload = function() {
+        themeChangeFn = function() {
         // check if other color mode is already set
         const otherColorMode = colorMode === 'dark' ? 'light' : 'dark';
         const otherColorModeClass = getColorModeClass(otherColorMode);
@@ -48,6 +49,7 @@ __pdfviewer_code_snippet = """
     }
 
     window.onload = function() {
+        themeChangeFn();
         document.querySelector("#viewerContainer").classList.add("scrollable");
     }
 </script>
