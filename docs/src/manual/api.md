@@ -87,7 +87,7 @@ const articles = await fetchArxivFeed(50, 'cat:cs.CV');
 for (const article of articles) {
     try{
         // 添加到数据库
-        await conn.updateDatapoint(null, {
+        await conn.setDatapoint(null, {
           bibtex: article.bibtex, 
           tags: ['arxiv-collect'], 
           url: article.link

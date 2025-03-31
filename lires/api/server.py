@@ -206,10 +206,11 @@ class ServerConn:
             url: Optional[str] = None,
             ) -> DataPointSummary:
         """
-        Create or update an entry in the database. 
+        Create or update an entry in the database.  
+        **All fields except uuid should be complete when creating a new entry.**
+
         If `uuid` is not None, the entry with the given `uuid` will be updated.
         Otherwise, a new entry will be created, 
-        all other fields should be complete when creating a new entry.
         """
         if uuid is None:
             assert bibtex is not None
