@@ -9,7 +9,7 @@ from ._global_data import GlobalStorage
 from lires.user import UserInfo
 from lires.core.base import LiresBase
 from lires.core.dataTags import DataTags
-from lires.core.vecutils import updateFeture, deleteFeature
+from lires.core.vecutils import update_feature, delete_feature
 from lires.utils import BCOLORS
 
 from abc import abstractmethod
@@ -203,7 +203,7 @@ class RequestHandlerMixin(LiresBase):
         Ensure the feature is updated
         """
         vec_db = await self.vec_db()
-        asyncio.ensure_future(updateFeture(vec_db, self.iconn, dp))
+        asyncio.ensure_future(update_feature(vec_db, self.iconn, dp))
         await self.logger.debug(f"Feature update for {dp.uuid}")
     
     async def deleteFeature(self, dp: DataPoint):
@@ -211,7 +211,7 @@ class RequestHandlerMixin(LiresBase):
         Delete the feature
         """
         vec_db = await self.vec_db()
-        await deleteFeature(vec_db, dp)
+        await delete_feature(vec_db, dp)
         await self.logger.debug(f"Feature deleted for {dp.uuid}")
     
     @staticmethod

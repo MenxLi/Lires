@@ -52,7 +52,7 @@ class LiresLogger(logging.Logger):
                 )
         return super().log(level, msg, *args, **kwargs)
 
-def getFormatter(
+def get_formatter(
     term_id: str = "default",
     term_id_color = BCOLORS.OKGRAY,
     ):
@@ -66,7 +66,7 @@ def getFormatter(
             + BCOLORS.OKCYAN + ' %(asctime)s ' \
             + BCOLORS.OKCYAN + '[%(levelname)s] ' + BCOLORS.ENDC + ' %(message)s'
 
-def setupRemoteLogger(
+def setup_remote_logger(
         _logger: str | LiresLogger, 
         term_id: Optional[str] = None, 
         term_id_color = BCOLORS.OKGRAY, 
@@ -103,7 +103,7 @@ def setupRemoteLogger(
     # set up terminal handler
     _ch = logging.StreamHandler()
     _ch.setLevel(term_log_level)
-    _ch.setFormatter(logging.Formatter(getFormatter(term_id, term_id_color)))
+    _ch.setFormatter(logging.Formatter(get_formatter(term_id, term_id_color)))
     logger.addHandler(_ch)
     return logger
 
@@ -127,16 +127,13 @@ class LoggerStorage:
         # assure the name is a valid sqlite table name
         assert name.isidentifier(), f"Invalid logger name: {name}"
         if not name in self._logger_dict:
-            logger = self.initLogger(name)
+            logger = self.init_logger(name)
             self._logger_dict[name] = logger
         return self._logger_dict[name]
     
-    def getdefault(self) -> logging.Logger:
-        return logging.getLogger("default")
-
-    def initLogger(self, name: str) -> LiresLogger:
+    def init_logger(self, name: str) -> LiresLogger:
         term_log_level: levelT = os.getenv("LRS_TERM_LOG_LEVEL", "INFO").upper()     # type: ignore
-        logger = setupRemoteLogger(
+        logger = setup_remote_logger(
             name,
             term_id=name,
             term_log_level=term_log_level,

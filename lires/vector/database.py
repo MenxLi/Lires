@@ -84,11 +84,11 @@ class VectorCollection(LiresBase, Generic[ContentT]):
                 (vec_enc, entry["group"], entry["content"], entry["uid"])
             )
     
-    async def deleteGroup(self, group: str):
+    async def delete_group(self, group: str):
         async with DB_MOD_LOCK:
             await self.conn.execute( f"DELETE FROM {self.config['name']} WHERE group_name = ?", (group,))
     
-    async def getGroup(self, group: str) -> list[VectorEntry]:
+    async def get_group(self, group: str) -> list[VectorEntry]:
         res = await self.conn.execute(
             f"SELECT * FROM {self.config['name']} WHERE group_name = ?", (group,)
         )
@@ -125,7 +125,7 @@ class VectorCollection(LiresBase, Generic[ContentT]):
             "content": row[3]
         }
     
-    async def getMany(self, uids: list[str]) -> list[VectorEntry]:
+    async def get_many(self, uids: list[str]) -> list[VectorEntry]:
         return await asyncio.gather(*[self.get(uid) for uid in uids])
     
     async def search(
@@ -161,7 +161,7 @@ class VectorCollection(LiresBase, Generic[ContentT]):
         if search_buffer:
             scores += similarity_fn(q_enc, search_buffer)
         
-        top_k_indices = self.alg.topKIndices(scores, top_k)
+        top_k_indices = self.alg.topk_indices(scores, top_k)
         return [ids[i] for i in top_k_indices], [scores[i] for i in top_k_indices]
     
     async def delete(self, uid: str):
@@ -170,7 +170,8 @@ class VectorCollection(LiresBase, Generic[ContentT]):
                 f"DELETE FROM {self.config['name']} WHERE uid = ?", (uid,)
             )
     
-    async def clearAll(self):
+    async def clear_all(self):
+        """ Clear all data in the collection. """
         async with DB_MOD_LOCK:
             await self.conn.execute( f"DELETE FROM {self.config['name']}")
             await self.conn.execute( f"VACUUM")
@@ -201,13 +202,13 @@ class VectorDatabase(LiresBase):
             await self.collections[config["name"]].init()
         return self
         
-    async def allCollectionNames(self) -> list[str]:
+    async def collection_names(self) -> list[str]:
         return list(self.collections.keys())
    
-    async def getCollection(self, name: str) -> VectorCollection:
+    async def get_collection(self, name: str) -> VectorCollection:
         return self.collections[name]
     
-    async def deleteCollection(self, name: str):
+    async def delete_collection(self, name: str):
         async with DB_MOD_LOCK:
             await self.conn.execute( f"DROP TABLE IF EXISTS {name}")
             await self.conn.execute( f"DELETE FROM metadata WHERE name = ?", (name,))

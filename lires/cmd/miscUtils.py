@@ -16,9 +16,9 @@ def main():
 
     if args.subparser == "init-pdfjs":
         from lires_server.path_config import PDF_VIEWER_DIR
-        from lires.core.pdfTools import downloadDefaultPDFjsViewer
+        from lires.core.pdfTools import download_default_pdfjs_viewer
         import asyncio
-        asyncio.run(downloadDefaultPDFjsViewer(download_url=args.url, dst_dir=PDF_VIEWER_DIR, force=True))
+        asyncio.run(download_default_pdfjs_viewer(download_url=args.url, dst_dir=PDF_VIEWER_DIR, force=True))
     if args.subparser == "edit-config":
         from lires.config import CONF_FILE_PATH
         from lires.utils import openFile

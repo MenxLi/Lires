@@ -25,7 +25,7 @@ class FixSizeAlg:
     def l2score(self, query_enc: bytes, target_enc: list[bytes]) -> list[float]:
         return self.lib.l2score(query_enc, target_enc)
     
-    def topKIndices(self, scores: list[float], k: int) -> list[int]:
+    def topk_indices(self, scores: list[float], k: int) -> list[int]:
         if len(scores) < k:
             k = len(scores)
         return self.lib.topKIndices(scores, k)
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     dist = alg.similarity(enc, [enc, enc, alg.encode(vec2)])
     print(dist)
 
-    print(alg.topKIndices(dist, 3))
+    print(alg.topk_indices(dist, 3))
 
     N_LEN = 50000
 

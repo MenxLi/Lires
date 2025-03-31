@@ -3,7 +3,7 @@ Build search index for the database
 """
 import argparse
 
-from lires.core.vecutils import buildFeatureStorage, queryFeatureIndex
+from lires.core.vecutils import build_feature_storage, query_feature_index
 from lires.api import IServerConn
 from lires.loader import initResources
 
@@ -45,16 +45,16 @@ async def entry(args):
 
     if args.subparser == "build":
         vector_db = db.vector
-        await buildFeatureStorage(
+        await build_feature_storage(
             iconn, db, vector_db, force=args.force, max_words_per_doc=args.max_words, 
             )
 
     elif args.subparser == "query":
-        vector_collection = await db.vector.getCollection("doc_feature")
+        vector_collection = await db.vector.get_collection("doc_feature")
         if args.input_uid:
             raise NotImplementedError
         else:
-            res = await queryFeatureIndex(
+            res = await query_feature_index(
                 iconn = iconn,
                 vector_collection = vector_collection,
                 query = args.aim,

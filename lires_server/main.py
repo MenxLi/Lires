@@ -170,10 +170,10 @@ async def __startServer(
 
     async def buildIndex(op_interval: float = 0.05):
         print("Periodically build index")
-        from lires.core.vecutils import buildFeatureStorage
+        from lires.core.vecutils import build_feature_storage
 
         for db in g_storage.database_pool:
-            await buildFeatureStorage(
+            await build_feature_storage(
                 iconn = g_storage.iconn,
                 db = db,
                 vector_db = db.vector,

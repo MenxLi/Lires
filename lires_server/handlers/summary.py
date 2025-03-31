@@ -1,6 +1,6 @@
 from ._base import *
 import os
-from lires.core.pdfTools import getPDFText
+from lires.core.pdfTools import get_pdf_text
 
 class SummaryHandler(RequestHandlerBase):
 
@@ -62,7 +62,7 @@ class SummaryHandler(RequestHandlerBase):
             __max_words = 4096
         else:
             __max_words = 2048
-        pdf_txt = await getPDFText(await dp.fm.filePath(), __max_words)   # type: ignore
+        pdf_txt = await get_pdf_text(await dp.fm.filePath(), __max_words)   # type: ignore
         if len(pdf_txt) < 100:
             self.write("ERROR: Not enough content in the paper.")
             return

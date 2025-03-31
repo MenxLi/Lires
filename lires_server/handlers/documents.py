@@ -116,10 +116,10 @@ class DryDocHandler(RequestHandlerBase):
         if isinstance(file_p, str):
             if file_p.endswith(".pdf"):
                 async with pdfTools.PDFAnalyser(file_p) as doc:
-                    doc.removeImages()
+                    doc.remove_images()
                     self.set_header("Content-Type", 'application/pdf; charset="utf-8"')
                     self.set_header("Content-Disposition", "inline; filename={}.pdf".format(uuid))
-                    self.write(doc.toBytes())
+                    self.write(doc.to_bytes())
                     return
             if file_p.endswith(".html"):
                 async with aiofiles.open(file_p, "r", encoding="utf-8") as f:
@@ -140,7 +140,7 @@ class DocTextHandler(RequestHandlerBase):
         if isinstance(file_p, str):
             if file_p.endswith(".pdf"):
                 async with pdfTools.PDFAnalyser(file_p) as doc:
-                    text = doc.getText()
+                    text = doc.get_text()
                     self.set_header("Content-Type", 'text/plain; charset="utf-8"')
                     self.write(text)
                     return

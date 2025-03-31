@@ -7,12 +7,12 @@ import os, hashlib, re
 import asyncio, tqdm
 from typing import TypedDict, Optional, Callable, Literal, TYPE_CHECKING
 from lires.core.dataClass import DataBase, DataPoint
-from lires.core.pdfTools import getPDFText
+from lires.core.pdfTools import get_pdf_text
 from lires.vector.database import VectorDatabase, VectorCollection, VectorEntry
 if TYPE_CHECKING:
     from lires.api import IServerConn
 
-async def createSummaryWithLLM(iconn: IServerConn, text: str, verbose: bool = False) -> str:
+async def create_summary_with_llm(iconn: IServerConn, text: str, verbose: bool = False) -> str:
     summary = ""
     res = iconn.chat(
         conv_dict={
@@ -40,7 +40,7 @@ FeatureTextSource = TypedDict("FeatureTextSource", {
             "hash": str,
             "type": Literal["abstract", "summary", "fulltext", "title"]},
             )
-async def getOverallFeatureTextSource(
+async def get_feature_text_source(
         iconn: Optional[IServerConn], 
         dp: DataPoint, 
         max_words_per_doc: Optional[int] = None, 
@@ -69,7 +69,7 @@ async def getOverallFeatureTextSource(
     elif await dp.fm.hasFile() and dp.summary.file_type == ".pdf":
         # if has pdf, try to create a summary
         pdf_path = await dp.fm.filePath(); assert pdf_path
-        pdf_text = await getPDFText(pdf_path, max_words_per_doc)
+        pdf_text = await get_pdf_text(pdf_path, max_words_per_doc)
 
         _summary_cache_path = os.path.join(doc_summary_dir, uid + ".txt")
         if os.path.exists(_summary_cache_path):
@@ -79,7 +79,7 @@ async def getOverallFeatureTextSource(
         else:
             if iconn:
                 # if LLM is available, use it to create summary
-                summary = await createSummaryWithLLM(iconn, pdf_text)
+                summary = await create_summary_with_llm(iconn, pdf_text)
                 with open(_summary_cache_path, "w") as f:
                     f.write(summary)
                 if summary:
@@ -111,15 +111,15 @@ async def getOverallFeatureTextSource(
             "type": "title"
         }
 
-async def updateFeture(
+async def update_feature(
     vector_db: VectorDatabase, 
     iconn: IServerConn, 
     dp: DataPoint,
     max_words_per_doc: int = 2048
     ):
     async def _updateDocFeature():
-        vector_collection = await vector_db.getCollection("doc_feature")
-        _ret = await getOverallFeatureTextSource(None, dp, max_words_per_doc)
+        vector_collection = await vector_db.get_collection("doc_feature")
+        _ret = await get_feature_text_source(None, dp, max_words_per_doc)
         new_content = f'{_ret["type"]}:{_ret["hash"]}'
         uid = dp.uuid
         try:
@@ -143,14 +143,14 @@ async def updateFeture(
         # which may case the un-ordered try-catch block to fail
         await _updateDocFeature()
 
-async def deleteFeature(
+async def delete_feature(
         vector_db: VectorDatabase, 
         dp: DataPoint,
         ) -> None:
-    vector_collection = await vector_db.getCollection("doc_feature")
-    await vector_collection.deleteGroup(dp.uuid)
+    vector_collection = await vector_db.get_collection("doc_feature")
+    await vector_collection.delete_group(dp.uuid)
 
-async def buildFeatureStorage(
+async def build_feature_storage(
         iconn: IServerConn,
         db: DataBase, 
         vector_db: VectorDatabase,
@@ -162,17 +162,17 @@ async def buildFeatureStorage(
     - operation_interval: float, the interval between two operations, in seconds, 
         set this to a positive value to avoid blocking the main event loop
     """
-    vector_collection = await vector_db.getCollection("doc_feature")
+    vector_collection = await vector_db.get_collection("doc_feature")
 
     # check if ai server is running
     assert iconn.status is not None, "iServer is not running, please connect to the AI server fist"
 
     if force:
-        await vector_collection.clearAll()
+        await vector_collection.clear_all()
     
     # extract text source
     for dp in tqdm.tqdm(await db.getAll(), desc="Building feature storage"):
-        await updateFeture(
+        await update_feature(
             dp = dp,
             iconn = iconn, 
             vector_db = vector_db, 
@@ -181,7 +181,7 @@ async def buildFeatureStorage(
         await asyncio.sleep(operation_interval)
     await vector_db.commit()
 
-async def queryFeatureIndex(
+async def query_feature_index(
         iconn: IServerConn,
         vector_collection: VectorCollection,
         query: str, n_return: int = 16, 
@@ -190,7 +190,7 @@ async def queryFeatureIndex(
     assert query_vec is not None
 
     uids, scores = await vector_collection.search(query_vec, n_return)
-    entries = await vector_collection.getMany(uids)
+    entries = await vector_collection.get_many(uids)
     return [{"score": score, "entry": entry} for score, entry in zip(scores, entries)]
 
 async def queryFeatureIndexByUID(
@@ -210,8 +210,8 @@ async def queryFeatureIndexByUID(
         query_string: str = dp.title
         print("Warning: no pdf file found, use title only: {}".format(query_string))
     else:
-        query_string = await getPDFText(pdf_path, 4096)
-    return await queryFeatureIndex(
+        query_string = await get_pdf_text(pdf_path, 4096)
+    return await query_feature_index(
         iconn=iconn,
         vector_collection=vector_collection,
         query=query_string, 

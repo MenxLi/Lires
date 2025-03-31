@@ -89,7 +89,7 @@ __pdfviewer_code_snippet = """
 </style>
 """
 
-async def downloadDefaultPDFjsViewer(
+async def download_default_pdfjs_viewer(
         dst_dir: str,
         download_url: str = DEFAULT_PDFJS_DOWNLOADING_URL, 
         force: bool = False) -> bool:
@@ -159,7 +159,7 @@ async def downloadDefaultPDFjsViewer(
     print("Done.")
     return True
 
-async def initPDFViewer(dst_dir: str):
+async def init_pdf_viewer(dst_dir: str):
     if os.path.exists(dst_dir) \
         and not os.listdir(dst_dir)==[] \
         and os.path.exists(os.path.join(dst_dir, "web", "viewer.html")):
@@ -176,7 +176,7 @@ async def initPDFViewer(dst_dir: str):
     with open(lock_file, "w") as f:
         f.write(str(this_pid))
     try:
-        await downloadDefaultPDFjsViewer(force=True, dst_dir=dst_dir)
+        await download_default_pdfjs_viewer(force=True, dst_dir=dst_dir)
     except Exception as e:
         with UseTermColor("red"):
             print("ERROR: {}".format(e))
@@ -206,7 +206,7 @@ class PDFAnalyser:
     async def __aexit__(self, exc_type, exc_value, traceback):
         self.doc.close()
 
-    def getText(self, no_new_line = True, smaller_space = True) -> str:
+    def get_text(self, no_new_line = True, smaller_space = True) -> str:
         text = chr(12).join([page.get_text() for page in self.doc]) # type: ignore
         if no_new_line:
             text = text.replace("\n", " ")
@@ -215,7 +215,7 @@ class PDFAnalyser:
             text = " ".join(text.split())
         return text
     
-    def removeImages(self) -> None:
+    def remove_images(self) -> None:
         """ 
         Remove all images in the pdf.
         """
@@ -224,17 +224,17 @@ class PDFAnalyser:
                 xref = img[0]
                 self.doc._deleteObject(xref)
     
-    def toBytes(self) -> bytes:
+    def to_bytes(self) -> bytes:
         return self.doc.write()
 
-async def getPDFText(pdf_path: str, max_word: Optional[int] = None, possible_offset: int = 0) -> str:
+async def get_pdf_text(pdf_path: str, max_word: Optional[int] = None, possible_offset: int = 0) -> str:
     """
     possible_offset: if the pdf has more words than max_word, 
         then the offset will be used to get the text from the start of the pdf. 
         then actual offset will be calculated based on the number of words in the pdf.
     """
     async with PDFAnalyser(pdf_path) as doc:
-        pdf_text_ori = doc.getText()
+        pdf_text_ori = doc.get_text()
 
     n_words = len(pdf_text_ori.split())
     if n_words == 0:

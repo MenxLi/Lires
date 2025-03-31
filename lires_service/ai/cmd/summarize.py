@@ -16,7 +16,7 @@ async def main():
 
     args = parser.parse_args()
     async with PDFAnalyser(args.pdf_path) as doc:
-        pdf_text = doc.getText()
+        pdf_text = doc.get_text()
 
     max_len = args.max_length
     if max_len == -1: max_len = len(pdf_text.split())

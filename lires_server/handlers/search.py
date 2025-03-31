@@ -1,6 +1,6 @@
 from ._base import *
 from typing import TypedDict
-from lires.core.vecutils import queryFeatureIndex
+from lires.core.vecutils import query_feature_index
 import json
 
 
@@ -76,11 +76,11 @@ class BasicFilterHandler(RequestHandlerBase):
                     res.append(uid)
         
         elif search_by == 'feature':
-            q_res = await queryFeatureIndex(
+            q_res = await query_feature_index(
                 iconn=self.iconn,
                 query=search_content,
                 n_return=top_k,
-                vector_collection= await (await self.vec_db()).getCollection("doc_feature")
+                vector_collection= await (await self.vec_db()).get_collection("doc_feature")
             )
             res_ = [x["entry"]["uid"] for x in q_res]
             scores_ = [x["score"] for x in q_res]
