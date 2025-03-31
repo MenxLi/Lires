@@ -39,7 +39,7 @@
         }           // create a capture of the current state
         close();    // close the dialog and clear the state
         uiState.showPopup("Saving entry...", "info")
-        conn.updateDatapoint(uploadState.uuid, {
+        conn.setDatapoint(uploadState.uuid, {
             bibtex: uploadState.bibtex, 
             tags: uploadState.tags, 
             url: uploadState.url

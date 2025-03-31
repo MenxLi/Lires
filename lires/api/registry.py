@@ -63,7 +63,7 @@ class RegistryConn(LiresAPIBase):
 
             await self._register(info, ensure_status)
         if start_heartbeat:
-            self.startHeartbeatThread(on_fail=lambda e: print("ERROR: Failed to heartbeat: {}".format(e)))
+            self.start_heartbeat_thread(on_fail=lambda e: print("ERROR: Failed to heartbeat: {}".format(e)))
     
     async def heartbeat(self, on_fail: Optional[Callable[[str], Any]] = None):
         try:
@@ -86,7 +86,7 @@ class RegistryConn(LiresAPIBase):
             else:
                 raise e
     
-    def startHeartbeatThread(self, on_fail: Optional[Callable[[str], Any]] = None):
+    def start_heartbeat_thread(self, on_fail: Optional[Callable[[str], Any]] = None):
         self.__do_heartbeat.set()
 
         def heartbeatThread():

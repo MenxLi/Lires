@@ -4,7 +4,7 @@ Connect to feed server
 """
 
 from typing import Optional
-from .common import LiresAPIBase, classCachedFunc
+from .common import LiresAPIBase, class_cached_fn
 from .registry import RegistryConn
 
 class FServerConn(LiresAPIBase):
@@ -17,7 +17,7 @@ class FServerConn(LiresAPIBase):
         else:
             self._url = endpoint
     
-    @classCachedFunc()
+    @class_cached_fn()
     async def endpoint(self):
         if self._url is None:
             reg = await RegistryConn().get("feed")

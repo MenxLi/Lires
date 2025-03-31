@@ -72,28 +72,28 @@ export class ServerConn {
         return await this.fetcher.get(`/api/status`).then(res=>res.json());
     }
     
-    async reqAllKeys(): Promise<string[]>{
+    async getAllKeys(): Promise<string[]>{
         return await this.fetcher.get(`/api/database/keys`).then(res=>res.json());
     };
-    async reqAllTags(): Promise<string[]>{
+    async getAllTags(): Promise<string[]>{
         return await this.fetcher.get(`/api/database/tags`).then(res=>res.json());
     };
 
-    async reqDatabaseFeatureTSNE(collectionName = "doc_feature", nComponent = 3, perplexity = 10): Promise<DatabaseFeature>{
+    async getDatabaseFeatureTSNE(collectionName = "doc_feature", nComponent = 3, perplexity = 10): Promise<DatabaseFeature>{
         return await this.fetcher.get(`/api/datafeat/tsne/${collectionName}`, {
             n_component: nComponent.toString(),
             perplexity: perplexity.toString(),
         }).then(res=>res.json());
     }
 
-    async reqDatabaseUsage(): Promise<DatabaseUsage>{
+    async getDatabaseUsage(): Promise<DatabaseUsage>{
         return await this.fetcher.get(`/api/database/usage`).then(res=>res.json());
     }
 
-    async reqDatapointSummary( uid: string ): Promise<DataInfoT>{
+    async getDatapointSummary( uid: string ): Promise<DataInfoT>{
         return await this.fetcher.get(`/api/datainfo/${uid}`).then(res=>res.json());
     }
-    async reqDatapointSummaries( uids: string[] ): Promise<DataInfoT[]>{
+    async getDatapointSummaries( uids: string[] ): Promise<DataInfoT[]>{
         return await this.fetcher.post(`/api/datainfo-list`, {
             uids: JSON.stringify(uids),
         }).then(res=>res.json());
@@ -113,7 +113,7 @@ export class ServerConn {
         * @param url: the url of the datapoint
         * @return the updated datapoint
     */
-    async updateDatapoint(
+    async setDatapoint(
         uid: string | null, 
         {
             bibtex = null, 
@@ -139,21 +139,21 @@ export class ServerConn {
         return await this.fetcher.post(`/api/dataman/update`, params).then(res=>res.json());
     }
 
-    async reqDatapointAbstract(uid: string): Promise<string>{
+    async getDatapointAbstract(uid: string): Promise<string>{
         return await this.fetcher.get(`/api/datainfo-supp/abstract/${uid}`).then(res=>res.text());
     }
 
-    async updateDatapointAbstract(uid: string, content: string): Promise<boolean>{
+    async setDatapointAbstract(uid: string, content: string): Promise<boolean>{
         return await this.fetcher.post(`/api/datainfo-supp/abstract-update/${uid}`, {
             content: content,
         }).then((_) => true);
     }
 
-    async reqDatapointNote( uid: string ): Promise<string>{
+    async getDatapointNote( uid: string ): Promise<string>{
         return await this.fetcher.get(`/api/datainfo-supp/note/${uid}`).then(res=>res.text());
     }
 
-    async updateDatapointNote( uid: string, content: string ): Promise<boolean>{
+    async setDatapointNote( uid: string, content: string ): Promise<boolean>{
         return await this.fetcher.post(`/api/datainfo-supp/note-update/${uid}`, {
             content: content,
         }).then((_) => true);
@@ -228,7 +228,7 @@ export class ServerConn {
         })
     }
 
-    async reqMiscFileList(uid: string): Promise<string[]>{
+    async getMiscFileList(uid: string): Promise<string[]>{
         return await this.fetcher.get(`/api/misc-list/${uid}`).then(res=>res.json());
     }
     async deleteMiscFile(uid: string, fileName: string): Promise<boolean>{
@@ -270,7 +270,7 @@ export class ServerConn {
     }
 
     /* rename tag for all datapoints */
-    async updateTagAll(oldTag: string, newTag: string): Promise<boolean>{
+    async renameTagAll(oldTag: string, newTag: string): Promise<boolean>{
         return await this.fetcher.post(`/api/database/tag-rename`, {
             oldTag: oldTag,
             newTag: newTag,
@@ -288,26 +288,26 @@ export class ServerConn {
     //                User related               
     // =============================================
 
-    async reqUserInfo(username: string): Promise<UserInfo>{
+    async getUserInfo(username: string): Promise<UserInfo>{
         // TODO: use get
         return await this.fetcher.post(`/api/user/info/${username}`).then(res=>res.json());
     }
 
-    async updateUserNickname(name: string): Promise<UserInfo>{
+    async setUserNickname(name: string): Promise<UserInfo>{
         // the user is identified by the key
         return await this.fetcher.post(`/api/user/info-update`, {
             name: name,
         }).then(res=>res.json());
     }
 
-    async updateUserPassword(newPassword: string): Promise<UserInfo>{
+    async setUserPassword(newPassword: string): Promise<UserInfo>{
         // the user is identified by the key
         return await this.fetcher.post(`/api/user/info-update`, {
             password: sha256(newPassword),
         }).then(res=>res.json());
     }
 
-    async reqUserList(): Promise<UserInfo[]>{
+    async getUserList(): Promise<UserInfo[]>{
         return await this.fetcher.post(`/api/user/list`, {}).then(res=>res.json());
     }
 
@@ -316,7 +316,7 @@ export class ServerConn {
     }
 
     // User management
-    async updateUserAccess(username: string, setAdmin: boolean | null, setMandatoryTags: string[] | null, max_storage: number | null): Promise<UserInfo>{
+    async setUserAccess(username: string, setAdmin: boolean | null, setMandatoryTags: string[] | null, max_storage: number | null): Promise<UserInfo>{
         const formObj = {} as Record<string, any>;
         formObj.username = username;
         if (setAdmin !== null) 
@@ -357,7 +357,7 @@ export class ServerConn {
     // =============================================
     //                 Feed              
     // =============================================
-    async reqFeedList({
+    async getFeedList({
         maxResults = 10,
         category = "",
         timeBefore = -1,
@@ -377,7 +377,7 @@ export class ServerConn {
         }).then(res=>res.json());
     }
 
-    async reqFeedCategories(): Promise<string[]>{
+    async getFeedCategories(): Promise<string[]>{
         return await this.fetcher.get(`/api/feed/categories`).then(res=>res.json());
     }
 

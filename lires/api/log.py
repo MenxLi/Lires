@@ -5,7 +5,7 @@ Connect to log server
 
 import aiohttp
 from typing import Literal, Optional
-from .common import LiresAPIBase, classCachedFunc
+from .common import LiresAPIBase, class_cached_fn
 from .registry import RegistryConn
 
 levelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -20,7 +20,7 @@ class LServerConn(LiresAPIBase):
             self._url = endpoint
         self.ignore_connection_error = ignore_connection_error
     
-    @classCachedFunc()
+    @class_cached_fn()
     async def endpoint(self):
         if self._url is None:
             reg = await RegistryConn().get("log")

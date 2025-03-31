@@ -6,7 +6,7 @@ from __future__ import annotations
 import aiohttp
 from typing import TYPE_CHECKING, Optional, TypedDict, AsyncIterator
 import json
-from .common import LiresAPIBase, classCachedFunc
+from .common import LiresAPIBase, class_cached_fn
 from .registry import RegistryConn
 from lires.config import LRS_KEY
 
@@ -23,7 +23,7 @@ class IServerConn(LiresAPIBase):
     def setEndpoint(self, endpoint: str) -> None:
         self._endpoint = endpoint
 
-    @classCachedFunc()
+    @class_cached_fn()
     async def url(self) -> str:
         if self._endpoint is None:
             return (await RegistryConn().get("ai"))["endpoint"]
@@ -77,7 +77,7 @@ class IServerConn(LiresAPIBase):
             ) as session:
             async with session.post(post_url, json = post_args) as res:
                 try:
-                    self.ensureRes(res)
+                    self.ensure_res(res)
                     async for chunk in res.content.iter_chunked(128):
                         if chunk:
                             yield chunk.decode("utf-8")

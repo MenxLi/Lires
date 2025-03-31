@@ -85,14 +85,14 @@
     async function runFetchArticles(){
         arxivArticles.value = [];
         const conn = useConnectionStore().conn;
-        allCategories.value = ['arxiv'].concat(await conn.reqFeedCategories())
+        allCategories.value = ['arxiv'].concat(await conn.getFeedCategories())
         
         fetching.value = true
         const timeBefore_float = new Date(timeBefore.value).getTime() / 1000;
         const timeAfter_float = new Date(timeAfter.value).getTime() / 1000;
         try{
             // const articles = await fetchArticleFromBackend(maxResults.value, fetchCategory.value);
-            const articles = await conn.reqFeedList(
+            const articles = await conn.getFeedList(
                 {
                     maxResults: maxResults.value, 
                     category: fetchCategory.value, 

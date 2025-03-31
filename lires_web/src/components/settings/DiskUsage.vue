@@ -33,7 +33,7 @@ export default {
     },
     methods: {
         fetchDiskUsage() {
-            useConnectionStore().conn.reqDatabaseUsage().then(
+            useConnectionStore().conn.getDatabaseUsage().then(
                 (usage) => {
                     const usedSpace = (usage.disk_usage / 1024 / 1024).toFixed(1);
                     const totalSpace = (usage.disk_limit / 1024 / 1024).toFixed(1);

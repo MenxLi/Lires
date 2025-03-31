@@ -32,11 +32,11 @@ export class UserPool{
         this.conn = conn;
     }
     async list(): Promise<User[]>{
-        let userInfoList = await this.conn.reqUserList();
+        let userInfoList = await this.conn.getUserList();
         return userInfoList.map(v => new User(this.conn, v));
     }
     async get(username: string): Promise<User>{
-        let userInfo = await this.conn.reqUserInfo(username);
+        let userInfo = await this.conn.getUserInfo(username);
         return new User(this.conn, userInfo);
     }
 }

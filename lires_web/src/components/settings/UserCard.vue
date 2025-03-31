@@ -60,7 +60,7 @@
         // maybe update the name
         if (!(settings_nickname.value === "" || settings_nickname.value === props.userInfo.name)){
             if (settings_nickname.value !== props.userInfo.name){
-                conn.updateUserNickname(settings_nickname.value).then(
+                conn.setUserNickname(settings_nickname.value).then(
                     (new_userInfo: UserInfo) => {
                         emit("update:userInfo", new_userInfo);
                         showUserSettingsDialog.value = false;
@@ -87,7 +87,7 @@
                 useUIStateStore().showPopup("The old password is incorrect", "error");
                 return;
             }
-            conn.updateUserPassword(settings_newPassword.value).then(
+            conn.setUserPassword(settings_newPassword.value).then(
                 (_: UserInfo) => {
                     const new_encKey = sha256(props.userInfo.username + sha256(settings_newPassword.value)) as string;
                     useSettingsStore().setEncKey(new_encKey);

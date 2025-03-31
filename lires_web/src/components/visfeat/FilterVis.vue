@@ -146,7 +146,7 @@
         else{ perp = 15; }
 
         console.log("dataset size: ", datasetSize, "perp: ", perp);
-        featsRaw.value = await conn.reqDatabaseFeatureTSNE("doc_feature", 3, perp);
+        featsRaw.value = await conn.getDatabaseFeatureTSNE("doc_feature", 3, perp);
     }
 
     

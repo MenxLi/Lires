@@ -6,12 +6,13 @@ from lires.core.error import LiresError
 from lires.config import LRS_KEY
 
 FuncT = TypeVar("FuncT", bound=Callable)
-def classCachedFunc(cache_time: float = 0.1):
+def class_cached_fn(cache_time: float = 0.1):
+    """ Decorator to cache method result across all instances of the class. """
     def decorator(func: FuncT) -> FuncT:
         func_name = func.__name__
         async def wrapper(self: LiresAPIBase, *args, **kwargs):
-            assert args == (), 'classCachedFunc does not support args'
-            assert kwargs == {}, 'classCachedFunc does not support kwargs'
+            assert args == (), 'class_cached_fn does not support args'
+            assert kwargs == {}, 'class_cached_fn does not support kwargs'
             req_name = f"cls_id:{id(self.__class__)}.{func_name}"
             if req_name not in self._cache_method_res:
                 self._cache_method_res[req_name] = {
@@ -40,7 +41,7 @@ class ServiceFetcher:
             headers = { "Authorization": "Bearer " + LRS_KEY }
             ) as session:
             async with session.post(url, json = json) as res:
-                LiresAPIBase.ensureRes(res)
+                LiresAPIBase.ensure_res(res)
                 if return_raw:
                     return res
                 return await res.json()
@@ -50,7 +51,7 @@ class ServiceFetcher:
             headers = { "Authorization": "Bearer " + LRS_KEY }
             ) as session:
             async with session.get(url) as res:
-                LiresAPIBase.ensureRes(res)
+                LiresAPIBase.ensure_res(res)
                 return await res.json()
 
 class LiresAPIBase:
@@ -75,7 +76,7 @@ class LiresAPIBase:
         return LoggerStorage().get('api')
 
     @classmethod
-    def ensureRes(cls, res: aiohttp.ClientResponse):
+    def ensure_res(cls, res: aiohttp.ClientResponse):
         if res.status == 200:
             return True
         

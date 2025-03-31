@@ -60,7 +60,7 @@
         if (oldTag && dataStore.database.allTags().has(oldTag)){
             const newTag = prompt("New tag");
             if (newTag){
-                useConnectionStore().conn.updateTagAll(oldTag, newTag).then(
+                useConnectionStore().conn.renameTagAll(oldTag, newTag).then(
                     () => { uiState.showPopup("Tag renamed", "success"); },
                     () => { uiState.showPopup("Failed to rename tag", "error") },
                 )

@@ -36,7 +36,7 @@
     }
     function onEditUserOK(){
         console.log(editUserDialog_userInfo.value);
-        conn.updateUserAccess(
+        conn.setUserAccess(
             editUserDialog_userInfo.value!.username,
             editUserDialog_userInfo.value!.is_admin,
             editUserDialog_userInfo.value!.mandatory_tags, 
@@ -108,7 +108,7 @@
 
     onMounted(() => {
         // get all users
-        conn.reqUserList().then(
+        conn.getUserList().then(
             (res) => { 
                 allUsers.value = res; 
             },

@@ -48,7 +48,7 @@ export class DataPoint {
     // will update this.supp.abstract
     fetchAbstract(): Promise<string> {
         return new Promise((resolve, reject) => {
-            this.conn.reqDatapointAbstract(this.summary.uuid).then((data) => {
+            this.conn.getDatapointAbstract(this.summary.uuid).then((data) => {
                 this.supp.abstract = data;
                 resolve(data);
             }).catch((err) => {
@@ -64,7 +64,7 @@ export class DataPoint {
                 resolve(true);
                 return;
             }
-            this.conn.updateDatapointAbstract(this.summary.uuid, abstract).then((data) => {
+            this.conn.setDatapointAbstract(this.summary.uuid, abstract).then((data) => {
                 this.supp.abstract = abstract;
                 resolve(data);
             }).catch((err) => {
@@ -76,7 +76,7 @@ export class DataPoint {
     // will update this.supp.note
     fetchNote(): Promise<string> {
         return new Promise((resolve, reject) => {
-            this.conn.reqDatapointNote(this.summary.uuid).then((data) => {
+            this.conn.getDatapointNote(this.summary.uuid).then((data) => {
                 this.supp.note = data;
                 resolve(data);
             }).catch((err) => {
@@ -93,7 +93,7 @@ export class DataPoint {
         // replace image url with ./misc/
         // note = note.replace(new RegExp(`${this.backendUrl}/misc/${this.summary.uuid}\\?fname=`, 'g'), './misc/');
         return new Promise((resolve, reject) => {
-            this.conn.updateDatapointNote(
+            this.conn.setDatapointNote(
                 this.summary.uuid,
                 note as string
             ).then((data) => {
@@ -113,7 +113,7 @@ export class DataPoint {
     deleteMiscFile(fname: string): Promise<boolean>{ return this.conn.deleteMiscFile(this.summary.uuid, fname); }
     renameMiscFile(fname: string, newname: string): Promise<boolean>{ return this.conn.renameMiscFile(this.summary.uuid, fname, newname); }
     listMiscFiles(): Promise<Record<'fname'|'rpath'|'url', string>[]>{ 
-        const fnameList = this.conn.reqMiscFileList(this.summary.uuid); 
+        const fnameList = this.conn.getMiscFileList(this.summary.uuid); 
         const urlBase = `${this.backendUrl}/misc/${this.summary.uuid}`;
         return fnameList.then((data) => {
             return data.map((fname) => {
@@ -157,7 +157,7 @@ export class DataPoint {
             return Promise.resolve(summary);
         }
 
-        const res = this.conn.reqDatapointSummary(this.summary.uuid);
+        const res = this.conn.getDatapointSummary(this.summary.uuid);
         res.then((data) => {
             this.summary = data;
         })
@@ -333,8 +333,8 @@ export class DataBase {
     }
     allTags() : DataTags { return this.tags; }
     allKeys() : string[] { return this.uids; }
-    async updateKeyCache(){ this.uids = await this.conn.reqAllKeys(); }
-    async updateTagCache(){ this.tags = new DataTags(await this.conn.reqAllTags()); }
+    async updateKeyCache(){ this.uids = await this.conn.getAllKeys(); }
+    async updateTagCache(){ this.tags = new DataTags(await this.conn.getAllTags()); }
 
     async update(summary: DataInfoT, syncTags = true): Promise<DataPoint> {
         let oldTagsOfUpdatedData;
@@ -418,7 +418,7 @@ export class DataBase {
     async aget(uid: string): Promise<DataPoint>{
         if (!(uid in this.cache)){
             try{
-                const dpInfo = await this.conn.reqDatapointSummary(uid);
+                const dpInfo = await this.conn.getDatapointSummary(uid);
                 this.cache[uid] = new DataPoint(this.conn, dpInfo);
             }
             catch(err){
@@ -441,7 +441,7 @@ export class DataBase {
                     return uuids.map((uid) => this.cache[uid]);
                 }
                 // done with a single request, this is faster but require all uids to be exist
-                const notCachedSummaries = await this.conn.reqDatapointSummaries(notCached);
+                const notCachedSummaries = await this.conn.getDatapointSummaries(notCached);
                 console.debug("DEBUG: get data points of size: ", notCachedSummaries.length)
                 // assamble the result
                 const notCachedDps = notCachedSummaries.map((summary) => new DataPoint(this.conn, summary));
