@@ -15,7 +15,7 @@ class TestDB:
     
     def test_db_search(self, conn: DBConnection):
         async def _test():
-            uid0 = await conn.addEntry(
+            uid0 = await conn.add_entry(
                 bibtex="",
                 dtype="article",
                 title="test title0",
@@ -31,7 +31,7 @@ class TestDB:
             assert (raw := await conn.get(uid0))
             assert raw["title"] == "test title0"
 
-            uid1 = await conn.addEntry(
+            uid1 = await conn.add_entry(
                 bibtex="",
                 dtype="inproceedings",
                 title="test title1",

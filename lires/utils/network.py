@@ -1,7 +1,7 @@
 import socket, random, asyncio, time
 from typing import TypeVar, Callable, Coroutine
 
-def getLocalIP() -> tuple[str, int]:
+def get_local_ip() -> tuple[str, int]:
     """
     Find an available address for the socket.
     """
@@ -11,7 +11,7 @@ def getLocalIP() -> tuple[str, int]:
     sock.close()
     return local_ip, port
 
-def getFreePort(low: int = 0, high: int = 65535) -> int:
+def get_free_port(low: int = 0, high: int = 65535) -> int:
     """
     Find an available port in the range [low, high).
     """
@@ -32,7 +32,7 @@ def getFreePort(low: int = 0, high: int = 65535) -> int:
                 max_try -= 1
 
 FuncT = TypeVar("FuncT", bound=Callable[..., Coroutine])
-def minResponseInterval(min_interval=0.1):
+def min_response_interval(min_interval=0.1):
     """
     Decorator to limit the minimum interval between responses
     """

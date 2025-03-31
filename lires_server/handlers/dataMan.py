@@ -7,7 +7,7 @@ Provides handers for adding, deleting, and modifying files/tags
 
 from ._base import *
 import json, asyncio
-from lires.core.bibReader import checkBibtexValidity, BibConverter
+from lires.core.bibReader import check_bibtex_validity, BibConverter
 from lires.core.fileTools import addDocument
 from lires.core.dataTags import DataTags
 
@@ -80,26 +80,26 @@ class DataUpdateHandler(RequestHandlerBase):
                 old_tags = (await db.get(uuid)).tags
                 await self.checkTagPermission(old_tags, permission["mandatory_tags"])
 
-        if bibtex is not None and not await checkBibtexValidity(bibtex, self.logger.error):
+        if bibtex is not None and not await check_bibtex_validity(bibtex, self.logger.error):
             # check if it is other format
             # TODO: find a more elegant way to do this...
             bib_converter = BibConverter()
             __c_bibtex = None
             if not __c_bibtex:
                 try:
-                    __c_bibtex = await bib_converter.fromNBib(bibtex)
+                    __c_bibtex = await bib_converter.from_nbib(bibtex)
                     await self.logger.debug("Obtained bibtex from nbib")
                 except Exception as e:
                     await self.logger.debug(f"Failed to convert from nbib: {e}")
             
             if not __c_bibtex:
                 try:
-                    __c_bibtex = bib_converter.fromEndNote(bibtex)
+                    __c_bibtex = bib_converter.from_endnote(bibtex)
                     await self.logger.debug("Obtained bibtex from endnote")
                 except:
                     await self.logger.debug("Failed to convert from endnote")
 
-            if __c_bibtex and checkBibtexValidity(__c_bibtex, self.logger.error):
+            if __c_bibtex and check_bibtex_validity(__c_bibtex, self.logger.error):
                 # successfully converted from other format
                 bibtex = __c_bibtex
             else:
@@ -118,7 +118,7 @@ class DataUpdateHandler(RequestHandlerBase):
             uuid = await addDocument(
                 db.conn, bibtex, 
                 url = url,
-                tags = DataTags(tags).toOrderedList(),
+                tags = DataTags(tags).to_ordered_list(),
                 check_duplicate = True
                 )
             if uuid is None:

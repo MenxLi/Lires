@@ -6,62 +6,62 @@ CallVar = TypeVar("CallVar", bound = Callable)
 class TimeUtils:
     LOCAL_TIMEZONE = datetime.datetime.now().astimezone().tzinfo
     @classmethod
-    def nowStamp(cls):
-        return cls.utcNow().timestamp()
+    def now_stamp(cls):
+        return cls.utc_now().timestamp()
 
     @staticmethod
-    def toStr(dt: datetime.datetime) -> str:
+    def to_str(dt: datetime.datetime) -> str:
         return dt.strftime("%Y-%m-%d %H:%M:%S")
 
     @classmethod
-    def stamp2Local(cls, stamp: float):
+    def stamp2local(cls, stamp: float):
         local_datetime = datetime.datetime.fromtimestamp(stamp).replace(tzinfo=cls.LOCAL_TIMEZONE)
         return local_datetime
 
     @classmethod
-    def stamp2Utc(cls, stamp: float):
-        return cls.local2Utc(cls.stamp2Local(stamp))
+    def stamp2utc(cls, stamp: float):
+        return cls.local2utc(cls.stamp2local(stamp))
     
     @staticmethod
-    def utcNow() -> datetime.datetime:
+    def utc_now() -> datetime.datetime:
         return datetime.datetime.now(datetime.timezone.utc)
 
     @classmethod
-    def localNow(cls) -> datetime.datetime:
+    def local_now(cls) -> datetime.datetime:
         return datetime.datetime.now(cls.LOCAL_TIMEZONE)
 
     @classmethod
-    def utc2Local(cls, utc_datetime: datetime.datetime) -> datetime.datetime:
+    def utc2local(cls, utc_datetime: datetime.datetime) -> datetime.datetime:
         # https://stackoverflow.com/a/39079819
         return utc_datetime.astimezone(cls.LOCAL_TIMEZONE)
 
     @classmethod
-    def local2Utc(cls, local_datetime: datetime.datetime) -> datetime.datetime:
+    def local2utc(cls, local_datetime: datetime.datetime) -> datetime.datetime:
         return local_datetime.astimezone(datetime.timezone.utc)
 
     @classmethod
-    def utcNowStr(cls) -> str:
-        return datetime.datetime.strftime(cls.utcNow(), "%Y-%m-%d %H:%M:%S")
+    def utc_now_str(cls) -> str:
+        return datetime.datetime.strftime(cls.utc_now(), "%Y-%m-%d %H:%M:%S")
 
     @classmethod
-    def localNowStr(cls) -> str:
-        return datetime.datetime.strftime(cls.localNow(), "%Y-%m-%d %H:%M:%S")
+    def local_now_str(cls) -> str:
+        return datetime.datetime.strftime(cls.local_now(), "%Y-%m-%d %H:%M:%S")
 
     @classmethod
-    def strUtcTimeToDatetime(cls, t: str) -> datetime.datetime:
+    def utcstr2datetime(cls, t: str) -> datetime.datetime:
         return datetime.datetime.strptime(t, "%Y-%m-%d %H:%M:%S").replace(tzinfo = datetime.timezone.utc)
 
     @classmethod
-    def strLocalTimeToDatetime(cls, t: str) -> datetime.datetime:
+    def localstr2datetime(cls, t: str) -> datetime.datetime:
         return datetime.datetime.strptime(t, "%Y-%m-%d %H:%M:%S").replace(tzinfo = cls.LOCAL_TIMEZONE)
 
-def getDateTimeStr():
+def get_datetime_str():
     return str(datetime.datetime.now())[:-7]
 
-def strtimeToDatetime(t: str) -> datetime.datetime:
+def strtime2datetime(t: str) -> datetime.datetime:
     return datetime.datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
 
-def timedFunc(logger: logging.Logger) -> Callable[[CallVar], CallVar]:
+def timed_func(logger: logging.Logger) -> Callable[[CallVar], CallVar]:
     def _timedFunc(func: CallVar) -> CallVar:
         @wraps(func)
         def func_(*args, **kwargs):

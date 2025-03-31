@@ -39,17 +39,17 @@ class UsrDBConnection(LiresBase):
     async def init(self) -> UsrDBConnection:
         self.conn = await aiosqlite.connect(self.db_path)
         self.__modified = False
-        await self.__maybeCreateTables()
-        await self.__autoUpgrade()
+        await self.__maybe_create_tables()
+        await self.__auto_upgrade()
         return self
 
     async def close(self):
         await self.conn.close()
     
-    def setModifiedFlag(self, flag: bool):
+    def set_modified_flag(self, flag: bool):
         self.__modified = flag
     
-    async def __autoUpgrade(self):
+    async def __auto_upgrade(self):
         """ Upgrade the database automatically """
         # since v1.7.1, add max_storage column
         # since v1.8.1, add last_active column
@@ -59,14 +59,14 @@ class UsrDBConnection(LiresBase):
                 print("Upgrading user database to v1.7.1")
                 # default to 100MB
                 await self.conn.execute("ALTER TABLE users ADD COLUMN max_storage INTEGER NOT NULL DEFAULT 104857600")
-                self.setModifiedFlag(True)
+                self.set_modified_flag(True)
             if len(res) == 8 and res[-1][1] != "last_active":   # type: ignore
                 print("Upgrading user database to v1.8.1")
                 await self.conn.execute("ALTER TABLE users ADD COLUMN last_active FLOAT NOT NULL DEFAULT 0")
-                self.setModifiedFlag(True)
+                self.set_modified_flag(True)
     
-    async def __maybeCreateTables(self):
-        async def createUserTable():
+    async def __maybe_create_tables(self):
+        async def create_user_table():
             # check if the table exists
             async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'") as cursor:
                 res = await cursor.fetchone()
@@ -85,9 +85,9 @@ class UsrDBConnection(LiresBase):
                     last_active FLOAT NOT NULL DEFAULT 0
                 );
             """)
-            self.setModifiedFlag(True)
+            self.set_modified_flag(True)
         
-        async def createInvitationTable():
+        async def create_invitation_table():
             async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='invitations'") as cursor:
                 res = await cursor.fetchone()
             if res is not None:
@@ -103,10 +103,10 @@ class UsrDBConnection(LiresBase):
                     time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );
             """)
-            self.setModifiedFlag(True)
+            self.set_modified_flag(True)
         
-        await createUserTable()
-        await createInvitationTable()
+        await create_user_table()
+        await create_invitation_table()
     
     async def count(self) -> int:
         async with self.conn.execute("SELECT COUNT(*) FROM users") as cursor:
@@ -114,7 +114,7 @@ class UsrDBConnection(LiresBase):
         assert res is not None
         return res[0]
 
-    async def insertUser(self, 
+    async def insert_user(self, 
                 username: str, password: str, name: str,
                 is_admin: bool, mandatory_tags: list[str], 
                 max_storage: Optional[int] = None,
@@ -150,10 +150,10 @@ class UsrDBConnection(LiresBase):
                             """,
                             (username, password, name, is_admin, json.dumps(mandatory_tags), max_storage)
                             )
-        self.setModifiedFlag(True)
+        self.set_modified_flag(True)
         await self.logger.debug(f"[UserDBConn] User {username} created")
     
-    async def __ensureUserExists(self, query: str | int) -> aiosqlite.Row:
+    async def __ensure_user_exists(self, query: str | int) -> aiosqlite.Row:
         if isinstance(query, str):
             async with self.conn.execute("SELECT * FROM users WHERE username = ?", (query,)) as cursor:
                 res = await cursor.fetchone()
@@ -165,16 +165,16 @@ class UsrDBConnection(LiresBase):
             raise self.Error.LiresUserNotFoundError(f"User {query} not found")
         return res
     
-    async def deleteUser(self, query: str | int) -> None:
-        await self.__ensureUserExists(query)
+    async def delete_user(self, query: str | int) -> None:
+        await self.__ensure_user_exists(query)
         # delete the user
         if isinstance(query, int):
             await self.conn.execute("DELETE FROM users WHERE id = ?", (query,))
         else:
             await self.conn.execute("DELETE FROM users WHERE username = ?", (query,))
-        self.setModifiedFlag(True)
+        self.set_modified_flag(True)
     
-    async def updateUser(self, id_: int, **kwargs) -> None:
+    async def update_user(self, id_: int, **kwargs) -> None:
         # check if the user exists
         async with self.conn.execute("SELECT * FROM users WHERE id = ?", (id_,)) as cursor:
             res = await cursor.fetchone()
@@ -189,15 +189,15 @@ class UsrDBConnection(LiresBase):
                 v = json.dumps(v)
             await self.conn.execute(f"UPDATE users SET {k} = ? WHERE id = ?", (v, id_))
 
-        self.setModifiedFlag(True)
+        self.set_modified_flag(True)
     
-    async def getAllUserIDs(self) -> list[int]:
+    async def get_all_user_ids(self) -> list[int]:
         async with self.conn.execute("SELECT id FROM users") as cursor:
             res = await cursor.fetchall()
         return [i[0] for i in res]
     
-    async def getUser(self, query: str | int) -> RawUser:
-        res = await self.__ensureUserExists(query)
+    async def get_user(self, query: str | int) -> RawUser:
+        res = await self.__ensure_user_exists(query)
         return {
             "id": res[0],
             "username": res[1],
@@ -210,7 +210,7 @@ class UsrDBConnection(LiresBase):
             "last_active": res[8]
         }
     
-    async def listInvitations(self) -> list[InvitationRecord]:
+    async def list_invitations(self) -> list[InvitationRecord]:
         async with self.conn.execute("SELECT * FROM invitations") as cursor:
             res = await cursor.fetchall()
         return [{
@@ -223,7 +223,7 @@ class UsrDBConnection(LiresBase):
             "time_created": i[6]
         } for i in res]
     
-    async def queryInvitation(self, code: str) -> Optional[InvitationRecord]:
+    async def query_invitation(self, code: str) -> Optional[InvitationRecord]:
         async with self.conn.execute("SELECT * FROM invitations WHERE code = ?", (code,)) as cursor:
             res = await cursor.fetchone()
         return {
@@ -236,36 +236,36 @@ class UsrDBConnection(LiresBase):
             "time_created": res[6]
         } if res is not None else None
     
-    async def createInvitation(self, code: str, created_by: int, max_uses: int, accesibility = {}) -> None:
+    async def create_invitation(self, code: str, created_by: int, max_uses: int, accesibility = {}) -> None:
         async with self.conn.execute("SELECT * FROM invitations WHERE code = ?", (code,)) as cursor:
             res = await cursor.fetchone()
             if res is not None:
                 raise self.Error.LiresDuplicateError(f"Invitation {code} already exists")
         await self.conn.execute("INSERT INTO invitations (code, created_by, max_uses, accessibility) VALUES (?, ?, ?, ?)", (code, created_by, max_uses, json.dumps(accesibility)))
         await self.logger.debug("Invitation %s created", code)
-        self.setModifiedFlag(True)
+        self.set_modified_flag(True)
     
-    async def useInvitation(self, code: str) -> None:
-        record = await self.queryInvitation(code)
+    async def use_invitation(self, code: str) -> None:
+        record = await self.query_invitation(code)
         if record is None:
             raise self.Error.LiresEntryNotFoundError(f"Invitation {code} not found")
         if record["uses"] >= record["max_uses"]:
             raise self.Error.LiresEntryNotFoundError(f"Invitation {code} has been used up")
         await self.conn.execute("UPDATE invitations SET uses = uses + 1 WHERE code = ?", (code,))
         await self.logger.debug("Invitation %s used", code)
-        self.setModifiedFlag(True)
+        self.set_modified_flag(True)
     
-    async def deleteInvitation(self, code: str) -> None:
+    async def delete_invitation(self, code: str) -> None:
         async with self.conn.execute("SELECT * FROM invitations WHERE code = ?", (code,)) as cursor:
             res = await cursor.fetchone()
             if res is None:
                 raise self.Error.LiresEntryNotFoundError(f"Invitation {code} not found")
         await self.conn.execute("DELETE FROM invitations WHERE code = ?", (code,))
         await self.logger.debug("Invitation %s deleted", code)
-        self.setModifiedFlag(True)
+        self.set_modified_flag(True)
     
     async def commit(self):
         if not self.__modified:
             return
         await self.conn.commit()
-        self.setModifiedFlag(False)
+        self.set_modified_flag(False)

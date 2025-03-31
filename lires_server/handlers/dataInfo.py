@@ -33,7 +33,7 @@ class DataInfoListHandler(RequestHandlerBase):
             all_dp = await db.gets(uids)
         except self.Error.LiresEntryNotFoundError:
             await self.logger.error("Some data points are not found: {}".format(
-                non_exist_uids := await db.conn.checkNoneExist(uids)
+                non_exist_uids := await db.conn.check_nonexist(uids)
             ))
             self.set_status(404)
             self.write("Some data points are not found: {}".format(non_exist_uids))

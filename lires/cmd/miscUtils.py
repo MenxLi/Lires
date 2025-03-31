@@ -21,12 +21,12 @@ def main():
         asyncio.run(download_default_pdfjs_viewer(download_url=args.url, dst_dir=PDF_VIEWER_DIR, force=True))
     if args.subparser == "edit-config":
         from lires.config import CONF_FILE_PATH
-        from lires.utils import openFile
+        from lires.utils import open_file
         import subprocess
         if args.use_editor:
             subprocess.call([args.use_editor, CONF_FILE_PATH])
         else:
-            openFile(CONF_FILE_PATH)
+            open_file(CONF_FILE_PATH)
 
 
 if __name__ == "__main__":

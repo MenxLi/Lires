@@ -1,5 +1,5 @@
 
-def formatAuthorName(author: str) -> str:
+def format_author_name(author: str) -> str:
     author = author.strip().lower().replace("-", "")
 
     formatted_author = author.strip()  # Remove leading/trailing whitespace

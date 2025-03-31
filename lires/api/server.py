@@ -3,7 +3,7 @@ from .common import LiresAPIBase
 from typing import TYPE_CHECKING, Optional, Any, Literal, TypedDict
 import aiohttp, json, os
 import deprecated
-from lires.utils import randomAlphaNumeric
+from lires.utils import random_alphanumeric
 from lires.types.dataT import DataPointSummary
 if TYPE_CHECKING:
     from lires.core.dataClass import DataPointSummary
@@ -27,7 +27,7 @@ class Connector(LiresAPIBase):
         self._verify_ssl = verify_ssl
         if session_id is None:
             self._session_id = "default"
-        self._session_id = 'py-api-'+randomAlphaNumeric(8)
+        self._session_id = 'py-api-'+random_alphanumeric(8)
     
     @property
     def token(self): return self._token

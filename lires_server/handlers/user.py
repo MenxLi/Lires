@@ -9,7 +9,7 @@ class UserInfoHandler(RequestHandlerBase):
 
     # @keyRequired
     async def post(self, username):
-        user = await self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.get_user_by_username(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         self.write(json.dumps(await user.info_desensitized()))
@@ -21,18 +21,18 @@ class UserInfoUpdateHandler(RequestHandlerBase):
     """
     @authenticate()
     async def post(self):
-        user = await self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
+        user = await self.user_pool.get_user_by_key((await self.userInfo())["enc_key"])
         assert user is not None, "User not found"   # should not happen
         id_ = (await user.info())["id"]
 
         new_name = self.get_argument("name", None)
         if new_name is not None:
-            await user.conn.updateUser(id_, name=new_name)
+            await user.conn.update_user(id_, name=new_name)
             await self.logger.info("User {} updated name to {}".format(id_, new_name))
 
         new_password = self.get_argument("password", None)
         if new_password is not None:
-            await user.conn.updateUser(id_, password=new_password)
+            await user.conn.update_user(id_, password=new_password)
             await self.logger.info("User {} updated password".format(id_))
         
         _user_info = await user.info()
@@ -50,9 +50,9 @@ class UserListHandler(RequestHandlerBase):
     # @keyRequired
     async def post(self):
         to_send = []
-        all_ids = await self.user_pool.conn.getAllUserIDs()
+        all_ids = await self.user_pool.conn.get_all_user_ids()
         for id_ in all_ids:
-            user = await self.user_pool.getUserById(id_)
+            user = await self.user_pool.get_user_by_id(id_)
             assert user is not None, "User not found"   # should not happen
             to_send.append(await user.info_desensitized())
         
@@ -65,7 +65,7 @@ class UserAvatarHandler(RequestHandlerBase):
         if im_size > 512 or im_size < 1:
             raise tornado.web.HTTPError(400, "Invalid size, must be [1, 512]")
 
-        user = await self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.get_user_by_username(username)
         if user is None or user.avatar_image_path is None:
             self.set_header("Content-Type", "image/png")
             self.set_header("Content-Disposition", "inline")    
@@ -100,9 +100,9 @@ class UserAvatarHandler(RequestHandlerBase):
         
     @authenticate()
     async def put(self, username: str):
-        user = await self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.get_user_by_username(username)
 
-        req_user = await self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
+        req_user = await self.user_pool.get_user_by_key((await self.userInfo())["enc_key"])
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         assert req_user is not None, "User not found"   # should not happen
@@ -120,7 +120,7 @@ class UserAvatarHandler(RequestHandlerBase):
             raise tornado.web.HTTPError(400, "File type not supported")
         
         im = Image.open(BytesIO(file["body"]))
-        await user.setAvatar(im)
+        await user.set_avatar(im)
         self.write(json.dumps(_user_info := await user.info_desensitized()))
         await self.broadcastEventMessage({
             'type': 'update_user',
@@ -130,8 +130,8 @@ class UserAvatarHandler(RequestHandlerBase):
     
     @authenticate()
     async def delete(self, username):
-        req_user = await self.user_pool.getUserByKey((await self.userInfo())["enc_key"])
-        user = await self.user_pool.getUserByUsername(username)
+        req_user = await self.user_pool.get_user_by_key((await self.userInfo())["enc_key"])
+        user = await self.user_pool.get_user_by_username(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         assert req_user is not None, "User not found"

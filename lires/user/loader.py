@@ -23,46 +23,46 @@ class UserPool(LiresBase):
     async def close(self): await self.conn.close()
     
     async def size(self) -> int:
-        return len(await self.conn.getAllUserIDs())
+        return len(await self.conn.get_all_user_ids())
     
     async def all(self) -> list[LiresUser]:
-        all_ids = await self.conn.getAllUserIDs()
+        all_ids = await self.conn.get_all_user_ids()
         return [LiresUser(self.conn, user_id) for user_id in all_ids]
     
-    async def getUserByKey(self, key: str) -> Optional[LiresUser]:
-        all_ids = await self.conn.getAllUserIDs()
+    async def get_user_by_key(self, key: str) -> Optional[LiresUser]:
+        all_ids = await self.conn.get_all_user_ids()
         for user_id in all_ids:
-            user = await self.getUserById(user_id)
+            user = await self.get_user_by_id(user_id)
             if user is None:
                 continue
             if (await user.info())['enc_key'] == key:
                 return user
         return None
     
-    async def getUserByUsername(self, username: str) -> Optional[LiresUser]:
+    async def get_user_by_username(self, username: str) -> Optional[LiresUser]:
         try:
-            user_id = (await self.conn.getUser(username))['id']
+            user_id = (await self.conn.get_user(username))['id']
             return LiresUser(self.conn, user_id)
         except self.Error.LiresUserNotFoundError:
             return None
     
-    async def getUserById(self, id: int) -> Optional[LiresUser]:
+    async def get_user_by_id(self, id: int) -> Optional[LiresUser]:
         try:
-            await self.conn.getUser(id)
+            await self.conn.get_user(id)
             return LiresUser(self.conn, id)
         except self.Error.LiresUserNotFoundError:
             return None
     
-    async def deleteUserPermanently(self, query: int|str):
+    async def delete_user_permanently(self, query: int|str):
         """
         Permanently delete a user from the database.
         Please use with caution!
         """
         user: Optional[LiresUser] = None
         if isinstance(query, str):
-            user = await self.getUserByUsername(query)
+            user = await self.get_user_by_username(query)
         elif isinstance(query, int):
-            user = await self.getUserById(query)
+            user = await self.get_user_by_id(query)
         else:
             raise ValueError("Invalid query type")
 
@@ -76,4 +76,4 @@ class UserPool(LiresBase):
                 if os.path.exists(pth):
                     os.remove(pth)
 
-        await self.conn.deleteUser(query)
+        await self.conn.delete_user(query)

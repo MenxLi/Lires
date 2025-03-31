@@ -1,6 +1,6 @@
 
 import argparse
-from lires.loader import initResources
+from lires.loader import init_resources
 
 async def _run():
     parser = argparse.ArgumentParser()
@@ -18,21 +18,21 @@ async def _run():
 
     args = parser.parse_args()
 
-    user_pool, db_pool = await initResources()
+    user_pool, db_pool = await init_resources()
     user_db_conn = user_pool.conn
     try:
         if args.subparser == "create":
-            await user_db_conn.createInvitation(
+            await user_db_conn.create_invitation(
                 code = args.code,
                 created_by=0,
                 max_uses=args.max_uses,
             )
         
         elif args.subparser == "delete":
-            await user_db_conn.deleteInvitation(args.code)
+            await user_db_conn.delete_invitation(args.code)
 
         elif args.subparser == "list":
-            for inv in await user_db_conn.listInvitations():
+            for inv in await user_db_conn.list_invitations():
                 if not inv["max_uses"] > inv["uses"] and args.valid:
                     continue
                 

@@ -21,12 +21,12 @@ def run():
             print(json.dumps(json.load(fp), indent=1))
 
     elif args.subparser == "edit":
-        from lires.utils import openFile
+        from lires.utils import open_file
         import subprocess
         if args.use_editor:
             subprocess.call([args.use_editor, CONF_FILE_PATH])
         else:
-            openFile(CONF_FILE_PATH)
+            open_file(CONF_FILE_PATH)
     
     else:
         parser.print_help()

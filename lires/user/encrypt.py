@@ -1,7 +1,7 @@
 
 import hashlib
 
-def encryptKey(username: str, password_enc: str):
+def encrypt_key(username: str, password_enc: str):
     """
     Encrypt the user information, for verification
     """
@@ -9,6 +9,6 @@ def encryptKey(username: str, password_enc: str):
         (username + password_enc).encode("ascii")
         ).hexdigest()
 
-def generateHexHash(s: str) -> str:
+def generate_hex_hash(s: str) -> str:
     enc = s.encode("ascii")
     return hashlib.sha256(enc).hexdigest()

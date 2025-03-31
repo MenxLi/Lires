@@ -16,7 +16,7 @@ class LiresLogger(logging.Logger):
         # a coroutine that will not block the main thread
         # set timestamp to now, as the sending time may be postponed
         asyncio.ensure_future(
-            self.__log_server.log(self.name, level, msg, timestamp=TimeUtils.nowStamp())
+            self.__log_server.log(self.name, level, msg, timestamp=TimeUtils.now_stamp())
             )
 
     async def debug(self, msg: str, *args, **kwargs):

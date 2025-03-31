@@ -46,7 +46,7 @@ class DatabasePool(LiresBase):
         users = await user_pool.all()
         await asyncio.gather(*[self.get(user) for user in users])
     
-    async def deleteDatabasePermanently(self, user: LiresUser|int):
+    async def delete_database_permanently(self, user: LiresUser|int):
         """
         Delete the database permanently! 
         Please be careful when using this method.
@@ -62,7 +62,7 @@ class DatabasePool(LiresBase):
         del self.__db_ins_cache[user_id]
         shutil.rmtree(path_to_delete)
 
-async def initResources(pre_load: bool = False):
+async def init_resources(pre_load: bool = False):
     user_pool = await UserPool().init(USER_DIR)
     db_pool = DatabasePool(DATABASE_HOME)
     if pre_load:

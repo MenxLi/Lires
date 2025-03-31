@@ -19,7 +19,7 @@ async def makeRequest(conn: ServerConn) -> bool:
         return False
 
 async def main(username: str, password: str):
-    token = encrypt.encryptKey(username, encrypt.generateHexHash(password))
+    token = encrypt.encrypt_key(username, encrypt.generate_hex_hash(password))
     conn = ServerConn(token=token, endpoint="http://localhost:8080")
     n_req = 1000
     with Timer(f"{n_req} requests (concurrent {N_CONCURRENT})"):

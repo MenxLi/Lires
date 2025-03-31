@@ -49,8 +49,8 @@ def authenticate(
 # Server level global storage
 def __init_global_storage():
     from lires.api import IServerConn
-    from lires.loader import initResources
-    user_pool, db_pool = asyncio.run(initResources())
+    from lires.loader import init_resources
+    user_pool, db_pool = asyncio.run(init_resources())
     iconn = IServerConn()
     return GlobalStorage(user_pool=user_pool, database_pool=db_pool, iconn=iconn)
 
@@ -105,12 +105,12 @@ class RequestHandlerMixin(LiresBase):
             if user_id is not None:
                 break
         if user_id is not None:
-            user = await self.user_pool.getUserById(int(user_id))
+            user = await self.user_pool.get_user_by_id(int(user_id))
             if user is not None: return user.id
 
         user_name = self.get_argument("_username", None)
         if user_name is not None:
-            user = await self.user_pool.getUserByUsername(user_name)
+            user = await self.user_pool.get_user_by_username(user_name)
             if user is not None: return user.id
             
         # if not found, get user id from key
@@ -184,14 +184,14 @@ class RequestHandlerMixin(LiresBase):
             await self.logger.debug("No key found, abort")
             raise tornado.web.HTTPError(401) 
 
-        res = await self.user_pool.getUserByKey(enc_key)
+        res = await self.user_pool.get_user_by_key(enc_key)
         if res is None:
             # unauthorized or user not found
             await self.logger.debug("Reject key ({})".format(enc_key))
             raise tornado.web.HTTPError(401) 
         
         # update the last active time
-        await res.refreshActiveTime()
+        await res.refresh_active_time()
         
         # Set a cached permission, requires it via property
         user_info = await res.info()
@@ -222,7 +222,7 @@ class RequestHandlerMixin(LiresBase):
         tags = DataTags(_tags)
         mandatory_tags = DataTags(_mandatory_tags)
         await RequestHandlerMixin.logger.debug(f"check tag permission: {tags} vs {mandatory_tags}")
-        if not mandatory_tags.issubset(tags.withParents()):
+        if not mandatory_tags.issubset(tags.with_parents()):
             await RequestHandlerMixin.logger.debug("Tag permission denied")
             if raise_error:
                 raise tornado.web.HTTPError(403)

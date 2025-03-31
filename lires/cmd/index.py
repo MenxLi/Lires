@@ -5,7 +5,7 @@ import argparse
 
 from lires.core.vecutils import build_feature_storage, query_feature_index
 from lires.api import IServerConn
-from lires.loader import initResources
+from lires.loader import init_resources
 
 def parseArgs() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build search index for the database")
@@ -31,9 +31,9 @@ def parseArgs() -> argparse.Namespace:
 
 async def entry(args):
 
-    user_pool, db_pool = await initResources()
+    user_pool, db_pool = await init_resources()
     # check if user exists
-    user = await user_pool.getUserByUsername(args.user)
+    user = await user_pool.get_user_by_username(args.user)
     if user is None:
         print(f"Error: User {args.user} does not exist")
         await user_pool.close(); await db_pool.close()

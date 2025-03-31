@@ -5,7 +5,7 @@ It reads a yaml config file and starts the servers.
 
 from lires.version import VERSION
 from lires.config import LRS_HOME
-from lires.utils import BCOLORS, randomAlphaNumeric
+from lires.utils import BCOLORS, random_alphanumeric
 from typing import TypedDict
 import os, argparse, subprocess, signal, time
 import re
@@ -32,7 +32,7 @@ def __getDefaultConfig()->ClusterConfigT:
         "VERSION": "0.1.0",
         "GLOBAL_ENV": {
             "LRS_HOME": LRS_HOME,
-            "LRS_KEY": randomAlphaNumeric(32),
+            "LRS_KEY": random_alphanumeric(32),
             # disable logging to terminal, as it will be messy if the log server are also running
             "LRS_TERM_LOG_LEVEL": "CRITICAL",   
         },

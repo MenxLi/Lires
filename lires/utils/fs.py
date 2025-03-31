@@ -3,7 +3,7 @@ import re
 import platform
 import subprocess
 
-def openFile(filepath):
+def open_file(filepath):
     # https://stackoverflow.com/questions/434597/open-document-with-default-os-application-in-python-both-in-windows-and-mac-os
 
     if platform.system() == 'Darwin':       # macOS
@@ -13,7 +13,7 @@ def openFile(filepath):
     else:                                   # linux variants
         subprocess.Popen(('xdg-open', filepath))
 
-def isWebURL(text: str):
+def is_web_url(text: str):
     regex = re.compile(
         r'^(?:http|ftp)s?://' # http:// or https://
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...

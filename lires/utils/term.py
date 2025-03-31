@@ -55,7 +55,7 @@ class ProgressBarCustom(object):
         self.current = 0
 
     @staticmethod
-    def progressBarString(current: int, total: int):
+    def progressbar_string(current: int, total: int):
         # To update later
         decimals = 1
         fill = '█'
@@ -68,7 +68,7 @@ class ProgressBarCustom(object):
 
     def next(self):
         self.current += 1
-        to_show = self.progressBarString(self.current, self.n_toal)
+        to_show = self.progressbar_string(self.current, self.n_toal)
         self._call(to_show)
 
 class MuteEverything:
@@ -100,7 +100,7 @@ class MuteEverything:
         sys.stderr = self.stderr
 
 
-def tablePrint(
+def table_print(
     header: list[str],
     data: list[list],
 ):

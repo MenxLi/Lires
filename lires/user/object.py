@@ -5,7 +5,7 @@ import PIL.Image as Image
 import aiofiles
 from typing import Optional, TypedDict
 from .conn import RawUser, UsrDBConnection
-from .encrypt import encryptKey
+from .encrypt import encrypt_key
 from lires.utils import TimeUtils
 
 class UserInfo(TypedDict):
@@ -45,12 +45,12 @@ class LiresUser:
     
     async def raw(self) -> RawUser:
         """The user information in the database"""
-        return await self.conn.getUser(self._id)
+        return await self.conn.get_user(self._id)
     
     async def info(self) -> UserInfo:
         """For json serialization"""
         raw = await self.raw()
-        enc_key = encryptKey(raw["username"], raw["password"])
+        enc_key = encrypt_key(raw["username"], raw["password"])
         return {
             "id": raw["id"],
             "username": raw["username"],
@@ -69,12 +69,12 @@ class LiresUser:
         ret["enc_key"] = "__HIDDEN__"
         return ret
     
-    async def toString(self) -> str:
+    async def to_string(self) -> str:
         info = await self.info()
         out = f"[{info['id']}] {info['username']} ({info['name']}), {info['enc_key']}"
         if info["is_admin"]:
             out += ", admin"
-        out += f", max: {info['max_storage']/1024/1024}MB, last_active: {TimeUtils.stamp2Local(info['last_active'])}"
+        out += f", max: {info['max_storage']/1024/1024}MB, last_active: {TimeUtils.stamp2local(info['last_active'])}"
         return out
     
     async def equal(self, o: object) -> bool:
@@ -82,8 +82,8 @@ class LiresUser:
             return False
         return await self.info() == await o.info()
     
-    async def refreshActiveTime(self) -> None:
-        await self.conn.updateUser(self._id, last_active=TimeUtils.nowStamp())
+    async def refresh_active_time(self) -> None:
+        await self.conn.update_user(self._id, last_active=TimeUtils.now_stamp())
     
     @property
     def avatar_image_path(self) -> Optional[AvatarPath]:
@@ -100,7 +100,7 @@ class LiresUser:
         else:
             return a_pth
     
-    async def setAvatar(self, image: Optional[str | Image.Image]) -> None:
+    async def set_avatar(self, image: Optional[str | Image.Image]) -> None:
         """
         Read image from image_path,
         resize, and save it to USER_AVATAR_DIR.

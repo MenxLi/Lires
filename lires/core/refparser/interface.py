@@ -8,7 +8,7 @@ from typing import Union, Optional
 from typing_extensions import NotRequired, TypedDict  # for Python <3.11 with (Not)Required
 
 from lires.core import LiresError
-from lires.utils import randomAlphaNumeric
+from lires.utils import random_alphanumeric
 from pybtex.database import BibliographyData, Entry
 
 class RefDict(TypedDict):
@@ -39,16 +39,16 @@ class ParserBase(ABC):
         ...
     
     @abstractmethod
-    def checkFormat(self, entry: str) -> bool:
+    def check_format(self, entry: str) -> bool:
         ...
     
     @abstractmethod
-    def parseEntry(self, entry: str) -> dict:
+    def parse_entry(self, entry: str) -> dict:
         ...
     
     def toBibtex(self, entry: str, key: Optional[str] = None):
 
-        data = self.parseEntry(entry)
+        data = self.parse_entry(entry)
         if data['type'].lower() == "journal article":
             doc_type = "article"
         elif data['type'].lower() == "thesis":
@@ -63,7 +63,7 @@ class ParserBase(ABC):
             del data["authors"]
 
         if key is None:
-            key = f"{data['year']}_{randomAlphaNumeric(5)}"
+            key = f"{data['year']}_{random_alphanumeric(5)}"
 
         bib_data = BibliographyData({
             key: Entry(doc_type, data)

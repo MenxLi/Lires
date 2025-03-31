@@ -53,8 +53,8 @@ class DatabaseLogger:
 
     async def log(self, name: str, level: int, level_name: str, message: str, timestamp: Optional[float] = None) -> tuple:
         if timestamp is None:
-            timestamp = TimeUtils.nowStamp()
-        time_str = TimeUtils.toStr(TimeUtils.stamp2Local(timestamp))
+            timestamp = TimeUtils.now_stamp()
+        time_str = TimeUtils.to_str(TimeUtils.stamp2local(timestamp))
         async with self.lock:
             if self.db is None:
                 await self.connect()

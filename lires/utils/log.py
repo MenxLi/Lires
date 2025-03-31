@@ -7,7 +7,7 @@ from .term import BCOLORS
 # ---- Main entry ----
 TermLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 FileLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "_ALL"]
-def setupLogger(
+def setup_logger(
         _logger: str | logging.Logger, 
         term_id: Optional[str] = None, 
         term_id_color = BCOLORS.OKGRAY, 

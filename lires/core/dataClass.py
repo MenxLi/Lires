@@ -284,13 +284,13 @@ class DataBase(DataCore):
     async def gets(self, uuids: list[str], sort_by='time_import', reverse = True) -> list[DataPoint]:
         """ Get DataPoints by uuids """
         conn = self.conn
-        all_info = await conn.getMany(uuids, sort_by=sort_by, reverse=reverse)
+        all_info = await conn.get_many(uuids, sort_by=sort_by, reverse=reverse)
         tasks = [assembleDatapoint(info, self) for info in all_info]
         return await asyncio.gather(*tasks)
     
     async def getAll(self, sort_by = 'time_import', reverse=True) -> list[DataPoint]:
         """ Get all DataPoints, may remove in the future """
-        all_info = await self.conn.getAll(sort_by=sort_by, reverse=reverse)
+        all_info = await self.conn.get_all(sort_by=sort_by, reverse=reverse)
         return await asyncio.gather(*[assembleDatapoint(info, self) for info in all_info])
     
     async def getIDByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[str]:
@@ -298,7 +298,7 @@ class DataBase(DataCore):
         Get DataPoints by tags, including all child tags
         """
         async def _getByStrictIntersect(tags: DataTags, from_uids: Optional[List[str]] = None) -> list[str]:
-            return await self.conn.filter(from_uids=from_uids, tags=tags.toOrderedList(), strict=True, ignore_case=False)
+            return await self.conn.filter(from_uids=from_uids, tags=tags.to_ordered_list(), strict=True, ignore_case=False)
         async def _getBySingle(tag: str, from_uids: Optional[List[str]] = None) -> list[str]:
             return await self.conn.filter(from_uids=from_uids, tags=[tag], strict=True, ignore_case=False)
 
@@ -306,7 +306,7 @@ class DataBase(DataCore):
         strict_query_tags = DataTags()                      # the exact tags to be queried
         relaxed_query_tag_groups: list[DataTags] = []       # the tags groups that will be relaxed by union of each group
         for t in tags:
-            if len(_w_child_t:= DataTags([t]).withChildsFrom(all_tags))==1:
+            if len(_w_child_t:= DataTags([t]).with_childs_from(all_tags))==1:
                 strict_query_tags.add(_w_child_t.pop())
             else:
                 relaxed_query_tag_groups.append(_w_child_t)
@@ -338,7 +338,7 @@ class DataBase(DataCore):
         for d in data:
             d: DataPoint
             t = d.tags
-            t = TagRule.renameTag(t, tag_old, tag_new)
+            t = TagRule.rename_tag(t, tag_old, tag_new)
             if t is not None:
                 tasks.append(d.fm.writeTags(t))
         await asyncio.gather(*tasks)
@@ -355,7 +355,7 @@ class DataBase(DataCore):
         for d in data:
             d: DataPoint
             ori_tags = d.tags
-            after_deleted = TagRule.deleteTag(ori_tags, tag)
+            after_deleted = TagRule.delete_tag(ori_tags, tag)
             if after_deleted is not None:
                 tasks.append(d.fm.writeTags(after_deleted))
         await asyncio.gather(*tasks)

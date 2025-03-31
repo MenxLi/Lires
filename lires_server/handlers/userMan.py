@@ -11,7 +11,7 @@ class UserRegisterHandler(RequestHandlerBase):
         password = self.get_argument("password")
         name = self.get_argument("name", default="Anonymous")
 
-        invitation = await self.user_pool.conn.queryInvitation(invitation_code)
+        invitation = await self.user_pool.conn.query_invitation(invitation_code)
         if invitation is None:
             raise tornado.web.HTTPError(401, "Invitation code not found")
         if invitation["uses"] >= invitation["max_uses"]:
@@ -19,7 +19,7 @@ class UserRegisterHandler(RequestHandlerBase):
         
         # check if username exists
         try:
-            await self.user_pool.conn.insertUser(
+            await self.user_pool.conn.insert_user(
                 username=username,
                 password=password,
                 name=name,
@@ -31,9 +31,9 @@ class UserRegisterHandler(RequestHandlerBase):
         except self.Error.LiresExceedLimitError:
             raise tornado.web.HTTPError(507, "Reached maximum user limit")
 
-        await self.user_pool.conn.useInvitation(invitation_code)
+        await self.user_pool.conn.use_invitation(invitation_code)
 
-        user = await self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.get_user_by_username(username)
         assert user is not None, "User not found"   # should not happen
         to_send = await user.info_desensitized()
 
@@ -60,10 +60,10 @@ class UserCreateHandler(RequestHandlerBase):
         max_storage = json.loads(self.get_argument("max_storage", default="100"))   # in MB
 
         # check if username exists
-        if await self.user_pool.getUserByUsername(username) is not None:
+        if await self.user_pool.get_user_by_username(username) is not None:
             raise tornado.web.HTTPError(409, "Username already exists")
         
-        await self.user_pool.conn.insertUser(
+        await self.user_pool.conn.insert_user(
             username=username,
             password=password,
             name=name,
@@ -72,7 +72,7 @@ class UserCreateHandler(RequestHandlerBase):
             max_storage=max_storage*1024*1024
             )
         
-        user = await self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.get_user_by_username(username)
         assert user is not None, "User not found"   # should not happen
         to_send = await user.info_desensitized()
 
@@ -89,13 +89,13 @@ class UserDeleteHandler(RequestHandlerBase):
     @authenticate(admin_required=True)
     async def post(self):
         username = self.get_argument("username")
-        user = await self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.get_user_by_username(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         
         user_id = (await user.info())["id"]
-        await self.db_pool.deleteDatabasePermanently(user_id)
-        await self.user_pool.deleteUserPermanently(user_id)
+        await self.db_pool.delete_database_permanently(user_id)
+        await self.user_pool.delete_user_permanently(user_id)
         await self.broadcastEventMessage({
             'type': 'delete_user',
             'username': username,
@@ -108,22 +108,22 @@ class UserModifyHandler(RequestHandlerBase):
     async def post(self):
         
         username = self.get_argument("username")
-        user = await self.user_pool.getUserByUsername(username)
+        user = await self.user_pool.get_user_by_username(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         user_info = await user.info()
         
         new_admin_status = json.loads(self.get_argument("is_admin", default='null'))
         if new_admin_status is not None:
-            await user.conn.updateUser(user_info["id"], is_admin=new_admin_status)
+            await user.conn.update_user(user_info["id"], is_admin=new_admin_status)
         
         new_mandatory_tags = json.loads(self.get_argument("mandatory_tags", default='null'))
         if new_mandatory_tags is not None:
-            await user.conn.updateUser(user_info["id"], mandatory_tags=DataTags(new_mandatory_tags).toOrderedList())
+            await user.conn.update_user(user_info["id"], mandatory_tags=DataTags(new_mandatory_tags).to_ordered_list())
         
         new_max_storage = self.get_argument("max_storage", None)
         if new_max_storage is not None:
-            await user.conn.updateUser(user_info['id'], max_storage=int(new_max_storage))
+            await user.conn.update_user(user_info['id'], max_storage=int(new_max_storage))
         
         _user_info_desens = await user.info_desensitized()
         await self.logger.info("User {} updated: {}".format(_user_info_desens["username"], _user_info_desens))

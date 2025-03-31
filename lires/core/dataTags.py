@@ -7,7 +7,7 @@ class TagRule(LiresBase):
     SEP = "->"
     logger = LiresBase.loggers().core
     @classmethod
-    def allParentsOf(cls, tag: str) -> DataTags:
+    def all_parents(cls, tag: str) -> DataTags:
         """
         assume cls.SEP is '.'
         input: a.b.c
@@ -24,7 +24,7 @@ class TagRule(LiresBase):
         return DataTags(all_p_tags)
     
     @classmethod
-    def allChildsOf(cls, tag: str, tag_pool: Sequence[str] | DataTags) -> DataTags:
+    def all_childs(cls, tag: str, tag_pool: Sequence[str] | DataTags) -> DataTags:
         """
         assume cls.SEP is '.'
         input: (a.b, [a, a.b, a.b.c, a.b.d])
@@ -38,7 +38,7 @@ class TagRule(LiresBase):
         return DataTags(ret)
     
     @classmethod
-    def renameTag(cls, src: DataTags, aim_tag: str, new_tag: str) -> Optional[DataTags]:
+    def rename_tag(cls, src: DataTags, aim_tag: str, new_tag: str) -> Optional[DataTags]:
         """
         return None if tag not in src nor it's all parent tags
         otherwise:
@@ -52,10 +52,10 @@ class TagRule(LiresBase):
                 else:
                     keep the tag same
         """
-        aim_tag = cls.stripTag(aim_tag)
-        new_tag = cls.stripTag(new_tag)
+        aim_tag = cls.strip_tag(aim_tag)
+        new_tag = cls.strip_tag(new_tag)
 
-        if aim_tag not in src.withParents():
+        if aim_tag not in src.with_parents():
             return None
 
         out_tags = []
@@ -71,7 +71,7 @@ class TagRule(LiresBase):
         return DataTags(out_tags)
     
     @classmethod
-    def deleteTag(cls, src: DataTags, aim_tag: str) -> Optional[DataTags]:
+    def delete_tag(cls, src: DataTags, aim_tag: str) -> Optional[DataTags]:
         """
         delete aim_tag, as well as it's all child tags from src
         return None if none of tags in src in aim_tag and it's child tags
@@ -83,7 +83,7 @@ class TagRule(LiresBase):
         """
         _delete_something = False
         out_tags = []
-        may_delete = DataTags([aim_tag]).withChildsFrom(src)
+        may_delete = DataTags([aim_tag]).with_childs_from(src)
         for t in src:
             if t in may_delete:
                 _delete_something = True
@@ -95,17 +95,16 @@ class TagRule(LiresBase):
             return None
     
     @classmethod
-    def stripTag(cls, tag: str) -> str:
+    def strip_tag(cls, tag: str) -> str:
         tag_sp = tag.split(cls.SEP)
         tag_sp = [t.strip() for t in tag_sp]
         return cls.SEP.join(tag_sp)
 
     @classmethod
-    def stripTags_(cls, tags: DataTagT_G) -> DataTagT_G:
-        """in place operation"""
+    def strip_tags_inplace(cls, tags: DataTagT_G) -> DataTagT_G:
         if isinstance(tags, set):
             for t in tags:
-                stripped = cls.stripTag(t)
+                stripped = cls.strip_tag(t)
                 if LIST_SEP in stripped:
                     raise cls.Error.LiresProhibitedKeywordError(f"Tag contains prohibited keyword: {LIST_SEP}")
                 if stripped == t:
@@ -114,7 +113,7 @@ class TagRule(LiresBase):
                 tags.add(stripped)  # type: ignore
         else:
             for i in range(len(tags)):
-                tags[i] = cls.stripTag(tags[i])
+                tags[i] = cls.strip_tag(tags[i])
         return tags
 
 class DataTags(Set[str], LiresBase):
@@ -130,10 +129,10 @@ class DataTags(Set[str], LiresBase):
         elif isinstance(arg, DataTags):
             super().__init__(arg)
         else:
-            super().__init__(TagRule.stripTags_(arg))
+            super().__init__(TagRule.strip_tags_inplace(arg))
 
-    def toOrderedList(self):
-        # TODO: rename to toList(self, ordered: bool = True)
+    def to_ordered_list(self):
+        # TODO: rename to to_list(self, ordered: bool = True)
         ordered_list = list(self)
         ordered_list.sort()
         return ordered_list
@@ -141,21 +140,21 @@ class DataTags(Set[str], LiresBase):
     def union(self, *s: Set|DataTags|list) -> DataTags:
         return DataTags(super().union(*s))
     
-    def withParents(self) -> DataTags:
+    def with_parents(self) -> DataTags:
         parents = DataTags()
         for s in self:
-            parents = parents.union(TagRule.allParentsOf(s))
+            parents = parents.union(TagRule.all_parents(s))
         return self.union(parents)
 
-    def withChildsFrom(self, child_choices: DataTags):
+    def with_childs_from(self, child_choices: DataTags):
         childs = DataTags()
         for s in self:
-            childs = childs.union(TagRule.allChildsOf(s, child_choices))
+            childs = childs.union(TagRule.all_childs(s, child_choices))
         return self.union(childs) # type: ignore
     
-    def toStr(self):
+    def to_string(self):
         if len(self) > 0:
-            return "; ".join(self.toOrderedList())
+            return "; ".join(self.to_ordered_list())
         else:
             return "<None>"
 

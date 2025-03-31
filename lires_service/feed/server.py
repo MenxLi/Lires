@@ -50,7 +50,7 @@ async def query(req: FeedGetRequest):
     await logger.info(f"Query: {req}")
     uids = await feed_db.getIDByTags([req.category])
     uids = await feed_db.conn.filter(time_import=(req.time_after, req.time_before), from_uids=uids)
-    uids = (await feed_db.conn.sortKeys(uids, sort_by='time_import', reverse=True))[:req.max_results]
+    uids = (await feed_db.conn.sort_keys(uids, sort_by='time_import', reverse=True))[:req.max_results]
     dps = await feed_db.gets(uids, sort_by='time_import', reverse=True)
     async def withAbstract(dp: DataPoint):
         ret = dp.summary.json()

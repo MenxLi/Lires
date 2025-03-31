@@ -60,7 +60,7 @@ def sssUUID() -> str:
 
 __ascii = string.ascii_lowercase + string.ascii_uppercase
 __ascii_digits = __ascii + string.digits
-def randomAlphaNumeric(length: int):
+def random_alphanumeric(length: int):
     """Generate a random string"""
     assert length > 0
     first_letter = random.choice(string.ascii_letters)

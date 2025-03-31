@@ -24,7 +24,7 @@ class ShareHandler(RequestHandlerBase):
 
         # get user
         user_id = await self.inferUserId()
-        user = await self.user_pool.getUserById(user_id)
+        user = await self.user_pool.get_user_by_id(user_id)
         if user is None:
             await self.logger.error(f"User not found on share request: {user_id}")
             return self.write_error(404)

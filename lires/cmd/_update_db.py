@@ -4,7 +4,7 @@
 import os, shutil, tqdm, asyncio
 from lires.utils import TimeUtils
 from lires.core.dbConn import DBConnection, DocInfo
-from lires.core.bibReader import parseBibtex
+from lires.core.bibReader import parse_bibtex
 from lires.core.dbConn_ import DBConnection as DBConnection_old
 from lires.core.dbConn_ import DocInfo as DocInfo_old
 from lires.config import TMP_DIR, DATABASE_DIR
@@ -17,7 +17,7 @@ async def sync(conn: DBConnection, conn_old: DBConnection_old):
     all_entries = await conn_old.getMany(all_uids)
 
     for old_entry in tqdm.tqdm(all_entries):
-        bib = await parseBibtex(old_entry["bibtex"])
+        bib = await parse_bibtex(old_entry["bibtex"])
         old_info = DocInfo_old.fromString(old_entry["info_str"])
         new_info = DocInfo(
             uuid = old_info.uuid,
@@ -27,7 +27,7 @@ async def sync(conn: DBConnection, conn_old: DBConnection_old):
             device_modify=old_info.device_modify,
         )
         
-        uid = await conn.addEntry(
+        uid = await conn.add_entry(
             bibtex = old_entry["bibtex"],
             title = bib["title"],
             year = bib["year"],
@@ -47,7 +47,7 @@ async def sync(conn: DBConnection, conn_old: DBConnection_old):
         time_import = old_info.time_import
         if isinstance(time_import, str):
             # backward compatibility, < 0.6.0
-            time_import = TimeUtils.strLocalTimeToDatetime(time_import).timestamp()
+            time_import = TimeUtils.localstr2datetime(time_import).timestamp()
         
         await conn.conn.execute(
             """
@@ -64,7 +64,7 @@ async def sync(conn: DBConnection, conn_old: DBConnection_old):
     print("Done")
 
 if __name__ == "__main__":
-    temp_backup = os.path.join(TMP_DIR, "DB_BACKUP_1.4.x_to_1.5.x-{}".format(TimeUtils.nowStamp()))
+    temp_backup = os.path.join(TMP_DIR, "DB_BACKUP_1.4.x_to_1.5.x-{}".format(TimeUtils.now_stamp()))
     # make a backup of the old database
     if os.path.exists(temp_backup):
         exit("Backup already exists, please remove it first: {}".format(temp_backup))

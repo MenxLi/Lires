@@ -13,7 +13,7 @@ import functools
 from .dbConnUpgrade import *
 from .base import LiresBase
 from ..utils import TimeUtils
-from ..utils.author import formatAuthorName
+from ..utils.author import format_author_name
 from ..version import VERSION, versionize
 
 if TYPE_CHECKING:
@@ -43,14 +43,14 @@ class DocInfo:
     })
 
     @classmethod
-    def fromString(cls, s: str):
+    def from_string(cls, s: str):
         s_dict = json.loads(s)
         return cls(**s_dict)
 
-    def toString(self) -> str:
-        return json.dumps(self.toDict())
+    def to_string(self) -> str:
+        return json.dumps(self.to_dict())
     
-    def toDict(self) -> DocInfoDictT:
+    def to_dict(self) -> DocInfoDictT:
         return dataclasses.asdict(self)     # type: ignore
 
 # use this to separate tags and authors,
@@ -75,10 +75,10 @@ class DBFileRawInfo(TypedDict):
     info_str: str       # Info string, json serializable string of DocInfo
     doc_ext: FileTypeT  # Document file type
 
-def parseList(s: str) -> list[str]:
+def parse_list(s: str) -> list[str]:
     if s == "": return []
     return s.split(LIST_SEP)
-def dumpList(l: list[str]) -> str:
+def dump_list(l: list[str]) -> str:
     return LIST_SEP.join(l)
 
 
@@ -129,13 +129,13 @@ class DBConnection(LiresBase):
         """
         async with DB_MOD_LOCK:
             self.conn = await aiosqlite.connect(self.db_path)
-            await self.__initTables()
-            await self.__autoUpgrade()
+            await self.__init_tables()
+            await self.__auto_upgrade()
             await self.cache.init()
-            await self.cache.buildInitCache(await self.getAll())
+            await self.cache.build_init_cache(await self.get_all())
         return self
     
-    async def isInitialized(self) -> bool:
+    async def is_initialized(self) -> bool:
         try:
             if self.conn is None:
                 return False
@@ -143,10 +143,10 @@ class DBConnection(LiresBase):
         except AttributeError:
             return False
     
-    async def setModifiedFlag(self, modified: bool):
+    async def set_modified_flag(self, modified: bool):
         self.__modified = modified
     
-    async def __maybeCreateMetaTable(self):
+    async def __maybe_create_meta_table(self):
         # check if meta table exists
         async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='meta'") as cursor:
             if not await cursor.fetchone():
@@ -156,9 +156,9 @@ class DBConnection(LiresBase):
                     value TEXT NOT NULL
                 )
                 """)
-                await self.setModifiedFlag(True)
+                await self.set_modified_flag(True)
         
-        async def getInitVersion():
+        async def get_init_version():
             has_main_table = await (await self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'")).fetchone()
             if not has_main_table:
                 # this is a new database, insert current version
@@ -172,13 +172,13 @@ class DBConnection(LiresBase):
         async with self.conn.execute("SELECT value FROM meta WHERE key='version'") as cursor:
             ret = await cursor.fetchone()
             if ret is None:
-                await self.conn.execute("INSERT INTO meta (key, value) VALUES ('version', ?)", (await getInitVersion(),))
-                await self.setModifiedFlag(True)
+                await self.conn.execute("INSERT INTO meta (key, value) VALUES ('version', ?)", (await get_init_version(),))
+                await self.set_modified_flag(True)
     
-    async def __initTables(self):
+    async def __init_tables(self):
         """ Create table if not exist """
         # create meta table
-        await self.__maybeCreateMetaTable()
+        await self.__maybe_create_meta_table()
 
         # create main table
         async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'") as cursor:
@@ -205,16 +205,16 @@ class DBConnection(LiresBase):
                     misc_dir TEXT
                 )
                 """)
-                await self.setModifiedFlag(True)
+                await self.set_modified_flag(True)
     
-    async def __autoUpgrade(self):
+    async def __auto_upgrade(self):
         """
         Auto upgrade database if needed, 
         for backward compatibility
         """
-        async def setVersionRecord(version: str):
+        async def set_version_record(version: str):
             await self.conn.execute("UPDATE meta SET value=? WHERE key='version'", (version,))
-            await self.setModifiedFlag(True)
+            await self.set_modified_flag(True)
 
         ## Update functions
 
@@ -227,10 +227,10 @@ class DBConnection(LiresBase):
 
         if record_version < versionize("1.8.0"):
             await upgrade_1_8_0(self)
-            await setVersionRecord("1.8.0")
+            await set_version_record("1.8.0")
 
         if record_version != curr_version:
-            await setVersionRecord(curr_version.string())
+            await set_version_record(curr_version.string())
             await self.logger.info("Upgraded database {} from version {} to {}".format(self.db_path, record_version, curr_version))
         
     async def close(self):
@@ -253,8 +253,8 @@ class DBConnection(LiresBase):
             "title": row[3],
             "year": row[4],
             "publication": row[5],
-            "authors": parseList(row[6]),
-            "tags": parseList(row[7]),
+            "authors": parse_list(row[6]),
+            "tags": parse_list(row[7]),
             "url": row[8],
             "abstract": row[9],
             "comments": row[10],
@@ -268,9 +268,9 @@ class DBConnection(LiresBase):
         async with self.conn.execute("SELECT COUNT(*) FROM files") as cursor:
             return (await cursor.fetchone())[0]     # type: ignore
     async def authors(self) -> list[str]:
-        return await self.cache.allAuthors()
+        return await self.cache.all_authors()
     async def tags(self) -> list[str]:
-        return await self.cache.allTags()
+        return await self.cache.all_tags()
     async def keys(self, sortby = None, reverse = False) -> list[str]:
         """ Return all uuids """
         if await self.size() == 0:
@@ -283,13 +283,13 @@ class DBConnection(LiresBase):
         else:
             async with self.conn.execute("SELECT uuid FROM files ORDER BY {} {}".format(sortby, "DESC" if reverse else "ASC")) as cursor:
                 return [row[0] for row in await cursor.fetchall()]
-    async def checkNoneExist(self, uuids: list[str]) -> list[str]:
+    async def check_nonexist(self, uuids: list[str]) -> list[str]:
         """Check if uuids exist, return those not exist """
         async with self.conn.execute("SELECT uuid FROM files WHERE uuid IN ({})".format(",".join(["?"]*len(uuids))), uuids) as cursor:
             exist = [row[0] for row in await cursor.fetchall()]
         return list(set(uuids).difference(exist))
     
-    async def sortKeys(self, keys: list[str], sort_by: str = "time_import", reverse: bool = True) -> list[str]:
+    async def sort_keys(self, keys: list[str], sort_by: str = "time_import", reverse: bool = True) -> list[str]:
         """ Sort keys by a field """
         async with self.conn.execute("SELECT uuid, {} FROM files WHERE uuid IN ({}) ORDER BY {} {}".format(sort_by, ",".join(["?"]*len(keys)), sort_by, "DESC" if reverse else "ASC"), keys) as cursor:
             rows = await cursor.fetchall()
@@ -305,7 +305,7 @@ class DBConnection(LiresBase):
                 return None
         return self.__formatRow(row)
     
-    async def getMany(self, uuids: list[str], sort_by = 'time_import', reverse = True) -> list[DBFileInfo]:
+    async def get_many(self, uuids: list[str], sort_by = 'time_import', reverse = True) -> list[DBFileInfo]:
         """ Get file info by uuid, this will use new order specified by orderBy!  """
         if await self.size() == 0: return []
         async with self.conn.execute("SELECT * FROM files WHERE uuid IN ({}) ORDER BY {} {}".format(",".join(["?"]*len(uuids)), sort_by, "DESC" if reverse else "ASC"), uuids) as cursor:
@@ -315,7 +315,7 @@ class DBConnection(LiresBase):
         ret = [self.__formatRow(row) for row in rows]
         return ret
     
-    async def getAll(self, sort_by = 'time_import', reverse = True) -> list[DBFileInfo]:
+    async def get_all(self, sort_by = 'time_import', reverse = True) -> list[DBFileInfo]:
         """
         Get all file info
         """
@@ -324,7 +324,7 @@ class DBConnection(LiresBase):
             rows = await cursor.fetchall()
         return [self.__formatRow(row) for row in rows]
     
-    async def _insertItem(self, item_raw: DBFileRawInfo) -> bool:
+    async def _insert_item(self, item_raw: DBFileRawInfo) -> bool:
         """
         Insert item into database, will overwrite if uuid already exists
         """
@@ -355,15 +355,15 @@ class DBConnection(LiresBase):
                 item_raw["doc_ext"]
             ))
                                 
-        await self.setModifiedFlag(True)
+        await self.set_modified_flag(True)
         return True
     
-    async def _ensureExist(self, uuid: str) -> Optional[DBFileInfo]:
+    async def _ensure_exist(self, uuid: str) -> Optional[DBFileInfo]:
         if not (ret:=await self.get(uuid)):
             await self.logger.error("uuid {} not exists".format(uuid))
         return ret
     
-    async def addEntry(
+    async def add_entry(
             self, 
 
             # bibtex fields
@@ -400,7 +400,7 @@ class DBConnection(LiresBase):
         if doc_info is None:
             doc_info = doc_info_default
         elif isinstance(doc_info, dict):
-            docinfo_dict = doc_info_default.toDict()
+            docinfo_dict = doc_info_default.to_dict()
             docinfo_dict.update(doc_info)   # type: ignore
             # check if all keys are valid
             for key in docinfo_dict.keys():
@@ -419,61 +419,61 @@ class DBConnection(LiresBase):
         # insert
         await self.logger.debug("(db_conn) Adding entry {}".format(uid))
         async with DB_MOD_LOCK:
-            await self._insertItem({
+            await self._insert_item({
                 "uuid": uid,
                 "bibtex": bibtex,
                 "type": dtype,
                 "title": title,
                 "year": year,
                 "publication": publication,
-                "authors": dumpList(authors),
-                "tags": dumpList(tags),
+                "authors": dump_list(authors),
+                "tags": dump_list(tags),
                 "url": url,
                 "abstract": abstract,
                 "comments": comments,
-                "time_import": TimeUtils.nowStamp(),
-                "time_modify": TimeUtils.nowStamp(),
-                "info_str": doc_info.toString(),
+                "time_import": TimeUtils.now_stamp(),
+                "time_modify": TimeUtils.now_stamp(),
+                "info_str": doc_info.to_string(),
                 "doc_ext": doc_ext
             })
             # add cache
-            await self.cache.addTagCache(uid, tags)
-            await self.cache.addAuthorCache(uid, authors)
-            await self.setModifiedFlag(True)
+            await self.cache.add_tag_cache(uid, tags)
+            await self.cache.add_author_cache(uid, authors)
+            await self.set_modified_flag(True)
         return uid
     
-    async def _touchEntry(self, uuid: str) -> bool:
+    async def _touch_entry(self, uuid: str) -> bool:
         # exist check should be done before calling this function
-        await self.conn.execute("UPDATE files SET time_modify=? WHERE uuid=?", (TimeUtils.nowStamp(), uuid))
-        info = DocInfo.fromString(
+        await self.conn.execute("UPDATE files SET time_modify=? WHERE uuid=?", (TimeUtils.now_stamp(), uuid))
+        info = DocInfo.from_string(
             (await (await self.conn.execute("SELECT info_str FROM files WHERE uuid=?", (uuid,))).fetchone())[0]  # type: ignore
         )
         info.version_modify = VERSION
         info.device_modify = __THIS_NODE__
-        await self.conn.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.toString(), uuid))
-        await self.setModifiedFlag(True)
+        await self.conn.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.to_string(), uuid))
+        await self.set_modified_flag(True)
         return True
     
-    async def removeEntry(self, uuid: str) -> bool:
-        if not (entry:=await self._ensureExist(uuid)): return False
+    async def remove_entry(self, uuid: str) -> bool:
+        if not (entry:=await self._ensure_exist(uuid)): return False
         await self.conn.execute("DELETE FROM files WHERE uuid=?", (uuid,))
 
         # remove related cache
-        await self.cache.removeTagCache(uuid, entry["tags"])
-        await self.cache.removeAuthorCache(uuid, entry["authors"])
+        await self.cache.remove_tag_cache(uuid, entry["tags"])
+        await self.cache.remove_author_cache(uuid, entry["authors"])
 
-        await self.setModifiedFlag(True)
+        await self.set_modified_flag(True)
         await self.logger.debug("(db_conn) Removed entry {}".format(uuid))
         return True
     
-    async def setDocExt(self, uuid: str, ext: Optional[str]) -> bool:
-        if not await self._ensureExist(uuid): return False
+    async def set_doc_ext(self, uuid: str, ext: Optional[str]) -> bool:
+        if not await self._ensure_exist(uuid): return False
         await self.logger.debug("(db_conn) Setting doc_ext for {} to {}".format(uuid, ext))
         await self.conn.execute("UPDATE files SET doc_ext=? WHERE uuid=?", (ext, uuid))
-        await self._touchEntry(uuid)
+        await self._touch_entry(uuid)
         return True
     
-    async def updateBibtex(
+    async def update_bibtex(
         self, uuid: str, 
         bibtex: str, 
         dtype: str,
@@ -483,60 +483,60 @@ class DBConnection(LiresBase):
         authors: list[str],
         ) -> bool:
         """Provide a new bibtex string, and update the title, year, publication, authors accordingly."""
-        if not (old_entry:=await self._ensureExist(uuid)): return False
+        if not (old_entry:=await self._ensure_exist(uuid)): return False
         await self.logger.debug("(db_conn) Updating bibtex for {}".format(uuid))
 
         async with DB_MOD_LOCK:
             await self.conn.execute("UPDATE files SET bibtex=?, type=?, title=?, year=?, publication=?, authors=? WHERE uuid=?", (
-                bibtex, dtype, title, year, publication, dumpList(authors), uuid
+                bibtex, dtype, title, year, publication, dump_list(authors), uuid
             ))
 
             # check if authors changed and maybe update cache
             if set(old_entry["authors"]) != set(authors):
                 await self.logger.debug("(db_conn) Updating author cache for {}".format(uuid))
-                await self.cache.removeAuthorCache(uuid, old_entry["authors"])
-                await self.cache.addAuthorCache(uuid, authors)
+                await self.cache.remove_author_cache(uuid, old_entry["authors"])
+                await self.cache.add_author_cache(uuid, authors)
 
-            await self._touchEntry(uuid)
+            await self._touch_entry(uuid)
         return True
     
-    async def updateTags(self, uuid: str, tags: list[str]) -> bool:
+    async def update_tags(self, uuid: str, tags: list[str]) -> bool:
         async with DB_MOD_LOCK:
-            if not (old_entry:=await self._ensureExist(uuid)): return False
+            if not (old_entry:=await self._ensure_exist(uuid)): return False
             await self.logger.debug("(db_conn) Updating tags for {}".format(uuid))
-            await self.conn.execute("UPDATE files SET tags=? WHERE uuid=?", (dumpList(tags), uuid))
+            await self.conn.execute("UPDATE files SET tags=? WHERE uuid=?", (dump_list(tags), uuid))
 
             # check if tags changed and maybe update cache
             if set(old_entry["tags"]) != set(tags):
                 await self.logger.debug("(db_conn) Updating tag cache for {}".format(uuid))
-                await self.cache.removeTagCache(uuid, old_entry["tags"])
-                await self.cache.addTagCache(uuid, tags)
+                await self.cache.remove_tag_cache(uuid, old_entry["tags"])
+                await self.cache.add_tag_cache(uuid, tags)
 
-            await self._touchEntry(uuid)
+            await self._touch_entry(uuid)
         return True
     
-    async def updateUrl(self, uuid: str, url: str) -> bool:
+    async def update_url(self, uuid: str, url: str) -> bool:
         async with DB_MOD_LOCK:
-            if not await self._ensureExist(uuid): return False
+            if not await self._ensure_exist(uuid): return False
             await self.logger.debug("(db_conn) Updating url for {}".format(uuid))
             await self.conn.execute("UPDATE files SET url=? WHERE uuid=?", (url, uuid))
-            await self._touchEntry(uuid)
+            await self._touch_entry(uuid)
         return True
     
-    async def updateComments(self, uuid: str, comments: str) -> bool:
+    async def update_comments(self, uuid: str, comments: str) -> bool:
         async with DB_MOD_LOCK:
-            if not await self._ensureExist(uuid): return False
+            if not await self._ensure_exist(uuid): return False
             # await self.logger.debug("(db_conn) Updating comments for {}".format(uuid))   # too verbose
             await self.conn.execute("UPDATE files SET comments=? WHERE uuid=?", (comments, uuid))
-            await self._touchEntry(uuid)
+            await self._touch_entry(uuid)
         return True
     
-    async def updateAbstract(self, uuid: str, abstract: str) -> bool:
+    async def update_abstract(self, uuid: str, abstract: str) -> bool:
         async with DB_MOD_LOCK:
-            if not await self._ensureExist(uuid): return False
+            if not await self._ensure_exist(uuid): return False
             # await self.logger.debug("(db_conn) Updating abstract for {}".format(uuid))   # too verbose
             await self.conn.execute("UPDATE files SET abstract=? WHERE uuid=?", (abstract, uuid))
-            await self._touchEntry(uuid)
+            await self._touch_entry(uuid)
         return True
     
     async def commit(self):
@@ -546,11 +546,11 @@ class DBConnection(LiresBase):
         if not self.__modified: return
         await self.conn.commit()
         await self.cache.conn.commit()
-        await self.setModifiedFlag(False)
+        await self.set_modified_flag(False)
         await self.logger.debug("Committed document database")
     
-    async def printData(self, uuid: str):
-        if not await self._ensureExist(uuid): return False
+    async def print_data(self, uuid: str):
+        if not await self._ensure_exist(uuid): return False
         async with self.conn.execute("SELECT * FROM files WHERE uuid=?", (uuid,)) as cursor:
             row = cursor.fetchone()
         print(row)
@@ -654,9 +654,9 @@ class DBConnection(LiresBase):
             ret = await self.keys()
         
         if authors:
-            ret = set(ret).intersection(await self.cache.queryAuthors(authors, strict, ignore_case))
+            ret = set(ret).intersection(await self.cache.query_authors(authors, strict, ignore_case))
         if tags:
-            ret = set(ret).intersection(await self.cache.queryTags(tags, strict, ignore_case))
+            ret = set(ret).intersection(await self.cache.query_tags(tags, strict, ignore_case))
         return list(ret)
 
 class DBConnectionCache(LiresBase):
@@ -700,7 +700,7 @@ class DBConnectionCache(LiresBase):
                 """)
         return self
 
-    async def buildInitCache(self, all_items: list[DBFileInfo]):
+    async def build_init_cache(self, all_items: list[DBFileInfo]):
         await self.logger.debug("[DBCache] Building initial cache")
         # build cache for authors and tags
         authors_cache: dict[str, list[str]] = {}
@@ -708,7 +708,7 @@ class DBConnectionCache(LiresBase):
         for item in all_items:
             for author in item["authors"]:
                 # format author name!
-                author = formatAuthorName(author)
+                author = format_author_name(author)
 
                 if author not in authors_cache:
                     authors_cache[author] = []
@@ -717,28 +717,28 @@ class DBConnectionCache(LiresBase):
                 if tag not in tags_cache:
                     tags_cache[tag] = []
                 tags_cache[tag].append(item["uuid"])
-        await self._removeAllCache()
+        await self._remove_all_cache()
         for author, entries in authors_cache.items():
             await self.conn.execute("INSERT INTO authors (author, entries) VALUES (?, ?)", (author, json.dumps(entries)))
         for tag, entries in tags_cache.items():
             await self.conn.execute("INSERT INTO tags (tag, entries) VALUES (?, ?)", (tag, json.dumps(entries)))
         await self.logger.debug("[DBCache] Initial cache built")
     
-    async def _removeAllCache(self):
+    async def _remove_all_cache(self):
         async with self.conn.execute("DELETE FROM authors") as cursor:
             await cursor.fetchall()
         async with self.conn.execute("DELETE FROM tags") as cursor:
             await cursor.fetchall()
     
-    async def allAuthors(self) -> list[str]:
+    async def all_authors(self) -> list[str]:
         async with self.conn.execute("SELECT author FROM authors") as cursor:
             return [row[0] for row in await cursor.fetchall()]
     
-    async def allTags(self) -> list[str]:
+    async def all_tags(self) -> list[str]:
         async with self.conn.execute("SELECT tag FROM tags") as cursor:
             return [row[0] for row in await cursor.fetchall()]
 
-    async def _queryBy(self, table: str, col: str, q: list[str], strict: bool, ignore_case: bool) -> set[str]:
+    async def _query_by(self, table: str, col: str, q: list[str], strict: bool, ignore_case: bool) -> set[str]:
         """ return a set of uuids that match the query """
         res_list: list[set[str]] = []
 
@@ -771,14 +771,14 @@ class DBConnectionCache(LiresBase):
         if not res_list: return set()
         return functools.reduce(lambda x, y: x.intersection(y), res_list)
 
-    async def queryAuthors(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
-        q = [formatAuthorName(x) for x in q]
-        return await self._queryBy("authors", "author", q, strict, ignore_case)
-    async def queryTags(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
-        return await self._queryBy("tags", "tag", q, strict, ignore_case)
+    async def query_authors(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
+        q = [format_author_name(x) for x in q]
+        return await self._query_by("authors", "author", q, strict, ignore_case)
+    async def query_tags(self, q: list[str], strict: bool = False, ignore_case: bool = True) -> set[str]:
+        return await self._query_by("tags", "tag", q, strict, ignore_case)
     
     # These functions are for updating cache, should be called after the main database is updated
-    async def removeTagCache(self, uuid: str, tags: list[str]):
+    async def remove_tag_cache(self, uuid: str, tags: list[str]):
         for tag in tags:
             async with self.conn.execute("SELECT entries FROM tags WHERE tag=?", (tag,)) as cursor:
                 ret = await cursor.fetchone()
@@ -790,7 +790,7 @@ class DBConnectionCache(LiresBase):
                 await self.conn.execute("DELETE FROM tags WHERE tag=?", (tag,))
             await self.conn.execute("UPDATE tags SET entries=? WHERE tag=?", (json.dumps(entries), tag))
     
-    async def removeAuthorCache(self, uuid: str, authors: list[str]):
+    async def remove_author_cache(self, uuid: str, authors: list[str]):
         for author in authors:
             async with self.conn.execute("SELECT entries FROM authors WHERE author=?", (author,)) as cursor:
                 ret = await cursor.fetchone()
@@ -805,7 +805,7 @@ class DBConnectionCache(LiresBase):
                 await self.conn.execute("DELETE FROM authors WHERE author=?", (author,))
             await self.conn.execute("UPDATE authors SET entries=? WHERE author=?", (json.dumps(entries), author))
     
-    async def addTagCache(self, uuid: str, tags: list[str]):
+    async def add_tag_cache(self, uuid: str, tags: list[str]):
         for tag in tags:
             async with self.conn.execute("SELECT entries FROM tags WHERE tag=?", (tag,)) as cursor:
                 ret = await cursor.fetchone()
@@ -816,9 +816,9 @@ class DBConnectionCache(LiresBase):
                 entries.append(uuid)
                 await self.conn.execute("UPDATE tags SET entries=? WHERE tag=?", (json.dumps(entries), tag))
     
-    async def addAuthorCache(self, uuid: str, authors: list[str]):
+    async def add_author_cache(self, uuid: str, authors: list[str]):
         for author in authors:
-            author = formatAuthorName(author)
+            author = format_author_name(author)
             async with self.conn.execute("SELECT entries FROM authors WHERE author=?", (author,)) as cursor:
                 ret = await cursor.fetchone()
             if ret is None:

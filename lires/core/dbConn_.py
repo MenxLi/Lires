@@ -214,8 +214,8 @@ class DBConnection(LiresBase):
         # generate info
         doc_info_default = DocInfo(
             uuid = str(uuid.uuid4()),
-            time_import = TimeUtils.nowStamp(),
-            time_modify = TimeUtils.nowStamp(),
+            time_import = TimeUtils.now_stamp(),
+            time_modify = TimeUtils.now_stamp(),
             version_import = VERSION,
             version_modify = VERSION,
             device_import = platform.node(),

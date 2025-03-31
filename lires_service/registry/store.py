@@ -2,7 +2,7 @@
 from typing import TypedDict, Literal, Optional
 import asyncio, os
 import random
-from lires.utils import setupLogger
+from lires.utils import setup_logger
 from lires.api import RegistryConn
 
 # will add more service in the future
@@ -26,7 +26,7 @@ class RegistryStore:
     A service registry that stores all services' information, should be a singleton,
     Periodically ping the registry server to update the registry
     """
-    logger = setupLogger(
+    logger = setup_logger(
         "registry-store",
         term_id = "registry",
         term_log_level=os.getenv("LIRES_LOG_LEVEL", "INFO").upper(),    # type: ignore

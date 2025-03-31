@@ -2,7 +2,7 @@
 from .base import BaseConfig
 from lires.api import ServerConn
 from lires.core.bibReader import BibParser
-from lires.utils import randomAlphaNumeric
+from lires.utils import random_alphanumeric
 import random, os
 import pytest
 import pybtex.database
@@ -57,7 +57,7 @@ class TestServer(BaseConfig):
             new_bibtex = pybtex.database.parse_string(bibtex, bib_format="bibtex")
             _key = list(new_bibtex.entries.keys())[0]
             def _changeTitle(): 
-                new_bibtex.entries[_key].fields["title"] = randomAlphaNumeric(10)
+                new_bibtex.entries[_key].fields["title"] = random_alphanumeric(10)
             def _changeYear():
                 new_bibtex.entries[_key].fields["year"] = str(random.randint(1000, 3000))
             def _changeAuthor():
@@ -69,12 +69,12 @@ class TestServer(BaseConfig):
             # update tags randomly
             new_tags = tags.copy()
             if random.random() > 0.5:
-                new_tags.append(randomAlphaNumeric(10))
+                new_tags.append(random_alphanumeric(10))
             else:
                 new_tags.remove(random.choice(new_tags))
             
             # update url randomly
-            new_url = randomAlphaNumeric(10) if random.random() > 0.5 else None
+            new_url = random_alphanumeric(10) if random.random() > 0.5 else None
                 
             # test update
             d_summary_update = await server_admin.set_datapoint(
@@ -92,8 +92,8 @@ class TestServer(BaseConfig):
             bibtex_cases = f.read().split("\n\n")
         
         for bibtex in bibtex_cases:
-            tags = [randomAlphaNumeric(10) for _ in range(random.randint(1, 5))]
-            url = randomAlphaNumeric(10)
+            tags = [random_alphanumeric(10) for _ in range(random.randint(1, 5))]
+            url = random_alphanumeric(10)
             await _testOneEntry(bibtex, tags, url)
 
     async def test_uploadDocument(self, server_normal: ServerConn):
@@ -109,7 +109,7 @@ class TestServer(BaseConfig):
         await createNewEntry()
 
         # make a fake document
-        f_blob = randomAlphaNumeric(1000).encode()
+        f_blob = random_alphanumeric(1000).encode()
 
         # get the first entry
         dp_id = (await server_normal.query(max_results=1))['uids'][0]
@@ -130,7 +130,7 @@ class TestServer(BaseConfig):
         curr_data = await self._getFirstEntry(server_normal)
         dp_id = curr_data.uuid
 
-        new_tag = randomAlphaNumeric(10)
+        new_tag = random_alphanumeric(10)
         updated_tags = curr_data.tags + [new_tag]
         await server_normal.set_datapoint(dp_id, tags = updated_tags)
         assert set((await server_normal.get_datapoint_summary(dp_id)).tags) == set(updated_tags)
@@ -143,7 +143,7 @@ class TestServer(BaseConfig):
 
     async def test_updateNote(self, server_normal: ServerConn):
         # get the first entry
-        note = randomAlphaNumeric(1000)
+        note = random_alphanumeric(1000)
         dp_id = (await self._getFirstEntry(server_normal)).uuid
         await server_normal.set_datapoint_note(dp_id, note)
         assert await server_normal.get_datapoint_note(dp_id) == note
@@ -151,7 +151,7 @@ class TestServer(BaseConfig):
     async def test_updateAbstract(self, server_normal: ServerConn):
         # get the first entry
         dp_id = (await self._getFirstEntry(server_normal)).uuid
-        abstract = randomAlphaNumeric(1000)
+        abstract = random_alphanumeric(1000)
         await server_normal.set_datapoint_abstract(dp_id, abstract)
         assert await server_normal.get_datapoint_abstract(dp_id) == abstract
     

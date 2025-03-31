@@ -8,7 +8,7 @@ class EndnoteParser(ParserBase):
 
     pattern = re.compile('^%[0-9|A-Z] ', re.M)
 
-    def checkFormat(self, entry: str) -> bool:
+    def check_format(self, entry: str) -> bool:
         ## https://github.com/collective/bibliograph.parsing/blob/master/bibliograph/parsing/parsers/endnote.py
         all_tags = re.findall(self.pattern, entry)
         # Should always start w/ '%0' and have at least one author '%A',
@@ -20,8 +20,8 @@ class EndnoteParser(ParserBase):
         else:
             return False
     
-    def parseEntry(self, entry: str) -> RefDict:
-        assert self.checkFormat(entry)
+    def parse_entry(self, entry: str) -> RefDict:
+        assert self.check_format(entry)
         lines = [line for line in entry.split('\n') if re.findall(self.pattern, line)]
 
         res = {}

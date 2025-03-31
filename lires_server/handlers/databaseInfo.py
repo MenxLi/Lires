@@ -16,7 +16,7 @@ class DatabaseTagsHandler(RequestHandlerBase):
         self.set_header("Content-Type", "application/json")
         db = await self.db()
         self.write(json.dumps(
-            (await db.tags()).toOrderedList()
+            (await db.tags()).to_ordered_list()
             ))
         return
 class DatabaseUsageHandler(RequestHandlerBase):

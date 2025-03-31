@@ -107,7 +107,7 @@ class BasicFilterHandler(RequestHandlerBase):
 
         # Sort the result if no scores are provided
         if scores is None:
-            res = await db.conn.sortKeys(res)
+            res = await db.conn.sort_keys(res)
 
         self.write(json.dumps({
             'uids': res,

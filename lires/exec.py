@@ -5,13 +5,13 @@ from .config import generateDefaultConf
 def initLoggers():
     # May move to other place...
     import os
-    from lires.utils import setupLogger, BCOLORS
+    from lires.utils import setup_logger, BCOLORS
     from lires.utils.log import TermLogLevelT
 
     term_log_level: TermLogLevelT = os.getenv("LRS_LOG_LEVEL", "INFO").upper()          # type: ignore
 
     # init loggers for wild usage
-    setupLogger(
+    setup_logger(
         'default',
         term_id_color=BCOLORS.OKGRAY,
         term_log_level=term_log_level,

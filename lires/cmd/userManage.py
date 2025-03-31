@@ -1,8 +1,8 @@
 import argparse
-from lires.loader import initResources
-from lires.user.encrypt import generateHexHash
+from lires.loader import init_resources
+from lires.user.encrypt import generate_hex_hash
 from lires.core.dataTags import DataTags
-from lires.utils import tablePrint, TimeUtils
+from lires.utils import table_print, TimeUtils
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -58,51 +58,51 @@ async def _run():
 
     args = parser.parse_args()
 
-    user_pool, db_pool = await initResources()
+    user_pool, db_pool = await init_resources()
     user_db_conn = user_pool.conn
     try:
         if args.subparser == "add":
             assert args.password is not None, "Password is required"
-            await user_db_conn.insertUser(
-                username=args.username, password=generateHexHash(args.password), name=args.name,
-                is_admin=args.admin, mandatory_tags=DataTags(args.tags).toOrderedList(), 
+            await user_db_conn.insert_user(
+                username=args.username, password=generate_hex_hash(args.password), name=args.name,
+                is_admin=args.admin, mandatory_tags=DataTags(args.tags).to_ordered_list(), 
                 max_storage=parseStorage(args.max_storage) if args.max_storage is not None else None
             )
         
         elif args.subparser == "update":
             assert args.username is not None, "Username is required"
-            user_id = (await user_db_conn.getUser(args.username))["id"]
+            user_id = (await user_db_conn.get_user(args.username))["id"]
             if args.password is not None:
-                await user_db_conn.updateUser(user_id, password=generateHexHash(args.password))
+                await user_db_conn.update_user(user_id, password=generate_hex_hash(args.password))
             if args.name is not None:
-                await user_db_conn.updateUser(user_id, name=args.name)
+                await user_db_conn.update_user(user_id, name=args.name)
             if args.tags is not None:
-                await user_db_conn.updateUser(user_id, mandatory_tags=DataTags(args.tags).toOrderedList())
+                await user_db_conn.update_user(user_id, mandatory_tags=DataTags(args.tags).to_ordered_list())
             if args.admin is not None:
-                await user_db_conn.updateUser(user_id, is_admin=args.admin)
+                await user_db_conn.update_user(user_id, is_admin=args.admin)
             if args.max_storage is not None:
-                await user_db_conn.updateUser(user_id, max_storage=parseStorage(args.max_storage))
+                await user_db_conn.update_user(user_id, max_storage=parseStorage(args.max_storage))
 
         elif args.subparser == "delete":
             assert args.username is not None or args.id is not None, "Username or id is required"
             assert not (args.username is not None and args.id is not None), "Cannot specify both username and id"
             if args.username is not None:
                 assert args.id is None
-                user = await user_pool.getUserByUsername(args.username)
+                user = await user_pool.get_user_by_username(args.username)
             else:
                 assert args.id is not None
                 assert args.username is None
-                user = await user_pool.getUserById(args.id)
+                user = await user_pool.get_user_by_id(args.id)
             if user is None:
                 print(f"Error: User does not exist")
                 return
             if not args.yes:
-                if input(f"Are you sure you want to delete user **{await user.toString()}**, "
+                if input(f"Are you sure you want to delete user **{await user.to_string()}**, "
                          "together with all data associated? (y/[n])").lower() != "y":
                     print("Cancelled.")
                     return
-            await db_pool.deleteDatabasePermanently(user.id)
-            await user_pool.deleteUserPermanently(user.id)
+            await db_pool.delete_database_permanently(user.id)
+            await user_pool.delete_user_permanently(user.id)
             print("User deleted.")
         
         elif args.subparser == "list":
@@ -116,7 +116,7 @@ async def _run():
             def formatascii(s):
                 return s.encode('ascii', 'replace').decode()
             if args.table:
-                tablePrint(
+                table_print(
                     ["ID", "Username", "Name", "Admin", "Mandatory Tags", "Max Storage", "Last Active"],
                     [[
                         (user_info:=(await user.info()))["id"],
@@ -125,12 +125,12 @@ async def _run():
                         'X' if user_info["is_admin"] else ' ',
                         '; '.join(user_info["mandatory_tags"]),
                         f"{(user_info['max_storage'])/1024/1024:.1f} MB",
-                        TimeUtils.stamp2Local(user_info["last_active"]).strftime("%Y-%m-%d %H:%M:%S")
+                        TimeUtils.stamp2local(user_info["last_active"]).strftime("%Y-%m-%d %H:%M:%S")
                     ] for user in all_users]
                 )
             else:
                 for user in all_users:
-                    print(await user.toString())
+                    print(await user.to_string())
 
         else:
             parser.print_usage()

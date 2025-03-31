@@ -9,9 +9,9 @@ from pybtex.database import BibliographyData, Entry
 import pybtex.scanner
 from pylatexenc import latex2text
 import multiprocessing as mp
-from ..utils import randomAlphaNumeric
+from ..utils import random_alphanumeric
 
-async def checkBibtexValidity(
+async def check_bibtex_validity(
     bib_str: str, 
     onerror: Optional[Callable[[str], Awaitable[None]]] = None
     ) -> bool:
@@ -45,7 +45,7 @@ class BibParser(LiresBase):
         self.mode = mode
     
     @classmethod
-    def removeAbstract(cls, bib_str: str) -> str:
+    def remove_abstract(cls, bib_str: str) -> str:
         """
         Remove abstract from bib string
         """
@@ -56,7 +56,7 @@ class BibParser(LiresBase):
         return bib_data.to_string("bibtex")
     
     @classmethod
-    def formatBib(cls, bib_str: str) -> str:
+    def format(cls, bib_str: str) -> str:
         """ Format bib string """
         bib_data = pybtex.database.parse_string(bib_str, bib_format="bibtex")
         return bib_data.to_string("bibtex")
@@ -114,7 +114,7 @@ class ParsedRef(TypedDict):
     year: str
     authors: list[str]
     publication: str
-async def parseBibtex(bib_single: str) -> ParsedRef:
+async def parse_bibtex(bib_single: str) -> ParsedRef:
     """
     parse bibtex and extract useful entries
     """
@@ -147,7 +147,7 @@ async def parseBibtex(bib_single: str) -> ParsedRef:
 
 class BibConverter(LiresBase):
     logger = LiresBase.loggers().core
-    async def fromNBib(self, nb: str) -> str:
+    async def from_nbib(self, nb: str) -> str:
         parsed = nbib.read(nb.strip("\n") + "\n")
         if not parsed:
             await self.logger.error("Error while parsing nbib")
@@ -187,11 +187,11 @@ class BibConverter(LiresBase):
             data.append((k, v))
 
         bib_data = BibliographyData({
-            f"{data_dict['year']}_{randomAlphaNumeric(5)}":
+            f"{data_dict['year']}_{random_alphanumeric(5)}":
             Entry(doc_type, data)
         })
         return bib_data.to_string("bibtex")
     
-    def fromEndNote(self, en: str):
+    def from_endnote(self, en: str):
         parser = refparser.EndnoteParser()
         return parser.toBibtex(en)
