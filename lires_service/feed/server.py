@@ -7,13 +7,13 @@ import asyncio
 import fastapi
 from pydantic import BaseModel
 from typing import Optional
-from .db import DataBase, init_database, collectFeedCycle
+from .db import DataBase, init_database, collect_feed_cycle
 from ..entry import start_service
 
-async def startCollectionLoop():
+async def start_collection_loop():
     await logger.info("Collecting feed...")
-    await collectFeedCycle(feed_db, logger=logger)
-    createTaskFn = lambda: asyncio.get_event_loop().create_task(startCollectionLoop())
+    await collect_feed_cycle(feed_db, logger=logger)
+    createTaskFn = lambda: asyncio.get_event_loop().create_task(start_collection_loop())
 
     # update every 12 hours
     asyncio.get_event_loop().call_later(60*60*12, createTaskFn)
@@ -22,7 +22,7 @@ async def startCollectionLoop():
 async def lifespan(app: fastapi.FastAPI):
     global logger, registry, feed_db
     feed_db = await init_database()
-    await startCollectionLoop()
+    await start_collection_loop()
     yield
     await feed_db.close()
     await registry.withdraw()
@@ -64,7 +64,7 @@ async def categories():
     # return await feed_db.tags()
     return [f'arxiv->{cat}' for cat in ["cs.CV", "cs.AI", "cs.LG", "cs.RO", "cs.ET", "cs.GL", "stat.ML", "stat.AP", "physics.med-ph", "eess.IV"]]
 
-async def startServer(
+async def start_server(
     host: str = "0.0.0.0",
     port: int = -1,
 ):
@@ -78,4 +78,4 @@ async def startServer(
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(startServer())
+    asyncio.run(start_server())

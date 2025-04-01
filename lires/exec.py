@@ -94,7 +94,7 @@ def run():
         ))
     
     if args.subparser == "feed":
-        from lires_service.feed.server import startServer as startFeedServer
+        from lires_service.feed.server import start_server as startFeedServer
         asyncio.run(startFeedServer(
             host = args.host,
             port = args.port,

@@ -150,7 +150,7 @@ class Application(tornado.web.Application):
 
 
 _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
-async def __startServer(
+async def __start_server(
         host: str, 
         port: Union[int, str], 
         auto_reload: bool = False,
@@ -226,12 +226,12 @@ if _ENV_CERTFILE:
 else:
     SSL_CONFIG = None
 
-def startServer(
+def start_server(
         host: str, 
         port: int | str, 
         ) -> None:
     asyncio.run(
-        __startServer(
+        __start_server(
             host = host, 
             port = port, 
             ssl_config = SSL_CONFIG, 
@@ -240,4 +240,4 @@ def startServer(
     )
 
 if __name__ == "__main__":
-    startServer('127.0.0.1', 8080)
+    start_server('127.0.0.1', 8080)

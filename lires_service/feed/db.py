@@ -34,7 +34,7 @@ async def to_database(database: DataBase, articles: list[ArticleInfo], logger: L
     await logger.info(f"Added {len(new_articles)} new articles to feed database")
     return
 
-async def collectFeedCycle(feed_db: DataBase, logger: LiresLogger):
+async def collect_feed_cycle(feed_db: DataBase, logger: LiresLogger):
     from .collector import fetch_arxiv
 
     await logger.info("Start collecting arxiv feed...")
