@@ -4,6 +4,16 @@ from logging.handlers import MemoryHandler
 from typing import Optional, Literal
 from .term import BCOLORS
 
+def levelstr2int(levelstr: str) -> int:
+    import sys
+    if sys.version_info < (3, 11):
+        return logging.getLevelName(levelstr.upper())
+    else:
+        return logging.getLevelNamesMapping()[levelstr.upper()]
+
+def levelint2str(levelint: int) -> str:
+    return logging.getLevelName(levelint)
+
 # ---- Main entry ----
 TermLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 FileLogLevelT = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "_ALL"]
@@ -69,14 +79,14 @@ def setup_logger(
         _fh.setLevel(file_log_level)
         _fh.setFormatter(__file_fommatter)
         if only_this_level:
-            _fh.addFilter(LevelFilter(logging.getLevelName(file_log_level)))
+            _fh.addFilter(LevelFilter(levelstr2int(file_log_level)))
         _mh = MemoryHandler(__mem_buffer_size, target=_fh, flushOnClose=True)
         logger.addHandler(_mh)
 
     # set up file handler
     if file_log_level != "_ALL":
         # get less critical log level and set it to be the level of logger
-        logger.setLevel(min(logging.getLevelName(term_log_level), logging.getLevelName(file_log_level)))
+        logger.setLevel(min(levelstr2int(term_log_level), levelstr2int(file_log_level)))
         if file_path is not None and file_path.endswith(".log"):
             _setupFileHandle(file_path, file_log_level)
     else:

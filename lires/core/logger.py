@@ -2,6 +2,7 @@ from __future__ import annotations
 import logging, os, asyncio
 from typing import Optional, TYPE_CHECKING
 from lires.utils import BCOLORS, TimeUtils
+from lires.utils.log import levelstr2int, levelint2str
 from lires.api import LServerConn
 if TYPE_CHECKING:
     from lires.api.log import levelT
@@ -47,7 +48,7 @@ class LiresLogger(logging.Logger):
     async def log(self, level: int, msg: str, *args, **kwargs):
         if self.isEnabledFor(level):
             await self.__log(
-                logging.getLevelName(level),  # type: ignore
+                levelint2str(level),  # type: ignore
                 msg
                 )
         return super().log(level, msg, *args, **kwargs)
@@ -93,9 +94,9 @@ def setup_remote_logger(
 
     # get less critical log level and set it to be the level of logger
     if remote_log_level:
-        logger.setLevel(min(logging.getLevelName(term_log_level), logging.getLevelName(remote_log_level)))
+        logger.setLevel(min(levelstr2int(term_log_level), levelstr2int(remote_log_level)))
     else:
-        logger.setLevel(logging.getLevelName(term_log_level))
+        logger.setLevel(levelstr2int(term_log_level))
         
     # remove all other handlers
     logger.handlers.clear()
