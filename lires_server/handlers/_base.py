@@ -273,6 +273,7 @@ class RequestHandlerMixin(LiresBase):
 
 class RequestHandlerBase(tornado.web.RequestHandler, RequestHandlerMixin):
     def set_default_headers(self):
+        self.set_header("X-Robots-Tag", "noindex, nofollow")
         self.set_header('robot', 'noindex, nofollow, noarchive')
         self.allow_cors()
 

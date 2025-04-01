@@ -35,6 +35,12 @@ class DefaultRequestHandler(RequestHandlerBase):
         """.format(version = VERSION)
         return self.write(html_page)
 
+class RobotRequestHandler(RequestHandlerBase):
+    async def get(self, *args, **kwargs):
+        self.set_header("Content-Type", "text/plain")
+        self.write("User-agent: *\nDisallow: /")
+        self.finish()
+
 class StaticFileHandler(tornado.web.StaticFileHandler, RequestHandlerMixin, print_init_info = False):
     async def get(self, *args, **kwargs):
         return await super().get(*args, **kwargs)
@@ -56,6 +62,7 @@ class Application(tornado.web.Application):
             (r'/(assets/.*)', cachedStaticFileHandlerFactory(600), {"path": LRSWEB_SRC_ROOT}),
             (r'/(site-icons/.*)', cachedStaticFileHandlerFactory(600), {"path": LRSWEB_SRC_ROOT}),
             (r'/(site.manifest.json)', cachedStaticFileHandlerFactory(600), {"path": LRSWEB_SRC_ROOT}),
+            (r'/(robots.txt)', RobotRequestHandler),
 
             # access server assets, read-only
             (r'/documentation/(.*)', cachedStaticFileHandlerFactory(cache_seconds=600), 
@@ -143,7 +150,7 @@ class Application(tornado.web.Application):
 
 
 _SSL_CONFIGT = TypedDict("_SSL_CONFIGT", {"certfile": str, "keyfile": str})
-async def __start_server(
+async def __startServer(
         host: str, 
         port: Union[int, str], 
         auto_reload: bool = False,
@@ -168,7 +175,7 @@ async def __start_server(
         tornado.autoreload.add_reload_hook(lambda: print("Server reloaded"))
         tornado.autoreload.start()
 
-    async def build_index(op_interval: float = 0.05):
+    async def buildIndex(op_interval: float = 0.05):
         print("Periodically build index")
         from lires.core.vecutils import build_feature_storage
 
@@ -180,21 +187,21 @@ async def __start_server(
                 operation_interval=op_interval,
             )
     
-    tornado.ioloop.PeriodicCallback(build_index, 6*60*60*1000).start()   # in milliseconds
+    tornado.ioloop.PeriodicCallback(buildIndex, 6*60*60*1000).start()   # in milliseconds
     tornado.ioloop.PeriodicCallback(g_storage.flush, 5*1000).start()    # periodically flush the database
 
     # exit hooks
     import signal
-    async def __exit_hook():
+    async def __exitHook():
         await g_storage.finalize()
         await RequestHandlerBase.logger.info("Server shutdown")
         
     shutdown_event = asyncio.Event()
     # catch keyboard interrupt
-    async def __signal_handler(*args, **kwargs):
+    async def __signalHandler(*args, **kwargs):
         with UseTermColor("green"):
             print("\nExit gracefully...")
-        await __exit_hook()
+        await __exitHook()
         with UseTermColor("green"):
             print("Hook invoked.")
         # send event to stop the loop, 
@@ -204,7 +211,7 @@ async def __start_server(
     loop = asyncio.get_event_loop()
     for signame in ('SIGINT', 'SIGTERM'):
         loop.add_signal_handler(getattr(signal, signame),
-                                lambda: asyncio.ensure_future(__signal_handler()))
+                                lambda: asyncio.ensure_future(__signalHandler()))
     await shutdown_event.wait()
 
 # SSL config
@@ -219,12 +226,12 @@ if _ENV_CERTFILE:
 else:
     SSL_CONFIG = None
 
-def start_server(
+def startServer(
         host: str, 
         port: int | str, 
         ) -> None:
     asyncio.run(
-        __start_server(
+        __startServer(
             host = host, 
             port = port, 
             ssl_config = SSL_CONFIG, 
@@ -233,4 +240,4 @@ def start_server(
     )
 
 if __name__ == "__main__":
-    start_server('127.0.0.1', 8080)
+    startServer('127.0.0.1', 8080)
