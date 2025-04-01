@@ -6,21 +6,21 @@ import asyncio
 from lires.api import RegistryConn
 from lires.utils import BCOLORS
 from .logger import DatabaseLogger, NAME_LEVEL
-from ..entry import startService
+from ..entry import start_service
 
 DATABASE_COMMIT_INTERVAL = 10
-def scheduleNextCommit():
+def schedule_next_commit():
     global logger
-    if not logger.isUpToDate():
+    if not logger.is_uptodate():
         # print("-------- Commit --------")
         asyncio.ensure_future(logger.commit())
-    asyncio.get_event_loop().call_later(DATABASE_COMMIT_INTERVAL, scheduleNextCommit)
+    asyncio.get_event_loop().call_later(DATABASE_COMMIT_INTERVAL, schedule_next_commit)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global logger, registry
     await logger.connect()
-    scheduleNextCommit()
+    schedule_next_commit()
     yield
     await logger.close()
     await registry.withdraw()
@@ -78,7 +78,7 @@ async def log(logger_path, request: LogRequest):
 async def status():
     return {"status": "ok"}
 
-async def startLoggerServer(file: str, host: str, port: int):
+async def start_logger_server(file: str, host: str, port: int):
     global logger
     if not file:
         import os, time
@@ -104,7 +104,7 @@ async def startLoggerServer(file: str, host: str, port: int):
     print("Logging to {}".format(file))
     
     # start the server
-    await startService(
+    await start_service(
         app = app,
         host = host,
         port = port,

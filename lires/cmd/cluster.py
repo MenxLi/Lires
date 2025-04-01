@@ -25,7 +25,7 @@ class ClusterConfigT(TypedDict):
 allowed_entries = ['log', 'ai', 'feed', 'server']
 exec_order = allowed_entries
 
-def __getDefaultConfig()->ClusterConfigT:
+def __default_config()->ClusterConfigT:
     ssl_certfile = os.environ.get("LRS_SSL_CERTFILE", "")
     ssl_keyfile = os.environ.get("LRS_SSL_KEYFILE", "")
     return {
@@ -60,8 +60,8 @@ def __getDefaultConfig()->ClusterConfigT:
         ]
     }
 
-def generateConfigFile(path:str):
-    config = __getDefaultConfig()
+def generate_config_file(path:str):
+    config = __default_config()
 
     # use yaml
     with open(path, "w") as f:
@@ -97,7 +97,7 @@ def generateConfigFile(path:str):
     with open(path, "w") as f:
         f.write("# " + "\n# ".join(comments) + "\n" + content)
 
-def loadConfigFile(path:str)->ClusterConfigT:
+def load_config_file(path:str)->ClusterConfigT:
     with open(path, "r") as f:
         config: ClusterConfigT = yaml.safe_load(f)
     
@@ -137,7 +137,7 @@ def cprint(*args):
     print(BCOLORS.LIGHTMAGENTA + "[cluster] " + " ".join(map(str, args)) + BCOLORS.ENDC)
 
 ## Multi-processes
-def initProcesses(config: ClusterConfigT):
+def init_processes(config: ClusterConfigT):
     """ Execute the config file """
     ps: list[subprocess.Popen] = []
     g_env = os.environ.copy()
@@ -190,7 +190,7 @@ def main():
         if os.path.exists(args.path) and not args.overwrite:
             cprint("Config file already exists, use --overwrite to overwrite")
             exit(1)
-        generateConfigFile(args.path)
+        generate_config_file(args.path)
         exit(0)
     
     if args.overwrite and not args.generate:
@@ -198,7 +198,7 @@ def main():
         exit(1)
     
     if not os.path.exists(args.path) and args.init_if_not_exist:
-        generateConfigFile(args.path)
+        generate_config_file(args.path)
     
     if not os.path.exists(args.path):
         cprint("Config file does not exist, use --generate to generate one")
@@ -220,11 +220,11 @@ def main():
             time.sleep(0.1)
     
     ## Start servers -------------------------------
-    config = loadConfigFile(args.path)
-    procs = initProcesses(config)
+    config = load_config_file(args.path)
+    procs = init_processes(config)
 
     # handle SIGINT
-    def sigintHandler(sig, frame):
+    def sigint_handler(sig, frame):
         print("")   # print a newline
         cprint("{} received, terminating...".format(signal.Signals(sig).name))
 
@@ -242,8 +242,8 @@ def main():
         cprint("All processes terminated, exit.")
         exit(0)
 
-    signal.signal(signal.SIGINT, sigintHandler)
-    signal.signal(signal.SIGTERM, sigintHandler)
+    signal.signal(signal.SIGINT, sigint_handler)
+    signal.signal(signal.SIGTERM, sigint_handler)
     
     while True:
         time.sleep(1)

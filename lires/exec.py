@@ -1,6 +1,6 @@
 import os, asyncio
 from .parser import prepareParser
-from .config import generateDefaultConf
+from .config import generate_default_conf
 
 def initLoggers():
     # May move to other place...
@@ -30,7 +30,7 @@ def run():
     NOT_RUN = False     # Indicates whether to run main program
 
     if not os.path.exists(CONF_FILE_PATH):
-        generateDefaultConf()
+        generate_default_conf()
 
     if args.version:
         for v,change_list in VERSION_HISTORIES:
@@ -63,21 +63,21 @@ def run():
         parser.print_help()
     
     if args.subparser == "registry":
-        from lires_service.registry.server import startServer as startRegistryServer
+        from lires_service.registry.server import start_server as startRegistryServer
         asyncio.run(startRegistryServer(
             host = args.host,
             port = args.port,
         ))
 
     if args.subparser == "server":
-        from lires_server.main import startServer
-        startServer(
+        from lires_server.main import start_server
+        start_server(
             host = args.host,
             port = args.port, 
             )
     
     if args.subparser == "ai":
-        from lires_service.ai.server import startServer as startIServer
+        from lires_service.ai.server import start_server as startIServer
         asyncio.run(startIServer(
             host = args.host,
             port = args.port, 
@@ -86,8 +86,8 @@ def run():
         ))
     
     if args.subparser == "log":
-        from lires_service.log.server import startLoggerServer
-        asyncio.run(startLoggerServer(
+        from lires_service.log.server import start_logger_server
+        asyncio.run(start_logger_server(
             file = args.file,
             host = args.host,
             port = args.port,

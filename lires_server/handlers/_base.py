@@ -34,7 +34,7 @@ def authenticate(
         Decorator to check if user is logged in
         """
         async def wrapper(self: RequestHandlerMixin, *args, **kwargs):
-            user_info = await self.checkKey()
+            user_info = await self.check_key()
             if admin_required and not user_info["is_admin"]:
                 raise tornado.web.HTTPError(403)
 
@@ -83,12 +83,12 @@ class RequestHandlerMixin(LiresBase):
     def io_loop(self):
         return asyncio.get_event_loop()
     
-    async def wrapAsyncIter(self, gen: Generator[T, None, Any] | list[T]) -> AsyncGenerator[T, None]:
+    async def wrap_async_iter(self, gen: Generator[T, None, Any] | list[T]) -> AsyncGenerator[T, None]:
         for item in gen:
             await asyncio.sleep(0)  # make the control back to the event loop, tricky
             yield item
     
-    async def inferUserId(self) -> int:
+    async def infer_userid(self) -> int:
         """
         Try to identify user id from different sources
         """
@@ -114,10 +114,10 @@ class RequestHandlerMixin(LiresBase):
             if user is not None: return user.id
             
         # if not found, get user id from key
-        return (await self.userInfo())["id"]
+        return (await self.user_info())["id"]
     
     async def db(self) -> DataBase:
-        return ( await g_storage.database_pool.get( await self.inferUserId() ) )
+        return ( await g_storage.database_pool.get( await self.infer_userid() ) )
     
     async def vec_db(self) -> VectorDatabase:
         return (await self.db()).vector
@@ -133,10 +133,10 @@ class RequestHandlerMixin(LiresBase):
     def connection_pool(self) -> list[WebsocketHandler]:
         return _ws_connections
     
-    def connectionsByUserID(self, user_id: int) -> list[WebsocketHandler]:
+    def connections_by_userid(self, user_id: int) -> list[WebsocketHandler]:
         return [conn for conn in self.connection_pool if conn.user_id == user_id]
     
-    def getAuthToken(self) -> str:
+    def get_auth_token(self) -> str:
         # first try to get key from headers
         # `Authorization` is a common header for key, 
         # use this should be a better practice
@@ -163,23 +163,23 @@ class RequestHandlerMixin(LiresBase):
     def session_id(self) -> str:
         return self.get_argument("session_id", "")
     
-    async def userInfo(self) -> UserInfo:
+    async def user_info(self) -> UserInfo:
         # use cached permission, from checkKey()
         if self.__account_info:
             return self.__account_info
-        return await self.checkKey()
+        return await self.check_key()
     
-    async def userInfoDesensitized(self) -> UserInfo:
-        info = await self.userInfo()
+    async def user_info_desensitized(self) -> UserInfo:
+        info = await self.user_info()
         info["enc_key"] = "__HIDDEN__"
         return info
     
-    async def checkKey(self) -> UserInfo:
+    async def check_key(self) -> UserInfo:
         """
         Authenticates key from headers, params, then cookies
         Will raise HTTPError if key is invalid
         """
-        enc_key = self.getAuthToken()
+        enc_key = self.get_auth_token()
         if not enc_key:
             await self.logger.debug("No key found, abort")
             raise tornado.web.HTTPError(401) 
@@ -198,7 +198,7 @@ class RequestHandlerMixin(LiresBase):
         self.__account_info = user_info
         return user_info
 
-    async def ensureFeatureUpdate(self, dp: DataPoint):
+    async def ensure_feature_update(self, dp: DataPoint):
         """
         Ensure the feature is updated
         """
@@ -206,7 +206,7 @@ class RequestHandlerMixin(LiresBase):
         asyncio.ensure_future(update_feature(vec_db, self.iconn, dp))
         await self.logger.debug(f"Feature update for {dp.uuid}")
     
-    async def deleteFeature(self, dp: DataPoint):
+    async def delete_feature(self, dp: DataPoint):
         """
         Delete the feature
         """
@@ -215,7 +215,7 @@ class RequestHandlerMixin(LiresBase):
         await self.logger.debug(f"Feature deleted for {dp.uuid}")
     
     @staticmethod
-    async def checkTagPermission(_tags: List[str] | DataTags, _mandatory_tags: List[str], raise_error=True) -> bool:
+    async def check_tag_permission(_tags: List[str] | DataTags, _mandatory_tags: List[str], raise_error=True) -> bool:
         """
         Check if tags are dominated by mandatory_tags
         """
@@ -230,14 +230,14 @@ class RequestHandlerMixin(LiresBase):
                 return False
         return True
 
-    def allowCORS(self):
+    def allow_cors(self):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Credentials", "true")
         self.set_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
         self.set_header("Access-Control-Allow-Headers", "*")
         self.set_header("Access-Control-Expose-Headers", "*")
 
-    async def broadcastEventMessage(self, event: Event, to_all: bool = False):
+    async def broadcast_event(self, event: Event, to_all: bool = False):
         """
         Inform all connected clients about an event
         - to_all: if True, the event will be broadcasted to all clients, 
@@ -251,7 +251,7 @@ class RequestHandlerMixin(LiresBase):
         # TODO: find out why...
         __need_remove_idx = []
         if not to_all:
-            __this_user_id = (await self.userInfo())["id"]
+            __this_user_id = (await self.user_info())["id"]
         for i in range(len(self.connection_pool)):
             conn = self.connection_pool[i]
             if conn is self:
@@ -274,7 +274,7 @@ class RequestHandlerMixin(LiresBase):
 class RequestHandlerBase(tornado.web.RequestHandler, RequestHandlerMixin):
     def set_default_headers(self):
         self.set_header('robot', 'noindex, nofollow, noarchive')
-        self.allowCORS()
+        self.allow_cors()
 
     def options(self, *args, **kwargs):
         # Handle preflight requests
@@ -307,7 +307,7 @@ class ReverseProxyHandlerBase(RequestHandlerBase):
         return ''
 
     @abstractmethod
-    async def aimHost(self) -> str:...
+    async def aim_host(self) -> str:...
 
     async def handle_request(self):
         http = tornado.httpclient.AsyncHTTPClient()
@@ -315,9 +315,9 @@ class ReverseProxyHandlerBase(RequestHandlerBase):
         if uri:=self.request.uri:
             assert uri.startswith(self.basePath), "uri must start with basePath"
             uri = uri[len(self.basePath):]
-            url = await self.aimHost() + uri
+            url = await self.aim_host() + uri
         else:
-            url = await self.aimHost()
+            url = await self.aim_host()
         await self.logger.info(f"Proxying request to {url}")
         response = await http.fetch(url,
                    method=self.request.method,

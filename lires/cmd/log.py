@@ -22,15 +22,15 @@ class LogDBReader:
         self.conn = sqlite3.connect(db_file)
         self.cur = self.conn.cursor()
     
-    def getTableNames(self) -> list[str]:
+    def get_table_names(self) -> list[str]:
         self.cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
         return [x[0] for x in self.cur.fetchall()]
     
-    def hasTable(self, table_name: str) -> bool:
+    def has_table(self, table_name: str) -> bool:
         self.cur.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';")
         return len(self.cur.fetchall()) > 0
     
-    def getMessagesFromTable(
+    def get_messages_from(
         self, 
         table_name: str, 
         level_name: Optional[str] = None,
@@ -41,7 +41,7 @@ class LogDBReader:
             self.cur.execute(f"SELECT * FROM {table_name} WHERE level_name='{level_name}' ORDER BY time DESC LIMIT {limit}")
         return self.cur.fetchall()
     
-    def getCountFromTable(
+    def get_count_from(
         self, 
         table_name: str, 
         level_name: Optional[str] = None) -> int:
@@ -58,16 +58,16 @@ __color_level = {
     "ERROR": BCOLORS.FAIL,
     "CRITICAL": BCOLORS.FAIL,
 }
-def formatLine(line: tuple) -> str:
+def format_line(line: tuple) -> str:
     time = line[1]
     level_name = line[3]
     message = line[4]
     return f"{BCOLORS.OKCYAN}{time}{BCOLORS.ENDC} {__color_level[level_name]}{level_name}{BCOLORS.ENDC}: {message}"
-def formatLines(lines: list[tuple]) -> Generator[str, None, None]:
+def format_lines(lines: list[tuple]) -> Generator[str, None, None]:
     for i in range(0, len(lines)):
-        yield formatLine(lines[i])
+        yield format_line(lines[i])
 
-def sortLines(lines: list[tuple]) -> list[tuple]:
+def sort_lines(lines: list[tuple]) -> list[tuple]:
     # in the order of time
     return sorted(lines, key=lambda x: x[0], reverse=False)
 
@@ -102,17 +102,17 @@ def main():
         parser.print_help()
         return
     
-    def getAllTableNames(files) -> list[str]:
+    def get_all_table_names(files) -> list[str]:
         __all_table_names = []
         for file in files:
             reader = LogDBReader(file)
-            __all_table_names.extend(reader.getTableNames())
+            __all_table_names.extend(reader.get_table_names())
         return sorted(list(set(__all_table_names)))
     
     if args.subparser_name == 'view':
         __all_lines = []
         table_name = args.table
-        __all_table_names = getAllTableNames(args.files)
+        __all_table_names = get_all_table_names(args.files)
         if table_name is None or table_name == "":
             for idx, table_name in enumerate(__all_table_names):
                 print(f"[{idx}] {table_name}")
@@ -143,13 +143,13 @@ def main():
 
         for file in args.files:
             reader = LogDBReader(file)
-            if not reader.hasTable(table_name):
+            if not reader.has_table(table_name):
                 continue
-            lines = reader.getMessagesFromTable(table_name, args.level, limit=args.limit)
+            lines = reader.get_messages_from(table_name, args.level, limit=args.limit)
             __all_lines.extend(lines)
-        __all_lines = sortLines(__all_lines)
+        __all_lines = sort_lines(__all_lines)
         try:
-            for line in formatLines(__all_lines):
+            for line in format_lines(__all_lines):
                 print(line)
             print('\n'+'-' * 80)
             print(f"Total {len(__all_lines)} lines, from table {table_name}")
@@ -164,14 +164,14 @@ def main():
 
     elif args.subparser_name == 'check':
         # get size of each table
-        all_tables = getAllTableNames(args.files)
+        all_tables = get_all_table_names(args.files)
         count = {}
         for file in args.files:
             reader = LogDBReader(file)
             for table_name in all_tables:
-                if not reader.hasTable(table_name):
+                if not reader.has_table(table_name):
                     continue
-                lines = reader.getCountFromTable(table_name, level_name=args.level)
+                lines = reader.get_count_from(table_name, level_name=args.level)
                 count[table_name] = count.setdefault(table_name, 0) + lines
         # print
         max_len = max([len(x) for x in all_tables])
@@ -191,8 +191,8 @@ def main():
             from lires.core.error import LiresError
             from lires.utils import BCOLORS
             from lires.api import RegistryConn
-            from lires.config import getConf
-            group_id = getConf()['group']
+            from lires.config import get_conf
+            group_id = get_conf()['group']
             rconn = RegistryConn()
             try:
                 log_service = await rconn.get('log', group_id)
@@ -211,7 +211,7 @@ def main():
             if unifyPath(all_files[i]) == unifyPath(args.output):
                 all_files.pop(i)
                 break
-        all_tables = getAllTableNames(all_files)
+        all_tables = get_all_table_names(all_files)
         conn = sqlite3.connect(args.output)
         cur = conn.cursor()
 
@@ -232,9 +232,9 @@ def main():
                 sql_create = sql_create[:-2] + ")"
                 cur.execute(sql_create)
 
-                if not reader.hasTable(table_name):
+                if not reader.has_table(table_name):
                     continue
-                lines = reader.getMessagesFromTable(table_name)
+                lines = reader.get_messages_from(table_name)
                 for line in lines:
                     cur.execute(f"INSERT INTO {table_name} VALUES (?,?,?,?,?)", line)
         conn.commit()

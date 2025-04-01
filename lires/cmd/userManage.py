@@ -45,7 +45,7 @@ async def _run():
     parser_list.add_argument('-r', "--reverse", help = "Reverse order", action="store_true")
     parser_list.add_argument('--ascii', help = "Only print ascii characters, work only with table", action="store_true")
 
-    def parseStorage(s: str) -> int:
+    def parse_storage(s: str) -> int:
         assert s[:-1].isdigit(), "Invalid storage size"
         assert s[-1].lower() in ["m", "g", "t"], "Invalid storage unit"
         if s[-1].lower() == "m":
@@ -66,7 +66,7 @@ async def _run():
             await user_db_conn.insert_user(
                 username=args.username, password=generate_hex_hash(args.password), name=args.name,
                 is_admin=args.admin, mandatory_tags=DataTags(args.tags).to_ordered_list(), 
-                max_storage=parseStorage(args.max_storage) if args.max_storage is not None else None
+                max_storage=parse_storage(args.max_storage) if args.max_storage is not None else None
             )
         
         elif args.subparser == "update":
@@ -81,7 +81,7 @@ async def _run():
             if args.admin is not None:
                 await user_db_conn.update_user(user_id, is_admin=args.admin)
             if args.max_storage is not None:
-                await user_db_conn.update_user(user_id, max_storage=parseStorage(args.max_storage))
+                await user_db_conn.update_user(user_id, max_storage=parse_storage(args.max_storage))
 
         elif args.subparser == "delete":
             assert args.username is not None or args.id is not None, "Username or id is required"

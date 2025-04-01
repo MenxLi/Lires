@@ -27,7 +27,7 @@ class DatabaseUsageHandler(RequestHandlerBase):
         db = await self.db()
         self.write(json.dumps({
             "n_entries": await db.count(),
-            "disk_usage": await db.diskUsage(),
-            "disk_limit": (await self.userInfo())["max_storage"]
+            "disk_usage": await db.disk_usage(),
+            "disk_limit": (await self.user_info())["max_storage"]
         }))
         return

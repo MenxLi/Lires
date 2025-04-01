@@ -2,7 +2,7 @@ from ._base import *
 from tornado import template
 from dataclasses import dataclass
 import os
-from lires.config import getConf
+from lires.config import get_conf
 from ..path_config import ASSETS_DIR
 
 @dataclass
@@ -19,11 +19,11 @@ class ShareHandler(RequestHandlerBase):
     with open(os.path.join(ASSETS_DIR, 'share.template.html')) as f:
         share_page_template = template.Template(f.read())
 
-    @authenticate(enabled = not getConf()['allow_public_query'])
+    @authenticate(enabled = not get_conf()['allow_public_query'])
     async def get(self):
 
         # get user
-        user_id = await self.inferUserId()
+        user_id = await self.infer_userid()
         user = await self.user_pool.get_user_by_id(user_id)
         if user is None:
             await self.logger.error(f"User not found on share request: {user_id}")
@@ -51,7 +51,7 @@ class ShareHandler(RequestHandlerBase):
                     year = dp.year,
                     authors = dp.authors,
                     publication = dp.publication if dp.publication else "", 
-                    abstract=await dp.fm.readAbstract(),
+                    abstract=await dp.fm.get_abstract(),
                     links = links
                 ))
             except self.Error.LiresEntryNotFoundError:
@@ -63,7 +63,7 @@ class ShareHandler(RequestHandlerBase):
         ))
 
 class BibtexHandler(RequestHandlerBase):
-    @authenticate(enabled = not getConf()['allow_public_query'])
+    @authenticate(enabled = not get_conf()['allow_public_query'])
     async def get(self, uid): 
         db = await self.db()
         dp = await db.get(uid)

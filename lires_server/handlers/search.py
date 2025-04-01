@@ -36,7 +36,7 @@ class BasicFilterHandler(RequestHandlerBase):
             }))
 
         if tags:
-            cadidate_ids = await db.getIDByTags(tags)
+            cadidate_ids = await db.ids_from_tags(tags)
             res = cadidate_ids
         else:
             cadidate_ids = None

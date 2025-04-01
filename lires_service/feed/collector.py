@@ -12,7 +12,7 @@ class ArticleInfo:
     link: str
     tags: list[str]
 
-async def fetchArxiv(
+async def fetch_arxiv(
     max_results=10, 
     search_query='cat:cs.AI OR cat:cs.CV', 
     sort_by='submittedDate', 
@@ -32,7 +32,7 @@ async def fetchArxiv(
         authors = entry.findall('{http://www.w3.org/2005/Atom}author/{http://www.w3.org/2005/Atom}name')
         return [author.text for author in authors]
     
-    def arxiv2Bibtex(
+    def arxiv2bibtex(
         id: str,
         title: str,
         authors: list[str],
@@ -53,7 +53,7 @@ async def fetchArxiv(
 """
         )
 
-        def formatIllegalChar(s: str) -> str:
+        def format_illegal_char(s: str) -> str:
             # check if brackets are balanced
             if s.count('{') != s.count('}'):
                 s = s.replace('{', '').replace('}', '')
@@ -63,12 +63,12 @@ async def fetchArxiv(
 
         ret = article_template.safe_substitute(
             id=id,
-            title=formatIllegalChar(title),
+            title=format_illegal_char(title),
             authors=' and '.join([
-                formatIllegalChar(author)
+                format_illegal_char(author)
                 for author in
                 authors]),
-            abstract=formatIllegalChar(abstract),
+            abstract=format_illegal_char(abstract),
             year=published_time.split('-')[0],
             link=link,
         )
@@ -96,7 +96,7 @@ async def fetchArxiv(
         articles.append(
             ArticleInfo(
                 id=id,
-                bibtex=arxiv2Bibtex(id, title, authors, abstract, link, published_time),
+                bibtex=arxiv2bibtex(id, title, authors, abstract, link, published_time),
                 link=link,
                 # tags=[f'arxiv-{t.strip()}' for t in search_query.split('OR')],
                 tags = [f'arxiv->{tag}' for tag in tags],
@@ -107,5 +107,5 @@ async def fetchArxiv(
 
 if __name__ == '__main__':
     import asyncio
-    articles = asyncio.run(fetchArxiv())
+    articles = asyncio.run(fetch_arxiv())
     print(articles)

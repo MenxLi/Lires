@@ -56,12 +56,12 @@ for _p in [ LRS_HOME, DATABASE_HOME, TMP_DIR, LOG_DIR, ]:
 # the new fields will be added on top of the old config file on getConf()
 import uuid
 import platform
-def __staticConfigToken(prefix = uuid.NAMESPACE_DNS):
+def __static_config_token(prefix = uuid.NAMESPACE_DNS):
     # Create a static token for the configuration file, 
     # based on the $LRS_HOME directory and node id
     return uuid.uuid5(prefix, platform.node() + LRS_HOME).hex
 __default_config: LiresConfT = {
-    'group': __staticConfigToken(uuid.NAMESPACE_DNS)[:8],
+    'group': __static_config_token(uuid.NAMESPACE_DNS)[:8],
     'max_users': 1000,
     'default_user_max_storage': '512m',
     'service_port_range': [21000, 22000],
@@ -69,7 +69,7 @@ __default_config: LiresConfT = {
 }
 __essential_config_keys = []  # keys that must be in the configuration file
 __g_config: Optional[LiresConfT] = None     # buffer
-def getConf() -> LiresConfT:
+def get_conf() -> LiresConfT:
     global __g_config, CONF_FILE_PATH
     if __g_config is None:
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
@@ -77,7 +77,7 @@ def getConf() -> LiresConfT:
         
         # compare the keys and value types recursively
         # TODO: may be replaced by a more elegant solution
-        def compareObject(d1, d2):
+        def compare_object(d1, d2):
             if not type(d1) == type(d2):
                 __logger.debug(f"Type mismatch: {type(d1)} != {type(d2)}")
                 return False
@@ -91,14 +91,14 @@ def getConf() -> LiresConfT:
                         __logger.debug(f"Key mismatch: {d1.keys()} != {d2.keys()}")
                         return False
                 for k in d1:
-                    if not compareObject(d1[k], d2[k]):
+                    if not compare_object(d1[k], d2[k]):
                         return False
             return True
         # check if the essential keys are in the configuration file
         if not all([k in read_conf for k in __essential_config_keys]):
             raise KeyError(f"Essential keys ({__essential_config_keys}) are missing in the configuration file")
         # warn if the configuration file is outdated
-        if not compareObject(read_conf, __default_config):
+        if not compare_object(read_conf, __default_config):
             __logger.warn("Configuration file outdated, "
             "default configuration will be used as fallback, if errors occur, "
             "please run `lrs-config reset` to update the configuration file")
@@ -121,7 +121,7 @@ def getConf() -> LiresConfT:
     # To not repeatedly reading/parsing configuration file
     return __g_config
 
-def saveToConf(**kwargs):
+def save_conf(**kwargs):
     global __g_config
     try:
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
@@ -137,7 +137,7 @@ def saveToConf(**kwargs):
     # So that next time the configuration will be read from file by getConf
     __g_config = None
 
-def generateDefaultConf(group: Optional[str] = None):
+def generate_default_conf(group: Optional[str] = None):
     """
     Generate default configuration file at CONF_FILE_PATH
     """

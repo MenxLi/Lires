@@ -4,7 +4,7 @@ import os, json
 from typing import TypedDict, Optional
 
 from ..core.base import LiresBase
-from lires.config import getConf
+from lires.config import get_conf
 
 class RawUser(TypedDict):
     id: int
@@ -125,7 +125,7 @@ class UsrDBConnection(LiresBase):
             if res is not None:
                 raise self.Error.LiresUserDuplicationError(f"User {username} already exists")
         # check if limit is reached
-        config = getConf()
+        config = get_conf()
         max_users = config["max_users"]
         if max_users != 0:
             if (await self.count()) >= max_users:

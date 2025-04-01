@@ -1,6 +1,4 @@
 
-
-
 from typing import TypedDict, Literal, Optional
 from lires.user import UserInfo
 

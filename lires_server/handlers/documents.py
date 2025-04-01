@@ -35,8 +35,8 @@ class DocHandler(RequestHandlerBase):
         # permission check
         db = await self.db()
         dp = await db.get(uid)
-        if not (await self.userInfo())["is_admin"]:
-            await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
+        if not (await self.user_info())["is_admin"]:
+            await self.check_tag_permission(dp.tags, (await self.user_info())["mandatory_tags"])
 
         file_info = self.request.files['file'][0]  # Get the file information
         file_data = file_info['body']  # Get the file data
@@ -47,7 +47,7 @@ class DocHandler(RequestHandlerBase):
         await self.logger.info(f"Received file: {original_filename} ({file_size} bytes)")
 
         # check if the file is too large
-        if file_size + await db.diskUsage() > (await self.userInfo())["max_storage"]:
+        if file_size + await db.disk_usage() > (await self.user_info())["max_storage"]:
             raise tornado.web.HTTPError(413, reason="File too large")
 
         #check file extension
@@ -69,14 +69,14 @@ class DocHandler(RequestHandlerBase):
                 raise tornado.web.HTTPError(400, reason="File extension not allowed")
         
         # add the file to the document
-        if not await dp.fm.addFileBlob(file_data, ext):
+        if not await dp.fm.add_file_blob(file_data, ext):
             raise tornado.web.HTTPError(409, reason="File already exists")
 
         dp = await db.get(uid)
-        await self.ensureFeatureUpdate(dp)
+        await self.ensure_feature_update(dp)
         d_summary = dp.summary.json()
         await self.logger.info(f"Document {uid} added")
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             "type": 'update_entry',
             'uuid': uid,
             'datapoint_summary': d_summary
@@ -91,14 +91,14 @@ class DocHandler(RequestHandlerBase):
         self.set_header("Content-Type", "application/json")
         db = await self.db()
         dp = await db.get(uid)
-        if not (await self.userInfo())["is_admin"]:
-            await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
+        if not (await self.user_info())["is_admin"]:
+            await self.check_tag_permission(dp.tags, (await self.user_info())["mandatory_tags"])
 
-        if not await dp.fm.deleteDocument():
+        if not await dp.fm.delete_document():
             raise tornado.web.HTTPError(500, reason="Failed to delete file")
         await self.logger.info(f"Document {uid} freed")
         dp = await db.get(uid)
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             "type": 'update_entry',
             'uuid': uid,
             'datapoint_summary': dp.summary.json()

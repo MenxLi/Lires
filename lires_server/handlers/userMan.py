@@ -39,7 +39,7 @@ class UserRegisterHandler(RequestHandlerBase):
 
         await self.logger.info("User {} registered with code: {}".format(to_send["username"], invitation_code))
 
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             'type': 'add_user',
             'username': to_send["username"],
             'user_info': to_send
@@ -76,7 +76,7 @@ class UserCreateHandler(RequestHandlerBase):
         assert user is not None, "User not found"   # should not happen
         to_send = await user.info_desensitized()
 
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             'type': 'add_user',
             'username': to_send["username"],
             'user_info': to_send
@@ -96,7 +96,7 @@ class UserDeleteHandler(RequestHandlerBase):
         user_id = (await user.info())["id"]
         await self.db_pool.delete_database_permanently(user_id)
         await self.user_pool.delete_user_permanently(user_id)
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             'type': 'delete_user',
             'username': username,
             'user_info': None
@@ -128,7 +128,7 @@ class UserModifyHandler(RequestHandlerBase):
         _user_info_desens = await user.info_desensitized()
         await self.logger.info("User {} updated: {}".format(_user_info_desens["username"], _user_info_desens))
 
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             'type': 'update_user',
             'username': _user_info_desens["username"],
             'user_info': _user_info_desens

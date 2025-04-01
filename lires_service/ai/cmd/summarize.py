@@ -4,8 +4,8 @@ try:
     from lires.core.pdfTools import PDFAnalyser
 except ImportError:
     raise ImportError("Please install Lires[core] first")
-from ..lmTools import summarize, structuredSummerize, featurize
-from ..lmInterface import streamOutput
+from ..lmTools import summarize, structured_summerize, featurize
+from ..lmInterface import stream_output
 
 async def main():
     parser = argparse.ArgumentParser()
@@ -29,11 +29,11 @@ async def main():
     # exit()
 
     if args.structured:
-        res = asyncio.run(structuredSummerize(txt, print_func=print, model=args.model))
+        res = asyncio.run(structured_summerize(txt, print_func=print, model=args.model))
         vec = featurize(res)
         print("Get vectorized result: ", vec.shape)
     else:
-        streamOutput(summarize(txt))
+        stream_output(summarize(txt))
         
 
 if __name__ == "__main__":

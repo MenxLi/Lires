@@ -14,7 +14,7 @@ from ..config import ACCEPTED_EXTENSIONS
 if TYPE_CHECKING:
     from .dataTags import DataTags
 
-def _getFileExt(fpath: str):
+def _get_file_extension(fpath: str):
     """
     Get document extension from file path
     """
@@ -26,7 +26,7 @@ def _getFileExt(fpath: str):
         ext = "." + ext
     return ext
 
-async def _addDocumentFileBlob(db_conn: DBConnection, uid: str, file_blob: bytes, ext: str):
+async def _add_document_blob(db_conn: DBConnection, uid: str, file_blob: bytes, ext: str):
     """
     Create document in database directory
     """
@@ -41,15 +41,15 @@ async def _addDocumentFileBlob(db_conn: DBConnection, uid: str, file_blob: bytes
         await f.write(file_blob)
     await db_conn.set_doc_ext(uid, ext)
 
-async def _addDocumentFile(db_conn: DBConnection, uid: str, src: str):
+async def _add_document_file(db_conn: DBConnection, uid: str, src: str):
     """
     Copy document to database directory
     """
-    ext = _getFileExt(src)
+    ext = _get_file_extension(src)
     async with aiofiles.open(src, "rb") as f:
-        await _addDocumentFileBlob(db_conn, uid, await f.read(), ext)
+        await _add_document_blob(db_conn, uid, await f.read(), ext)
 
-async def addDocument(
+async def add_document(
         db_conn: DBConnection, 
         citation: str, abstract: str = "", 
         tags: list[str] = [],
@@ -131,7 +131,7 @@ async def addDocument(
 
     # copy document
     if doc_src is not None:
-        await _addDocumentFile(db_conn, uid, doc_src)
+        await _add_document_file(db_conn, uid, doc_src)
     return uid
     
 
@@ -139,7 +139,7 @@ class FileManipulator(LiresBase):
     logger = LiresBase.loggers().core
 
     @staticmethod
-    async def getDatabaseConnection(db_dir: str) -> DBConnection:
+    async def get_database_connection(db_dir: str) -> DBConnection:
         return await DBConnection(db_dir).init()
 
     def __init__(self, uid: str):
@@ -165,7 +165,7 @@ class FileManipulator(LiresBase):
     def file_dir(self) -> str:
         return os.path.join(self.conn.db_dir, "files")
     
-    async def fileExt(self) -> str:
+    async def file_extension(self) -> str:
         """Document file extension, empty string if not exists"""
         d_info = await self.conn.get(self.uuid)
         assert d_info is not None, "uuid {} not exists".format(self.uuid)
@@ -173,7 +173,7 @@ class FileManipulator(LiresBase):
     
     async def filePath(self) -> Optional[str]:
         """Document file path, None if not exists"""
-        file_ext = await self.fileExt()
+        file_ext = await self.file_extension()
         if file_ext == "":
             return None
         file_path = os.path.join(self.file_dir, self.uuid + file_ext)
@@ -186,11 +186,11 @@ class FileManipulator(LiresBase):
             return None
         return file_path
 
-    async def hasFile(self):
+    async def has_file(self):
         return (await self.filePath()) is not None
 
     ValidFileT = TypedDict("ValidFileT", {"root": str, "fname": List[str]})
-    async def gatherFiles(self) -> ValidFileT:
+    async def gather_files(self) -> ValidFileT:
         """
         gather all files associated with this datapoint,
         may include: document and misc files
@@ -198,10 +198,10 @@ class FileManipulator(LiresBase):
         """
         # get selected files
         selected_files = []
-        if await self.hasFile():
+        if await self.has_file():
             selected_files.append(await self.filePath())
-        if self.hasMisc():
-            selected_files.append(self.getMiscDir())
+        if self.has_misc():
+            selected_files.append(self.get_misc_dir())
         for f in selected_files:
             assert (os.path.exists(f) and self.file_dir in f), "File {} not in db_dir {}".format(f, self.file_dir)
         selected_fname = [os.path.basename(f) for f in selected_files]
@@ -214,27 +214,27 @@ class FileManipulator(LiresBase):
     @property
     def _misc_dir(self):
         return os.path.join(self.file_dir, self.uuid)
-    def getMiscDir(self, create = False):
+    def get_misc_dir(self, create = False):
         if create and not os.path.exists(self._misc_dir):
             os.mkdir(self._misc_dir)
         return self._misc_dir
-    def hasMisc(self) -> bool:
+    def has_misc(self) -> bool:
         if not os.path.exists(self._misc_dir):
             return False
         elif os.path.isdir(self._misc_dir) and os.listdir(self._misc_dir)==[]:
             return False
         else:
             return True
-    def listMiscFiles(self) -> List[str]:
-        if not self.hasMisc(): return []
-        return os.listdir(self.getMiscDir())
+    def list_misc_files(self) -> List[str]:
+        if not self.has_misc(): return []
+        return os.listdir(self.get_misc_dir())
     
-    async def addFile(self, extern_file_p) -> bool:
+    async def add_file(self, extern_file_p) -> bool:
         """
         add file to the database, will copy the file to the database directory
         """
-        doc_ext = _getFileExt(extern_file_p)
-        if await self.hasFile():
+        doc_ext = _get_file_extension(extern_file_p)
+        if await self.has_file():
             await self.logger.warning("The file is already existing")
             return False
         if doc_ext not in ACCEPTED_EXTENSIONS:
@@ -242,42 +242,42 @@ class FileManipulator(LiresBase):
             return False
         with open(extern_file_p, "rb") as f:
             file_blob = f.read()
-        return await self.__addRawFileBlob(file_blob, doc_ext)
+        return await self.__add_raw_file_blob(file_blob, doc_ext)
     
-    async def addFileBlob(self, file_blob: bytes, ext: str) -> bool:
+    async def add_file_blob(self, file_blob: bytes, ext: str) -> bool:
         """
         add binary file to the database, will create the file in the database directory
         """
-        if await self.hasFile():
+        if await self.has_file():
             await self.logger.warning("The file is already existing")
             return False
         if ext not in ACCEPTED_EXTENSIONS:
             await self.logger.warning("The file extension is not supported")
             return False
-        return await self.__addRawFileBlob(file_blob, ext)
+        return await self.__add_raw_file_blob(file_blob, ext)
     
-    async def __addRawFileBlob(self, file_blob: bytes, ext: str) -> bool:
+    async def __add_raw_file_blob(self, file_blob: bytes, ext: str) -> bool:
         """
         add binary file to the database, without condition check
         """
-        await _addDocumentFileBlob(self.conn, self.uuid, file_blob, ext)
+        await _add_document_blob(self.conn, self.uuid, file_blob, ext)
         await self.logger.debug("(fm) __addRawFileBlob: {}".format(self.uuid))
         return True
 
-    async def getDocSize(self) -> int:
+    async def doc_size(self) -> int:
         """ return the size of the document in bytes """
-        if not await self.hasFile():
+        if not await self.has_file():
             return 0
             # return None
         _f_path = await self.filePath()
         assert _f_path is not None
         return os.path.getsize(_f_path)
 
-    async def readBib(self) -> str:
+    async def get_bibtex(self) -> str:
         db_data = await self.conn.get(self.uuid); assert db_data
         return db_data["bibtex"]
 
-    async def writeBib(self, bib: str, format = False):
+    async def set_bibtex(self, bib: str, format = False):
         await self.logger.debug("(fm) writeBib: {}".format(self.uuid))
         parsed_bib = await parse_bibtex(bib)
         if format:
@@ -291,49 +291,49 @@ class FileManipulator(LiresBase):
             publication=parsed_bib["publication"]
             )
     
-    async def readAbstract(self) -> str:
+    async def get_abstract(self) -> str:
         db_data = await self.conn.get(self.uuid); assert db_data
         return db_data["abstract"]
     
-    async def writeAbstract(self, abstract: str):
+    async def set_abstract(self, abstract: str):
         await self.logger.debug("(fm) writeAbstract: {}".format(self.uuid))
         return await self.conn.update_abstract(self.uuid, abstract)
     
-    async def readComments(self) -> str:
+    async def get_comments(self) -> str:
         db_data = await self.conn.get(self.uuid); assert db_data
         return db_data["comments"]
     
-    async def writeComments(self, comments: str):
+    async def set_comments(self, comments: str):
         await self.logger.debug("(fm) writeComments: {}".format(self.uuid))
         await self.conn.update_comments(self.uuid, comments)
     
-    async def getTags(self) -> list[str]:
+    async def get_tags(self) -> list[str]:
         assert (data:=await self.conn.get(self.uuid)) is not None
         return data["tags"]
     
-    async def writeTags(self, tags: list[str] | DataTags):
+    async def set_tags(self, tags: list[str] | DataTags):
         await self.logger.debug("(fm) writeTags: {}".format(self.uuid))
         if not isinstance(tags, list):
             tags = tags.to_ordered_list()
         await self.conn.update_tags(self.uuid, tags)
     
-    async def getWebUrl(self) -> str:
+    async def get_weburl(self) -> str:
         assert (data:=await self.conn.get(self.uuid)) is not None
         return data["url"]
     
-    async def setWebUrl(self, url: str):
+    async def set_weburl(self, url: str):
         await self.logger.debug("(fm) setWebUrl: {}".format(self.uuid))
         await self.conn.update_url(self.uuid, url)
     
-    async def getTimeAdded(self) -> float:
+    async def get_time_added(self) -> float:
         assert (data:=await self.conn.get(self.uuid)) is not None
         return data["time_import"]
     
-    async def getTimeModified(self) -> float:
+    async def get_time_modified(self) -> float:
         assert (data:=await self.conn.get(self.uuid)) is not None
         return data["time_modify"]
     
-    async def deleteEntry(self, create_backup = True) -> bool:
+    async def delete_entry(self, create_backup = True) -> bool:
         """
         Will delete the entry from the database, and delete the file and misc folder if exist.
         if create_backup is True, will create a backup of the document
@@ -359,20 +359,20 @@ class FileManipulator(LiresBase):
                     doc_info=DocInfo.from_string(old_entry["info_str"]),
                     )
                 if _success:    # otherwise, maybe duplicate entry
-                    if await self.hasFile():
-                        await _addDocumentFile(trash_db, self.uuid, await self.filePath())  # type: ignore
-                    if self.hasMisc():
+                    if await self.has_file():
+                        await _add_document_file(trash_db, self.uuid, await self.filePath())  # type: ignore
+                    if self.has_misc():
                         shutil.copytree(self._misc_dir, os.path.join(_backup_dir, self.uuid))
             await self.logger.debug("(fm) deleteEntry: {} (backup created)".format(self.uuid))
         
-        if await self.hasFile():
-            await self.deleteDocument()
+        if await self.has_file():
+            await self.delete_document()
         if os.path.exists(self._misc_dir):
             shutil.rmtree(self._misc_dir)
         return await self.conn.remove_entry(self.uuid)
     
-    async def deleteDocument(self) -> bool:
-        if not await self.hasFile():
+    async def delete_document(self) -> bool:
+        if not await self.has_file():
             return False
         file_p = await self.filePath(); assert file_p is not None
         os.remove(file_p)

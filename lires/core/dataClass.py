@@ -55,17 +55,17 @@ class DataPoint(DataCore):
     def publication(self): return self.__summary.publication
     
     # @deprecated
-    async def stringInfo(self):
+    async def string_info(self):
         summary = self.summary
         info_txt = \
         "\u27AA {title}\n\u27AA {year}\n\u27AA {authors}\n".format(title = summary.title, year = summary.year, authors = " \u2726 ".join(summary.authors))
         info_txt = info_txt + "\n\u27AA {publication}".format(publication = summary.publication)
         if self.has_file:
-            info_txt = info_txt + "\nFile size: {}Bytes".format(await self.fm.getDocSize())
+            info_txt = info_txt + "\nFile size: {}Bytes".format(await self.fm.doc_size())
         return info_txt
     
     @classmethod
-    def getAuthorsAbbr(cls, authors: List[str]):
+    def get_authors_abbr(cls, authors: List[str]):
         """
         Get authors abbreviation, i.e.:
             when only have one author: return the only author's first name
@@ -75,16 +75,16 @@ class DataPoint(DataCore):
         if len(authors) == 0:
             return ""
         if len(authors) == 1:
-            author = cls._getFirstName(authors[0]) + "."
+            author = cls._get_first_name(authors[0]) + "."
         else:
-            author = cls._getFirstName(authors[0]) + " et al."
+            author = cls._get_first_name(authors[0]) + " et al."
         if len(author) < cls.MAX_AUTHOR_ABBR:
             return author
         else:
             return author[:cls.MAX_AUTHOR_ABBR-4] + "..."
 
     @classmethod
-    def _getFirstName(cls, name: str):
+    def _get_first_name(cls, name: str):
         x = name.split(", ")
         return x[0]
     
@@ -95,7 +95,7 @@ class DataPoint(DataCore):
 
 
 SortType = Literal["year", "author", "time_added", "time_opened"]
-def sortDataList(data_list: List[DataPoint], sort_by: SortType) -> List[DataPoint]:
+def sort_datalist(data_list: List[DataPoint], sort_by: SortType) -> List[DataPoint]:
     if sort_by == "year":
         return sorted(data_list, key = lambda x: int(x.year))
     elif sort_by == "author":
@@ -107,11 +107,11 @@ def sortDataList(data_list: List[DataPoint], sort_by: SortType) -> List[DataPoin
     else:
         raise ValueError("Unknown sort type")
 
-async def assembleDatapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
+async def assemble_datapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
 
     # it's a bit tricky to get file information in one go
     _fm = await FileManipulator(raw_info["uuid"]).init(db.conn)     # type: ignore
-    _file_size = await _fm.getDocSize()
+    _file_size = await _fm.doc_size()
     _has_file = True if _file_size > 0 else False
     _file_size = round(_file_size/(1048576), 2) if _has_file else 0 # convert to MB
 
@@ -122,7 +122,7 @@ async def assembleDatapoint(raw_info: DBFileInfo, db: DataBase) -> DataPoint:
         year = raw_info["year"],
         title = raw_info["title"],
         authors = raw_info["authors"],
-        author = DataPoint.getAuthorsAbbr(raw_info["authors"]),
+        author = DataPoint.get_authors_abbr(raw_info["authors"]),
         publication=raw_info["publication"],
         tags = raw_info["tags"],
         uuid = raw_info["uuid"],
@@ -166,7 +166,7 @@ class DataBase(DataCore):
         if not os.path.exists(db):
             os.mkdir(db)
         # to prevent multiple loading of the same database
-        conn = await FileManipulator.getDatabaseConnection(db) 
+        conn = await FileManipulator.get_database_connection(db) 
         self.__conn = conn      # set database-wise connection instance
 
         self.__vector_db = await VectorDatabase(self.path.vector_db_file, [
@@ -251,7 +251,7 @@ class DataBase(DataCore):
             return False
         await self.logger.info("Deleting {}".format(uuid))
         dp = await self.get(uuid)
-        return await dp.fm.deleteEntry(create_backup=False)
+        return await dp.fm.delete_entry(create_backup=False)
     
     # query statistics
     async def count(self) -> int:
@@ -265,7 +265,7 @@ class DataBase(DataCore):
     async def has(self, uuid: str) -> bool:
         return await self.conn.get(uuid) is not None
     
-    async def diskUsage(self) -> int:
+    async def disk_usage(self) -> int:
         """ return the disk usage of the database in bytes """
         def _get_size(path: str) -> int:
             size = 0
@@ -279,23 +279,23 @@ class DataBase(DataCore):
         """ Get DataPoint by uuid """
         if (info := await self.conn.get(uuid)) is None:
             raise self.Error.LiresEntryNotFoundError(f"Data not found: {uuid}")
-        return await assembleDatapoint(info, self)
+        return await assemble_datapoint(info, self)
 
     async def gets(self, uuids: list[str], sort_by='time_import', reverse = True) -> list[DataPoint]:
         """ Get DataPoints by uuids """
         conn = self.conn
         all_info = await conn.get_many(uuids, sort_by=sort_by, reverse=reverse)
-        tasks = [assembleDatapoint(info, self) for info in all_info]
+        tasks = [assemble_datapoint(info, self) for info in all_info]
         return await asyncio.gather(*tasks)
     
-    async def getAll(self, sort_by = 'time_import', reverse=True) -> list[DataPoint]:
+    async def get_all(self, sort_by = 'time_import', reverse=True) -> list[DataPoint]:
         """ Get all DataPoints, may remove in the future """
         all_info = await self.conn.get_all(sort_by=sort_by, reverse=reverse)
-        return await asyncio.gather(*[assembleDatapoint(info, self) for info in all_info])
+        return await asyncio.gather(*[assemble_datapoint(info, self) for info in all_info])
     
-    async def getIDByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[str]:
+    async def ids_from_tags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[str]:
         """
-        Get DataPoints by tags, including all child tags
+        Get data IDs by tags, including all child tags
         """
         async def _getByStrictIntersect(tags: DataTags, from_uids: Optional[List[str]] = None) -> list[str]:
             return await self.conn.filter(from_uids=from_uids, tags=tags.to_ordered_list(), strict=True, ignore_case=False)
@@ -324,15 +324,15 @@ class DataBase(DataCore):
         else:
             return list(set(to_be_intersect[0]).intersection(*to_be_intersect[1:]))
 
-    async def getDataByTags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[DataPoint]:
-        return await self.gets(await self.getIDByTags(tags, from_uids))
+    async def data_from_tags(self, tags: Union[list, set, DataTags], from_uids: Optional[List[str]] = None) -> list[DataPoint]:
+        return await self.gets(await self.ids_from_tags(tags, from_uids))
     
-    async def renameTag(self, tag_old: str, tag_new: str) -> bool:
+    async def rename_tag(self, tag_old: str, tag_new: str) -> bool:
         """
         Rename a tag for the entire database
         return if success
         """
-        data = await self.getDataByTags(DataTags([tag_old]))
+        data = await self.data_from_tags(DataTags([tag_old]))
         await self.logger.info(f"Rename tag: {tag_old} -> {tag_new} [count: {len(data)}]")
         tasks = []
         for d in data:
@@ -340,16 +340,16 @@ class DataBase(DataCore):
             t = d.tags
             t = TagRule.rename_tag(t, tag_old, tag_new)
             if t is not None:
-                tasks.append(d.fm.writeTags(t))
+                tasks.append(d.fm.set_tags(t))
         await asyncio.gather(*tasks)
         return True
     
-    async def deleteTag(self, tag: str) -> bool:
+    async def delete_tag(self, tag: str) -> bool:
         """
         Delete a tag for the entire database
         return if success
         """
-        data = await self.getDataByTags(DataTags([tag]))
+        data = await self.data_from_tags(DataTags([tag]))
         await self.logger.info(f"Delete tag: {tag}")
         tasks = []
         for d in data:
@@ -357,6 +357,6 @@ class DataBase(DataCore):
             ori_tags = d.tags
             after_deleted = TagRule.delete_tag(ori_tags, tag)
             if after_deleted is not None:
-                tasks.append(d.fm.writeTags(after_deleted))
+                tasks.append(d.fm.set_tags(after_deleted))
         await asyncio.gather(*tasks)
         return True

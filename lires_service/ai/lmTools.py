@@ -5,8 +5,8 @@ import os
 
 from typing import Callable, Optional, Literal
 from .lmInterface import StreamData, Iterator
-from .lmInterface import getStreamIter, streamOutput, ChatStreamIterType
-from .utils import autoTorchDevice
+from .lmInterface import get_stream_iter, stream_output, ChatStreamIterType
+from .utils import auto_torch_device
 from lires.utils import Timer
 
 import torch
@@ -22,12 +22,12 @@ def summarize(txt: str) -> Iterator[StreamData]:
     return OpenAIChatStreamIter()(prompt)
 
 dummy_print = lambda x, end = " ", flush = True: ...
-async def structuredSummerize(txt: str, model: ChatStreamIterType = "gpt-3.5-turbo", print_func: Callable = dummy_print) -> str:
+async def structured_summerize(txt: str, model: ChatStreamIterType = "gpt-3.5-turbo", print_func: Callable = dummy_print) -> str:
     PRINT = True
     if print_func is dummy_print:
         PRINT = False
 
-    ai = getStreamIter(model)
+    ai = get_stream_iter(model)
     ai.conversations.system = "A conversation between a human and an AI research assistant. "\
         "The human is asking the AI to summarize a paper."\
         "The AI gives short and conscise response in academic literature style. "\
@@ -37,7 +37,7 @@ async def structuredSummerize(txt: str, model: ChatStreamIterType = "gpt-3.5-tur
         "\'Methods: \' and \'Contributions: \' respectively. "\
         "No need to mention the title in your summary."\
         f"Here is the paper: {txt}"
-    return streamOutput(ai(prompt), print_func)
+    return stream_output(ai(prompt), print_func)
 
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -58,7 +58,7 @@ def vectorize(
     take a long text and return a vector of shape [1, d_feature]
     """
     global g_auto_tokenizers, g_auto_models
-    device = autoTorchDevice()
+    device = auto_torch_device()
     txt = txt.replace("\n", " ")
     txt = " ".join(txt.split())
 

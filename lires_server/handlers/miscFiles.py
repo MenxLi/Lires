@@ -19,7 +19,7 @@ class MiscFileListHandler(RequestHandlerBase):
         self.set_header("Content-Type", "application/json")
         db = await self.db()
         dp = await db.get(uid)
-        self.write(json.dumps(dp.fm.listMiscFiles()))
+        self.write(json.dumps(dp.fm.list_misc_files()))
 
 class MiscFileHandler(RequestHandlerBase):
     """
@@ -33,9 +33,9 @@ class MiscFileHandler(RequestHandlerBase):
 
         # self.setDefaultHeader()
         fname = self.get_argument("fname")
-        await self.emitFile(uid, fname)
+        await self.emit_file(uid, fname)
     
-    async def emitFile(self, uid: str, fname: str):
+    async def emit_file(self, uid: str, fname: str):
         """
         Args:
             uid (str): uuid of the datapoint
@@ -43,7 +43,7 @@ class MiscFileHandler(RequestHandlerBase):
         """
         db = await self.db()
         dp = await db.get(uid)
-        misc_dir = dp.fm.getMiscDir()
+        misc_dir = dp.fm.get_misc_dir()
         fpath = os.path.join(misc_dir, fname)
         if not os.path.exists(fpath):
             raise tornado.web.HTTPError(404, reason="File not found")
@@ -77,8 +77,8 @@ class MiscFileHandler(RequestHandlerBase):
         # permission check
         db = await self.db()
         dp = await db.get(uid)
-        if not (await self.userInfo())["is_admin"]:
-            await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
+        if not (await self.user_info())["is_admin"]:
+            await self.check_tag_permission(dp.tags, (await self.user_info())["mandatory_tags"])
 
         file_info = self.request.files['file'][0]  # Get the file information
         original_filename = file_info['filename']
@@ -88,13 +88,13 @@ class MiscFileHandler(RequestHandlerBase):
         await self.logger.info(f"Received file: {original_filename} ({file_size} bytes)")
 
         # check if the file is too large
-        if file_size + await db.diskUsage() > (await self.userInfo())["max_storage"]:
+        if file_size + await db.disk_usage() > (await self.user_info())["max_storage"]:
             raise tornado.web.HTTPError(413, reason="File too large")
 
         # Generate a unique filename for the uploaded file
         filename = str(uuid.uuid4())[:8] + os.path.splitext(original_filename)[1]
 
-        fpath = os.path.join(dp.fm.getMiscDir(create=True), filename)
+        fpath = os.path.join(dp.fm.get_misc_dir(create=True), filename)
         async with aiofiles.open(fpath, "wb") as f:
             await f.write(file_data)
         await self.logger.info(f"Saved misc file to {fpath}")
@@ -109,15 +109,15 @@ class MiscFileHandler(RequestHandlerBase):
         # permission check
         db = await self.db()
         dp = await db.get(uid)
-        if not (await self.userInfo())["is_admin"]:
-            await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
+        if not (await self.user_info())["is_admin"]:
+            await self.check_tag_permission(dp.tags, (await self.user_info())["mandatory_tags"])
 
         fname = self.get_argument("fname")
         new_fname = self.get_argument("dst_fname")
-        fpath = os.path.join(dp.fm.getMiscDir(), fname)
+        fpath = os.path.join(dp.fm.get_misc_dir(), fname)
         if not os.path.exists(fpath):
             raise tornado.web.HTTPError(404, reason="File not found")
-        new_fpath = os.path.join(dp.fm.getMiscDir(), new_fname)
+        new_fpath = os.path.join(dp.fm.get_misc_dir(), new_fname)
         if os.path.exists(new_fpath):
             raise tornado.web.HTTPError(409, reason="File already exists")
         
@@ -130,15 +130,15 @@ class MiscFileHandler(RequestHandlerBase):
         # permission check
         db = await self.db()
         dp = await db.get(uid)
-        if not (await self.userInfo())["is_admin"]:
-            await self.checkTagPermission(dp.tags, (await self.userInfo())["mandatory_tags"])
+        if not (await self.user_info())["is_admin"]:
+            await self.check_tag_permission(dp.tags, (await self.user_info())["mandatory_tags"])
 
         fname = self.get_argument("fname")
-        fpath = os.path.join(dp.fm.getMiscDir(), fname)
+        fpath = os.path.join(dp.fm.get_misc_dir(), fname)
         if os.path.exists(fpath):
             os.remove(fpath)
-            if not os.listdir(dp.fm.getMiscDir()):
-                os.rmdir(dp.fm.getMiscDir())
+            if not os.listdir(dp.fm.get_misc_dir()):
+                os.rmdir(dp.fm.get_misc_dir())
             await self.logger.info(f"Deleted misc file {fpath}")
             self.write({ "status": "OK" })
         else:

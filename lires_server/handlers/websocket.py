@@ -34,22 +34,22 @@ class WebsocketHandler(tornado.websocket.WebSocketHandler, RequestHandlerMixin):
 
     @authenticate()
     async def open(self):
-        await self.logger.info("WebSocket opened from {} (s: {})".format((await self.userInfo())['username'], self.session_id))
-        self._user_id = (await self.userInfo())['id']
-        await self.broadcastEventMessage({
+        await self.logger.info("WebSocket opened from {} (s: {})".format((await self.user_info())['username'], self.session_id))
+        self._user_id = (await self.user_info())['id']
+        await self.broadcast_event({
             'type': 'login',
-            'username': (await self.userInfo())['username'],
-            'user_info': await self.userInfoDesensitized(),
+            'username': (await self.user_info())['username'],
+            'user_info': await self.user_info_desensitized(),
         }, to_all=True)
 
     def on_close(self):
         # in the current version of tornado, on_close is not called as a coroutine
         async def _on_close():
-            await self.logger.info("WebSocket closed from {} (s: {})".format((await self.userInfo())['username'], self.session_id))
-            await self.broadcastEventMessage({
+            await self.logger.info("WebSocket closed from {} (s: {})".format((await self.user_info())['username'], self.session_id))
+            await self.broadcast_event({
                 'type': 'logout',
-                'username': (await self.userInfo())['username'],
-                'user_info': await self.userInfoDesensitized(),
+                'username': (await self.user_info())['username'],
+                'user_info': await self.user_info_desensitized(),
             }, to_all=True)
             try:
                 # unregister from global connection pool

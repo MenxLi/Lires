@@ -54,7 +54,7 @@ async def get_feature_text_source(
     - max_words_per_doc: int, if set to None, will not truncate the text
     - print_fn: Callable[[str], None], a function to print the progress
     """
-    abstract = await dp.fm.readAbstract()
+    abstract = await dp.fm.get_abstract()
     uid = dp.uuid
     doc_summary_dir = dp.parent.path.summary_dir
     title_text: str = "Title: " + dp.title + "\n"
@@ -66,7 +66,7 @@ async def get_feature_text_source(
             "hash": hashlib.md5(_text.encode()).hexdigest(),
             "type": "abstract"
         }
-    elif await dp.fm.hasFile() and dp.summary.file_type == ".pdf":
+    elif await dp.fm.has_file() and dp.summary.file_type == ".pdf":
         # if has pdf, try to create a summary
         pdf_path = await dp.fm.filePath(); assert pdf_path
         pdf_text = await get_pdf_text(pdf_path, max_words_per_doc)
@@ -171,7 +171,7 @@ async def build_feature_storage(
         await vector_collection.clear_all()
     
     # extract text source
-    for dp in tqdm.tqdm(await db.getAll(), desc="Building feature storage"):
+    for dp in tqdm.tqdm(await db.get_all(), desc="Building feature storage"):
         await update_feature(
             dp = dp,
             iconn = iconn, 

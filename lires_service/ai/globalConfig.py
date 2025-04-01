@@ -20,7 +20,7 @@ openai_api_chat_models: list[ChatStreamIterType] = [
     "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k", 
 ]
 
-def defaultChatModel() -> ChatStreamIterType:
+def default_chat_model() -> ChatStreamIterType:
     if local_llm_name is not None:
         return local_llm_name
     else:

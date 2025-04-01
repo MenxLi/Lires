@@ -14,14 +14,14 @@ from sklearn.decomposition import PCA
 import os, asyncio
 import json
 
-from .utils import autoTorchDevice
+from .utils import auto_torch_device
 
 from .lmTools import EncoderT, _default_encoder
 from .lmTools import featurize as lmFeaturize
-from .lmInterface import ChatStreamIterType, getStreamIter
+from .lmInterface import ChatStreamIterType, get_stream_iter
 
 from . import globalConfig as config
-from ..entry import startService
+from ..entry import start_service
 
 from lires.core.base import G
 from lires.api import RegistryConn
@@ -38,7 +38,7 @@ async def lifespan(app: fastapi.FastAPI):
     await logger.info("Warming up text encoder...")
     lmFeaturize("Hello world!")
     if config.local_llm_name is not None:
-        getStreamIter("LOCAL")
+        get_stream_iter("LOCAL")
     await logger.info("Warming up text encoder done!")
     g_warmup = True
 
@@ -54,7 +54,7 @@ registry = RegistryConn()
 def status():
     return {
         "status": "ok" if g_warmup else "warming up",
-        "device": autoTorchDevice(),
+        "device": auto_torch_device(),
         }
 
 class FeaturizeRequest(BareModel):
@@ -80,14 +80,14 @@ class ChatBotRequest(BareModel):
 async def chatbot(req: ChatBotRequest):
     await logger.debug(f"Chatbot request: {req.model_name} | {req.conv_dict[:20]}")
     if req.model_name == "DEFAULT":
-        req.model_name = config.defaultChatModel()
+        req.model_name = config.default_chat_model()
 
     def _chatbot():
-        ai = getStreamIter(req.model_name)
+        ai = get_stream_iter(req.model_name)
         ai.temperature = req.temperature
         ai.return_pieces = True
         conv_dict = json.loads(req.conv_dict)
-        ai.conversations.setFromDict(conv_dict)
+        ai.conversations.set_from_dict(conv_dict)
         for piece in ai(req.prompt):
             yield piece["text"]
     return StreamingResponse(_chatbot(), media_type="text/plain")
@@ -124,7 +124,7 @@ def pca(req: DimReducePCARequest):
         ).fit_transform(np.array(req.data)).astype(np.float16)
     return res.tolist()
 
-async def startServer(
+async def start_server(
     host: str = "0.0.0.0",
     port: int = -1,
     local_llm_chat: str = "",
@@ -142,8 +142,8 @@ async def startServer(
             # set a dummy key, so that openai api will not raise error
             openai.api_key="sk-dummy__"
 
-    await logger.info("Using device: {}".format(autoTorchDevice()))
-    await startService(
+    await logger.info("Using device: {}".format(auto_torch_device()))
+    await start_service(
         app = app,
         host = host,
         port = port,

@@ -7,8 +7,8 @@ import asyncio
 import fastapi
 from pydantic import BaseModel
 from typing import Optional
-from .db import DataBase, initDatabase, collectFeedCycle
-from ..entry import startService
+from .db import DataBase, init_database, collectFeedCycle
+from ..entry import start_service
 
 async def startCollectionLoop():
     await logger.info("Collecting feed...")
@@ -21,7 +21,7 @@ async def startCollectionLoop():
 @asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
     global logger, registry, feed_db
-    feed_db = await initDatabase()
+    feed_db = await init_database()
     await startCollectionLoop()
     yield
     await feed_db.close()
@@ -48,13 +48,13 @@ class FeedGetRequest(BaseModel):
 async def query(req: FeedGetRequest):
     global feed_db
     await logger.info(f"Query: {req}")
-    uids = await feed_db.getIDByTags([req.category])
+    uids = await feed_db.ids_from_tags([req.category])
     uids = await feed_db.conn.filter(time_import=(req.time_after, req.time_before), from_uids=uids)
     uids = (await feed_db.conn.sort_keys(uids, sort_by='time_import', reverse=True))[:req.max_results]
     dps = await feed_db.gets(uids, sort_by='time_import', reverse=True)
     async def withAbstract(dp: DataPoint):
         ret = dp.summary.json()
-        ret["abstract"] = await dp.fm.readAbstract()
+        ret["abstract"] = await dp.fm.get_abstract()
         return ret
     return await asyncio.gather(*[withAbstract(dp) for dp in dps])
 
@@ -68,7 +68,7 @@ async def startServer(
     host: str = "0.0.0.0",
     port: int = -1,
 ):
-    await startService(
+    await start_service(
         app, logger, host, port, 
         register_settings={
             "registry": registry,

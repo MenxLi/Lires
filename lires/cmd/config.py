@@ -1,4 +1,4 @@
-from ..config import generateDefaultConf, CONF_FILE_PATH
+from ..config import generate_default_conf, CONF_FILE_PATH
 import argparse, json
 
 def run():
@@ -13,7 +13,7 @@ def run():
 
     args = parser.parse_args()
     if args.subparser == "reset":
-        generateDefaultConf(args.group)
+        generate_default_conf(args.group)
 
     elif args.subparser == "show":
         print("Configuration file: ", CONF_FILE_PATH)

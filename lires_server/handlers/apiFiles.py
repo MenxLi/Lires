@@ -34,7 +34,7 @@ class APIGetHandler_JS(RequestHandlerBase):
             TIME=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
             VERSION=VERSION,
             URL=self.request.protocol + "://" + self.request.host,
-            KEY=(await self.userInfo())['enc_key']
+            KEY=(await self.user_info())['enc_key']
         )
 
         readme_content = _js_readme_template.safe_substitute(
@@ -83,7 +83,7 @@ class APIGetHandler_Py(RequestHandlerBase):
             TIME=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
             VERSION=VERSION,
             URL=self.request.protocol + "://" + self.request.host,
-            KEY=(await self.userInfo())['enc_key']
+            KEY=(await self.user_info())['enc_key']
         )
         self.set_header("Content-Type", "text/plain")
         self.set_header("Content-Disposition", "attachment; filename=main.py")

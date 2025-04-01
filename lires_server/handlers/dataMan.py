@@ -6,9 +6,9 @@ Provides handers for adding, deleting, and modifying files/tags
 """
 
 from ._base import *
-import json, asyncio
+import json
 from lires.core.bibReader import check_bibtex_validity, BibConverter
-from lires.core.fileTools import addDocument
+from lires.core.fileTools import add_document
 from lires.core.dataTags import DataTags
 
 class DataDeleteHandler(RequestHandlerBase):
@@ -18,16 +18,16 @@ class DataDeleteHandler(RequestHandlerBase):
         uuid = self.get_argument("uuid")
         db = await self.db()
         # check tag permission
-        if not (await self.userInfo())["is_admin"]:
-            await self.checkTagPermission(
-                (await db.get(uuid)).tags, (await self.userInfo())["mandatory_tags"]
+        if not (await self.user_info())["is_admin"]:
+            await self.check_tag_permission(
+                (await db.get(uuid)).tags, (await self.user_info())["mandatory_tags"]
                 )
         
-        await self.deleteFeature(await db.get(uuid))
+        await self.delete_feature(await db.get(uuid))
         if await db.delete(uuid):
             await self.logger.info(f"Deleted {uuid}")
         
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             'type': 'delete_entry',
             'uuid': uuid, 
             'datapoint_summary': None
@@ -48,7 +48,7 @@ class DataUpdateHandler(RequestHandlerBase):
             summary of the data entry
         """
         self.set_header("Content-Type", "application/json")
-        permission = await self.userInfo()
+        permission = await self.user_info()
         db = await self.db()
 
         __info = [] # for logging
@@ -74,11 +74,11 @@ class DataUpdateHandler(RequestHandlerBase):
         if not permission["is_admin"]:
             if uuid is None:
                 # if the uuid is not provided, check tag validity using new tags
-                await self.checkTagPermission(tags, permission["mandatory_tags"])
+                await self.check_tag_permission(tags, permission["mandatory_tags"])
             else:
                 # if the uuid is provided, check tag validity using old tags
                 old_tags = (await db.get(uuid)).tags
-                await self.checkTagPermission(old_tags, permission["mandatory_tags"])
+                await self.check_tag_permission(old_tags, permission["mandatory_tags"])
 
         if bibtex is not None and not await check_bibtex_validity(bibtex, self.logger.error):
             # check if it is other format
@@ -112,10 +112,10 @@ class DataUpdateHandler(RequestHandlerBase):
             assert url is not None
 
             # check disk usage
-            if await db.diskUsage()+128 > permission["max_storage"]:
+            if await db.disk_usage()+128 > permission["max_storage"]:
                 raise tornado.web.HTTPError(413, reason="File too large")
 
-            uuid = await addDocument(
+            uuid = await add_document(
                 db.conn, bibtex, 
                 url = url,
                 tags = DataTags(tags).to_ordered_list(),
@@ -127,7 +127,7 @@ class DataUpdateHandler(RequestHandlerBase):
             __info.append("new entry created [{}]".format(uuid))
 
             dp = await db.get(uuid)   # update the cached info
-            await self.broadcastEventMessage({
+            await self.broadcast_event({
                 'type': 'add_entry',
                 'uuid': uuid, 
                 'datapoint_summary': dp.summary.json()
@@ -135,18 +135,18 @@ class DataUpdateHandler(RequestHandlerBase):
         else:
             dp = await db.get(uuid)
             __info.append("update entry [{}]".format(uuid))
-            if bibtex is not None and await dp.fm.readBib() != bibtex:
-                await dp.fm.writeBib(bibtex, format=True)
+            if bibtex is not None and await dp.fm.get_bibtex() != bibtex:
+                await dp.fm.set_bibtex(bibtex, format=True)
                 __info.append("bibtex updated")
             if tags is not None and DataTags(dp.tags) != DataTags(tags):
-                await dp.fm.writeTags(DataTags(tags))
+                await dp.fm.set_tags(DataTags(tags))
                 __info.append("tags updated")
-            if url is not None and await dp.fm.getWebUrl() != url:
-                await dp.fm.setWebUrl(url)
+            if url is not None and await dp.fm.get_weburl() != url:
+                await dp.fm.set_weburl(url)
                 __info.append("url updated")
             
             dp = await db.get(uuid)   # update the cached info
-            await self.broadcastEventMessage({
+            await self.broadcast_event({
                 'type': 'update_entry',
                 'uuid': uuid,
                 'datapoint_summary': dp.summary.json()
@@ -155,7 +155,7 @@ class DataUpdateHandler(RequestHandlerBase):
         await self.logger.info(", ".join(__info))
 
         self.write(json.dumps(dp.summary.json()))
-        await self.ensureFeatureUpdate(dp)
+        await self.ensure_feature_update(dp)
 
         return 
 
@@ -168,9 +168,9 @@ class TagRenameHandler(RequestHandlerBase):
         db = await self.db()
         old_tag = self.get_argument("oldTag")
         new_tag = self.get_argument("newTag")
-        await db.renameTag(old_tag, new_tag)
-        await self.logger.info(f"Tag [{old_tag}] renamed to [{new_tag}] by [{(await self.userInfo())['name']}]")
-        await self.broadcastEventMessage({
+        await db.rename_tag(old_tag, new_tag)
+        await self.logger.info(f"Tag [{old_tag}] renamed to [{new_tag}] by [{(await self.user_info())['name']}]")
+        await self.broadcast_event({
             'type': 'update_tag',
             'src_tag': old_tag,
             'dst_tag': new_tag
@@ -185,9 +185,9 @@ class TagDeleteHandler(RequestHandlerBase):
         """
         db = await self.db()
         tag = self.get_argument("tag")
-        await db.deleteTag(tag)
-        await self.logger.info(f"Tag [{tag}] deleted by [{(await self.userInfo())['name']}]")
-        await self.broadcastEventMessage({
+        await db.delete_tag(tag)
+        await self.logger.info(f"Tag [{tag}] deleted by [{(await self.user_info())['name']}]")
+        await self.broadcast_event({
             'type': 'delete_tag',
             'src_tag': tag,
             'dst_tag': None

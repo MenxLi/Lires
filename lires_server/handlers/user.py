@@ -21,7 +21,7 @@ class UserInfoUpdateHandler(RequestHandlerBase):
     """
     @authenticate()
     async def post(self):
-        user = await self.user_pool.get_user_by_key((await self.userInfo())["enc_key"])
+        user = await self.user_pool.get_user_by_key((await self.user_info())["enc_key"])
         assert user is not None, "User not found"   # should not happen
         id_ = (await user.info())["id"]
 
@@ -36,7 +36,7 @@ class UserInfoUpdateHandler(RequestHandlerBase):
             await self.logger.info("User {} updated password".format(id_))
         
         _user_info = await user.info()
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             'type': 'update_user',
             'username': _user_info["username"],
             'user_info': await user.info_desensitized()
@@ -102,7 +102,7 @@ class UserAvatarHandler(RequestHandlerBase):
     async def put(self, username: str):
         user = await self.user_pool.get_user_by_username(username)
 
-        req_user = await self.user_pool.get_user_by_key((await self.userInfo())["enc_key"])
+        req_user = await self.user_pool.get_user_by_key((await self.user_info())["enc_key"])
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
         assert req_user is not None, "User not found"   # should not happen
@@ -122,7 +122,7 @@ class UserAvatarHandler(RequestHandlerBase):
         im = Image.open(BytesIO(file["body"]))
         await user.set_avatar(im)
         self.write(json.dumps(_user_info := await user.info_desensitized()))
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             'type': 'update_user',
             'username': username,
             'user_info': _user_info
@@ -130,7 +130,7 @@ class UserAvatarHandler(RequestHandlerBase):
     
     @authenticate()
     async def delete(self, username):
-        req_user = await self.user_pool.get_user_by_key((await self.userInfo())["enc_key"])
+        req_user = await self.user_pool.get_user_by_key((await self.user_info())["enc_key"])
         user = await self.user_pool.get_user_by_username(username)
         if user is None:
             raise tornado.web.HTTPError(404, "User not found")
@@ -147,7 +147,7 @@ class UserAvatarHandler(RequestHandlerBase):
             for k in avatar_image_path:
                 os.remove(avatar_image_path[k])
             self.write(json.dumps(_user_info := await user.info_desensitized()))
-        await self.broadcastEventMessage({
+        await self.broadcast_event({
             'type': 'delete_user',
             'username': username,
             'user_info': _user_info,

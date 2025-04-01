@@ -3,12 +3,12 @@ Get information about data
 """
 import json
 from lires.core.dataClass import DataPoint
-from lires.config import getConf
+from lires.config import get_conf
 from ._base import *
 
 class DataInfoHandler(RequestHandlerBase):
     """ Query information about a single file """
-    @authenticate(enabled = not getConf()['allow_public_query'])
+    @authenticate(enabled = not get_conf()['allow_public_query'])
     async def get(self, uid:str):
         self.set_header("Content-Type", "application/json")
         db = await self.db()
@@ -24,7 +24,7 @@ class DataInfoHandler(RequestHandlerBase):
 
 class DataInfoListHandler(RequestHandlerBase):
     """ Query information about a list of files """
-    @authenticate(enabled = not getConf()['allow_public_query'])
+    @authenticate(enabled = not get_conf()['allow_public_query'])
     async def post(self):
         self.set_header("Content-Type", "application/json")
         uids: list[str] = json.loads(self.get_argument("uids"))

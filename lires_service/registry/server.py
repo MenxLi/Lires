@@ -5,7 +5,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 from typing import Optional
-from ..entry import startService
+from ..entry import start_service
 from .store import RegistryStore, ServiceName
 
 @asynccontextmanager
@@ -69,10 +69,10 @@ async def withdraw(req: WithdrawRequest):
     await g_store.withdraw(req.uid)
     return { "status": "ok", }
 
-async def startServer(host: str, port: int):
+async def start_server(host: str, port: int):
     global g_store
     g_store = RegistryStore()
-    await startService(
+    await start_service(
         app = app,
         host = host,
         port = port,

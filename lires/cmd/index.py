@@ -7,7 +7,7 @@ from lires.core.vecutils import build_feature_storage, query_feature_index
 from lires.api import IServerConn
 from lires.loader import init_resources
 
-def parseArgs() -> argparse.Namespace:
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build search index for the database")
     parser.add_argument("user", action="store", type=str, help="user name")
     subparsers = parser.add_subparsers(dest="subparser", help="sub-command help")
@@ -82,7 +82,7 @@ async def entry(args):
 
 def main():
     import asyncio
-    args = parseArgs()
+    args = parse_arguments()
     asyncio.run(entry(args))
 
 if __name__ == "__main__":

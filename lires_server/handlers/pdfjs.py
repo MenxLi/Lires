@@ -15,5 +15,5 @@ class PdfJsHandler(tornado.web.StaticFileHandler, RequestHandlerMixin, print_ini
         # to prevent unauthorized access! 
         # otherwise, anyone can access the pdf viewer and this may become a public pdf viewer...?
         if "web/viewer.html" in args:
-            await self.checkKey()
+            await self.check_key()
         return await super().get(*args, **kwargs)

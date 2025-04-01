@@ -39,12 +39,12 @@ class Conversation:
     def __str__(self) -> str:
         template = "[system]\n> {}\n".format(self.system)
         return template + "\n".join(["[{}]\n> {}".format(c[0], c[1]) for c in self.conversations])
-    def toDict(self) -> ConversationDictT:
+    def to_dict(self) -> ConversationDictT:
         return {
             "system": self.system,
             "conversations": self.conversations
         }
-    def setFromDict(self, dict: ConversationDictT):
+    def set_from_dict(self, dict: ConversationDictT):
         self.system = dict["system"]
         self.conversations = dict["conversations"]
         return self
@@ -54,7 +54,7 @@ class Conversation:
         conv = [{"role": c[0], "content": c[1]} for c in self.conversations]
         return system + conv
 
-def streamOutput(output_stream: Iterator[StreamData], print_callback: Any = lambda x, end=" ", flush=True: ...):
+def stream_output(output_stream: Iterator[StreamData], print_callback: Any = lambda x, end=" ", flush=True: ...):
     """
     Obtain the output from the stream, and maybe print it to stdout
     print_callback: a function that takes a string and print it to stdout, \
@@ -124,7 +124,7 @@ class OpenAIChatStreamIter(ChatStreamIter):
         self.model = model
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
     
-    def generateMessages(self, prompt: str):
+    def generate_messages(self, prompt: str):
         self.conversations.add(role = "user", content = prompt)
         return self.conversations.openai_conversations
     
@@ -136,7 +136,7 @@ class OpenAIChatStreamIter(ChatStreamIter):
         )
         res = client.chat.completions.create(
                 model=self.model, 
-                messages=self.generateMessages(prompt),     # type: ignore
+                messages=self.generate_messages(prompt),     # type: ignore
                 temperature=temperature, 
                 max_tokens=max_tokens,
                 stream=True
@@ -168,7 +168,7 @@ class HFChatStreamIter(ChatStreamIter):
         self.model = basaran.model.load_model(model, load_in_8bit=load_bit == 8, load_in_4bit=load_bit == 4)
         self.conversations = Conversation(system="A conversation between a human and an AI assistant.", conversations=[])
     
-    def getConv(self):
+    def get_conv(self):
         if "Llama-2" in self.model_name:
             # Not sure if this is correct
             ret = f"[INST]<<SYS>>\n{self.conversations.system.strip()}\n<<SYS>>\n"
@@ -260,7 +260,7 @@ class HFChatStreamIter(ChatStreamIter):
 
         self.conversations.add(role = "user", content = prompt)
         text = ""
-        for choice in self.model(prompt=self.getConv(), max_tokens=max_len, temperature=temperature, return_full_text=False):
+        for choice in self.model(prompt=self.get_conv(), max_tokens=max_len, temperature=temperature, return_full_text=False):
             piece = choice["text"]
             data: StreamData = {
                 "text": piece,
@@ -278,9 +278,9 @@ ChatStreamIterType = Literal[
     "lmsys/vicuna-7b-v1.5-16k", "meta-llama/Llama-2-7b-chat", "stabilityai/StableBeluga-7B", "Open-Orca/LlongOrca-7B-16k"
     ]
 g_stream_iter = {}      # a cache for the stream iterators
-def getStreamIter(itype: ChatStreamIterType = "DEFAULT") -> ChatStreamIter:
+def get_stream_iter(itype: ChatStreamIterType = "DEFAULT") -> ChatStreamIter:
     if itype == "DEFAULT":
-        itype = config.defaultChatModel()
+        itype = config.default_chat_model()
 
     if itype in config.openai_api_chat_models:
 

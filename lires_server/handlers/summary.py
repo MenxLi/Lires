@@ -23,9 +23,9 @@ class SummaryHandler(RequestHandlerBase):
 
         dp = await db.get(uuid)
 
-        user_info = await self.userInfo()
+        user_info = await self.user_info()
         if not user_info["is_admin"]:
-            is_allowed = await self.checkTagPermission(dp.tags, user_info["mandatory_tags"], raise_error=False)
+            is_allowed = await self.check_tag_permission(dp.tags, user_info["mandatory_tags"], raise_error=False)
             if not is_allowed:
                 self.write("ERROR: Permission denied.")
                 return

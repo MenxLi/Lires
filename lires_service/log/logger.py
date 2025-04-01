@@ -34,7 +34,7 @@ class DatabaseLogger:
     async def connect(self):
         self.db = await aiosqlite.connect(self.db_path)
     
-    def isUpToDate(self):
+    def is_uptodate(self):
         return self.__is_uptodate
 
     async def create_table(self, name: str):

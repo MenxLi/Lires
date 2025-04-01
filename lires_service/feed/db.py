@@ -1,16 +1,16 @@
 import os, asyncio
 from .collector import ArticleInfo
 from lires.core.dataClass import DataBase
-from lires.core.fileTools import addDocument
+from lires.core.fileTools import add_document
 from lires.config import DATABASE_HOME
 from lires.core.logger import LiresLogger
 
-async def initDatabase(db_path = os.path.join(DATABASE_HOME, 'feed')):
+async def init_database(db_path = os.path.join(DATABASE_HOME, 'feed')):
     database = DataBase()
     await database.init(db_path)
     return database
 
-async def toDatabase(database: DataBase, articles: list[ArticleInfo], logger: LiresLogger):
+async def to_database(database: DataBase, articles: list[ArticleInfo], logger: LiresLogger):
     conn = database.conn
 
     current_ids = await database.keys()
@@ -20,7 +20,7 @@ async def toDatabase(database: DataBase, articles: list[ArticleInfo], logger: Li
     ]
 
     await asyncio.gather(*[
-        addDocument(
+        add_document(
             db_conn = conn, 
             citation = article.bibtex,
             tags = article.tags,
@@ -35,7 +35,7 @@ async def toDatabase(database: DataBase, articles: list[ArticleInfo], logger: Li
     return
 
 async def collectFeedCycle(feed_db: DataBase, logger: LiresLogger):
-    from .collector import fetchArxiv
+    from .collector import fetch_arxiv
 
     await logger.info("Start collecting arxiv feed...")
     sleep_time = 0
@@ -45,11 +45,11 @@ async def collectFeedCycle(feed_db: DataBase, logger: LiresLogger):
             async def _thisFetchFn():
                 await logger.info(f"Fetching feed for arxiv:{cat_enclose}")
                 try:
-                    articles = await fetchArxiv(
+                    articles = await fetch_arxiv(
                         max_results=50,
                         search_query= f"cat:{cat_enclose}",
                     )
-                    await toDatabase(feed_db, articles, logger=logger)
+                    await to_database(feed_db, articles, logger=logger)
                     await feed_db.commit()
                 except Exception as e:
                     await logger.error(f"Error in fetching feed: {e}")

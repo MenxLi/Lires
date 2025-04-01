@@ -131,7 +131,7 @@ class RegistryStore:
                     return True
         return False
     
-    async def _getInactive(self, timeout: float) -> list[str]:
+    async def _get_inactive(self, timeout: float) -> list[str]:
         """
         Get inactive services
         """
@@ -155,7 +155,7 @@ class RegistryStore:
                         self._data_inactive[uid] = info
                     self.logger.info("Remove {} service: {}".format("inactive" if backup else "dead", formatRegistration(info)))
     
-    async def _cleanDead(self, long_inactive_uid):
+    async def _clean_dead(self, long_inactive_uid):
         """
         Clean inactive services
         """
@@ -168,10 +168,10 @@ class RegistryStore:
                 self._last_activation_time.pop(uid)
     
     async def autoClean(self):
-        __all_inactive = await self._getInactive(self._inactive_timeout)
+        __all_inactive = await self._get_inactive(self._inactive_timeout)
         await self._remove(__all_inactive, backup=True)
-        __all_long_inactive = await self._getInactive(self._inactive_timeout * 5)
-        await self._cleanDead(__all_long_inactive)
+        __all_long_inactive = await self._get_inactive(self._inactive_timeout * 5)
+        await self._clean_dead(__all_long_inactive)
 
     async def withdraw(self, uid: str):
         """

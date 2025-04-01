@@ -78,12 +78,12 @@ class TestDB:
     def test_database_search(self):
         async def _test():
             database = await DataBase().init(db_dir)
-            assert len(await database.getDataByTags(['tag1', 'tag0'])) == 2
-            assert len(await database.getDataByTags(['tag0'])) == 2
-            assert len(await database.getDataByTags(['tag1'])) == 2
-            assert len(await database.getDataByTags(['tag1->tag2'])) == 1
-            assert len(await database.getDataByTags(['tag3'])) == 2
-            assert len(await database.getDataByTags(['tag3', 'tag1'])) == 2
+            assert len(await database.data_from_tags(['tag1', 'tag0'])) == 2
+            assert len(await database.data_from_tags(['tag0'])) == 2
+            assert len(await database.data_from_tags(['tag1'])) == 2
+            assert len(await database.data_from_tags(['tag1->tag2'])) == 1
+            assert len(await database.data_from_tags(['tag3'])) == 2
+            assert len(await database.data_from_tags(['tag3', 'tag1'])) == 2
             await database.close()
         asyncio.run(_test())
     

@@ -21,25 +21,25 @@ class StatusHandler(RequestHandlerBase):
             "version": VERSION,
             "uptime": time.time() - self._init_time,
             "n_data": await db.count(),
-            "n_connections": len(self.connectionsByUserID(user_info["id"])),
+            "n_connections": len(self.connections_by_userid(user_info["id"])),
             "n_connections_all": len(self.connection_pool),
         }
         self.write(json.dumps(status))
 
     @authenticate()
     async def get(self):
-        await self._respond(await self.userInfo())
+        await self._respond(await self.user_info())
     
     @authenticate()
     async def post(self):
-        await self._respond(await self.userInfo())
+        await self._respond(await self.user_info())
 
 class DatabaseDownloadHandler(RequestHandlerBase):
 
     __download_request_time = {}
     __global_download_request_time = []
 
-    def checkReqFrequency(self, user_id: int):
+    def check_request_frequency(self, user_id: int):
         _prev_request_times = self.__download_request_time.get(user_id, [0])
         n_last_req = [t for t in _prev_request_times if time.time() - t < 600]
         if len(n_last_req) >= 3:
@@ -71,10 +71,10 @@ class DatabaseDownloadHandler(RequestHandlerBase):
     async def get(self):
         include_data = self.get_argument("data", "false").lower() == "true"
 
-        user_info = await self.userInfo()
+        user_info = await self.user_info()
         db = await self.db()
 
-        self.checkReqFrequency(user_info["id"])
+        self.check_request_frequency(user_info["id"])
 
         if not include_data:
             await self.logger.info(f"User {user_info['username']} is downloading the database")
@@ -83,7 +83,7 @@ class DatabaseDownloadHandler(RequestHandlerBase):
             self.write(await db.dump(include_files=False))
         else:
             # first check the size
-            db_size = await db.diskUsage()
+            db_size = await db.disk_usage()
             if db_size > 512*1024*1024:
                 self.set_header("Content-Type", "text/html")
                 # info = f"Database is too large to be downloaded ({db_size/1024/1024:.1f} M), please use the API to download in parts."
