@@ -16,7 +16,7 @@ class ShareEntry:
     links: dict[str, str]
 
 class ShareHandler(RequestHandlerBase):
-    with open(os.path.join(ASSETS_DIR, 'share.template.html')) as f:
+    with open(os.path.join(ASSETS_DIR, 'share.template.html'), 'r', encoding='utf-8') as f:
         share_page_template = template.Template(f.read())
 
     @authenticate(enabled = not get_conf()['allow_public_query'])

@@ -151,10 +151,10 @@ async def download_default_pdfjs_viewer(
     viewer_index_file = os.path.join(dst_dir, "web", "viewer.html")
     # add a snippet to modify the default viewer options
     print("Inject code snippet.")
-    with open(viewer_index_file, "r") as f:
+    with open(viewer_index_file, "r", encoding='utf-8') as f:
         viewer_index = f.read()
         viewer_index = viewer_index.replace("</body>", __pdfviewer_code_snippet + "\n</body>")
-    with open(viewer_index_file, "w") as f:
+    with open(viewer_index_file, "w", encoding='utf-8') as f:
         f.write(viewer_index)
     print("Done.")
     return True
@@ -173,7 +173,7 @@ async def init_pdf_viewer(dst_dir: str):
         await asyncio.sleep(3)
 
     await asyncio.sleep(random.random()*0.01)   # to avoid resouce conflict
-    with open(lock_file, "w") as f:
+    with open(lock_file, "w", encoding="utf-8") as f:
         f.write(str(this_pid))
     try:
         await download_default_pdfjs_viewer(force=True, dst_dir=dst_dir)

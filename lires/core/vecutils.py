@@ -80,7 +80,7 @@ async def get_feature_text_source(
             if iconn:
                 # if LLM is available, use it to create summary
                 summary = await create_summary_with_llm(iconn, pdf_text)
-                with open(_summary_cache_path, "w") as f:
+                with open(_summary_cache_path, "w", encoding="utf-8") as f:
                     f.write(summary)
                 if summary:
                     print_fn(f"- use LLM summary")

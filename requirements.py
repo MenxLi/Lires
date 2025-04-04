@@ -9,7 +9,7 @@ import os, sys, itertools
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 
-def getPyProject():
+def get_pyproject():
     # check python version
     if sys.version_info < (3, 11):
         # check if tomlkit is installed
@@ -18,12 +18,12 @@ def getPyProject():
         except ImportError:
             os.system("pip install tomlkit")
             import tomlkit
-        with open(os.path.join(THIS_DIR, "pyproject.toml")) as f:
+        with open(os.path.join(THIS_DIR, "pyproject.toml"), encoding='utf-8') as f:
             return tomlkit.parse(f.read())
     
     else:
         import tomllib
-        with open(os.path.join(THIS_DIR, "pyproject.toml")) as f:
+        with open(os.path.join(THIS_DIR, "pyproject.toml"), encoding='utf-8') as f:
             return tomllib.loads(f.read())
 
 def getDeps(pyproj: dict):
@@ -44,6 +44,6 @@ def getDeps(pyproj: dict):
     return itertools.chain(init_deps, base_deps, extra_deps)
 
 if __name__ == "__main__":
-    pyproj = getPyProject()
+    pyproj = get_pyproject()
     deps = getDeps(pyproj)
     print("\n".join(deps))

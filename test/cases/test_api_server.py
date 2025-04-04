@@ -88,7 +88,7 @@ class TestServer(BaseConfig):
 
         __this_dir = os.path.dirname(os.path.abspath(__file__))
         bibtex_case_file = os.path.join(__this_dir, "bibtex_cases.bib")
-        with open(bibtex_case_file) as f:
+        with open(bibtex_case_file, "r", encoding="utf-8") as f:
             bibtex_cases = f.read().split("\n\n")
         
         for bibtex in bibtex_cases:

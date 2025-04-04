@@ -64,7 +64,7 @@ def generate_config_file(path:str):
     config = __default_config()
 
     # use yaml
-    with open(path, "w") as f:
+    with open(path, "w", encoding='utf-8') as f:
         yaml.safe_dump(config, f, sort_keys=False, indent=2)
     
     comments = [
@@ -76,7 +76,7 @@ def generate_config_file(path:str):
     ]
     # inject comments onto the top of the file
 
-    with open(path, "r") as f:
+    with open(path, "r", encoding='utf-8') as f:
         content = f.read()
 
     # add spacing to the top-level keys
@@ -94,11 +94,11 @@ def generate_config_file(path:str):
         output.append(line)
     content = "\n".join(output)
     
-    with open(path, "w") as f:
+    with open(path, "w", encoding='utf-8') as f:
         f.write("# " + "\n# ".join(comments) + "\n" + content)
 
 def load_config_file(path:str)->ClusterConfigT:
-    with open(path, "r") as f:
+    with open(path, "r", encoding='utf-8') as f:
         config: ClusterConfigT = yaml.safe_load(f)
     
     ## Validate config...
