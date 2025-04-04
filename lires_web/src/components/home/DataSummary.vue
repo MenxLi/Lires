@@ -157,7 +157,7 @@
         <div class="layout">
             <div id="info">
                 <table>
-                    <tr>
+                    <tbody><tr>
                         <td><b>Authors</b></td>
                         <td id="authorTD">
                             <div v-for="author in datapoint.summary.authors">
@@ -167,34 +167,34 @@
                                 </a>
                             </div>
                         </td>
-                    </tr>
+                    </tr></tbody>
                     <Transition name="slideDown">
-                    <tr v-if="showAuthorPapers" id="otherPubTR">
+                    <tbody><tr v-if="showAuthorPapers" id="otherPubTR">
                         <td colspan="2">
                             <b>{{ `Other publications from ${showAuthorPapers.toUpperCase()}:` }}</b>
                             <div id="authorPapers">
                                 <FileRowContainer :uids=" authorPapers.map((dp)=>dp.summary.uuid) "></FileRowContainer>
                             </div>
                         </td>
-                    </tr>
+                    </tr></tbody>
                     </Transition>
-                    <tr>
+                    <tbody><tr>
                         <td><b>Publication</b></td>
                         <td>{{ datapoint.summary.publication }}</td>
-                    </tr>
-                    <tr>
+                    </tr></tbody>
+                    <tbody><tr>
                         <td><b>Year</b></td>
                         <td>{{ datapoint.summary.year }}</td>
-                    </tr>
-                    <tr>
+                    </tr></tbody>
+                    <tbody><tr>
                         <td><b>Tags</b></td>
                         <td>{{ datapoint.summary.tags.toString() }}</td>
-                    </tr>
-                    <tr>
+                    </tr></tbody>
+                    <tbody><tr>
                         <td><b>Type</b></td>
                         <td>{{ datapoint.fileType() + `${datapoint.summary.has_file?
                             ' (' + datapoint.summary.doc_size.toString() + 'M)':''}` }}</td>
-                    </tr>
+                    </tr></tbody>
                     <!-- <tr>
                         <td><b>Modified</b></td>
                         <td>{{ datapoint.summary.time_modified }}</td>

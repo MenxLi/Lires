@@ -127,24 +127,21 @@ export default {
                             <FileRowContainer :uids="uiState.shownDataUIDs" v-model:unfoldedIds="uiState.unfoldedDataUIDs"
                                 v-if="uiState.shownDataUIDs.length"
                             ></FileRowContainer>
-                            <div id="blankPlaceholder" v-else>
-                                <p style="
-                                    font-size: xx-large;
-                                    font-weight: bold;
-                                    user-select: none;
-                                " v-if="dataStore.database.initialized">
+                            <div id="blankPlaceholder" v-else
+                                style="user-select: none;">
+                                <p style=" font-size: xx-large; font-weight: bold" v-if="dataStore.database.initialized">
                                     Nothing to show
-                                    <p style="font-size: medium">
-                                        Add your first enty by clicking the 
-                                        <b><a @click="showBlankAddingDataWindow" style="
-                                            cursor:pointer;
-                                            border-radius: 5px;
-                                            padding-inline: 3px;
-                                            /* border: 1px solid var(--color-border); */
-                                            background-color: var(--color-background-soft);
-                                            ">⊕ New</a></b> 
-                                        button above.<br>
-                                    </p>
+                                </p>
+                                <p style=" font-size: medium; margin-top: 0;" v-if="dataStore.database.initialized">
+                                    Add your first enty by clicking the 
+                                    <b><a @click="showBlankAddingDataWindow" style="
+                                        cursor:pointer;
+                                        border-radius: 5px;
+                                        padding-inline: 3px;
+                                        /* border: 1px solid var(--color-border); */
+                                        background-color: var(--color-background-soft);
+                                        ">⊕ New</a></b> 
+                                    button above.<br>
                                 </p>
                                 <LoadingWidget v-if="!dataStore.database.initialized"></LoadingWidget>
                             </div>

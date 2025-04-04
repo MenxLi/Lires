@@ -174,9 +174,9 @@
             <div id="delete-user-dialog-main">
                 <p>
                     Are you sure to delete user <b>{{editUserDialog_userInfo.name}} ({{editUserDialog_userInfo.username}})</b>? 
-                    <p style="color:var(--color-danger)">
-                        All data under this user will be deleted!
-                    </p>
+                </p>
+                <p style="color:var(--color-danger)">
+                    All data under this user will be deleted!
                 </p>
                 <hr style="margin-block: 1rem;">
                 Type <b>{{editUserDialog_userInfo.username}}</b> to confirm:
@@ -187,33 +187,33 @@
         @on-cancel="closeCreateUserDialog" @on-accept="onConfirmCreateUser" @on-close="closeCreateUserDialog">
             <div id="create-user-main">
             <table id="create-user-table">
-                <tr>
+                <tbody><tr>
                     <td>Username:</td>
                     <td><input type="text" v-model="createUser_username" autocomplete="off" class="create-user-input"/></td>
-                </tr>
-                <tr>
+                </tr></tbody>
+                <tbody><tr>
                     <td>Name:</td>
                     <td><input type="text" v-model="createUser_name" autocomplete="off" class="create-user-input"/></td>
-                </tr>
-                <tr>
+                </tr></tbody>
+                <tbody><tr>
                     <td>Password:</td>
                     <td><input type="text" v-model="createUser_password" autocomplete="off" class="create-user-input"/></td>
-                </tr>
-                <tr>
+                </tr></tbody>
+                <tbody><tr>
                     <td>Max Storage (MB):</td>
                     <td><input type="text" v-model="createUser_maxStorage" autocomplete="off" class="create-user-input"/></td>
-                </tr>
-                <tr>
+                </tr></tbody>
+                <tbody><tr>
                     <td>Mandatory Tags:</td>
                     <td><input type="text" v-model="createUser_mandatoryTags" autocomplete="off" class="create-user-input"
                         placeholder="Separate with semicolon ';'" ></td>
-                </tr>
-                <tr>
+                </tr></tbody>
+                <tbody><tr>
                     <td>Administrator:</td>
                     <td style="display: flex; align-items: center; padding-block: 0.25rem;">
                         <SwitchToggle v-model:checked="createUser_isAdmin"></SwitchToggle>
                     </td>
-                </tr>
+                </tr></tbody>
             </table>
             </div>
         </QueryDialog>
@@ -226,15 +226,15 @@
         </div>
 
         <table>
-            <tr>
+            <tbody><tr>
                 <th v-if="is_admin">  </th>
                 <th> Avatar </th>
                 <th> Username </th>
                 <th> Name </th>
                 <th> Storage </th>
                 <th> Accessibility </th>
-            </tr>
-            <tr v-for="user in allUsers" class="user-line">
+            </tr></tbody>
+            <tbody><tr v-for="user in allUsers" class="user-line">
                 <!-- <td v-if="is_admin"> {{user.id}} </td> -->
                 <td v-if="is_admin"> 
                     <div class="edit-button" @click="()=>editUser(user)">
@@ -259,10 +259,10 @@
                     <TagBubbleContainer v-if="!user.is_admin" :tags="user.mandatory_tags" :max-width="200" :middle-align="true"/>
                     <label class=admin_hint v-else>ADMIN</label>
                 </td>
-            </tr>
-            <tr>
+            </tr></tbody>
+            <tbody><tr>
                 <td colspan="5" v-if="allUsers.length===0"> No users </td>
-            </tr>
+            </tr></tbody>
         </table>
     </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-    import { ref, defineModel, onMounted, watch, nextTick } from 'vue';
+    import { ref, onMounted, watch, nextTick } from 'vue';
 
     const props = withDefaults(defineProps<{
         direction?: 'horizontal' | 'vertical',
