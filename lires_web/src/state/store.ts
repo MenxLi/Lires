@@ -98,13 +98,22 @@ export const useUIStateStore = defineStore(
                     }
                 )
             },
-            addRecentlyReadDataUID(uid: string){
+            addRecentlyReadDataUID(uid: string, reorder: boolean = false){
                 if (this.recentlyReadDataUIDs.includes(uid)){
-                    this.recentlyReadDataUIDs.splice(this.recentlyReadDataUIDs.indexOf(uid), 1);
+                    // if reorder is false, do nothing, as the uid is already in the list
+                    if (!reorder) return; 
+                    // if reorder is true, remove the uid from the list and add it to the front
+                    this.removeRecentlyReadDataUID(uid);
                 }
                 this.recentlyReadDataUIDs.unshift(uid);
                 if (this.recentlyReadDataUIDs.length > 5){
                     this.recentlyReadDataUIDs.pop();
+                }
+            },
+            removeRecentlyReadDataUID(uid: string){
+                const index = this.recentlyReadDataUIDs.indexOf(uid);
+                if (index !== -1){
+                    this.recentlyReadDataUIDs.splice(index, 1);
                 }
             },
             showPopup(

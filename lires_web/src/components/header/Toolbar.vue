@@ -1,13 +1,14 @@
 
 <script setup lang="ts">
 
-    import { computed, ref } from "vue";
+    import { computed, ref, onMounted, onBeforeUnmount, watch } from "vue";
     import { useRouter, useRoute } from "vue-router";
     import { settingsLogout } from "../../core/auth";
     import ToolbarIcon from "../header/ToolbarIcon.vue";
     import { MenuAttached } from '../common/fragments.tsx'
     import FloatingWindow from "../common/FloatingWindow.vue";
     import SettingsWindow from "../settings/SettingsWindow.vue";
+    import { useWindowState } from "@/state/wstate.ts";
 
     // https://vitejs.dev/guide/assets.html
     import logoutIcon from "../../assets/icons/logout.svg";
@@ -59,6 +60,26 @@
         return ret;
     });
 
+    // dynamic layout for slot
+    const btnElem = ref(null as HTMLDivElement | null);
+    const navElem = ref(null as HTMLDivElement | null);
+    const slotDiv = ref(null as HTMLDivElement | null);
+    const wState = useWindowState();
+    function getSlotDivWidth(): string {
+        let siblingWidth = 0;
+        if (btnElem.value){ siblingWidth += btnElem.value!.getBoundingClientRect().width; }
+        if (navElem.value){ siblingWidth += navElem.value!.getBoundingClientRect().width; }
+        return `calc(100% - ${siblingWidth}px)`;
+    }
+    onMounted(()=>{
+        console.log("mounted", wState.width, wState.height, slotDiv.value);
+        if (slotDiv.value){ slotDiv.value!.style.width = getSlotDivWidth(); }
+        watch([wState.width, wState.height], ()=>{
+            if (slotDiv.value){ slotDiv.value!.style.width = getSlotDivWidth(); }
+        });
+    });
+    onBeforeUnmount(wState.cleanup);
+
 </script>
 
 <template>
@@ -67,7 +88,7 @@
     </FloatingWindow>
 
     <div :class="`main-toolbar ${props.compact ? 'compact-layout' : 'normal-layout shadow'}` "ref="mainDiv">
-        <div class="button">
+        <div class="button" ref="btnElem">
             <ToolbarIcon v-if="props.returnHome" :iconSrc="homeIcon" labelText="Home" shortcut="ctrl+h"
                 @onClick="()=>{router.push('/')}" title="home"/>
             <ToolbarIcon v-else :iconSrc="logoutIcon" labelText="Logout" shortcut="ctrl+q"
@@ -83,7 +104,7 @@
             </MenuAttached>
         </div>
 
-        <div id="navigator" v-if="showNavigator">
+        <div id="navigator" v-if="showNavigator" ref="navElem">
             <div class="nav-toggle">
                 <div :class="`button ${currPage === 'home' || !currPage ? 'active-nav' : ''}`" @click="()=>{router.push('/')}">Home</div>
                 <!-- <div :class="`button ${currPage === 'dashboard' ? 'active-nav' : ''}`" @click="()=>{router.push(`/dashboard/${useDataStore().user.username}`)}">Dashboard</div> -->
@@ -92,7 +113,9 @@
             </div>
         </div>
 
-        <slot> <!-- some additional components --> </slot>
+        <div ref="slotDiv">
+            <slot> <!-- some additional components --> </slot>
+        </div>
     </div>
 </template>
 

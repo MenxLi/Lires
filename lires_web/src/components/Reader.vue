@@ -7,14 +7,14 @@ export default {
 }
 </script>
 <script setup lang="ts">
+    import ReaderTab from './reader/ReaderTab.vue';
     import ReaderBody from './reader/ReaderBody.vue';
     import Toolbar from './header/Toolbar.vue';
     import ToolbarIcon from './header/ToolbarIcon.vue';
     import { ref, onMounted, watch } from 'vue';
     import { useDataStore, useUIStateStore, useSettingsStore } from '../state/store';
-    import { useRoute, useRouter } from 'vue-router';
+    import { useRoute } from 'vue-router';
     import {FileSelectButton} from './common/fragments.tsx'
-    import { MenuAttached } from './common/fragments.tsx';
 
     import splitscreenIcon from '../assets/icons/splitscreen.svg';
     import uploadIcon from '../assets/icons/upload.svg';
@@ -23,8 +23,8 @@ export default {
     const dataStore = useDataStore();
     const uiStateStore = useUIStateStore();
     const route = useRoute();
-    const router = useRouter();
     const datapoint = ref(dataStore.database.getDummy());
+    const recentReadDatapoints = ref([] as DataPoint[]);
 
     async function updateDatapoint(): Promise<void>{
         const dp = await dataStore.database.aget(route.params.id as string);
@@ -32,7 +32,7 @@ export default {
 
         uiStateStore.addRecentlyReadDataUID(dp.uid);
         dataStore.database.agetMany(uiStateStore.recentlyReadDataUIDs).then((dps)=>{
-            updateRecentReadMenuItems(dps);
+            recentReadDatapoints.value = dps;
         })
         console.log("Reader: updated datapoint", dp.summary.title, "uid", dp.uid);
     }
@@ -40,20 +40,6 @@ export default {
     watch(()=>route.params.id, ()=>{
         updateDatapoint();
     })
-
-    const recentReadMenuItems = ref([] as {name: string, action: ()=>void}[])
-    function updateRecentReadMenuItems(dps: DataPoint[]){
-        const ret = [];
-        for (const dp of dps){
-            if (dp.summary.uuid === route.params.id) continue;
-            ret.push({
-                name: dp.authorYear(),
-                action: ()=>{ router.push('/reader/' + dp.summary.uuid) }
-            })
-        }
-        console.log("Reader: updated recent read menu items", ret);
-        recentReadMenuItems.value = ret;
-    }
 
     // 0: doc only
     // 1: note only
@@ -124,15 +110,15 @@ export default {
     <FileSelectButton :action="onUploadNewDocument" ref="fileSelectionBtn" :style="{display: 'none'}"> </FileSelectButton>
     <Toolbar :compact="true" :show-navigator="false">
         <div id="toolbarOps">
-            <ToolbarIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
-                @onClick="changeLayout" title="change layout"></ToolbarIcon>
-            <ToolbarIcon :iconSrc="uploadIcon" labelText="replace" shortcut="ctrl+u"
-                @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></ToolbarIcon>
-            <MenuAttached :menu-items="recentReadMenuItems">
-                <div id="recently-read">
-                    {{ `${datapoint.authorAbbr()} (${datapoint.summary.year})` }}
-                </div>
-            </MenuAttached>
+            <div class="toolbar-ops-left">
+                <ReaderTab :this-datapoint="datapoint as DataPoint" :datapoints="recentReadDatapoints as DataPoint[]"></ReaderTab>
+            </div>
+            <div class="toolbar-ops-right">
+                <ToolbarIcon :iconSrc="uploadIcon" labelText="replace" shortcut="ctrl+u"
+                    @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></ToolbarIcon>
+                <ToolbarIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
+                    @onClick="changeLayout" title="change layout"></ToolbarIcon>
+            </div>
         </div>
     </Toolbar>
     <div id="main-reader" class="gradIn">
@@ -157,6 +143,18 @@ div#main-reader{
 }
 div#toolbarOps{
     display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    height: 100%;
+}
+div.toolbar-ops-left{
+    height: 100%;
+    overflow: hidden;
+}
+div.toolbar-ops-right{
+    display: flex;
+    width: fit-content;
     align-items: center;
     justify-content: center;
 }
