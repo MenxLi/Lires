@@ -1,4 +1,4 @@
-import os, logging
+import os, logging, platform
 from datetime import datetime
 from typing import Union, TypedDict
 from lires_web import LRSWEB_SRC_ROOT
@@ -194,7 +194,7 @@ async def __start_server(
     import signal
     async def __exitHook():
         await g_storage.finalize()
-        await RequestHandlerBase.logger.info("Server shutdown")
+        await RequestHandlerBase.logger.debug("Server shutdown")
         
     shutdown_event = asyncio.Event()
     # catch keyboard interrupt
@@ -210,8 +210,13 @@ async def __start_server(
     # https://stackoverflow.com/questions/23313720/asyncio-how-can-coroutines-be-used-in-signal-handlers
     loop = asyncio.get_event_loop()
     for signame in ('SIGINT', 'SIGTERM'):
-        loop.add_signal_handler(getattr(signal, signame),
-                                lambda: asyncio.ensure_future(__signalHandler()))
+        if not platform.platform().startswith("Windows"):
+            loop.add_signal_handler(getattr(signal, signame),
+                                    lambda: asyncio.ensure_future(__signalHandler()))
+        else:
+            # https://stackoverflow.com/a/54886771
+            signal.signal(getattr(signal, signame),
+                          lambda signum, frame: asyncio.ensure_future(__signalHandler()))
     await shutdown_event.wait()
 
 # SSL config
