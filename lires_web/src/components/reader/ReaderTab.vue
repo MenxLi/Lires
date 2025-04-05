@@ -12,12 +12,7 @@
     const uiStateStore = useUIStateStore();
 
     function formatDataItem(item: DataPoint): string {
-        const MAXLENGTH = 1000;
-        let t = item.summary.year + '-' + item.summary.title;
-        if (t.length > MAXLENGTH) {
-            t = t.substring(0, MAXLENGTH) + '...';
-        }
-        return t;
+        return `${item.summary.year}-${item.summary.title}`;
     }
 
     const onClickItem = (dp: DataPoint) => {
@@ -60,8 +55,8 @@
     #reader-tab {
         display: flex;
         flex-direction: row;
-        align-items: center;
-        justify-content: center;
+        /* align-items: center;  This somehow introduce some extra space */
+        justify-content: flex-start;
         height: 25px;
     }
 
@@ -72,15 +67,19 @@
         padding-inline: 5px;
         padding-right: 3px;
         border-radius: 3px;
-        margin-inline: 5px;
+        margin-inline: 2px;
+        margin-block: 1px;
         transition: all 0.2s ease-in-out;
         box-shadow: 0px 2px 2px -2px var(--color-shadow);
         user-select: none;
 
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 3px;
-        max-width: 120px;
+        flex: 1 1 auto;
+        min-width: 0;    /* this is important to prevent overflow */
+        max-width: fit-content;
     }
 
     .reader-tab-item-text {
@@ -90,17 +89,6 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
-    }
-
-    .reader-tab-item.active {
-        background-color: var(--color-background-theme);
-    }
-    .reader-tab-item:hover {
-        background-color: var(--color-background-theme-highlight);
-    }
-
-    .reader-tab-item:hover .reader-tab-item-close {
-        opacity: 0.8;
     }
     .reader-tab-item-close {
         opacity: 0;
@@ -112,6 +100,17 @@
         transition: all 0.1s ease-in-out;
         box-shadow: 0px 2px 2px -1px var(--color-shadow);
         flex-shrink: 0;
+    }
+
+    .reader-tab-item.active {
+        background-color: var(--color-background-theme);
+    }
+    .reader-tab-item:hover {
+        background-color: var(--color-background-theme-highlight);
+    }
+
+    .reader-tab-item:hover .reader-tab-item-close {
+        opacity: 0.8;
     }
 
 </style>

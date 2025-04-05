@@ -104,6 +104,10 @@
             </MenuAttached>
         </div>
 
+        <div ref="slotDiv" id="slot-div">
+            <slot></slot>
+        </div>
+
         <div id="navigator" v-if="showNavigator" ref="navElem">
             <div class="nav-toggle">
                 <div :class="`button ${currPage === 'home' || !currPage ? 'active-nav' : ''}`" @click="()=>{router.push('/')}">Home</div>
@@ -113,9 +117,6 @@
             </div>
         </div>
 
-        <div ref="slotDiv">
-            <slot> <!-- some additional components --> </slot>
-        </div>
     </div>
 </template>
 
@@ -154,6 +155,12 @@
     div.button{
         display: flex;
         align-items: center;
+    }
+
+    div.slot-div{
+        display: flex;
+        align-items: center;
+        justify-content: center; 
     }
 
     div.nav-toggle{

@@ -11,10 +11,11 @@ export default {
     import ReaderBody from './reader/ReaderBody.vue';
     import Toolbar from './header/Toolbar.vue';
     import ToolbarIcon from './header/ToolbarIcon.vue';
-    import { ref, onMounted, watch } from 'vue';
+    import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
     import { useDataStore, useUIStateStore, useSettingsStore } from '../state/store';
     import { useRoute } from 'vue-router';
     import {FileSelectButton} from './common/fragments.tsx'
+    import { useWindowState } from '@/state/wstate.ts';
 
     import splitscreenIcon from '../assets/icons/splitscreen.svg';
     import uploadIcon from '../assets/icons/upload.svg';
@@ -94,6 +95,17 @@ export default {
         }
     }
 
+    // dynamic tab size
+    const wstate = useWindowState();
+    const toolbarOpsLeft = ref<HTMLDivElement|null>(null);
+    const toolbarOpsRight = ref<HTMLDivElement|null>(null);
+    function setToolbarOpsWidth(){
+        if (toolbarOpsLeft.value && toolbarOpsRight.value){
+            const rightWidth = toolbarOpsRight.value.getBoundingClientRect().width;
+            toolbarOpsLeft.value.style.width = `calc(100% - ${rightWidth}px)`;
+        }
+    }
+
     // preview
     const readerBody = ref<typeof ReaderBody | null>(null);
 
@@ -101,19 +113,32 @@ export default {
         // empty database check 
         console.log("Reader mounted");
         updateDatapoint();
+
+        // set the width of the left side of the toolbar
+        setToolbarOpsWidth();
+        watch([wstate.width], ()=>{
+            setToolbarOpsWidth();
+        })
+    })
+
+    onBeforeUnmount(() => {
+        console.log("Reader unmounted");
+        wstate.cleanup();
     })
 
 </script>
 
 <template>
-    <!-- a tricky way to use FileSelectButton as select-upload agent -->
-    <FileSelectButton :action="onUploadNewDocument" ref="fileSelectionBtn" :style="{display: 'none'}"> </FileSelectButton>
     <Toolbar :compact="true" :show-navigator="false">
-        <div id="toolbarOps">
-            <div class="toolbar-ops-left">
-                <ReaderTab :this-datapoint="datapoint as DataPoint" :datapoints="recentReadDatapoints as DataPoint[]"></ReaderTab>
+        <div id="toolbar-ops">
+            <div ref="toolbarOpsLeft">
+                <ReaderTab 
+                :this-datapoint="datapoint as DataPoint" 
+                :datapoints="recentReadDatapoints as DataPoint[]"
+                ></ReaderTab>
             </div>
-            <div class="toolbar-ops-right">
+            <div class="toolbar-ops-right" ref="toolbarOpsRight">
+                <FileSelectButton :action="onUploadNewDocument" ref="fileSelectionBtn" :style="{display: 'none'}"> </FileSelectButton>
                 <ToolbarIcon :iconSrc="uploadIcon" labelText="replace" shortcut="ctrl+u"
                     @onClick="()=>fileSelectionBtn!.click()" title="upload a new document"></ToolbarIcon>
                 <ToolbarIcon :iconSrc="splitscreenIcon" labelText="layout" shortcut="ctrl+r"
@@ -127,6 +152,19 @@ export default {
 </template>
 
 <style scoped>
+div#toolbar-ops{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    height: 100%;
+}
+div.toolbar-ops-right{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 div#main-reader{
     bottom: 0px;
     padding-top: 0px;
@@ -140,37 +178,5 @@ div#main-reader{
     div#main-reader{
         padding: 0px;
     }
-}
-div#toolbarOps{
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-    height: 100%;
-}
-div.toolbar-ops-left{
-    height: 100%;
-    overflow: hidden;
-}
-div.toolbar-ops-right{
-    display: flex;
-    width: fit-content;
-    align-items: center;
-    justify-content: center;
-}
-div#recently-read{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0px 10px;
-    border-radius: 5px;
-    background-color: var(--color-background);
-    color: var(--color-text);
-    font-size: 0.8em;
-    font-weight: bold;
-    cursor: pointer;
-    text-wrap: nowrap;
-    white-space: nowrap;
-    overflow-x: hidden;
 }
 </style>
