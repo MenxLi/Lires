@@ -33,6 +33,7 @@ export default {
 
         uiStateStore.addRecentlyReadDataUID(dp.uid);
         dataStore.database.agetMany(uiStateStore.recentlyReadDataUIDs).then((dps)=>{
+            dps.reverse();
             recentReadDatapoints.value = dps;
         })
         console.log("Reader: updated datapoint", dp.summary.title, "uid", dp.uid);
