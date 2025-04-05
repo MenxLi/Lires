@@ -11,7 +11,7 @@ export default {
     import ReaderBody from './reader/ReaderBody.vue';
     import Toolbar from './header/Toolbar.vue';
     import ToolbarIcon from './header/ToolbarIcon.vue';
-    import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
+    import { ref, onMounted, watch, onBeforeUnmount, onUpdated } from 'vue';
     import { useDataStore, useUIStateStore, useSettingsStore } from '../state/store';
     import { useRoute } from 'vue-router';
     import {FileSelectButton} from './common/fragments.tsx'
@@ -115,10 +115,15 @@ export default {
         updateDatapoint();
 
         // set the width of the left side of the toolbar
-        setToolbarOpsWidth();
-        watch([wstate.width], ()=>{
+        watch([wstate.width, wstate.height], ()=>{
             setToolbarOpsWidth();
         })
+
+        setToolbarOpsWidth();
+    })
+
+    onUpdated(() => {
+        setToolbarOpsWidth();
     })
 
     onBeforeUnmount(() => {
