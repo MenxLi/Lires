@@ -32,8 +32,11 @@ class BasicFilterHandler(RequestHandlerBase):
 
         # Get the data
         if (not search_content) and (not tags):
+            uids = await db.keys()
+            if sort_by:
+                uids = await db.conn.sort_keys(uids, sort_by=sort_by, sec_sort_by='time_import')
             return self.write(json.dumps({
-                'uids': await db.keys(sort_by=sort_by),
+                'uids': uids,
                 'scores': None
             }))
 

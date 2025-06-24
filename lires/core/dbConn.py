@@ -301,7 +301,7 @@ class DBConnection(LiresBase):
     async def sort_keys(
         self, keys: list[str], 
         sort_by: SortByT = "time_import", reverse: bool = True, 
-        sec_sort_by: Optional[SortByT] = None, sec_reverse: bool = False
+        sec_sort_by: Optional[SortByT] = None, sec_reverse: bool = True
     ) -> list[str]:
         """ Sort keys by a field """
         validate_sort_type(sort_by, self.Error.LiresInvalidInputError)
