@@ -36,6 +36,7 @@ export default {
             dps.reverse();
             recentReadDatapoints.value = dps;
         })
+        await dataStore.database.conn.logDatapointRead(dp.uid);
         console.log("Reader: updated datapoint", dp.summary.title, "uid", dp.uid);
     }
 

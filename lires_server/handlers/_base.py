@@ -287,6 +287,8 @@ class RequestHandlerBase(tornado.web.RequestHandler, RequestHandlerMixin):
             self.send_error(404, reason="Entry not found")
         elif isinstance(e, self.Error.LiresUserNotFoundError):
             self.send_error(404, reason="User not found")
+        elif isinstance(e, self.Error.LiresInvalidInputError):
+            self.send_error(400, reason="Invalid input" + str(e))
         else:
             return super()._handle_request_exception(e)
 

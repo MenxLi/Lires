@@ -27,7 +27,7 @@
 <template>
     <SettingsContainer title="Theme" description="Change the theme of the app">
         <select v-model="currentDarkTheme" @change="toggleTheme(currentDarkTheme)" :style="{
-            width: '80px',
+            width: '100px',
             textAlign: 'center',
             padding: '0.2rem',
             justifySelf: 'flex-end'

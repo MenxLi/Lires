@@ -6,9 +6,6 @@ from lires.version import VERSION
 from lires.utils import UseTermColor
 
 import tornado
-import tornado.ioloop
-import tornado.web
-import tornado.autoreload
 from tornado.httpserver import HTTPServer
 
 import ssl
@@ -80,7 +77,7 @@ class Application(tornado.web.Application):
             # websocket
             (r'/ws', WebsocketHandler),
 
-            # public resources, with s3-like protocol: put, get, delete
+            # public resources, with http verb as protocol: put, get, delete
             (r"/doc/(.*)", DocHandler),
             (r"/misc/(.*)", MiscFileHandler),
             (r"/user-avatar/(.*)", UserAvatarHandler),
@@ -120,6 +117,7 @@ class Application(tornado.web.Application):
             # data management
             (r"/api/dataman/delete", DataDeleteHandler),
             (r"/api/dataman/update", DataUpdateHandler),
+            (r"/api/dataman/log-read", DataReadLogHandler),
 
             # user
             (r"/api/user/list", UserListHandler),

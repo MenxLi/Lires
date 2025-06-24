@@ -1,5 +1,5 @@
 from ._base import *
-from typing import TypedDict
+from typing import TypedDict, Optional
 from lires.core.vecutils import query_feature_index
 import json
 
@@ -8,6 +8,7 @@ class BasicFilterT(TypedDict):
     tags: list[str]
     search_by: str 
     search_content: str
+    sort_by: str
 
     top_k: int
 
@@ -25,13 +26,14 @@ class BasicFilterHandler(RequestHandlerBase):
         search_by = self.get_argument("search_by")
         search_content = self.get_argument("search_content")
         top_k = int(self.get_argument("top_k"))
+        sort_by: Optional[str] = self.get_argument("sort_by", "time_import")
 
-        await self.logger.debug(f"tags: {tags}, search_by: {search_by}, search_content: {search_content}, top_k: {top_k}")
+        await self.logger.debug(f"filter: tags: {tags}, search_by: {search_by}, search_content: {search_content}, top_k: {top_k}, sort_by: {sort_by}")
 
         # Get the data
         if (not search_content) and (not tags):
             return self.write(json.dumps({
-                'uids': await db.keys(),
+                'uids': await db.keys(sort_by=sort_by),
                 'scores': None
             }))
 
@@ -40,7 +42,7 @@ class BasicFilterHandler(RequestHandlerBase):
             res = cadidate_ids
         else:
             cadidate_ids = None
-            res = await db.keys()
+            res = await db.keys(sort_by=sort_by)
         scores = None
 
         if not search_content:
@@ -106,8 +108,8 @@ class BasicFilterHandler(RequestHandlerBase):
         await self.logger.debug(f"returning {len(res)} results.")
 
         # Sort the result if no scores are provided
-        if scores is None:
-            res = await db.conn.sort_keys(res)
+        if scores is None and sort_by:
+            res = await db.conn.sort_keys(res, sort_by=sort_by, sec_sort_by='time_import')
 
         self.write(json.dumps({
             'uids': res,

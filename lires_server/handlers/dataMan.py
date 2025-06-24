@@ -159,6 +159,19 @@ class DataUpdateHandler(RequestHandlerBase):
 
         return 
 
+class DataReadLogHandler(RequestHandlerBase):
+    @authenticate()
+    async def post(self):
+        """
+        Set the read status of a data entry
+        """
+        db = await self.db()
+        uuid = self.get_argument("uuid")
+        dp = await db.get(uuid)
+        if dp is None:
+            raise tornado.web.HTTPError(404, reason="Data entry not found")
+        await dp.fm.log_read()
+
 class TagRenameHandler(RequestHandlerBase):
     @authenticate()
     async def post(self):

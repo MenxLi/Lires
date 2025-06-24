@@ -1,8 +1,18 @@
-from typing import Any, List, Optional, Literal, TypeAlias
+from typing import Any, List, Optional, Literal, TypeAlias, get_args
 from dataclasses import dataclass
 
 # FileTypeT = Literal['.pdf', '.html']     # should be one of the accepted extensions at config.py
 FileTypeT: TypeAlias = Literal['', '.pdf', '.html']
+
+SortByT = Literal[ 'title', 'year', 'time_import', 'time_modify', 'last_read' ]
+def validate_sort_type(sort_type: str | SortByT, error_class = ValueError) -> SortByT:
+    """
+    Validate the sort type.
+    May raise error_class if the sort type is invalid.
+    """
+    if sort_type not in get_args(SortByT):
+        raise error_class(f"Invalid sort type: {sort_type}")
+    return sort_type
 
 @dataclass
 class DataPointSummary():

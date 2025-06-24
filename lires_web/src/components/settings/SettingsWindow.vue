@@ -6,6 +6,7 @@
     import ConfigShowHomeInfoPanel from './ConfigShowHomeInfoPanel.vue';
     import ConfigShowScatterPlot from './ConfigShowScatterPlot.vue';
     import ConfigPageCapacity from './ConfigPageCapacity.vue';
+    import ConfigSort from './ConfigSort.vue';
 
     import { useDataStore } from '@/state/store';
     const userInfo = useDataStore().user;   // is already a ref
@@ -32,6 +33,7 @@
         <hr>
 
         <ConfigTheme/>
+        <ConfigSort />
         <ConfigPageCapacity/>
         <ConfigShowTags/>
         <ConfigShowHomeInfoPanel/>

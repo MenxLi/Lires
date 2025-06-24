@@ -6,8 +6,12 @@ class DatabaseKeysHandler(RequestHandlerBase):
     @authenticate()
     async def get(self):
         self.set_header("Content-Type", "application/json")
+        sort_by = self.get_argument("sort_by", "time_import")
+
         db = await self.db()
-        self.write(json.dumps(await db.keys()))
+        self.write(json.dumps(
+            await db.keys(sort_by=sort_by)
+            ))
         return
 class DatabaseTagsHandler(RequestHandlerBase):
     """ Get summary of the database """

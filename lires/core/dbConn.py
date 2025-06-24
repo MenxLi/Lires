@@ -16,8 +16,7 @@ from ..utils import TimeUtils
 from ..utils.author import format_author_name
 from ..version import VERSION, versionize
 
-if TYPE_CHECKING:
-    from ..types.dataT import FileTypeT
+from ..types.dataT import FileTypeT, SortByT, validate_sort_type
 
 
 DB_MOD_LOCK = asyncio.Lock()
@@ -202,11 +201,13 @@ class DBConnection(LiresBase):
                     time_modify REAL NOT NULL DEFAULT 0,
                     info_str TEXT NOT NULL,
                     doc_ext TEXT NOT NULL,
-                    misc_dir TEXT
+                    misc_dir TEXT, 
+                    
+                    last_read REAL NOT NULL DEFAULT 0,
                 )
                 """)
                 await self.set_modified_flag(True)
-    
+
     async def __auto_upgrade(self):
         """
         Auto upgrade database if needed, 
@@ -228,6 +229,13 @@ class DBConnection(LiresBase):
         if record_version < versionize("1.8.0"):
             await upgrade_1_8_0(self)
             await set_version_record("1.8.0")
+        
+        if record_version < versionize("1.8.8"):
+            pragma = await (await self.conn.execute("PRAGMA table_info(files)")).fetchall() 
+            if pragma is None or not any(col[1] == "last_read" for col in pragma):
+                await self.logger.info("Adding last_read column to files table")
+                await self.conn.execute("ALTER TABLE files ADD COLUMN last_read REAL NOT NULL DEFAULT 0")
+                await self.set_modified_flag(True)
 
         if record_version != curr_version:
             await set_version_record(curr_version.string())
@@ -271,17 +279,18 @@ class DBConnection(LiresBase):
         return await self.cache.all_authors()
     async def tags(self) -> list[str]:
         return await self.cache.all_tags()
-    async def keys(self, sortby = None, reverse = False) -> list[str]:
+    async def keys(self, sort_by: Optional[SortByT] = None, reverse = False) -> list[str]:
         """ Return all uuids """
         if await self.size() == 0:
             # just return empty list if no entry,
             # otherwise the following query will raise an error if sortby is not None
             return []   
-        if not sortby:
+        if not sort_by:
             async with self.conn.execute("SELECT uuid FROM files") as cursor:
                 return [row[0] for row in await cursor.fetchall()]
         else:
-            async with self.conn.execute("SELECT uuid FROM files ORDER BY {} {}".format(sortby, "DESC" if reverse else "ASC")) as cursor:
+            validate_sort_type(sort_by, self.Error.LiresInvalidInputError)
+            async with self.conn.execute("SELECT uuid FROM files ORDER BY {} {}".format(sort_by, "DESC" if reverse else "ASC")) as cursor:
                 return [row[0] for row in await cursor.fetchall()]
     async def check_nonexist(self, uuids: list[str]) -> list[str]:
         """Check if uuids exist, return those not exist """
@@ -289,9 +298,19 @@ class DBConnection(LiresBase):
             exist = [row[0] for row in await cursor.fetchall()]
         return list(set(uuids).difference(exist))
     
-    async def sort_keys(self, keys: list[str], sort_by: str = "time_import", reverse: bool = True) -> list[str]:
+    async def sort_keys(
+        self, keys: list[str], 
+        sort_by: SortByT = "time_import", reverse: bool = True, 
+        sec_sort_by: Optional[SortByT] = None, sec_reverse: bool = False
+    ) -> list[str]:
         """ Sort keys by a field """
-        async with self.conn.execute("SELECT uuid, {} FROM files WHERE uuid IN ({}) ORDER BY {} {}".format(sort_by, ",".join(["?"]*len(keys)), sort_by, "DESC" if reverse else "ASC"), keys) as cursor:
+        validate_sort_type(sort_by, self.Error.LiresInvalidInputError)
+        async with self.conn.execute("SELECT uuid FROM files WHERE uuid IN ({}) ORDER BY {} {}{}{}".format(
+                ",".join(["?"]*len(keys)), 
+                sort_by, "DESC" if reverse else "ASC", 
+                ", " + sec_sort_by if sec_sort_by else "", 
+                " DESC" if sec_sort_by and sec_reverse else " ASC" if sec_sort_by else ""
+            ), keys) as cursor:
             rows = await cursor.fetchall()
         return [row[0] for row in rows]
     
@@ -452,6 +471,13 @@ class DBConnection(LiresBase):
         info.device_modify = __THIS_NODE__
         await self.conn.execute("UPDATE files SET info_str=? WHERE uuid=?", (info.to_string(), uuid))
         await self.set_modified_flag(True)
+        return True
+    
+    async def log_last_read(self, uuid: str) -> bool:
+        if not await self._ensure_exist(uuid): return False
+        await self.logger.debug("(db_conn) Setting last_read for {}".format(uuid))
+        await self.conn.execute("UPDATE files SET last_read=? WHERE uuid=?", (TimeUtils.now_stamp(), uuid))
+        await self._touch_entry(uuid)
         return True
     
     async def remove_entry(self, uuid: str) -> bool:

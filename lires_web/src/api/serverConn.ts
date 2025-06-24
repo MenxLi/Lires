@@ -72,9 +72,12 @@ export class ServerConn {
         return await this.fetcher.get(`/api/status`).then(res=>res.json());
     }
     
-    async getAllKeys(): Promise<string[]>{
-        return await this.fetcher.get(`/api/database/keys`).then(res=>res.json());
+    async getAllKeys(sortBy = 'time_import'): Promise<string[]>{
+        return await this.fetcher.get(`/api/database/keys`, {
+            sort_by: sortBy,
+        }).then(res=>res.json());
     };
+
     async getAllTags(): Promise<string[]>{
         return await this.fetcher.get(`/api/database/tags`).then(res=>res.json());
     };
@@ -157,7 +160,12 @@ export class ServerConn {
         return await this.fetcher.post(`/api/datainfo-supp/note-update/${uid}`, {
             content: content,
         }).then((_) => true);
-        
+    }
+
+    async logDatapointRead(uid: string): Promise<boolean>{
+        return await this.fetcher.post(`/api/dataman/log-read`, {
+            uuid: uid,
+        }).then((_) => true);
     }
 
     async query({
@@ -165,17 +173,20 @@ export class ServerConn {
         searchBy = "title", 
         searchContent = "", 
         maxResults = 9999,
+        sortBy = "time_import",
     }: {
         tags?: string[],
         searchBy?: SearchType,
         searchContent?: string,
         maxResults?: number,
+        sortBy?: string,
     } = {}): Promise<SearchResult>{
         return await this.fetcher.post(`/api/filter/basic`, {
             tags: tags,
             search_by: searchBy,
             search_content: searchContent,
             top_k: maxResults,
+            sort_by: sortBy,
         }).then(res=>res.json());
     }
 

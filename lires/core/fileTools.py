@@ -333,6 +333,9 @@ class FileManipulator(LiresBase):
         assert (data:=await self.conn.get(self.uuid)) is not None
         return data["time_modify"]
     
+    async def log_read(self):
+        await self.conn.log_last_read(self.uuid)
+    
     async def delete_entry(self, create_backup = True) -> bool:
         """
         Will delete the entry from the database, and delete the file and misc folder if exist.

@@ -8,7 +8,7 @@ from .fileTools import FileManipulator
 from .dbConn import DBFileInfo, DBConnection
 from .base import LiresBase
 from ..vector.database import VectorDatabase
-from ..types.dataT import DataPointSummary
+from ..types.dataT import DataPointSummary, SortByT
 
 class DataCore(LiresBase):
     logger = LiresBase.loggers().core
@@ -256,12 +256,16 @@ class DataBase(DataCore):
     # query statistics
     async def count(self) -> int:
         return await self.conn.size()
+
     async def tags(self) -> DataTags:
         return DataTags(await self.conn.tags())
+
     async def authors(self) -> list[str]:
         return await self.conn.authors()
-    async def keys(self) -> List[str]:
-        return await self.conn.keys(sortby="time_import", reverse=True)
+
+    async def keys(self, sort_by: Optional[SortByT] = None) -> List[str]:
+        return await self.conn.keys(sort_by=sort_by, reverse=True)
+
     async def has(self, uuid: str) -> bool:
         return await self.conn.get(uuid) is not None
     

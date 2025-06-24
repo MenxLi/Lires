@@ -83,16 +83,19 @@ export const useUIStateStore = defineStore(
                 // update shownDataUIDs, which is used to control the display of data cards
                 // Should call this function manually, because it involves async operation (searching)
                 const dataStore = useDataStore();
+                const settingsStore = useSettingsStore();
                 this.tagStatus.all = dataStore.allTags;     // in case tag pool are updated from the backend
-                console.log("DEBUG: updateShownData() is called.")
+                console.log("DEBUG: updateShownData() is called, tags:", this.tagStatus.checked, "searchBy:", this.searchState.searchBy, "searchContent:", this.searchState.content, "sortBy:", settingsStore.sortBy);
                 useConnectionStore().conn.query(
                     {
                         tags: Array.from(this.tagStatus.checked),
                         searchBy: this.searchState.searchBy,
                         searchContent: this.searchState.content,
+                        sortBy: settingsStore.sortBy,
                     }
                 ).then(
                     (res) => {
+                        console.debug("DEBUG: updateShownData() got response:", res);
                         this.shownDataUIDs = res.uids;
                         this.shownDataScores = res.scores;
                     }
@@ -253,6 +256,7 @@ export const useSettingsStore = defineStore(
                 __show3DScatterPlot: (localStorage.getItem("show3DScatterPlot") || "false") === "true",
                 __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
                 __numItemsPerPage: localStorage.getItem("numItemsPerPage") || "50",
+                __sortBy: localStorage.getItem("sortBy") || "time_import", 
 
                 // backend host and port are stored in sessionStorage, 
                 // unless user change it manually when login or via url parameters, 
@@ -288,7 +292,10 @@ export const useSettingsStore = defineStore(
             },
             numItemsPerPage(): number{
                 return parseInt(this.__numItemsPerPage);
-            }
+            }, 
+            sortBy(): string{
+                return this.__sortBy;
+            },
         },
         "actions": {
             setEncKey(key: string, keep: boolean | undefined = undefined){
@@ -326,6 +333,10 @@ export const useSettingsStore = defineStore(
                 this.__numItemsPerPage = num.toString();
                 localStorage.setItem("numItemsPerPage", num.toString());
             },
+            setSortBy(sortby: string){
+                this.__sortBy = sortby;
+                localStorage.setItem("sortBy", sortby);
+            }, 
 
             // no corresponding setter for the following getter
             backend(): string {
