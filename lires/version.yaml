@@ -929,3 +929,17 @@ version_history:
       - Incomplete author name search
       - Allow parsing on empty author
       - Online bibtex template
+  1.8.7:
+    - Features:
+      - Reader tab
+      - Disallow robot
+    - Style:
+      - Article block style improvement
+    - Fixes:
+      - Fix log level handling for above 3.11
+      - Content type check for Pdfjs handler
+      - Ensure utf-8 encoding for text files
+      - Improve exit hook for windows
+      - Fix vue warnings for table
+    - Development (break):
+      - Follow pep8 style function naming
