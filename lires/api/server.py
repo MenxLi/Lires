@@ -2,9 +2,8 @@ from __future__ import annotations
 from .common import LiresAPIBase
 from typing import TYPE_CHECKING, Optional, Any, Literal, TypedDict
 import aiohttp, json, os
-import deprecated
 from lires.utils import random_alphanumeric
-from lires.types.dataT import DataPointSummary
+from lires.types.dataT import DataPointSummary, SortByT
 if TYPE_CHECKING:
     from lires.core.dataClass import DataPointSummary
     from lires_server.types import ServerStatus
@@ -147,8 +146,8 @@ class ServerConn:
     async def get_all_tags(self) -> list[str]:
         return await self.__c.get("/api/database/tags")
 
-    async def get_all_keys(self) -> list[str]:
-        return await self.__c.get("/api/database/keys")
+    async def get_all_keys(self, sort_by: Optional[SortByT] = None) -> list[str]:
+        return await self.__c.get("/api/database/keys", {"sort_by": sort_by} if sort_by is not None else {})
 
     async def get_datapoint_summary(self, uuid: str) -> DataPointSummary:
         data = await self.__c.get(f"/api/datainfo/{uuid}")
@@ -237,6 +236,7 @@ class ServerConn:
         search_by: SearchType = 'title',
         search_content: str = '',
         max_results: int = 99999,
+        sort_by: Optional[SortByT] = None,
     ) -> SearchRes:
         """ The main entry point for searching in the server. """
         params = {
@@ -245,4 +245,6 @@ class ServerConn:
             "search_content": search_content,
             "top_k": max_results,
         }
+        if sort_by is not None:
+            params["sort_by"] = sort_by
         return await self.__c.post("/api/filter/basic", params)

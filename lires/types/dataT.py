@@ -12,7 +12,7 @@ def validate_sort_type(sort_type: str | SortByT, error_class = ValueError) -> So
     """
     if sort_type not in get_args(SortByT):
         raise error_class(f"Invalid sort type: {sort_type}")
-    return sort_type
+    return sort_type    # type: ignore
 
 @dataclass
 class DataPointSummary():

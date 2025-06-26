@@ -203,7 +203,7 @@ class DBConnection(LiresBase):
                     doc_ext TEXT NOT NULL,
                     misc_dir TEXT, 
                     
-                    last_read REAL NOT NULL DEFAULT 0,
+                    last_read REAL NOT NULL DEFAULT 0
                 )
                 """)
                 await self.set_modified_flag(True)

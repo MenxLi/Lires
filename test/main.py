@@ -91,7 +91,7 @@ if __name__ == "__main__":
     
     _report_file = os.path.join(__this_dir, "_cache", "output", "report.html")
     _test_case_dir = os.path.join(__this_dir, "cases")
-    _test_cmd = f"pytest {'-s' if args.verbose else ''} --html={_report_file} {_test_case_dir}"
+    _test_cmd = f"pytest {'-s' if args.verbose else ''} --pdb --html={_report_file} {_test_case_dir}"
     try:
         subprocess.check_call(_test_cmd, shell=True)
     except Exception as e:
