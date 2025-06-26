@@ -41,7 +41,6 @@ class Fetcher {
             }
             form.append(key, value);
         }
-        console.debug(body);
         return await this._fetch(`${this._baseUrlGetter()}${path}`, 
         {
             method: 'POST',

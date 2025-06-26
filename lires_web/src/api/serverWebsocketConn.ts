@@ -19,18 +19,20 @@ window.g_eventHooks = __global_eventHooks
 export function registerServerEvenCallback( 
     eventType: Event['type'] | Event['type'][], 
     eventReactFn: (arg: Event)=>void)
-    {
+{
+    const reactFn = (arg: Event) => {
+        console.debug(`[Server event] - [${eventType}]`, arg);
+        eventReactFn(arg);
+    }
     if (Array.isArray(eventType)){
         for (const et of eventType){
-            registerServerEvenCallback(et, eventReactFn);
+            registerServerEvenCallback(et, reactFn);
         }
         return;
     }
-    if (__global_eventHooks[eventType] === undefined){
-        __global_eventHooks[eventType] = [];
-    }
-    if (!__global_eventHooks[eventType].includes(eventReactFn)){
-        __global_eventHooks[eventType].push(eventReactFn);
+    __global_eventHooks[eventType] = __global_eventHooks[eventType] || [];
+    if (!__global_eventHooks[eventType].includes(reactFn)){
+        __global_eventHooks[eventType].push(reactFn);
     }
 }
 

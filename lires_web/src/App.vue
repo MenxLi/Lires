@@ -136,6 +136,11 @@
         const uid = (event as Event_Data).uuid!
         dataStore.database.delete(uid).then(()=>{
             console.log("DEBUG: delete entry update UI")
+            // if the deleted data is focused, clear the focus
+            if (uiState.unfoldedDataUIDs.includes(uid)){
+                console.log("DEBUG: delete entry clear focus")
+                uiState.unfoldedDataUIDs = uiState.unfoldedDataUIDs.filter((uid_)=>uid_ !== uid);
+            }
             uiState.updateShownData();
         })
     })
