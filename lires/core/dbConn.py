@@ -4,7 +4,7 @@ Sqlite connection interface
 from __future__ import annotations
 import json, os, uuid, asyncio
 import typing
-from typing import TypedDict, Optional, TYPE_CHECKING
+from typing import TypedDict, Optional
 import dataclasses
 import platform
 import aiosqlite
@@ -73,6 +73,8 @@ class DBFileRawInfo(TypedDict):
     time_modify: float  # Time modified, float
     info_str: str       # Info string, json serializable string of DocInfo
     doc_ext: FileTypeT  # Document file type
+    misc_dir: str       # Miscellaneous directory, string, **Deprecated**, should always be empty
+    last_read: float    # Last read time, float (should be set to time imported by default)
 
 def parse_list(s: str) -> list[str]:
     if s == "": return []
@@ -98,6 +100,8 @@ class DBFileInfo(TypedDict):
     time_modify: float  # Time modified, float
     info_str: str 
     doc_ext: FileTypeT
+    misc_dir: Optional[str]  # Miscellaneous directory, string, can be empty
+    last_read: float    # Last read time
 
 
 __THIS_NODE__ = platform.node()
@@ -269,7 +273,9 @@ class DBConnection(LiresBase):
             "time_import": row[11],
             "time_modify": row[12],
             "info_str": row[13],
-            "doc_ext": row[14]
+            "doc_ext": row[14], 
+            "misc_dir": r if (r:= row[15]) else None, 
+            "last_read": row[16],  
         }
 
     async def size(self) -> int:
@@ -353,8 +359,8 @@ class DBConnection(LiresBase):
             await self.conn.execute("DELETE FROM files WHERE uuid=?", (item_raw["uuid"],))
         await self.conn.execute(
             """
-            INSERT INTO files (uuid, bibtex, type, title, year, publication, authors, tags, url, abstract, comments, time_import, time_modify, info_str, doc_ext)
-            VALUES (?,?,?, ?,?,?,?, ?,?,?, ?,?,?, ?,?)
+            INSERT INTO files (uuid, bibtex, type, title, year, publication, authors, tags, url, abstract, comments, time_import, time_modify, info_str, doc_ext, misc_dir, last_read)
+            VALUES (?,?,?, ?,?,?,?, ?,?,?, ?,?,?, ?,?,?, ?)
             """,
             (
                 item_raw["uuid"],
@@ -371,7 +377,9 @@ class DBConnection(LiresBase):
                 item_raw["time_import"],
                 item_raw["time_modify"],
                 item_raw["info_str"],
-                item_raw["doc_ext"]
+                item_raw["doc_ext"], 
+                item_raw['misc_dir'], 
+                item_raw['last_read']
             ))
                                 
         await self.set_modified_flag(True)
@@ -450,10 +458,12 @@ class DBConnection(LiresBase):
                 "url": url,
                 "abstract": abstract,
                 "comments": comments,
-                "time_import": TimeUtils.now_stamp(),
-                "time_modify": TimeUtils.now_stamp(),
+                "time_import": (time_now:=TimeUtils.now_stamp()),
+                "time_modify": time_now,
                 "info_str": doc_info.to_string(),
-                "doc_ext": doc_ext
+                "doc_ext": doc_ext, 
+                'misc_dir': '',         # always empty, deprecated. check misc_dir in fm, TODO: remove this field in next version
+                'last_read': time_now
             })
             # add cache
             await self.cache.add_tag_cache(uid, tags)
@@ -476,8 +486,9 @@ class DBConnection(LiresBase):
     async def log_last_read(self, uuid: str) -> bool:
         if not await self._ensure_exist(uuid): return False
         await self.logger.debug("(db_conn) Setting last_read for {}".format(uuid))
-        await self.conn.execute("UPDATE files SET last_read=? WHERE uuid=?", (TimeUtils.now_stamp(), uuid))
-        await self._touch_entry(uuid)
+        async with DB_MOD_LOCK:
+            await self.conn.execute("UPDATE files SET last_read=? WHERE uuid=?", (TimeUtils.now_stamp(), uuid))
+            await self._touch_entry(uuid)
         return True
     
     async def remove_entry(self, uuid: str) -> bool:
