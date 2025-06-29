@@ -71,6 +71,10 @@ __essential_config_keys = []  # keys that must be in the configuration file
 __g_config: Optional[LiresConfT] = None     # buffer
 def get_conf() -> LiresConfT:
     global __g_config, CONF_FILE_PATH
+
+    if not os.path.exists(CONF_FILE_PATH):
+        generate_default_conf()
+
     if __g_config is None:
         with open(CONF_FILE_PATH, "r", encoding="utf-8") as conf_file:
             read_conf = json.load(conf_file)
