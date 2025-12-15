@@ -943,3 +943,10 @@ version_history:
       - Fix vue warnings for table
     - Development (break):
       - Follow pep8 style function naming
+  1.8.8:
+    - Features: 
+      - Log reading activity
+      - Allow sorting by last read time
+    - Fixes:
+      - Delete entry will clear info panel
+      - Generate default configuration file if not exists

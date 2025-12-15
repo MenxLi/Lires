@@ -10,14 +10,13 @@
 
 Installation:  
 ```bash
-pip install 'Lires[all]'
+pip install 'Lires[core]'
 ```
 
 Start the services:  
 ```bash
 lires registry  # Registry server, for service discovery
 lires log       # Log server, collect logs from other servers
-lires ai        # AI server, offload heavy computation tasks
 lires feed      # Feed server, collect feeds
 ```
 

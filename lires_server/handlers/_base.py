@@ -296,7 +296,7 @@ class ReverseProxyHandlerBase(RequestHandlerBase):
     """
     NOT TESTED!
     """
-    SUPPORTED_METHODS = ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"]
+    SUPPORTED_METHODS = ("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
 
     async def get(self, *args, **kwargs): await self.handle_request()
     async def post(self, *args, **kwargs): await self.handle_request()
