@@ -22,7 +22,6 @@
     );
 
     const serverConn = useConnectionStore().conn;
-    const aiSummaryParagraph = ref<HTMLParagraphElement | null>(null);
     const aiSummary = ref<string>('');
 
     function requestAISummary(force: boolean = false){
@@ -206,7 +205,7 @@
                     <b>AI Summary</b>
                     <div class="button" @click="requestAISummary(true)">&#8635;</div>
                 </div>
-                <p id="aiSummary" ref="aiSummaryParagraph">{{ aiSummary }}</p>
+                <p id="aiSummary">{{ aiSummary }}</p>
             </div>
             <details>
                 <summary><b>Related Articles</b></summary>

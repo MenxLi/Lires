@@ -10,7 +10,6 @@
     import type { PlotPoints3D } from '@/state/interface';
 
     const dataStore = useDataStore();
-    const plot3DRef = ref(null as any);
     const uiState = useUIStateStore();
     const settingsStore = useSettingsStore();
 
@@ -172,7 +171,7 @@
 <template>
     <div id="main-filtervis">
         <div id="plot3dDiv" v-if="settingsStore.show3DScatterPlot">
-            <Plot3d :data="plotPoints?plotPoints:[]" ref="plot3DRef"></Plot3d>
+            <Plot3d :data="plotPoints?plotPoints:[]"></Plot3d>
             <div id="loadingDiv" class="full" v-if="!dataObtained || !feats">
                 <LoadingWidget v-if="featsRaw === null"></LoadingWidget>
                 <p class="status" v-else>Data not ready</p>

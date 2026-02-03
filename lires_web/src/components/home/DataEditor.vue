@@ -219,7 +219,6 @@
 
     // Drag and drop to insert bibtex or file
     const isInDrag = ref(false);
-    const dataEditorComponent = ref<HTMLDivElement | null>(null);
     const __onDragover = (e: DragEvent) => {
         e.preventDefault();
         isInDrag.value = true;
@@ -290,7 +289,7 @@
         @on-accept="save" @on-cance="close" @on-close="close"
     >
         <div 
-            id="data-editor-main" ref="dataEditorComponent" 
+            id="data-editor-main" 
             @dragover="__onDragover" @drop="__onDragDrop" @dragend="__onDragEnd"
         >
             <div v-if="!isInDrag">

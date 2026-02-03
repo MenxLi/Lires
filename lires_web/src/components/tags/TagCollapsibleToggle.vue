@@ -34,7 +34,6 @@
         return buttonClass
     })
 
-    const button = ref(null);
     const collapsed = computed(() => !props.tagStatus.unfolded.has(props.identifier))
     const triangleClass = computed(() => collapsed.value?"triangle-right":"triangle-down rotate90in")
     function onClickButton(_: Event){
@@ -80,7 +79,7 @@
 
 <template>
     <div class="row" ref="rowDiv">
-        <div id="button" :class="buttonClass" ref="button" @click="onClickButton">
+        <div id="button" :class="buttonClass" @click="onClickButton">
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
         <div class="toggleText">

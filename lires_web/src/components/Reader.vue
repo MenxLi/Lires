@@ -108,9 +108,6 @@ export default {
         }
     }
 
-    // preview
-    const readerBody = ref<typeof ReaderBody | null>(null);
-
     onMounted(() => {
         // empty database check 
         console.log("Reader mounted");
@@ -154,7 +151,7 @@ export default {
         </div>
     </Toolbar>
     <div id="main-reader" class="gradIn">
-        <ReaderBody :datapoint="(datapoint as DataPoint)" :layoutType="layoutType" ref="readerBody"></ReaderBody>
+        <ReaderBody :datapoint="(datapoint as DataPoint)" :layoutType="layoutType"></ReaderBody>
     </div>
 </template>
 

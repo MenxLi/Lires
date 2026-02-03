@@ -50,7 +50,6 @@
 
     // template refs
     const dataCard = ref<HTMLElement | null>(null);
-    const initDiv = ref<HTMLElement | null>(null);
     const moreDiv = ref<HTMLElement | null>(null);
     const moreComponent = ref<typeof FileRowMore | null>(null);
 
@@ -203,7 +202,7 @@
         @click="clickOnRow" @mouseover="isDataCardHover=true" @mouseleave="isDataCardHover=false" 
         ref="dataCard" :style="{backgroundColor: datacardBackgroundColor}">
 
-        <div id="init" class="row" ref="initDiv">
+        <div id="init" class="row">
             <div class="left" :style="{
                 display: 'flex',
                 flexDirection: 'row',

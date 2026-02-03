@@ -27,7 +27,6 @@
     }
 
     const toggled = ref(false);
-    const button = ref(null);
     const triangleClass = computed(() => toggled.value?"triangle-down rotate90in":"triangle-right")
     function onClickButton(_: Event){
         toggled.value = !toggled.value;
@@ -37,7 +36,7 @@
 
 <template>
     <div class="row">
-        <div id="button" :class="buttonClass" ref="button" @click="onClickButton">
+        <div id="button" :class="buttonClass" @click="onClickButton">
             <div v-if="Object.keys(props.children).length !== 0" :class="triangleClass"></div>
         </div>
         <Toggle 
