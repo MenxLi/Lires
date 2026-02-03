@@ -121,7 +121,7 @@
             authorPapers.value = [];
         }
         // remove self from authorPapers
-        authorPapers.value = authorPapers.value.filter((dp)=>dp.summary.uuid != props.datapoint.summary.uuid);
+        authorPapers.value = authorPapers.value.filter((dp)=>dp.summary.uuid !== props.datapoint.summary.uuid);
         if (showAuthorPapers.value === author){
             showAuthorPapers.value = "";
         }

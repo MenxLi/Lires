@@ -48,28 +48,11 @@ export const useUIStateStore = defineStore(
                 // global popup component, need to be initialized in App.vue
                 popupValues : {} as Record<string, PopupValue>,
 
-                // global database loading status
-                databaseLoadingStatus: {
-                    nCurrent: 0,
-                    nTotal: -1,
-                },
-
                 // global data editor status
                 dataEditorOpened: false,
             }
         },
         getters: {
-            databaseLoadingProgress(): number {
-                if (this.databaseLoadingStatus.nTotal === -1){
-                    if (this.databaseLoadingStatus.nCurrent === 0) return 0.0;
-                    else return 1.0;
-                }
-                else{
-                    return this.databaseLoadingStatus.nCurrent / this.databaseLoadingStatus.nTotal;
-                }
-
-            }, 
-            
             focusedDataUID(): string | null {
                 if (this.unfoldedDataUIDs.length === 0){
                     return null;
@@ -136,20 +119,17 @@ export const useUIStateStore = defineStore(
             reloadDatabase(){
                 useDataStore().reload(
                     () => {
-                        this.databaseLoadingStatus.nCurrent = 0; // databaseLoadingStatus get unused for now
                         useDataStore().database.clear();
                         // clear shown data, without querying the backend
                         this.shownDataUIDs = [];
                         this.shownDataScores = [];
                     },
                     () => {
-                        this.databaseLoadingStatus.nTotal = -1
                         this.tagStatus.all = useDataStore().database.allTags();
                         this.updateShownData(); 
                     },
                     () => {
                         this.showPopup(`Failed to load database from: ${useConnectionStore().conn.baseURL}`, "alert");
-                        this.databaseLoadingStatus.nTotal = -1
                     },
                 )
 

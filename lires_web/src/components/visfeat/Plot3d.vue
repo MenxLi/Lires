@@ -2,25 +2,29 @@
 <script setup lang="ts">
     import { ref, computed, onMounted, watch } from 'vue';
     import { ThemeMode, deepCopy } from '../../core/misc';
-    import Plotly from 'plotly.js-dist';
+    import type { Layout, Config, PlotlyHTMLElement, Data as PlotlyData } from 'plotly.js';
     import type { PlotPoints3D } from '@/state/interface';
 
-    const plotlyChart = ref(null as any);
+    // Type for the Plotly static object
+    type PlotlyModule = typeof import('plotly.js');
+
+    const plotlyChart = ref<PlotlyHTMLElement | null>(null);
+    let Plotly: PlotlyModule | null = null;
 
     const props = defineProps<{
         data: PlotPoints3D[];
     }>();
 
-    const pointsData = computed(() => {
+    const pointsData = computed((): Partial<PlotlyData>[] => {
         const data = props.data;
         const points = data.map((d) => {
             return {
                 x: d.x,
                 y: d.y,
                 z: d.z,
-                mode: 'markers',
-                type: 'scatter3d',
-                hoverinfo: 'text',
+                mode: 'markers' as const,
+                type: 'scatter3d' as const,
+                hoverinfo: 'text' as const,
                 hoverlabel: {
                     bgcolor: '#181818', // transparent background
                     font: { color: 'white' }
@@ -29,14 +33,14 @@
                 marker: {
                     size: 3.5,
                     opacity: d.opacity,
-                    color: d.color,
+                    color: d.color ?? undefined,
                 },
             };
         });
         return points;
     });
 
-    const lightlayout = {
+    const lightlayout: Partial<Layout> = {
         // title: '3D Scatter Plot',
         autosize: true,
         margin: {
@@ -48,21 +52,21 @@
         showlegend: false,
         scene: {
             xaxis: {
-                title: '',
+                title: {text: ''},
                 showticklabels: false,
                 tickfont: {
                     size: 10
                 },
             },
             yaxis: {
-                title: '',
+                title: {text: ''},
                 showticklabels: false,
                 tickfont: {
                     size: 10
                 },
             },
             zaxis: {
-                title: '',
+                title: {text: ''},
                 showticklabels: false,
                 tickfont: {
                     size: 10
@@ -89,7 +93,7 @@
         return theme.value === 'dark'?darklayout:lightlayout;
     })
 
-    const config = {
+    const config: Partial<Config> = {
         // Other buttons: ['zoom3d', 'pan3d', 'orbitRotation', 'tableRotation', \
         // 'handleDrag3d', 'resetCameraDefault3d', 'resetCameraLastSave3d', 'hoverClosest3d']
         modeBarButtonsToRemove: ['toImage', 'sendDataToCloud', 'resetCameraLastSave3d', 'resetCameraDefault3d'],
@@ -100,6 +104,8 @@
 
     let cameraRecord = null as any;
     function update(){
+        if (!Plotly) return;
+
         // BUG: somehow cannot get camera on mobile devices without using relayout event,
         //      however, the event is not triggered on touch devices with dragging.
         // maybe related to: https://github.com/plotly/plotly.js/issues/5560
@@ -114,13 +120,16 @@
         // Restore the camera position after the update
         const currentScene = plotlyChart.value.layout.scene;
         if (currentScene && cameraRecord) {
-            Plotly.relayout(plotlyChart.value!, 'scene.camera', cameraRecord);
+            Plotly.relayout(plotlyChart.value!, {'scene.camera': cameraRecord} as any);
         }
     }
     defineExpose({update});
 
-    onMounted(() => {
-        Plotly.newPlot(plotlyChart.value!, pointsData.value, layout.value, config).then(
+    onMounted(async () => {
+        Plotly = (await import('plotly.js-dist')).default as unknown as PlotlyModule;
+        if (!plotlyChart.value) return;
+
+        Plotly.newPlot(plotlyChart.value, pointsData.value, layout.value, config).then(
             () => {
                 // plotlyChart.value!.on('plotly_relayouting', (e: any) =>{
                 plotlyChart.value!.on('plotly_relayout', (e: any) =>{
@@ -134,7 +143,7 @@
                 })
             }
         )
-        plotlyChart.value!.on('plotly_click', function(data: any){
+        plotlyChart.value.on('plotly_click', function(data: any){
             if (!data.points){ console.log('Not clicking on any data.') }
             const x = data.points[0].x;
             const y = data.points[0].y;

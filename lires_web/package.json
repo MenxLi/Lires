@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.2.0",
+    "@types/plotly.js": "^3.0.9",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vitejs/plugin-vue-jsx": "^5.1.4",
     "fs-extra": "^11.3.3",
