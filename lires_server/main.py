@@ -90,6 +90,7 @@ class Application(tornado.web.Application):
             (r"/api/summary", SummaryHandler),
             (r"/api/status", StatusHandler),
             (r"/api/auth", AuthHandler),
+            (r"/api/proxy/arxiv", ArxivProxyHandler),
 
             (r"/api/filter/basic", BasicFilterHandler),
 

@@ -392,6 +392,13 @@ export class ServerConn {
         return await this.fetcher.get(`/api/feed/categories`).then(res=>res.json());
     }
 
+    // =============================================
+    //                 External
+    // =============================================
+    async proxyArxiv(params: Record<string, string>): Promise<string>{
+        return await this.fetcher.get(`/api/proxy/arxiv`, params).then(res=>res.text());
+    }
+
     // ---- info ----
     async changelog(): Promise<Changelog>{
         return await this.fetcher.get(`/api/info/changelog`).then(res=>res.json());

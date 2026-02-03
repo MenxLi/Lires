@@ -22,3 +22,4 @@ from .misc import *
 from .websocket import *
 from .feed import *
 from .ssr import *
+from .proxy import ArxivProxyHandler

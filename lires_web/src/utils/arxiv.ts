@@ -1,4 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
+import { useConnectionStore } from '../state/store';
 
 export interface ArxivArticle {
   id: string;
@@ -17,10 +18,13 @@ export async function fetchArxivFeed(
   sortOrder: string = 'descending',
 ): Promise<ArxivArticle[]> {
   // const apiUrl = 'https://export.arxiv.org/api/query?search_query=cat:cs.CV&sortBy=submittedDate&sortOrder=descending&max_results=10';
-  const query = `search_query=${encodeURIComponent(searchQuery)}&sortBy=${sortBy}&sortOrder=${sortOrder}&max_results=${maxResults}`;
-  const apiUrl = `https://export.arxiv.org/api/query?${query}`;
-  const response = await fetch(apiUrl, { method: 'GET', });
-  const xmlData = await response.text();
+  const conn = useConnectionStore().conn;
+  const xmlData = await conn.proxyArxiv({
+    search_query: searchQuery,
+    sortBy: sortBy,
+    sortOrder: sortOrder,
+    max_results: maxResults.toString()
+  });
 
   const parser = new XMLParser();
   const parsedData = parser.parse(xmlData);
@@ -63,9 +67,8 @@ export async function fetchArxivFeed(
 export async function fetchArxivPaperByID(
   id: string,   // e.g. 2103.00001
 ): Promise<ArxivArticle> {
-  const apiUrl = `https://export.arxiv.org/api/query?id_list=${id}`;
-  const response = await fetch(apiUrl, { method: 'GET', });
-  const xmlData = await response.text();
+  const conn = useConnectionStore().conn;
+  const xmlData = await conn.proxyArxiv({ id_list: id });
 
   const parser = new XMLParser();
   const parsedData = parser.parse(xmlData);
