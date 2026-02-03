@@ -86,12 +86,34 @@ export default {
         useConnectionStore().wsConn.resetReconnect();
     }
 
+    // swipe gestures for mobile to toggle tag panel
+    const touchStart = {x: 0, y: 0};
+    function onTouchStart(e: TouchEvent){
+        touchStart.x = e.changedTouches[0].screenX;
+        touchStart.y = e.changedTouches[0].screenY;
+    }
+    function onTouchEnd(e: TouchEvent){
+        const dx = e.changedTouches[0].screenX - touchStart.x;
+        const dy = e.changedTouches[0].screenY - touchStart.y;
+        if (Math.abs(dx) > Math.abs(dy) * 2 && Math.abs(dx) > 50){
+            if (dx > 0 && touchStart.x < 30 && !settingsStore.showTagPanel){
+                // swipe right from left edge to open
+                settingsStore.setShowTagPanel(true);
+            }
+            else if (dx < 0 && settingsStore.showTagPanel && touchStart.x < window.innerWidth / 2){
+                // swipe left to close
+                settingsStore.setShowTagPanel(false);
+            }
+        }
+    }
+
 </script>
 
 <template>
     <DataEditor ref="dataEditor"></DataEditor>
     <Toolbar :return-home="false" :compact="true"></Toolbar>
-    <div id="main-home" class="gradIn compact">
+    <div id="main-home" class="gradIn compact" 
+        @touchstart="onTouchStart" @touchend="onTouchEnd">
         <div class="horizontal fullHeight">
             <Transition name="left-in">
                 <div id="left-panel" v-if="settingsStore.showTagPanel">
