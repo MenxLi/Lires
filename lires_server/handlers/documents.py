@@ -68,8 +68,11 @@ class DocHandler(RequestHandlerBase):
                 # TODO: check the file type
                 raise tornado.web.HTTPError(400, reason="File extension not allowed")
         
+        # check overwriting
+        overwrite = self.get_argument("overwrite", "false").lower() == "true"
+        
         # add the file to the document
-        if not await dp.fm.add_file_blob(file_data, ext):
+        if not await dp.fm.add_file_blob(file_data, ext, overwrite=overwrite):
             raise tornado.web.HTTPError(409, reason="File already exists")
 
         dp = await db.get(uid)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { onMounted, ref, watch, computed } from 'vue';
+    import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
     import { useRouter } from 'vue-router';
     import NoteEditor from './NoteEditor.vue';
     import { useUIStateStore, useSettingsStore } from '@/state/store';
@@ -25,11 +25,18 @@
         return docHashMark;
     });
 
+    const iframeKey = ref(0); // to force reload iframe
     const isMovingSplitter = ref<boolean>(false);
     const noteEditor = ref<typeof NoteEditor | null>(null);
     // const togglePreview = (state: boolean)=>{ noteEditor.value!.togglePreview(state);}
+    
+    function refresh(){
+        iframeKey.value += 1;
+    }
+    
     defineExpose({
         noteEditor,
+        refresh
     });
 
     function setLayout(layoutType: number){
@@ -47,9 +54,32 @@
             urlHashMark: urlHashMarkParam.value,
         })}`)
     
+    const handleMessage = async (event: MessageEvent) => {
+        if (event.data && event.data.type === 'PDF_SAVE') {
+            const blob = event.data.blob;
+            let filename = event.data.filename || 'annotated.pdf';
+            if (blob) {
+                useUIStateStore().showPopup('Saving annotations...', 'info');
+                try {
+                    const file = new File([blob], filename, { type: 'application/pdf' });
+                    await props.datapoint.uploadDocument(file, true);
+                    useUIStateStore().showPopup('Annotations saved successfully!', 'success');
+                } catch (e) {
+                    console.error(e);
+                    useUIStateStore().showPopup('Failed to save annotations.', 'error');
+                }
+            }
+        }
+    }
+
     // auto set layout when mounted
     onMounted(() => {
         setLayout(props.layoutType);
+        window.addEventListener('message', handleMessage);
+    })
+
+    onUnmounted(() => {
+        window.removeEventListener('message', handleMessage);
     })
 
 </script>
@@ -73,6 +103,7 @@
                 <!-- pointer event should be none when moving splitter, otherwise the iframe will capture the mouse event -->
                 <iframe :src="openDocURL" title="doc" frameborder="0" v-if="datapoint.summary.has_file"
                     :style="{'pointer-events': isMovingSplitter ? 'none' : 'auto'}"
+                    :key="iframeKey"
                 > </iframe>
 
                 <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%" v-else

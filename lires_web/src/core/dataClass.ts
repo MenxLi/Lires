@@ -144,8 +144,8 @@ export class DataPoint {
         })
     }
 
-    uploadDocument(doc: File): Promise<DataInfoT>{
-        return this.conn.uploadDocument(this.summary.uuid, doc);
+    uploadDocument(doc: File, overwrite: boolean = false): Promise<DataInfoT>{
+        return this.conn.uploadDocument(this.summary.uuid, doc, overwrite);
     }
     freeDocument(): Promise<DataInfoT>{
         return this.conn.deleteDocument(this.summary.uuid);

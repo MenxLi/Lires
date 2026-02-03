@@ -271,8 +271,9 @@ export class ServerConn {
     }
 
     /* upload document and return the new datapoint summary */
-    async uploadDocument(uid: string, file: File): Promise<DataInfoT>{
-        return await this.fetcher.put(`/doc/${uid}`, file).then(res=>res.json());
+    async uploadDocument(uid: string, file: File, overwrite: boolean = false): Promise<DataInfoT>{
+        const query = overwrite ? '?overwrite=true' : '';
+        return await this.fetcher.put(`/doc/${uid}${query}`, file).then(res=>res.json());
     }
 
     /* free document and return the new datapoint summary */

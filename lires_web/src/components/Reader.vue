@@ -77,30 +77,25 @@ export default {
     // upload new document
     const fileSelectionBtn = ref<typeof FileSelectButton|null>(null);
     function onUploadNewDocument(f: File){
-        function uploadDocument(){
-            datapoint.value!.uploadDocument(f).then(
+        function uploadDocument(overwrite: boolean = false){
+            datapoint.value!.uploadDocument(f, overwrite).then(
                 (summary)=>{
                     datapoint.value!.update(summary); 
                     uiStateStore.showPopup('Document uploaded', 'success');
+                    if (readerBody.value) readerBody.value.refresh();
                 },
                 ()=>uiStateStore.showPopup('Failed to upload document', 'error')
             )
         }
-        if (datapoint.value!.summary.has_file){
-            datapoint.value!.freeDocument().then(
-                (summary)=>{datapoint.value!.update(summary); uploadDocument()},
-                ()=>uiStateStore.showPopup('Failed to free document', 'error')
-            )
-        }
-        else{
-            uploadDocument();
-        }
+        uploadDocument(true);
     }
 
     // dynamic tab size
     const wstate = useWindowState();
     const toolbarOpsLeft = ref<HTMLDivElement|null>(null);
     const toolbarOpsRight = ref<HTMLDivElement|null>(null);
+    const readerBody = ref<typeof ReaderBody | null>(null);
+
     function setToolbarOpsWidth(){
         if (toolbarOpsLeft.value && toolbarOpsRight.value){
             const rightWidth = toolbarOpsRight.value.getBoundingClientRect().width;
@@ -151,7 +146,7 @@ export default {
         </div>
     </Toolbar>
     <div id="main-reader" class="gradIn">
-        <ReaderBody :datapoint="(datapoint as DataPoint)" :layoutType="layoutType"></ReaderBody>
+        <ReaderBody :datapoint="(datapoint as DataPoint)" :layoutType="layoutType" ref="readerBody"></ReaderBody>
     </div>
 </template>
 

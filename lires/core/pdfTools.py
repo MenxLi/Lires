@@ -9,7 +9,8 @@ from ..config import TMP_DIR
 
 # DEFAULT_PDFJS_DOWNLOADING_URL = "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-4.0.379.tgz"
 # DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.2.67/pdfjs-4.2.67-legacy-dist.zip"
-DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.10.38/pdfjs-4.10.38-dist.zip"
+# DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v4.10.38/pdfjs-4.10.38-dist.zip"
+DEFAULT_PDFJS_DOWNLOADING_URL = "https://github.com/mozilla/pdf.js/releases/download/v5.4.624/pdfjs-5.4.624-dist.zip"
 __pdfviewer_code_snippet = """
 <script>
     // A snippet to modify the default viewer options
@@ -48,9 +49,54 @@ __pdfviewer_code_snippet = """
     }
     }
 
+    function initSaveButton() {
+        // Inject Save Button
+        const addSaveButton = () => {
+            const toolbar = document.getElementById('toolbarViewerRight');
+            if (!toolbar || document.getElementById('saveAnnotatedPdf')) return;
+
+            const btn = document.createElement('button');
+            btn.className = 'toolbarButton';
+            btn.id = 'saveAnnotatedPdf';
+            btn.title = 'Save Annotations';
+            btn.innerHTML = '<span style="font-size: 16px;">💾</span>';
+            btn.style.marginTop = "2px";
+            
+            btn.onclick = async () => {
+                if (!window.PDFViewerApplication) return;
+                try {
+                    const pdfDoc = window.PDFViewerApplication.pdfDocument;
+                    const data = await pdfDoc.saveDocument(pdfDoc.annotationStorage);
+                    const blob = new Blob([data], { type: 'application/pdf' });
+                    
+                    window.parent.postMessage({
+                        type: 'PDF_SAVE',
+                        blob: blob
+                    }, '*');
+                    
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<span style="font-size: 16px;">SAVE</span>'; 
+                    setTimeout(() => btn.innerHTML = originalHTML, 2000);
+                } catch (e) {
+                    console.error(e);
+                    alert("Error saving: " + e);
+                }
+            };
+            toolbar.prepend(btn);
+        };
+
+        const interval = setInterval(() => {
+            if (window.PDFViewerApplication && window.PDFViewerApplication.initialized) {
+                clearInterval(interval);
+                addSaveButton();
+            }
+        }, 500);
+    }
+
     window.onload = function() {
         themeChangeFn();
         document.querySelector("#viewerContainer").classList.add("scrollable");
+        initSaveButton();
     }
 </script>
 <style>

@@ -180,7 +180,7 @@ class ServerConn:
             "uuid": uuid
         }, return_type="text")
     
-    async def upload_document(self, uid: str, file: str | bytes, filename: Optional[str] = None) -> DataPointSummary:
+    async def upload_document(self, uid: str, file: str | bytes, filename: Optional[str] = None, overwrite: bool = False) -> DataPointSummary:
         if isinstance(file, str):
             if not filename:
                 filename = os.path.basename(file)
@@ -188,9 +188,11 @@ class ServerConn:
                 file = f.read()
         else:
             assert filename is not None
+        
+        query = "?overwrite=true" if overwrite else ""
 
         ret = await self.__c.put(
-            f"/doc/{uid}", file, filename, 
+            f"/doc/{uid}{query}", file, filename, 
             return_type="json")
         return DataPointSummary(**ret)
     

@@ -244,11 +244,11 @@ class FileManipulator(LiresBase):
             file_blob = f.read()
         return await self.__add_raw_file_blob(file_blob, doc_ext)
     
-    async def add_file_blob(self, file_blob: bytes, ext: str) -> bool:
+    async def add_file_blob(self, file_blob: bytes, ext: str, overwrite: bool = False) -> bool:
         """
         add binary file to the database, will create the file in the database directory
         """
-        if await self.has_file():
+        if await self.has_file() and not overwrite:
             await self.logger.warning("The file is already existing")
             return False
         if ext not in ACCEPTED_EXTENSIONS:
