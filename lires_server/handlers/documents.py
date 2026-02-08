@@ -17,6 +17,7 @@ class DocHandler(RequestHandlerBase):
                 async with aiofiles.open(file_p, "rb") as f:
                     self.set_header("Content-Type", 'application/pdf; charset="utf-8"')
                     self.set_header("Content-Disposition", "inline; filename={}.pdf".format(uuid))
+                    self.set_header("Content-Length", os.path.getsize(file_p))
                     self.write(await f.read())
                     return
             if file_p.endswith(".html"):

@@ -6,11 +6,21 @@ from ._base import *
 from ..path_config import PDF_VIEWER_DIR
 from lires.core.pdfTools import init_pdf_viewer
 import asyncio
+import sys
+if sys.version_info < (3, 12): 
+    from typing_extensions import override
+else:    
+    from typing import override
 
 asyncio.run(init_pdf_viewer(PDF_VIEWER_DIR))
 class PdfJsHandler(tornado.web.StaticFileHandler, RequestHandlerMixin, print_init_info = False):
     root_dir = PDF_VIEWER_DIR
 
+    @override
+    def get_cache_time(self, path, modified, mime_type):
+        return 60 * 60
+
+    @override
     def set_extra_headers(self, path: str) -> None:
         # file type assurance
         super().set_extra_headers(path)

@@ -1,9 +1,15 @@
-import os, logging, platform
+import os, logging, platform, sys
 from datetime import datetime
 from typing import Union, TypedDict
 from lires_web import LRSWEB_SRC_ROOT
 from lires.version import VERSION
 from lires.utils import UseTermColor
+
+# check python version
+if sys.version_info < (3, 12):
+    from typing_extensions import override
+else:
+    from typing import override
 
 import tornado
 from tornado.httpserver import HTTPServer
@@ -44,6 +50,7 @@ class StaticFileHandler(tornado.web.StaticFileHandler, RequestHandlerMixin, prin
 
 def cachedStaticFileHandlerFactory(cache_seconds):
     class _CacheStaticFileHandler(StaticFileHandler, print_init_info = False):
+        @override
         def get_cache_time(self, path: str, modified: datetime | None, mime_type: str) -> int:
             return cache_seconds
     return _CacheStaticFileHandler
