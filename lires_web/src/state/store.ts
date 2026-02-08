@@ -237,6 +237,9 @@ export const useSettingsStore = defineStore(
                 __readerLayoutType: localStorage.getItem("readerLayoutType") || "2",
                 __numItemsPerPage: localStorage.getItem("numItemsPerPage") || "50",
                 __sortBy: localStorage.getItem("sortBy") || "time_import", 
+                __openaiApiBase: localStorage.getItem("openaiApiBase") || "https://dashscope.aliyuncs.com/compatible-mode/v1",
+                __openaiApiKey: localStorage.getItem("openaiApiKey") || "",
+                __openaiModelName: localStorage.getItem("openaiModelName") || "qwen-plus",
 
                 // backend host and port are stored in sessionStorage, 
                 // unless user change it manually when login or via url parameters, 
@@ -275,6 +278,15 @@ export const useSettingsStore = defineStore(
             }, 
             sortBy(): string{
                 return this.__sortBy;
+            },
+            openaiApiBase(): string{
+                return this.__openaiApiBase;
+            },
+            openaiApiKey(): string{
+                return this.__openaiApiKey;
+            },
+            openaiModelName(): string{
+                return this.__openaiModelName;
             },
         },
         "actions": {
@@ -317,6 +329,18 @@ export const useSettingsStore = defineStore(
                 this.__sortBy = sortby;
                 localStorage.setItem("sortBy", sortby);
             }, 
+            setOpenaiApiBase(url: string){
+                this.__openaiApiBase = url;
+                localStorage.setItem("openaiApiBase", url);
+            },
+            setOpenaiApiKey(key: string){
+                this.__openaiApiKey = key;
+                localStorage.setItem("openaiApiKey", key);
+            },
+            setOpenaiModelName(name: string){
+                this.__openaiModelName = name;
+                localStorage.setItem("openaiModelName", name);
+            },
 
             // no corresponding setter for the following getter
             backend(): string {

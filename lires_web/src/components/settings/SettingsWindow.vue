@@ -7,6 +7,7 @@
     import ConfigShowScatterPlot from './ConfigShowScatterPlot.vue';
     import ConfigPageCapacity from './ConfigPageCapacity.vue';
     import ConfigSort from './ConfigSort.vue';
+    import ConfigOpenAI from './ConfigOpenAI.vue';
 
     import { useDataStore } from '@/state/store';
     const userInfo = useDataStore().user;   // is already a ref
@@ -33,6 +34,7 @@
         <hr>
 
         <ConfigTheme/>
+        <ConfigOpenAI/>
         <ConfigSort />
         <ConfigPageCapacity/>
         <ConfigShowTags/>
