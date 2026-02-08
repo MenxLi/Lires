@@ -54,8 +54,9 @@ export class AiHelper {
 
     async *streamChat(
         messages: AIChatMessage[], 
-        model: string = "qwen-long",
-        systemPrompt?: string
+        model: string = "qwen-plus",
+        systemPrompt?: string, 
+        enalbeSearch: boolean = false
     ) {
         if (!this.client) throw new Error("AI Client not initialized");
 
@@ -64,10 +65,14 @@ export class AiHelper {
             msgList.unshift({ role: 'system', content: systemPrompt });
         }
 
-        const completion = await this.client.chat.completions.create({
+        //@ts-ignore
+        const completion = await this.client.chat.completions.create({  
             model: model,
             messages: msgList.map(m => ({ role: m.role as any, content: m.content })),
-            stream: true
+            stream: true, 
+
+            // Custom parameter for backend to decide whether to perform retrieval-augmented generation
+            enable_search: enalbeSearch, 
         });
 
         for await (const chunk of completion) {

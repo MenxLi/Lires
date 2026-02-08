@@ -16,10 +16,12 @@ const messages = ref<ChatMessage[]>([]);
 const currentSession = ref<ChatSession | null>(null);
 const allSessions = ref<ChatSession[]>([]);
 const userInput = ref('');
+const enableSearch = ref(false);
 const isLoading = ref(false);
 const settingsStore = useSettingsStore();
 const messagesContainer = ref<HTMLElement | null>(null);
 const theme = ref(ThemeMode.isDarkMode()?'dark':'light' as 'dark'|'light')
+const isAtBottom = ref(true);
 
 // Helper
 const aiHelper = new AiHelper(settingsStore.openaiApiKey, settingsStore.openaiApiBase);
@@ -29,10 +31,19 @@ watch(() => [settingsStore.openaiApiKey, settingsStore.openaiApiBase], () => {
     aiHelper.updateConfig(settingsStore.openaiApiKey, settingsStore.openaiApiBase);
 });
 
-const scrollToBottom = async () => {
+const handleScroll = () => {
+    if (!messagesContainer.value) return;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainer.value;
+    // Check if user is near bottom (within 50px tolerance)
+    isAtBottom.value = scrollHeight - (scrollTop + clientHeight) < 50;
+};
+
+const scrollToBottom = async (force = true) => {
     await nextTick();
     if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+        if (force || isAtBottom.value) {
+            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+        }
     }
 };
 
@@ -150,13 +161,13 @@ const sendMessage = async () => {
             content: '', 
             timestamp: Date.now() 
         };
-        messages.value.push(aiMsg);
+        const msgIdx = messages.value.push(aiMsg) - 1;
         
-        const stream = aiHelper.streamChat(history, "qwen-long", systemPrompt);
+        const stream = aiHelper.streamChat(history, settingsStore.openaiModelName, systemPrompt, enableSearch.value);
 
         for await (const chunk of stream) {
-            aiMsg.content += chunk;
-            scrollToBottom();
+            messages.value[msgIdx].content += chunk;
+            scrollToBottom(false);
         }
 
         // Save session after complete
@@ -221,7 +232,7 @@ watch(() => props.datapoint.uid, async (newId) => {
             </div>
         </div>
 
-        <div class="messages" ref="messagesContainer">
+        <div class="messages" ref="messagesContainer" @scroll="handleScroll">
             <div v-if="messages.length === 0" class="empty-state">
                 Ask questions about the paper...
             </div>
@@ -244,13 +255,21 @@ watch(() => props.datapoint.uid, async (newId) => {
         </div>
 
         <div class="input-area">
-            <textarea 
-                v-model="userInput" 
-                @keydown.enter.exact.prevent="sendMessage"
-                placeholder="Ask about this paper (Ctrl+Enter to newline)..."
-                :disabled="isLoading"
-            ></textarea>
-            <button @click="sendMessage" :disabled="isLoading || !userInput.trim()">Send</button>
+            <div class="input-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" v-model="enableSearch">
+                    <span>Enable Search</span>
+                </label>
+            </div>
+            <div class="input-row">
+                <textarea 
+                    v-model="userInput" 
+                    @keydown.enter.exact.prevent="sendMessage"
+                    placeholder="Ask about this paper (Ctrl+Enter to newline)..."
+                    :disabled="isLoading"
+                ></textarea>
+                <button @click="sendMessage" :disabled="isLoading || !userInput.trim()">Send</button>
+            </div>
         </div>
     </div>
 </template>
@@ -331,7 +350,8 @@ watch(() => props.datapoint.uid, async (newId) => {
     padding: 10px 14px;
     border-radius: 12px;
     line-height: 1.5;
-    word-wrap: break-word;
+    word-break: normal;
+    overflow-wrap: break-word;
     white-space: pre-wrap;
     position: relative;
     text-align: left; /* Ensure text internal alignment is left for readability */
@@ -384,7 +404,35 @@ watch(() => props.datapoint.uid, async (newId) => {
     background-color: var(--color-background, #fff);
     border-top: 1px solid var(--color-border, #ddd);
     display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-options {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 4px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9em;
+    cursor: pointer;
+    user-select: none;
+    color: var(--color-text);
+}
+.checkbox-label input {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.input-row {
+    display: flex;
     gap: 10px;
+    width: 100%;
 }
 
 textarea {
