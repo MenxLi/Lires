@@ -2,6 +2,7 @@
     import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
     import { useRouter } from 'vue-router';
     import NoteEditor from './NoteEditor.vue';
+    import ReaderChat from './ReaderChat.vue';
     import { useUIStateStore, useSettingsStore } from '@/state/store';
     import { DataPoint } from '../../core/dataClass';
     import { ThemeMode } from '../../core/misc';
@@ -28,6 +29,18 @@
     const iframeKey = ref(0); // to force reload iframe
     const isMovingSplitter = ref<boolean>(false);
     const noteEditor = ref<typeof NoteEditor | null>(null);
+    const uiStateStore = useUIStateStore();
+    const currentTab = ref<'note' | 'chat'>((uiStateStore.readerActiveTabs[props.datapoint.uid] as 'note' | 'chat') || 'note');
+    
+    watch(currentTab, (newTab) => {
+        uiStateStore.setReaderActiveTab(props.datapoint.uid, newTab);
+    });
+
+    watch(() => props.datapoint.uid, (newUid) => {
+        const tab = uiStateStore.readerActiveTabs[newUid];
+        currentTab.value = tab || 'note';
+    });
+
     // const togglePreview = (state: boolean)=>{ noteEditor.value!.togglePreview(state);}
     
     function refresh(){
@@ -130,7 +143,16 @@
                 </div>
             </template>
             <template v-slot:b>
-                <NoteEditor :datapoint="datapoint" :auto-enable-edit="true" ref="noteEditor"> </NoteEditor>
+                <div class="tab-container">
+                    <div class="tab-header">
+                        <div class="tab-title" :class="{active: currentTab==='note'}" @click="currentTab='note'">Note</div>
+                        <div class="tab-title" :class="{active: currentTab==='chat'}" @click="currentTab='chat'">Chat</div>
+                    </div>
+                    <div class="tab-body">
+                        <NoteEditor v-show="currentTab === 'note'" :datapoint="datapoint" :auto-enable-edit="true" ref="noteEditor"> </NoteEditor>
+                        <ReaderChat v-show="currentTab === 'chat'" :datapoint="datapoint"> </ReaderChat>
+                    </div>
+                </div>
             </template>
         </Splitter>
     </div>
@@ -152,5 +174,51 @@ iframe{
     iframe{
         border-radius: 0px;
     }
+}
+
+.tab-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background-color: var(--color-background);
+}
+.tab-header {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-background-soft);
+    height: 36px;
+    flex-shrink: 0;
+}
+.tab-title {
+    padding: 0 20px;
+    line-height: 36px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--color-text-soft);
+    transition: all 0.2s;
+    user-select: none;
+}
+.tab-title:hover {
+    color: var(--color-text);
+    background-color: var(--color-background-mute);
+}
+.tab-title.active {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    border-top: 2px solid var(--color-text);
+    border-bottom: 1px solid transparent;
+    margin-bottom: -1px;
+}
+.tab-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+.tab-body > :deep(*) {
+    height: 100%;
+    width: 100%;
 }
 </style>

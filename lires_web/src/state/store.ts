@@ -43,6 +43,7 @@ export const useUIStateStore = defineStore(
                 // reader component
                 recentlyReadDataUIDs: [] as string[],
                 preferredReaderLeftPanelWidthPerc: 0.65,
+                readerActiveTabs: {} as Record<string, 'note' | 'chat'>,
                 showMiscPanel: false,
 
                 // global popup component, need to be initialized in App.vue
@@ -101,6 +102,9 @@ export const useUIStateStore = defineStore(
                 if (index !== -1){
                     this.recentlyReadDataUIDs.splice(index, 1);
                 }
+            },
+            setReaderActiveTab(uid: string, tab: 'note' | 'chat'){
+                this.readerActiveTabs[uid] = tab;
             },
             showPopup(
                 content: string, 
