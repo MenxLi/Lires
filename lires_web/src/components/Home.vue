@@ -95,12 +95,12 @@ export default {
     function onTouchEnd(e: TouchEvent){
         const dx = e.changedTouches[0].screenX - touchStart.x;
         const dy = e.changedTouches[0].screenY - touchStart.y;
-        if (Math.abs(dx) > Math.abs(dy) * 2 && Math.abs(dx) > 50){
-            if (dx > 0 && touchStart.x < 30 && !settingsStore.showTagPanel){
+        if (Math.abs(dx) > Math.abs(dy) * 2 && Math.abs(dx) > 20){
+            if (dx > 0 && !settingsStore.showTagPanel){
                 // swipe right from left edge to open
                 settingsStore.setShowTagPanel(true);
             }
-            else if (dx < 0 && settingsStore.showTagPanel && touchStart.x < window.innerWidth / 2){
+            else if (dx < 0 && settingsStore.showTagPanel){
                 // swipe left to close
                 settingsStore.setShowTagPanel(false);
             }
@@ -263,9 +263,9 @@ export default {
     }
 
     .left-in-enter-active, .left-in-leave-active {
-        transition: all 0.075s ease-in-out;
+        transition: all 0.2s ease-in-out;
     }
-    .left-in-enter-from{
+    .left-in-enter-from, .left-in-leave-to {
         opacity: 0;
         transform: translateX(-10%);
     }
