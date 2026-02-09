@@ -47,6 +47,7 @@ const scrollToBottom = async (force = true) => {
 };
 
 const loadChats = async (paperId: string) => {
+    if (!paperId.trim()) return;
     const data = await chatStorage.getPaperChats(paperId);
     if (data) {
         allSessions.value = data.sessions.sort((a, b) => b.updatedAt - a.updatedAt);
@@ -67,6 +68,7 @@ const loadChats = async (paperId: string) => {
 };
 
 const createNewSession = async (paperId: string) => {
+    if (!paperId.trim()) return;
     const newSession: ChatSession = {
         id: crypto.randomUUID(),
         title: `Chat ${allSessions.value.length + 1}`,
