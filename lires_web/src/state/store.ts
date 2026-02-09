@@ -243,7 +243,7 @@ export const useSettingsStore = defineStore(
                 __sortBy: localStorage.getItem("sortBy") || "time_import", 
                 __openaiApiBase: localStorage.getItem("openaiApiBase") || "https://dashscope.aliyuncs.com/compatible-mode/v1",
                 __openaiApiKey: localStorage.getItem("openaiApiKey") || "",
-                __openaiModelName: localStorage.getItem("openaiModelName") || "qwen-plus",
+                __openaiModelName: localStorage.getItem("openaiModelName") || "qwen-long",  // currently only qwen-long support file uploading
 
                 // backend host and port are stored in sessionStorage, 
                 // unless user change it manually when login or via url parameters, 

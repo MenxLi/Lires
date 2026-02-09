@@ -108,7 +108,18 @@ const getFileID = async (fileIdFromStorage: string | null): Promise<string> => {
         const docUrl = props.datapoint.getRawDocURL(); 
         const response = await fetch(docUrl);
         const blob = await response.blob();
-        const file = new File([blob], props.datapoint.title + ".pdf", { type: 'application/pdf' });
+        const extension = props.datapoint.summary['file_type'];
+        let mimetype = '';
+        switch (extension) {
+            case '.pdf':
+                mimetype = 'application/pdf'; break;
+            case '.html':
+                mimetype = 'text/html'; break;
+            default:
+                mimetype = 'application/octet-stream';
+        }
+
+        const file = new File([blob], props.datapoint.uid + extension, { type: mimetype });
 
         return await aiHelper.uploadFile(file);
     } catch (error) {
