@@ -160,6 +160,9 @@
     }
 
     const preview = ref(true);
+    function isSpecialMiscFile(fname: string): boolean{
+        return fname == 'chat_history.json';
+    }
     function linkOnNote(content: string): boolean{
         return mdText.value.indexOf(content) >= 0;
     }
@@ -269,7 +272,7 @@
             <div v-for="file in miscFiles" :key="file.fname" class="misc-file">
                 <div>
                     <a :href="file.url" target="_blank">{{file.fname}}</a>
-                    <label style="color: var(--color-text-soft);" v-if="!linkOnNote(file.fname)">
+                    <label style="color: var(--color-text-soft);" v-if="!linkOnNote(file.fname) && !isSpecialMiscFile(file.fname)">
                         (no-ref)
                     </label>
                 </div>
