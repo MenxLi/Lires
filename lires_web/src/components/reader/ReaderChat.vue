@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, watch } from 'vue';
+import { ref, computed, nextTick, watch } from 'vue';
 import { DataPoint } from '../../core/dataClass';
 import { chatStorage, type ChatMessage, type ChatSession } from '../../utils/chatStorage';
 import { AiHelper } from '../../utils/aiHelper';
 import { useUIStateStore, useSettingsStore } from '@/state/store';
+import { useChatStateStore } from '@/state/chatState';
 import { MdPreview } from 'md-editor-v3';
 import { ThemeMode } from '../../core/misc';
 
@@ -11,12 +12,24 @@ const props = defineProps<{
     datapoint: DataPoint
 }>();
 
-const messages = ref<ChatMessage[]>([]);
-const currentSession = ref<ChatSession | null>(null);
-const allSessions = ref<ChatSession[]>([]);
-const userInput = ref('');
-const enableSearch = ref(false);
-const isLoading = ref(false);
+const chatStore = useChatStateStore();
+const activeState = computed(
+    () => {
+        const uid = props.datapoint.uid;
+        if (!chatStore.chatStates[uid]) {
+            chatStore.chatStates[uid] = {
+                messages: [],
+                currentSession: null,
+                allSessions: [],
+                userInput: '',
+                enableSearch: false,
+                isStreaming: false,
+            };
+        }
+        return chatStore.chatStates[uid];
+    }
+)
+
 const settingsStore = useSettingsStore();
 const messagesContainer = ref<HTMLElement | null>(null);
 const theme = ref(ThemeMode.isDarkMode()?'dark':'light' as 'dark'|'light')
@@ -48,38 +61,49 @@ const scrollToBottom = async (force = true) => {
 
 const loadChats = async (paperId: string) => {
     if (!paperId.trim()) return;
+    
+    // Ensure state exists (should be handled by computed/check, but for safety in async calls)
+    if (!chatStore.chatStates[paperId]) {
+         chatStore.chatStates[paperId] = {
+            messages: [], currentSession: null, allSessions: [],
+            userInput: '', enableSearch: false, isStreaming: false
+         };
+    }
+    const state = chatStore.chatStates[paperId];
+
     const data = await chatStorage.getPaperChats(paperId);
     if (data) {
-        allSessions.value = data.sessions.sort((a, b) => b.updatedAt - a.updatedAt);
+        state.allSessions = data.sessions.sort((a, b) => b.updatedAt - a.updatedAt);
         if (data.currentSessionId) {
-            const sess = allSessions.value.find(s => s.id === data.currentSessionId);
+            const sess = state.allSessions.find(s => s.id === data.currentSessionId);
             if (sess) {
-                currentSession.value = sess;
-                messages.value = sess.messages;
-                scrollToBottom();
+                state.currentSession = sess;
+                state.messages = sess.messages;
+                if (paperId === props.datapoint.uid) scrollToBottom();
                 return;
             }
         }
     } else {
-        allSessions.value = [];
+        state.allSessions = [];
     }
-    // If no session exists or was found, create a new one
     await createNewSession(paperId);
 };
 
 const createNewSession = async (paperId: string) => {
     if (!paperId.trim()) return;
+    const state = chatStore.chatStates[paperId];
+    if (!state) return;
+
     const newSession: ChatSession = {
         id: crypto.randomUUID(),
-        title: `Chat ${allSessions.value.length + 1}`,
+        title: `Chat ${state.allSessions.length + 1}`,
         messages: [],
         updatedAt: Date.now()
     };
 
-    // Update local state immediately to separate UI from storage sync
-    allSessions.value.unshift(newSession);
-    currentSession.value = newSession;
-    messages.value = newSession.messages;
+    state.allSessions.unshift(newSession);
+    state.currentSession = newSession;
+    state.messages = newSession.messages;
 
     try{
         await chatStorage.saveSession(paperId, JSON.parse(JSON.stringify(newSession)));
@@ -90,11 +114,11 @@ const createNewSession = async (paperId: string) => {
 };
 
 const switchSession = async (sessionId: string) => {
-    const sess = allSessions.value.find(s => s.id === sessionId);
+    const state = activeState.value;
+    const sess = state.allSessions.find(s => s.id === sessionId);
     if (sess) {
-        currentSession.value = sess;
-        messages.value = sess.messages;
-        // Update current session in DB
+        state.currentSession = sess;
+        state.messages = sess.messages;
         const data = await chatStorage.getPaperChats(props.datapoint.uid);
         if (data) {
             data.currentSessionId = sessionId;
@@ -107,17 +131,20 @@ const switchSession = async (sessionId: string) => {
 const deleteSession = async (sessionId: string) => {
     if (!confirm('Delete this chat?')) return;
     await chatStorage.deleteSession(props.datapoint.uid, sessionId);
+    
+    // Invalidate local state to force reload or manually update
     await loadChats(props.datapoint.uid);
 };
 
 const renameCurrentSession = async () => {
-    if (!currentSession.value) return;
-    const newTitle = prompt('Rename Chat:', currentSession.value.title);
+    const state = activeState.value;
+    if (!state.currentSession) return;
+    const newTitle = prompt('Rename Chat:', state.currentSession.title);
     if (!newTitle) return;
     const text = newTitle.trim();
-    if (text && text !== currentSession.value.title) {
-        currentSession.value.title = text;
-        await chatStorage.saveSession(props.datapoint.uid, JSON.parse(JSON.stringify(currentSession.value)));
+    if (text && text !== state.currentSession.title) {
+        state.currentSession.title = text;
+        await chatStorage.saveSession(props.datapoint.uid, JSON.parse(JSON.stringify(state.currentSession)));
     }
 };
 
@@ -151,14 +178,17 @@ const getFileID = async (fileIdFromStorage: string | null): Promise<string> => {
 };
 
 const sendMessage = async () => {
-    if (!userInput.value.trim()) return;
+    const targetUid = props.datapoint.uid;
+    const thisState = () => chatStore.chatStates[targetUid];
+    
+    if (!thisState().userInput.trim()) return;
     if (!settingsStore.openaiApiKey) {
         useUIStateStore().showPopup('Please set OpenAI API Key in settings', 'alert');
         return;
     }
 
-    const content = userInput.value;
-    userInput.value = '';
+    const content = thisState().userInput;
+    thisState().userInput = '';
     
     // Add user message
     const userMsg: ChatMessage = { 
@@ -167,80 +197,76 @@ const sendMessage = async () => {
         content, 
         timestamp: Date.now() 
     };
-    messages.value.push(userMsg);
-    isLoading.value = true;
-    scrollToBottom();
+    thisState().messages.push(userMsg);
+    thisState().isStreaming = true;
+    if (props.datapoint.uid === targetUid) scrollToBottom();
 
     try {
-        // Load session to check for file ID
-        const paperData = await chatStorage.getPaperChats(props.datapoint.uid);
+        const paperData = await chatStorage.getPaperChats(targetUid);
         let fileId = paperData?.fileId || null;
 
         if (!fileId) {
             fileId = await getFileID(fileId);
-            // Save fileId immediately
-            await chatStorage.savePaperChats(props.datapoint.uid, { fileId });
+            await chatStorage.savePaperChats(targetUid, { fileId });
         }
 
         const systemPrompt = `fileid://${fileId}`;
+        const history = thisState().messages.map(m => ({ role: m.role as any, content: m.content }));
         
-        // Prepare history for API (including current user message)
-        const history = messages.value.map(m => ({ role: m.role as any, content: m.content }));
-        
-        // Create a placeholder for AI response
         const aiMsg: ChatMessage = { 
             id: crypto.randomUUID(),
             role: 'assistant', 
             content: '', 
             timestamp: Date.now() 
         };
-        const msgIdx = messages.value.push(aiMsg) - 1;
+        const msgIdx = thisState().messages.push(aiMsg) - 1;
         
-        const stream = aiHelper.streamChat(history, settingsStore.openaiModelName, systemPrompt, enableSearch.value);
+        const stream = aiHelper.streamChat(history, settingsStore.openaiModelName, systemPrompt, thisState().enableSearch);
 
         for await (const chunk of stream) {
-            messages.value[msgIdx].content += chunk;
-            scrollToBottom(false);
+            thisState().messages[msgIdx].content += chunk;
+            if (props.datapoint.uid === targetUid) scrollToBottom(false);
         }
 
-        // Save session after complete
-        if (currentSession.value) {
-            currentSession.value.messages = messages.value; // No need to deep clone here, store handles it
-            currentSession.value.updatedAt = Date.now();
-            await chatStorage.saveSession(props.datapoint.uid, currentSession.value);
+        if (thisState().currentSession) {
+            const current = thisState().currentSession!;
+            current.messages = thisState().messages;
+            current.updatedAt = Date.now();
+            await chatStorage.saveSession(targetUid, current);
         }
 
     } catch (error: any) {
         console.error("Chat error:", error);
-        messages.value.push({ 
+        thisState().messages.push({ 
             role: 'system', 
             content: `Error: ${error.message || 'Unknown error occurred'}`, 
             timestamp: Date.now() 
         });
         useUIStateStore().showPopup('Failed to get response from AI', 'error');
     } finally {
-        isLoading.value = false;
-        scrollToBottom();
+        thisState().isStreaming = false;
+        if (props.datapoint.uid === targetUid) scrollToBottom();
     }
 };
 
 const editMessage = async (msgIdx: number) => {
-    const msg = messages.value[msgIdx];
+    const state = activeState.value;
+    const msg = state.messages[msgIdx];
     if (msg.role !== 'user') return;
     
-    userInput.value = msg.content;
-    // Remove this message and all subsequent messages
-    messages.value = messages.value.slice(0, msgIdx);
-    // Focus input
+    state.userInput = msg.content;
+    state.messages = state.messages.slice(0, msgIdx);
 };
 
-onMounted(async () => {
-    await loadChats(props.datapoint.uid);
-});
-
+// Use immediate watch to load initial data instead of onMounted
 watch(() => props.datapoint.uid, async (newId) => {
+    if (!newId.trim()) return;
+    if (
+        activeState.value?.currentSession && 
+        activeState.value?.isStreaming 
+    ) { return; }
     await loadChats(newId);
-});
+}, { immediate: true });
 
 </script>
 
@@ -249,28 +275,28 @@ watch(() => props.datapoint.uid, async (newId) => {
         <div class="chat-header">
             <div class="session-controls">
                 <select 
-                    v-if="allSessions.length > 0" 
-                    :value="currentSession?.id" 
+                    v-if="activeState?.allSessions.length > 0" 
+                    :value="activeState?.currentSession?.id" 
                     @change="(e) => switchSession((e.target as HTMLSelectElement).value)"
                     class="session-select"
                 >
-                    <option v-for="sess in allSessions" :key="sess.id" :value="sess.id">
+                    <option v-for="sess in activeState?.allSessions" :key="sess.id" :value="sess.id">
                         {{ sess.title }} ({{ new Date(sess.updatedAt).toLocaleDateString() }})
                     </option>
                 </select>
                 <div class="header-btns">
                     <button class="icon-btn" @click="createNewSession(datapoint.uid)" title="New Chat" style="opacity: 1;">➕</button>
-                    <button class="icon-btn" @click="renameCurrentSession" title="Rename Chat" :disabled="!currentSession">✎</button>
-                    <button class="icon-btn" @click="currentSession && deleteSession(currentSession.id)" title="Delete Chat" :disabled="!currentSession">🗑️</button>
+                    <button class="icon-btn" @click="renameCurrentSession" title="Rename Chat" :disabled="!activeState?.currentSession">✎</button>
+                    <button class="icon-btn" @click="activeState?.currentSession && deleteSession(activeState.currentSession.id)" title="Delete Chat" :disabled="!activeState?.currentSession">🗑️</button>
                 </div>
             </div>
         </div>
 
         <div class="messages" ref="messagesContainer" @scroll="handleScroll">
-            <div v-if="messages.length === 0" class="empty-state">
+            <div v-if="activeState?.messages.length === 0" class="empty-state">
                 Ask questions about the paper...
             </div>
-            <div v-for="(msg, idx) in messages" :key="idx" :class="['message-row', msg.role]">
+            <div v-for="(msg, idx) in activeState?.messages" :key="idx" :class="['message-row', msg.role]">
                 <div :class="['message', msg.role]">
                     <div class="msg-content">
                         <MdPreview v-if="msg.role === 'assistant'" :modelValue="msg.content" :editorId="'preview-' + idx" :theme="theme"/>
@@ -283,7 +309,7 @@ watch(() => props.datapoint.uid, async (newId) => {
                     </div>
                 </div>
             </div>
-            <div v-if="isLoading && messages[messages.length-1]?.role !== 'assistant'" class="loading-indicator">
+            <div v-if="activeState?.isStreaming && activeState?.messages[activeState?.messages.length-1]?.role !== 'assistant'" class="loading-indicator">
                 AI is thinking...
             </div>
         </div>
@@ -291,18 +317,19 @@ watch(() => props.datapoint.uid, async (newId) => {
         <div class="input-area">
             <div class="input-options">
                 <label class="checkbox-label">
-                    <input type="checkbox" v-model="enableSearch">
+                    <input type="checkbox" v-model="activeState.enableSearch" :true-value="true" :false-value="false" v-if="activeState">
                     <span>Enable Search</span>
                 </label>
             </div>
             <div class="input-row">
                 <textarea 
-                    v-model="userInput" 
+                    v-if="activeState"
+                    v-model="activeState.userInput" 
                     @keydown.enter.exact.prevent="sendMessage"
                     placeholder="Ask about this paper (Ctrl+Enter to newline)..."
-                    :disabled="isLoading"
+                    :disabled="activeState.isStreaming"
                 ></textarea>
-                <button @click="sendMessage" :disabled="isLoading || !userInput.trim()">Send</button>
+                <button v-if="activeState" @click="sendMessage" :disabled="activeState.isStreaming || !activeState.userInput.trim()">Send</button>
             </div>
         </div>
     </div>
