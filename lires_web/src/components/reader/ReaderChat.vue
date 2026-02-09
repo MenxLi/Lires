@@ -5,7 +5,6 @@ import { chatStorage, type ChatMessage, type ChatSession } from '../../utils/cha
 import { AiHelper } from '../../utils/aiHelper';
 import { useUIStateStore, useSettingsStore } from '@/state/store';
 import { MdPreview } from 'md-editor-v3';
-import 'md-editor-v3/lib/style.css';
 import { ThemeMode } from '../../core/misc';
 
 const props = defineProps<{
@@ -357,13 +356,11 @@ watch(() => props.datapoint.uid, async (newId) => {
 .message-row.system { justify-content: center; }
 
 .message {
-    max-width: 85%;
-    padding: 10px 14px;
+    max-width: 95%;
+    padding: 10px 12px;
     border-radius: 12px;
-    line-height: 1.5;
+    line-height: 1;
     word-break: normal;
-    overflow-wrap: break-word;
-    white-space: pre-wrap;
     position: relative;
     text-align: left; /* Ensure text internal alignment is left for readability */
 }
@@ -376,10 +373,9 @@ watch(() => props.datapoint.uid, async (newId) => {
 }
 
 .message.assistant {
-    background-color: var(--color-background, #fff);
-    border: 1px solid var(--color-border, #eee);
+    background-color: var(--color-pure);
+    border: 1px solid var(--color-border);
     border-bottom-left-radius: 2px;
-    color: var(--color-text, #333);
 }
 
 .message.system {
