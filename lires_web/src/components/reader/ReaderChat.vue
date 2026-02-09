@@ -110,6 +110,17 @@ const deleteSession = async (sessionId: string) => {
     await loadChats(props.datapoint.uid);
 };
 
+const renameCurrentSession = async () => {
+    if (!currentSession.value) return;
+    const newTitle = prompt('Rename Chat:', currentSession.value.title);
+    if (!newTitle) return;
+    const text = newTitle.trim();
+    if (text && text !== currentSession.value.title) {
+        currentSession.value.title = text;
+        await chatStorage.saveSession(props.datapoint.uid, JSON.parse(JSON.stringify(currentSession.value)));
+    }
+};
+
 // Handle file upload and getting fileID
 const getFileID = async (fileIdFromStorage: string | null): Promise<string> => {
     if (fileIdFromStorage) return fileIdFromStorage;
@@ -249,6 +260,7 @@ watch(() => props.datapoint.uid, async (newId) => {
                 </select>
                 <div class="header-btns">
                     <button class="icon-btn" @click="createNewSession(datapoint.uid)" title="New Chat" style="opacity: 1;">➕</button>
+                    <button class="icon-btn" @click="renameCurrentSession" title="Rename Chat" :disabled="!currentSession">✎</button>
                     <button class="icon-btn" @click="currentSession && deleteSession(currentSession.id)" title="Delete Chat" :disabled="!currentSession">🗑️</button>
                 </div>
             </div>
