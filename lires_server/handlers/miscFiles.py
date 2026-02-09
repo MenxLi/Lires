@@ -114,12 +114,15 @@ class MiscFileHandler(RequestHandlerBase):
 
         fname = self.get_argument("fname")
         new_fname = self.get_argument("dst_fname")
+        overwrite = self.get_argument("overwrite", "false").lower() == "true"
+
         fpath = os.path.join(dp.fm.get_misc_dir(), fname)
         if not os.path.exists(fpath):
             raise tornado.web.HTTPError(404, reason="File not found")
         new_fpath = os.path.join(dp.fm.get_misc_dir(), new_fname)
         if os.path.exists(new_fpath):
-            raise tornado.web.HTTPError(409, reason="File already exists")
+            if overwrite: os.remove(new_fpath)
+            else: raise tornado.web.HTTPError(409, reason="File already exists")
         
         os.rename(fpath, new_fpath)
         await self.logger.info(f"Renamed misc file {fpath} to {new_fpath}")

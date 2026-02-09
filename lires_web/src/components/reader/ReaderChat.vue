@@ -73,8 +73,18 @@ const createNewSession = async (paperId: string) => {
         messages: [],
         updatedAt: Date.now()
     };
-    await chatStorage.saveSession(paperId, JSON.parse(JSON.stringify(newSession)));
-    await loadChats(paperId);
+
+    // Update local state immediately to separate UI from storage sync
+    allSessions.value.unshift(newSession);
+    currentSession.value = newSession;
+    messages.value = newSession.messages;
+
+    try{
+        await chatStorage.saveSession(paperId, JSON.parse(JSON.stringify(newSession)));
+    } catch (error) {
+        useUIStateStore().showPopup('Failed to create new chat session', 'error');
+        console.error("Error creating new chat session:", error);
+    }
 };
 
 const switchSession = async (sessionId: string) => {

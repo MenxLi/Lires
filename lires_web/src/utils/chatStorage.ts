@@ -1,17 +1,16 @@
+import { useConnectionStore } from '../state/store';
 
-const DB_NAME = 'LiresChatDB';
-const DB_VERSION = 2; // Upgraded version
-const STORE_NAME = 'chats';
+const CHAT_FILENAME = 'chat_history.json';
 
 export interface ChatMessage {
-    id?: string; // Add optional ID for editing tracking
+    id?: string;
     role: 'system' | 'user' | 'assistant';
     content: string;
     timestamp: number;
 }
 
 export interface ChatSession {
-    id: string; // Unique session ID
+    id: string;
     title: string;
     messages: ChatMessage[];
     updatedAt: number;
@@ -25,98 +24,39 @@ export interface PaperChatData {
 }
 
 export class ChatStorage {
-    private dbPromise: Promise<IDBDatabase>;
-
-    constructor() {
-        this.dbPromise = new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-            request.onerror = (event) => {
-                console.error("IndexedDB error:", event);
-                reject("Database error: " + (event.target as IDBOpenDBRequest).error);
-            };
-
-            request.onsuccess = (event) => {
-                resolve((event.target as IDBOpenDBRequest).result);
-            };
-
-            request.onupgradeneeded = (event) => {
-                const db = (event.target as IDBOpenDBRequest).result;
-                const transaction = (event.target as IDBOpenDBRequest).transaction!;
-                
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME, { keyPath: "paperId" });
-                } else {
-                    // Migration from V1 to V2
-                    // Old data: { paperId, messages, fileId, updatedAt }
-                    // New data: { paperId, fileId, currentSessionId, sessions: [{id, title, messages, updatedAt}] }
-                    
-                    const store = transaction.objectStore(STORE_NAME);
-                    const cursorRequest = store.openCursor();
-                    
-                    cursorRequest.onsuccess = (e) => {
-                        const cursor = (e.target as IDBRequest).result;
-                        if (cursor) {
-                            const oldData = cursor.value;
-                            // Check if it's already migrated (has sessions array)
-                            if (!Array.isArray(oldData.sessions)) {
-                                const newSession: ChatSession = {
-                                    id: Date.now().toString(),
-                                    title: 'Original Chat',
-                                    messages: oldData.messages || [],
-                                    updatedAt: oldData.updatedAt || Date.now()
-                                };
-                                
-                                const newData: PaperChatData = {
-                                    paperId: oldData.paperId,
-                                    fileId: oldData.fileId || null,
-                                    currentSessionId: newSession.id,
-                                    sessions: [newSession]
-                                };
-                                cursor.update(newData);
-                            }
-                            cursor.continue();
-                        }
-                    };
-                }
-            };
-        });
+    
+    private get conn() {
+        return useConnectionStore().conn;
     }
-
-    async getPaperChats(paperId: string): Promise<PaperChatData | undefined> {
-        const db = await this.dbPromise;
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction([STORE_NAME], "readonly");
-            const objectStore = transaction.objectStore(STORE_NAME);
-            const request = objectStore.get(paperId);
-
-            request.onsuccess = (event) => {
-                resolve((event.target as IDBRequest).result);
-            };
-
-            request.onerror = (event) => {
-                reject((event.target as IDBRequest).error);
-            };
-        });
-    }
-
 
     private sanitize<T>(data: T): T {
         return JSON.parse(JSON.stringify(data));
     }
 
+    async getPaperChats(paperId: string): Promise<PaperChatData | undefined> {
+        try {
+            const encodedFname = encodeURIComponent(CHAT_FILENAME);
+            const response = await this.conn.fetcher.get(`/misc/${paperId}?fname=${encodedFname}`);
+            
+            if (!response.ok) return undefined;
+            return await response.json();
+        } catch (e) {
+            // Ignore 404 or other errors, return undefined implies no history found
+            return undefined;
+        }
+    }
+
     async savePaperChats(paperId: string, data: Partial<PaperChatData>) {
-        const db = await this.dbPromise;
-        // Merge with existing
         const existing = await this.getPaperChats(paperId);
         
+        // Merge strategy: update fields, preserve others
         let newData: PaperChatData;
         
         if (existing) {
             newData = {
                 ...existing,
                 ...data,
-                paperId // ensure ID
+                paperId
             };
         } else {
             newData = {
@@ -127,17 +67,17 @@ export class ChatStorage {
             };
         }
         
-        // Sanitize to remove Proxies before saving
+        // Sanitize and serialize
         const plainData = this.sanitize(newData);
-
-        return new Promise<void>((resolve, reject) => {
-            const transaction = db.transaction([STORE_NAME], "readwrite");
-            const objectStore = transaction.objectStore(STORE_NAME);
-            const request = objectStore.put(plainData);
-
-            request.onsuccess = () => resolve();
-            request.onerror = (event) => reject((event.target as IDBRequest).error);
-        });
+        const file = new File(
+            [JSON.stringify(plainData)], 
+            CHAT_FILENAME, 
+            { type: "application/json" }
+        );
+        
+        // the fname is randomly generated by the server, need a rename
+        const fname = await this.conn.uploadMiscFiles(paperId, [file]);
+        await this.conn.renameMiscFile(paperId, fname[0], CHAT_FILENAME, true);
     }
     
     async saveSession(paperId: string, session: ChatSession) {
@@ -171,14 +111,12 @@ export class ChatStorage {
         return this.savePaperChats(paperId, data);
     }
 
-    // Legacy method support if needed, or remove
+    // Compatibility wrapper
     async getSession(paperId: string) {
-        // Compatibility wrapper
         const data = await this.getPaperChats(paperId);
         if (data && data.currentSessionId) {
             const sess = data.sessions.find(s => s.id === data.currentSessionId);
             if (sess) {
-                // Return structure similar to old interface but with fileId
                 return {
                     messages: sess.messages,
                     fileId: data.fileId,
@@ -186,7 +124,6 @@ export class ChatStorage {
                 };
             }
         }
-        // Return empty or new session like structure
         return undefined;
     }
 }
