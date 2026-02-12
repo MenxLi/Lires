@@ -8,10 +8,8 @@
     import LoadingPopout from '../common/LoadingPopout.vue';
 
     interface DataCardsStatus{
-        // datapoints: DataPoint[],
         uids: string[],
         unfoldedIds?: string[] | null,
-        hoveredIds?: string[] | null,
         scores?: Record<string, number|string> | null,
         compact?: boolean,
     }
@@ -19,7 +17,6 @@
     // MUST USE V_MODEL TO PASS unfoldedIds !!
     const props = withDefaults(defineProps<DataCardsStatus>(), {
         unfoldedIds: null,
-        hoveredIds: null,
         scores: null,
         compact: true,
     })
@@ -27,7 +24,6 @@
     const emits = defineEmits<{
         (e: "update:datapoints", v: DataPoint[]): void,
         (e: "update:unfoldedIds", v: string[]): void,
-        (e: "update:hoveredIds", v: string[]): void,
     }>();
 
     // pass props
@@ -42,23 +38,6 @@
             else { emits("update:unfoldedIds", v)}
         }
     });
-
-    const __default_hoveredIds = ref([] as string[]);
-    const hoveredIds = computed({
-        get: ()=>{
-            if (props.hoveredIds == null){ return __default_hoveredIds.value; }
-            else { return props.hoveredIds }
-        },
-        set: (v)=>{
-            if (props.hoveredIds == null){ __default_hoveredIds.value = v; }
-            else { emits("update:hoveredIds", v)}
-        }
-    });
-
-    // const datapoints = computed({
-    //     get: ()=>props.datapoints,
-    //     set: (v)=>emits("update:datapoints", v)}
-    // )
 
     const datacardContainer = ref(null as HTMLDivElement | null);
     const pageIndicatorEditableParagrah = ref(null as any | null);
@@ -139,7 +118,7 @@
     <div id="datacard-container-main">
         <div id="datacard-container" :style="{gap: compact?'0px':'5px'}" ref="datacardContainer" @scroll="onScroll" class="scrollable">
             <FileRow :datapoint="(dp as DataPoint)" v-for="dp, idx in displayDatapoints" 
-                    v-model:unfolded-ids="unfoldedIds" v-model:hovered-ids="hoveredIds"
+                    v-model:unfolded-ids="unfoldedIds"
                     :line_number="idx" :compact="compact">
                 <label class="relatedArticleScore" v-if="props.scores != null && props.scores[dp.summary.uuid] != null">
                     {{ props.scores[dp.summary.uuid] }}

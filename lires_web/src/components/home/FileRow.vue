@@ -17,17 +17,13 @@
     const props = withDefaults(defineProps<{
         datapoint: DataPoint
         unfoldedIds: string[]     // global unfoldedIds from DataCardContainer
-        hoveredIds: string[]      // global hoveredIds from DataCardContainer
         line_number?: number
-        // compact?: boolean
     }>(), {
         line_number: 0,
-        // compact: false,
     })
 
     const emits = defineEmits<{
         (e: "update:unfoldedIds", v: string[]) : void
-        (e: "update:hoveredIds", v: string[]) : void
     }>()
 
     // mutable unfoldedIds
@@ -36,14 +32,7 @@
         set: (v)=>emits("update:unfoldedIds", v)}
     );
 
-    // mutable hoveredIds
-    const g_hoveredIds = computed({
-        get: ()=>props.hoveredIds,
-        set: (v)=>emits("update:hoveredIds", v)}
-    );
-
     // record if show more is toggled
-    // const showMore = ref(false);
     const showMore = computed(() => {
         return g_unfoldedIds.value.includes(props.datapoint.summary.uuid);
     })
@@ -122,19 +111,9 @@
 
     // fileRow Style
     const isDataCardHover = ref(false);
-    watch(isDataCardHover, (newVal) => {
-        if (newVal){
-            g_hoveredIds.value.push(props.datapoint.summary.uuid);
-        }
-        else{
-            g_hoveredIds.value = g_hoveredIds.value.filter(uid => uid !== props.datapoint.summary.uuid);
-        }
-        // console.log("hoveredIds: ", g_hoveredIds.value);
-    })
     const datacardBackgroundColor = computed(() => {
-        // if is hover
-        if (isDataCardHover.value){ return "var(--color-background-theme-highlight)"; }
-        //if is unfolded
+        // hover is handled using css override, so here only handle unfolded and zebra color
+        // if unfolded, apply theme color
         if (g_unfoldedIds.value.includes(props.datapoint.summary.uuid)){ return "var(--color-background-theme)"; }
         // else, apply zebra color
         if (props.line_number % 2 == 0){ return "var(--color-background-ssoft)"; }
@@ -299,6 +278,9 @@
         padding: 3px;
         padding-inline: 10px;
         width: 100%;
+    }
+    div#fileRow:hover {
+        background-color: var(--color-background-theme-highlight) !important;
     }
     div.text{
         padding: 0px;
