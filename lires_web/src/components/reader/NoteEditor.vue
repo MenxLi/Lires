@@ -224,10 +224,12 @@
                     'catalog',
                 ]"
             />
-            <MdPreview v-else :model-value="mdTextRender"
-                :theme=theme 
-                :preview-theme="'vuepress'"
-            />
+            <div v-else class="preview-pane">
+                <MdPreview :model-value="mdTextRender"
+                    :theme=theme 
+                    :preview-theme="'vuepress'"
+                />
+            </div>
             <div id="save-hint" v-if="!preview && saveHint">{{ saveHint }}</div>
         </div>
         <div style="padding-inline: 5px; padding-block: 0.5rem">
@@ -303,6 +305,7 @@ div#noteEditor {
     flex-direction: column;
     height: 100%;
     width: 100%;
+    min-height: 0;
 }
 div.editor {
     text-align: left;
@@ -313,13 +316,28 @@ div.editor {
     justify-content: center;
     position: relative;
     overflow: hidden;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
 }
 div.editor > * {
     flex: 1;
     width: 100%;
     height: 100%;
 }
+.preview-pane {
+    min-height: 0;
+    overflow-y: auto;
+}
+
+:deep(.md-editor-preview-wrapper) {
+    min-height: 100%;
+    height: auto;
+}
+
+:deep(.md-editor-preview) {
+    min-height: 100%;
+}
+
 div#save-hint {
     width: 100%;
     height: auto;

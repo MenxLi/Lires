@@ -182,6 +182,7 @@ iframe{
     height: 100%;
     width: 100%;
     background-color: var(--color-background);
+    min-height: 0;
 }
 .tab-header {
     display: flex;
@@ -216,9 +217,11 @@ iframe{
     flex: 1;
     overflow: hidden;
     position: relative;
+    min-height: 0;
 }
 .tab-body > :deep(*) {
     height: 100%;
     width: 100%;
+    min-height: 0;
 }
 </style>
