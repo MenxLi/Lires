@@ -173,7 +173,7 @@ class DataBase(DataCore):
             {
                 'name': 'doc_feature',
                 'dimension': 768,
-                'conent_type': 'TEXT'
+                'content_type': 'TEXT'
             },
         ]).init()
 

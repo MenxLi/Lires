@@ -8,7 +8,7 @@ export interface FrontMatterData {
     links?: Record<string, string>;
 }
 
-// parse raw markdown to mardown with proper html links
+// parse raw markdown to markdown with proper html links
 export function parseMarkdown(content: string, {
     router = null as null | Router,
     datapoint = null as null | DataPoint,

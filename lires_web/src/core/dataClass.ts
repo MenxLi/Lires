@@ -12,7 +12,7 @@ export class DataPoint {
 
     constructor(conn: ServerConn, summary: DataInfoT) {
         this.summary = summary;
-        // supplimentary information for this datapoint,
+        // supplementary information for this datapoint,
         // need to fetch from server
         // it is designed to be a lazy fetch to save bandwidth
         this.supp = {
@@ -301,20 +301,20 @@ export class DataBase {
     private dataInfoAcquireMutex = new Mutex();
 
     conn: ServerConn;
-    _initliazed: boolean;
+    _initialized: boolean;
 
     constructor(conn: ServerConn){
         // TODO: handle changes of the database from other clients
         this.cache = {}                         // a cache of all fetched data points
         this.uids = new Array();                // a set of all uids, fetched from server
         this.tags = new DataTags();             // all tags of the database, fetched from server
-        this._initliazed = false;
+        this._initialized = false;
 
         this.conn = conn;
     }
 
     get initialized(): boolean{
-        return this._initliazed;
+        return this._initialized;
     }
 
     async init(){
@@ -324,7 +324,7 @@ export class DataBase {
             this.updateTagCache()
         ])
         console.timeEnd("Get init data")
-        this._initliazed = true;
+        this._initialized = true;
         console.debug("Get init data of size: ", 
             (
                 (JSON.stringify(this.uids) + JSON.stringify(this.tags)).length
@@ -376,7 +376,7 @@ export class DataBase {
         this.cache = {}                         // a cache of all fetched data points
         this.uids = new Array();                // a set of all uids, fetched from server
         this.tags = new DataTags([]);           // all tags of the database, fetched from server
-        this._initliazed = false;
+        this._initialized = false;
     }
 
     async delete(uuid: string, syncTags = true){

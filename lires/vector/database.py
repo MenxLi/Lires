@@ -9,7 +9,7 @@ DB_MOD_LOCK = asyncio.Lock()
 class CollectionConfig(TypedDict):
     name: str
     dimension: int
-    conent_type: Literal["BLOB", "TEXT"]
+    content_type: Literal["BLOB", "TEXT"]
 
 ContentT = TypeVar("ContentT", str, bytes)
 class VectorEntry(TypedDict):
@@ -63,7 +63,7 @@ class VectorCollection(LiresBase, Generic[ContentT]):
                 "uid TEXT PRIMARY KEY, "\
                 "vector BLOB NOT NULL, "\
                 "group_name TEXT DEFAULT '', "\
-                f"content {self.config['conent_type']} DEFAULT '')"
+                f"content {self.config['content_type']} DEFAULT '')"
             await self.conn.execute(sql)
             await self.commit()
         return self
